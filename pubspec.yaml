@@ -1,0 +1,67 @@
+name: clean_architecture
+description: A comprehensive guide to building scalable and maintainable Flutter applications using Architecture patterns and design Principles.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  alice: ^1.0.0
+  alice_dio: ^1.0.6
+  auto_route: ^11.1.0
+  dio: ^5.8.0+1
+  encrypt: ^5.0.3
+  equatable: ^2.0.8
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_dotenv: ^6.0.0
+  flutter_hooks: ^0.21.2
+  flutter_sliding_toast: ^1.5.2
+  flutter_web_plugins:
+    sdk: flutter
+  get_it: ^9.1.0
+  http_parser: ^4.1.2
+  image_picker: ^1.2.1
+  injectable: ^2.7.1+4
+  internet_connection_checker_plus: ^2.9.1+2
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  auto_route_generator: ^10.4.0 
+  bloc_test: ^10.0.0
+  build_runner: ^2.10.4
+  flutter_test:
+    sdk: flutter
+  injectable_generator: ^2.9.1
+  integration_test:
+    sdk: flutter
+  leancode_lint: ^19.0.1
+  mocktail: ^1.0.4
+  patrol: ^4.1.0
+  patrol_finders: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - .env
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+
+    - family: AppIcon
+      fonts:
+        - asset: assets/icons/AppIcon.ttf
+
+patrol:
+  app_name: cleanArchitecture
+  flavor: development
+  android:
+    package_name: com.example.cleanArchitecture
+  ios:
+    bundle_id: com.example.cleanArchitecture

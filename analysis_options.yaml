@@ -1,0 +1,16 @@
+include: package:leancode_lint/analysis_options.yaml
+
+linter:
+  rules:
+    - always_use_package_imports
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - unnecessary_const
+    - sort_constructors_first
+    - avoid_void_async
+    - always_put_control_body_on_new_line
+    - prefer_single_quotes
+
+analyzer:
+  exclude:
+    - bricks**

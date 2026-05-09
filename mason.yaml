@@ -1,0 +1,5 @@
+bricks:
+ cubit_feature:
+    path: bricks/cubit_feature
+ cubit_page:
+    path: bricks/cubit_page

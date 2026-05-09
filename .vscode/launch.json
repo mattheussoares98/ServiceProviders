@@ -1,0 +1,102 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug-Windows",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": ["--target", "lib/main_dev.dart"],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Debug-Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Debug-Stg",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_stg.dart",
+      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Debug-Prod",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Profile-Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Profile-Stg",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_stg.dart",
+      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Profile-Prod",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Release-Dev",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "flutterMode": "release"
+    },
+    {
+      "name": "Release-Stg",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_stg.dart",
+      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "flutterMode": "release"
+    },
+    {
+      "name": "Release-Prod",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "flutterMode": "release"
+    },
+    {
+      "name": "Debug-Web (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "deviceId": "chrome",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Debug-Web (Chrome with CORS Disabled)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "deviceId": "chrome",
+      "flutterMode": "debug",
+      "args": ["--web-browser-flag=--disable-web-security"]
+    }
+  ]
+}
