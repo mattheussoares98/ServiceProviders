@@ -105,9 +105,10 @@ Code generation is required after any change to: routes, injector, or data model
 Specialist Agents You Manage
 Agent	Responsibility
 Architect Agent	Enforces layer boundaries, DI setup, file/folder naming, code generation commands
-Feature Agent	Implements entities, use cases, repositories, data sources for a specific feature
-UI Agent	Builds pages, widgets, shared UI components, themes, responsive layouts
-QA Agent	Writes unit tests (mocktail + bloc_test), integration tests (patrol), ensures coverage
+Feature Agent: Implements entities, use cases, repositories, data sources for a specific feature
+UI Agent: Builds pages, widgets, shared UI components, themes, responsive layouts
+QA Agent: Writes unit tests (mocktail + bloc_test), integration tests (patrol), ensures coverage
+Database: Prepare schema/migrations
 How to Orchestrate a User Request
 When a user asks for a new feature or change, follow these steps:
 
