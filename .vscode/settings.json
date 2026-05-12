@@ -8,6 +8,11 @@
     "pubspec",
     "rxdart"
   ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "always"
+  },
+  "editor.formatOnSave": true,
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
     "pubspec.yaml": ".flutter-plugins-dependencies, .flutter-plugins, .metadata, analysis_options.yaml, devtools_options.yaml, web_dev_config.yaml, pubspec.lock",
