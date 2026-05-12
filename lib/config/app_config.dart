@@ -25,8 +25,7 @@ final class AppConfigProd extends AppConfig {
   AppConfigProd()
     : super(
         appTitle: 'Clean Architecture App',
-        apiBaseUrl:
-            dotenv.maybeGet('BASE_PRODUCTION') ?? 'https://development.com.np/',
+        apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.production,
       );
 }
@@ -36,8 +35,7 @@ final class AppConfigStg extends AppConfig {
   AppConfigStg()
     : super(
         appTitle: 'Clean Architecture App Staging',
-        apiBaseUrl:
-            dotenv.maybeGet('BASE_STAGING') ?? 'https://development.com.np/',
+        apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.staging,
       );
 }
@@ -47,9 +45,7 @@ final class AppConfigDev extends AppConfig {
   AppConfigDev()
     : super(
         appTitle: 'Clean Architecture App Development',
-        apiBaseUrl:
-            dotenv.maybeGet('BASE_DEVELOPMENT') ??
-            'https://development.com.np/',
+        apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.development,
       );
 }

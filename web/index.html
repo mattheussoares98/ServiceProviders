@@ -33,6 +33,27 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBEfG3IQJc_K-ggfUbYnOrYlC-HBBd-R-4",
+      authDomain: "serviceproviders-733e7.firebaseapp.com",
+      projectId: "serviceproviders-733e7",
+      storageBucket: "serviceproviders-733e7.firebasestorage.app",
+      messagingSenderId: "738276498188",
+      appId: "1:738276498188:web:2c6d8a095a5da838f8c729",
+      measurementId: "G-LPHDNNE2G4"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
