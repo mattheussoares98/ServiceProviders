@@ -14,6 +14,8 @@
   },
   "editor.formatOnSave": true,
   "explorer.fileNesting.enabled": true,
+  "dart.previewFlutterUiGuides": true,
+  "editor.stickyScroll.enabled": true,
   "explorer.fileNesting.patterns": {
     "pubspec.yaml": ".flutter-plugins-dependencies, .flutter-plugins, .metadata, analysis_options.yaml, devtools_options.yaml, web_dev_config.yaml, pubspec.lock",
     "mason.yaml": "config.json, mason-lock.json",
