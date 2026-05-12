@@ -1,4 +1,4 @@
-package com.example.cleanArchitecture
+package com.servicepro.connect
 
 import io.flutter.embedding.android.FlutterActivity
 

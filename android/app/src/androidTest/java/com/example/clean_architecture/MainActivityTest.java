@@ -1,4 +1,4 @@
-package com.example.cleanArchitecture;
+package com.servicepro.connect;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;

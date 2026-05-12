@@ -69,6 +69,6 @@ patrol:
   app_name: cleanArchitecture
   flavor: development
   android:
-    package_name: com.example.cleanArchitecture
+    package_name: com.servicepro.connect
   ios:
-    bundle_id: com.example.cleanArchitecture
+    bundle_id: com.servicepro.connect
