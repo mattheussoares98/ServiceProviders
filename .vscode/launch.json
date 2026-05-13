@@ -2,11 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Dart: Run all Tests",
+      "type": "dart",
+      "request": "launch",
+      "program": "./test/"
+    },
+    {
       "name": "Debug-Windows",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_dev.dart",
-      "args": ["--target", "lib/main_dev.dart"],
+      "args": [
+        "--target",
+        "lib/main_dev.dart"
+      ],
       "flutterMode": "debug"
     },
     {
@@ -14,7 +23,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_dev.dart",
-      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_dev.dart"
+      ],
       "flutterMode": "debug"
     },
     {
@@ -22,7 +36,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_stg.dart",
-      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "args": [
+        "--flavor",
+        "staging",
+        "--target",
+        "lib/main_stg.dart"
+      ],
       "flutterMode": "debug"
     },
     {
@@ -30,7 +49,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "args": [
+        "--flavor",
+        "production",
+        "--target",
+        "lib/main.dart"
+      ],
       "flutterMode": "debug"
     },
     {
@@ -38,7 +62,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_dev.dart",
-      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_dev.dart"
+      ],
       "flutterMode": "profile"
     },
     {
@@ -46,7 +75,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_stg.dart",
-      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "args": [
+        "--flavor",
+        "staging",
+        "--target",
+        "lib/main_stg.dart"
+      ],
       "flutterMode": "profile"
     },
     {
@@ -54,7 +88,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "args": [
+        "--flavor",
+        "production",
+        "--target",
+        "lib/main.dart"
+      ],
       "flutterMode": "profile"
     },
     {
@@ -62,7 +101,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_dev.dart",
-      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"],
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_dev.dart"
+      ],
       "flutterMode": "release"
     },
     {
@@ -70,7 +114,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_stg.dart",
-      "args": ["--flavor", "staging", "--target", "lib/main_stg.dart"],
+      "args": [
+        "--flavor",
+        "staging",
+        "--target",
+        "lib/main_stg.dart"
+      ],
       "flutterMode": "release"
     },
     {
@@ -78,7 +127,12 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "args": ["--flavor", "production", "--target", "lib/main.dart"],
+      "args": [
+        "--flavor",
+        "production",
+        "--target",
+        "lib/main.dart"
+      ],
       "flutterMode": "release"
     },
     {
@@ -96,7 +150,9 @@
       "program": "lib/main_dev.dart",
       "deviceId": "chrome",
       "flutterMode": "debug",
-      "args": ["--web-browser-flag=--disable-web-security"]
+      "args": [
+        "--web-browser-flag=--disable-web-security"
+      ]
     }
   ]
 }
