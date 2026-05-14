@@ -1,8 +1,8 @@
 import 'package:clean_architecture/core/constants/api_endpoints.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -23,7 +23,7 @@ void main() {
   });
 
   group('login', () {
-    const tAuthenticationRequest = AuthenticationRequest(
+    const tAuthenticationRequest = AuthenticationModel(
       username: 'test',
       password: 'password',
     );
@@ -69,7 +69,7 @@ void main() {
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
-        expect(result, isA<SuccessState<UserDataResponse>>());
+        expect(result, isA<SuccessState<UserDataResponseModel>>());
         expect(result.data, isNotNull);
         expect(result.data!.user.id, 1);
         expect(result.data!.accessToken, 'access');
@@ -112,7 +112,7 @@ void main() {
       final result = await dataSource.login(tAuthenticationRequest);
 
       // Assert
-      expect(result, isA<FailureState<UserDataResponse>>());
+      expect(result, isA<FailureState<UserDataResponseModel>>());
     });
 
     test(
@@ -135,7 +135,7 @@ void main() {
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
-        expect(result, isA<FailureState<UserDataResponse>>());
+        expect(result, isA<FailureState<UserDataResponseModel>>());
       },
     );
   });

@@ -4,9 +4,9 @@ import 'package:clean_architecture/core/domain/entities/user_data.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -25,21 +25,21 @@ final class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
 
   @override
-  FutureData<UserData> login(Authentication authentication) {
+  FutureData<UserDataEntity> login(AuthenticationEntity authentication) {
     return RepositoryHandler.fetchWithFallbackAndMap(
       isInternetConnected: _internet.isConnected,
       remoteCallback: () => _remoteDataSource.login(
-        AuthenticationRequest.fromEntity(authentication),
+        AuthenticationModel.fromEntity(authentication),
       ),
     );
   }
 
   @override
-  FutureBool saveUserData(UserData userData) =>
-      _localDataSource.saveUserData(UserDataResponse.fromEntity(userData));
+  FutureBool saveUserData(UserDataEntity userData) =>
+      _localDataSource.saveUserData(UserDataResponseModel.fromEntity(userData));
 
   @override
-  FutureData<UserData> getUserData() {
+  FutureData<UserDataEntity> getUserData() {
     return RepositoryHandler.fetchFromLocalAndMap(
       localCallback: _localDataSource.getUserData,
     );

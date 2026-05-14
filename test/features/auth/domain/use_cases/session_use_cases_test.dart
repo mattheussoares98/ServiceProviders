@@ -18,7 +18,7 @@ void main() {
     setSessionUseCase = SetSessionUseCase(mockSessionRepository);
   });
 
-  const userData = UserData(
+  const userData = UserDataEntity(
     user: User(
       id: 1,
       firstName: 'Test',

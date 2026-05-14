@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -49,7 +49,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     required String username,
     required String password,
   }) async {
-    final authentication = Authentication(
+    final authentication = AuthenticationEntity(
       username: username,
       password: password,
     );
@@ -72,7 +72,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     await Future<void>.delayed(const Duration(seconds: 2));
 
     final dataState = SuccessState(
-      data: UserData(
+      data: UserDataEntity(
         accessToken: 'access',
         refreshToken: 'refresh',
         user: User(

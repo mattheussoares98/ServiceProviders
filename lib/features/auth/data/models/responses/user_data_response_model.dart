@@ -1,31 +1,32 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/data/models/responses/user_response.dart';
+import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
 import 'package:equatable/equatable.dart';
 
-class UserDataResponse extends Equatable implements DataConvertible<UserData> {
-  const UserDataResponse({
+class UserDataResponseModel extends Equatable
+    implements DataConvertible<UserDataEntity> {
+  const UserDataResponseModel({
     required this.user,
     required this.accessToken,
     required this.refreshToken,
   });
 
-  factory UserDataResponse.fromJson(Map<String, dynamic> json) {
-    return UserDataResponse(
-      user: UserResponse.fromJson(json['user'] as Map<String, dynamic>? ?? {}),
+  factory UserDataResponseModel.fromJson(Map<String, dynamic> json) {
+    return UserDataResponseModel(
+      user: UserModel.fromJson(json['user'] as Map<String, dynamic>? ?? {}),
       accessToken: json['access'] as String? ?? '',
       refreshToken: json['refresh'] as String? ?? '',
     );
   }
 
-  factory UserDataResponse.fromEntity(UserData domain) {
-    return UserDataResponse(
-      user: UserResponse.fromEntity(domain.user),
+  factory UserDataResponseModel.fromEntity(UserDataEntity domain) {
+    return UserDataResponseModel(
+      user: UserModel.fromEntity(domain.user),
       accessToken: domain.accessToken,
       refreshToken: domain.refreshToken,
     );
   }
-  final UserResponse user;
+  final UserModel user;
   final String accessToken;
   final String refreshToken;
 
@@ -37,8 +38,8 @@ class UserDataResponse extends Equatable implements DataConvertible<UserData> {
   };
 
   @override
-  UserData toEntity() {
-    return UserData(
+  UserDataEntity toEntity() {
+    return UserDataEntity(
       user: user.toEntity(),
       accessToken: accessToken,
       refreshToken: refreshToken,

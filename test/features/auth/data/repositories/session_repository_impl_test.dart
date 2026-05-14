@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/data/models/responses/user_response.dart';
+import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -18,8 +18,8 @@ void main() {
     );
   });
 
-  const userDataResponse = UserDataResponse(
-    user: UserResponse(
+  const userDataResponse = UserDataResponseModel(
+    user: UserModel(
       id: 1,
       firstName: 'Test',
       lastName: 'User',
@@ -67,7 +67,10 @@ void main() {
           // Assert
           verify(() => mockSessionLocalDataSource.getUserData()).called(1);
           expect(sessionRepository.isLoggedIn, isFalse);
-          expect(sessionRepository.userData, equals(const UserData.empty()));
+          expect(
+            sessionRepository.userData,
+            equals(const UserDataEntity.empty()),
+          );
         },
       );
     });
@@ -88,7 +91,10 @@ void main() {
         // Assert
         verify(() => mockSessionLocalDataSource.clearUserData()).called(1);
         expect(sessionRepository.isLoggedIn, isFalse);
-        expect(sessionRepository.userData, equals(const UserData.empty()));
+        expect(
+          sessionRepository.userData,
+          equals(const UserDataEntity.empty()),
+        );
       });
     });
 

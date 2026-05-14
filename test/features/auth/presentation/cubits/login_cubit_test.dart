@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
@@ -30,10 +30,10 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockNavigationClient mockNavigationClient;
   late LoginCubit loginCubit;
-  late UserData userData;
+  late UserDataEntity userData;
 
   setUpAll(() {
-    userData = const UserData(
+    userData = const UserDataEntity(
       user: User(
         id: 0,
         firstName: '',
@@ -45,7 +45,9 @@ void main() {
       accessToken: '',
       refreshToken: '',
     );
-    registerFallbackValue(const Authentication(username: '', password: ''));
+    registerFallbackValue(
+      const AuthenticationEntity(username: '', password: ''),
+    );
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
   });

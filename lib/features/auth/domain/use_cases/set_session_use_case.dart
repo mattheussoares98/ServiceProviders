@@ -7,5 +7,6 @@ class SetSessionUseCase {
   SetSessionUseCase(this._sessionRepository);
   final SessionRepository _sessionRepository;
 
-  void call(UserData userData) => _sessionRepository.setUserData = userData;
+  void call(UserDataEntity userData) =>
+      _sessionRepository.setUserData = userData;
 }

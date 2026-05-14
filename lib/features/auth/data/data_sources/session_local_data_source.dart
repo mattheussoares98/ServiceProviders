@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
 import 'package:clean_architecture/core/constants/local_db_keys.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class SessionLocalDataSource {
-  Future<UserDataResponse?> getUserData();
+  Future<UserDataResponseModel?> getUserData();
 
-  Future<void> saveUserData(UserDataResponse userData);
+  Future<void> saveUserData(UserDataResponseModel userData);
 
   Future<void> clearUserData();
 }
@@ -19,12 +19,12 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   final LocalStorageClient _localStorageClient;
 
   @override
-  Future<UserDataResponse?> getUserData() async {
+  Future<UserDataResponseModel?> getUserData() async {
     final stored = _localStorageClient.getString(LocalDbKeys.userData);
     if (stored != null && stored.isNotEmpty) {
       try {
         final map = jsonDecode(stored) as Map<String, dynamic>;
-        return UserDataResponse.fromJson(map);
+        return UserDataResponseModel.fromJson(map);
       } catch (_) {
         return null;
       }
@@ -33,7 +33,7 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   }
 
   @override
-  Future<void> saveUserData(UserDataResponse userData) async {
+  Future<void> saveUserData(UserDataResponseModel userData) async {
     await _localStorageClient.setString(
       LocalDbKeys.userData,
       jsonEncode(userData.toJson()),

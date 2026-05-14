@@ -11,16 +11,16 @@ final class SessionRepositoryImpl implements SessionRepository {
 
   final SessionLocalDataSource _localDataSource;
 
-  UserData _userData = const UserData.empty();
+  UserDataEntity _userData = const UserDataEntity.empty();
 
   @override
   bool get isLoggedIn => _userData.accessToken.isNotEmpty;
 
   @override
-  UserData get userData => _userData;
+  UserDataEntity get userData => _userData;
 
   @override
-  set setUserData(UserData model) => _userData = model;
+  set setUserData(UserDataEntity model) => _userData = model;
 
   /// Check user's logged in credentials and store it before starting the app
   @override
@@ -33,7 +33,7 @@ final class SessionRepositoryImpl implements SessionRepository {
 
   @override
   void clearSessionData() {
-    _userData = const UserData.empty();
+    _userData = const UserDataEntity.empty();
     _localDataSource.clearUserData();
   }
 }

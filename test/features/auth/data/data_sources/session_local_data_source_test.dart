@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:clean_architecture/core/constants/local_db_keys.dart';
-import 'package:clean_architecture/core/data/models/responses/user_response.dart';
+import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -18,8 +18,8 @@ void main() {
     sessionLocalDataSource = SessionLocalDataSourceImpl(mockLocalStorageClient);
   });
 
-  const userDataResponse = UserDataResponse(
-    user: UserResponse(
+  const userDataResponse = UserDataResponseModel(
+    user: UserModel(
       id: 1,
       firstName: 'Test',
       lastName: 'User',

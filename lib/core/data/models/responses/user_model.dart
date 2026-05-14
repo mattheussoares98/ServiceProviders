@@ -2,8 +2,8 @@ import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:equatable/equatable.dart';
 
-class UserResponse extends Equatable implements DataConvertible<User> {
-  const UserResponse({
+class UserModel extends Equatable implements DataConvertible<User> {
+  const UserModel({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -12,8 +12,8 @@ class UserResponse extends Equatable implements DataConvertible<User> {
     required this.isActive,
   });
 
-  factory UserResponse.fromJson(Map<String, dynamic> json) {
-    return UserResponse(
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
       id: json['id'] as int? ?? 0,
       firstName: json['first_name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
@@ -23,8 +23,8 @@ class UserResponse extends Equatable implements DataConvertible<User> {
     );
   }
 
-  factory UserResponse.fromEntity(User user) {
-    return UserResponse(
+  factory UserModel.fromEntity(User user) {
+    return UserModel(
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,

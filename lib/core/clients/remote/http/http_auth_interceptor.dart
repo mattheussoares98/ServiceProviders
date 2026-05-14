@@ -22,12 +22,12 @@ interface class HttpAuthInterceptor extends Interceptor {
   /// token is expired, each requests are retried after refreshing token
   final List<DioRequestData> _pendingRequests = [];
 
-  UserDataResponse? get _userData {
+  UserDataResponseModel? get _userData {
     final stored = _localStorageClient.getString(LocalDbKeys.userData);
     if (stored != null && stored.isNotEmpty) {
       try {
         final map = jsonDecode(stored) as Map<String, dynamic>;
-        return UserDataResponse.fromJson(map);
+        return UserDataResponseModel.fromJson(map);
       } catch (_) {
         return null;
       }
@@ -100,7 +100,9 @@ interface class HttpAuthInterceptor extends Interceptor {
         return false;
       }
 
-      final request = RefreshTokenRequest(refreshToken: userData.refreshToken);
+      final request = RefreshTokenRequestModel(
+        refreshToken: userData.refreshToken,
+      );
       final response = await _dio.post<dynamic>(
         ApiEndpoints.refreshToken,
         data: request.toJson(),

@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/data/models/responses/user_response.dart';
+import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -29,12 +29,12 @@ void main() {
     );
 
     registerFallbackValue(
-      const AuthenticationRequest(username: '', password: ''),
+      const AuthenticationModel(username: '', password: ''),
     );
-    registerFallbackValue(const UserData.empty());
+    registerFallbackValue(const UserDataEntity.empty());
     registerFallbackValue(
-      const UserDataResponse(
-        user: UserResponse(
+      const UserDataResponseModel(
+        user: UserModel(
           id: 1,
           firstName: '',
           lastName: '',
@@ -49,7 +49,7 @@ void main() {
   });
 
   // Test data
-  const tAuthentication = Authentication(
+  const tAuthentication = AuthenticationEntity(
     username: 'test',
     password: 'password',
   );
@@ -62,14 +62,14 @@ void main() {
     email: 'test@example.com',
     isActive: true,
   );
-  const tUserData = UserData(
+  const tUserData = UserDataEntity(
     user: tUser,
     accessToken: 'access',
     refreshToken: 'refresh',
   );
 
   // Build DTO from domain test data (not const because fromEntity is not const)
-  final tUserDataModel = UserDataResponse.fromEntity(tUserData);
+  final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
 
   group('login', () {
     test(
@@ -85,7 +85,7 @@ void main() {
         final result = await repository.login(tAuthentication);
 
         // Assert
-        expect(result, isA<SuccessState<UserData>>());
+        expect(result, isA<SuccessState<UserDataEntity>>());
         // repository maps DTO -> domain, so expect domain UserData
         expect(result.data, tUserData);
         verify(() => mockInternetClient.isConnected).called(1);
@@ -106,7 +106,7 @@ void main() {
         final result = await repository.login(tAuthentication);
 
         // Assert
-        expect(result, isA<FailureState<UserData>>());
+        expect(result, isA<FailureState<UserDataEntity>>());
         expect(result.error, kNoInternet);
         verify(() => mockInternetClient.isConnected).called(1);
         verifyNoMoreInteractions(mockInternetClient);
@@ -154,7 +154,7 @@ void main() {
         final result = await repository.getUserData();
 
         // Assert
-        expect(result, isA<SuccessState<UserData>>());
+        expect(result, isA<SuccessState<UserDataEntity>>());
         // local DTO should be mapped to domain UserData
         expect(result.data, tUserData);
         verify(() => mockAuthLocalDataSource.getUserData()).called(1);

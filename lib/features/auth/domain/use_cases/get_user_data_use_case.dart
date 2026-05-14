@@ -5,11 +5,11 @@ import 'package:clean_architecture/features/auth/domain/repositories/auth_reposi
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetUserDataUseCase implements UseCaseNoParameter<UserData> {
+class GetUserDataUseCase implements UseCaseNoParameter<UserDataEntity> {
   GetUserDataUseCase({required AuthRepository authRepository})
     : _authRepository = authRepository;
   final AuthRepository _authRepository;
 
   @override
-  FutureData<UserData> call() => _authRepository.getUserData();
+  FutureData<UserDataEntity> call() => _authRepository.getUserData();
 }

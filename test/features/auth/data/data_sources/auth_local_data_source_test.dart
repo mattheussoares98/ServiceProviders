@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:clean_architecture/core/data/models/responses/user_response.dart';
+import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -20,7 +20,7 @@ void main() {
 
   const tStorageKey = 'userData';
 
-  const userModel = UserResponse(
+  const userModel = UserModel(
     id: 1,
     firstName: 'Test',
     lastName: 'User',
@@ -30,7 +30,7 @@ void main() {
   );
 
   // Assuming UserDataModel has a constructor like this and a toJson method.
-  const tUserDataModel = UserDataResponse(
+  const tUserDataModel = UserDataResponseModel(
     user: userModel,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -91,7 +91,7 @@ void main() {
         final result = await dataSource.getUserData();
 
         // Assert
-        expect(result, isA<SuccessState<UserDataResponse>>());
+        expect(result, isA<SuccessState<UserDataResponseModel>>());
         expect(result.data, isNotNull);
         expect(result.data!.user.id, userModel.id);
         expect(result.data!.accessToken, 'access');
@@ -109,7 +109,7 @@ void main() {
       final result = await dataSource.getUserData();
 
       // Assert
-      expect(result, isA<FailureState<UserDataResponse>>());
+      expect(result, isA<FailureState<UserDataResponseModel>>());
     });
 
     test(
@@ -125,7 +125,7 @@ void main() {
         final result = await dataSource.getUserData();
 
         // Assert
-        expect(result, isA<FailureState<UserDataResponse>>());
+        expect(result, isA<FailureState<UserDataResponseModel>>());
       },
     );
   });
