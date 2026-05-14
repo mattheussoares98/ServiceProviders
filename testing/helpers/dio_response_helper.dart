@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/data/models/domain_convertible.dart';
+import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:dio/dio.dart';
 
 Response<dynamic> getResponse({
@@ -31,10 +31,15 @@ DioException getDioException({
   type: DioExceptionType.badResponse,
 );
 
-class FakeDto implements DomainConvertible<String> {
+class FakeDto implements DataConvertible<String> {
   FakeDto(this.value);
   final int value;
 
   @override
-  String toDomain() => 'Mapped: $value';
+  String toEntity() => 'Mapped: $value';
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {'value': value};
+  }
 }

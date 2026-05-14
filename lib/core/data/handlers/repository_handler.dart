@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/data/models/domain_convertible.dart';
+import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 
@@ -29,9 +29,9 @@ abstract final class RepositoryHandler {
   }
 
   /// Fetches a DTO from remote/local and maps it to a domain model.
-  /// Expects the DTO type [T] to implement [DomainConvertible].
+  /// Expects the DTO type [T] to implement [DataConvertible].
   static FutureData<R>
-  fetchWithFallbackAndMap<T extends DomainConvertible<R>, R>({
+  fetchWithFallbackAndMap<T extends DataConvertible<R>, R>({
     required bool isInternetConnected,
     required FutureData<T> Function() remoteCallback,
     void Function(T data)? onRemoteSuccess,
@@ -45,13 +45,13 @@ abstract final class RepositoryHandler {
     );
 
     // Transform the DataState containing the DTO (T) to Domain Model (R)
-    return dtoState.mapData((dto) => dto.toDomain());
+    return dtoState.mapData((dto) => dto.toEntity());
   }
 
   /// Fetches a list of DTOs from remote/local and maps them to domain models.
-  /// Expects [T] to implement [DomainConvertible].
+  /// Expects [T] to implement [DataConvertible].
   static FutureList<R>
-  fetchWithFallbackAndMapList<T extends DomainConvertible<R>, R>({
+  fetchWithFallbackAndMapList<T extends DataConvertible<R>, R>({
     required bool isInternetConnected,
     required FutureList<T> Function() remoteCallback,
     void Function(List<T> data)? onRemoteSuccess,
@@ -64,24 +64,24 @@ abstract final class RepositoryHandler {
       localCallback: localCallback,
     );
 
-    return dtoState.mapData((list) => list.map((e) => e.toDomain()).toList());
+    return dtoState.mapData((list) => list.map((e) => e.toEntity()).toList());
   }
 
   /// Fetches a DTO from local storage and maps it to a domain model.
-  static FutureData<R> fetchFromLocalAndMap<T extends DomainConvertible<R>, R>({
+  static FutureData<R> fetchFromLocalAndMap<T extends DataConvertible<R>, R>({
     required FutureData<T> Function() localCallback,
   }) async {
     // Error handling is expected to be implemented within the localCallback.
     final dtoState = await localCallback();
-    return dtoState.mapData((dto) => dto.toDomain());
+    return dtoState.mapData((dto) => dto.toEntity());
   }
 
   /// Fetches a list of DTOs from local storage and maps them to domain models.
   static FutureList<R> fetchFromLocalAndMapList<
-    T extends DomainConvertible<R>,
+    T extends DataConvertible<R>,
     R
   >({required FutureList<T> Function() localCallback}) async {
     final dtoState = await localCallback();
-    return dtoState.mapData((list) => list.map((e) => e.toDomain()).toList());
+    return dtoState.mapData((list) => list.map((e) => e.toEntity()).toList());
   }
 }

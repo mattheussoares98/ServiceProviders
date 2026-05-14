@@ -1,14 +1,19 @@
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/data/models/domain_convertible.dart';
+import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeDto implements DomainConvertible<String> {
+class FakeDto implements DataConvertible<String> {
   const FakeDto(this.value);
   final int value;
 
   @override
-  String toDomain() => 'Mapped: $value';
+  String toEntity() => 'Mapped: $value';
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {'value': value};
+  }
 }
 
 void main() {

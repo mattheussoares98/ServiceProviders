@@ -19,7 +19,7 @@ final class AuthRepositoryImpl implements AuthRepository {
   }) : _localDataSource = localDataSource,
        _remoteDataSource = remoteDataSource,
        _internet = internet;
-       
+
   final InternetClient _internet;
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
@@ -29,14 +29,14 @@ final class AuthRepositoryImpl implements AuthRepository {
     return RepositoryHandler.fetchWithFallbackAndMap(
       isInternetConnected: _internet.isConnected,
       remoteCallback: () => _remoteDataSource.login(
-        AuthenticationRequest.fromDomain(authentication),
+        AuthenticationRequest.fromEntity(authentication),
       ),
     );
   }
 
   @override
   FutureBool saveUserData(UserData userData) =>
-      _localDataSource.saveUserData(UserDataResponse.fromDomain(userData));
+      _localDataSource.saveUserData(UserDataResponse.fromEntity(userData));
 
   @override
   FutureData<UserData> getUserData() {

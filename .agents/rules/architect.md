@@ -158,7 +158,7 @@ final class AuthRepositoryImpl implements AuthRepository {
   @override
   FutureData<UserData> login(Authentication auth) => RepositoryHandler.fetchWithFallbackAndMap(
     isInternetConnected: _internet.isConnected,
-    remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromDomain(auth)),
+    remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromEntity(auth)),
   );
 }
 ```

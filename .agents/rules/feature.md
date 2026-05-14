@@ -95,13 +95,13 @@ class LogOutUseCase {
 
 ### 4. Request Model
 - Lives in `data/models/requests/`
-- Plain class with `toJson()` and a `fromDomain(Entity)` factory
+- Plain class with `toJson()` and a `fromEntity(Entity)` factory
 - No DI annotations
 
 ```dart
 class AuthenticationRequest {
   const AuthenticationRequest({required this.username, required this.password});
-  factory AuthenticationRequest.fromDomain(Authentication domain) =>
+  factory AuthenticationRequest.fromEntity(Authentication domain) =>
       AuthenticationRequest(username: domain.username, password: domain.password);
   final String username;
   final String password;
@@ -112,7 +112,7 @@ class AuthenticationRequest {
 ### 5. Response Model
 - Lives in `data/models/responses/`
 - Extends `Equatable`, implements `DomainConvertible<Entity>`
-- Must have `fromJson(MapDynamic)`, `toJson()`, `fromDomain(Entity)`, and `toDomain()`
+- Must have `fromJson(MapDynamic)`, `toJson()`, `fromEntity(Entity)`, and `toEntity()`
 
 ```dart
 class UserDataResponse extends Equatable implements DomainConvertible<UserData> {
@@ -121,12 +121,12 @@ class UserDataResponse extends Equatable implements DomainConvertible<UserData> 
     accessToken: json['access'] as String? ?? '',
     refreshToken: json['refresh'] as String? ?? '',
   );
-  factory UserDataResponse.fromDomain(UserData domain) =>
+  factory UserDataResponse.fromEntity(UserData domain) =>
       UserDataResponse(accessToken: domain.accessToken, refreshToken: domain.refreshToken);
   final String accessToken;
   final String refreshToken;
   MapDynamic toJson() => {'access': accessToken, 'refresh': refreshToken};
-  @override UserData toDomain() => UserData(accessToken: accessToken, refreshToken: refreshToken);
+  @override UserData toEntity() => UserData(accessToken: accessToken, refreshToken: refreshToken);
   @override List<Object?> get props => [accessToken, refreshToken];
 }
 ```
@@ -198,7 +198,7 @@ final class AuthRepositoryImpl implements AuthRepository {
   FutureData<UserData> login(Authentication auth) =>
       RepositoryHandler.fetchWithFallbackAndMap(
         isInternetConnected: _internet.isConnected,
-        remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromDomain(auth)),
+        remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromEntity(auth)),
       );
 
   @override

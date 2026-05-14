@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/models/domain_convertible.dart';
+import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:equatable/equatable.dart';
 
-class UserResponse extends Equatable implements DomainConvertible<User> {
+class UserResponse extends Equatable implements DataConvertible<User> {
   const UserResponse({
     required this.id,
     required this.firstName,
@@ -23,7 +23,7 @@ class UserResponse extends Equatable implements DomainConvertible<User> {
     );
   }
 
-  factory UserResponse.fromDomain(User user) {
+  factory UserResponse.fromEntity(User user) {
     return UserResponse(
       id: user.id,
       firstName: user.firstName,
@@ -40,6 +40,7 @@ class UserResponse extends Equatable implements DomainConvertible<User> {
   final String email;
   final bool isActive;
 
+  @override
   Map<String, dynamic> toJson() => {
     'id': id,
     'first_name': firstName,
@@ -50,7 +51,7 @@ class UserResponse extends Equatable implements DomainConvertible<User> {
   };
 
   @override
-  User toDomain() {
+  User toEntity() {
     return User(
       id: id,
       firstName: firstName,

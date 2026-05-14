@@ -15,7 +15,7 @@ class {{name.pascalCase()}}Response implements DomainConvertible<{{name.pascalCa
 
 
   @override
-  {{name.pascalCase()}} toDomain() {
+  {{name.pascalCase()}} toEntity() {
     return {{name.pascalCase()}}(
       {{#variables}}
       {{name.camelCase()}}: {{name.camelCase()}},

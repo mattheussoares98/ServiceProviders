@@ -27,7 +27,7 @@ final class SessionRepositoryImpl implements SessionRepository {
   Future<void> checkForUserCredential() async {
     final response = await _localDataSource.getUserData();
     if (response != null) {
-      _userData = response.toDomain();
+      _userData = response.toEntity();
     }
   }
 

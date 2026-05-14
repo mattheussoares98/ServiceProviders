@@ -66,7 +66,7 @@ abstract final class ErrorHandler {
       _debugError('Http Response: ${exception.response}');
       _debugError(exception, stackTrace);
       return _handleDioException<T>(exception);
-    } 
+    }
     // on FirebaseAuthException catch (exception, stackTrace) {
     //   _debugError(exception, stackTrace);
     //   return _handleFirebaseAuthException<T>(exception);

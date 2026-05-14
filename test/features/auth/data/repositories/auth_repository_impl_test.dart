@@ -68,8 +68,8 @@ void main() {
     refreshToken: 'refresh',
   );
 
-  // Build DTO from domain test data (not const because fromDomain is not const)
-  final tUserDataModel = UserDataResponse.fromDomain(tUserData);
+  // Build DTO from domain test data (not const because fromEntity is not const)
+  final tUserDataModel = UserDataResponse.fromEntity(tUserData);
 
   group('login', () {
     test(

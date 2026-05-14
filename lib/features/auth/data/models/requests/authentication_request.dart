@@ -3,7 +3,7 @@ import 'package:clean_architecture/features/auth/domain/entities/authentication.
 class AuthenticationRequest {
   const AuthenticationRequest({required this.username, required this.password});
 
-  factory AuthenticationRequest.fromDomain(Authentication authentication) =>
+  factory AuthenticationRequest.fromEntity(Authentication authentication) =>
       AuthenticationRequest(
         username: authentication.username,
         password: authentication.password,
