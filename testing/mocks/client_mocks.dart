@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockHttpClient extends Mock implements HttpClient {}
 
@@ -13,3 +14,5 @@ class MockInternetClient extends Mock implements InternetClient {}
 class MockLocalStorageClient extends Mock implements LocalStorageClient {}
 
 class MockNavigationClient extends Mock implements NavigationClient {}
+
+class MockAuthResponse extends Mock implements AuthResponse {}

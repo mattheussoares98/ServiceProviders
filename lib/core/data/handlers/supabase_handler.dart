@@ -1,0 +1,21 @@
+import 'package:clean_architecture/core/data/handlers/error_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
+
+abstract final class SupabaseHandler {
+  /// Executes a Supabase Auth operation and returns a [DataState].
+  static FutureData<T> authCall<T>(Future<T> Function() request) {
+    return ErrorHandler.execute(() async {
+      final result = await request();
+      return SuccessState(data: result);
+    });
+  }
+
+  /// Executes a Supabase Auth operation that returns void.
+  static FutureVoid voidAuthCall(Future<void> Function() request) {
+    return ErrorHandler.execute(() async {
+      await request();
+      return SuccessState.nil;
+    });
+  }
+}

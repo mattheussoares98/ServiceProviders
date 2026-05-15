@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/auth/domain/entities/authentication_
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
@@ -29,13 +30,14 @@ void main() {
   late MockLogOutUseCase mockLogOutUseCase;
   late MockSessionRepository mockSessionRepository;
   late MockNavigationClient mockNavigationClient;
+  late MockResetPasswordUseCase mockResetPasswordUseCase;
   late LoginCubit loginCubit;
   late UserDataEntity userData;
 
   setUpAll(() {
     userData = const UserDataEntity(
       user: User(
-        id: 0,
+        id: '',
         firstName: '',
         lastName: '',
         username: '',
@@ -59,6 +61,7 @@ void main() {
     mockLogOutUseCase = MockLogOutUseCase();
     mockSessionRepository = MockSessionRepository();
     mockNavigationClient = MockNavigationClient();
+    mockResetPasswordUseCase = MockResetPasswordUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -66,13 +69,15 @@ void main() {
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<LogOutUseCase>(mockLogOutUseCase)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
-      ..registerSingleton<NavigationClient>(mockNavigationClient);
+      ..registerSingleton<NavigationClient>(mockNavigationClient)
+      ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase);
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
       saveUserData: mockSaveUserDataUseCase,
       setSession: mockSetSessionUseCase,
       logOut: mockLogOutUseCase,
+      resetPassword: GetIt.I<ResetPasswordUseCase>(),
     );
     loginCubit = LoginCubit(useCases: useCases);
   });

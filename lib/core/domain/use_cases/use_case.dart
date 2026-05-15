@@ -7,3 +7,11 @@ abstract interface class UseCase<T, P extends Object?> {
 abstract interface class UseCaseNoParameter<T> {
   FutureData<T> call();
 }
+
+abstract interface class UseCaseSynchronous<T, P extends Object?> {
+  T call(P request);
+}
+
+abstract interface class UseCaseSynchronousNoParameter<T> {
+  T call();
+}

@@ -21,7 +21,7 @@ void main() {
   const tStorageKey = 'userData';
 
   const userModel = UserModel(
-    id: 1,
+    id: '1',
     firstName: 'Test',
     lastName: 'User',
     username: 'test user',

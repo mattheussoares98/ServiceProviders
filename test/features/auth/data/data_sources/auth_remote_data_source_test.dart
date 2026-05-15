@@ -1,189 +1,160 @@
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:dio/dio.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../testing/mocks/client_mocks.dart';
-
-// A mock for Options is needed for `captureAny` with mocktail
-class MockOptions extends Mock implements Options {}
+import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
-  late MockHttpClient mockHttpClient;
+  late MockSupabaseAuthClient mockSupabaseAuthClient;
   late AuthRemoteDataSourceImpl dataSource;
+  late AuthResponse fakeAuthResponse;
 
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = AuthRemoteDataSourceImpl(dioClient: mockHttpClient);
-    registerFallbackValue(MockOptions());
+    mockSupabaseAuthClient = MockSupabaseAuthClient();
+    dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
+    fakeAuthResponse = AuthResponse(
+      user: User(
+        id: 'uu',
+        appMetadata: {},
+        userMetadata: {},
+        aud: faker.randomGenerator.string(5),
+        createdAt: faker.date.dateTime().toIso8601String(),
+      ),
+    );
   });
 
   group('login', () {
     const tAuthenticationRequest = AuthenticationModel(
-      username: 'test',
+      username: 'test@example.com',
       password: 'password',
     );
 
-    // Assuming AuthenticationRequest has a toJson method like this
-    final tAuthenticationRequestJson = tAuthenticationRequest.toJson();
-
-    final tSuccessResponseJson = {
-      'data': {
-        'user': {
-          'id': 1,
-          'first_name': 'Test',
-          'last_name': 'User',
-          'username': 'test user',
-          'email': 'test@example.com',
-          'is_active': true,
-        },
-        'access': 'access',
-        'refresh': 'refresh',
-      },
-      'message': 'Login successful',
-    };
-
     test(
-      'should return SuccessState with UserDataModel when API call is successful (200)',
+      'should return SuccessState with UserDataResponseModel when Supabase login is successful',
       () async {
         // Arrange
         when(
-          () => mockHttpClient.post<dynamic>(
-            any(),
-            data: any(named: 'data'),
-            options: any(named: 'options'),
+          () => mockSupabaseAuthClient.signInWithPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
           ),
-        ).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.login),
-            data: tSuccessResponseJson,
-            statusCode: 200,
-          ),
-        );
+        ).thenAnswer((_) async => fakeAuthResponse);
 
         // Act
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
         expect(result, isA<SuccessState<UserDataResponseModel>>());
-        expect(result.data, isNotNull);
-        expect(result.data!.user.id, 1);
-        expect(result.data!.accessToken, 'access');
-        expect(result.data!.refreshToken, 'refresh');
+        expect(
+          result.data,
+          UserDataResponseModel.fromSupabase(fakeAuthResponse),
+        );
 
-        final captured = verify(
-          () => mockHttpClient.post<dynamic>(
-            ApiEndpoints.login,
-            data: captureAny(named: 'data'),
-            options: captureAny(named: 'options'),
+        verify(
+          () => mockSupabaseAuthClient.signInWithPassword(
+            email: tAuthenticationRequest.username,
+            password: tAuthenticationRequest.password,
           ),
-        ).captured;
-
-        expect(captured[0], tAuthenticationRequestJson);
-        final options = captured[1] as Options;
-        expect(options.validateStatus!(200), isTrue);
-        expect(options.validateStatus!(400), isTrue);
+        ).called(1);
       },
     );
 
-    test('should return FailureState when API returns 400', () async {
-      // Arrange
-      // This response is missing the 'data' key, which DataHandler will flag as an error.
-      final tErrorResponseJson = {'message': 'Invalid credentials'};
-      when(
-        () => mockHttpClient.post<dynamic>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-        ),
-      ).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.login),
-          data: tErrorResponseJson,
-          statusCode: 400,
-        ),
-      );
-
-      // Act
-      final result = await dataSource.login(tAuthenticationRequest);
-
-      // Assert
-      expect(result, isA<FailureState<UserDataResponseModel>>());
-    });
-
     test(
-      'should return FailureState when API call throws a DioException',
+      'should return FailureState when Supabase throws AuthException',
       () async {
         // Arrange
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ApiEndpoints.login),
-          message: 'Connection failed',
+        const exception = AuthException(
+          'Invalid credentials',
+          code: 'invalid_credentials',
         );
+
         when(
-          () => mockHttpClient.post<dynamic>(
-            any(),
-            data: any(named: 'data'),
-            options: any(named: 'options'),
+          () => mockSupabaseAuthClient.signInWithPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
           ),
-        ).thenThrow(dioException);
+        ).thenThrow(exception);
 
         // Act
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
         expect(result, isA<FailureState<UserDataResponseModel>>());
+        final failure = result as FailureState<UserDataResponseModel>;
+        expect(failure.message, isNotEmpty);
       },
     );
   });
 
+  group('resetPassword', () {
+    test('should return SuccessState when reset email is sent', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.resetPasswordForEmail(any()),
+      ).thenAnswer((_) async {});
+
+      // Act
+      final result = await dataSource.resetPassword('test@example.com');
+
+      // Assert
+      expect(result, isA<SuccessState<void>>());
+      verify(
+        () => mockSupabaseAuthClient.resetPasswordForEmail('test@example.com'),
+      ).called(1);
+    });
+
+    test('should return FailureState when reset fails', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.resetPasswordForEmail(any()),
+      ).thenThrow(const AuthException('Error sending email'));
+
+      // Act
+      final result = await dataSource.resetPassword('test@example.com');
+
+      // Assert
+      expect(result, isA<FailureState<void>>());
+    });
+  });
+
   group('checkAuth', () {
-    test(
-      'should return SuccessState with true when API call is successful',
-      () async {
-        // Arrange
-        when(() => mockHttpClient.get<dynamic>(any())).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.checkAuth),
-            data: {
-              'data': {'ab': true},
-              'message': 'Authenticated',
-            },
-            statusCode: 200,
+    test('should return true when session is not null', () {
+      // Arrange
+      when(() => mockSupabaseAuthClient.currentSession).thenReturn(
+        Session(
+          accessToken: faker.randomGenerator.string(10),
+          tokenType: faker.randomGenerator.string(10),
+          user: User(
+            id: faker.guid.guid(),
+            appMetadata: {},
+            userMetadata: {},
+            aud: faker.randomGenerator.string(10),
+            createdAt: faker.date.dateTime().toIso8601String(),
           ),
-        );
+        ),
+      );
 
-        // Act
-        final result = await dataSource.checkAUth();
+      // Act
+      final result = dataSource.checkAuth();
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(
-          () => mockHttpClient.get<dynamic>(ApiEndpoints.checkAuth),
-        ).called(1);
-      },
-    );
+      // Assert
+      expect(result, isTrue);
+    });
 
-    test(
-      'should return FailureState when API call throws a DioException',
-      () async {
-        // Arrange
-        final dioException = DioException(
-          requestOptions: RequestOptions(path: ApiEndpoints.checkAuth),
-          message: 'Not authenticated',
-        );
-        when(() => mockHttpClient.get<dynamic>(any())).thenThrow(dioException);
+    test('should return false when session is null', () {
+      // Arrange
+      when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
 
-        // Act
-        final result = await dataSource.checkAUth();
+      // Act
+      final result = dataSource.checkAuth();
 
-        // Assert
-        expect(result, isA<FailureState<bool>>());
-      },
-    );
+      // Assert
+      expect(result, isFalse);
+    });
   });
 }

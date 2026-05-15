@@ -20,7 +20,7 @@ void main() {
 
   const userDataResponse = UserDataResponseModel(
     user: UserModel(
-      id: 1,
+      id: '1',
       firstName: 'Test',
       lastName: 'User',
       username: 'testuser',

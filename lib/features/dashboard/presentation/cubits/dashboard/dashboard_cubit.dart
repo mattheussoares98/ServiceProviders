@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -44,7 +43,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
   }
 
   /// Check whether the token is expired or not
-  FutureBool verifyToken() => _useCases.checkAuthentication.call();
+  bool verifyToken() => _useCases.checkAuthentication.call();
 
   Future<void> logOut() async {
     _useCases.logOut();

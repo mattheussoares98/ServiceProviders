@@ -65,6 +65,11 @@ class LoginCubit extends BaseCubit<LoginState> {
     }
   }
 
+  Future<void> resetPassword(String email) async {
+    final dataState = await _useCases.resetPassword.call(email);
+    showDataStateToast(dataState);
+  }
+
   Future<void> fakeLogin({
     required String username,
     required String password,
@@ -76,7 +81,7 @@ class LoginCubit extends BaseCubit<LoginState> {
         accessToken: 'access',
         refreshToken: 'refresh',
         user: User(
-          id: 1,
+          id: 'fake-id',
           firstName: 'Flutter',
           lastName: 'Developers',
           username: username,
@@ -85,6 +90,7 @@ class LoginCubit extends BaseCubit<LoginState> {
         ),
       ),
     );
+
     _useCases.setSession.call(dataState.data!);
     if (_saveUserCredential) {
       await _useCases.saveUserData.call(dataState.data!);

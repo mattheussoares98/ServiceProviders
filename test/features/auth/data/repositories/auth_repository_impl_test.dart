@@ -35,7 +35,7 @@ void main() {
     registerFallbackValue(
       const UserDataResponseModel(
         user: UserModel(
-          id: 1,
+          id: '1',
           firstName: '',
           lastName: '',
           username: '',
@@ -55,7 +55,7 @@ void main() {
   );
 
   const tUser = User(
-    id: 1,
+    id: '1',
     firstName: 'Test',
     lastName: 'User',
     username: 'test user',
@@ -68,7 +68,7 @@ void main() {
     refreshToken: 'refresh',
   );
 
-  // Build DTO from domain test data (not const because fromEntity is not const)
+  // Build DTO from domain test data
   final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
 
   group('login', () {
@@ -86,7 +86,6 @@ void main() {
 
         // Assert
         expect(result, isA<SuccessState<UserDataEntity>>());
-        // repository maps DTO -> domain, so expect domain UserData
         expect(result.data, tUserData);
         verify(() => mockInternetClient.isConnected).called(1);
         verify(() => mockAuthRemoteDataSource.login(any())).called(1);
@@ -114,6 +113,24 @@ void main() {
         verifyZeroInteractions(mockAuthLocalDataSource);
       },
     );
+  });
+
+  group('resetPassword', () {
+    test('should call remoteDataSource.resetPassword', () async {
+      // Arrange
+      when(
+        () => mockAuthRemoteDataSource.resetPassword(any()),
+      ).thenAnswer((_) async => SuccessState.nil);
+
+      // Act
+      final result = await repository.resetPassword('test@example.com');
+
+      // Assert
+      expect(result, isA<SuccessState<void>>());
+      verify(
+        () => mockAuthRemoteDataSource.resetPassword('test@example.com'),
+      ).called(1);
+    });
   });
 
   group('saveUserData', () {
@@ -166,46 +183,32 @@ void main() {
   });
 
   group('checkAuth', () {
-    test(
-      'should call remoteDataSource.checkAUth when internet is connected and return its result',
-      () async {
-        // Arrange
-        when(() => mockInternetClient.isConnected).thenReturn(true);
-        when(
-          () => mockAuthRemoteDataSource.checkAUth(),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+    test('should call remoteDataSource.checkAuth and return its result', () {
+      // Arrange
+      when(() => mockAuthRemoteDataSource.checkAuth()).thenReturn(true);
 
-        // Act
-        final result = await repository.checkAuth();
+      // Act
+      final result = repository.checkAuth();
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, true);
-        verify(() => mockInternetClient.isConnected).called(1);
-        verify(() => mockAuthRemoteDataSource.checkAUth()).called(1);
-        verifyNoMoreInteractions(mockInternetClient);
-        verifyNoMoreInteractions(mockAuthRemoteDataSource);
-        verifyZeroInteractions(mockAuthLocalDataSource);
-      },
-    );
+      // Assert
+      expect(result, isTrue);
+      verify(() => mockAuthRemoteDataSource.checkAuth()).called(1);
+    });
+  });
 
-    test(
-      'should return FailureState.noInternet when internet is not connected',
-      () async {
-        // Arrange
-        when(() => mockInternetClient.isConnected).thenReturn(false);
+  group('removeUserData', () {
+    test('should call localDataSource.removeUserData', () async {
+      // Arrange
+      when(
+        () => mockAuthLocalDataSource.removeUserData(),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
-        final result = await repository.checkAuth();
+      // Act
+      final result = await repository.removeUserData();
 
-        // Assert
-        expect(result, isA<FailureState<bool>>());
-        expect(result.error, kNoInternet);
-        verify(() => mockInternetClient.isConnected).called(1);
-        verifyNoMoreInteractions(mockInternetClient);
-        verifyZeroInteractions(mockAuthRemoteDataSource);
-        verifyZeroInteractions(mockAuthLocalDataSource);
-      },
-    );
+      // Assert
+      expect(result, isA<SuccessState<bool>>());
+      verify(() => mockAuthLocalDataSource.removeUserData()).called(1);
+    });
   });
 }

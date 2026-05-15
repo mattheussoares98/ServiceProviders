@@ -4,8 +4,9 @@ import 'package:clean_architecture/features/auth/domain/entities/authentication_
 
 abstract interface class AuthRepository {
   FutureData<UserDataEntity> login(AuthenticationEntity authentication);
+  FutureVoid resetPassword(String email);
   FutureBool saveUserData(UserDataEntity userData);
   FutureData<UserDataEntity> getUserData();
-  FutureBool checkAuth();
+  bool checkAuth();
   FutureBool removeUserData();
 }

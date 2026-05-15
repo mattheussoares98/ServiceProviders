@@ -16,6 +16,10 @@ import 'package:clean_architecture/core/clients/remote/http/http_client.dart'
     as _i244;
 import 'package:clean_architecture/core/clients/remote/internet_client.dart'
     as _i9;
+import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart'
+    as _i432;
+import 'package:clean_architecture/core/clients/remote/supabase_module.dart'
+    as _i499;
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart'
     as _i322;
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart'
@@ -38,6 +42,8 @@ import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_ca
     as _i294;
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart'
     as _i68;
+import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart'
+    as _i701;
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart'
     as _i661;
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart'
@@ -61,6 +67,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
     as _i161;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
+import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
 const String _staging = 'staging';
 const String _development = 'development';
@@ -76,6 +83,7 @@ extension GetItInjectableX on _i174.GetIt {
     final localStorageClientModule = _$LocalStorageClientModule();
     final httpClientModule = _$HttpClientModule();
     final internetClientModule = _$InternetClientModule();
+    final supabaseModule = _$SupabaseModule();
     final navigationClientModule = _$NavigationClientModule();
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => localStorageClientModule.sharedPreferences,
@@ -90,6 +98,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i161.InternetConnection>(
       () => internetClientModule.internetConnection,
     );
+    gh.lazySingleton<_i454.SupabaseClient>(() => supabaseModule.supabaseClient);
+    gh.lazySingleton<_i454.GoTrueClient>(() => supabaseModule.supabaseAuth);
     gh.lazySingleton<_i671.AppRouter>(() => navigationClientModule.appRouter);
     gh.lazySingleton<_i389.NavigationClient>(
       () => _i389.NavigationClientImpl(appRouter: gh<_i671.AppRouter>()),
@@ -97,6 +107,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigStg(),
       registerFor: {_staging},
+    );
+    gh.lazySingleton<_i432.SupabaseAuthClient>(
+      () => _i432.SupabaseAuthClientImpl(gh<_i454.GoTrueClient>()),
     );
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigDev(),
@@ -124,6 +137,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i16.SessionLocalDataSource>(
       () => _i16.SessionLocalDataSourceImpl(gh<_i1009.LocalStorageClient>()),
     );
+    gh.lazySingleton<_i141.AuthRemoteDataSource>(
+      () => _i141.AuthRemoteDataSourceImpl(
+        supabaseAuth: gh<_i432.SupabaseAuthClient>(),
+      ),
+    );
     gh.lazySingleton<_i244.HttpClient>(
       () => _i244.HttpClientImpl(
         dio: gh<_i361.Dio>(),
@@ -133,8 +151,12 @@ extension GetItInjectableX on _i174.GetIt {
         addInterceptors: gh<bool>(),
       ),
     );
-    gh.lazySingleton<_i141.AuthRemoteDataSource>(
-      () => _i141.AuthRemoteDataSourceImpl(dioClient: gh<_i244.HttpClient>()),
+    gh.lazySingleton<_i1003.AuthRepository>(
+      () => _i526.AuthRepositoryImpl(
+        internet: gh<_i9.InternetClient>(),
+        remoteDataSource: gh<_i141.AuthRemoteDataSource>(),
+        localDataSource: gh<_i322.AuthLocalDataSource>(),
+      ),
     );
     gh.lazySingleton<_i150.SessionRepository>(
       () => _i943.SessionRepositoryImpl(
@@ -147,12 +169,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i636.SetSessionUseCase>(
       () => _i636.SetSessionUseCase(gh<_i150.SessionRepository>()),
     );
-    gh.lazySingleton<_i1003.AuthRepository>(
-      () => _i526.AuthRepositoryImpl(
-        internet: gh<_i9.InternetClient>(),
-        remoteDataSource: gh<_i141.AuthRemoteDataSource>(),
-        localDataSource: gh<_i322.AuthLocalDataSource>(),
-      ),
+    gh.lazySingleton<_i701.ResetPasswordUseCase>(
+      () => _i701.ResetPasswordUseCase(repository: gh<_i1003.AuthRepository>()),
     );
     gh.lazySingleton<_i481.CheckAuthenticationUseCase>(
       () => _i481.CheckAuthenticationUseCase(
@@ -183,6 +201,7 @@ extension GetItInjectableX on _i174.GetIt {
         saveUserData: gh<_i661.SaveUserDataUseCase>(),
         setSession: gh<_i636.SetSessionUseCase>(),
         logOut: gh<_i294.LogOutUseCase>(),
+        resetPassword: gh<_i701.ResetPasswordUseCase>(),
       ),
     );
     gh.factory<_i912.LoginCubit>(
@@ -200,5 +219,7 @@ class _$LocalStorageClientModule extends _i1009.LocalStorageClientModule {}
 class _$HttpClientModule extends _i244.HttpClientModule {}
 
 class _$InternetClientModule extends _i9.InternetClientModule {}
+
+class _$SupabaseModule extends _i499.SupabaseModule {}
 
 class _$NavigationClientModule extends _i389.NavigationClientModule {}

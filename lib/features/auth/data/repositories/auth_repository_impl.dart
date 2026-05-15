@@ -35,6 +35,10 @@ final class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  FutureVoid resetPassword(String email) =>
+      _remoteDataSource.resetPassword(email);
+
+  @override
   FutureBool saveUserData(UserDataEntity userData) =>
       _localDataSource.saveUserData(UserDataResponseModel.fromEntity(userData));
 
@@ -46,12 +50,7 @@ final class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  FutureBool checkAuth() {
-    return RepositoryHandler.fetchWithFallback(
-      isInternetConnected: _internet.isConnected,
-      remoteCallback: _remoteDataSource.checkAUth,
-    );
-  }
+  bool checkAuth() => _remoteDataSource.checkAuth();
 
   @override
   FutureBool removeUserData() => _localDataSource.removeUserData();

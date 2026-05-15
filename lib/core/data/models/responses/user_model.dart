@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:equatable/equatable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserModel extends Equatable implements DataConvertible<User> {
   const UserModel({
@@ -14,12 +15,23 @@ class UserModel extends Equatable implements DataConvertible<User> {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as int? ?? 0,
+      id: json['id'] as String? ?? '',
       firstName: json['first_name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
       username: json['username'] as String? ?? '',
       email: json['email'] as String? ?? '',
       isActive: json['is_active'] as bool? ?? false,
+    );
+  }
+
+  factory UserModel.fromSupabase(sb.User user) {
+    return UserModel(
+      id: user.id,
+      firstName: user.userMetadata?['first_name'] as String? ?? '',
+      lastName: user.userMetadata?['last_name'] as String? ?? '',
+      username: user.userMetadata?['username'] as String? ?? '',
+      email: user.email ?? '',
+      isActive: true,
     );
   }
 
@@ -33,7 +45,7 @@ class UserModel extends Equatable implements DataConvertible<User> {
       isActive: user.isActive,
     );
   }
-  final int id;
+  final String id;
   final String firstName;
   final String lastName;
   final String username;
