@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,7 @@ void main() {
     dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
     fakeAuthResponse = AuthResponse(
       user: User(
-        id: 'uu',
+        id: faker.guid.guid(),
         appMetadata: {},
         userMetadata: {},
         aud: faker.randomGenerator.string(5),
@@ -29,9 +30,9 @@ void main() {
   });
 
   group('login', () {
-    const tAuthenticationRequest = AuthenticationModel(
-      username: 'test@example.com',
-      password: 'password',
+    final tAuthenticationRequest = AuthenticationModel(
+      username: faker.internet.email(),
+      password: faker.internet.password(),
     );
 
     test(
@@ -91,7 +92,75 @@ void main() {
     );
   });
 
+  group('signUp', () {
+    final tSignUpRequest = SignUpRequestModel(
+      name: faker.person.name(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
+
+    test(
+      'should return SuccessState with UserDataResponseModel when Supabase signUp is successful',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseAuthClient.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            data: any(named: 'data'),
+          ),
+        ).thenAnswer((_) async => fakeAuthResponse);
+
+        // Act
+        final result = await dataSource.signUp(tSignUpRequest);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataResponseModel>>());
+        expect(
+          result.data,
+          UserDataResponseModel.fromSupabase(fakeAuthResponse),
+        );
+
+        verify(
+          () => mockSupabaseAuthClient.signUp(
+            email: tSignUpRequest.email,
+            password: tSignUpRequest.password,
+            data: {'name': tSignUpRequest.name},
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return FailureState when Supabase throws AuthException during signUp',
+      () async {
+        // Arrange
+        const exception = AuthException(
+          'Email already exists',
+          code: 'email_exists',
+        );
+
+        when(
+          () => mockSupabaseAuthClient.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            data: any(named: 'data'),
+          ),
+        ).thenThrow(exception);
+
+        // Act
+        final result = await dataSource.signUp(tSignUpRequest);
+
+        // Assert
+        expect(result, isA<FailureState<UserDataResponseModel>>());
+        final failure = result as FailureState<UserDataResponseModel>;
+        expect(failure.message, isNotEmpty);
+      },
+    );
+  });
+
   group('resetPassword', () {
+    final email = faker.internet.email();
     test('should return SuccessState when reset email is sent', () async {
       // Arrange
       when(
@@ -99,12 +168,12 @@ void main() {
       ).thenAnswer((_) async {});
 
       // Act
-      final result = await dataSource.resetPassword('test@example.com');
+      final result = await dataSource.resetPassword(email);
 
       // Assert
       expect(result, isA<SuccessState<void>>());
       verify(
-        () => mockSupabaseAuthClient.resetPasswordForEmail('test@example.com'),
+        () => mockSupabaseAuthClient.resetPasswordForEmail(email),
       ).called(1);
     });
 
@@ -115,7 +184,7 @@ void main() {
       ).thenThrow(const AuthException('Error sending email'));
 
       // Act
-      final result = await dataSource.resetPassword('test@example.com');
+      final result = await dataSource.resetPassword(email);
 
       // Assert
       expect(result, isA<FailureState<void>>());

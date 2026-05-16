@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,6 +13,12 @@ abstract interface class SupabaseAuthClient {
     String email, {
     String? redirectTo,
     String? captchaToken,
+  });
+
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    MapDynamic? data,
   });
 
   Session? get currentSession;
@@ -39,6 +46,13 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
     redirectTo: redirectTo,
     captchaToken: captchaToken,
   );
+
+  @override
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    MapDynamic? data,
+  }) => _auth.signUp(email: email, password: password, data: data);
 
   @override
   Session? get currentSession => _auth.currentSession;
