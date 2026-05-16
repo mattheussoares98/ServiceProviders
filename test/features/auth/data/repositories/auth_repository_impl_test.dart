@@ -3,9 +3,11 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user.dart';
 import 'package:clean_architecture/core/domain/entities/user_data.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
+import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -45,6 +47,9 @@ void main() {
         accessToken: '',
         refreshToken: '',
       ),
+    );
+    registerFallbackValue(
+      const SignUpRequestModel(name: '', email: '', password: ''),
     );
   });
 
@@ -103,6 +108,56 @@ void main() {
 
         // Act
         final result = await repository.login(tAuthentication);
+
+        // Assert
+        expect(result, isA<FailureState<UserDataEntity>>());
+        expect(result.error, kNoInternet);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verifyNoMoreInteractions(mockInternetClient);
+        verifyZeroInteractions(mockAuthRemoteDataSource);
+        verifyZeroInteractions(mockAuthLocalDataSource);
+      },
+    );
+  });
+
+  group('signUp', () {
+    const tSignUpEntity = SignUpEntity(
+      name: 'Test',
+      email: 'test@example.com',
+      password: 'password',
+    );
+
+    test(
+      'should call remoteDataSource.signUp when internet is connected and return its result mapped to domain',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockAuthRemoteDataSource.signUp(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUserDataModel));
+
+        // Act
+        final result = await repository.signUp(tSignUpEntity);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataEntity>>());
+        expect(result.data, tUserData);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockAuthRemoteDataSource.signUp(any())).called(1);
+        verifyNoMoreInteractions(mockInternetClient);
+        verifyNoMoreInteractions(mockAuthRemoteDataSource);
+        verifyZeroInteractions(mockAuthLocalDataSource);
+      },
+    );
+
+    test(
+      'should return FailureState.noInternet when internet is not connected',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+
+        // Act
+        final result = await repository.signUp(tSignUpEntity);
 
         // Assert
         expect(result, isA<FailureState<UserDataEntity>>());

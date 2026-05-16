@@ -5,8 +5,10 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
+import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -31,6 +33,15 @@ final class AuthRepositoryImpl implements AuthRepository {
       remoteCallback: () => _remoteDataSource.login(
         AuthenticationModel.fromEntity(authentication),
       ),
+    );
+  }
+
+  @override
+  FutureData<UserDataEntity> signUp(SignUpEntity request) {
+    return RepositoryHandler.fetchWithFallbackAndMap(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () =>
+          _remoteDataSource.signUp(SignUpRequestModel.fromEntity(request)),
     );
   }
 
