@@ -48,6 +48,8 @@ import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data
     as _i661;
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart'
     as _i636;
+import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart'
+    as _i979;
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart'
     as _i912;
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart'
@@ -189,11 +191,17 @@ extension GetItInjectableX on _i174.GetIt {
         authRepository: gh<_i1003.AuthRepository>(),
       ),
     );
+    gh.lazySingleton<_i979.SignUpUseCase>(
+      () => _i979.SignUpUseCase(authRepository: gh<_i1003.AuthRepository>()),
+    );
     gh.lazySingleton<_i134.DashboardCubitUseCases>(
       () => _i134.DashboardCubitUseCases(
         checkAuthentication: gh<_i481.CheckAuthenticationUseCase>(),
         logOut: gh<_i294.LogOutUseCase>(),
       ),
+    );
+    gh.factory<_i278.DashboardCubit>(
+      () => _i278.DashboardCubit(useCases: gh<_i134.DashboardCubitUseCases>()),
     );
     gh.lazySingleton<_i123.LoginCubitUseCases>(
       () => _i123.LoginCubitUseCases(
@@ -202,13 +210,11 @@ extension GetItInjectableX on _i174.GetIt {
         setSession: gh<_i636.SetSessionUseCase>(),
         logOut: gh<_i294.LogOutUseCase>(),
         resetPassword: gh<_i701.ResetPasswordUseCase>(),
+        signUp: gh<_i979.SignUpUseCase>(),
       ),
     );
     gh.factory<_i912.LoginCubit>(
       () => _i912.LoginCubit(useCases: gh<_i123.LoginCubitUseCases>()),
-    );
-    gh.factory<_i278.DashboardCubit>(
-      () => _i278.DashboardCubit(useCases: gh<_i134.DashboardCubitUseCases>()),
     );
     return this;
   }
