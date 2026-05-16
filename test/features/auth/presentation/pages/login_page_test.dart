@@ -9,7 +9,6 @@ import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/login_page.dart';
@@ -42,7 +41,6 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockNavigationClient mockNavigationClient;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
-  late MockSignUpUseCase mockSignUpUseCase;
   late UserDataEntity userData;
 
   setUpAll(() {
@@ -73,7 +71,6 @@ void main() {
     mockSessionRepository = MockSessionRepository();
     mockNavigationClient = MockNavigationClient();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
-    mockSignUpUseCase = MockSignUpUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -83,7 +80,6 @@ void main() {
       ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
-      ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
       ..registerFactory<LoginCubit>(
         () => LoginCubit(
           useCases: LoginCubitUseCases(
@@ -92,7 +88,6 @@ void main() {
             setSession: mockSetSessionUseCase,
             logOut: mockLogOutUseCase,
             resetPassword: mockResetPasswordUseCase,
-            signUp: mockSignUpUseCase,
           ),
         ),
       );

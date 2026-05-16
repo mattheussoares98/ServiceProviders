@@ -3,7 +3,6 @@ import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
@@ -14,7 +13,6 @@ class LoginCubitUseCases {
     required this.setSession,
     required this.logOut,
     required this.resetPassword,
-    required this.signUp,
   });
 
   final LoginUseCase login;
@@ -22,5 +20,4 @@ class LoginCubitUseCases {
   final SetSessionUseCase setSession;
   final LogOutUseCase logOut;
   final ResetPasswordUseCase resetPassword;
-  final SignUpUseCase signUp;
 }
