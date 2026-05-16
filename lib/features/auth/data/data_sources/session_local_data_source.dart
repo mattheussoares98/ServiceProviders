@@ -20,7 +20,7 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
 
   @override
   Future<UserDataResponseModel?> getUserData() async {
-    final stored = _localStorageClient.getString(LocalDbKeys.userData);
+    final stored = _localStorageClient.getEncryptedString(LocalDbKeys.userData);
     if (stored != null && stored.isNotEmpty) {
       try {
         final map = jsonDecode(stored) as Map<String, dynamic>;
@@ -34,7 +34,7 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
 
   @override
   Future<void> saveUserData(UserDataResponseModel userData) async {
-    await _localStorageClient.setString(
+    await _localStorageClient.setStringWithEncryption(
       LocalDbKeys.userData,
       jsonEncode(userData.toJson()),
     );

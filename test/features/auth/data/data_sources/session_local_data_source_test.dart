@@ -38,7 +38,7 @@ void main() {
         () async {
           // Arrange
           when(
-            () => mockLocalStorageClient.getString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).thenReturn(jsonEncode(userDataResponse.toJson()));
 
           // Act
@@ -47,7 +47,7 @@ void main() {
           // Assert
           expect(result, equals(userDataResponse));
           verify(
-            () => mockLocalStorageClient.getString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).called(1);
         },
       );
@@ -55,7 +55,7 @@ void main() {
       test('should return null when cached data is empty', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.getString(LocalDbKeys.userData),
+          () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
         ).thenReturn('');
 
         // Act
@@ -68,7 +68,7 @@ void main() {
       test('should return null when cached data is null', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.getString(LocalDbKeys.userData),
+          () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
         ).thenReturn(null);
 
         // Act
@@ -83,7 +83,7 @@ void main() {
         () async {
           // Arrange
           when(
-            () => mockLocalStorageClient.getString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).thenReturn('invalid json');
 
           // Act
@@ -96,10 +96,10 @@ void main() {
     });
 
     group('saveUserData', () {
-      test('should call setString with correct key and value', () async {
+      test('should call setStringWithEncryption with correct key and value', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.setString(any(), any()),
+          () => mockLocalStorageClient.setStringWithEncryption(any(), any()),
         ).thenAnswer((_) async => true);
 
         // Act
@@ -107,7 +107,7 @@ void main() {
 
         // Assert
         verify(
-          () => mockLocalStorageClient.setString(
+          () => mockLocalStorageClient.setStringWithEncryption(
             LocalDbKeys.userData,
             jsonEncode(userDataResponse.toJson()),
           ),
