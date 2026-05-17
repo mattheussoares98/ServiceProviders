@@ -120,6 +120,7 @@ abstract interface class UIHelpers {
 
   //<========== Top Padding ==========>
   static final paddingT12 = EdgeInsets.only(top: Space.small.value);
+  static final paddingT20 = EdgeInsets.only(top: Space.medium.value);
   static final paddingT24 = EdgeInsets.only(top: Space.large.value);
   static final paddingT32 = EdgeInsets.only(top: Space.xLarge.value);
 

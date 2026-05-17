@@ -2,6 +2,9 @@
 const String kLoginRoute = 'LoginRoute';
 const String kLoginPath = '/login';
 
+const String kSignUpRoute = 'SignUpRoute';
+const String kSignUpPath = '/sign_up';
+
 const String kChangePasswordRoute = 'ChangePasswordRoute';
 const String kChangePasswordPath = 'ChangePassword';
 

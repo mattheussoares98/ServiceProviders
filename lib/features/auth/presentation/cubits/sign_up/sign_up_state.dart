@@ -1,9 +1,7 @@
 part of 'sign_up_cubit.dart';
 
 class SignUpState extends BaseState {
-  const SignUpState({
-    required this.passwordVisibility,
-  });
+  const SignUpState({required this.passwordVisibility});
 
   const SignUpState.initial() : passwordVisibility = false;
 
