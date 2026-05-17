@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:injectable/injectable.dart';

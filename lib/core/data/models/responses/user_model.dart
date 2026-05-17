@@ -1,9 +1,9 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-class UserModel extends Equatable implements DataConvertible<User> {
+class UserModel extends Equatable implements DataConvertible<UserEntity> {
   const UserModel({
     required this.id,
     required this.firstName,
@@ -35,7 +35,7 @@ class UserModel extends Equatable implements DataConvertible<User> {
     );
   }
 
-  factory UserModel.fromEntity(User user) {
+  factory UserModel.fromEntity(UserEntity user) {
     return UserModel(
       id: user.id,
       firstName: user.firstName,
@@ -63,8 +63,8 @@ class UserModel extends Equatable implements DataConvertible<User> {
   };
 
   @override
-  User toEntity() {
-    return User(
+  UserEntity toEntity() {
+    return UserEntity(
       id: id,
       firstName: firstName,
       lastName: lastName,

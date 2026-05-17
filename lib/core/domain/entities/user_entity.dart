@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-class User extends Equatable {
-  const User({
+class UserEntity extends Equatable {
+  const UserEntity({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -10,7 +10,7 @@ class User extends Equatable {
     required this.isActive,
   });
 
-  const User.empty()
+  const UserEntity.empty()
     : id = '',
       firstName = '',
       lastName = '',
@@ -23,6 +23,24 @@ class User extends Equatable {
   final String username;
   final String email;
   final bool isActive;
+
+  UserEntity copyWith({
+    String? id,
+    String? firstName,
+    String? lastName,
+    String? username,
+    String? email,
+    bool? isActive,
+  }) {
+    return UserEntity(
+      id: id ?? this.id,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      isActive: isActive ?? this.isActive,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,

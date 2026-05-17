@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 

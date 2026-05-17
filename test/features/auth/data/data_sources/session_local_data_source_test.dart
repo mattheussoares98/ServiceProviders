@@ -7,6 +7,7 @@ import 'package:clean_architecture/features/auth/data/models/responses/user_data
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 
 void main() {
@@ -18,15 +19,8 @@ void main() {
     sessionLocalDataSource = SessionLocalDataSourceImpl(mockLocalStorageClient);
   });
 
-  const userDataResponse = UserDataResponseModel(
-    user: UserModel(
-      id: '1',
-      firstName: 'Test',
-      lastName: 'User',
-      username: 'testuser',
-      email: 'test@example.com',
-      isActive: true,
-    ),
+  final userDataResponse = UserDataResponseModel(
+    user: UserModel.fromEntity(TestFactory.makeUserEntity()),
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   );
@@ -38,7 +32,8 @@ void main() {
         () async {
           // Arrange
           when(
-            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () =>
+                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).thenReturn(jsonEncode(userDataResponse.toJson()));
 
           // Act
@@ -47,7 +42,8 @@ void main() {
           // Assert
           expect(result, equals(userDataResponse));
           verify(
-            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () =>
+                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).called(1);
         },
       );
@@ -83,7 +79,8 @@ void main() {
         () async {
           // Arrange
           when(
-            () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () =>
+                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
           ).thenReturn('invalid json');
 
           // Act
@@ -96,23 +93,26 @@ void main() {
     });
 
     group('saveUserData', () {
-      test('should call setStringWithEncryption with correct key and value', () async {
-        // Arrange
-        when(
-          () => mockLocalStorageClient.setStringWithEncryption(any(), any()),
-        ).thenAnswer((_) async => true);
+      test(
+        'should call setStringWithEncryption with correct key and value',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalStorageClient.setStringWithEncryption(any(), any()),
+          ).thenAnswer((_) async => true);
 
-        // Act
-        await sessionLocalDataSource.saveUserData(userDataResponse);
+          // Act
+          await sessionLocalDataSource.saveUserData(userDataResponse);
 
-        // Assert
-        verify(
-          () => mockLocalStorageClient.setStringWithEncryption(
-            LocalDbKeys.userData,
-            jsonEncode(userDataResponse.toJson()),
-          ),
-        ).called(1);
-      });
+          // Assert
+          verify(
+            () => mockLocalStorageClient.setStringWithEncryption(
+              LocalDbKeys.userData,
+              jsonEncode(userDataResponse.toJson()),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('clearUserData', () {

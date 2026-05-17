@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
@@ -15,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../../testing/helpers/test_factory.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
@@ -31,19 +31,10 @@ void main() {
   late UserDataEntity userData;
 
   setUpAll(() {
-    userData = UserDataEntity(
-      user: User(
-        id: faker.guid.guid(),
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        username: faker.internet.userName(),
-        email: faker.internet.email(),
-        isActive: true,
-      ),
-      accessToken: faker.jwt.valid(),
-      refreshToken: faker.jwt.valid(),
+    userData = TestFactory.makeUserDataEntity();
+    registerFallbackValue(
+      const SignUpEntity(name: '', email: '', password: ''),
     );
-    registerFallbackValue(const SignUpEntity(name: '', email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
   });
@@ -53,7 +44,9 @@ void main() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
     mockNavigationClient = MockNavigationClient();
-    when(() => mockNavigationClient.navigatorKey).thenReturn(GlobalKey<NavigatorState>());
+    when(
+      () => mockNavigationClient.navigatorKey,
+    ).thenReturn(GlobalKey<NavigatorState>());
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
@@ -75,20 +68,22 @@ void main() {
     'togglePasswordVisibility should flip passwordVisibility state',
     build: () => signUpCubit,
     act: (cubit) => cubit.togglePasswordVisibility(),
-    expect: () => [
-      const SignUpState(passwordVisibility: true),
-    ],
+    expect: () => [const SignUpState(passwordVisibility: true)],
   );
 
   blocTest<SignUpCubit, SignUpState>(
     'signUp should handle successful sign up, save data, and navigate',
     build: () {
       when(() => mockSetSessionUseCase.call(userData)).thenAnswer((_) {});
-      when(() => mockNavigationClient.replaceAllRoute(any())).thenAnswer((_) async {});
-      when(() => mockSignUpUseCase.call(any()))
-          .thenAnswer((_) async => SuccessState(data: userData));
-      when(() => mockSaveUserDataUseCase.call(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockNavigationClient.replaceAllRoute(any()),
+      ).thenAnswer((_) async {});
+      when(
+        () => mockSignUpUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: userData));
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       return signUpCubit;
     },
@@ -110,8 +105,9 @@ void main() {
   blocTest<SignUpCubit, SignUpState>(
     'signUp should not navigate or save data on failure',
     build: () {
-      when(() => mockSignUpUseCase.call(any()))
-          .thenAnswer((_) async => const FailureState(message: 'Sign up failed'));
+      when(
+        () => mockSignUpUseCase.call(any()),
+      ).thenAnswer((_) async => const FailureState(message: 'Sign up failed'));
 
       return signUpCubit;
     },

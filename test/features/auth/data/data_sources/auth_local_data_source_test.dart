@@ -7,6 +7,7 @@ import 'package:clean_architecture/features/auth/data/models/responses/user_data
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 
 void main() {
@@ -20,17 +21,10 @@ void main() {
 
   const tStorageKey = 'userData';
 
-  const userModel = UserModel(
-    id: '1',
-    firstName: 'Test',
-    lastName: 'User',
-    username: 'test user',
-    email: 'test@example.com',
-    isActive: true,
-  );
+  final userModel = UserModel.fromEntity(TestFactory.makeUserEntity());
 
   // Assuming UserDataModel has a constructor like this and a toJson method.
-  const tUserDataModel = UserDataResponseModel(
+  final tUserDataModel = UserDataResponseModel(
     user: userModel,
     accessToken: 'access',
     refreshToken: 'refresh',

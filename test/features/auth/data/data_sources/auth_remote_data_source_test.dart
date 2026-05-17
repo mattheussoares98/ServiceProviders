@@ -1,13 +1,12 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
@@ -18,22 +17,11 @@ void main() {
   setUp(() {
     mockSupabaseAuthClient = MockSupabaseAuthClient();
     dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
-    fakeAuthResponse = AuthResponse(
-      user: User(
-        id: faker.guid.guid(),
-        appMetadata: {},
-        userMetadata: {},
-        aud: faker.randomGenerator.string(5),
-        createdAt: faker.date.dateTime().toIso8601String(),
-      ),
-    );
+    fakeAuthResponse = AuthResponse(user: TestFactory.makeUser());
   });
 
   group('login', () {
-    final tAuthenticationRequest = AuthenticationModel(
-      username: faker.internet.email(),
-      password: faker.internet.password(),
-    );
+    final tAuthenticationRequest = TestFactory.makeAuthenticationModel();
 
     test(
       'should return SuccessState with UserDataResponseModel when Supabase login is successful',
@@ -93,11 +81,7 @@ void main() {
   });
 
   group('signUp', () {
-    final tSignUpRequest = SignUpRequestModel(
-      name: faker.person.name(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-    );
+    final tSignUpRequest = TestFactory.makeSignUpRequest();
 
     test(
       'should return SuccessState with UserDataResponseModel when Supabase signUp is successful',

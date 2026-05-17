@@ -1,12 +1,12 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -24,26 +24,11 @@ void main() {
     useCase = SignUpUseCase(authRepository: mockAuthRepository);
   });
 
-  final tSignUpEntity = SignUpEntity(
-    name: faker.person.name(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-  );
+  final tSignUpEntity = TestFactory.makeSignUp();
 
-  final tUser = User(
-    id: faker.guid.guid(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    username: faker.internet.userName(),
-    email: faker.internet.email(),
-    isActive: true,
-  );
+  final tUser = TestFactory.makeUserEntity();
 
-  final tUserData = UserDataEntity(
-    user: tUser,
-    accessToken: faker.jwt.valid(),
-    refreshToken: faker.jwt.valid(),
-  );
+  final tUserData = TestFactory.makeUserDataEntity().copyWith(user: tUser);
 
   test(
     'should call authRepository.signUp and return user data on success',

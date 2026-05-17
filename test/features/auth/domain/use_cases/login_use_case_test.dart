@@ -1,11 +1,11 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -20,11 +20,11 @@ void main() {
     );
   });
 
-  const tAuthentication = AuthenticationEntity(
+  final tAuthentication = TestFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
-  const tUser = User(
+  final tUser = TestFactory.makeUserEntity().copyWith(
     id: '1',
     firstName: 'Test',
     lastName: 'User',
@@ -32,7 +32,7 @@ void main() {
     email: 'test@example.com',
     isActive: true,
   );
-  const tUserData = UserDataEntity(
+  final tUserData = TestFactory.makeUserDataEntity().copyWith(
     user: tUser,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -44,7 +44,7 @@ void main() {
       // Arrange
       when(
         () => mockAuthRepository.login(any()),
-      ).thenAnswer((_) async => const SuccessState(data: tUserData));
+      ).thenAnswer((_) async => SuccessState(data: tUserData));
 
       // Act
       final result = await useCase(tAuthentication);

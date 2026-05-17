@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
@@ -23,6 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:patrol/patrol.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/external/router_mocks.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -44,8 +44,8 @@ void main() {
   late UserDataEntity userData;
 
   setUpAll(() {
-    userData = const UserDataEntity(
-      user: User(
+    userData = TestFactory.makeUserDataEntity().copyWith(
+      user: TestFactory.makeUserEntity().copyWith(
         id: '0',
         firstName: '',
         lastName: '',

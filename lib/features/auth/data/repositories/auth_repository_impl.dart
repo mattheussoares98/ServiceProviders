@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';

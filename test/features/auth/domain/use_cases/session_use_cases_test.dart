@@ -1,10 +1,9 @@
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -18,8 +17,8 @@ void main() {
     setSessionUseCase = SetSessionUseCase(mockSessionRepository);
   });
 
-  const userData = UserDataEntity(
-    user: User(
+  final userData = TestFactory.makeUserDataEntity().copyWith(
+    user: TestFactory.makeUserEntity().copyWith(
       id: '1',
       firstName: 'Test',
       lastName: 'User',

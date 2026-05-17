@@ -1,16 +1,14 @@
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
-import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 
@@ -54,12 +52,12 @@ void main() {
   });
 
   // Test data
-  const tAuthentication = AuthenticationEntity(
+  final tAuthentication = TestFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
 
-  const tUser = User(
+  final tUser = TestFactory.makeUserEntity().copyWith(
     id: '1',
     firstName: 'Test',
     lastName: 'User',
@@ -67,7 +65,7 @@ void main() {
     email: 'test@example.com',
     isActive: true,
   );
-  const tUserData = UserDataEntity(
+  final tUserData = TestFactory.makeUserDataEntity().copyWith(
     user: tUser,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -121,7 +119,7 @@ void main() {
   });
 
   group('signUp', () {
-    const tSignUpEntity = SignUpEntity(
+    final tSignUpEntity = TestFactory.makeSignUp().copyWith(
       name: 'Test',
       email: 'test@example.com',
       password: 'password',

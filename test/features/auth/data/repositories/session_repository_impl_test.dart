@@ -1,10 +1,11 @@
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 
 void main() {
@@ -18,14 +19,16 @@ void main() {
     );
   });
 
-  const userDataResponse = UserDataResponseModel(
-    user: UserModel(
-      id: '1',
-      firstName: 'Test',
-      lastName: 'User',
-      username: 'testuser',
-      email: 'test@example.com',
-      isActive: true,
+  final userDataResponse = UserDataResponseModel(
+    user: UserModel.fromEntity(
+      TestFactory.makeUserEntity().copyWith(
+        id: '1',
+        firstName: 'Test',
+        lastName: 'User',
+        username: 'testuser',
+        email: 'test@example.com',
+        isActive: true,
+      ),
     ),
     accessToken: 'access_token',
     refreshToken: 'refresh_token',

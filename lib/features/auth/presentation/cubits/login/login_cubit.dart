@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user.dart';
-import 'package:clean_architecture/core/domain/entities/user_data.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
@@ -80,7 +80,7 @@ class LoginCubit extends BaseCubit<LoginState> {
       data: UserDataEntity(
         accessToken: 'access',
         refreshToken: 'refresh',
-        user: User(
+        user: UserEntity(
           id: 'fake-id',
           firstName: 'Flutter',
           lastName: 'Developers',

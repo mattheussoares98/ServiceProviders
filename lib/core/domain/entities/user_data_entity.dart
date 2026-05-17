@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/domain/entities/user.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class UserDataEntity extends Equatable {
@@ -9,15 +9,15 @@ class UserDataEntity extends Equatable {
   });
 
   const UserDataEntity.empty()
-    : user = const User.empty(),
+    : user = const UserEntity.empty(),
       accessToken = '',
       refreshToken = '';
-  final User user;
+  final UserEntity user;
   final String accessToken;
   final String refreshToken;
 
   UserDataEntity copyWith({
-    User? user,
+    UserEntity? user,
     String? accessToken,
     String? refreshToken,
   }) {
