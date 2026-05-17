@@ -147,7 +147,7 @@ void main() {
       ElevatedButton,
     ).which<ElevatedButton>((b) => b.enabled);
     expect(enabledButton, findsOneWidget);
-    expect($(TextButton), findsOneWidget);
+    expect($(TextButton), findsNWidgets(2));
     expect($(InkWell).$(Icons.visibility_off_outlined), findsOneWidget);
 
     // Enter email and password using standard Flutter test approach
