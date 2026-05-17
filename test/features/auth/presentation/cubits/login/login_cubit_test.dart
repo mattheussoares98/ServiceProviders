@@ -163,4 +163,24 @@ void main() {
       verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
     },
   );
+
+  blocTest<LoginCubit, LoginState>(
+    'navigateToSignUp should call pushRoute with SignUpRoute',
+    build: () {
+      when(
+        () => mockNavigationClient.pushRoute(any()),
+      ).thenAnswer((_) => Future.value());
+      when(
+        () => mockNavigationClient.pushRoute<void>(any()),
+      ).thenAnswer((_) => Future.value());
+      when(
+        () => mockNavigationClient.pushRoute<dynamic>(any()),
+      ).thenAnswer((_) => Future.value());
+      return loginCubit;
+    },
+    act: (cubit) => cubit.navigateToSignUp(),
+    verify: (_) {
+      verify(() => mockNavigationClient.pushRoute<void>(any())).called(1);
+    },
+  );
 }

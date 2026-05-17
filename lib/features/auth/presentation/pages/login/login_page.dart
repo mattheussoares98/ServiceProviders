@@ -3,7 +3,6 @@ import 'package:clean_architecture/features/auth/presentation/cubits/login/login
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:clean_architecture/features/auth/presentation/widgets/welcome_logo.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
@@ -57,7 +56,7 @@ class LoginPage extends HookWidget {
                 ),
                 UIHelpers.spaceV16,
                 TextButton(
-                  onPressed: () => context.router.push(const SignUpRoute()),
+                  onPressed: context.read<LoginCubit>().navigateToSignUp,
                   child: const Text('Create an account'),
                 ),
               ],
