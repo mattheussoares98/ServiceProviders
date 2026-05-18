@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/material.dart';
@@ -7,23 +7,17 @@ class IconTextButton extends StatelessWidget {
   const IconTextButton({
     super.key,
     required this.onPressed,
-    required this.iconData,
+    required this.platformIcon,
     required this.text,
-    this.iconColor,
-    this.iconSize,
     this.textColor,
   });
   final void Function() onPressed;
-  final IconData iconData;
+  final PlatformIcon platformIcon;
   final String text;
-  final Color? iconColor;
-  final double? iconSize;
   final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
-    final Color newIconColor = iconColor ?? AppColors.base;
-
     return InkWell(
       onTap: onPressed,
       borderRadius: UIHelpers.radiusC4,
@@ -32,7 +26,7 @@ class IconTextButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(iconData, color: newIconColor, size: iconSize),
+            platformIcon,
             UIHelpers.spaceH4,
             BaseText(text, color: textColor),
           ],

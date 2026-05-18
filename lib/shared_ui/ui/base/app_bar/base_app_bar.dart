@@ -2,9 +2,11 @@ import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/constants/app_icons.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BaseAppBar extends StatelessWidget {
@@ -49,8 +51,9 @@ class BaseAppBar extends StatelessWidget {
             leading ??
             BaseIconButton(
               onPressed: NavigationUtil.I.maybePopTop,
-              icon: const Icon(
-                AppIcons.arrowLeft,
+              platformIcon: const PlatformIcon(
+                materialIcon: AppIcons.arrowLeft,
+                cupertinoIcon: CupertinoIcons.back,
                 size: 20,
                 color: AppColors.base,
               ),

@@ -1,7 +1,10 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/constants/app_icons.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SettingItems extends StatelessWidget {
@@ -19,12 +22,17 @@ class SettingItems extends StatelessWidget {
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        children: [settingItemWidget(AppIcons.lock, 'Change Password')],
+        children: const [SettingsItem()],
       ),
     );
   }
+}
 
-  Widget settingItemWidget(IconData iconData, String name) {
+class SettingsItem extends StatelessWidget {
+  const SettingsItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Material(
       child: ListTile(
         onTap: () {},
@@ -34,9 +42,17 @@ class SettingItems extends StatelessWidget {
         ),
         contentPadding: UIHelpers.paddingH16V8,
         horizontalTitleGap: 8,
-        leading: Icon(iconData, size: 22),
-        title: BaseText.bodyLarge(name),
-        trailing: const Icon(AppIcons.arrowRight, size: 22),
+        leading: const PlatformIcon(
+          materialIcon: AppIcons.lock,
+          cupertinoIcon: CupertinoIcons.lock_fill,
+          size: 22,
+        ),
+        title: BaseText.bodyLarge('Alterar senha'.hardcoded),
+        trailing: const PlatformIcon(
+          materialIcon: AppIcons.arrowRight,
+          cupertinoIcon: CupertinoIcons.chevron_forward,
+          size: 22,
+        ),
       ),
     );
   }

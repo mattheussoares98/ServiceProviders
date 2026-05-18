@@ -1,4 +1,6 @@
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NetworkTower extends StatelessWidget {
@@ -57,8 +59,9 @@ class NetworkTower extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(
-              Icons.cell_tower_rounded,
+            child: PlatformIcon(
+              materialIcon: Icons.cell_tower_rounded,
+              cupertinoIcon: CupertinoIcons.antenna_radiowaves_left_right,
               size: ScreenUtil.I.widthPart(25),
               color: Colors.white,
             ),

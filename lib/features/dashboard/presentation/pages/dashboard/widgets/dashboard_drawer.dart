@@ -1,9 +1,12 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/constants/app_icons.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,21 +31,22 @@ class DashboardDrawer extends StatelessWidget {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      BaseText.headline('Dashboard'),
+                      BaseText.headline('Dashboard'.hardcoded),
                       UIHelpers.spaceV16,
                       ListTile(
                         onTap: () => context.read<DashboardCubit>().setIndex(0),
                         visualDensity: VisualDensity.standard,
                         horizontalTitleGap: 8,
-                        leading: Icon(
-                          AppIcons.home,
+                        leading: PlatformIcon(
+                          materialIcon: AppIcons.home,
+                          cupertinoIcon: CupertinoIcons.house_fill,
                           size: 20,
                           color: state.activeIndex == 0
                               ? AppColors.primary
                               : AppColors.fade.withAlpha(153),
                         ),
                         title: BaseText(
-                          'Home',
+                          'Home'.hardcoded,
                           color: state.activeIndex == 0
                               ? AppColors.primary
                               : AppColors.fade.withAlpha(153),
@@ -52,15 +56,16 @@ class DashboardDrawer extends StatelessWidget {
                         onTap: () => context.read<DashboardCubit>().setIndex(1),
                         visualDensity: VisualDensity.standard,
                         horizontalTitleGap: 8,
-                        leading: Icon(
-                          AppIcons.setting,
+                        leading: PlatformIcon(
+                          materialIcon: AppIcons.setting,
+                          cupertinoIcon: CupertinoIcons.settings,
                           size: 20,
                           color: state.activeIndex == 1
                               ? AppColors.primary
                               : AppColors.fade.withAlpha(153),
                         ),
                         title: BaseText(
-                          'Setting',
+                          'Configurações'.hardcoded,
                           color: state.activeIndex == 1
                               ? AppColors.primary
                               : AppColors.fade.withAlpha(153),

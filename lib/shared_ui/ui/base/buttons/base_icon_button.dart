@@ -1,10 +1,11 @@
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/material.dart';
 
 class BaseIconButton extends StatelessWidget {
   const BaseIconButton({
     super.key,
     required this.onPressed,
-    required this.icon,
+    required this.platformIcon,
     this.splashRadius,
     this.padding,
     this.boxConstraints,
@@ -13,7 +14,7 @@ class BaseIconButton extends StatelessWidget {
     this.disableSplash = false,
   });
   final void Function() onPressed;
-  final Icon icon;
+  final PlatformIcon platformIcon;
   final double? splashRadius;
   final EdgeInsets? padding;
   final BoxConstraints? boxConstraints;
@@ -31,7 +32,7 @@ class BaseIconButton extends StatelessWidget {
       visualDensity:
           visualDensity ?? const VisualDensity(horizontal: -4, vertical: -4),
       highlightColor: disableSplash ? Colors.transparent : null,
-      icon: icon,
+      icon: platformIcon,
     );
 
     if (disableSplash) {

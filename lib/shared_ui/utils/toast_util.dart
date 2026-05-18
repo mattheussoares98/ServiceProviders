@@ -1,8 +1,10 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
 
@@ -24,8 +26,9 @@ abstract interface class ToastUtil {
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
       title: Text(message),
-      trailing: const Icon(
-        Icons.check_circle_rounded,
+      trailing: const PlatformIcon(
+        materialIcon: Icons.check_circle_rounded,
+        cupertinoIcon: CupertinoIcons.check_mark_circled_solid,
         color: AppColors.green500,
         size: 20,
       ),
@@ -42,8 +45,9 @@ abstract interface class ToastUtil {
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
       title: BaseText(message),
-      trailing: const Icon(
-        Icons.warning_rounded,
+      trailing: const PlatformIcon(
+        materialIcon: Icons.warning_rounded,
+        cupertinoIcon: CupertinoIcons.exclamationmark_triangle_fill,
         color: AppColors.red600,
         size: 20,
       ),
