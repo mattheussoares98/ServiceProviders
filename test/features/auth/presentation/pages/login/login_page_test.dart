@@ -102,7 +102,6 @@ void main() {
 
   tearDown(locator.reset);
 
-  //TODO create signUp test
   patrolWidgetTest('Login and save the user credential', ($) async {
     // Arrange
     when(() => mockLogOutUseCase.call()).thenAnswer((_) {});
