@@ -1,6 +1,8 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BaseCheckbox extends StatelessWidget {
@@ -20,16 +22,22 @@ class BaseCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child = Transform.scale(
       scale: scale,
-      child: Checkbox(
-        value: value,
-        fillColor: WidgetStateColor.resolveWith(
-          (states) => value ? AppColors.hightLight : Colors.transparent,
-        ),
-        side: value ? null : const BorderSide(width: 1.2),
-        onChanged: onChanged,
-        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+      child: context.isCupertino
+          ? CupertinoCheckbox(
+              value: value,
+              activeColor: AppColors.hightLight,
+              onChanged: onChanged,
+            )
+          : Checkbox(
+              value: value,
+              fillColor: WidgetStateColor.resolveWith(
+                (states) => value ? AppColors.hightLight : Colors.transparent,
+              ),
+              side: value ? null : const BorderSide(width: 1.2),
+              onChanged: onChanged,
+              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
     );
 
     if (title != null) {

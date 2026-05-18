@@ -8,4 +8,8 @@ extension BuildContextExtension on BuildContext {
       Theme.of(this).appBarTheme.systemOverlayStyle!;
 
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
+
+  bool get isCupertino =>
+      Theme.of(this).platform == TargetPlatform.iOS ||
+      Theme.of(this).platform == TargetPlatform.macOS;
 }

@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form/base_text_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
@@ -51,10 +52,9 @@ class SignUpForm extends StatelessWidget {
               validator: Validators.password,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !passwordVisibility,
-              suffixIcon: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: context.read<SignUpCubit>().togglePasswordVisibility,
-                child: PlatformIcon(
+              suffixIcon: BaseIconButton(
+                onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
+                platformIcon: PlatformIcon(
                   materialIcon: passwordVisibility
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,

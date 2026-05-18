@@ -15,4 +15,5 @@ ThemeData lightTheme = ThemeData(
   inputDecorationTheme: inputDecorationTheme,
   checkboxTheme: checkBoxThemeData,
   listTileTheme: listTileThemeData,
+  // platform: TargetPlatform.iOS,
 );

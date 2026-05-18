@@ -1,4 +1,6 @@
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BaseIconButton extends StatelessWidget {
@@ -24,6 +26,24 @@ class BaseIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.isCupertino) {
+      Widget childWidget = CupertinoButton(
+        onPressed: onPressed,
+        padding: padding ?? EdgeInsets.zero,
+        child: platformIcon,
+      );
+
+      if (targetSize != null) {
+        childWidget = SizedBox(
+          height: targetSize,
+          width: targetSize,
+          child: childWidget,
+        );
+      }
+
+      return childWidget;
+    }
+
     Widget child = IconButton(
       splashRadius: splashRadius,
       onPressed: onPressed,

@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,21 +41,22 @@ class BaseScaffold extends StatelessWidget {
   final bool observeScreenChanges;
 
   EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
-        horizontal: ScreenUtil.I.getResponsiveValue(
-          base: 24,
-          screens: {
-            {ScreenType.largeTablet}: 22.widthPart(),
-            {ScreenType.desktop}: kIsWeb ? 32.5.widthPart() : 27.widthPart(),
-          },
-        ),
-      );
+    horizontal: ScreenUtil.I.getResponsiveValue(
+      base: 24,
+      screens: {
+        {ScreenType.largeTablet}: 22.widthPart(),
+        {ScreenType.desktop}: kIsWeb ? 32.5.widthPart() : 27.widthPart(),
+      },
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     Widget buildScaffold(BuildContext context) {
       Widget newChild = body;
 
-      final effectivePadding = padding ??
+      final effectivePadding =
+          padding ??
           (observeScreenChanges
               ? _getHorizontalPadding()
               : ScreenUtil.I.pagePadding());
@@ -66,10 +68,7 @@ class BaseScaffold extends StatelessWidget {
           child: body,
         );
       } else if (usePadding) {
-        newChild = Padding(
-          padding: effectivePadding,
-          child: body,
-        );
+        newChild = Padding(padding: effectivePadding, child: body);
       }
 
       if (onRefresh != null) {
@@ -99,12 +98,50 @@ class BaseScaffold extends StatelessWidget {
         );
       }
 
-      Widget scaffold = Scaffold(
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        appBar: appBarWidget,
-        body: SafeArea(child: newChild),
-        bottomNavigationBar: bottomNavigationWidget,
-      );
+      Widget scaffold;
+
+      if (context.isCupertino) {
+        var cupertinoBody = newChild;
+        if (appBar != null) {
+          cupertinoBody = Column(
+            children: [
+              appBar!,
+              Expanded(child: newChild),
+            ],
+          );
+        }
+
+        scaffold = CupertinoPageScaffold(
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
+          child: SafeArea(
+            bottom: bottomNavigationWidget == null,
+            child: cupertinoBody,
+          ),
+        );
+
+        if (bottomNavigationWidget != null) {
+          scaffold = Stack(
+            children: [
+              scaffold,
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(top: false, child: bottomNavigationWidget),
+              ),
+            ],
+          );
+        }
+
+        scaffold = Material(color: Colors.transparent, child: scaffold);
+      } else {
+        scaffold = Scaffold(
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          appBar: appBarWidget,
+          body: SafeArea(child: newChild),
+          bottomNavigationBar: bottomNavigationWidget,
+        );
+      }
 
       if (onPopInvokedWithResult != null) {
         scaffold = PopScope(

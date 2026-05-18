@@ -141,7 +141,7 @@ void main() {
 
     // Expect the login button to be enabled initially
     expect($('Login'), findsOne);
-    expect($('Password'), findsOne);
+    expect($('Senha'), findsOne);
     final enabledButton = $(
       ElevatedButton,
     ).which<ElevatedButton>((b) => b.enabled);

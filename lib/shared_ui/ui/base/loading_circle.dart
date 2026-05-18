@@ -1,3 +1,5 @@
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class LoadingCircle extends StatefulWidget {
@@ -73,7 +75,12 @@ class _LoadingCircleState extends State<LoadingCircle>
   Widget build(BuildContext context) {
     late Widget child;
 
-    if (widget.color != null) {
+    if (context.isCupertino) {
+      child = CupertinoActivityIndicator(
+        color: widget.color,
+        radius: widget.width / 2,
+      );
+    } else if (widget.color != null) {
       child = CircularProgressIndicator(
         color: widget.color,
         strokeWidth: widget.strokeWidth,

@@ -1,6 +1,8 @@
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class IconTextButton extends StatelessWidget {
@@ -18,16 +20,36 @@ class IconTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: UIHelpers.radiusC4,
-      child: Padding(
-        padding: UIHelpers.paddingA4,
+    final padding = UIHelpers.paddingA4;
+    final radius = UIHelpers.radiusC4;
+    final verticalSpace = UIHelpers.spaceH4;
+
+    if (context.isCupertino) {
+      return CupertinoButton(
+        onPressed: onPressed,
+        padding: padding,
+        borderRadius: radius,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             platformIcon,
-            UIHelpers.spaceH4,
+            verticalSpace,
+            BaseText(text, color: textColor),
+          ],
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: radius,
+      child: Padding(
+        padding: padding,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            platformIcon,
+            verticalSpace,
             BaseText(text, color: textColor),
           ],
         ),

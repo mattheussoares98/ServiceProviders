@@ -1,5 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BaseTextButton extends StatelessWidget {
@@ -27,6 +29,23 @@ class BaseTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appliedTextType = textType ?? TextType.bodyLarge;
+    final appliedFontWeight = textFontWeight ?? FontWeight.w400;
+
+    if (context.isCupertino) {
+      return CupertinoButton(
+        onPressed: onPressed,
+        padding: padding ?? EdgeInsets.zero,
+        minimumSize: Size.zero,
+        child: BaseText(
+          text,
+          color: textColor ?? color ?? AppColors.hightLight,
+          textType: appliedTextType,
+          fontWeight: appliedFontWeight,
+        ),
+      );
+    }
+
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
@@ -38,8 +57,8 @@ class BaseTextButton extends StatelessWidget {
       child: BaseText(
         text,
         color: textColor ?? AppColors.hightLight,
-        textType: textType ?? TextType.bodyLarge,
-        fontWeight: textFontWeight ?? FontWeight.w400,
+        textType: appliedTextType,
+        fontWeight: appliedFontWeight,
       ),
     );
   }

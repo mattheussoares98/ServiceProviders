@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/utils/platform_util.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +79,7 @@ class PlatformIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (PlatformUtil.isCupertino) {
+    if (context.isCupertino) {
       final iconWidget = Icon(cupertinoIcon, color: color, size: size);
       return cupertinoPadding != null
           ? Padding(padding: cupertinoPadding!, child: iconWidget)
