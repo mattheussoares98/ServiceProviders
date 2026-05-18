@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/sign_up/widgets/sign_up_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/sign_up/widgets/sign_up_form.dart';
@@ -24,7 +25,7 @@ class SignUpPage extends HookWidget {
     return BlocProvider(
       create: (context) => GetIt.I<SignUpCubit>(),
       child: BaseScaffold(
-        appBar: const BaseAppBar(title: 'Sign Up'),
+        appBar: BaseAppBar(title: 'Criar conta'.hardcoded),
         observeScreenChanges: true,
         showAnnotatedRegion: true,
         body: Column(

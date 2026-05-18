@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class SignUpButton extends StatelessWidget {
           password: passwordController.text,
         );
       },
-      text: 'CREATE ACCOUNT',
+      text: 'CONFIRMAR'.hardcoded,
     );
   }
 }

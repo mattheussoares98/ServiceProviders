@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
@@ -33,7 +34,7 @@ class LoginPage extends HookWidget {
             body: Column(
               children: [
                 UIHelpers.spaceV24,
-                const WelcomeLogo(title: 'Login'),
+                WelcomeLogo(title: 'Login'.hardcoded),
                 Container(
                   margin: UIHelpers.paddingT12B40,
                   child: Form(
@@ -52,7 +53,7 @@ class LoginPage extends HookWidget {
                 UIHelpers.spaceV16,
                 TextButton(
                   onPressed: context.read<LoginCubit>().navigateToSignUp,
-                  child: const Text('Create an account'),
+                  child: Text('Criar conta'.hardcoded),
                 ),
               ],
             ),
