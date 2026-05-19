@@ -5,7 +5,9 @@ import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.da
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/validators.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +32,7 @@ class SignUpForm extends StatelessWidget {
           labelText: 'Nome'.hardcoded,
           hintText: 'Digite seu nome'.hardcoded,
           controller: nameController,
-          validator: Validators.username,
+          validator: FormValidators.compose([MinLengthValidator(3)]),
           autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
         gapH20,
@@ -38,7 +40,7 @@ class SignUpForm extends StatelessWidget {
           labelText: 'Email'.hardcoded,
           hintText: 'Digite seu email'.hardcoded,
           controller: emailController,
-          validator: Validators.email,
+          validator: FormValidators.compose([EmailValidator()]),
           autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
         gapH20,
@@ -49,7 +51,7 @@ class SignUpForm extends StatelessWidget {
               labelText: 'Senha'.hardcoded,
               hintText: 'Digite sua senha'.hardcoded,
               controller: passwordController,
-              validator: Validators.password,
+              validator: FormValidators.compose([MinLengthValidator(3)]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !passwordVisibility,
               suffixIcon: BaseIconButton(
