@@ -1,5 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_center.dart';
+import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_scrollable_widget.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -74,20 +76,24 @@ class _BaseScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget newChild = params.body;
 
-    final effectivePadding =
-        params.padding ??
-        (params.observeScreenChanges
-            ? _getHorizontalPadding()
-            : ScreenUtil.I.pagePadding());
+    final effectivePadding = params.usePadding
+        ? params.padding ??
+              (params.observeScreenChanges
+                  ? _getHorizontalPadding()
+                  : ScreenUtil.I.pagePadding())
+        : EdgeInsets.zero;
 
     if (params.isScrollable) {
-      newChild = SingleChildScrollView(
-        physics: params.scrollPhysics,
+      newChild = ResponsiveScrollableWidget(
+        padding: effectivePadding,
+        scrollPhysics: params.scrollPhysics,
+        child: params.body,
+      );
+    } else {
+      newChild = ResponsiveCenter(
         padding: effectivePadding,
         child: params.body,
       );
-    } else if (params.usePadding) {
-      newChild = Padding(padding: effectivePadding, child: params.body);
     }
 
     if (params.onRefresh != null) {

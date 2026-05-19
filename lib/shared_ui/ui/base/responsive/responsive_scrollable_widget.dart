@@ -10,12 +10,16 @@ class ResponsiveScrollableWidget extends StatelessWidget {
     this.centralize = false,
     this.maxContentWidth = Breakpoint.desktop,
     this.isSliverPage = false,
+    this.padding,
+    this.scrollPhysics,
   });
 
   final Widget child;
   final bool centralize;
   final double maxContentWidth;
   final bool isSliverPage;
+  final EdgeInsets? padding;
+  final ScrollPhysics? scrollPhysics;
 
   @override
   Widget build(BuildContext context) {
