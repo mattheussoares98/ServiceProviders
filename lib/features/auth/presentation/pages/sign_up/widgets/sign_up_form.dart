@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sig
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form/base_text_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class SignUpForm extends StatelessWidget {
           validator: Validators.username,
           autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
-        UIHelpers.spaceV20,
+        gapH20,
         BaseTextField(
           title: 'Email'.hardcoded,
           controller: emailController,
@@ -41,7 +41,7 @@ class SignUpForm extends StatelessWidget {
           validator: Validators.email,
           autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
-        UIHelpers.spaceV20,
+        gapH20,
         BlocSelector<SignUpCubit, SignUpState, bool>(
           selector: (state) => state.passwordVisibility,
           builder: (context, passwordVisibility) {

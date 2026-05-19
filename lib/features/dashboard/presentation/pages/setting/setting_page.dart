@@ -5,7 +5,7 @@ import 'package:clean_architecture/features/dashboard/presentation/pages/setting
 import 'package:clean_architecture/features/dashboard/presentation/pages/setting/widgets/setting_items.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,7 +24,7 @@ class SettingPage extends StatelessWidget {
         children: [
           const BlueContainer(),
           Padding(
-            padding: UIHelpers.paddingTB(top: 130, bottom: 12),
+            padding: const EdgeInsets.only(top: Sizes.p120, bottom: Sizes.p12),
             child: Column(
               children: [
                 const SettingItems(),

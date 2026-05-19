@@ -5,7 +5,7 @@ import 'package:clean_architecture/features/auth/presentation/pages/login/widget
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:clean_architecture/features/auth/presentation/widgets/welcome_logo.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -33,24 +33,23 @@ class LoginPage extends HookWidget {
             showAnnotatedRegion: true,
             body: Column(
               children: [
-                UIHelpers.spaceV24,
+                gapH24,
                 WelcomeLogo(title: 'Login'.hardcoded),
-                Container(
-                  margin: UIHelpers.paddingT12B40,
-                  child: Form(
-                    key: formKey,
-                    child: LoginForm(
-                      usernameController: usernameController,
-                      passwordController: passwordController,
-                    ),
+                gapH12,
+                Form(
+                  key: formKey,
+                  child: LoginForm(
+                    usernameController: usernameController,
+                    passwordController: passwordController,
                   ),
                 ),
+                gapH32,
                 LoginButton(
                   formKey: formKey,
                   usernameController: usernameController,
                   passwordController: passwordController,
                 ),
-                UIHelpers.spaceV16,
+                gapH16,
                 TextButton(
                   onPressed: context.read<LoginCubit>().navigateToSignUp,
                   child: Text('Criar conta'.hardcoded),

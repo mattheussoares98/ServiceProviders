@@ -1,3 +1,4 @@
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 
 class AppDecorations {
@@ -15,22 +16,22 @@ class AppDecorations {
     final colorScheme = theme.colorScheme;
 
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12), //TODO fix this size
+      borderRadius: BorderRadius.circular(Sizes.p12),
       borderSide: BorderSide(color: colorScheme.onSurface.withAlpha(75)),
     );
 
     final focusedBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12), //TODO fix this size
+      borderRadius: BorderRadius.circular(Sizes.p12),
       borderSide: BorderSide(color: colorScheme.primary),
     );
 
     final errorBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12), //TODO fix this size
+      borderRadius: BorderRadius.circular(Sizes.p12),
       borderSide: BorderSide(color: colorScheme.error),
     );
 
     final disabledBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12), //TODO fix this size
+      borderRadius: BorderRadius.circular(Sizes.p12),
       borderSide: BorderSide(color: colorScheme.onSurface.withAlpha(50)),
     );
 
@@ -65,9 +66,9 @@ class AppDecorations {
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       contentPadding: EdgeInsets.only(
-        top: isMultiLine ?? false ? 8 /* TODO fix this value */ : 0,
-        bottom: isMultiLine ?? false ? 8 /* TODO fix this value */ : 0,
-        left: 8 /* TODO fix this value */,
+        top: isMultiLine ?? false ? Sizes.p8 : 0,
+        bottom: isMultiLine ?? false ? Sizes.p8 : 0,
+        left: Sizes.p8,
       ),
       filled: true,
       fillColor: fillColor,

@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +46,7 @@ class BaseCheckbox extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           child,
-          UIHelpers.spaceH8,
+          gapW8,
           BaseText(title!, color: textColor, fontWeight: FontWeight.w500),
         ],
       );

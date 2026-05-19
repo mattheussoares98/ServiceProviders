@@ -1,5 +1,5 @@
 import 'package:clean_architecture/shared_ui/ui/base/form_field/form_field.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -122,25 +122,22 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (dtf.labelText != null)
-              Padding(
-                padding: EdgeInsets.only(left: Space.xSmall.value),
-                child: Text(
-                  dtf.labelText!,
-                  style: TextStyle(
-                    color: isEnabled
-                        ? colorScheme.onSurface.withAlpha(200)
-                        : colorScheme.onSurface.withAlpha(100),
-                    fontSize: 12,
-                  ),
+            if (dtf.labelText != null) ...[
+              gapH8,
+              Text(
+                dtf.labelText!,
+                style: TextStyle(
+                  color: isEnabled
+                      ? colorScheme.onSurface.withAlpha(200)
+                      : colorScheme.onSurface.withAlpha(100),
+                  fontSize: 12,
                 ),
               ),
+            ],
             ConstrainedBox(
-              constraints: const BoxConstraints(
-                minHeight: 48,
-              ), //TODO fix these numbers
+              constraints: const BoxConstraints(minHeight: Sizes.p48),
               child: CupertinoTextField(
-                scrollPadding: const EdgeInsets.only(bottom: 80),
+                scrollPadding: const EdgeInsets.only(bottom: Sizes.p80),
                 onTap: dtf.onTap,
                 onEditingComplete: dtf.onEditingComplete,
                 inputFormatters: dtf.inputFormatters,
@@ -173,7 +170,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                 },
                 decoration: BoxDecoration(
                   color: fillColor,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(Sizes.p8),
                   border: border,
                 ),
                 keyboardType: dtf.keyboardType,
@@ -187,7 +184,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
             ),
             if (state.hasError)
               Padding(
-                padding: const EdgeInsets.only(left: 8, top: 4),
+                padding: const EdgeInsets.only(left: Sizes.p8, top: Sizes.p4),
                 child: Text(
                   state.errorText!,
                   style: const TextStyle(
@@ -210,7 +207,10 @@ class _BuildIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      constraints: const BoxConstraints(
+        minWidth: Sizes.p48,
+        minHeight: Sizes.p48,
+      ),
       child: Center(child: widget),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +13,7 @@ void showCloseAppDialog(BuildContext context) {
         backgroundColor: AppColors.white,
         title: Text('Prestadores de serviço APP'.hardcoded),
         content: Text('Tem certeza que deseja fechar o aplicativo?'.hardcoded),
-        actionsPadding: UIHelpers.paddingA16,
+        actionsPadding: const EdgeInsets.all(Sizes.p16),
         actions: [
           PrimaryButton(
             height: 40,
@@ -21,7 +21,7 @@ void showCloseAppDialog(BuildContext context) {
             onTap: () async => Navigator.pop(dialogContext),
             text: 'Não'.hardcoded,
           ),
-          UIHelpers.spaceH4,
+          gapH4,
           PrimaryButton(
             height: 40,
             width: 80,

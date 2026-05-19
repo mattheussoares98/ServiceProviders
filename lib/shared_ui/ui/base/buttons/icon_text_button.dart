@@ -1,7 +1,7 @@
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,9 +20,9 @@ class IconTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final padding = UIHelpers.paddingA4;
-    final radius = UIHelpers.radiusC4;
-    final verticalSpace = UIHelpers.spaceH4;
+    const padding = EdgeInsets.all(Sizes.p4);
+    const radius = BorderRadius.all(Radius.circular(Sizes.p4));
+    const verticalSpace = gapH4;
 
     if (context.isCupertino) {
       return CupertinoButton(

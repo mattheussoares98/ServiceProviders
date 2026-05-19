@@ -2,7 +2,7 @@ import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/connection_failed/network_tower.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 
 class ConnectionFailed extends StatelessWidget {
@@ -15,10 +15,9 @@ class ConnectionFailed extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            margin: UIHelpers.paddingT12B24,
-            child: const NetworkTower(),
-          ),
+          gapH12,
+          const NetworkTower(),
+          gapH24,
           const Text(
             'Whoops!',
             textAlign: TextAlign.center,

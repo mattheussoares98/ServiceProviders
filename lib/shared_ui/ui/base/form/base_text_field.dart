@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -64,15 +64,15 @@ class BaseTextField extends StatelessWidget {
                     readOnly: readOnly,
                     obscureText: obscureText,
                     obscuringCharacter: '*',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.base,
-                      fontSize: Space.sMedium.value,
+                      fontSize: Sizes.p16,
                     ),
                     focusNode: focusNode,
                     placeholder: hintText,
                     prefix: prefixIcon,
                     suffix: suffixIcon,
-                    padding: UIHelpers.paddingA16,
+                    padding: const EdgeInsets.all(Sizes.p16),
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: fieldState.hasError
@@ -83,17 +83,22 @@ class BaseTextField extends StatelessWidget {
                               ),
                         width: 0,
                       ),
-                      borderRadius: UIHelpers.radiusC8,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(Sizes.p8),
+                      ),
                     ),
                   ),
                   if (fieldState.hasError)
                     Padding(
-                      padding: UIHelpers.paddingH16V8,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Sizes.p16,
+                        vertical: Sizes.p8,
+                      ),
                       child: Text(
                         fieldState.errorText ?? '',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: CupertinoColors.destructiveRed,
-                          fontSize: Space.small.value,
+                          fontSize: Sizes.p12,
                         ),
                       ),
                     ),
@@ -111,13 +116,10 @@ class BaseTextField extends StatelessWidget {
             autovalidateMode: autovalidateMode,
             obscureText: obscureText,
             obscuringCharacter: '*',
-            style: TextStyle(
-              color: AppColors.base,
-              fontSize: Space.sMedium.value,
-            ),
+            style: const TextStyle(color: AppColors.base, fontSize: Sizes.p16),
             focusNode: focusNode,
             decoration: InputDecoration(
-              contentPadding: UIHelpers.paddingA16,
+              contentPadding: const EdgeInsets.all(Sizes.p16),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
               hintText: hintText,
@@ -134,7 +136,7 @@ class BaseTextField extends StatelessWidget {
             color: titleColor,
             textType: titleSize ?? TextType.titleSmall,
           ),
-          UIHelpers.spaceV8,
+          gapH8,
           child,
         ],
       );

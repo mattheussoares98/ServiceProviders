@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
@@ -15,8 +15,8 @@ abstract interface class ToastUtil {
     toastStartPosition: ToastPosition.top,
     toastAlignment: Alignment.topCenter,
   );
-  static final EdgeInsets _padding = UIHelpers.paddingA12;
-  static const BoxShadow _boxShadow = BoxShadow(
+  static const _padding = EdgeInsets.all(Sizes.p12);
+  static const _boxShadow = BoxShadow(
     color: AppColors.black05,
     spreadRadius: 1,
     blurRadius: 3,
@@ -33,10 +33,10 @@ abstract interface class ToastUtil {
         size: 20,
       ),
       toastSetting: _toastSetting.copyWith(displayDuration: duration),
-      toastStyle: ToastStyle(
+      toastStyle: const ToastStyle(
         padding: _padding,
         progressBarColor: AppColors.green500,
-        boxShadow: const [_boxShadow],
+        boxShadow: [_boxShadow],
       ),
     );
   }
@@ -52,10 +52,10 @@ abstract interface class ToastUtil {
         size: 20,
       ),
       toastSetting: _toastSetting.copyWith(displayDuration: duration),
-      toastStyle: ToastStyle(
+      toastStyle: const ToastStyle(
         padding: _padding,
         progressBarColor: AppColors.red600,
-        boxShadow: const [_boxShadow],
+        boxShadow: [_boxShadow],
       ),
     );
   }

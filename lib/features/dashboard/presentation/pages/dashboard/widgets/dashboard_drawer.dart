@@ -4,8 +4,8 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,7 +20,7 @@ class DashboardDrawer extends StatelessWidget {
       child: Material(
         color: AppColors.border,
         child: Padding(
-          padding: UIHelpers.paddingA24,
+          padding: const EdgeInsets.all(Sizes.p24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -32,7 +32,7 @@ class DashboardDrawer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       BaseText.headline('Dashboard'.hardcoded),
-                      UIHelpers.spaceV16,
+                      gapH16,
                       ListTile(
                         onTap: () => context.read<DashboardCubit>().setIndex(0),
                         visualDensity: VisualDensity.standard,

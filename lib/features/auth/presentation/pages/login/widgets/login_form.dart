@@ -5,7 +5,7 @@ import 'package:clean_architecture/features/auth/presentation/pages/login/widget
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form/base_text_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class LoginForm extends StatelessWidget {
               validator: Validators.username,
               autovalidateMode: AutovalidateMode.onUserInteraction,
             ),
-            UIHelpers.spaceV8,
+            gapH8,
             BaseTextField(
               title: 'Senha'.hardcoded,
               hintText: 'Digite sua senha'.hardcoded,
@@ -56,7 +56,7 @@ class LoginForm extends StatelessWidget {
                 ),
               ),
             ),
-            UIHelpers.spaceV16,
+            gapH16,
             LoginOptional(saveUserCredential: state.saveUserCredential),
           ],
         );

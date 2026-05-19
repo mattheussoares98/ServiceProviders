@@ -109,7 +109,7 @@ class LoginPage extends HookWidget {
         padding: UIHelpers.paddingH24, 
         body: Column(
           children: [
-            UIHelpers.spaceV24,
+            gapH24,
             LoginForm(controller: usernameController),
             UIHelpers.spaceV32,
             const LoginButton(),
@@ -133,10 +133,10 @@ It provides:
 **Never use hardcoded `SizedBox` or `EdgeInsets` values.** Always use `UIHelpers` from `lib/shared_ui/utils/ui_helpers.dart`.
 
 - **Vertical space:** `UIHelpers.spaceV4`, `spaceV8`, `spaceV12`, `spaceV16`, `spaceV24`, `spaceV32`, `spaceV40`, `spaceV48`, `spaceV64`
-- **Horizontal space:** `UIHelpers.spaceH4`, `spaceH8`, `spaceH12`, `spaceH16`, `spaceH24`, `spaceH32`
+- **Horizontal space:** `gapH4`, `spaceH8`, `spaceH12`, `spaceH16`, `spaceH24`, `spaceH32`
 - **All padding:** `UIHelpers.paddingA4`, `paddingA8`, `paddingA12`, `paddingA16`, `paddingA24`
 - **Horizontal/Vertical padding:** `UIHelpers.paddingH12`, `paddingH24`, `paddingV8`, `paddingV16`
-- **Border Radius:** `UIHelpers.radiusC4`, `radiusC8`, `radiusC12`, `radiusC16`, `radiusC24`
+- **Border Radius:** `BorderRadius.all(Radius.circular(Sizes.p4))`, `radiusC8`, `radiusC12`, `radiusC16`, `radiusC24`
 
 ### 4. Responsiveness
 Use `ScreenUtil.I.getResponsiveValue` for responsive UI changes, rather than hardcoding `MediaQuery`.

@@ -1,8 +1,8 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -77,7 +77,7 @@ class PrimaryButton extends HookWidget {
               onPressed: onPressed.call,
               color: color ?? AppColors.primary,
               padding: EdgeInsets.zero,
-              borderRadius: UIHelpers.radiusC8,
+              borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               child: Center(child: childWidget),
             );
           }
@@ -86,7 +86,9 @@ class PrimaryButton extends HookWidget {
             onPressed: onPressed.call,
             style: ElevatedButton.styleFrom(
               backgroundColor: color ?? AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: UIHelpers.radiusC8),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+              ),
               elevation: elevation,
             ),
             child: childWidget,

@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/constants/app_icons.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,11 +13,11 @@ class SettingItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: UIHelpers.paddingA16,
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(Sizes.p16),
+      decoration: const BoxDecoration(
         color: AppColors.white,
-        borderRadius: UIHelpers.radiusC12,
-        boxShadow: const [BoxShadow(color: AppColors.black15, blurRadius: 24)],
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p12)),
+        boxShadow: [BoxShadow(color: AppColors.black15, blurRadius: 24)],
       ),
       child: ListView(
         physics: const NeverScrollableScrollPhysics(),
@@ -36,11 +36,14 @@ class SettingsItem extends StatelessWidget {
     return Material(
       child: ListTile(
         onTap: () {},
-        shape: RoundedRectangleBorder(
-          borderRadius: UIHelpers.radiusC12,
-          side: const BorderSide(color: AppColors.border),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(Sizes.p12)),
+          side: BorderSide(color: AppColors.border),
         ),
-        contentPadding: UIHelpers.paddingH16V8,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: Sizes.p16,
+          vertical: Sizes.p8,
+        ),
         horizontalTitleGap: 8,
         leading: const PlatformIcon(
           materialIcon: AppIcons.lock,

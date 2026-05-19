@@ -1,8 +1,8 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/ui_helpers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -77,7 +77,7 @@ class SecondaryButton extends HookWidget {
               decoration: BoxDecoration(
                 color: AppColors.white,
                 border: Border.all(color: color, width: 1.5),
-                borderRadius: UIHelpers.radiusC8,
+                borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               ),
               child: CupertinoButton(
                 onPressed: onPressed,
@@ -92,7 +92,9 @@ class SecondaryButton extends HookWidget {
             style: OutlinedButton.styleFrom(
               backgroundColor: AppColors.white,
               side: BorderSide(color: color, width: 1.5),
-              shape: RoundedRectangleBorder(borderRadius: UIHelpers.radiusC8),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+              ),
               elevation: 0,
               splashFactory: InkRipple.splashFactory,
             ),
