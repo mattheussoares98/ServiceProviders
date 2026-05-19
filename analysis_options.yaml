@@ -12,5 +12,7 @@ linter:
     - prefer_single_quotes
 
 analyzer:
+  errors:
+    unsafe_variance: ignore
   exclude:
     - bricks**

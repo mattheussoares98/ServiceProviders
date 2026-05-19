@@ -10,5 +10,7 @@ extension BuildContextExtension on BuildContext {
 
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
+  ThemeData get theme => Theme.of(this);
+
   bool get isCupertino => PlatformUtil.isCupertino;
 }
