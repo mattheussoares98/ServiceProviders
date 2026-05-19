@@ -40,6 +40,26 @@ class BaseScaffold extends StatelessWidget {
   final bool useBottomNavigationPadding;
   final bool observeScreenChanges;
 
+  @override
+  Widget build(BuildContext context) {
+    if (observeScreenChanges) {
+      return BlocBuilder<ScreenObserverCubit, ScreenObserverState>(
+        buildWhen: (previous, current) =>
+            previous.screenTypeChanges != current.screenTypeChanges,
+        builder: (context, state) {
+          return _BaseScaffold(this);
+        },
+      );
+    }
+
+    return _BaseScaffold(this);
+  }
+}
+
+class _BaseScaffold extends StatelessWidget {
+  const _BaseScaffold(this.params);
+  final BaseScaffold params;
+
   EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
     horizontal: ScreenUtil.I.getResponsiveValue(
       base: 24,
@@ -52,130 +72,117 @@ class BaseScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget buildScaffold(BuildContext context) {
-      Widget newChild = body;
+    Widget newChild = params.body;
 
-      final effectivePadding =
-          padding ??
-          (observeScreenChanges
-              ? _getHorizontalPadding()
-              : ScreenUtil.I.pagePadding());
+    final effectivePadding =
+        params.padding ??
+        (params.observeScreenChanges
+            ? _getHorizontalPadding()
+            : ScreenUtil.I.pagePadding());
 
-      if (isScrollable) {
-        newChild = SingleChildScrollView(
-          physics: scrollPhysics,
-          padding: effectivePadding,
-          child: body,
-        );
-      } else if (usePadding) {
-        newChild = Padding(padding: effectivePadding, child: body);
-      }
-
-      if (onRefresh != null) {
-        newChild = RefreshIndicator(
-          onRefresh: onRefresh!,
-          color: AppColors.primary,
-          backgroundColor: AppColors.white,
-          strokeWidth: 2,
-          edgeOffset: 100,
-          child: newChild,
-        );
-      }
-
-      PreferredSize? appBarWidget;
-      if (appBar != null) {
-        appBarWidget = PreferredSize(
-          preferredSize: const Size(double.maxFinite, 50),
-          child: appBar!,
-        );
-      }
-
-      Widget? bottomNavigationWidget = bottomNavigationBar;
-      if (bottomNavigationBar != null && useBottomNavigationPadding) {
-        bottomNavigationWidget = Padding(
-          padding: effectivePadding.copyWith(top: 0),
-          child: bottomNavigationWidget,
-        );
-      }
-
-      Widget scaffold;
-
-      if (context.isCupertino) {
-        var cupertinoBody = newChild;
-        if (appBar != null) {
-          cupertinoBody = Column(
-            children: [
-              appBar!,
-              Expanded(child: newChild),
-            ],
-          );
-        }
-
-        scaffold = CupertinoPageScaffold(
-          resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
-          child: SafeArea(
-            bottom: bottomNavigationWidget == null,
-            child: cupertinoBody,
-          ),
-        );
-
-        if (bottomNavigationWidget != null) {
-          scaffold = Stack(
-            children: [
-              scaffold,
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: SafeArea(top: false, child: bottomNavigationWidget),
-              ),
-            ],
-          );
-        }
-
-        scaffold = Material(color: Colors.transparent, child: scaffold);
-      } else {
-        scaffold = Scaffold(
-          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-          appBar: appBarWidget,
-          body: SafeArea(child: newChild),
-          bottomNavigationBar: bottomNavigationWidget,
-        );
-      }
-
-      if (onPopInvokedWithResult != null) {
-        scaffold = PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) {
-              return;
-            }
-            onPopInvokedWithResult?.call();
-          },
-          child: scaffold,
-        );
-      }
-
-      if (showAnnotatedRegion) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: context.systemOverlayStyle,
-          child: scaffold,
-        );
-      }
-
-      return scaffold;
+    if (params.isScrollable) {
+      newChild = SingleChildScrollView(
+        physics: params.scrollPhysics,
+        padding: effectivePadding,
+        child: params.body,
+      );
+    } else if (params.usePadding) {
+      newChild = Padding(padding: effectivePadding, child: params.body);
     }
 
-    if (observeScreenChanges) {
-      return BlocBuilder<ScreenObserverCubit, ScreenObserverState>(
-        buildWhen: (previous, current) =>
-            previous.screenTypeChanges != current.screenTypeChanges,
-        builder: (context, state) {
-          return buildScaffold(context);
-        },
+    if (params.onRefresh != null) {
+      newChild = RefreshIndicator(
+        onRefresh: params.onRefresh!,
+        color: AppColors.primary,
+        backgroundColor: AppColors.white,
+        strokeWidth: 2,
+        edgeOffset: 100,
+        child: newChild,
       );
     }
 
-    return buildScaffold(context);
+    PreferredSize? appBarWidget;
+    if (params.appBar != null) {
+      appBarWidget = PreferredSize(
+        preferredSize: const Size(double.maxFinite, 50),
+        child: params.appBar!,
+      );
+    }
+
+    Widget? bottomNavigationWidget = params.bottomNavigationBar;
+    if (params.bottomNavigationBar != null &&
+        params.useBottomNavigationPadding) {
+      bottomNavigationWidget = Padding(
+        padding: effectivePadding.copyWith(top: 0),
+        child: bottomNavigationWidget,
+      );
+    }
+
+    Widget scaffold;
+
+    if (context.isCupertino) {
+      var cupertinoBody = newChild;
+      if (params.appBar != null) {
+        cupertinoBody = Column(
+          children: [
+            params.appBar!,
+            Expanded(child: newChild),
+          ],
+        );
+      }
+
+      scaffold = CupertinoPageScaffold(
+        resizeToAvoidBottomInset: params.resizeToAvoidBottomInset ?? true,
+        child: SafeArea(
+          bottom: bottomNavigationWidget == null,
+          child: cupertinoBody,
+        ),
+      );
+
+      if (bottomNavigationWidget != null) {
+        scaffold = Stack(
+          children: [
+            scaffold,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(top: false, child: bottomNavigationWidget),
+            ),
+          ],
+        );
+      }
+
+      scaffold = Material(color: Colors.transparent, child: scaffold);
+    } else {
+      scaffold = Scaffold(
+        resizeToAvoidBottomInset: params.resizeToAvoidBottomInset,
+        appBar: appBarWidget,
+        body: SafeArea(child: newChild),
+        bottomNavigationBar: bottomNavigationWidget,
+      );
+    }
+
+    if (params.onPopInvokedWithResult != null) {
+      scaffold = PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            return;
+          }
+          params.onPopInvokedWithResult?.call();
+        },
+        child: scaffold,
+      );
+    }
+
+    if (params.showAnnotatedRegion) {
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: context.systemOverlayStyle,
+        child: scaffold,
+      );
+    }
+
+    return scaffold;
   }
 }
