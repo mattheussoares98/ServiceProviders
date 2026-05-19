@@ -1,10 +1,14 @@
 import 'package:clean_architecture/shared_ui/themes/app_decorations.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/form_field/overlay_manager.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class DefaultTextFormField extends StatelessWidget {
-  const DefaultTextFormField({
+part 'cupertino_form_field.dart';
+
+class BaseTextFormField extends StatelessWidget {
+  const BaseTextFormField({
     super.key,
     this.maxLength = 50,
     this.controller,
@@ -55,7 +59,7 @@ class DefaultTextFormField extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (theme.platform == TargetPlatform.iOS) {
-      return CupertinoFormField(defaultTextFormField: this, key: key);
+      return CupertinoFormField(baseTextFormField: this, key: key);
     }
     return Padding(
       padding: const EdgeInsets.only(top: 4),

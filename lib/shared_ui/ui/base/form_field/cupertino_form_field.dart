@@ -1,11 +1,8 @@
-import 'package:clean_architecture/shared_ui/ui/base/form_field/form_field.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+part of 'base_text_form_field.dart';
 
 class CupertinoFormField extends StatefulWidget {
-  const CupertinoFormField({super.key, required this.defaultTextFormField});
-  final DefaultTextFormField defaultTextFormField;
+  const CupertinoFormField({super.key, required this.baseTextFormField});
+  final BaseTextFormField baseTextFormField;
 
   @override
   State<CupertinoFormField> createState() => _CupertinoFormFieldState();
@@ -19,24 +16,21 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
   void initState() {
     super.initState();
 
-    widget.defaultTextFormField.focusNode?.addListener(_updateOverlayState);
-    widget.defaultTextFormField.controller?.addListener(_onControllerChanged);
+    widget.baseTextFormField.focusNode?.addListener(_updateOverlayState);
+    widget.baseTextFormField.controller?.addListener(_onControllerChanged);
   }
 
   @override
   void dispose() {
-    widget.defaultTextFormField.focusNode?.removeListener(_updateOverlayState);
-    widget.defaultTextFormField.controller?.removeListener(
-      _onControllerChanged,
-    );
+    widget.baseTextFormField.focusNode?.removeListener(_updateOverlayState);
+    widget.baseTextFormField.controller?.removeListener(_onControllerChanged);
     overlayManager.hide();
     super.dispose();
   }
 
   void _onControllerChanged() {
-    if (_formFieldState?.value !=
-        widget.defaultTextFormField.controller?.text) {
-      _formFieldState?.didChange(widget.defaultTextFormField.controller?.text);
+    if (_formFieldState?.value != widget.baseTextFormField.controller?.text) {
+      _formFieldState?.didChange(widget.baseTextFormField.controller?.text);
     }
   }
 
@@ -46,8 +40,8 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
       if (!mounted) {
         return;
       }
-      final dtf = widget.defaultTextFormField;
-      final hasFocus = dtf.focusNode?.hasFocus ?? false;
+      final btf = widget.baseTextFormField;
+      final hasFocus = btf.focusNode?.hasFocus ?? false;
       const isKeyboardOpen = /* ref.read(
         keyboardVisibilityStateControllerProvider,
       ); */
@@ -65,7 +59,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
   }
 
   void _showOverlay() {
-    final dtf = widget.defaultTextFormField;
+    final dtf = widget.baseTextFormField;
     overlayManager.showDoneBar(
       context: context,
       focusNode: dtf.focusNode,
@@ -81,16 +75,16 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
   }
 
   bool get isNumeric =>
-      widget.defaultTextFormField.keyboardType == TextInputType.number ||
-      widget.defaultTextFormField.keyboardType ==
+      widget.baseTextFormField.keyboardType == TextInputType.number ||
+      widget.baseTextFormField.keyboardType ==
           const TextInputType.numberWithOptions(decimal: true) ||
-      widget.defaultTextFormField.keyboardType == TextInputType.number;
+      widget.baseTextFormField.keyboardType == TextInputType.number;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final dtf = widget.defaultTextFormField;
+    final dtf = widget.baseTextFormField;
     final isEnabled = dtf.enabled ?? true;
 
     if (dtf.focusNode == null &&

@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_optional.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form/base_text_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators.dart';
@@ -27,16 +27,16 @@ class LoginForm extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            BaseTextField(
-              title: 'Usuário'.hardcoded,
-              controller: usernameController,
+            BaseTextFormField(
+              labelText: 'Usuário'.hardcoded,
               hintText: 'Digite seu usuário'.hardcoded,
+              controller: usernameController,
               validator: Validators.username,
               autovalidateMode: AutovalidateMode.onUserInteraction,
             ),
             gapH8,
-            BaseTextField(
-              title: 'Senha'.hardcoded,
+            BaseTextFormField(
+              labelText: 'Senha'.hardcoded,
               hintText: 'Digite sua senha'.hardcoded,
               controller: passwordController,
               validator: Validators.password,
