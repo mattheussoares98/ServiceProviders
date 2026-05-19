@@ -65,6 +65,8 @@ import 'package:clean_architecture/features/dashboard/presentation/cubits/dashbo
 import 'package:clean_architecture/routing/helper/navigation_client.dart'
     as _i389;
 import 'package:clean_architecture/routing/routes.dart' as _i671;
+import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart'
+    as _i1037;
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart'
     as _i640;
 import 'package:dio/dio.dart' as _i361;
@@ -96,6 +98,9 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<bool>(() => httpClientModule.addInterceptors);
+    gh.factory<_i1037.KeyboardVisibilityCubit>(
+      () => _i1037.KeyboardVisibilityCubit(),
+    );
     gh.factory<_i640.ScreenObserverCubit>(() => _i640.ScreenObserverCubit());
     gh.lazySingleton<_i361.Dio>(() => httpClientModule.dio);
     gh.lazySingleton<_i244.HttpAuthInterceptor>(

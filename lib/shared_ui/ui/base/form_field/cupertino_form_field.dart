@@ -42,13 +42,10 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
       }
       final btf = widget.baseTextFormField;
       final hasFocus = btf.focusNode?.hasFocus ?? false;
-      const isKeyboardOpen = /* ref.read(
-        keyboardVisibilityStateControllerProvider,
-      ); */
-          //TODO create a cubit or something similar to use this keyboardVisibilityState
-          1 == 2;
+      final isKeyboardOpen = context.read<KeyboardVisibilityCubit>().state;
 
       if (hasFocus && isKeyboardOpen && isNumeric) {
+        //TODO test this on an iOS device
         debugPrint('show');
         _showOverlay();
       } else if (!hasFocus) {

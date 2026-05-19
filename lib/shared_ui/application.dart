@@ -1,6 +1,8 @@
 import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/themes/theme.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
@@ -19,11 +21,13 @@ class CleanArchitectureSample extends StatefulWidget {
 class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     with WidgetsBindingObserver {
   late final ScreenObserverCubit _screenObserverCubit;
+  late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
 
   @override
   void initState() {
     super.initState();
     _screenObserverCubit = GetIt.I<ScreenObserverCubit>();
+    _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
     WidgetsBinding.instance.addObserver(this);
     // Listen for internet connectivity changes.
     WidgetsBinding.instance.addPostFrameCallback(
@@ -34,6 +38,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
   @override
   void dispose() {
     _screenObserverCubit.close();
+    _keyboardVisibilityCubit.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -46,6 +51,9 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
       // Don't update if this context is already unmounted.
       if (mounted) {
         _screenObserverCubit.update();
+        if (PlatformUtil.isIOS) {
+          _keyboardVisibilityCubit.update();
+        }
       }
     });
   }
@@ -54,8 +62,11 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
   Widget build(BuildContext context) {
     // Perform initial configuration.
     ScreenUtil.I.configureScreen();
-    return BlocProvider.value(
-      value: _screenObserverCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _screenObserverCubit),
+        BlocProvider.value(value: _keyboardVisibilityCubit),
+      ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: AppConfigUtil.I.appTitle,
