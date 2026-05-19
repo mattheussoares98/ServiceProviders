@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/themes/app_decorations.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/overlay_manager.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -56,9 +57,7 @@ class BaseTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (theme.platform == TargetPlatform.iOS) {
+    if (PlatformUtil.isCupertino) {
       return CupertinoFormField(baseTextFormField: this, key: key);
     }
     return Padding(

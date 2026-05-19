@@ -1,4 +1,5 @@
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 
 class AppDecorations {
@@ -12,8 +13,7 @@ class AppDecorations {
     String? errorText,
     bool? isMultiLine,
   }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = context.colorScheme;
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(Sizes.p12),
