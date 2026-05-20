@@ -1,7 +1,5 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_center.dart';
-import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_scrollable_widget.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -84,16 +82,13 @@ class _BaseScaffold extends StatelessWidget {
         : EdgeInsets.zero;
 
     if (params.isScrollable) {
-      newChild = ResponsiveScrollableWidget(
+      newChild = SingleChildScrollView(
         padding: effectivePadding,
-        scrollPhysics: params.scrollPhysics,
+        physics: params.scrollPhysics,
         child: params.body,
       );
     } else {
-      newChild = ResponsiveCenter(
-        padding: effectivePadding,
-        child: params.body,
-      );
+      newChild = Padding(padding: effectivePadding, child: params.body);
     }
 
     if (params.onRefresh != null) {
