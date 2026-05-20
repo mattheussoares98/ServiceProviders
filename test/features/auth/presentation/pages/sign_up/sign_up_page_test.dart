@@ -205,9 +205,8 @@ void main() {
       await $.pumpAndSettle();
 
       // Verify required field errors are shown
-      expect(find.text('Username is required.'), findsOneWidget);
-      expect(find.text('Email address is required.'), findsOneWidget);
-      expect(find.text('Password is required.'), findsOneWidget);
+      expect(find.text('Precisa ter pelo menos 3 caracteres'), findsNWidgets(2));
+      expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
 
       // Verify SignUpUseCase is not called
       verifyNever(() => mockSignUpUseCase.call(any()));
@@ -230,7 +229,7 @@ void main() {
       await $.tester.tap(find.byType(ElevatedButton));
       await $.pumpAndSettle();
 
-      expect(find.text('Enter a valid email address.'), findsOneWidget);
+      expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
       verifyNever(() => mockSignUpUseCase.call(any()));
     },
   );

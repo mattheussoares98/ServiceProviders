@@ -69,6 +69,8 @@ import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard
     as _i1037;
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart'
     as _i640;
+import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart'
+    as _i368;
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -144,6 +146,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i9.InternetClientImpl(
         internetConnection: gh<_i161.InternetConnection>(),
       ),
+    );
+    gh.factory<_i368.ThemeCubit>(
+      () => _i368.ThemeCubit(gh<_i1009.LocalStorageClient>()),
     );
     gh.lazySingleton<_i16.SessionLocalDataSource>(
       () => _i16.SessionLocalDataSourceImpl(gh<_i1009.LocalStorageClient>()),

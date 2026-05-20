@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_optional.dart';
@@ -52,8 +51,6 @@ class LoginForm extends StatelessWidget {
                   cupertinoIcon: state.passwordVisibility
                       ? CupertinoIcons.eye
                       : CupertinoIcons.eye_slash,
-                  color: AppColors.black60,
-                  size: 22,
                 ),
               ),
             ),

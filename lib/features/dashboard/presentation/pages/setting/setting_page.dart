@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/constants/app_colors.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:clean_architecture/features/dashboard/presentation/pages/setting/widgets/blue_container.dart';
 import 'package:clean_architecture/features/dashboard/presentation/pages/setting/widgets/setting_items.dart';
@@ -24,14 +25,14 @@ class SettingPage extends StatelessWidget {
         children: [
           const BlueContainer(),
           Padding(
-            padding: const EdgeInsets.only(top: Sizes.p120, bottom: Sizes.p12),
+            padding: const EdgeInsets.only(top: Sizes.p80, bottom: Sizes.p12),
             child: Column(
               children: [
                 const SettingItems(),
                 const Spacer(),
                 PrimaryButton(
                   onTap: dashboardCubit.logOut,
-                  text: 'Logout',
+                  text: 'Logout'.hardcoded,
                   color: AppColors.error,
                   expandWidth: true,
                 ),

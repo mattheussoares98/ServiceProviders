@@ -8,6 +8,22 @@ ColorScheme get colorScheme => ColorScheme.fromSeed(
   error: AppColors.error,
 );
 
+IconThemeData get iconThemeData => IconThemeData(
+  color: colorScheme.onSurface,
+);
+
+ColorScheme get darkColorScheme => ColorScheme.fromSeed(
+  seedColor: AppColors.primary,
+  brightness: Brightness.dark,
+  surface: const Color(0xFF1E1E22),
+  onSurface: const Color(0xFFE2E8F0),
+  error: AppColors.error,
+);
+
+IconThemeData get darkIconThemeData => IconThemeData(
+  color: darkColorScheme.onSurface,
+);
+
 /// App ar Theme
 AppBarTheme get appBarTheme => const AppBarTheme(
   backgroundColor: AppColors.white,
@@ -21,6 +37,18 @@ AppBarTheme get appBarTheme => const AppBarTheme(
   ),
 );
 
+AppBarTheme get darkAppBarTheme => const AppBarTheme(
+  backgroundColor: Color(0xFF121214),
+  surfaceTintColor: Colors.transparent,
+  iconTheme: IconThemeData(color: Color(0xFFE2E8F0)),
+  elevation: 0,
+  systemOverlayStyle: SystemUiOverlayStyle(
+    statusBarColor: Color(0xFF121214),
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+  ),
+);
+
 /// InputDecoration Theme
 OutlineInputBorder outlinedInputBorder(Color color) => OutlineInputBorder(
   borderRadius: const BorderRadius.all(Radius.circular(Sizes.p12)),
@@ -29,6 +57,14 @@ OutlineInputBorder outlinedInputBorder(Color color) => OutlineInputBorder(
 InputDecorationTheme get inputDecorationTheme => InputDecorationTheme(
   hintStyle: const TextStyle(color: AppColors.fade, fontSize: 14),
   enabledBorder: outlinedInputBorder(AppColors.border),
+  focusedBorder: outlinedInputBorder(AppColors.primary),
+  errorBorder: outlinedInputBorder(AppColors.red600),
+  focusedErrorBorder: outlinedInputBorder(AppColors.red600),
+);
+
+InputDecorationTheme get darkInputDecorationTheme => InputDecorationTheme(
+  hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
+  enabledBorder: outlinedInputBorder(const Color(0xFF334155)),
   focusedBorder: outlinedInputBorder(AppColors.primary),
   errorBorder: outlinedInputBorder(AppColors.red600),
   focusedErrorBorder: outlinedInputBorder(AppColors.red600),

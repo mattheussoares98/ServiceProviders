@@ -4,6 +4,7 @@ import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
 import 'package:clean_architecture/shared_ui/themes/theme.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +23,14 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     with WidgetsBindingObserver {
   late final ScreenObserverCubit _screenObserverCubit;
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
+  late final ThemeCubit _themeCubit;
 
   @override
   void initState() {
     super.initState();
     _screenObserverCubit = GetIt.I<ScreenObserverCubit>();
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
+    _themeCubit = GetIt.I<ThemeCubit>();
     WidgetsBinding.instance.addObserver(this);
     // Listen for internet connectivity changes.
     WidgetsBinding.instance.addPostFrameCallback(
@@ -39,6 +42,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
   void dispose() {
     _screenObserverCubit.close();
     _keyboardVisibilityCubit.close();
+    _themeCubit.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -66,13 +70,20 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
       providers: [
         BlocProvider.value(value: _screenObserverCubit),
         BlocProvider.value(value: _keyboardVisibilityCubit),
+        BlocProvider.value(value: _themeCubit),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: AppConfigUtil.I.appTitle,
-        theme: lightTheme,
-        routerDelegate: NavigationUtil.I.routerDelegate,
-        routeInformationParser: NavigationUtil.I.routeInformationParser,
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: AppConfigUtil.I.appTitle,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: themeState.themeMode,
+            routerDelegate: NavigationUtil.I.routerDelegate,
+            routeInformationParser: NavigationUtil.I.routeInformationParser,
+          );
+        },
       ),
     );
   }

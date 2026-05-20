@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
@@ -63,8 +62,6 @@ class SignUpForm extends StatelessWidget {
                   cupertinoIcon: passwordVisibility
                       ? CupertinoIcons.eye
                       : CupertinoIcons.eye_slash,
-                  color: AppColors.black60,
-                  size: 22,
                 ),
               ),
             );

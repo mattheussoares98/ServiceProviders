@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/constants/app_icons.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
@@ -55,11 +54,11 @@ class BaseAppBar extends StatelessWidget {
             leading ??
             BaseIconButton(
               onPressed: NavigationUtil.I.maybePopTop,
-              platformIcon: const PlatformIcon(
+              platformIcon: PlatformIcon(
                 materialIcon: AppIcons.arrowLeft,
                 cupertinoIcon: CupertinoIcons.back,
                 size: 20,
-                color: AppColors.base,
+                color: context.colorScheme.onSurface,
               ),
               disableSplash: true,
             ),
@@ -69,7 +68,7 @@ class BaseAppBar extends StatelessWidget {
     if (title.isNotEmpty) {
       titleWidget = BaseText.bodyLarge(
         title,
-        color: AppColors.black,
+        color: context.colorScheme.onSurface,
         fontWeight: titleFontWeight,
       );
     }
@@ -86,7 +85,7 @@ class BaseAppBar extends StatelessWidget {
                 children: actions!,
               )
             : null,
-        backgroundColor: AppColors.white,
+        backgroundColor: context.colorScheme.surface,
         border: const Border(bottom: BorderSide(color: Colors.transparent)),
       );
     }
