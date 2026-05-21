@@ -1,6 +1,5 @@
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
 
@@ -42,7 +41,7 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     if (dataState.hasData) {
       _useCases.setSession.call(dataState.data!);
       await _useCases.saveUserData.call(dataState.data!);
-      await replaceAllRoute(const HomeRoute());
+      //TODO: Navigate to home
     }
   }
 }

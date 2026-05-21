@@ -61,7 +61,7 @@ class LoginCubit extends BaseCubit<LoginState> {
       if (_saveUserCredential) {
         await _useCases.saveUserData.call(dataState.data!);
       }
-      await replaceAllRoute(const HomeRoute());
+      //TODO: Navigate to home
     }
   }
 
@@ -95,8 +95,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     if (_saveUserCredential) {
       await _useCases.saveUserData.call(dataState.data!);
     }
-
-    await replaceAllRoute(const HomeRoute());
+    //TODO: Navigate to home
   }
 
   Future<void> navigateToSignUp() async {

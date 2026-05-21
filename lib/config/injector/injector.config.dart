@@ -58,10 +58,6 @@ import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sig
     as _i68;
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart'
     as _i735;
-import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit.dart'
-    as _i278;
-import 'package:clean_architecture/features/dashboard/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart'
-    as _i134;
 import 'package:clean_architecture/routing/helper/navigation_client.dart'
     as _i389;
 import 'package:clean_architecture/routing/routes.dart' as _i671;
@@ -215,12 +211,6 @@ extension GetItInjectableX on _i174.GetIt {
         saveUserData: gh<_i661.SaveUserDataUseCase>(),
       ),
     );
-    gh.lazySingleton<_i134.DashboardCubitUseCases>(
-      () => _i134.DashboardCubitUseCases(
-        checkAuthentication: gh<_i481.CheckAuthenticationUseCase>(),
-        logOut: gh<_i294.LogOutUseCase>(),
-      ),
-    );
     gh.lazySingleton<_i123.LoginCubitUseCases>(
       () => _i123.LoginCubitUseCases(
         login: gh<_i68.LoginUseCase>(),
@@ -235,9 +225,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i912.LoginCubit>(
       () => _i912.LoginCubit(useCases: gh<_i123.LoginCubitUseCases>()),
-    );
-    gh.factory<_i278.DashboardCubit>(
-      () => _i278.DashboardCubit(useCases: gh<_i134.DashboardCubitUseCases>()),
     );
     return this;
   }
