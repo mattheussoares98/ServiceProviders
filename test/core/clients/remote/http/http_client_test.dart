@@ -6,8 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../testing/mocks/client_mocks.dart';
-import '../../../../testing/mocks/external/external_mocks.dart';
+import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
   late MockDio mockDio;
