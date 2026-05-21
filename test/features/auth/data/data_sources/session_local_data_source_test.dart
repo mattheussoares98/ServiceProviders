@@ -32,8 +32,9 @@ void main() {
         () async {
           // Arrange
           when(
-            () =>
-                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(
+              LocalDbKey.userData.key,
+            ),
           ).thenReturn(jsonEncode(userDataResponse.toJson()));
 
           // Act
@@ -42,8 +43,9 @@ void main() {
           // Assert
           expect(result, equals(userDataResponse));
           verify(
-            () =>
-                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(
+              LocalDbKey.userData.key,
+            ),
           ).called(1);
         },
       );
@@ -51,7 +53,9 @@ void main() {
       test('should return null when cached data is empty', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+          () => mockLocalStorageClient.getEncryptedString(
+            LocalDbKey.userData.key,
+          ),
         ).thenReturn('');
 
         // Act
@@ -64,7 +68,9 @@ void main() {
       test('should return null when cached data is null', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+          () => mockLocalStorageClient.getEncryptedString(
+            LocalDbKey.userData.key,
+          ),
         ).thenReturn(null);
 
         // Act
@@ -79,8 +85,9 @@ void main() {
         () async {
           // Arrange
           when(
-            () =>
-                mockLocalStorageClient.getEncryptedString(LocalDbKeys.userData),
+            () => mockLocalStorageClient.getEncryptedString(
+              LocalDbKey.userData.key,
+            ),
           ).thenReturn('invalid json');
 
           // Act
@@ -107,7 +114,7 @@ void main() {
           // Assert
           verify(
             () => mockLocalStorageClient.setStringWithEncryption(
-              LocalDbKeys.userData,
+              LocalDbKey.userData.key,
               jsonEncode(userDataResponse.toJson()),
             ),
           ).called(1);
@@ -127,7 +134,7 @@ void main() {
 
         // Assert
         verify(
-          () => mockLocalStorageClient.remove(LocalDbKeys.userData),
+          () => mockLocalStorageClient.remove(LocalDbKey.userData.key),
         ).called(1);
       });
     });

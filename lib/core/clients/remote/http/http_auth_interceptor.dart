@@ -23,7 +23,7 @@ interface class HttpAuthInterceptor extends Interceptor {
   final List<DioRequestData> _pendingRequests = [];
 
   UserDataResponseModel? get _userData {
-    final stored = _localStorageClient.getString(LocalDbKeys.userData);
+    final stored = _localStorageClient.getString(LocalDbKey.userData.key);
     if (stored != null && stored.isNotEmpty) {
       try {
         final map = jsonDecode(stored) as Map<String, dynamic>;
@@ -118,7 +118,7 @@ interface class HttpAuthInterceptor extends Interceptor {
         final newUserData = userData
           ..toEntity().copyWith(accessToken: tokenResponse.accessToken);
         await _localStorageClient.setString(
-          LocalDbKeys.userData,
+          LocalDbKey.userData.key,
           jsonEncode(newUserData.toJson()),
         );
         return true;
@@ -136,7 +136,7 @@ interface class HttpAuthInterceptor extends Interceptor {
   }
 
   void _clearSessionData() {
-    _localStorageClient.remove(LocalDbKeys.userData);
+    _localStorageClient.remove(LocalDbKey.userData.key);
     _navigationClient.replaceAllRoute(const LoginRoute());
   }
 

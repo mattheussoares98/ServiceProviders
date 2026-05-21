@@ -28,8 +28,9 @@ void main() {
   group('ThemeCubit', () {
     test('should initialize with ThemeMode.system when no theme is cached', () {
       // Arrange
-      when(() => mockLocalStorageClient.getString(LocalDbKeys.themeMode))
-          .thenReturn(null);
+      when(
+        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+      ).thenReturn(null);
 
       // Act
       themeCubit = ThemeCubit(mockLocalStorageClient);
@@ -37,8 +38,9 @@ void main() {
       // Assert
       expect(themeCubit.state.themeMode, equals(ThemeMode.system));
       expect(themeCubit.state.status, equals(StateStatus.loaded));
-      verify(() => mockLocalStorageClient.getString(LocalDbKeys.themeMode))
-          .called(1);
+      verify(
+        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+      ).called(1);
     });
 
     test('should initialize with cached theme mode when present', () {
@@ -48,28 +50,33 @@ void main() {
         ThemeMode.dark.name,
         ThemeMode.system.name,
       ]);
-      when(() => mockLocalStorageClient.getString(LocalDbKeys.themeMode))
-          .thenReturn(cachedMode);
+      when(
+        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+      ).thenReturn(cachedMode);
 
       // Act
       themeCubit = ThemeCubit(mockLocalStorageClient);
 
       // Assert
-      final expectedMode =
-          ThemeMode.values.firstWhere((e) => e.name == cachedMode);
+      final expectedMode = ThemeMode.values.firstWhere(
+        (e) => e.name == cachedMode,
+      );
       expect(themeCubit.state.themeMode, equals(expectedMode));
       expect(themeCubit.state.status, equals(StateStatus.loaded));
-      verify(() => mockLocalStorageClient.getString(LocalDbKeys.themeMode))
-          .called(1);
+      verify(
+        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+      ).called(1);
     });
 
     blocTest<ThemeCubit, ThemeState>(
       'should emit [loading, loaded] with updated ThemeMode and save it to storage when updateThemeMode is called',
       build: () {
-        when(() => mockLocalStorageClient.getString(LocalDbKeys.themeMode))
-            .thenReturn(null);
-        when(() => mockLocalStorageClient.setString(any(), any()))
-            .thenAnswer((_) async => true);
+        when(
+          () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+        ).thenReturn(null);
+        when(
+          () => mockLocalStorageClient.setString(any(), any()),
+        ).thenAnswer((_) async => true);
         return ThemeCubit(mockLocalStorageClient);
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
@@ -78,15 +85,12 @@ void main() {
           themeMode: ThemeMode.dark,
           status: StateStatus.loading,
         ),
-        const ThemeState(
-          themeMode: ThemeMode.dark,
-          status: StateStatus.loaded,
-        ),
+        const ThemeState(themeMode: ThemeMode.dark, status: StateStatus.loaded),
       ],
       verify: (_) {
         verify(
           () => mockLocalStorageClient.setString(
-            LocalDbKeys.themeMode,
+            LocalDbKey.themeMode.key,
             ThemeMode.dark.name,
           ),
         ).called(1);
