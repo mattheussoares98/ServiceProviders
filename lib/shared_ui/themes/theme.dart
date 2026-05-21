@@ -16,6 +16,7 @@ ThemeData lightTheme = ThemeData(
   inputDecorationTheme: inputDecorationTheme,
   checkboxTheme: checkBoxThemeData,
   listTileTheme: listTileThemeData,
+  bottomNavigationBarTheme: bottomNavigationBarTheme,
   // platform: TargetPlatform.iOS,
 );
 
@@ -30,4 +31,5 @@ ThemeData darkTheme = ThemeData(
   inputDecorationTheme: darkInputDecorationTheme,
   checkboxTheme: checkBoxThemeData,
   listTileTheme: listTileThemeData,
+  bottomNavigationBarTheme: darkBottomNavigationBarTheme,
 );

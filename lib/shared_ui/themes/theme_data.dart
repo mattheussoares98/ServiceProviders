@@ -8,9 +8,7 @@ ColorScheme get colorScheme => ColorScheme.fromSeed(
   error: AppColors.error,
 );
 
-IconThemeData get iconThemeData => IconThemeData(
-  color: colorScheme.onSurface,
-);
+IconThemeData get iconThemeData => IconThemeData(color: colorScheme.onSurface);
 
 ColorScheme get darkColorScheme => ColorScheme.fromSeed(
   seedColor: AppColors.primary,
@@ -20,9 +18,8 @@ ColorScheme get darkColorScheme => ColorScheme.fromSeed(
   error: AppColors.error,
 );
 
-IconThemeData get darkIconThemeData => IconThemeData(
-  color: darkColorScheme.onSurface,
-);
+IconThemeData get darkIconThemeData =>
+    IconThemeData(color: darkColorScheme.onSurface);
 
 /// App ar Theme
 AppBarTheme get appBarTheme => const AppBarTheme(
@@ -87,3 +84,22 @@ ListTileThemeData get listTileThemeData => const ListTileThemeData(
   horizontalTitleGap: 0,
   minLeadingWidth: 0,
 );
+
+/// Bottom Navigation Bar Themes
+BottomNavigationBarThemeData get bottomNavigationBarTheme =>
+    const BottomNavigationBarThemeData(
+      backgroundColor: AppColors.white,
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: Color(0x995E6A75), // AppColors.fade.withAlpha(153)
+      elevation: 0,
+      type: BottomNavigationBarType.fixed,
+    );
+
+BottomNavigationBarThemeData get darkBottomNavigationBarTheme =>
+    const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFF1E1E22),
+      selectedItemColor: AppColors.primary,
+      unselectedItemColor: Color(0xFF64748B),
+      elevation: 0,
+      type: BottomNavigationBarType.fixed,
+    );

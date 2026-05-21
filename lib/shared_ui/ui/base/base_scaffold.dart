@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,9 @@ class BaseScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.useBottomNavigationPadding = true,
     this.observeScreenChanges = false,
+    this.bottomNavigationItems,
+    this.bottomNavigationIndex,
+    this.onBottomNavigationTap,
   });
 
   final bool showAnnotatedRegion;
@@ -39,6 +43,9 @@ class BaseScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final bool useBottomNavigationPadding;
   final bool observeScreenChanges;
+  final List<BaseBottomNavigationBarItem>? bottomNavigationItems;
+  final int? bottomNavigationIndex;
+  final ValueChanged<int>? onBottomNavigationTap;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +118,18 @@ class _BaseScaffold extends StatelessWidget {
     }
 
     Widget? bottomNavigationWidget = params.bottomNavigationBar;
-    if (params.bottomNavigationBar != null &&
+    if (bottomNavigationWidget == null &&
+        params.bottomNavigationItems != null &&
+        params.bottomNavigationIndex != null &&
+        params.onBottomNavigationTap != null) {
+      bottomNavigationWidget = BaseBottomNavigationBar(
+        items: params.bottomNavigationItems!,
+        currentIndex: params.bottomNavigationIndex!,
+        onTap: params.onBottomNavigationTap!,
+      );
+    }
+
+    if (bottomNavigationWidget != null &&
         params.useBottomNavigationPadding) {
       bottomNavigationWidget = Padding(
         padding: effectivePadding.copyWith(top: 0),
