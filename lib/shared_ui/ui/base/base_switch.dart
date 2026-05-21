@@ -5,23 +5,36 @@ import 'package:flutter/material.dart';
 class DefaultSwitch extends StatelessWidget {
   const DefaultSwitch({
     super.key,
-    required this.title,
+    this.title,
     required this.value,
     required this.onChanged,
   });
 
-  final String title;
+  final String? title;
   final bool value;
   final void Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
+    if (title == null) {
+      if (context.isCupertino) {
+        return CupertinoSwitch(
+          value: value,
+          onChanged: onChanged,
+        );
+      }
+      return Switch.adaptive(
+        value: value,
+        onChanged: onChanged,
+      );
+    }
+
     final theme = Theme.of(context);
     final textStyle = theme.textTheme.titleSmall;
 
     if (context.isCupertino) {
       return CupertinoListTile(
-        title: Text(title, style: textStyle),
+        title: Text(title!, style: textStyle),
         padding: EdgeInsets.zero,
         trailing: CupertinoSwitch(
           value: value,
@@ -32,7 +45,7 @@ class DefaultSwitch extends StatelessWidget {
       return SwitchListTile.adaptive(
         dense: true,
         contentPadding: EdgeInsets.zero,
-        title: Text(title, style: textStyle),
+        title: Text(title!, style: textStyle),
         value: value,
         onChanged: onChanged,
       );
