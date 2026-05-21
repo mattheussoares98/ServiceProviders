@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class LoginButton extends StatelessWidget {
           password: passwordController.text,
         );
       },
-      text: 'LOGIN',
+      text: 'LOGIN'.hardcoded,
     );
   }
 }

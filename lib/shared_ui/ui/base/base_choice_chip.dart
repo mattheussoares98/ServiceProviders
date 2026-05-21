@@ -42,13 +42,11 @@ class DefaultChoiceChip<T extends SelectableItem<T>> extends StatelessWidget {
                 onChanged(item.value);
               }
             },
-            selectedColor: item.color ?? theme.primaryColor,
-            checkmarkColor: Colors.white,
+            selectedColor: item.color ?? theme.colorScheme.primary,
             labelStyle: TextStyle(
               color: isSelected
                   ? Colors.white
-                  : theme.textTheme.bodyMedium?.color,
-              fontSize: 12,
+                  : theme.colorScheme.onSurface,
             ),
           );
         }).toList(),

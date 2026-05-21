@@ -49,7 +49,7 @@ class BaseBottomNavigationBar extends StatelessWidget {
           return BottomNavigationBarItem(
             icon: Icon(
               item.platformIcon.cupertinoIcon,
-              size: item.platformIcon.size,
+              size: item.platformIcon.size ?? 22,
             ),
             label: item.label,
             tooltip: item.tooltip,

@@ -19,7 +19,6 @@ class PrimaryButton extends HookWidget {
     this.width,
     this.color,
     this.loadableButton = false,
-    this.elevation,
     this.expandWidth = false,
   });
   final Future<void> Function() onTap;
@@ -31,7 +30,6 @@ class PrimaryButton extends HookWidget {
   final double? width;
   final bool loadableButton;
   final Color? color;
-  final double? elevation;
   final bool expandWidth;
 
   @override
@@ -63,8 +61,9 @@ class PrimaryButton extends HookWidget {
       child: ValueListenableBuilder(
         valueListenable: loadingNotifier,
         builder: (builderContext, loading, setState) {
+          final effectiveForegroundColor = foregroundColor ?? AppColors.white;
           final childWidget = loading
-              ? LoadingCircle.small(foregroundColor)
+              ? LoadingCircle.small(effectiveForegroundColor)
               : BaseText(
                   text,
                   color: foregroundColor,
@@ -73,9 +72,11 @@ class PrimaryButton extends HookWidget {
                 );
 
           if (context.isCupertino) {
+            final activeColor = color ?? AppColors.primary;
             return CupertinoButton(
-              onPressed: onPressed.call,
-              color: color ?? AppColors.primary,
+              onPressed: loading ? null : onPressed.call,
+              color: activeColor,
+              disabledColor: activeColor,
               padding: EdgeInsets.zero,
               borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               child: Center(child: childWidget),
@@ -83,14 +84,8 @@ class PrimaryButton extends HookWidget {
           }
 
           return ElevatedButton(
-            onPressed: onPressed.call,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: color ?? AppColors.primary,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
-              ),
-              elevation: elevation,
-            ),
+            onPressed: loading ? null : onPressed.call,
+            style: ElevatedButton.styleFrom(backgroundColor: color),
             child: childWidget,
           );
         },

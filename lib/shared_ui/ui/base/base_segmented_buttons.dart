@@ -48,7 +48,7 @@ class DefaultSegmentedButtons<T extends Object> extends StatelessWidget {
                 style: TextStyle(
                   color: selectedValue == item.value
                       ? Colors.white
-                      : CupertinoColors.black,
+                      : theme.colorScheme.onSurface,
                 ),
               ),
             ),

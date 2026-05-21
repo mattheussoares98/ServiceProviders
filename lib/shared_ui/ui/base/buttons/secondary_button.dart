@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -14,10 +13,10 @@ class SecondaryButton extends HookWidget {
     required this.text,
     this.textType = TextType.bodyLarge,
     this.textFontWeight = FontWeight.w500,
-    this.foregroundColor = AppColors.primary,
+    this.foregroundColor,
     this.height,
     this.width,
-    this.color = AppColors.primary,
+    this.color,
     this.loadableButton = false,
     this.elevation,
     this.expandWidth = false,
@@ -30,12 +29,15 @@ class SecondaryButton extends HookWidget {
   final double? height;
   final double? width;
   final bool loadableButton;
-  final Color color;
+  final Color? color;
   final double? elevation;
   final bool expandWidth;
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = color ?? context.colorScheme.primary;
+    final activeForegroundColor =
+        foregroundColor ?? context.colorScheme.primary;
     final loadingNotifier = useValueNotifier(false);
     final onPressed = useCallback(() async {
       /// If the button is loading, discard the task
@@ -64,10 +66,10 @@ class SecondaryButton extends HookWidget {
         valueListenable: loadingNotifier,
         builder: (builderContext, loading, setState) {
           final childWidget = loading
-              ? LoadingCircle.small(foregroundColor)
+              ? LoadingCircle.small(activeForegroundColor)
               : BaseText(
                   text,
-                  color: foregroundColor,
+                  color: activeForegroundColor,
                   textType: textType,
                   fontWeight: textFontWeight,
                 );
@@ -75,12 +77,12 @@ class SecondaryButton extends HookWidget {
           if (context.isCupertino) {
             return Container(
               decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: color, width: 1.5),
+                color: Colors.transparent,
+                border: Border.all(color: activeColor, width: 1.5),
                 borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               ),
               child: CupertinoButton(
-                onPressed: onPressed,
+                onPressed: loading ? null : onPressed.call,
                 padding: EdgeInsets.zero,
                 child: Center(child: childWidget),
               ),
@@ -88,15 +90,11 @@ class SecondaryButton extends HookWidget {
           }
 
           return OutlinedButton(
-            onPressed: onPressed,
-            style: OutlinedButton.styleFrom(
-              backgroundColor: AppColors.white,
-              side: BorderSide(color: color, width: 1.5),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+            onPressed: loading ? null : onPressed.call,
+            style: OutlinedButton.styleFrom().copyWith(
+              side: WidgetStateProperty.all(
+                BorderSide(color: activeColor, width: 1.5),
               ),
-              elevation: 0,
-              splashFactory: InkRipple.splashFactory,
             ),
             child: childWidget,
           );

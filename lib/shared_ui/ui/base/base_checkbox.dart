@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -25,15 +24,11 @@ class BaseCheckbox extends StatelessWidget {
       child: context.isCupertino
           ? CupertinoCheckbox(
               value: value,
-              activeColor: AppColors.hightLight,
+              activeColor: context.colorScheme.primary,
               onChanged: onChanged,
             )
           : Checkbox(
               value: value,
-              fillColor: WidgetStateColor.resolveWith(
-                (states) => value ? AppColors.hightLight : Colors.transparent,
-              ),
-              side: value ? null : const BorderSide(width: 1.2),
               onChanged: onChanged,
               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -41,14 +36,20 @@ class BaseCheckbox extends StatelessWidget {
     );
 
     if (title != null) {
-      final textColor = value ? AppColors.hightLight : AppColors.base;
-      child = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          gapW8,
-          BaseText(title!, color: textColor, fontWeight: FontWeight.w500),
-        ],
+      final textColor = value
+          ? context.colorScheme.primary
+          : context.colorScheme.onSurface;
+      child = GestureDetector(
+        onTap: onChanged != null ? () => onChanged!(!value) : null,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            child,
+            gapW8,
+            BaseText(title!, color: textColor, fontWeight: FontWeight.w500),
+          ],
+        ),
       );
     }
 

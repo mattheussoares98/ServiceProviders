@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -101,8 +100,7 @@ class _BaseScaffold extends StatelessWidget {
     if (params.onRefresh != null) {
       newChild = RefreshIndicator(
         onRefresh: params.onRefresh!,
-        color: AppColors.primary,
-        backgroundColor: AppColors.white,
+        backgroundColor: context.theme.colorScheme.surface,
         strokeWidth: 2,
         edgeOffset: 100,
         child: newChild,
@@ -129,8 +127,7 @@ class _BaseScaffold extends StatelessWidget {
       );
     }
 
-    if (bottomNavigationWidget != null &&
-        params.useBottomNavigationPadding) {
+    if (bottomNavigationWidget != null && params.useBottomNavigationPadding) {
       bottomNavigationWidget = Padding(
         padding: effectivePadding.copyWith(top: 0),
         child: bottomNavigationWidget,
@@ -140,12 +137,23 @@ class _BaseScaffold extends StatelessWidget {
     Widget scaffold;
 
     if (context.isCupertino) {
-      var cupertinoBody = newChild;
+      const cupertinoTabBarHeight = 49.0;
+      var cupertinoBody = bottomNavigationWidget != null
+          ? Padding(
+              padding: EdgeInsets.only(
+                bottom:
+                    cupertinoTabBarHeight +
+                    MediaQuery.paddingOf(context).bottom,
+              ),
+              child: newChild,
+            )
+          : newChild;
+
       if (params.appBar != null) {
         cupertinoBody = Column(
           children: [
             params.appBar!,
-            Expanded(child: newChild),
+            Expanded(child: cupertinoBody),
           ],
         );
       }

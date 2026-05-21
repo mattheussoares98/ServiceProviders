@@ -34,7 +34,7 @@ class LoginPage extends HookWidget {
             body: Column(
               children: [
                 gapH24,
-                WelcomeLogo(title: 'Login'.hardcoded),
+                const WelcomeLogo(),
                 gapH12,
                 Form(
                   key: formKey,

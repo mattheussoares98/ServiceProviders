@@ -67,13 +67,55 @@ InputDecorationTheme get darkInputDecorationTheme => InputDecorationTheme(
   focusedErrorBorder: outlinedInputBorder(AppColors.red600),
 );
 
-/// CheckBox Theme
-CheckboxThemeData get checkBoxThemeData => const CheckboxThemeData(
-  visualDensity: VisualDensity(horizontal: -3, vertical: -3),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(Sizes.p4)),
+/// Elevated Button Theme
+ElevatedButtonThemeData getElevatedButtonTheme(ColorScheme colorScheme) =>
+    ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: colorScheme.primary,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+        ),
+      ),
+    );
+
+/// Outlined Button Theme
+OutlinedButtonThemeData get outlinedButtonTheme => OutlinedButtonThemeData(
+  style: OutlinedButton.styleFrom(
+    backgroundColor: Colors.transparent,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+    ),
+    elevation: 0,
+    splashFactory: InkRipple.splashFactory,
   ),
 );
+
+/// Chip Theme
+ChipThemeData getChipTheme(ColorScheme colorScheme) => ChipThemeData(
+  checkmarkColor: Colors.white,
+  labelStyle: TextStyle(color: colorScheme.onSurface, fontSize: 12),
+);
+
+/// CheckBox Theme
+CheckboxThemeData getCheckBoxTheme(ColorScheme colorScheme) =>
+    CheckboxThemeData(
+      visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p4)),
+      ),
+      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary;
+        }
+        return Colors.transparent;
+      }),
+      side: BorderSide(
+        color: colorScheme.onSurface.withValues(alpha: 0.5),
+        width: 1.2,
+      ),
+    );
 
 /// ListTile Theme
 ListTileThemeData get listTileThemeData => const ListTileThemeData(

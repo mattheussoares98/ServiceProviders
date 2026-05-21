@@ -5,8 +5,7 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeLogo extends StatelessWidget {
-  const WelcomeLogo({super.key, required this.title});
-  final String title;
+  const WelcomeLogo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,7 @@ class WelcomeLogo extends StatelessWidget {
         gapH32,
         Align(
           alignment: Alignment.centerLeft,
-          child: BaseText.titleMedium(title, color: AppColors.blackE1),
+          child: BaseText.titleMedium('Login'.hardcoded),
         ),
       ],
     );

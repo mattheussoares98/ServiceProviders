@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/connection_failed/network_tower.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
@@ -26,7 +25,6 @@ class ConnectionFailed extends StatelessWidget {
           BaseText.title(
             'Connection Failure 🛰️',
             textAlign: TextAlign.center,
-            color: AppColors.black,
           ),
           const Spacer(),
           PrimaryButton(
