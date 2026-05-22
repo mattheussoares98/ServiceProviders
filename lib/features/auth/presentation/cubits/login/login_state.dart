@@ -1,17 +1,11 @@
 part of 'login_cubit.dart';
 
 class LoginState extends BaseState {
-  const LoginState({
-    required this.passwordVisibility,
-    required this.saveUserCredential,
-  });
+  const LoginState({required this.passwordVisibility});
 
-  const LoginState.initial()
-    : passwordVisibility = false,
-      saveUserCredential = false;
+  const LoginState.initial() : passwordVisibility = false;
   final bool passwordVisibility;
-  final bool saveUserCredential;
 
   @override
-  List<Object> get props => [passwordVisibility, saveUserCredential];
+  List<Object> get props => [passwordVisibility];
 }

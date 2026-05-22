@@ -40,7 +40,6 @@ class SignUpCubit extends BaseCubit<SignUpState> {
 
     if (dataState.hasData) {
       _useCases.setSession.call(dataState.data!);
-      await _useCases.saveUserData.call(dataState.data!);
       //TODO: Navigate to home
     }
   }

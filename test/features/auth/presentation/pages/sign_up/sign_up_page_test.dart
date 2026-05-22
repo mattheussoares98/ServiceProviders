@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
@@ -32,7 +31,6 @@ class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
 
 void main() {
   late MockSignUpUseCase mockSignUpUseCase;
-  late MockSaveUserDataUseCase mockSaveUserDataUseCase;
   late MockSetSessionUseCase mockSetSessionUseCase;
   late MockNavigationClient mockNavigationClient;
   late UserDataEntity userData;
@@ -48,20 +46,17 @@ void main() {
 
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
-    mockSaveUserDataUseCase = MockSaveUserDataUseCase();
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockNavigationClient = MockNavigationClient();
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
-      ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerFactory<SignUpCubit>(
         () => SignUpCubit(
           useCases: SignUpCubitUseCases(
             signUp: mockSignUpUseCase,
-            saveUserData: mockSaveUserDataUseCase,
             setSession: mockSetSessionUseCase,
           ),
         ),
@@ -90,9 +85,6 @@ void main() {
     when(
       () => mockSignUpUseCase.call(any()),
     ).thenAnswer((_) async => SuccessState(data: userData));
-    when(
-      () => mockSaveUserDataUseCase.call(any()),
-    ).thenAnswer((_) async => const SuccessState(data: true));
 
     final mockScreenObserverCubit = MockScreenObserverCubit();
     when(
@@ -127,7 +119,6 @@ void main() {
     // Verify sign up flow triggers correct use cases and navigates
     verify(() => mockSignUpUseCase.call(any())).called(1);
     verify(() => mockSetSessionUseCase.call(any())).called(1);
-    verify(() => mockSaveUserDataUseCase.call(any())).called(1);
     verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
   });
 
@@ -205,7 +196,10 @@ void main() {
       await $.pumpAndSettle();
 
       // Verify required field errors are shown
-      expect(find.text('Precisa ter pelo menos 3 caracteres'), findsNWidgets(2));
+      expect(
+        find.text('Precisa ter pelo menos 3 caracteres'),
+        findsNWidgets(2),
+      );
       expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
 
       // Verify SignUpUseCase is not called

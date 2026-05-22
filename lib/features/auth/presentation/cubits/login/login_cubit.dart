@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/core/domain/entities/user_entity.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
@@ -17,14 +18,10 @@ class LoginCubit extends BaseCubit<LoginState> {
 
   final LoginCubitUseCases _useCases;
   bool _passwordVisibility = false;
-  bool _saveUserCredential = false;
 
   /// Emits a new State
   void _refreshState() {
-    final newState = LoginState(
-      passwordVisibility: _passwordVisibility,
-      saveUserCredential: _saveUserCredential,
-    );
+    final newState = LoginState(passwordVisibility: _passwordVisibility);
     emit(newState);
   }
 
@@ -37,11 +34,6 @@ class LoginCubit extends BaseCubit<LoginState> {
 
   void togglePasswordVisibility() {
     _passwordVisibility = !_passwordVisibility;
-    _refreshState();
-  }
-
-  void toggleUserCredentialSaving() {
-    _saveUserCredential = !_saveUserCredential;
     _refreshState();
   }
 
@@ -58,16 +50,17 @@ class LoginCubit extends BaseCubit<LoginState> {
 
     if (dataState.hasData) {
       _useCases.setSession.call(dataState.data!);
-      if (_saveUserCredential) {
-        await _useCases.saveUserData.call(dataState.data!);
-      }
+
       //TODO: Navigate to home
     }
   }
 
   Future<void> resetPassword(String email) async {
     final dataState = await _useCases.resetPassword.call(email);
-    showDataStateToast(dataState);
+    showDataStateToast(
+      dataState,
+      message: 'E-mail de recuperação enviado com sucesso!'.hardcoded,
+    );
   }
 
   Future<void> fakeLogin({
@@ -92,9 +85,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     );
 
     _useCases.setSession.call(dataState.data!);
-    if (_saveUserCredential) {
-      await _useCases.saveUserData.call(dataState.data!);
-    }
+
     //TODO: Navigate to home
   }
 

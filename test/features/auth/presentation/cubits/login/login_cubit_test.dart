@@ -6,11 +6,12 @@ import 'package:clean_architecture/features/auth/domain/repositories/session_rep
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:faker/faker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
@@ -23,9 +24,10 @@ import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 final locator = GetIt.I;
 
+class MockNavigatorKey extends Mock implements GlobalKey<NavigatorState> {}
+
 void main() {
   late MockLoginUseCase mockLoginUseCase;
-  late MockSaveUserDataUseCase mockSaveUserDataUseCase;
   late MockSetSessionUseCase mockSetSessionUseCase;
   late MockLogOutUseCase mockLogOutUseCase;
   late MockSessionRepository mockSessionRepository;
@@ -57,15 +59,18 @@ void main() {
   setUp(() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockLoginUseCase = MockLoginUseCase();
-    mockSaveUserDataUseCase = MockSaveUserDataUseCase();
     mockLogOutUseCase = MockLogOutUseCase();
     mockSessionRepository = MockSessionRepository();
     mockNavigationClient = MockNavigationClient();
+    final mockNavigatorKey = MockNavigatorKey();
+    when(() => mockNavigatorKey.currentState).thenReturn(null);
+    when(
+      () => mockNavigationClient.navigatorKey,
+    ).thenReturn(mockNavigatorKey);
     mockResetPasswordUseCase = MockResetPasswordUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
-      ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<LogOutUseCase>(mockLogOutUseCase)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
@@ -74,7 +79,6 @@ void main() {
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
-      saveUserData: mockSaveUserDataUseCase,
       setSession: mockSetSessionUseCase,
       logOut: mockLogOutUseCase,
       resetPassword: GetIt.I<ResetPasswordUseCase>(),
@@ -88,18 +92,7 @@ void main() {
     'togglePasswordVisibility should flip passwordVisibility state',
     build: () => loginCubit,
     act: (cubit) => cubit.togglePasswordVisibility(),
-    expect: () => [
-      const LoginState(passwordVisibility: true, saveUserCredential: false),
-    ],
-  );
-
-  blocTest<LoginCubit, LoginState>(
-    'toggleUserCredentialSaving should flip saveUserCredential state',
-    build: () => loginCubit,
-    act: (cubit) => cubit.toggleUserCredentialSaving(),
-    expect: () => [
-      const LoginState(passwordVisibility: false, saveUserCredential: true),
-    ],
+    expect: () => [const LoginState(passwordVisibility: true)],
   );
 
   blocTest<LoginCubit, LoginState>(
@@ -126,41 +119,7 @@ void main() {
       // Assert
       verify(() => mockLoginUseCase.call(any())).called(1);
       verify(() => mockSetSessionUseCase.call(any())).called(1);
-      verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
-      verifyNever(() => mockSaveUserDataUseCase.call(any()));
-    },
-  );
-
-  blocTest<LoginCubit, LoginState>(
-    'login should save user data when saveUserCredential = true',
-    build: () {
-      // Arrange
-      when(() => mockSetSessionUseCase.call(userData)).thenAnswer((_) {});
-      when(() => mockNavigationClient.replaceAllRoute(any())).thenAnswer((
-        _,
-      ) async {
-        return;
-      });
-      when(
-        () => mockLoginUseCase.call(any()),
-      ).thenAnswer((_) async => SuccessState(data: userData));
-      when(
-        () => mockSaveUserDataUseCase.call(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      return loginCubit;
-    },
-    act: (cubit) async {
-      // Act
-      cubit.toggleUserCredentialSaving();
-      await cubit.login(username: 'test', password: '123');
-    },
-    verify: (_) {
-      // Assert
-      verify(() => mockLoginUseCase.call(any())).called(1);
-      verify(() => mockSetSessionUseCase.call(any())).called(1);
-      verify(() => mockSaveUserDataUseCase.call(any())).called(1);
-      verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+      verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
     },
   );
 
@@ -181,6 +140,20 @@ void main() {
     act: (cubit) => cubit.navigateToSignUp(),
     verify: (_) {
       verify(() => mockNavigationClient.pushRoute<void>(any())).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'resetPassword should call resetPassword use case',
+    build: () {
+      when(
+        () => mockResetPasswordUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState.nil);
+      return loginCubit;
+    },
+    act: (cubit) => cubit.resetPassword(faker.internet.email()),
+    verify: (_) {
+      verify(() => mockResetPasswordUseCase.call(any())).called(1);
     },
   );
 }

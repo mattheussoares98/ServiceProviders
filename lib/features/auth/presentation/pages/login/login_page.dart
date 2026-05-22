@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
+import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_optional.dart';
 import 'package:clean_architecture/features/auth/presentation/widgets/welcome_logo.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -49,10 +50,23 @@ class LoginPage extends HookWidget {
                   usernameController: usernameController,
                   passwordController: passwordController,
                 ),
-                gapH16,
-                TextButton(
-                  onPressed: context.read<LoginCubit>().navigateToSignUp,
-                  child: Text('Criar conta'.hardcoded),
+                gapH32,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: TextButton(
+                        onPressed: context.read<LoginCubit>().navigateToSignUp,
+                        child: Text('Criar conta'.hardcoded),
+                      ),
+                    ),
+                    gapH8,
+                    Flexible(
+                      child: RestorePassword(
+                        usernameController: usernameController,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

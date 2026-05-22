@@ -1,6 +1,5 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_optional.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -54,8 +53,6 @@ class LoginForm extends StatelessWidget {
                 ),
               ),
             ),
-            gapH16,
-            LoginOptional(saveUserCredential: state.saveUserCredential),
           ],
         );
       },

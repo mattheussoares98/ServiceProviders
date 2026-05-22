@@ -6,7 +6,6 @@ import 'package:clean_architecture/features/auth/domain/repositories/session_rep
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
@@ -35,7 +34,6 @@ class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
 
 void main() {
   late MockLoginUseCase mockLoginUseCase;
-  late MockSaveUserDataUseCase mockSaveUserDataUseCase;
   late MockSetSessionUseCase mockSetSessionUseCase;
   late MockLogOutUseCase mockLogOutUseCase;
   late MockSessionRepository mockSessionRepository;
@@ -65,7 +63,6 @@ void main() {
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
-    mockSaveUserDataUseCase = MockSaveUserDataUseCase();
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockLogOutUseCase = MockLogOutUseCase();
     mockSessionRepository = MockSessionRepository();
@@ -74,7 +71,6 @@ void main() {
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
-      ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<LogOutUseCase>(mockLogOutUseCase)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
@@ -84,7 +80,6 @@ void main() {
         () => LoginCubit(
           useCases: LoginCubitUseCases(
             login: mockLoginUseCase,
-            saveUserData: mockSaveUserDataUseCase,
             setSession: mockSetSessionUseCase,
             logOut: mockLogOutUseCase,
             resetPassword: mockResetPasswordUseCase,
@@ -112,9 +107,6 @@ void main() {
     when(
       () => mockLoginUseCase.call(any()),
     ).thenAnswer((_) async => SuccessState(data: userData));
-    when(
-      () => mockSaveUserDataUseCase.call(any()),
-    ).thenAnswer((_) async => const SuccessState(data: true));
 
     final mockScreenObserverCubit = MockScreenObserverCubit();
     when(
@@ -155,17 +147,12 @@ void main() {
     await $.tester.enterText(find.byType(TextField).at(1), 'password');
     await $.pumpAndSettle();
 
-    // Tap checkbox using standard Flutter test
-    await $.tester.tap(find.byType(Checkbox));
-    await $.pumpAndSettle();
-
     // Use the login cubit's login method in the login_button widget.
     // Tap the login button using standard Flutter test
     await $.tester.tap(find.byType(ElevatedButton));
     await $.pumpAndSettle();
 
-    verify(() => mockSaveUserDataUseCase.call(any())).called(1);
     verify(() => mockSetSessionUseCase.call(any())).called(1);
-    verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+    verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
   });
 }
