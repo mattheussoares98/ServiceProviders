@@ -43,7 +43,8 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
     String? captchaToken,
   }) => _auth.resetPasswordForEmail(
     email,
-    redirectTo: redirectTo,
+    redirectTo:
+        'http://localhost:9090', //TODO pass this parameter and create the reset password page
     captchaToken: captchaToken,
   );
 
