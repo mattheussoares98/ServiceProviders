@@ -5,6 +5,7 @@ import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.da
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,11 +15,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class LoginForm extends StatelessWidget {
   const LoginForm({
     super.key,
-    required this.usernameController,
+    required this.formKey,
+    required this.emailController,
     required this.passwordController,
+    required this.passwordFocusNode,
   });
-  final TextEditingController usernameController;
+  final GlobalKey<FormState> formKey;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
+  final FocusNode passwordFocusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +38,16 @@ class LoginForm extends StatelessWidget {
           children: [
             BaseTextFormField(
               enabled: !isLoading,
-              labelText: 'Usuário'.hardcoded,
-              hintText: 'Digite seu usuário'.hardcoded,
-              controller: usernameController,
-              validator: FormValidators.compose([MinLengthValidator(3)]),
+              labelText: 'E-mail'.hardcoded,
+              hintText: 'Digite o e-mail'.hardcoded,
+              controller: emailController,
+              validator: FormValidators.compose([EmailValidator()]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
             ),
             gapH8,
             BaseTextFormField(
+              focusNode: passwordFocusNode,
               enabled: !isLoading,
               labelText: 'Senha'.hardcoded,
               hintText: 'Digite sua senha'.hardcoded,
@@ -48,6 +55,17 @@ class LoginForm extends StatelessWidget {
               validator: FormValidators.compose([MinLengthValidator(3)]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !state.passwordVisibility,
+              onFieldSubmitted: (_) async {
+                if (!formKey.currentState!.validate()) {
+                  return;
+                }
+                FocusManager.instance.primaryFocus?.unfocus();
+
+                await context.read<LoginCubit>().fakeLogin(
+                  username: emailController.text,
+                  password: passwordController.text,
+                );
+              },
               suffixIcon: BaseIconButton(
                 excludeFromFocus: true,
                 onPressed: context.read<LoginCubit>().togglePasswordVisibility,

@@ -9,11 +9,11 @@ class LoginButton extends StatelessWidget {
   const LoginButton({
     super.key,
     required this.formKey,
-    required this.usernameController,
+    required this.emailController,
     required this.passwordController,
   });
   final GlobalKey<FormState> formKey;
-  final TextEditingController usernameController;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
 
   @override
@@ -32,7 +32,7 @@ class LoginButton extends StatelessWidget {
         FocusManager.instance.primaryFocus?.unfocus();
 
         await context.read<LoginCubit>().fakeLogin(
-          username: usernameController.text,
+          username: emailController.text,
           password: passwordController.text,
         );
       },

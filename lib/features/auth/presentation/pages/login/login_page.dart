@@ -21,8 +21,9 @@ class LoginPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final usernameController = useTextEditingController();
+    final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final passwordFocusNode = useFocusNode();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
     return BlocProvider(
@@ -43,14 +44,16 @@ class LoginPage extends HookWidget {
                 Form(
                   key: formKey,
                   child: LoginForm(
-                    usernameController: usernameController,
+                    formKey: formKey,
+                    emailController: emailController,
                     passwordController: passwordController,
+                    passwordFocusNode: passwordFocusNode,
                   ),
                 ),
                 gapH32,
                 LoginButton(
                   formKey: formKey,
-                  usernameController: usernameController,
+                  emailController: emailController,
                   passwordController: passwordController,
                 ),
                 gapH32,
@@ -75,7 +78,7 @@ class LoginPage extends HookWidget {
                     gapH8,
                     Flexible(
                       child: RestorePassword(
-                        usernameController: usernameController,
+                        usernameController: emailController,
                       ),
                     ),
                   ],
