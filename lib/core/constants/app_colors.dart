@@ -25,6 +25,7 @@ abstract final class AppColors {
 
   // Color Scheme
   static const primary = Color(0xFF003399);
+  static const primaryLight = Color.fromARGB(255, 101, 153, 249);
   static const secondary = Color(0xFF263A43);
   static const surface = white;
   static const onSurface = base;

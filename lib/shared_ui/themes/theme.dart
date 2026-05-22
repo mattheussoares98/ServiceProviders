@@ -8,6 +8,7 @@ part 'theme_data.dart';
 ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: AppColors.primary,
+  primaryColorLight: AppColors.primaryLight,
   colorScheme: colorScheme,
   fontFamily: 'Poppins',
   scaffoldBackgroundColor: AppColors.surface,
@@ -26,6 +27,7 @@ ThemeData lightTheme = ThemeData(
 ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: AppColors.primary,
+  primaryColorLight: AppColors.primaryLight,
   colorScheme: darkColorScheme,
   fontFamily: 'Poppins',
   scaffoldBackgroundColor: const Color(0xFF121214),
