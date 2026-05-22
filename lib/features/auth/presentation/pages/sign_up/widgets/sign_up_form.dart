@@ -129,7 +129,6 @@ class _TogglePasswordVisibility extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseIconButton(
-      excludeFromFocus: true,
       onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
       platformIcon: PlatformIcon(
         materialIcon: passwordVisibility

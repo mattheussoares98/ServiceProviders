@@ -14,7 +14,7 @@ class BaseIconButton extends StatelessWidget {
     this.visualDensity,
     this.targetSize,
     this.disableSplash = false,
-    this.excludeFromFocus = false,
+    this.excludeFromFocus = true,
   });
   final void Function() onPressed;
   final PlatformIcon platformIcon;

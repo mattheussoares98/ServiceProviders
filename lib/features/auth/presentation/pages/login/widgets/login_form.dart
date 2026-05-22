@@ -67,7 +67,6 @@ class LoginForm extends StatelessWidget {
                 );
               },
               suffixIcon: BaseIconButton(
-                excludeFromFocus: true,
                 onPressed: context.read<LoginCubit>().togglePasswordVisibility,
                 platformIcon: PlatformIcon(
                   materialIcon: state.passwordVisibility
