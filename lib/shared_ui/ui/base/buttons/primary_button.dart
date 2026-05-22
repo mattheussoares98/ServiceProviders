@@ -5,9 +5,8 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
-class PrimaryButton extends HookWidget {
+class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     required this.onTap,
@@ -18,7 +17,7 @@ class PrimaryButton extends HookWidget {
     this.height,
     this.width,
     this.color,
-    this.loadableButton = false,
+    this.isLoading = false,
     this.expandWidth = false,
   });
   final Future<void> Function() onTap;
@@ -28,68 +27,39 @@ class PrimaryButton extends HookWidget {
   final Color? foregroundColor;
   final double? height;
   final double? width;
-  final bool loadableButton;
+  final bool isLoading;
   final Color? color;
   final bool expandWidth;
 
   @override
   Widget build(BuildContext context) {
-    final loadingNotifier = useValueNotifier(false);
-    final onPressed = useCallback(() async {
-      /// If the button is loading, discard the task
-      if (loadingNotifier.value) {
-        return;
-      }
-
-      /// If the button is not loadable
-      if (!loadableButton) {
-        return onTap();
-      }
-
-      loadingNotifier.value = true;
-      await onTap();
-
-      /// If the widget is disposed, don't update value
-      if (context.mounted) {
-        loadingNotifier.value = false;
-      }
-    });
+    final effectiveForegroundColor = foregroundColor ?? AppColors.white;
+    final childWidget = isLoading
+        ? LoadingCircle.small(effectiveForegroundColor)
+        : BaseText(
+            text,
+            color: foregroundColor,
+            textType: textType ?? TextType.bodyLarge,
+            fontWeight: textFontWeight ?? FontWeight.w500,
+          );
 
     return SizedBox(
       height: height ?? 50,
       width: expandWidth ? double.maxFinite : width,
-      child: ValueListenableBuilder(
-        valueListenable: loadingNotifier,
-        builder: (builderContext, loading, setState) {
-          final effectiveForegroundColor = foregroundColor ?? AppColors.white;
-          final childWidget = loading
-              ? LoadingCircle.small(effectiveForegroundColor)
-              : BaseText(
-                  text,
-                  color: foregroundColor,
-                  textType: textType ?? TextType.bodyLarge,
-                  fontWeight: textFontWeight ?? FontWeight.w500,
-                );
-
-          if (context.isCupertino) {
-            final activeColor = color ?? AppColors.primary;
-            return CupertinoButton(
-              onPressed: loading ? null : onPressed.call,
-              color: activeColor,
-              disabledColor: activeColor,
+      child: context.isCupertino
+          ? CupertinoButton(
+              onPressed: isLoading ? null : onTap,
+              color: color ?? AppColors.primary,
+              disabledColor: color ?? AppColors.primary,
               padding: EdgeInsets.zero,
               borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               child: Center(child: childWidget),
-            );
-          }
-
-          return ElevatedButton(
-            onPressed: loading ? null : onPressed.call,
-            style: ElevatedButton.styleFrom(backgroundColor: color),
-            child: childWidget,
-          );
-        },
-      ),
+            )
+          : ElevatedButton(
+              onPressed: isLoading ? null : onTap,
+              style: ElevatedButton.styleFrom(backgroundColor: color),
+              child: childWidget,
+            ),
     );
   }
 }

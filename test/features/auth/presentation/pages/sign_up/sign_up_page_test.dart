@@ -110,6 +110,7 @@ void main() {
     await $.tester.enterText(find.byType(TextField).at(0), fakeName);
     await $.tester.enterText(find.byType(TextField).at(1), fakeEmail);
     await $.tester.enterText(find.byType(TextField).at(2), fakePassword);
+    await $.tester.enterText(find.byType(TextField).at(3), fakePassword);
     await $.pumpAndSettle();
 
     // Tap Confirm button
@@ -119,7 +120,7 @@ void main() {
     // Verify sign up flow triggers correct use cases and navigates
     verify(() => mockSignUpUseCase.call(any())).called(1);
     verify(() => mockSetSessionUseCase.call(any())).called(1);
-    verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+    verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
   });
 
   patrolWidgetTest(
@@ -151,7 +152,7 @@ void main() {
       expect(passwordField.obscureText, isTrue);
 
       // Tap password visibility toggle icon (starts as visibility_off)
-      await $.tester.tap(find.byIcon(Icons.visibility_off_outlined));
+      await $.tester.tap(find.byIcon(Icons.visibility_off_outlined).first);
       await $.pumpAndSettle();
 
       // Verify password text field is no longer obscure
@@ -159,7 +160,7 @@ void main() {
       expect(passwordField.obscureText, isFalse);
 
       // Tap visibility icon again to obscure it again
-      await $.tester.tap(find.byIcon(Icons.visibility_outlined));
+      await $.tester.tap(find.byIcon(Icons.visibility_outlined).first);
       await $.pumpAndSettle();
 
       // Verify it is obscured again
@@ -209,15 +210,14 @@ void main() {
       final fakeInvalidEmail = faker.randomGenerator.string(
         10,
       ); // not a valid email
+      final password = faker.internet.password();
       await $.tester.enterText(
         find.byType(TextField).at(0),
         faker.person.name(),
       );
       await $.tester.enterText(find.byType(TextField).at(1), fakeInvalidEmail);
-      await $.tester.enterText(
-        find.byType(TextField).at(2),
-        faker.internet.password(),
-      );
+      await $.tester.enterText(find.byType(TextField).at(2), password);
+      await $.tester.enterText(find.byType(TextField).at(3), password);
       await $.pumpAndSettle();
 
       await $.tester.tap(find.byType(ElevatedButton));

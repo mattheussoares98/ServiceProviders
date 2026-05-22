@@ -41,6 +41,13 @@ class LoginCubit extends BaseCubit<LoginState> {
     required String username,
     required String password,
   }) async {
+    emit(
+      LoginState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loading,
+      ),
+    );
+    //TODO fix tests
     final authentication = AuthenticationEntity(
       username: username,
       password: password,
@@ -49,24 +56,65 @@ class LoginCubit extends BaseCubit<LoginState> {
     showDataStateToast(dataState);
 
     if (dataState.hasData) {
+      emit(
+        LoginState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.loaded,
+        ),
+      );
       _useCases.setSession.call(dataState.data!);
 
       //TODO: Navigate to home
+    } else {
+      emit(
+        LoginState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.error,
+        ),
+      );
     }
   }
 
   Future<void> resetPassword(String email) async {
+    emit(
+      LoginState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loading,
+      ),
+    );
     final dataState = await _useCases.resetPassword.call(email);
     showDataStateToast(
       dataState,
       message: 'E-mail de recuperação enviado com sucesso!'.hardcoded,
     );
+
+    if (!dataState.hasError) {
+      emit(
+        LoginState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.loaded,
+        ),
+      );
+    } else {
+      emit(
+        LoginState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.error,
+        ),
+      );
+    }
   }
 
   Future<void> fakeLogin({
     required String username,
     required String password,
   }) async {
+    emit(
+      LoginState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loading,
+      ),
+    );
     await Future<void>.delayed(const Duration(seconds: 2));
 
     final dataState = SuccessState(
@@ -84,7 +132,13 @@ class LoginCubit extends BaseCubit<LoginState> {
       ),
     );
 
-    _useCases.setSession.call(dataState.data!);
+    _useCases.setSession.call(dataState.data!); //TODO delete this method
+    emit(
+      LoginState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loaded,
+      ),
+    );
 
     //TODO: Navigate to home
   }

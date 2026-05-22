@@ -16,6 +16,7 @@ class BaseTextButton extends StatelessWidget {
     this.padding,
     this.visualDensity,
     this.elevation,
+    this.isLoading = false,
   });
   final void Function() onPressed;
   final String text;
@@ -26,6 +27,7 @@ class BaseTextButton extends StatelessWidget {
   final EdgeInsets? padding;
   final VisualDensity? visualDensity;
   final double? elevation;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class BaseTextButton extends StatelessWidget {
 
     if (context.isCupertino) {
       return CupertinoButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
         child: BaseText(
@@ -47,7 +49,7 @@ class BaseTextButton extends StatelessWidget {
     }
 
     return TextButton(
-      onPressed: onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: TextButton.styleFrom(
         foregroundColor: color,
         padding: padding,
@@ -56,7 +58,7 @@ class BaseTextButton extends StatelessWidget {
       ),
       child: BaseText(
         text,
-        color: textColor ?? AppColors.hightLight,
+        color: textColor ?? color ?? AppColors.hightLight,
         textType: appliedTextType,
         fontWeight: appliedFontWeight,
       ),

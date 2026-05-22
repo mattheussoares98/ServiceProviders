@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,8 +18,12 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.select(
+      (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+    );
+
     return PrimaryButton(
-      loadableButton: true,
+      isLoading: isLoading,
       expandWidth: true,
       onTap: () async {
         if (!formKey.currentState!.validate()) {

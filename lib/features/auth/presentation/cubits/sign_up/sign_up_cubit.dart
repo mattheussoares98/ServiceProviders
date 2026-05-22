@@ -29,6 +29,13 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     required String email,
     required String password,
   }) async {
+    emit(
+      SignUpState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loading,
+      ),
+    );
+
     final signUpEntity = SignUpEntity(
       name: name,
       email: email,
@@ -38,7 +45,20 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     final dataState = await _useCases.signUp.call(signUpEntity);
     showDataStateToast(dataState);
 
-    if (dataState.hasData) {
+    if (dataState.hasError) {
+      emit(
+        SignUpState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.error,
+        ),
+      );
+    } else {
+      emit(
+        SignUpState(
+          passwordVisibility: _passwordVisibility,
+          status: StateStatus.loaded,
+        ),
+      );
       _useCases.setSession.call(dataState.data!);
       //TODO: Navigate to home
     }

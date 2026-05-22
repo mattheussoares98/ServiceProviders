@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -32,6 +33,9 @@ class RestorePassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseTextButton(
+      isLoading: context.select(
+        (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+      ),
       onPressed: () => _showResetPasswordDialog(context),
       text: 'Esqueceu a senha?'.hardcoded,
     );

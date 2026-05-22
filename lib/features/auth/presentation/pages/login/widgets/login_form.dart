@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -21,12 +22,17 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.select(
+      (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+    );
+
     return BlocBuilder<LoginCubit, LoginState>(
       builder: (context, state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             BaseTextFormField(
+              enabled: !isLoading,
               labelText: 'Usuário'.hardcoded,
               hintText: 'Digite seu usuário'.hardcoded,
               controller: usernameController,
@@ -35,6 +41,7 @@ class LoginForm extends StatelessWidget {
             ),
             gapH8,
             BaseTextFormField(
+              enabled: !isLoading,
               labelText: 'Senha'.hardcoded,
               hintText: 'Digite sua senha'.hardcoded,
               controller: passwordController,
@@ -42,6 +49,7 @@ class LoginForm extends StatelessWidget {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !state.passwordVisibility,
               suffixIcon: BaseIconButton(
+                excludeFromFocus: true,
                 onPressed: context.read<LoginCubit>().togglePasswordVisibility,
                 platformIcon: PlatformIcon(
                   materialIcon: state.passwordVisibility

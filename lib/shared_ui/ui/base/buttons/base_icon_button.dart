@@ -14,6 +14,7 @@ class BaseIconButton extends StatelessWidget {
     this.visualDensity,
     this.targetSize,
     this.disableSplash = false,
+    this.excludeFromFocus = false,
   });
   final void Function() onPressed;
   final PlatformIcon platformIcon;
@@ -23,47 +24,52 @@ class BaseIconButton extends StatelessWidget {
   final VisualDensity? visualDensity;
   final double? targetSize;
   final bool disableSplash;
+  final bool excludeFromFocus;
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+
     if (context.isCupertino) {
-      Widget childWidget = CupertinoButton(
+      child = CupertinoButton(
         onPressed: onPressed,
         padding: padding ?? EdgeInsets.zero,
         child: platformIcon,
       );
 
+      if (excludeFromFocus) {
+        child = ExcludeFocus(child: child);
+      }
+
       if (targetSize != null) {
-        childWidget = SizedBox(
-          height: targetSize,
-          width: targetSize,
-          child: childWidget,
+        child = SizedBox(height: targetSize, width: targetSize, child: child);
+      }
+    } else {
+      child = IconButton(
+        splashRadius: splashRadius,
+        onPressed: onPressed,
+        padding: padding ?? EdgeInsets.zero,
+        constraints: boxConstraints ?? const BoxConstraints(),
+        visualDensity:
+            visualDensity ?? const VisualDensity(horizontal: -4, vertical: -4),
+        highlightColor: disableSplash ? Colors.transparent : null,
+        icon: platformIcon,
+      );
+
+      if (disableSplash) {
+        child = Theme(
+          data: ThemeData(splashFactory: NoSplash.splashFactory),
+          child: child,
         );
       }
 
-      return childWidget;
+      if (targetSize != null) {
+        child = SizedBox(height: targetSize, width: targetSize, child: child);
+      }
     }
 
-    Widget child = IconButton(
-      splashRadius: splashRadius,
-      onPressed: onPressed,
-      padding: padding ?? EdgeInsets.zero,
-      constraints: boxConstraints ?? const BoxConstraints(),
-      visualDensity:
-          visualDensity ?? const VisualDensity(horizontal: -4, vertical: -4),
-      highlightColor: disableSplash ? Colors.transparent : null,
-      icon: platformIcon,
-    );
-
-    if (disableSplash) {
-      child = Theme(
-        data: ThemeData(splashFactory: NoSplash.splashFactory),
-        child: child,
-      );
-    }
-
-    if (targetSize != null) {
-      child = SizedBox(height: targetSize, width: targetSize, child: child);
+    if (excludeFromFocus) {
+      child = ExcludeFocus(child: child);
     }
 
     return child;

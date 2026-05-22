@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -14,28 +15,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SignUpForm extends StatelessWidget {
   const SignUpForm({
     super.key,
+    required this.formKey,
     required this.nameController,
     required this.emailController,
     required this.passwordController,
+    required this.passwordConfirmationController,
+    required this.emailFocusNode,
+    required this.passwordFocusNode,
+    required this.passwordConfirmationFocusNode,
   });
+
+  final GlobalKey<FormState> formKey;
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final TextEditingController passwordConfirmationController;
+  final FocusNode emailFocusNode;
+  final FocusNode passwordFocusNode;
+  final FocusNode passwordConfirmationFocusNode;
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.select(
+      (SignUpCubit cubit) => cubit.state.status == StateStatus.loading,
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         BaseTextFormField(
+          enabled: !isLoading,
           labelText: 'Nome'.hardcoded,
           hintText: 'Digite seu nome'.hardcoded,
           controller: nameController,
           validator: FormValidators.compose([MinLengthValidator(3)]),
           autovalidateMode: AutovalidateMode.onUserInteraction,
+          onFieldSubmitted: (_) => emailFocusNode.requestFocus(),
         ),
         gapH20,
         BaseTextFormField(
+          enabled: !isLoading,
+          focusNode: emailFocusNode,
+          onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
           labelText: 'Email'.hardcoded,
           hintText: 'Digite seu email'.hardcoded,
           controller: emailController,
@@ -46,28 +66,79 @@ class SignUpForm extends StatelessWidget {
         BlocSelector<SignUpCubit, SignUpState, bool>(
           selector: (state) => state.passwordVisibility,
           builder: (context, passwordVisibility) {
-            return BaseTextFormField(
-              labelText: 'Senha'.hardcoded,
-              hintText: 'Digite sua senha'.hardcoded,
-              controller: passwordController,
-              validator: FormValidators.compose([MinLengthValidator(3)]),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              obscureText: !passwordVisibility,
-              suffixIcon: BaseIconButton(
-                onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
-                platformIcon: PlatformIcon(
-                  materialIcon: passwordVisibility
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  cupertinoIcon: passwordVisibility
-                      ? CupertinoIcons.eye
-                      : CupertinoIcons.eye_slash,
+            return Column(
+              children: [
+                BaseTextFormField(
+                  enabled: !isLoading,
+                  focusNode: passwordFocusNode,
+                  onFieldSubmitted: (_) =>
+                      passwordConfirmationFocusNode.requestFocus(),
+                  labelText: 'Senha'.hardcoded,
+                  hintText: 'Digite sua senha'.hardcoded,
+                  controller: passwordController,
+                  validator: FormValidators.compose([MinLengthValidator(3)]),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  obscureText: !passwordVisibility,
+                  suffixIcon: _TogglePasswordVisibility(
+                    passwordVisibility: passwordVisibility,
+                  ),
                 ),
-              ),
+                gapH20,
+                BaseTextFormField(
+                  enabled: !isLoading,
+                  focusNode: passwordConfirmationFocusNode,
+                  labelText: 'Confirmar senha'.hardcoded,
+                  hintText: 'Digite sua senha'.hardcoded,
+                  controller: passwordConfirmationController,
+                  validator: (value) =>
+                      passwordConfirmationController.text ==
+                          passwordController.text
+                      ? null
+                      : 'Senhas não conferem'.hardcoded,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  onFieldSubmitted: (_) async {
+                    if (!formKey.currentState!.validate()) {
+                      return;
+                    }
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    await context.read<SignUpCubit>().signUp(
+                      name: nameController.text,
+                      email: emailController.text,
+                      password: passwordController.text,
+                    );
+                  },
+                  obscureText: !passwordVisibility,
+                  suffixIcon: _TogglePasswordVisibility(
+                    passwordVisibility: passwordVisibility,
+                  ),
+                ),
+              ],
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class _TogglePasswordVisibility extends StatelessWidget {
+  const _TogglePasswordVisibility({required this.passwordVisibility});
+  final bool passwordVisibility;
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseIconButton(
+      excludeFromFocus: true,
+      onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
+      platformIcon: PlatformIcon(
+        materialIcon: passwordVisibility
+            ? Icons.visibility_outlined
+            : Icons.visibility_off_outlined,
+        cupertinoIcon: passwordVisibility
+            ? CupertinoIcons.eye
+            : CupertinoIcons.eye_slash,
+      ),
     );
   }
 }

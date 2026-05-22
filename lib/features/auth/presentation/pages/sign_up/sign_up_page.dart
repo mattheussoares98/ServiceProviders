@@ -20,6 +20,11 @@ class SignUpPage extends HookWidget {
     final nameController = useTextEditingController();
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
+    final passwordConfirmationController = useTextEditingController();
+    final emailFocusNode = useFocusNode();
+    final passwordFocusNode = useFocusNode();
+    final passwordConfirmationFocusNode = useFocusNode();
+
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
     return BlocProvider(
@@ -34,9 +39,14 @@ class SignUpPage extends HookWidget {
             Form(
               key: formKey,
               child: SignUpForm(
+                formKey: formKey,
                 nameController: nameController,
                 emailController: emailController,
                 passwordController: passwordController,
+                passwordConfirmationController: passwordConfirmationController,
+                emailFocusNode: emailFocusNode,
+                passwordFocusNode: passwordFocusNode,
+                passwordConfirmationFocusNode: passwordConfirmationFocusNode,
               ),
             ),
             gapH32,

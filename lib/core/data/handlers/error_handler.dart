@@ -4,6 +4,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class ErrorHandler {
   /// Run an async callback and log any exceptions (does not rethrow).
@@ -66,8 +67,16 @@ abstract final class ErrorHandler {
       _debugError('Http Response: ${exception.response}');
       _debugError(exception, stackTrace);
       return _handleDioException<T>(exception);
+    } on AuthException catch (exception, stackTrace) {
+      _debugError(exception, stackTrace);
+      final statusStr = exception.statusCode;
+      final statusCode = statusStr != null ? int.tryParse(statusStr) : null;
+      return FailureState<T>(
+        message: exception.message,
+        error: exception.toString(),
+        statusCode: statusCode,
+      );
     } catch (error, stackTrace) {
-      //TODO handle the supabase error
       _debugError(error, stackTrace);
       return FailureState<T>(error: error.toString());
     }
