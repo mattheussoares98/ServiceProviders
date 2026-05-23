@@ -44,8 +44,6 @@ import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case
     as _i68;
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart'
     as _i701;
-import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart'
-    as _i636;
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart'
     as _i979;
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart'
@@ -176,9 +174,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i294.LogOutUseCase>(
       () => _i294.LogOutUseCase(gh<_i150.SessionRepository>()),
     );
-    gh.lazySingleton<_i636.SetSessionUseCase>(
-      () => _i636.SetSessionUseCase(gh<_i150.SessionRepository>()),
-    );
     gh.lazySingleton<_i701.ResetPasswordUseCase>(
       () => _i701.ResetPasswordUseCase(repository: gh<_i1003.AuthRepository>()),
     );
@@ -197,25 +192,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i979.SignUpUseCase>(
       () => _i979.SignUpUseCase(authRepository: gh<_i1003.AuthRepository>()),
     );
+    gh.lazySingleton<_i735.SignUpCubitUseCases>(
+      () => _i735.SignUpCubitUseCases(signUp: gh<_i979.SignUpUseCase>()),
+    );
+    gh.factory<_i68.SignUpCubit>(
+      () => _i68.SignUpCubit(useCases: gh<_i735.SignUpCubitUseCases>()),
+    );
     gh.lazySingleton<_i123.LoginCubitUseCases>(
       () => _i123.LoginCubitUseCases(
         login: gh<_i68.LoginUseCase>(),
-        setSession: gh<_i636.SetSessionUseCase>(),
         logOut: gh<_i294.LogOutUseCase>(),
         resetPassword: gh<_i701.ResetPasswordUseCase>(),
       ),
     );
     gh.factory<_i912.LoginCubit>(
       () => _i912.LoginCubit(useCases: gh<_i123.LoginCubitUseCases>()),
-    );
-    gh.lazySingleton<_i735.SignUpCubitUseCases>(
-      () => _i735.SignUpCubitUseCases(
-        signUp: gh<_i979.SignUpUseCase>(),
-        setSession: gh<_i636.SetSessionUseCase>(),
-      ),
-    );
-    gh.factory<_i68.SignUpCubit>(
-      () => _i68.SignUpCubit(useCases: gh<_i735.SignUpCubitUseCases>()),
     );
     return this;
   }

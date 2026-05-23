@@ -5,7 +5,6 @@ import 'package:injectable/injectable.dart';
 
 part 'sign_up_state.dart';
 
-//TODO create tests for this file and signUpState file
 @injectable
 class SignUpCubit extends BaseCubit<SignUpState> {
   SignUpCubit({required SignUpCubitUseCases useCases})
@@ -59,7 +58,6 @@ class SignUpCubit extends BaseCubit<SignUpState> {
           status: StateStatus.loaded,
         ),
       );
-      _useCases.setSession.call(dataState.data!);
       //TODO: Navigate to home
     }
   }

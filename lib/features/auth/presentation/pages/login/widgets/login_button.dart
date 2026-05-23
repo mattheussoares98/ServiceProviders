@@ -25,13 +25,13 @@ class LoginButton extends StatelessWidget {
     return PrimaryButton(
       isLoading: isLoading,
       expandWidth: true,
-      onTap: () async {
+      onTap: () {
         if (!formKey.currentState!.validate()) {
           return;
         }
         FocusManager.instance.primaryFocus?.unfocus();
 
-        await context.read<LoginCubit>().fakeLogin(
+        context.read<LoginCubit>().login(
           username: emailController.text,
           password: passwordController.text,
         );

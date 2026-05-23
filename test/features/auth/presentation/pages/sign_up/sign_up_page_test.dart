@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
@@ -31,7 +30,6 @@ class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
 
 void main() {
   late MockSignUpUseCase mockSignUpUseCase;
-  late MockSetSessionUseCase mockSetSessionUseCase;
   late MockNavigationClient mockNavigationClient;
   late UserDataEntity userData;
 
@@ -46,19 +44,14 @@ void main() {
 
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
-    mockSetSessionUseCase = MockSetSessionUseCase();
     mockNavigationClient = MockNavigationClient();
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
-      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerFactory<SignUpCubit>(
         () => SignUpCubit(
-          useCases: SignUpCubitUseCases(
-            signUp: mockSignUpUseCase,
-            setSession: mockSetSessionUseCase,
-          ),
+          useCases: SignUpCubitUseCases(signUp: mockSignUpUseCase),
         ),
       );
 
@@ -78,7 +71,6 @@ void main() {
     final fakeEmail = faker.internet.email();
     final fakePassword = '${faker.internet.password()}!123';
 
-    when(() => mockSetSessionUseCase.call(userData)).thenAnswer((_) {});
     when(
       () => mockNavigationClient.replaceAllRoute(any()),
     ).thenAnswer((_) async {});
@@ -119,7 +111,6 @@ void main() {
 
     // Verify sign up flow triggers correct use cases and navigates
     verify(() => mockSignUpUseCase.call(any())).called(1);
-    verify(() => mockSetSessionUseCase.call(any())).called(1);
     verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
   });
 

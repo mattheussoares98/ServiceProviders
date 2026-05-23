@@ -1,6 +1,3 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
@@ -56,23 +53,14 @@ class LoginCubit extends BaseCubit<LoginState> {
     showDataStateToast(dataState);
 
     if (dataState.hasData) {
-      emit(
-        LoginState(
-          passwordVisibility: _passwordVisibility,
-          status: StateStatus.loaded,
-        ),
-      );
-      _useCases.setSession.call(dataState.data!);
-
       //TODO: Navigate to home
-    } else {
-      emit(
-        LoginState(
-          passwordVisibility: _passwordVisibility,
-          status: StateStatus.error,
-        ),
-      );
     }
+    emit(
+      LoginState(
+        passwordVisibility: _passwordVisibility,
+        status: StateStatus.loaded,
+      ),
+    );
   }
 
   Future<void> resetPassword(String email) async {
@@ -103,44 +91,6 @@ class LoginCubit extends BaseCubit<LoginState> {
         ),
       );
     }
-  }
-
-  Future<void> fakeLogin({
-    required String username,
-    required String password,
-  }) async {
-    emit(
-      LoginState(
-        passwordVisibility: _passwordVisibility,
-        status: StateStatus.loading,
-      ),
-    );
-    await Future<void>.delayed(const Duration(seconds: 2));
-
-    final dataState = SuccessState(
-      data: UserDataEntity(
-        accessToken: 'access',
-        refreshToken: 'refresh',
-        user: UserEntity(
-          id: 'fake-id',
-          firstName: 'Flutter',
-          lastName: 'Developers',
-          username: username,
-          email: 'email',
-          isActive: true,
-        ),
-      ),
-    );
-
-    _useCases.setSession.call(dataState.data!); //TODO delete this method
-    emit(
-      LoginState(
-        passwordVisibility: _passwordVisibility,
-        status: StateStatus.loaded,
-      ),
-    );
-
-    //TODO: Navigate to home
   }
 
   Future<void> navigateToSignUp() async {

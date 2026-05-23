@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
@@ -23,7 +22,6 @@ final locator = GetIt.I;
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late MockSignUpUseCase mockSignUpUseCase;
-  late MockSetSessionUseCase mockSetSessionUseCase;
   late MockNavigationClient mockNavigationClient;
   late SignUpCubit signUpCubit;
   late UserDataEntity userData;
@@ -39,7 +37,6 @@ void main() {
 
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
-    mockSetSessionUseCase = MockSetSessionUseCase();
     mockNavigationClient = MockNavigationClient();
     when(
       () => mockNavigationClient.navigatorKey,
@@ -47,13 +44,9 @@ void main() {
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
-      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<NavigationClient>(mockNavigationClient);
 
-    final useCases = SignUpCubitUseCases(
-      signUp: mockSignUpUseCase,
-      setSession: mockSetSessionUseCase,
-    );
+    final useCases = SignUpCubitUseCases(signUp: mockSignUpUseCase);
     signUpCubit = SignUpCubit(useCases: useCases);
   });
 
@@ -69,7 +62,6 @@ void main() {
   blocTest<SignUpCubit, SignUpState>(
     'signUp should handle successful sign up, save data, and navigate',
     build: () {
-      when(() => mockSetSessionUseCase.call(userData)).thenAnswer((_) {});
       when(
         () => mockNavigationClient.replaceAllRoute(any()),
       ).thenAnswer((_) async {});
@@ -88,7 +80,6 @@ void main() {
     },
     verify: (_) {
       verify(() => mockSignUpUseCase.call(any())).called(1);
-      verify(() => mockSetSessionUseCase.call(any())).called(1);
       verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
     },
   );
@@ -111,7 +102,6 @@ void main() {
     },
     verify: (_) {
       verify(() => mockSignUpUseCase.call(any())).called(1);
-      verifyNever(() => mockSetSessionUseCase.call(any()));
       verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
     },
   );
