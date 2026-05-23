@@ -54,6 +54,8 @@ import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sig
     as _i68;
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart'
     as _i735;
+import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart'
+    as _i471;
 import 'package:clean_architecture/routing/helper/navigation_client.dart'
     as _i389;
 import 'package:clean_architecture/routing/routes.dart' as _i671;
@@ -92,6 +94,7 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<bool>(() => httpClientModule.addInterceptors);
+    gh.factory<_i471.HomeCubit>(() => _i471.HomeCubit());
     gh.factory<_i1037.KeyboardVisibilityCubit>(
       () => _i1037.KeyboardVisibilityCubit(),
     );

@@ -9,40 +9,58 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:auto_route/auto_route.dart' as _i3;
+import 'package:auto_route/auto_route.dart' as _i4;
 import 'package:clean_architecture/features/auth/presentation/pages/login/login_page.dart'
-    as _i1;
-import 'package:clean_architecture/features/auth/presentation/pages/sign_up/sign_up_page.dart'
     as _i2;
+import 'package:clean_architecture/features/auth/presentation/pages/sign_up/sign_up_page.dart'
+    as _i3;
+import 'package:clean_architecture/features/home/presentation/pages/home_page/home_page_page.dart'
+    as _i1;
 
 /// generated route for
-/// [_i1.LoginPage]
-class LoginRoute extends _i3.PageRouteInfo<void> {
-  const LoginRoute({List<_i3.PageRouteInfo>? children})
-    : super(LoginRoute.name, initialChildren: children);
+/// [_i1.HomePagePage]
+class HomeRouteRoute extends _i4.PageRouteInfo<void> {
+  const HomeRouteRoute({List<_i4.PageRouteInfo>? children})
+    : super(HomeRouteRoute.name, initialChildren: children);
 
-  static const String name = 'LoginRoute';
+  static const String name = 'HomeRouteRoute';
 
-  static _i3.PageInfo page = _i3.PageInfo(
+  static _i4.PageInfo page = _i4.PageInfo(
     name,
     builder: (data) {
-      return const _i1.LoginPage();
+      return const _i1.HomePagePage();
     },
   );
 }
 
 /// generated route for
-/// [_i2.SignUpPage]
-class SignUpRoute extends _i3.PageRouteInfo<void> {
-  const SignUpRoute({List<_i3.PageRouteInfo>? children})
+/// [_i2.LoginPage]
+class LoginRoute extends _i4.PageRouteInfo<void> {
+  const LoginRoute({List<_i4.PageRouteInfo>? children})
+    : super(LoginRoute.name, initialChildren: children);
+
+  static const String name = 'LoginRoute';
+
+  static _i4.PageInfo page = _i4.PageInfo(
+    name,
+    builder: (data) {
+      return const _i2.LoginPage();
+    },
+  );
+}
+
+/// generated route for
+/// [_i3.SignUpPage]
+class SignUpRoute extends _i4.PageRouteInfo<void> {
+  const SignUpRoute({List<_i4.PageRouteInfo>? children})
     : super(SignUpRoute.name, initialChildren: children);
 
   static const String name = 'SignUpRoute';
 
-  static _i3.PageInfo page = _i3.PageInfo(
+  static _i4.PageInfo page = _i4.PageInfo(
     name,
     builder: (data) {
-      return const _i2.SignUpPage();
+      return const _i3.SignUpPage();
     },
   );
 }
