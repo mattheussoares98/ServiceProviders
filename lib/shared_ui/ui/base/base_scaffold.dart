@@ -27,6 +27,7 @@ class BaseScaffold extends StatelessWidget {
     this.bottomNavigationItems,
     this.bottomNavigationIndex,
     this.onBottomNavigationTap,
+    this.drawer,
   });
 
   final bool showAnnotatedRegion;
@@ -45,6 +46,7 @@ class BaseScaffold extends StatelessWidget {
   final List<BaseBottomNavigationBarItem>? bottomNavigationItems;
   final int? bottomNavigationIndex;
   final ValueChanged<int>? onBottomNavigationTap;
+  final Widget? drawer;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +189,7 @@ class _BaseScaffold extends StatelessWidget {
         appBar: appBarWidget,
         body: SafeArea(child: newChild),
         bottomNavigationBar: bottomNavigationWidget,
+        drawer: params.drawer,
       );
     }
 
