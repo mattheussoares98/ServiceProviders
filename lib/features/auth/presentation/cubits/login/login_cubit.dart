@@ -52,8 +52,11 @@ class LoginCubit extends BaseCubit<LoginState> {
     final dataState = await _useCases.login.call(authentication);
     showDataStateToast(dataState);
 
-    if (dataState.hasData) {
+    if (!dataState.hasError) {
       //TODO: Navigate to home
+
+      //because it navigates to the home page, doesn't need to emit a new state
+      return;
     }
     emit(
       LoginState(
