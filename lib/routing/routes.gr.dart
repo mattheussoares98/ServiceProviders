@@ -18,17 +18,17 @@ import 'package:clean_architecture/features/home/presentation/pages/home_page/ho
     as _i1;
 
 /// generated route for
-/// [_i1.HomePagePage]
-class HomeRouteRoute extends _i4.PageRouteInfo<void> {
-  const HomeRouteRoute({List<_i4.PageRouteInfo>? children})
-    : super(HomeRouteRoute.name, initialChildren: children);
+/// [_i1.HomePage]
+class HomeRoute extends _i4.PageRouteInfo<void> {
+  const HomeRoute({List<_i4.PageRouteInfo>? children})
+    : super(HomeRoute.name, initialChildren: children);
 
-  static const String name = 'HomeRouteRoute';
+  static const String name = 'HomeRoute';
 
   static _i4.PageInfo page = _i4.PageInfo(
     name,
     builder: (data) {
-      return const _i1.HomePagePage();
+      return const _i1.HomePage();
     },
   );
 }

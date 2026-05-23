@@ -55,7 +55,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     if (!dataState.hasError) {
       // _useCases.setSession //TODO add this method again
       //because it navigates to the home page, doesn't need to emit a new state
-      await replaceAllRoute(const HomeRouteRoute());
+      await replaceAllRoute(const HomeRoute());
     }
     emit(
       LoginState(

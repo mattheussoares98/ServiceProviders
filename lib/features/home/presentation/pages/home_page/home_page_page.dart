@@ -5,8 +5,8 @@ import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
-class HomePagePage extends StatelessWidget {
-  const HomePagePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {

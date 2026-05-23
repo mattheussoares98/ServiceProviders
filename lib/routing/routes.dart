@@ -12,10 +12,10 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => <AutoRoute>[
     // AutoRoute(page: LoginRoute.page, path: kLoginPath),
     AutoRoute(page: SignUpRoute.page, path: kSignUpPath),
-    // AutoRoute(page: HomeRouteRoute.page, path: '/home'),
+    // AutoRoute(page: HomeRoute.page, path: '/home'),
     AutoRoute(
       path: kHomePath,
-      page: HomeRouteRoute.page,
+      page: HomeRoute.page,
       initial: true,
       guards: const [
         AuthenticatedGuard(),
