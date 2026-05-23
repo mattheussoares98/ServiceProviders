@@ -104,7 +104,7 @@ void main() {
         sessionRepository
           ..setUserData = userData
           // Act
-          ..clearSessionData();
+          ..logout();
 
         // Assert
         verify(() => mockSessionLocalDataSource.clearUserData()).called(1);

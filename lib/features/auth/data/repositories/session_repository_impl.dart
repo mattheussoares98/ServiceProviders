@@ -37,7 +37,7 @@ final class SessionRepositoryImpl implements SessionRepository {
   }
 
   @override
-  void clearSessionData() {
+  void logout() {
     _userData = const UserDataEntity.empty();
     _localDataSource.clearUserData();
     // _auth.signOut();//TODO add this method

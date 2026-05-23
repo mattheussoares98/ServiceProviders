@@ -6,5 +6,5 @@ class LogOutUseCase {
   LogOutUseCase(this._sessionRepository);
   final SessionRepository _sessionRepository;
 
-  void call() => _sessionRepository.clearSessionData();
+  void call() => _sessionRepository.logout();
 }
