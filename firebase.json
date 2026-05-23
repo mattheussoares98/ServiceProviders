@@ -22,7 +22,7 @@
     }
   },
   "hosting": {
-    "target": "email_confirmation",
+    "site": "serviceproviders-733e7",
     "public": "build/web",
     "ignore": [
       "firebase.json",
