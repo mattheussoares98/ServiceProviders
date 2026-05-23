@@ -21,7 +21,7 @@ abstract interface class SupabaseAuthClient {
     MapDynamic? data,
   });
 
-  //TODO create logout
+  Future<void> logout();
 
   Session? get currentSession;
 }
@@ -59,4 +59,7 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
 
   @override
   Session? get currentSession => _auth.currentSession;
+
+  @override
+  Future<void> logout() => _auth.signOut();
 }
