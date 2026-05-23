@@ -11,7 +11,7 @@ import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
 abstract interface class ToastUtil {
   static final _navigationClient = NavigationUtil.I;
   static const _toastSetting = SlidingToastSetting(
-    displayDuration: Duration(milliseconds: 2500),
+    displayDuration: Duration(milliseconds: 3000),
     toastStartPosition: ToastPosition.top,
     toastAlignment: Alignment.topCenter,
   );
@@ -25,7 +25,7 @@ abstract interface class ToastUtil {
   static void showSuccess(String message, {Duration? duration}) {
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
-      title: Text(message),
+      title: BaseText(message, color: Colors.black),
       trailing: const PlatformIcon(
         materialIcon: Icons.check_circle_rounded,
         cupertinoIcon: CupertinoIcons.check_mark_circled_solid,
