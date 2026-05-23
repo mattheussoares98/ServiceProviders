@@ -99,7 +99,7 @@ void main() {
 
   patrolWidgetTest('Login and save the user credential', ($) async {
     // Arrange
-    when(() => mockLogOutUseCase.call()).thenAnswer((_) {});
+    when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
     when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
     when(
       () => mockNavigationClient.replaceAllRoute(any()),
