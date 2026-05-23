@@ -47,6 +47,7 @@ class SignUpCubit extends BaseCubit<SignUpState> {
       dataState,
       message: 'Confirme o cadastro no seu e-mail'.hardcoded,
     );
+    //TODO return to login page
 
     emit(
       SignUpState(
