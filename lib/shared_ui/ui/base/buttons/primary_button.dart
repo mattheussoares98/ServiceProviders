@@ -20,7 +20,7 @@ class PrimaryButton extends StatelessWidget {
     this.isLoading = false,
     this.expandWidth = false,
   });
-  final Future<void> Function() onTap;
+  final VoidCallback onTap;
   final String text;
   final TextType? textType;
   final FontWeight? textFontWeight;
