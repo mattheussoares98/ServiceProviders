@@ -14,7 +14,7 @@ import 'package:clean_architecture/features/auth/presentation/pages/login/login_
     as _i2;
 import 'package:clean_architecture/features/auth/presentation/pages/sign_up/sign_up_page.dart'
     as _i3;
-import 'package:clean_architecture/features/home/presentation/pages/home_page/home_page_page.dart'
+import 'package:clean_architecture/features/home/presentation/pages/home_page/home_page.dart'
     as _i1;
 
 /// generated route for
