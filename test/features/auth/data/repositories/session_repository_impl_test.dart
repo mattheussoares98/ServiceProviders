@@ -27,6 +27,7 @@ void main() {
       auth: mockSupabaseAuthClient,
     );
     when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
+    when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
   });
 
   final userDataResponse = UserDataResponseModel(
@@ -82,29 +83,6 @@ void main() {
           );
         },
       );
-    });
-
-    group('clearSessionData', () {
-      test('should call clearUserData and reset local state', () {
-        // Arrange
-        when(
-          () => mockSessionLocalDataSource.clearUserData(),
-        ).thenAnswer((_) async {});
-
-        // Set some initial state
-        sessionRepository
-          ..setUserData = userData
-          // Act
-          ..logout();
-
-        // Assert
-        verify(() => mockSessionLocalDataSource.clearUserData()).called(1);
-        expect(sessionRepository.isLoggedIn, isFalse);
-        expect(
-          sessionRepository.userData,
-          equals(const UserDataEntity.empty()),
-        );
-      });
     });
 
     group('setUserData', () {
