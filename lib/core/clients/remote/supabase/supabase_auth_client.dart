@@ -21,6 +21,8 @@ abstract interface class SupabaseAuthClient {
     MapDynamic? data,
   });
 
+  //TODO create logout
+
   Session? get currentSession;
 }
 
