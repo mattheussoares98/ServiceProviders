@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,18 +30,9 @@ void main() {
   });
 
   final userDataResponse = UserDataResponseModel(
-    user: UserModel.fromEntity(
-      TestFactory.makeUserEntity().copyWith(
-        id: '1',
-        firstName: 'Test',
-        lastName: 'User',
-        username: 'testuser',
-        email: 'test@example.com',
-        isActive: true,
-      ),
-    ),
-    accessToken: 'access_token',
-    refreshToken: 'refresh_token',
+    user: UserModel.fromEntity(TestFactory.makeUserEntity()),
+    accessToken: faker.lorem.word(),
+    refreshToken: faker.lorem.word(),
   );
 
   final userData = userDataResponse.toEntity();
@@ -56,7 +48,6 @@ void main() {
           when(
             () => mockSupabaseAuthClient.currentSession,
           ).thenReturn(mockSession);
-
           when(
             () => mockSessionLocalDataSource.getUserData(),
           ).thenAnswer((_) async => userDataResponse);
@@ -131,6 +122,34 @@ void main() {
         // Assert
         expect(sessionRepository.isLoggedIn, isTrue);
         expect(sessionRepository.userData, equals(userData));
+      });
+    });
+
+    group('Logout', () {
+      test('should call logout and clear session data', () async {
+        // Arrange
+        when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+        final mockSession = MockSession();
+        when(() => mockSession.accessToken).thenReturn('');
+        when(
+          () => mockSessionLocalDataSource.clearUserData(),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
+
+        // Act
+        await sessionRepository.logout();
+
+        // Assert
+        verify(() => mockSupabaseAuthClient.logout()).called(1);
+        verify(() => mockSessionLocalDataSource.clearUserData()).called(1);
+
+        expect(sessionRepository.isLoggedIn, isFalse);
+        expect(
+          sessionRepository.userData,
+          equals(const UserDataEntity.empty()),
+        );
       });
     });
   });

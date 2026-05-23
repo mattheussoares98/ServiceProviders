@@ -37,9 +37,8 @@ final class SessionRepositoryImpl implements SessionRepository {
   }
 
   @override
-  void logout() {
+  Future<void> logout() async {
     _userData = const UserDataEntity.empty();
-    _localDataSource.clearUserData();
-    // _auth.signOut();//TODO add this method
+    await Future.wait([_localDataSource.clearUserData(), _auth.logout()]);
   }
 }
