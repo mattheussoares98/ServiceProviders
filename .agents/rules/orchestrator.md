@@ -102,6 +102,14 @@ DataState<T> (SuccessState / FailureState) is the universal return type for all 
 DI: every singleton/injectable class must be annotated with @LazySingleton, @injectable, or @module.
 Navigation: always use NavigationClient via ClientMixin (inherited from BaseCubit). Never use Navigator directly.
 Code generation is required after any change to: routes, injector, or data models. Remind the specialist agent to run dart run build_runner build --delete-conflicting-outputs.
+Theme & ColorScheme Access: Never use `Theme.of(context)` or create local theme variables. Always use BuildContext extensions: `context.theme`, `context.colorScheme`, and `context.isCupertino`.
+Color Opacity API: Never use `withOpacity` or `withAlpha` on Color objects. Always use `withValues(alpha: value)`.
+Page Size Limits: A single Page file must never exceed 100 lines of code. Split sub-widgets into a `widgets/` folder in that page's directory.
+Hooks for Controllers: For any pages that use controllers, always extend `HookWidget` and use `flutter_hooks` (e.g. `useTextEditingController`, `useAnimationController`, `useScrollController`) to reduce boilerplate and code size.
+MediaQuery Size: Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary rebuilds.
+BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
+Portuguese Language: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) must be written in **Portuguese (pt-BR)**. The development language (code, comments, docs) remains English.
+
 Specialist Agents You Manage
 Agent	Responsibility
 Architect Agent	Enforces layer boundaries, DI setup, file/folder naming, code generation commands
@@ -134,4 +142,11 @@ Global Constraints (Enforce these upon all Specialist Agents):
 4. UI/Widget Rules: The UI Agent must NEVER use the `faker` package when generating widgets.
 5. Testing Rules: The QA Agent MUST use the `faker` package to generate variables for test code instead of manual or fixed inputs, EXCEPT when testing a specific validated format (like CPF/CNPJ).
 6. Language: All explanations and code comments must be in English.
-7. Documentation: Every new important implementation should have a comment on the code to explain the decision or how it work
+7. Documentation: Every new important implementation should have a comment on the code to explain the decision or how it works.
+8. Theme & ColorScheme Access: Never use `Theme.of(context)` or create local theme variables. Always use BuildContext extension methods (`context.theme`, `context.colorScheme`, `context.isCupertino`).
+9. Color Opacity: Never use `withOpacity` or `withAlpha`. Always use `withValues(alpha: value)`.
+10. Page Size & Modularization: Never exceed 100 lines of code in a single Page file. Always split sub-widgets into a `widgets/` folder.
+11. Hooks for Controllers: For any pages that use controllers, always extend `HookWidget` and use `flutter_hooks` to reduce code size.
+12. MediaQuery Size: Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
+13. BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
+14. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**. Code, comments, and documentation remain in English.

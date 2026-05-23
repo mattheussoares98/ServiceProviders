@@ -88,9 +88,9 @@ class LoginCubit extends BaseCubit<LoginState> {
 ### 1. Pages
 - Live in `presentation/pages/{name}/{name}_page.dart`.
 - Must be annotated with `@RoutePage()`.
-- Use `flutter_hooks` (e.g., `HookWidget`, `useTextEditingController`) for local UI state.
+- **Controllers & Hooks**: For any page that uses controllers (e.g., text controllers, animation controllers, scroll controllers), you MUST use `flutter_hooks` (e.g., extend `HookWidget` and use `useTextEditingController`, `useAnimationController`, `useScrollController`) to eliminate state boilerplate, automatically manage disposal, and reduce code size.
 - Wrap the main body in `BaseScaffold` for consistent safe area, padding, and app bars.
-- Extract complex UI into smaller widgets inside the `widgets/` folder.
+- **Widgets Folder**: Extract complex UI into smaller widgets inside the `widgets/` folder in the page directory.
 
 ```dart
 @RoutePage()
@@ -140,6 +140,7 @@ It provides:
 
 ### 4. Responsiveness
 Use `ScreenUtil.I.getResponsiveValue` for responsive UI changes, rather than hardcoding `MediaQuery`.
+**MediaQuery Size**: Never use `MediaQuery.of(context).size` to load screen dimensions as it causes unnecessary rebuilds. Instead, always use `MediaQuery.sizeOf(context)`.
 ```dart
 EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
   horizontal: ScreenUtil.I.getResponsiveValue(
@@ -155,7 +156,12 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 ### 5. Colors and Themes
 - Access colors via `AppColors` (e.g., `AppColors.primary`, `AppColors.surface`).
 - Do not hardcode hex colors in widgets. Add them to `app_colors.dart` if missing.
-- Typography should rely on `Theme.of(context).textTheme`.
+- **Theme & ColorScheme Access**: Never use `Theme.of(context)` or create local theme variables. Always use the BuildContext extensions: `context.theme`, `context.colorScheme`, and `context.isCupertino`.
+- **Opacity / Alpha API**: Never use `.withOpacity()` or `.withAlpha()` on a Color object as they are deprecated. Always use `.withValues(alpha: value)` instead (e.g. `const Color(0xFF10B981).withValues(alpha: 0.06)`).
+
+### 6. Page Size and Modularization
+- **Maximum 100 lines of code**: When building any page, if the file exceeds 100 lines of code, you MUST split the sub-widgets into separate files to reduce the main page size.
+- **Location of separated widgets**: Put these separate sub-widget files inside a sub-folder named `widgets/` in that page's folder (e.g. `lib/features/{feature_name}/presentation/pages/{page_name}/widgets/`).
 
 ---
 
@@ -168,3 +174,9 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 - ❌ Never extend `Cubit<T>` directly. Always extend `BaseCubit<T>`.
 - ❌ Never handle raw HTTP responses or parsing in the UI. Ensure data comes cleanly from the Cubit's state.
 - ❌ Never use the `faker` package in UI code (it is strictly for tests).
+- ❌ Never call `Theme.of(context)` or create local theme variables. Always use BuildContext extension methods (`context.theme`, `context.colorScheme`, `context.isCupertino`).
+- ❌ Never use `withOpacity` or `withAlpha`. Always use `withValues(alpha: value)`.
+- ❌ Never exceed 100 lines of code in a single Page file. Always split sub-widgets into a `widgets/` folder.
+- ❌ Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
+- ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
+- ❌ Never write user-visible text in English. All strings displayed to the user (labels, messages, button text, titles, placeholders) must be written in **Portuguese (pt-BR)**.

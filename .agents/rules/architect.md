@@ -262,3 +262,10 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never edit `routes.gr.dart` or `injector.config.dart` manually
 - ❌ Never call `ApiHandler` from a repository
 - ❌ Never call `RepositoryHandler` from a data source
+- ❌ Never call `Theme.of(context)` or create local theme variables — always use BuildContext extensions (`context.theme`, `context.colorScheme`, `context.isCupertino`)
+- ❌ Never use `withOpacity` or `withAlpha` — always use `withValues(alpha: value)` on Color objects
+- ❌ Never exceed 100 lines of code in a single Page file — always split sub-widgets into a `widgets/` folder inside the page's directory
+- ❌ Never use stateful widget boilerplate for controllers in pages — always extend `HookWidget` and use `flutter_hooks` instead
+- ❌ Never use `MediaQuery.of(context).size` — always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary widget rebuilds
+- ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
+- ❌ Never write user-visible text in English — all strings displayed to the user (labels, messages, button text, titles, placeholders) must be in **Portuguese (pt-BR)**
