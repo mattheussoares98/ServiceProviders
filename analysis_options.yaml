@@ -14,6 +14,7 @@ linter:
 analyzer:
   errors:
     avoid_types_on_closure_parameters: ignore
+    document_ignores: ignore
     eol_at_end_of_file: ignore
     unsafe_variance: ignore
   exclude:
