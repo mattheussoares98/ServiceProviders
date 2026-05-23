@@ -44,7 +44,7 @@ abstract interface class ToastUtil {
   static void showError(String message, {Duration? duration}) {
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
-      title: BaseText(message),
+      title: BaseText(message, color: AppColors.red600),
       trailing: const PlatformIcon(
         materialIcon: Icons.warning_rounded,
         cupertinoIcon: CupertinoIcons.exclamationmark_triangle_fill,
