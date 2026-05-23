@@ -29,7 +29,7 @@ void main() {
     test('badRequest factory returns correct default FailureState', () {
       final state = FailureState<int>.badRequest();
 
-      expect(state.message, contains('Bad client request'));
+      expect(state.message, contains('Requisição inválida'));
     });
 
     test('badRequest factory uses provided values', () {
@@ -47,13 +47,13 @@ void main() {
     test('tokenExpired factory returns correct FailureState', () {
       final state = FailureState<int>.tokenExpired();
 
-      expect(state.message, contains('Token expired'));
+      expect(state.message, contains('Sua sessão expirou'));
     });
 
     test('badResponse factory returns correct default FailureState', () {
       final state = FailureState<int>.badResponse();
 
-      expect(state.message, contains('Bad server response'));
+      expect(state.message, contains('Erro no servidor'));
     });
 
     test('badResponse factory uses provided values', () {
@@ -71,7 +71,7 @@ void main() {
     test('serverError factory returns correct default FailureState', () {
       final state = FailureState<int>.serverError();
 
-      expect(state.message, contains('Server error occurred'));
+      expect(state.message, contains('Erro no servidor'));
     });
 
     test('serverError factory uses provided values', () {
@@ -89,7 +89,7 @@ void main() {
     test('noInternet factory returns correct FailureState', () {
       final state = FailureState<int>.noInternet();
 
-      expect(state.message, contains('No internet access'));
+      expect(state.message, contains('Sem acesso à internet'));
     });
   });
 }

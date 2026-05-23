@@ -45,6 +45,9 @@ void main() {
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
     mockNavigationClient = MockNavigationClient();
+    when(
+      () => mockNavigationClient.navigatorKey,
+    ).thenReturn(GlobalKey<NavigatorState>());
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)

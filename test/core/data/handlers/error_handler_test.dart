@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../testing/mocks/external/external_mocks.dart';
 
@@ -60,7 +61,7 @@ void main() {
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains('Connection error'));
+      expect(result.message, contains('Erro de conexão'));
     });
 
     test('handles DioException with cancel as FailureState', () async {
@@ -73,7 +74,7 @@ void main() {
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains('Request was cancelled'));
+      expect(result.message, contains('Requisição cancelada'));
     });
 
     test('handles DioException with receiveTimeout as FailureState', () async {
@@ -86,7 +87,7 @@ void main() {
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains('Receive timeout'));
+      expect(result.message, contains('Tempo limite de recebimento'));
     });
 
     test('handles DioException with sendTimeout as FailureState', () async {
@@ -99,7 +100,7 @@ void main() {
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains('Send timeout'));
+      expect(result.message, contains('Tempo limite de envio na conexão'));
     });
 
     test(
@@ -116,7 +117,7 @@ void main() {
         });
 
         expect(result, isA<FailureState<int>>());
-        expect(result.message, contains('Connection timeout'));
+        expect(result.message, contains('Tempo limite de conexão'));
       },
     );
 
@@ -130,7 +131,7 @@ void main() {
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains('Bad certificate'));
+      expect(result.message, contains('Certificado inválido'));
     });
 
     test(
@@ -175,6 +176,64 @@ void main() {
       expect(result, isA<FailureState<int>>());
       expect(result.message, contains(kErrorMessage));
     });
+
+    test(
+      'handles AuthException with specific code as mapped FailureState',
+      () async {
+        const authException = AuthException(
+          'Some generic message',
+          statusCode: '400',
+          code: 'invalid_credentials',
+        );
+
+        final result = await ErrorHandler.execute<int>(() {
+          throw authException;
+        });
+
+        expect(result, isA<FailureState<int>>());
+        expect(result.message, 'E-mail ou senha incorretos.');
+        expect(result.statusCode, 400);
+      },
+    );
+
+    test(
+      'handles AuthException with fallback message as mapped FailureState',
+      () async {
+        const authException = AuthException(
+          'User already registered in this system',
+          statusCode: '400',
+        );
+
+        final result = await ErrorHandler.execute<int>(() {
+          throw authException;
+        });
+
+        expect(result, isA<FailureState<int>>());
+        expect(result.message, 'Este e-mail já está cadastrado.');
+        expect(result.statusCode, 400);
+      },
+    );
+
+    test(
+      'handles AuthException with unmapped message as unmapped FailureState',
+      () async {
+        const authException = AuthException(
+          'Some brand new unmapped error message from Supabase',
+          statusCode: '400',
+        );
+
+        final result = await ErrorHandler.execute<int>(() {
+          throw authException;
+        });
+
+        expect(result, isA<FailureState<int>>());
+        expect(
+          result.message,
+          'Some brand new unmapped error message from Supabase',
+        );
+        expect(result.statusCode, 400);
+      },
+    );
   });
 
   group('ErrorHandler.executeSafe', () {
