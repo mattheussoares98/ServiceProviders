@@ -59,7 +59,7 @@ void main() {
 
   test('should return a FailureState when the repository call fails', () async {
     // Arrange
-    const tFailureState = FailureState<UserDataEntity>(message: 'Login Failed');
+    final tFailureState = FailureState<UserDataEntity>(message: 'Login Failed');
     when(
       () => mockAuthRepository.login(any()),
     ).thenAnswer((_) async => tFailureState);

@@ -1,18 +1,17 @@
 part of 'data_state.dart';
 
-const String kCustomerSupport = 'Please contact our customer support.';
-const String kErrorMessage = 'Unexpected error occurred. $kCustomerSupport';
-const String kCheckInternet = 'Please check your internet and try again.';
-const String kNoInternet = 'No internet access. Please try again later.';
+final String kCustomerSupport =
+    'Entre em contato com o suporte técnico.'.hardcoded;
+final String kErrorMessage = 'Erro inesperado. $kCustomerSupport'.hardcoded;
+final String kCheckInternet =
+    'Por favor, verifique sua internet e tente novamente.'.hardcoded;
+final String kNoInternet =
+    'Sem acesso à internet. Tente novamente mais tarde.'.hardcoded;
 
 /// A failure data state when error occurs
 final class FailureState<T> extends DataState<T> {
-  const FailureState({
-    String? message,
-    super.error,
-    super.statusCode,
-    super.response,
-  }) : super(message: message ?? kErrorMessage, hasError: true);
+  FailureState({String? message, super.error, super.statusCode, super.response})
+    : super(message: message ?? kErrorMessage, hasError: true);
 
   /// A failure data state when invalid data is provided to the server
   factory FailureState.badRequest({
@@ -21,15 +20,16 @@ final class FailureState<T> extends DataState<T> {
     int? statusCode,
     Response<dynamic>? response,
   }) => FailureState(
-    message: message ?? 'Bad client request. Please try again',
+    message: message ?? 'Requisição inválida. Tente novamente.'.hardcoded,
     error: error,
     statusCode: statusCode,
     response: response,
   );
 
   /// A failure data state when the user's token is expired
-  factory FailureState.tokenExpired() =>
-      const FailureState(message: 'Token expired, login again.');
+  factory FailureState.tokenExpired() => FailureState(
+    message: 'Sua sessão expirou, faça login novamente.'.hardcoded,
+  );
 
   /// A failure data state when the response of the server is invalid
   factory FailureState.badResponse({
@@ -38,7 +38,7 @@ final class FailureState<T> extends DataState<T> {
     int? statusCode,
     Response<dynamic>? response,
   }) => FailureState(
-    message: message ?? 'Bad server response.',
+    message: message ?? 'Erro no servidor. Tente novamente.'.hardcoded,
     error: error,
     statusCode: statusCode,
     response: response,
@@ -51,7 +51,7 @@ final class FailureState<T> extends DataState<T> {
     int? statusCode,
     Response<dynamic>? response,
   }) => FailureState(
-    message: message ?? 'Server error occurred. $kCustomerSupport',
+    message: message ?? 'Erro no servidor. Tente novamente'.hardcoded,
     error: error,
     statusCode: statusCode,
     response: response,
@@ -59,5 +59,5 @@ final class FailureState<T> extends DataState<T> {
 
   /// A failure data state when there is no internet access
   factory FailureState.noInternet() =>
-      const FailureState(message: kNoInternet, error: kNoInternet);
+      FailureState(message: kNoInternet, error: kNoInternet);
 }

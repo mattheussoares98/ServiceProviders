@@ -71,7 +71,7 @@ void main() {
     test('returns remote failure state when remote call fails', () async {
       final result = await RepositoryHandler.fetchWithFallback<String>(
         isInternetConnected: true,
-        remoteCallback: () async => const FailureState(message: 'Remote error'),
+        remoteCallback: () async => FailureState(message: 'Remote error'),
       );
       expect(result, isA<FailureState<String>>());
       expect(result.message, 'Remote error');
@@ -153,7 +153,7 @@ void main() {
       final result =
           await RepositoryHandler.fetchFromLocalAndMap<FakeDto, String>(
             localCallback: () async =>
-                const FailureState(message: 'Local storage error'),
+                FailureState(message: 'Local storage error'),
           );
       expect(result, isA<FailureState<String>>());
       expect(result.message, 'Local storage error');
@@ -175,7 +175,7 @@ void main() {
       final result =
           await RepositoryHandler.fetchFromLocalAndMapList<FakeDto, String>(
             localCallback: () async =>
-                const FailureState(message: 'Local list error'),
+                FailureState(message: 'Local list error'),
           );
       expect(result, isA<FailureState<List<String>>>());
       expect(result.message, 'Local list error');

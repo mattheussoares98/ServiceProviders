@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('FailureState', () {
     test('should have correct message and hasError true', () {
-      const state = FailureState<int>(message: 'Failed', statusCode: 400);
+      final state = FailureState<int>(message: 'Failed', statusCode: 400);
 
       expect(state.message, 'Failed');
       expect(state.statusCode, 400);
@@ -13,15 +13,15 @@ void main() {
     });
 
     test('should use default values if not provided', () {
-      const state = FailureState<int>();
+      final state = FailureState<int>();
 
       expect(state.message, kErrorMessage);
       expect(state.hasError, true);
     });
 
     test('should be equatable', () {
-      const state1 = FailureState<int>(message: 'msg', statusCode: 500);
-      const state2 = FailureState<int>(message: 'msg', statusCode: 500);
+      final state1 = FailureState<int>(message: 'msg', statusCode: 500);
+      final state2 = FailureState<int>(message: 'msg', statusCode: 500);
 
       expect(state1, equals(state2));
     });

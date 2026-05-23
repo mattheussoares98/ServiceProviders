@@ -1,6 +1,7 @@
 import 'dart:developer' show log;
 
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -133,12 +134,13 @@ abstract final class ErrorHandler {
     }
   }
 
-  static const _dioErrorMessages = {
-    'connectionError': 'Connection error, host lookup failed.',
-    'cancel': 'Request was cancelled',
-    'receiveTimeout': 'Receive timeout in connection. $kCheckInternet',
-    'sendTimeout': 'Send timeout in connection. $kCheckInternet',
-    'connectionTimeout': 'Connection timeout. $kCheckInternet',
-    'badCertificate': 'Bad certificate. $kCustomerSupport',
+  static final _dioErrorMessages = {
+    'connectionError': 'Erro de conexão'.hardcoded,
+    'cancel': 'Requisição cancelada'.hardcoded,
+    'receiveTimeout': 'Tempo limite de recebimento. $kCheckInternet'.hardcoded,
+    'sendTimeout':
+        'Tempo limite de envio na conexão. $kCheckInternet'.hardcoded,
+    'connectionTimeout': 'Tempo limite de conexão. $kCheckInternet'.hardcoded,
+    'badCertificate': 'Certificado inválido. $kCustomerSupport'.hardcoded,
   };
 }

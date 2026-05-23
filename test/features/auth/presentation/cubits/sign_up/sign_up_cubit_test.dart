@@ -89,7 +89,7 @@ void main() {
     build: () {
       when(
         () => mockSignUpUseCase.call(any()),
-      ).thenAnswer((_) async => const FailureState(message: 'Sign up failed'));
+      ).thenAnswer((_) async => FailureState(message: 'Sign up failed'));
 
       return signUpCubit;
     },

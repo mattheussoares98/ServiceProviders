@@ -4,6 +4,7 @@ import 'package:clean_architecture/core/clients/local/local_storage_client.dart'
 import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:injectable/injectable.dart';
@@ -43,8 +44,8 @@ final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
         );
         return SuccessState(data: userDataModel);
       }
-      return const FailureState<UserDataResponseModel>(
-        message: 'User data not found.',
+      return FailureState<UserDataResponseModel>(
+        message: 'Usuário não encontrado'.hardcoded,
       );
     });
   }

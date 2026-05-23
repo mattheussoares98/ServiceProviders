@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show immutable;
