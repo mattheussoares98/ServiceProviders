@@ -7,15 +7,19 @@ import 'package:mocktail/mocktail.dart';
 
 import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
+import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
   late MockSessionLocalDataSource mockSessionLocalDataSource;
+  late MockSupabaseAuthClient mockSupabaseAuthClient;
   late SessionRepositoryImpl sessionRepository;
 
   setUp(() {
     mockSessionLocalDataSource = MockSessionLocalDataSource();
+    mockSupabaseAuthClient = MockSupabaseAuthClient();
     sessionRepository = SessionRepositoryImpl(
       localDataSource: mockSessionLocalDataSource,
+      auth: mockSupabaseAuthClient,
     );
   });
 

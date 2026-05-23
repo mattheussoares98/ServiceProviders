@@ -13,7 +13,7 @@ const String kDashboardRoute = 'DashboardRoute';
 const String kDashboardPath = '/dashboard/home';
 
 const String kHomeRoute = 'HomeRoute';
-const String kHomePath = 'home';
+const String kHomePath = '/home';
 
 const String kSettingRoute = 'SettingRoute';
 const String kSettingPath = 'setting';

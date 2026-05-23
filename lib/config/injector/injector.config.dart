@@ -148,6 +148,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i16.SessionLocalDataSource>(
       () => _i16.SessionLocalDataSourceImpl(gh<_i1009.LocalStorageClient>()),
     );
+    gh.lazySingleton<_i150.SessionRepository>(
+      () => _i943.SessionRepositoryImpl(
+        localDataSource: gh<_i16.SessionLocalDataSource>(),
+        auth: gh<_i432.SupabaseAuthClient>(),
+      ),
+    );
     gh.lazySingleton<_i141.AuthRemoteDataSource>(
       () => _i141.AuthRemoteDataSourceImpl(
         supabaseAuth: gh<_i432.SupabaseAuthClient>(),
@@ -162,20 +168,15 @@ extension GetItInjectableX on _i174.GetIt {
         addInterceptors: gh<bool>(),
       ),
     );
+    gh.lazySingleton<_i294.LogOutUseCase>(
+      () => _i294.LogOutUseCase(gh<_i150.SessionRepository>()),
+    );
     gh.lazySingleton<_i1003.AuthRepository>(
       () => _i526.AuthRepositoryImpl(
         internet: gh<_i9.InternetClient>(),
         remoteDataSource: gh<_i141.AuthRemoteDataSource>(),
         localDataSource: gh<_i322.AuthLocalDataSource>(),
       ),
-    );
-    gh.lazySingleton<_i150.SessionRepository>(
-      () => _i943.SessionRepositoryImpl(
-        localDataSource: gh<_i16.SessionLocalDataSource>(),
-      ),
-    );
-    gh.lazySingleton<_i294.LogOutUseCase>(
-      () => _i294.LogOutUseCase(gh<_i150.SessionRepository>()),
     );
     gh.lazySingleton<_i701.ResetPasswordUseCase>(
       () => _i701.ResetPasswordUseCase(repository: gh<_i1003.AuthRepository>()),

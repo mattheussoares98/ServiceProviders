@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clean_architecture/routing/guards/authenticated_guard.dart';
 import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 
@@ -11,11 +12,14 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => <AutoRoute>[
     // AutoRoute(page: LoginRoute.page, path: kLoginPath),
     AutoRoute(page: SignUpRoute.page, path: kSignUpPath),
+    // AutoRoute(page: HomeRouteRoute.page, path: '/home'),
     AutoRoute(
-      path: kLoginPath,
-      page: LoginRoute.page,
+      path: kHomePath,
+      page: HomeRouteRoute.page,
       initial: true,
-      // guards: const [AuthenticatedGuard()],//TODO add the guard when have home page
+      guards: const [
+        AuthenticatedGuard(),
+      ], //TODO add the guard when have home page
       children: const [
         // AutoRoute(path: kHomePath, page: HomeRoute.page, initial: true),
         // AutoRoute(path: kSettingPath, page: SettingRoute.page),

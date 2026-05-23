@@ -9,6 +9,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/reset_password
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,14 +90,11 @@ void main() {
   );
 
   blocTest<LoginCubit, LoginState>(
-    'login should call login use case and navigate without saving user data',
+    'login should call login use case and navigate on success',
     build: () {
-      // Arrange
       when(() => mockNavigationClient.replaceAllRoute(any())).thenAnswer((
         _,
-      ) async {
-        return;
-      });
+      ) async {});
       when(
         () => mockLoginUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: userData));
@@ -104,11 +102,37 @@ void main() {
       return loginCubit;
     },
     act: (cubit) async {
-      // Act
-      await cubit.login(username: 'test', password: '123');
+      await cubit.login(
+        username: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
     },
     verify: (_) {
-      // Assert
+      verify(() => mockLoginUseCase.call(any())).called(1);
+      verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should not navigate and emit loaded state on failure',
+    build: () {
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => FailureState(message: 'Login failed'));
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        username: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    expect: () => [
+      isA<LoginState>().having((s) => s.status, 'status', StateStatus.loading),
+      isA<LoginState>().having((s) => s.status, 'status', StateStatus.loaded),
+    ],
+    verify: (_) {
       verify(() => mockLoginUseCase.call(any())).called(1);
       verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
     },

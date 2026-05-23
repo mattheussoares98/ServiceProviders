@@ -44,7 +44,7 @@ class LoginCubit extends BaseCubit<LoginState> {
         status: StateStatus.loading,
       ),
     );
-    //TODO fix tests
+
     final authentication = AuthenticationEntity(
       username: username,
       password: password,
@@ -53,10 +53,9 @@ class LoginCubit extends BaseCubit<LoginState> {
     showDataStateToast(dataState);
 
     if (!dataState.hasError) {
-      //TODO: Navigate to home
-
+      // _useCases.setSession //TODO add this method again
       //because it navigates to the home page, doesn't need to emit a new state
-      return;
+      await replaceAllRoute(const HomeRouteRoute());
     }
     emit(
       LoginState(
