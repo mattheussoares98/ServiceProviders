@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
@@ -52,8 +53,8 @@ class LoginCubit extends BaseCubit<LoginState> {
     final dataState = await _useCases.login.call(authentication);
     showDataStateToast(dataState);
 
-    if (!dataState.hasError) {
-      // _useCases.setSession //TODO add this method again
+    if (dataState is SuccessState) {
+      _useCases.setSession(dataState.data!);
       //because it navigates to the home page, doesn't need to emit a new state
       await replaceAllRoute(const HomeRoute());
     }

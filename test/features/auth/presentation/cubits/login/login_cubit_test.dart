@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/auth/domain/repositories/session_rep
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
@@ -32,6 +33,7 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockNavigationClient mockNavigationClient;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
+  late MockSetSessionUseCase mockSetSessionUseCase;
   late LoginCubit loginCubit;
   late UserDataEntity userData;
 
@@ -64,18 +66,21 @@ void main() {
     when(() => mockNavigatorKey.currentState).thenReturn(null);
     when(() => mockNavigationClient.navigatorKey).thenReturn(mockNavigatorKey);
     mockResetPasswordUseCase = MockResetPasswordUseCase();
+    mockSetSessionUseCase = MockSetSessionUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
       ..registerSingleton<LogOutUseCase>(mockLogOutUseCase)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
-      ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase);
+      ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
+      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase);
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
       logOut: mockLogOutUseCase,
       resetPassword: GetIt.I<ResetPasswordUseCase>(),
+      setSession: mockSetSessionUseCase,
     );
     loginCubit = LoginCubit(useCases: useCases);
   });
@@ -98,6 +103,7 @@ void main() {
       when(
         () => mockLoginUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: userData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
 
       return loginCubit;
     },
@@ -109,6 +115,7 @@ void main() {
     },
     verify: (_) {
       verify(() => mockLoginUseCase.call(any())).called(1);
+      verify(() => mockSetSessionUseCase.call(any())).called(1);
       verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
     },
   );

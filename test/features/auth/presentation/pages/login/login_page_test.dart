@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/auth/domain/repositories/session_rep
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/login_page.dart';
@@ -37,6 +38,7 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockNavigationClient mockNavigationClient;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
+  late MockSetSessionUseCase mockSetSessionUseCase;
   late UserDataEntity userData;
 
   setUpAll(() {
@@ -65,6 +67,7 @@ void main() {
     mockSessionRepository = MockSessionRepository();
     mockNavigationClient = MockNavigationClient();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
+    mockSetSessionUseCase = MockSetSessionUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -72,12 +75,14 @@ void main() {
       ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
+      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerFactory<LoginCubit>(
         () => LoginCubit(
           useCases: LoginCubitUseCases(
             login: mockLoginUseCase,
             logOut: mockLogOutUseCase,
             resetPassword: mockResetPasswordUseCase,
+            setSession: mockSetSessionUseCase,
           ),
         ),
       );
@@ -95,6 +100,7 @@ void main() {
   patrolWidgetTest('Login and save the user credential', ($) async {
     // Arrange
     when(() => mockLogOutUseCase.call()).thenAnswer((_) {});
+    when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
     when(
       () => mockNavigationClient.replaceAllRoute(any()),
     ).thenAnswer((_) async {});

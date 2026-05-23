@@ -4,10 +4,14 @@ import 'package:clean_architecture/features/auth/data/models/responses/user_data
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/helpers/test_factory.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
+
+// ignore: avoid_implementing_value_types
+class MockSession extends Mock implements Session {}
 
 void main() {
   late MockSessionLocalDataSource mockSessionLocalDataSource;
@@ -21,6 +25,7 @@ void main() {
       localDataSource: mockSessionLocalDataSource,
       auth: mockSupabaseAuthClient,
     );
+    when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
   });
 
   final userDataResponse = UserDataResponseModel(
@@ -46,6 +51,12 @@ void main() {
         'should call getUserData and update userData when cached data exists',
         () async {
           // Arrange
+          final mockSession = MockSession();
+          when(() => mockSession.accessToken).thenReturn('access_token');
+          when(
+            () => mockSupabaseAuthClient.currentSession,
+          ).thenReturn(mockSession);
+
           when(
             () => mockSessionLocalDataSource.getUserData(),
           ).thenAnswer((_) async => userDataResponse);
@@ -107,6 +118,13 @@ void main() {
 
     group('setUserData', () {
       test('should update local userData', () {
+        // Arrange
+        final mockSession = MockSession();
+        when(() => mockSession.accessToken).thenReturn('access_token');
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
+
         // Act
         sessionRepository.setUserData = userData;
 
