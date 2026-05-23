@@ -58,6 +58,8 @@ import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sig
     as _i735;
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart'
     as _i471;
+import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit_use_cases.dart'
+    as _i435;
 import 'package:clean_architecture/routing/helper/navigation_client.dart'
     as _i389;
 import 'package:clean_architecture/routing/routes.dart' as _i671;
@@ -96,7 +98,6 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.factory<bool>(() => httpClientModule.addInterceptors);
-    gh.factory<_i471.HomeCubit>(() => _i471.HomeCubit());
     gh.factory<_i1037.KeyboardVisibilityCubit>(
       () => _i1037.KeyboardVisibilityCubit(),
     );
@@ -176,12 +177,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i636.SetSessionUseCase>(
       () => _i636.SetSessionUseCase(gh<_i150.SessionRepository>()),
     );
+    gh.lazySingleton<_i435.HomeCubitUseCases>(
+      () => _i435.HomeCubitUseCases(logOut: gh<_i294.LogOutUseCase>()),
+    );
     gh.lazySingleton<_i1003.AuthRepository>(
       () => _i526.AuthRepositoryImpl(
         internet: gh<_i9.InternetClient>(),
         remoteDataSource: gh<_i141.AuthRemoteDataSource>(),
         localDataSource: gh<_i322.AuthLocalDataSource>(),
       ),
+    );
+    gh.factory<_i471.HomeCubit>(
+      () => _i471.HomeCubit(useCases: gh<_i435.HomeCubitUseCases>()),
     );
     gh.lazySingleton<_i701.ResetPasswordUseCase>(
       () => _i701.ResetPasswordUseCase(repository: gh<_i1003.AuthRepository>()),
