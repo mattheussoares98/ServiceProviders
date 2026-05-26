@@ -1,9 +1,11 @@
+import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -40,10 +42,13 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   FutureData<UserDataResponseModel> signUp(SignUpRequestModel request) {
+    // Build the full redirect URL: base URL + email-confirmation path
+    final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kEmailConfirmationPath';
     return SupabaseHandler.authCall(() async {
       final response = await _supabaseAuth.signUp(
         email: request.email,
         password: request.password,
+        emailRedirectTo: redirectUrl,
         data: {'name': request.name},
       );
 

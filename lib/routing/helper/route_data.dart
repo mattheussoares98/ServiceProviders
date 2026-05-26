@@ -17,3 +17,5 @@ const String kHomePath = '/home';
 
 const String kSettingRoute = 'SettingRoute';
 const String kSettingPath = 'setting';
+
+const String kEmailConfirmationPath = '/email-confirmation';

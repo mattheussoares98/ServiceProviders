@@ -1,8 +1,11 @@
+import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,10 +18,14 @@ void main() {
   late AuthResponse fakeAuthResponse;
 
   setUp(() {
+    GetIt.I.registerLazySingleton<AppConfig>(() => const TestAppConfig());
+
     mockSupabaseAuthClient = MockSupabaseAuthClient();
     dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
     fakeAuthResponse = AuthResponse(user: TestFactory.makeUser());
   });
+
+  tearDown(() => GetIt.I.reset());
 
   group('login', () {
     final tAuthenticationRequest = TestFactory.makeAuthenticationModel();
@@ -86,11 +93,16 @@ void main() {
     test(
       'should return SuccessState with UserDataResponseModel when Supabase signUp is successful',
       () async {
+        // The expected redirect URL is base URL + email-confirmation path
+        const expectedRedirectUrl =
+            '${TestAppConfig.defaultWebBaseUrl}$kEmailConfirmationPath';
+
         // Arrange
         when(
           () => mockSupabaseAuthClient.signUp(
             email: any(named: 'email'),
             password: any(named: 'password'),
+            emailRedirectTo: any(named: 'emailRedirectTo'),
             data: any(named: 'data'),
           ),
         ).thenAnswer((_) async => fakeAuthResponse);
@@ -109,6 +121,7 @@ void main() {
           () => mockSupabaseAuthClient.signUp(
             email: tSignUpRequest.email,
             password: tSignUpRequest.password,
+            emailRedirectTo: expectedRedirectUrl,
             data: {'name': tSignUpRequest.name},
           ),
         ).called(1);
@@ -128,6 +141,7 @@ void main() {
           () => mockSupabaseAuthClient.signUp(
             email: any(named: 'email'),
             password: any(named: 'password'),
+            emailRedirectTo: any(named: 'emailRedirectTo'),
             data: any(named: 'data'),
           ),
         ).thenThrow(exception);

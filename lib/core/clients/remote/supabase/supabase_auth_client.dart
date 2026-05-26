@@ -18,6 +18,7 @@ abstract interface class SupabaseAuthClient {
   Future<AuthResponse> signUp({
     required String email,
     required String password,
+    required String? emailRedirectTo,
     MapDynamic? data,
   });
 
@@ -54,8 +55,14 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
   Future<AuthResponse> signUp({
     required String email,
     required String password,
+    required String? emailRedirectTo,
     MapDynamic? data,
-  }) => _auth.signUp(email: email, password: password, data: data);
+  }) => _auth.signUp(
+    email: email,
+    password: password,
+    emailRedirectTo: emailRedirectTo,
+    data: data,
+  );
 
   @override
   Session? get currentSession => _auth.currentSession;
