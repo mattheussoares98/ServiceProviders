@@ -37,24 +37,8 @@
 <body>
   <script src="flutter_bootstrap.js" async></script>
   <script type="module" async>
-    import { initializeApp } from "firebase/app";
-    import { getAnalytics } from "firebase/analytics";
-
     import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.min.mjs';
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.worker.min.mjs";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBEfG3IQJc_K-ggfUbYnOrYlC-HBBd-R-4",
-      authDomain: "serviceproviders-733e7.firebaseapp.com",
-      projectId: "serviceproviders-733e7",
-      storageBucket: "serviceproviders-733e7.firebasestorage.app",
-      messagingSenderId: "738276498188",
-      appId: "1:738276498188:web:2c6d8a095a5da838f8c729",
-      measurementId: "G-LPHDNNE2G4"
-    };
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-
   </script>
 </body>
 
