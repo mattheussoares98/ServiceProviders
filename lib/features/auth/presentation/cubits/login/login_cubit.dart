@@ -51,6 +51,7 @@ class LoginCubit extends BaseCubit<LoginState> {
       password: password,
     );
     final dataState = await _useCases.login.call(authentication);
+    if (isClosed) return;
     showDataStateToast(dataState);
 
     if (dataState is SuccessState) {
@@ -74,6 +75,7 @@ class LoginCubit extends BaseCubit<LoginState> {
       ),
     );
     final dataState = await _useCases.resetPassword.call(email);
+    if (isClosed) return;
     showDataStateToast(
       dataState,
       message: 'E-mail de recuperação enviado com sucesso!'.hardcoded,

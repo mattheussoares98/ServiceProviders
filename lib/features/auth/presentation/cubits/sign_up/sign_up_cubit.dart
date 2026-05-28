@@ -44,6 +44,8 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     );
 
     final dataState = await _useCases.signUp.call(signUpEntity);
+    if (isClosed) return;
+
     if (dataState is SuccessState) {
       await maybePopRoute();
       showDataStateToast(
