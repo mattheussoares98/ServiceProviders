@@ -3,7 +3,6 @@ import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,24 +44,17 @@ class BaseAppBar extends StatelessWidget {
     Widget? titleWidget;
 
     if (showLeading) {
-      leadingWidget = Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Sizes.p16,
-          vertical: Sizes.p8,
-        ),
-        child:
-            leading ??
-            BaseIconButton(
-              onPressed: NavigationUtil.I.maybePopTop,
-              platformIcon: PlatformIcon(
-                materialIcon: AppIcons.arrowLeft,
-                cupertinoIcon: CupertinoIcons.back,
-                size: 20,
-                color: context.colorScheme.onSurface,
-              ),
-              disableSplash: true,
+      leadingWidget =
+          leading ??
+          BaseIconButton(
+            onPressed: NavigationUtil.I.maybePopTop,
+            platformIcon: PlatformIcon(
+              materialIcon: AppIcons.arrowLeft,
+              cupertinoIcon: CupertinoIcons.back,
+              size: 20,
+              color: context.colorScheme.onSurface,
             ),
-      );
+          );
     }
 
     if (title.isNotEmpty) {

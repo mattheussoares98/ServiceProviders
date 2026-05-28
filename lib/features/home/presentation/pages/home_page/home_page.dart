@@ -35,14 +35,12 @@ class HomeView extends StatelessWidget {
         title: 'HomePage'.hardcoded,
         leading: Builder(
           builder: (context) => BaseIconButton(
-            onPressed: () => Scaffold.of(context).openDrawer(),
+            onPressed: Scaffold.of(context).openDrawer,
             platformIcon: PlatformIcon(
               materialIcon: Icons.menu,
               cupertinoIcon: CupertinoIcons.bars,
-              size: 24,
               color: context.colorScheme.onSurface,
             ),
-            disableSplash: true,
           ),
         ),
       ),
