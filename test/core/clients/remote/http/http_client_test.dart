@@ -1,7 +1,6 @@
 import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,10 +25,6 @@ void main() {
   });
 
   setUp(() {
-    when(
-      () => mockNavigationClient.navigatorKey,
-    ).thenReturn(GlobalKey<NavigatorState>());
-
     httpClient = HttpClientImpl(
       appConfig: appConfig,
       authInterceptor: mockAuthInterceptor,

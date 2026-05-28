@@ -45,9 +45,6 @@ void main() {
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
     mockNavigationClient = MockNavigationClient();
-    when(
-      () => mockNavigationClient.navigatorKey,
-    ).thenReturn(GlobalKey<NavigatorState>());
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
@@ -74,9 +71,6 @@ void main() {
     final fakeEmail = faker.internet.email();
     final fakePassword = '${faker.internet.password()}!123';
 
-    when(
-      () => mockNavigationClient.replaceAllRoute(any()),
-    ).thenAnswer((_) async {});
     when(
       () => mockSignUpUseCase.call(any()),
     ).thenAnswer((_) async => SuccessState(data: userData));

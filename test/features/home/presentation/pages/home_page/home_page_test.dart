@@ -58,9 +58,6 @@ void main() {
   ) async {
     // Arrange
     when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
-    when(
-      () => mockNavigationClient.replaceAllRoute(any()),
-    ).thenAnswer((_) async {});
 
     final mockScreenObserverCubit = MockScreenObserverCubit();
     when(

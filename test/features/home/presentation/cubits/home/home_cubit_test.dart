@@ -39,9 +39,6 @@ void main() {
       'logout should call LogOutUseCase and replace route with LoginRoute',
       build: () {
         when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
-        when(
-          () => mockNavigationClient.replaceAllRoute(any()),
-        ).thenAnswer((_) async {});
         return homeCubit;
       },
       act: (cubit) => cubit.logout(),

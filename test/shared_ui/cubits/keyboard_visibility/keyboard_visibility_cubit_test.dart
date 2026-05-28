@@ -3,9 +3,8 @@ import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mocktail/mocktail.dart';
 
-class MockNavigationClient extends Mock implements NavigationClient {}
+import '../../../../testing/mocks/client_mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

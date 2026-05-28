@@ -12,7 +12,6 @@ import 'package:clean_architecture/features/auth/presentation/cubits/login/login
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
@@ -24,8 +23,6 @@ import '../../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 final locator = GetIt.I;
-
-class MockNavigatorKey extends Mock implements GlobalKey<NavigatorState> {}
 
 void main() {
   late MockLoginUseCase mockLoginUseCase;
@@ -62,9 +59,6 @@ void main() {
     mockLogOutUseCase = MockLogOutUseCase();
     mockSessionRepository = MockSessionRepository();
     mockNavigationClient = MockNavigationClient();
-    final mockNavigatorKey = MockNavigatorKey();
-    when(() => mockNavigatorKey.currentState).thenReturn(null);
-    when(() => mockNavigationClient.navigatorKey).thenReturn(mockNavigatorKey);
     mockResetPasswordUseCase = MockResetPasswordUseCase();
     mockSetSessionUseCase = MockSetSessionUseCase();
 
@@ -97,9 +91,6 @@ void main() {
   blocTest<LoginCubit, LoginState>(
     'login should call login use case and navigate on success',
     build: () {
-      when(() => mockNavigationClient.replaceAllRoute(any())).thenAnswer((
-        _,
-      ) async {});
       when(
         () => mockLoginUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: userData));
@@ -147,18 +138,7 @@ void main() {
 
   blocTest<LoginCubit, LoginState>(
     'navigateToSignUp should call pushRoute with SignUpRoute',
-    build: () {
-      when(
-        () => mockNavigationClient.pushRoute(any()),
-      ).thenAnswer((_) => Future.value());
-      when(
-        () => mockNavigationClient.pushRoute<void>(any()),
-      ).thenAnswer((_) => Future.value());
-      when(
-        () => mockNavigationClient.pushRoute<dynamic>(any()),
-      ).thenAnswer((_) => Future.value());
-      return loginCubit;
-    },
+    build: () => loginCubit,
     act: (cubit) => cubit.navigateToSignUp(),
     verify: (_) {
       verify(() => mockNavigationClient.pushRoute<void>(any())).called(1);

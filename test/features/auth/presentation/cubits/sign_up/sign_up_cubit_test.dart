@@ -7,7 +7,6 @@ import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sig
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:faker/faker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
@@ -38,9 +37,6 @@ void main() {
   setUp(() {
     mockSignUpUseCase = MockSignUpUseCase();
     mockNavigationClient = MockNavigationClient();
-    when(
-      () => mockNavigationClient.navigatorKey,
-    ).thenReturn(GlobalKey<NavigatorState>());
 
     locator
       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
@@ -63,29 +59,8 @@ void main() {
     'signUp should handle successful sign up, save data, and navigate',
     build: () {
       when(
-        () => mockNavigationClient.replaceAllRoute(any()),
-      ).thenAnswer((_) async {});
-      when(
         () => mockSignUpUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: userData));
-      when(
-        () => mockNavigationClient.maybePop<dynamic>(),
-      ).thenAnswer((_) async => true);
-      when(
-        () => mockNavigationClient.maybePop<dynamic>(),
-      ).thenAnswer((_) async => true);
-      when(
-        () => mockNavigationClient.maybePop<void>(any()),
-      ).thenAnswer((_) async => true);
-      when(
-        () => mockNavigationClient.maybePop<void>(),
-      ).thenAnswer((_) async => true);
-      when(
-        () => mockNavigationClient.maybePop<Object?>(any()),
-      ).thenAnswer((_) async => true);
-      when(
-        () => mockNavigationClient.maybePop<Object?>(),
-      ).thenAnswer((_) async => true);
 
       return signUpCubit;
     },

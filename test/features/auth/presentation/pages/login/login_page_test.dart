@@ -102,9 +102,6 @@ void main() {
     when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
     when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
     when(
-      () => mockNavigationClient.replaceAllRoute(any()),
-    ).thenAnswer((_) async {});
-    when(
       () => mockLoginUseCase.call(any()),
     ).thenAnswer((_) async => SuccessState(data: userData));
 
