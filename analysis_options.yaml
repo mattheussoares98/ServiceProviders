@@ -13,9 +13,11 @@ linter:
 
 analyzer:
   errors:
+    always_put_control_body_on_new_line: ignore
     avoid_types_on_closure_parameters: ignore
     document_ignores: ignore
     eol_at_end_of_file: ignore
     unsafe_variance: ignore
+    use_build_context_synchronously: ignore
   exclude:
     - bricks**
