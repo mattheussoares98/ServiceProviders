@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
@@ -43,11 +44,13 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     );
 
     final dataState = await _useCases.signUp.call(signUpEntity);
-    showDataStateToast(
-      dataState,
-      message: 'Confirme o cadastro no seu e-mail'.hardcoded,
-    );
-    //TODO return to login page
+    if (dataState is SuccessState) {
+      await maybePopRoute();
+      showDataStateToast(
+        dataState,
+        message: 'Confirme o cadastro no seu e-mail'.hardcoded,
+      );
+    }
 
     emit(
       SignUpState(
@@ -55,10 +58,5 @@ class SignUpCubit extends BaseCubit<SignUpState> {
         status: StateStatus.loaded,
       ),
     );
-
-    if (!dataState.hasError) {
-      //when signup succeeds, supabase auto set a session
-      //TODO: Navigate to home
-    }
   }
 }

@@ -68,6 +68,24 @@ void main() {
       when(
         () => mockSignUpUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: userData));
+      when(
+        () => mockNavigationClient.maybePop<dynamic>(),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockNavigationClient.maybePop<dynamic>(),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockNavigationClient.maybePop<void>(any()),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockNavigationClient.maybePop<void>(),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockNavigationClient.maybePop<Object?>(any()),
+      ).thenAnswer((_) async => true);
+      when(
+        () => mockNavigationClient.maybePop<Object?>(),
+      ).thenAnswer((_) async => true);
 
       return signUpCubit;
     },
@@ -80,6 +98,7 @@ void main() {
     },
     verify: (_) {
       verify(() => mockSignUpUseCase.call(any())).called(1);
+      verify(() => mockNavigationClient.maybePop<Object?>(any())).called(1);
       verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
     },
   );
