@@ -162,7 +162,10 @@ void main() {
     test('should return SuccessState when reset email is sent', () async {
       // Arrange
       when(
-        () => mockSupabaseAuthClient.resetPasswordForEmail(any()),
+        () => mockSupabaseAuthClient.resetPasswordForEmail(
+          any(),
+          redirectTo: any(named: 'redirectTo'),
+        ),
       ).thenAnswer((_) async {});
 
       // Act
@@ -171,18 +174,56 @@ void main() {
       // Assert
       expect(result, isA<SuccessState<void>>());
       verify(
-        () => mockSupabaseAuthClient.resetPasswordForEmail(email),
+        () => mockSupabaseAuthClient.resetPasswordForEmail(
+          email,
+          redirectTo: '${TestAppConfig.defaultWebBaseUrl}$kChangePasswordPath',
+        ),
       ).called(1);
     });
 
     test('should return FailureState when reset fails', () async {
       // Arrange
       when(
-        () => mockSupabaseAuthClient.resetPasswordForEmail(any()),
+        () => mockSupabaseAuthClient.resetPasswordForEmail(
+          any(),
+          redirectTo: any(named: 'redirectTo'),
+        ),
       ).thenThrow(const AuthException('Error sending email'));
 
       // Act
       final result = await dataSource.resetPassword(email);
+
+      // Assert
+      expect(result, isA<FailureState<void>>());
+    });
+  });
+
+  group('changePassword', () {
+    final newPassword = faker.internet.password();
+    test('should return SuccessState when password is changed successfully', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.updateUserPassword(any()),
+      ).thenAnswer((_) async {});
+
+      // Act
+      final result = await dataSource.changePassword(newPassword);
+
+      // Assert
+      expect(result, isA<SuccessState<void>>());
+      verify(
+        () => mockSupabaseAuthClient.updateUserPassword(newPassword),
+      ).called(1);
+    });
+
+    test('should return FailureState when password update fails', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.updateUserPassword(any()),
+      ).thenThrow(const AuthException('Error updating password'));
+
+      // Act
+      final result = await dataSource.changePassword(newPassword);
 
       // Assert
       expect(result, isA<FailureState<void>>());

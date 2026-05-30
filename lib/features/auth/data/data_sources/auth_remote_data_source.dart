@@ -12,6 +12,7 @@ abstract interface class AuthRemoteDataSource {
   FutureData<UserDataResponseModel> login(AuthenticationModel request);
   FutureData<UserDataResponseModel> signUp(SignUpRequestModel request);
   FutureVoid resetPassword(String email);
+  FutureVoid changePassword(String newPassword);
   bool checkAuth();
 }
 
@@ -35,8 +36,19 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   FutureVoid resetPassword(String email) {
+    final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kChangePasswordPath';
     return SupabaseHandler.voidAuthCall(
-      () => _supabaseAuth.resetPasswordForEmail(email),
+      () => _supabaseAuth.resetPasswordForEmail(
+        email,
+        redirectTo: redirectUrl,
+      ),
+    );
+  }
+
+  @override
+  FutureVoid changePassword(String newPassword) {
+    return SupabaseHandler.voidAuthCall(
+      () => _supabaseAuth.updateUserPassword(newPassword),
     );
   }
 
