@@ -138,7 +138,7 @@ class _BaseScaffold extends StatelessWidget {
 
     Widget scaffold;
 
-    if (context.isCupertino) {
+    if (context.isCupertino && params.drawer == null) {
       const cupertinoTabBarHeight = 49.0;
       var cupertinoBody = bottomNavigationWidget != null
           ? Padding(

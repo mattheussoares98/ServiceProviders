@@ -6,7 +6,6 @@ import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,10 +35,9 @@ class HomeView extends StatelessWidget {
         leading: Builder(
           builder: (context) => BaseIconButton(
             onPressed: Scaffold.of(context).openDrawer,
-            platformIcon: PlatformIcon(
+            platformIcon: const PlatformIcon(
               materialIcon: Icons.menu,
               cupertinoIcon: CupertinoIcons.bars,
-              color: context.colorScheme.onSurface,
             ),
           ),
         ),
