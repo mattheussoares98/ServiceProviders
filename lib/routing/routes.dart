@@ -13,6 +13,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: LoginRoute.page, path: kLoginPath),
     AutoRoute(page: SignUpRoute.page, path: kSignUpPath),
     AutoRoute(page: EmailConfirmationRoute.page, path: kEmailConfirmationPath),
+    AutoRoute(page: ChangePasswordRoute.page, path: kChangePasswordPath),
     // AutoRoute(page: HomeRoute.page, path: '/home'),
     AutoRoute(
       path: kHomePath,

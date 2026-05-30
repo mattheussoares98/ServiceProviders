@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
@@ -10,6 +13,7 @@ import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CleanArchitectureSample extends StatefulWidget {
   const CleanArchitectureSample({super.key});
@@ -24,6 +28,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
   late final ScreenObserverCubit _screenObserverCubit;
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
   late final ThemeCubit _themeCubit;
+  StreamSubscription<AuthState>? _authSubscription;
 
   @override
   void initState() {
@@ -32,6 +37,14 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
     _themeCubit = GetIt.I<ThemeCubit>();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Listen for Supabase Auth state changes (specifically for password recovery redirect)
+    _authSubscription = GetIt.I<SupabaseAuthClient>().onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.passwordRecovery) {
+        NavigationUtil.I.replaceAllRoute(const ChangePasswordRoute());
+      }
+    });
+
     // Listen for internet connectivity changes.
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => InternetUtil.I.subscribeConnectivity(),
@@ -40,6 +53,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _screenObserverCubit.close();
     _keyboardVisibilityCubit.close();
     _themeCubit.close();

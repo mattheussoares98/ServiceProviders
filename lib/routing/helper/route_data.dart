@@ -6,7 +6,7 @@ const String kSignUpRoute = 'SignUpRoute';
 const String kSignUpPath = '/sign_up';
 
 const String kChangePasswordRoute = 'ChangePasswordRoute';
-const String kChangePasswordPath = 'ChangePassword';
+const String kChangePasswordPath = '/change-password';
 
 // Dashboard
 const String kDashboardRoute = 'DashboardRoute';
