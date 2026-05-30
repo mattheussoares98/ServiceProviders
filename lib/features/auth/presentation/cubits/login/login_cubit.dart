@@ -23,7 +23,10 @@ class LoginCubit extends BaseCubit<LoginState> {
   /// This handles cases where the auth interceptor navigated to login
   /// but couldn't clear the in-memory session data
   void clearSession() {
-    _useCases.logOut.call();
+    _useCases.logOut.call(
+      email: email,
+      name: name,
+    ); //TODO here is the problem that is not saving the email and name
   }
 
   Future<void> getUserData() async {
