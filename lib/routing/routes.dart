@@ -18,9 +18,7 @@ class AppRouter extends RootStackRouter {
       path: kHomePath,
       page: HomeRoute.page,
       initial: true,
-      guards: const [
-        AuthenticatedGuard(),
-      ], //TODO add the guard when have home page
+      guards: const [AuthenticatedGuard()],
       children: const [
         // AutoRoute(path: kHomePath, page: HomeRoute.page, initial: true),
         // AutoRoute(path: kSettingPath, page: SettingRoute.page),
