@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
@@ -33,19 +34,11 @@ void main() {
   late MockSetSessionUseCase mockSetSessionUseCase;
   late LoginCubit loginCubit;
   late UserDataEntity userData;
+  late MockGetUserDataUseCase mockGetUserDataUseCase;
 
   setUpAll(() {
     userData = TestFactory.makeUserDataEntity().copyWith(
-      user: TestFactory.makeUserEntity().copyWith(
-        id: '',
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        isActive: true,
-      ),
-      accessToken: '',
-      refreshToken: '',
+      user: TestFactory.makeUserEntity(),
     );
     registerFallbackValue(
       const AuthenticationEntity(username: '', password: ''),
@@ -61,6 +54,7 @@ void main() {
     mockNavigationClient = MockNavigationClient();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
     mockSetSessionUseCase = MockSetSessionUseCase();
+    mockGetUserDataUseCase = MockGetUserDataUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -68,13 +62,15 @@ void main() {
       ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
-      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase);
+      ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
+      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase);
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
       logOut: mockLogOutUseCase,
       resetPassword: GetIt.I<ResetPasswordUseCase>(),
       setSession: mockSetSessionUseCase,
+      getUserData: mockGetUserDataUseCase,
     );
     loginCubit = LoginCubit(useCases: useCases);
   });
@@ -204,6 +200,38 @@ void main() {
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);
       verify(() => mockNavigationClient.maybePop()).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'getUserData should call getUserData use case and emit state with userData on success',
+    build: () {
+      when(
+        () => mockGetUserDataUseCase.call(),
+      ).thenAnswer((_) async => SuccessState(data: userData));
+      return loginCubit;
+    },
+    act: (cubit) => cubit.getUserData(),
+    expect: () => [
+      isA<LoginState>().having((s) => s.userData, 'userData', userData),
+    ],
+    verify: (_) {
+      verify(() => mockGetUserDataUseCase.call()).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'getUserData should call getUserData use case and not emit state on failure',
+    build: () {
+      when(
+        () => mockGetUserDataUseCase.call(),
+      ).thenAnswer((_) async => FailureState(message: 'Error'));
+      return loginCubit;
+    },
+    act: (cubit) => cubit.getUserData(),
+    expect: () => <LoginState>[],
+    verify: (_) {
+      verify(() => mockGetUserDataUseCase.call()).called(1);
     },
   );
 }

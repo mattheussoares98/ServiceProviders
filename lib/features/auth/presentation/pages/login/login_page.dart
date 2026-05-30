@@ -25,66 +25,69 @@ class LoginPage extends HookWidget {
     final passwordController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    final loginCubit = useMemoized(() => GetIt.I<LoginCubit>()..clearSession());
 
-    return BlocProvider(
-      create: (context) => GetIt.I<LoginCubit>()
-        // Clear any stale session data when login page loads
-        // This ensures fresh state after auth interceptor logout
-        ..clearSession(),
-      child: Builder(
-        builder: (context) {
-          return BaseScaffold(
-            observeScreenChanges: true,
-            showAnnotatedRegion: true,
-            body: Column(
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await loginCubit.getUserData();
+        final email = loginCubit.state.userData?.user.email;
+        if (email != null && email.isNotEmpty) {
+          emailController.text = email;
+        }
+      });
+      return null;
+    }, const []);
+
+    return BlocProvider.value(
+      value: loginCubit,
+      child: BaseScaffold(
+        observeScreenChanges: true,
+        showAnnotatedRegion: true,
+        body: Column(
+          children: [
+            gapH24,
+            const WelcomeLogo(),
+            gapH12,
+            Form(
+              key: formKey,
+              child: LoginForm(
+                formKey: formKey,
+                emailController: emailController,
+                passwordController: passwordController,
+                passwordFocusNode: passwordFocusNode,
+              ),
+            ),
+            gapH32,
+            LoginButton(
+              formKey: formKey,
+              emailController: emailController,
+              passwordController: passwordController,
+            ),
+            gapH32,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                gapH24,
-                const WelcomeLogo(),
-                gapH12,
-                Form(
-                  key: formKey,
-                  child: LoginForm(
-                    formKey: formKey,
-                    emailController: emailController,
-                    passwordController: passwordController,
-                    passwordFocusNode: passwordFocusNode,
-                  ),
+                BlocSelector<LoginCubit, LoginState, bool>(
+                  selector: (state) => state.status == StateStatus.loading,
+                  builder: (context, isLoading) {
+                    return Flexible(
+                      child: BaseTextButton(
+                        isLoading: isLoading,
+                        onPressed: loginCubit.navigateToSignUp,
+                        text: 'Criar conta'.hardcoded,
+                        color: context.theme.primaryColorLight,
+                      ),
+                    );
+                  },
                 ),
-                gapH32,
-                LoginButton(
-                  formKey: formKey,
-                  emailController: emailController,
-                  passwordController: passwordController,
-                ),
-                gapH32,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BlocSelector<LoginCubit, LoginState, bool>(
-                      selector: (state) => state.status == StateStatus.loading,
-                      builder: (context, isLoading) {
-                        return Flexible(
-                          child: BaseTextButton(
-                            isLoading: isLoading,
-                            onPressed: context
-                                .read<LoginCubit>()
-                                .navigateToSignUp,
-                            text: 'Criar conta'.hardcoded,
-                            color: context.theme.primaryColorLight,
-                          ),
-                        );
-                      },
-                    ),
-                    gapH8,
-                    Flexible(
-                      child: ResetPassword(emailController: emailController),
-                    ),
-                  ],
+                gapH8,
+                Flexible(
+                  child: ResetPassword(emailController: emailController),
                 ),
               ],
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }

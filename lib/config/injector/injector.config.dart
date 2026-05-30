@@ -228,16 +228,17 @@ extension GetItInjectableX on _i174.GetIt {
         useCases: gh<_i456.ChangePasswordCubitUseCases>(),
       ),
     );
+    gh.lazySingleton<_i735.SignUpCubitUseCases>(
+      () => _i735.SignUpCubitUseCases(signUp: gh<_i979.SignUpUseCase>()),
+    );
     gh.lazySingleton<_i123.LoginCubitUseCases>(
       () => _i123.LoginCubitUseCases(
         login: gh<_i68.LoginUseCase>(),
         logOut: gh<_i294.LogOutUseCase>(),
         resetPassword: gh<_i701.ResetPasswordUseCase>(),
         setSession: gh<_i636.SetSessionUseCase>(),
+        getUserData: gh<_i817.GetUserDataUseCase>(),
       ),
-    );
-    gh.lazySingleton<_i735.SignUpCubitUseCases>(
-      () => _i735.SignUpCubitUseCases(signUp: gh<_i979.SignUpUseCase>()),
     );
     gh.factory<_i912.LoginCubit>(
       () => _i912.LoginCubit(useCases: gh<_i123.LoginCubitUseCases>()),

@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
@@ -39,21 +40,11 @@ void main() {
   late MockNavigationClient mockNavigationClient;
   late MockResetPasswordUseCase mockResetPasswordUseCase;
   late MockSetSessionUseCase mockSetSessionUseCase;
+  late MockGetUserDataUseCase mockGetUserDataUseCase;
   late UserDataEntity userData;
 
   setUpAll(() {
-    userData = TestFactory.makeUserDataEntity().copyWith(
-      user: TestFactory.makeUserEntity().copyWith(
-        id: '0',
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        isActive: true,
-      ),
-      accessToken: '',
-      refreshToken: '',
-    );
+    userData = TestFactory.makeUserDataEntity();
     registerFallbackValue(
       const AuthenticationEntity(username: '', password: ''),
     );
@@ -68,6 +59,7 @@ void main() {
     mockNavigationClient = MockNavigationClient();
     mockResetPasswordUseCase = MockResetPasswordUseCase();
     mockSetSessionUseCase = MockSetSessionUseCase();
+    mockGetUserDataUseCase = MockGetUserDataUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -76,6 +68,7 @@ void main() {
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
+      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase)
       ..registerFactory<LoginCubit>(
         () => LoginCubit(
           useCases: LoginCubitUseCases(
@@ -83,6 +76,7 @@ void main() {
             logOut: mockLogOutUseCase,
             resetPassword: mockResetPasswordUseCase,
             setSession: mockSetSessionUseCase,
+            getUserData: mockGetUserDataUseCase,
           ),
         ),
       );
