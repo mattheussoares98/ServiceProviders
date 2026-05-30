@@ -25,6 +25,10 @@ abstract interface class SupabaseAuthClient {
   Future<void> logout();
 
   Session? get currentSession;
+
+  Stream<AuthState> get onAuthStateChange;
+
+  Future<void> updateUserPassword(String newPassword);
 }
 
 @LazySingleton(as: SupabaseAuthClient)
@@ -46,8 +50,7 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
     String? captchaToken,
   }) => _auth.resetPasswordForEmail(
     email,
-    redirectTo:
-        'http://localhost:9090', //TODO pass this parameter and create the reset password page
+    redirectTo: redirectTo,
     captchaToken: captchaToken,
   );
 
@@ -69,4 +72,12 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
 
   @override
   Future<void> logout() => _auth.signOut();
+
+  @override
+  Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
+
+  @override
+  Future<void> updateUserPassword(String newPassword) async {
+    await _auth.updateUser(UserAttributes(password: newPassword));
+  }
 }
