@@ -33,18 +33,21 @@ class BaseTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final appliedTextType = textType ?? TextType.bodyLarge;
     final appliedFontWeight = textFontWeight ?? FontWeight.w400;
+    final baseColor = textColor ?? color ?? AppColors.hightLight;
+    final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
 
+    final baseText = BaseText(
+      text,
+      color: finalColor,
+      textType: appliedTextType,
+      fontWeight: appliedFontWeight,
+    );
     if (context.isCupertino) {
       return CupertinoButton(
         onPressed: isLoading ? null : onPressed,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
-        child: BaseText(
-          text,
-          color: textColor ?? color ?? AppColors.hightLight,
-          textType: appliedTextType,
-          fontWeight: appliedFontWeight,
-        ),
+        child: baseText,
       );
     }
 
@@ -56,12 +59,7 @@ class BaseTextButton extends StatelessWidget {
         visualDensity: visualDensity,
         elevation: elevation,
       ),
-      child: BaseText(
-        text,
-        color: textColor ?? color ?? AppColors.hightLight,
-        textType: appliedTextType,
-        fontWeight: appliedFontWeight,
-      ),
+      child: baseText,
     );
   }
 }
