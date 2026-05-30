@@ -1,5 +1,3 @@
-import 'dart:core';
-
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,12 +16,12 @@ Future<bool?> showAlertDialog({
   String? cancelActionText,
   String defaultActionText = 'OK',
   VoidCallback? onOkPressed,
-  bool autoPop = true,
+  List<Widget>? actions,
 }) {
   return showDialog<bool>(
     context: context,
     // Only make the dialog dismissible if there is a cancel button
-    barrierDismissible: cancelActionText != null,
+    barrierDismissible: cancelActionText != null || actions != null,
     builder: (context) => AlertDialog.adaptive(
       key: kDialogDefaultKey,
       title: Row(
@@ -46,35 +44,37 @@ Future<bool?> showAlertDialog({
           (contentText != null
               ? SingleChildScrollView(child: Text(contentText))
               : null),
-      actions: PlatformUtil.isCupertino
-          ? <Widget>[
-              if (cancelActionText != null)
-                CupertinoDialogAction(
-                  child: Text(cancelActionText),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-              CupertinoDialogAction(
-                child: Text(defaultActionText),
-                onPressed: () {
-                  if (autoPop) Navigator.of(context).pop(true);
-                  onOkPressed?.call();
-                },
-              ),
-            ]
-          : <Widget>[
-              if (cancelActionText != null)
-                TextButton(
-                  child: Text(cancelActionText),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-              TextButton(
-                child: Text(defaultActionText),
-                onPressed: () {
-                  if (autoPop) Navigator.of(context).pop(true);
-                  onOkPressed?.call();
-                },
-              ),
-            ],
+      actions:
+          actions ??
+          (PlatformUtil.isCupertino
+              ? <Widget>[
+                  if (cancelActionText != null)
+                    CupertinoDialogAction(
+                      child: Text(cancelActionText),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                  CupertinoDialogAction(
+                    child: Text(defaultActionText),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                      onOkPressed?.call();
+                    },
+                  ),
+                ]
+              : <Widget>[
+                  if (cancelActionText != null)
+                    TextButton(
+                      child: Text(cancelActionText),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    ),
+                  TextButton(
+                    child: Text(defaultActionText),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                      onOkPressed?.call();
+                    },
+                  ),
+                ]),
     ),
   );
 }
