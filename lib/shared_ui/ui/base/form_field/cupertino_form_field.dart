@@ -124,6 +124,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                   fontSize: 12,
                 ),
               ),
+              gapH4,
             ],
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: Sizes.p48),
