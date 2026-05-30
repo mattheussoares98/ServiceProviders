@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,6 +18,7 @@ Future<bool?> showAlertDialog({
   String? cancelActionText,
   String defaultActionText = 'OK',
   VoidCallback? onOkPressed,
+  bool autoPop = true,
 }) {
   return showDialog<bool>(
     context: context,
@@ -53,7 +56,7 @@ Future<bool?> showAlertDialog({
               CupertinoDialogAction(
                 child: Text(defaultActionText),
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  if (autoPop) Navigator.of(context).pop(true);
                   onOkPressed?.call();
                 },
               ),
@@ -67,7 +70,7 @@ Future<bool?> showAlertDialog({
               TextButton(
                 child: Text(defaultActionText),
                 onPressed: () {
-                  Navigator.of(context).pop(true);
+                  if (autoPop) Navigator.of(context).pop(true);
                   onOkPressed?.call();
                 },
               ),
