@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,12 +11,12 @@ const kDialogDefaultKey = Key('dialog-default-key');
 Future<bool?> showAlertDialog({
   required BuildContext context,
   required String title,
-  String? content,
+  String? contentText,
+  Widget? contentWidget,
   String? cancelActionText,
   String defaultActionText = 'OK',
   VoidCallback? onOkPressed,
 }) {
-  final theme = Theme.of(context);
   return showDialog<bool>(
     context: context,
     // Only make the dialog dismissible if there is a cancel button
@@ -26,11 +27,10 @@ Future<bool?> showAlertDialog({
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(child: Text(title)),
-          if (kDebugMode)
+          if (kDebugMode && (contentText?.isNotEmpty ?? false))
             IconButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: content ?? ''));
-              },
+              onPressed: () =>
+                  Clipboard.setData(ClipboardData(text: contentText!)),
               icon: const PlatformIcon(
                 cupertinoIcon: CupertinoIcons.doc_on_clipboard,
                 materialIcon: Icons.copy,
@@ -38,20 +38,19 @@ Future<bool?> showAlertDialog({
             ),
         ],
       ),
-      content: content != null
-          ? SingleChildScrollView(child: Text(content))
-          : null,
-      actions:
-          kIsWeb ||
-              !(theme.platform == TargetPlatform.iOS ||
-                  theme.platform == TargetPlatform.macOS)
+      content:
+          contentWidget ??
+          (contentText != null
+              ? SingleChildScrollView(child: Text(contentText))
+              : null),
+      actions: PlatformUtil.isCupertino
           ? <Widget>[
               if (cancelActionText != null)
-                TextButton(
+                CupertinoDialogAction(
                   child: Text(cancelActionText),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
-              TextButton(
+              CupertinoDialogAction(
                 child: Text(defaultActionText),
                 onPressed: () {
                   Navigator.of(context).pop(true);
@@ -61,11 +60,11 @@ Future<bool?> showAlertDialog({
             ]
           : <Widget>[
               if (cancelActionText != null)
-                CupertinoDialogAction(
+                TextButton(
                   child: Text(cancelActionText),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
-              CupertinoDialogAction(
+              TextButton(
                 child: Text(defaultActionText),
                 onPressed: () {
                   Navigator.of(context).pop(true);
@@ -85,5 +84,5 @@ Future<bool?> showExceptionAlertDialog({
 }) => showAlertDialog(
   context: context,
   title: title,
-  content: exception.toString(),
+  contentText: exception.toString(),
 );

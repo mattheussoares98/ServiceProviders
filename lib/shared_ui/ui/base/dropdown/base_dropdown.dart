@@ -76,7 +76,7 @@ class DefaultDropDown<T> extends StatelessWidget {
                                 final ok = await showAlertDialog(
                                   context: context,
                                   title: 'Atenção!'.hardcoded,
-                                  content: adviceMessage,
+                                  contentText: adviceMessage,
                                   defaultActionText: 'Continuar'.hardcoded,
                                   cancelActionText: 'Cancelar'.hardcoded,
                                 );
@@ -209,7 +209,7 @@ class DefaultDropDown<T> extends StatelessWidget {
                         showAlertDialog(
                           context: context,
                           title: 'Atenção!'.hardcoded,
-                          content: adviceMessage,
+                          contentText: adviceMessage,
                         );
                       },
                 hint: hint ?? (label != null ? Text(label!) : null),
