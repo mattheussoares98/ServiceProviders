@@ -50,6 +50,10 @@ final class AuthRepositoryImpl implements AuthRepository {
       _remoteDataSource.resetPassword(email);
 
   @override
+  FutureVoid changePassword(String newPassword) =>
+      _remoteDataSource.changePassword(newPassword);
+
+  @override
   FutureBool saveUserData(UserDataEntity userData) =>
       _localDataSource.saveUserData(UserDataResponseModel.fromEntity(userData));
 

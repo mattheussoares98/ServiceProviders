@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/auth/data/models/requests/authentica
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -182,6 +183,25 @@ void main() {
       expect(result, isA<SuccessState<void>>());
       verify(
         () => mockAuthRemoteDataSource.resetPassword('test@example.com'),
+      ).called(1);
+    });
+  });
+
+  group('changePassword', () {
+    test('should call remoteDataSource.changePassword', () async {
+      final tPassword = faker.internet.password();
+      // Arrange
+      when(
+        () => mockAuthRemoteDataSource.changePassword(any()),
+      ).thenAnswer((_) async => SuccessState.nil);
+
+      // Act
+      final result = await repository.changePassword(tPassword);
+
+      // Assert
+      expect(result, isA<SuccessState<void>>());
+      verify(
+        () => mockAuthRemoteDataSource.changePassword(tPassword),
       ).called(1);
     });
   });

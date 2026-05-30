@@ -7,6 +7,7 @@ abstract interface class AuthRepository {
   FutureData<UserDataEntity> login(AuthenticationEntity authentication);
   FutureData<UserDataEntity> signUp(SignUpEntity request);
   FutureVoid resetPassword(String email);
+  FutureVoid changePassword(String newPassword);
   FutureBool saveUserData(UserDataEntity userData);
   FutureData<UserDataEntity> getUserData();
   bool checkAuth();
