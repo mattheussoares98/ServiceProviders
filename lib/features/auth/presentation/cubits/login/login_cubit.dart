@@ -15,11 +15,20 @@ class LoginCubit extends BaseCubit<LoginState> {
       super(const LoginState.initial());
 
   final LoginCubitUseCases _useCases;
-  bool _passwordVisibility = false;
+  final bool _passwordVisibility = false;
+  final StateStatus _resetPasswordStatus = StateStatus.initial;
 
   /// Emits a new State
-  void _refreshState() {
-    final newState = LoginState(passwordVisibility: _passwordVisibility);
+  void _refreshState({
+    StateStatus? resetPasswordStatus,
+    StateStatus? status,
+    bool? passwordVisibility,
+  }) {
+    final newState = LoginState(
+      passwordVisibility: passwordVisibility ?? _passwordVisibility,
+      resetPasswordStatus: resetPasswordStatus ?? _resetPasswordStatus,
+      status: status ?? state.status,
+    );
     emit(newState);
   }
 
@@ -31,20 +40,14 @@ class LoginCubit extends BaseCubit<LoginState> {
   }
 
   void togglePasswordVisibility() {
-    _passwordVisibility = !_passwordVisibility;
-    _refreshState();
+    _refreshState(passwordVisibility: !_passwordVisibility);
   }
 
   Future<void> login({
     required String username,
     required String password,
   }) async {
-    emit(
-      LoginState(
-        passwordVisibility: _passwordVisibility,
-        status: StateStatus.loading,
-      ),
-    );
+    _refreshState(status: StateStatus.loading);
 
     final authentication = AuthenticationEntity(
       username: username,
@@ -59,21 +62,12 @@ class LoginCubit extends BaseCubit<LoginState> {
       //because it navigates to the home page, doesn't need to emit a new state
       await replaceAllRoute(const HomeRoute());
     }
-    emit(
-      LoginState(
-        passwordVisibility: _passwordVisibility,
-        status: StateStatus.loaded,
-      ),
-    );
+    _refreshState(status: StateStatus.loaded);
   }
 
   Future<void> resetPassword(String email) async {
-    emit(
-      LoginState(
-        passwordVisibility: _passwordVisibility,
-        status: StateStatus.loading,
-      ),
-    );
+    _refreshState(resetPasswordStatus: StateStatus.loading);
+
     final dataState = await _useCases.resetPassword.call(email);
     if (isClosed) return;
     showDataStateToast(
@@ -81,21 +75,8 @@ class LoginCubit extends BaseCubit<LoginState> {
       message: 'E-mail de recuperação enviado com sucesso!'.hardcoded,
     );
 
-    if (!dataState.hasError) {
-      emit(
-        LoginState(
-          passwordVisibility: _passwordVisibility,
-          status: StateStatus.loaded,
-        ),
-      );
-    } else {
-      emit(
-        LoginState(
-          passwordVisibility: _passwordVisibility,
-          status: StateStatus.error,
-        ),
-      );
-    }
+    _refreshState(resetPasswordStatus: StateStatus.loaded);
+    await maybePopRoute();
   }
 
   Future<void> navigateToSignUp() async {

@@ -146,7 +146,7 @@ void main() {
   );
 
   blocTest<LoginCubit, LoginState>(
-    'resetPassword should call resetPassword use case',
+    'resetPassword should call resetPassword use case and emit success states',
     build: () {
       when(
         () => mockResetPasswordUseCase.call(any()),
@@ -154,8 +154,56 @@ void main() {
       return loginCubit;
     },
     act: (cubit) => cubit.resetPassword(faker.internet.email()),
+    expect: () => [
+      isA<LoginState>()
+          .having(
+            (s) => s.resetPasswordStatus,
+            'resetPasswordStatus',
+            StateStatus.loading,
+          )
+          .having((s) => s.status, 'status', StateStatus.initial),
+      isA<LoginState>()
+          .having(
+            (s) => s.resetPasswordStatus,
+            'resetPasswordStatus',
+            StateStatus.loaded,
+          )
+          .having((s) => s.status, 'status', StateStatus.initial),
+    ],
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);
+      verify(() => mockNavigationClient.maybePop()).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'resetPassword should call resetPassword use case and emit loaded state on failure',
+    build: () {
+      when(
+        () => mockResetPasswordUseCase.call(any()),
+      ).thenAnswer((_) async => FailureState(message: 'Error'));
+      return loginCubit;
+    },
+    act: (cubit) => cubit.resetPassword(faker.internet.email()),
+    expect: () => [
+      isA<LoginState>()
+          .having(
+            (s) => s.resetPasswordStatus,
+            'resetPasswordStatus',
+            StateStatus.loading,
+          )
+          .having((s) => s.status, 'status', StateStatus.initial),
+      isA<LoginState>()
+          .having(
+            (s) => s.resetPasswordStatus,
+            'resetPasswordStatus',
+            StateStatus.loaded,
+          )
+          .having((s) => s.status, 'status', StateStatus.initial),
+    ],
+    verify: (_) {
+      verify(() => mockResetPasswordUseCase.call(any())).called(1);
+      verify(() => mockNavigationClient.maybePop()).called(1);
     },
   );
 }
