@@ -60,6 +60,14 @@ class _ResetPasswordDialog extends HookWidget {
     );
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
+    Future<void> onSubmit() async {
+      if (formKey.currentState?.validate() ?? false) {
+        final email = emailController.text.trim();
+        Navigator.of(context).pop();
+        await loginCubit.resetPassword(email);
+      }
+    }
+
     return AlertDialog.adaptive(
       title: Text('Recuperar Senha'.hardcoded),
       content: Form(
@@ -81,6 +89,7 @@ class _ResetPasswordDialog extends HookWidget {
               keyboardType: TextInputType.emailAddress,
               validator: FormValidators.compose([EmailValidator()]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              onFieldSubmitted: (_) => onSubmit(),
             ),
           ],
         ),
@@ -90,16 +99,7 @@ class _ResetPasswordDialog extends HookWidget {
           onPressed: () => Navigator.of(context).pop(),
           child: Text('Cancelar'.hardcoded),
         ),
-        TextButton(
-          onPressed: () async {
-            if (formKey.currentState?.validate() ?? false) {
-              final email = emailController.text.trim();
-              Navigator.of(context).pop();
-              await loginCubit.resetPassword(email);
-            }
-          },
-          child: Text('Enviar'.hardcoded),
-        ),
+        TextButton(onPressed: onSubmit, child: Text('Enviar'.hardcoded)),
       ],
     );
   }
