@@ -8,6 +8,17 @@
       "program": "./test/"
     },
     {
+      "name": "Debug-No-Flavors",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "args": [
+        "--target",
+        "lib/main_dev.dart"
+      ],
+      "flutterMode": "debug"
+    },
+    {
       "name": "Debug-Dev",
       "request": "launch",
       "type": "dart",

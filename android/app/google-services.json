@@ -12,7 +12,12 @@
           "package_name": "com.servicepro.connect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "738276498188-bq3k224m3h38c1uvlnbhdbt47uhtohc4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCTDQsuTXGyAqfOeVGTexPSUgvrjue6ivQ"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738276498188-bq3k224m3h38c1uvlnbhdbt47uhtohc4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "738276498188-q06eouks0tpl5f11i6u1cuvtsrjdmhdj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.servicepro.cleanArchitecture"
+              }
+            }
+          ]
         }
       }
     }
