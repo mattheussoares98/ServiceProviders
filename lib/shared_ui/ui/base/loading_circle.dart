@@ -75,7 +75,17 @@ class _LoadingCircleState extends State<LoadingCircle>
   Widget build(BuildContext context) {
     late Widget child;
 
-    if (context.isCupertino) {
+    if (context.isCupertino && widget.color == null) {
+      child = AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return CupertinoActivityIndicator(
+            color: colorAnimation.value,
+            radius: widget.width / 2,
+          );
+        },
+      );
+    } else if (context.isCupertino) {
       child = CupertinoActivityIndicator(
         color: widget.color,
         radius: widget.width / 2,
