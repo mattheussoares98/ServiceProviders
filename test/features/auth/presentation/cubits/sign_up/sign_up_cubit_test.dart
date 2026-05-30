@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_ca
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -52,7 +53,26 @@ void main() {
     'togglePasswordVisibility should flip passwordVisibility state',
     build: () => signUpCubit,
     act: (cubit) => cubit.togglePasswordVisibility(),
-    expect: () => [const SignUpState(passwordVisibility: true)],
+    expect: () => [
+      const SignUpState(
+        passwordVisibility: true,
+        confirmPasswordVisibility: false,
+        status: StateStatus.loaded,
+      ),
+    ],
+  );
+
+  blocTest<SignUpCubit, SignUpState>(
+    'toggleConfirmPasswordVisibility should flip confirmPasswordVisibility state',
+    build: () => signUpCubit,
+    act: (cubit) => cubit.toggleConfirmPasswordVisibility(),
+    expect: () => [
+      const SignUpState(
+        passwordVisibility: false,
+        confirmPasswordVisibility: true,
+        status: StateStatus.loaded,
+      ),
+    ],
   );
 
   blocTest<SignUpCubit, SignUpState>(

@@ -66,78 +66,79 @@ class SignUpForm extends StatelessWidget {
         BlocSelector<SignUpCubit, SignUpState, bool>(
           selector: (state) => state.passwordVisibility,
           builder: (context, passwordVisibility) {
-            return Column(
-              children: [
-                BaseTextFormField(
-                  enabled: !isLoading,
-                  focusNode: passwordFocusNode,
-                  onFieldSubmitted: (_) =>
-                      passwordConfirmationFocusNode.requestFocus(),
-                  labelText: 'Senha'.hardcoded,
-                  hintText: 'Digite sua senha'.hardcoded,
-                  controller: passwordController,
-                  validator: FormValidators.compose([MinLengthValidator(3)]),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  obscureText: !passwordVisibility,
-                  suffixIcon: _TogglePasswordVisibility(
-                    passwordVisibility: passwordVisibility,
-                  ),
+            return BaseTextFormField(
+              enabled: !isLoading,
+              focusNode: passwordFocusNode,
+              onFieldSubmitted: (_) =>
+                  passwordConfirmationFocusNode.requestFocus(),
+              labelText: 'Senha'.hardcoded,
+              hintText: 'Digite sua senha'.hardcoded,
+              controller: passwordController,
+              validator: FormValidators.compose([MinLengthValidator(3)]),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              obscureText: !passwordVisibility,
+              suffixIcon: BaseIconButton(
+                onPressed: context
+                    .read<SignUpCubit>()
+                    .togglePasswordVisibility,
+                platformIcon: PlatformIcon(
+                  materialIcon: passwordVisibility
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  cupertinoIcon: passwordVisibility
+                      ? CupertinoIcons.eye
+                      : CupertinoIcons.eye_slash,
                 ),
-                gapH20,
-                BaseTextFormField(
-                  enabled: !isLoading,
-                  focusNode: passwordConfirmationFocusNode,
-                  labelText: 'Confirmar senha'.hardcoded,
-                  hintText: 'Digite sua senha'.hardcoded,
-                  controller: passwordConfirmationController,
-                  validator: (value) =>
-                      passwordConfirmationController.text ==
-                          passwordController.text
-                      ? null
-                      : 'Senhas não conferem'.hardcoded,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  onFieldSubmitted: (_) async {
-                    if (!formKey.currentState!.validate()) {
-                      return;
-                    }
-                    FocusManager.instance.primaryFocus?.unfocus();
+              ),
+            );
+          },
+        ),
+        gapH20,
+        BlocSelector<SignUpCubit, SignUpState, bool>(
+          selector: (state) => state.confirmPasswordVisibility,
+          builder: (context, confirmPasswordVisibility) {
+            return BaseTextFormField(
+              enabled: !isLoading,
+              focusNode: passwordConfirmationFocusNode,
+              labelText: 'Confirmar senha'.hardcoded,
+              hintText: 'Digite sua senha'.hardcoded,
+              controller: passwordConfirmationController,
+              validator: (value) =>
+                  passwordConfirmationController.text ==
+                      passwordController.text
+                  ? null
+                  : 'Senhas não conferem'.hardcoded,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onFieldSubmitted: (_) async {
+                if (!formKey.currentState!.validate()) {
+                  return;
+                }
+                FocusManager.instance.primaryFocus?.unfocus();
 
-                    await context.read<SignUpCubit>().signUp(
-                      name: nameController.text,
-                      email: emailController.text,
-                      password: passwordController.text,
-                    );
-                  },
-                  obscureText: !passwordVisibility,
-                  suffixIcon: _TogglePasswordVisibility(
-                    passwordVisibility: passwordVisibility,
-                  ),
+                await context.read<SignUpCubit>().signUp(
+                  name: nameController.text,
+                  email: emailController.text,
+                  password: passwordController.text,
+                );
+              },
+              obscureText: !confirmPasswordVisibility,
+              suffixIcon: BaseIconButton(
+                onPressed: context
+                    .read<SignUpCubit>()
+                    .toggleConfirmPasswordVisibility,
+                platformIcon: PlatformIcon(
+                  materialIcon: confirmPasswordVisibility
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  cupertinoIcon: confirmPasswordVisibility
+                      ? CupertinoIcons.eye
+                      : CupertinoIcons.eye_slash,
                 ),
-              ],
+              ),
             );
           },
         ),
       ],
-    );
-  }
-}
-
-class _TogglePasswordVisibility extends StatelessWidget {
-  const _TogglePasswordVisibility({required this.passwordVisibility});
-  final bool passwordVisibility;
-
-  @override
-  Widget build(BuildContext context) {
-    return BaseIconButton(
-      onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
-      platformIcon: PlatformIcon(
-        materialIcon: passwordVisibility
-            ? Icons.visibility_outlined
-            : Icons.visibility_off_outlined,
-        cupertinoIcon: passwordVisibility
-            ? CupertinoIcons.eye
-            : CupertinoIcons.eye_slash,
-      ),
     );
   }
 }
