@@ -104,27 +104,43 @@ void main() {
     });
 
     group('Logout', () {
-      test('should call logout and clear session data', () async {
-        // Arrange
-        when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
-        final mockSession = MockSession();
-        when(() => mockSession.accessToken).thenReturn('');
-        when(
-          () => mockSupabaseAuthClient.currentSession,
-        ).thenReturn(mockSession);
+      test(
+        'should call logout and save partial session data with email',
+        () async {
+          registerFallbackValue(
+            const UserDataResponseModel(
+              user: UserModel(id: '', name: '', email: '', isActive: true),
+              accessToken: '',
+              refreshToken: '',
+            ),
+          );
+          when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+          final mockSession = MockSession();
+          when(() => mockSession.accessToken).thenReturn('');
+          when(
+            () => mockSessionLocalDataSource.saveUserData(any()),
+          ).thenAnswer((_) async {});
+          when(
+            () => mockSupabaseAuthClient.currentSession,
+          ).thenReturn(mockSession);
 
-        // Act
-        await sessionRepository.logout();
+          await sessionRepository.logout(
+            email: faker.internet.email(),
+            name: faker.person.name(),
+          );
 
-        // Assert
-        verify(() => mockSupabaseAuthClient.logout()).called(1);
+          verify(() => mockSupabaseAuthClient.logout()).called(1);
+          verify(
+            () => mockSessionLocalDataSource.saveUserData(any()),
+          ).called(1);
 
-        expect(sessionRepository.isLoggedIn, isFalse);
-        expect(
-          sessionRepository.userData,
-          equals(const UserDataEntity.empty()),
-        );
-      });
+          expect(sessionRepository.isLoggedIn, isFalse);
+          expect(
+            sessionRepository.userData,
+            equals(const UserDataEntity.empty()),
+          );
+        },
+      );
     });
   });
 }

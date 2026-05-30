@@ -6,9 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 class UserModel extends Equatable implements DataConvertible<UserEntity> {
   const UserModel({
     required this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.username,
+    required this.name,
     required this.email,
     required this.isActive,
   });
@@ -16,9 +14,7 @@ class UserModel extends Equatable implements DataConvertible<UserEntity> {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as String? ?? '',
-      firstName: json['first_name'] as String? ?? '',
-      lastName: json['last_name'] as String? ?? '',
-      username: json['username'] as String? ?? '',
+      name: json['name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       isActive: json['is_active'] as bool? ?? false,
     );
@@ -27,9 +23,7 @@ class UserModel extends Equatable implements DataConvertible<UserEntity> {
   factory UserModel.fromSupabase(sb.User user) {
     return UserModel(
       id: user.id,
-      firstName: user.userMetadata?['first_name'] as String? ?? '',
-      lastName: user.userMetadata?['last_name'] as String? ?? '',
-      username: user.userMetadata?['username'] as String? ?? '',
+      name: user.userMetadata?['name'] as String? ?? '',
       email: user.email ?? '',
       isActive: true,
     );
@@ -38,49 +32,28 @@ class UserModel extends Equatable implements DataConvertible<UserEntity> {
   factory UserModel.fromEntity(UserEntity user) {
     return UserModel(
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      username: user.username,
+      name: user.name,
       email: user.email,
       isActive: user.isActive,
     );
   }
+  @override
+  List<Object?> get props => [id, name, email, isActive];
   final String id;
-  final String firstName;
-  final String lastName;
-  final String username;
+  final String name;
   final String email;
   final bool isActive;
 
   @override
   Map<String, dynamic> toJson() => {
     'id': id,
-    'first_name': firstName,
-    'last_name': lastName,
-    'username': username,
+    'name': name,
     'email': email,
     'is_active': isActive,
   };
 
   @override
   UserEntity toEntity() {
-    return UserEntity(
-      id: id,
-      firstName: firstName,
-      lastName: lastName,
-      username: username,
-      email: email,
-      isActive: isActive,
-    );
+    return UserEntity(id: id, name: name, email: email, isActive: isActive);
   }
-
-  @override
-  List<Object?> get props => [
-    id,
-    firstName,
-    lastName,
-    username,
-    email,
-    isActive,
-  ];
 }

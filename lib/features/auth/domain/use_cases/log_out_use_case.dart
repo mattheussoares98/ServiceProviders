@@ -6,5 +6,6 @@ class LogOutUseCase {
   LogOutUseCase(this._sessionRepository);
   final SessionRepository _sessionRepository;
 
-  Future<void> call() => _sessionRepository.logout();
+  Future<void> call({String? email, String? name}) =>
+      _sessionRepository.logout(email: email, name: name);
 }

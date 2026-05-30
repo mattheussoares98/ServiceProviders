@@ -12,9 +12,7 @@ abstract final class TestFactory {
   static UserEntity makeUserEntity() {
     return UserEntity(
       id: faker.guid.guid(),
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
-      username: faker.internet.userName(),
+      name: faker.internet.userName(),
       email: faker.internet.email(),
       isActive: true,
     );

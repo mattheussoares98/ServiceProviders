@@ -5,5 +5,5 @@ abstract interface class SessionRepository {
   UserDataEntity get userData;
   Future<void> checkForUserCredential();
   set setUserData(UserDataEntity model);
-  Future<void> logout();
+  Future<void> logout({required String? email, required String? name});
 }

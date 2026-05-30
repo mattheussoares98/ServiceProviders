@@ -35,14 +35,7 @@ void main() {
     registerFallbackValue(const UserDataEntity.empty());
     registerFallbackValue(
       const UserDataResponseModel(
-        user: UserModel(
-          id: '1',
-          firstName: '',
-          lastName: '',
-          username: '',
-          email: '',
-          isActive: true,
-        ),
+        user: UserModel(id: '1', name: '', email: '', isActive: true),
         accessToken: '',
         refreshToken: '',
       ),
@@ -60,9 +53,7 @@ void main() {
 
   final tUser = TestFactory.makeUserEntity().copyWith(
     id: '1',
-    firstName: 'Test',
-    lastName: 'User',
-    username: 'test user',
+    name: 'test user',
     email: 'test@example.com',
     isActive: true,
   );

@@ -24,18 +24,8 @@ void main() {
     username: 'test',
     password: 'password',
   );
-  final tUser = TestFactory.makeUserEntity().copyWith(
-    id: '1',
-    firstName: 'Test',
-    lastName: 'User',
-    username: 'testuser',
-    email: 'test@example.com',
-    isActive: true,
-  );
   final tUserData = TestFactory.makeUserDataEntity().copyWith(
-    user: tUser,
-    accessToken: 'access',
-    refreshToken: 'refresh',
+    user: TestFactory.makeUserEntity(),
   );
 
   test(

@@ -1,6 +1,8 @@
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
+import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -37,7 +39,15 @@ final class SessionRepositoryImpl implements SessionRepository {
   }
 
   @override
-  Future<void> logout() async {
+  Future<void> logout({String? email, String? name}) async {
+    final userEmail = email ?? _userData.user.email;
+    _userData = const UserDataEntity.empty();
+    final partialModel = UserDataResponseModel.fromEntity(
+      const UserDataEntity.empty().copyWith(
+        user: const UserEntity.empty().copyWith(email: userEmail, name: name),
+      ),
+    );
+    await _localDataSource.saveUserData(partialModel);
     await _auth.logout();
   }
 }
