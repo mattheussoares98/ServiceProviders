@@ -27,6 +27,7 @@ class ChangePasswordPage extends HookWidget {
     return BlocProvider(
       create: (context) => GetIt.I<ChangePasswordCubit>(),
       child: BaseScaffold(
+        observeScreenChanges: true,
         appBar: BaseAppBar(title: 'Alterar Senha'.hardcoded),
         body: Padding(
           padding: const EdgeInsets.all(Sizes.p24),
