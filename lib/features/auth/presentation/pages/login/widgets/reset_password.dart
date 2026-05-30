@@ -4,6 +4,7 @@ import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
@@ -87,22 +88,20 @@ class _ResetPasswordDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Form(
       key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Insira o seu e-mail para receber o link de redefinição de senha.'
-                .hardcoded,
-            style: context.theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: Sizes.p16),
-          BlocSelector<LoginCubit, LoginState, bool>(
-            bloc: loginCubit,
-            selector: (state) =>
-                state.resetPasswordStatus == StateStatus.loading,
-            builder: (context, isLoading) {
-              return BaseTextFormField(
+      child: BlocSelector<LoginCubit, LoginState, bool>(
+        selector: (state) => state.resetPasswordStatus == StateStatus.loading,
+        builder: (context, isLoading) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Insira o seu e-mail para receber o link de redefinição de senha.'
+                    .hardcoded,
+                style: context.theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: Sizes.p16),
+              BaseTextFormField(
                 autofocus: true,
                 labelText: 'E-mail'.hardcoded,
                 hintText: 'Digite seu e-mail'.hardcoded,
@@ -112,16 +111,12 @@ class _ResetPasswordDialog extends StatelessWidget {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onFieldSubmitted: isLoading ? null : (_) => onSubmit(),
                 enabled: !isLoading,
-              );
-            },
-          ),
-          gapH16,
-          BlocSelector<LoginCubit, LoginState, bool>(
-            bloc: loginCubit,
-            selector: (state) =>
-                state.resetPasswordStatus == StateStatus.loading,
-            builder: (context, isLoading) {
-              return Row(
+              ),
+              Container(
+                constraints: const BoxConstraints(minHeight: Sizes.p48),
+                child: isLoading ? const LoadingCircle() : null,
+              ),
+              Row(
                 children: [
                   Expanded(
                     child: BaseTextButton(
@@ -138,10 +133,10 @@ class _ResetPasswordDialog extends StatelessWidget {
                     ),
                   ),
                 ],
-              );
-            },
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
