@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_optional.dart';
+import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/reset_password.dart';
 import 'package:clean_architecture/features/auth/presentation/widgets/welcome_logo.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
@@ -77,9 +77,7 @@ class LoginPage extends HookWidget {
                     ),
                     gapH8,
                     Flexible(
-                      child: RestorePassword(
-                        usernameController: emailController,
-                      ),
+                      child: ResetPassword(emailController: emailController),
                     ),
                   ],
                 ),
