@@ -1,3 +1,4 @@
+import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
@@ -14,3 +15,5 @@ class MockSignUpUseCase extends Mock implements SignUpUseCase {}
 class MockLogOutUseCase extends Mock implements LogOutUseCase {}
 
 class MockSetSessionUseCase extends Mock implements SetSessionUseCase {}
+
+class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
