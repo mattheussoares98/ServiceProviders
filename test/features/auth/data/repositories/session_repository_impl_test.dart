@@ -110,9 +110,6 @@ void main() {
         final mockSession = MockSession();
         when(() => mockSession.accessToken).thenReturn('');
         when(
-          () => mockSessionLocalDataSource.clearUserData(),
-        ).thenAnswer((_) async {});
-        when(
           () => mockSupabaseAuthClient.currentSession,
         ).thenReturn(mockSession);
 
@@ -121,7 +118,6 @@ void main() {
 
         // Assert
         verify(() => mockSupabaseAuthClient.logout()).called(1);
-        verify(() => mockSessionLocalDataSource.clearUserData()).called(1);
 
         expect(sessionRepository.isLoggedIn, isFalse);
         expect(

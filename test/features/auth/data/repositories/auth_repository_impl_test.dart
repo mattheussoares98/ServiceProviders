@@ -268,20 +268,4 @@ void main() {
       verify(() => mockAuthRemoteDataSource.checkAuth()).called(1);
     });
   });
-
-  group('removeUserData', () {
-    test('should call localDataSource.removeUserData', () async {
-      // Arrange
-      when(
-        () => mockAuthLocalDataSource.removeUserData(),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      // Act
-      final result = await repository.removeUserData();
-
-      // Assert
-      expect(result, isA<SuccessState<bool>>());
-      verify(() => mockAuthLocalDataSource.removeUserData()).called(1);
-    });
-  });
 }

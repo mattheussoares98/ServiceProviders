@@ -9,8 +9,6 @@ abstract interface class SessionLocalDataSource {
   Future<UserDataResponseModel?> getUserData();
 
   Future<void> saveUserData(UserDataResponseModel userData);
-
-  Future<void> clearUserData();
 }
 
 @LazySingleton(as: SessionLocalDataSource)
@@ -40,10 +38,5 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
       LocalDbKey.userData.key,
       jsonEncode(userData.toJson()),
     );
-  }
-
-  @override
-  Future<void> clearUserData() async {
-    await _localStorageClient.remove(LocalDbKey.userData.key);
   }
 }

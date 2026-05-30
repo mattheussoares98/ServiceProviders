@@ -12,7 +12,6 @@ import 'package:injectable/injectable.dart';
 abstract interface class AuthLocalDataSource {
   FutureBool saveUserData(UserDataResponseModel userDataModel);
   FutureData<UserDataResponseModel> getUserData();
-  FutureBool removeUserData();
 }
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -47,14 +46,6 @@ final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       return FailureState<UserDataResponseModel>(
         message: 'Usuário não encontrado'.hardcoded,
       );
-    });
-  }
-
-  @override
-  FutureBool removeUserData() {
-    return ErrorHandler.execute(() async {
-      await _localDatabase.remove(LocalDbKey.userData.key);
-      return const SuccessState(data: true);
     });
   }
 }

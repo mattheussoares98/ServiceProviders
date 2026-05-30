@@ -11,5 +11,4 @@ abstract interface class AuthRepository {
   FutureBool saveUserData(UserDataEntity userData);
   FutureData<UserDataEntity> getUserData();
   bool checkAuth();
-  FutureBool removeUserData();
 }

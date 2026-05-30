@@ -121,22 +121,5 @@ void main() {
         },
       );
     });
-
-    group('clearUserData', () {
-      test('should call remove with correct key', () async {
-        // Arrange
-        when(
-          () => mockLocalStorageClient.remove(any()),
-        ).thenAnswer((_) async => true);
-
-        // Act
-        await sessionLocalDataSource.clearUserData();
-
-        // Assert
-        verify(
-          () => mockLocalStorageClient.remove(LocalDbKey.userData.key),
-        ).called(1);
-      });
-    });
   });
 }

@@ -123,39 +123,4 @@ void main() {
       },
     );
   });
-
-  group('removeUserData', () {
-    test(
-      'should return SuccessState(true) when data is removed successfully',
-      () async {
-        // Arrange
-        when(
-          () => mockLocalDatabase.remove(tStorageKey),
-        ).thenAnswer((_) async => true);
-
-        // Act
-        final result = await dataSource.removeUserData();
-
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(() => mockLocalDatabase.remove(tStorageKey)).called(1);
-      },
-    );
-
-    test(
-      'should return FailureState when removing data throws an exception',
-      () async {
-        // Arrange
-        final exception = Exception('Failed to remove');
-        when(() => mockLocalDatabase.remove(tStorageKey)).thenThrow(exception);
-
-        // Act
-        final result = await dataSource.removeUserData();
-
-        // Assert
-        expect(result, isA<FailureState<bool>>());
-      },
-    );
-  });
 }

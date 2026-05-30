@@ -66,7 +66,4 @@ final class AuthRepositoryImpl implements AuthRepository {
 
   @override
   bool checkAuth() => _remoteDataSource.checkAuth();
-
-  @override
-  FutureBool removeUserData() => _localDataSource.removeUserData();
 }
