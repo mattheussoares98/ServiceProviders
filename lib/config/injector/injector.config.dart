@@ -34,6 +34,8 @@ import 'package:clean_architecture/features/auth/domain/repositories/auth_reposi
     as _i1003;
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart'
     as _i150;
+import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart'
+    as _i750;
 import 'package:clean_architecture/features/auth/domain/use_cases/check_authentication_use_case.dart'
     as _i481;
 import 'package:clean_architecture/features/auth/domain/use_cases/get_user_data_use_case.dart'
@@ -48,6 +50,10 @@ import 'package:clean_architecture/features/auth/domain/use_cases/set_session_us
     as _i636;
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart'
     as _i979;
+import 'package:clean_architecture/features/auth/presentation/cubits/change_password/change_password_cubit.dart'
+    as _i379;
+import 'package:clean_architecture/features/auth/presentation/cubits/change_password/change_password_cubit_use_cases.dart'
+    as _i456;
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart'
     as _i912;
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart'
@@ -112,15 +118,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i454.SupabaseClient>(() => supabaseModule.supabaseClient);
     gh.lazySingleton<_i454.GoTrueClient>(() => supabaseModule.supabaseAuth);
     gh.lazySingleton<_i671.AppRouter>(() => navigationClientModule.appRouter);
-    gh.lazySingleton<_i389.NavigationClient>(
-      () => _i389.NavigationClientImpl(appRouter: gh<_i671.AppRouter>()),
-    );
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigStg(),
       registerFor: {_staging},
     );
     gh.lazySingleton<_i432.SupabaseAuthClient>(
       () => _i432.SupabaseAuthClientImpl(gh<_i454.GoTrueClient>()),
+    );
+    gh.lazySingleton<_i9.InternetClient>(
+      () => _i9.InternetClientImpl(
+        internetConnection: gh<_i161.InternetConnection>(),
+      ),
     );
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigDev(),
@@ -131,18 +139,16 @@ extension GetItInjectableX on _i174.GetIt {
         sharedPreferences: gh<_i460.SharedPreferences>(),
       ),
     );
-    gh.lazySingleton<_i322.AuthLocalDataSource>(
-      () => _i322.AuthLocalDataSourceImpl(
-        localDatabase: gh<_i1009.LocalStorageClient>(),
-      ),
-    );
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigProd(),
       registerFor: {_production},
     );
-    gh.lazySingleton<_i9.InternetClient>(
-      () => _i9.InternetClientImpl(
-        internetConnection: gh<_i161.InternetConnection>(),
+    gh.lazySingleton<_i389.NavigationClient>(
+      () => _i389.NavigationClientImpl(appRouter: gh<_i671.AppRouter>()),
+    );
+    gh.lazySingleton<_i141.AuthRemoteDataSource>(
+      () => _i141.AuthRemoteDataSourceImpl(
+        supabaseAuth: gh<_i432.SupabaseAuthClient>(),
       ),
     );
     gh.factory<_i368.ThemeCubit>(
@@ -151,15 +157,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i16.SessionLocalDataSource>(
       () => _i16.SessionLocalDataSourceImpl(gh<_i1009.LocalStorageClient>()),
     );
-    gh.lazySingleton<_i150.SessionRepository>(
-      () => _i943.SessionRepositoryImpl(
-        localDataSource: gh<_i16.SessionLocalDataSource>(),
-        auth: gh<_i432.SupabaseAuthClient>(),
-      ),
-    );
-    gh.lazySingleton<_i141.AuthRemoteDataSource>(
-      () => _i141.AuthRemoteDataSourceImpl(
-        supabaseAuth: gh<_i432.SupabaseAuthClient>(),
+    gh.lazySingleton<_i322.AuthLocalDataSource>(
+      () => _i322.AuthLocalDataSourceImpl(
+        localDatabase: gh<_i1009.LocalStorageClient>(),
       ),
     );
     gh.lazySingleton<_i244.HttpClient>(
@@ -171,14 +171,11 @@ extension GetItInjectableX on _i174.GetIt {
         addInterceptors: gh<bool>(),
       ),
     );
-    gh.lazySingleton<_i294.LogOutUseCase>(
-      () => _i294.LogOutUseCase(gh<_i150.SessionRepository>()),
-    );
-    gh.lazySingleton<_i636.SetSessionUseCase>(
-      () => _i636.SetSessionUseCase(gh<_i150.SessionRepository>()),
-    );
-    gh.lazySingleton<_i435.HomeCubitUseCases>(
-      () => _i435.HomeCubitUseCases(logOut: gh<_i294.LogOutUseCase>()),
+    gh.lazySingleton<_i150.SessionRepository>(
+      () => _i943.SessionRepositoryImpl(
+        localDataSource: gh<_i16.SessionLocalDataSource>(),
+        auth: gh<_i432.SupabaseAuthClient>(),
+      ),
     );
     gh.lazySingleton<_i1003.AuthRepository>(
       () => _i526.AuthRepositoryImpl(
@@ -187,8 +184,15 @@ extension GetItInjectableX on _i174.GetIt {
         localDataSource: gh<_i322.AuthLocalDataSource>(),
       ),
     );
-    gh.factory<_i471.HomeCubit>(
-      () => _i471.HomeCubit(useCases: gh<_i435.HomeCubitUseCases>()),
+    gh.lazySingleton<_i294.LogOutUseCase>(
+      () => _i294.LogOutUseCase(gh<_i150.SessionRepository>()),
+    );
+    gh.lazySingleton<_i636.SetSessionUseCase>(
+      () => _i636.SetSessionUseCase(gh<_i150.SessionRepository>()),
+    );
+    gh.lazySingleton<_i750.ChangePasswordUseCase>(
+      () =>
+          _i750.ChangePasswordUseCase(repository: gh<_i1003.AuthRepository>()),
     );
     gh.lazySingleton<_i701.ResetPasswordUseCase>(
       () => _i701.ResetPasswordUseCase(repository: gh<_i1003.AuthRepository>()),
@@ -208,11 +212,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i979.SignUpUseCase>(
       () => _i979.SignUpUseCase(authRepository: gh<_i1003.AuthRepository>()),
     );
-    gh.lazySingleton<_i735.SignUpCubitUseCases>(
-      () => _i735.SignUpCubitUseCases(signUp: gh<_i979.SignUpUseCase>()),
+    gh.lazySingleton<_i435.HomeCubitUseCases>(
+      () => _i435.HomeCubitUseCases(logOut: gh<_i294.LogOutUseCase>()),
     );
-    gh.factory<_i68.SignUpCubit>(
-      () => _i68.SignUpCubit(useCases: gh<_i735.SignUpCubitUseCases>()),
+    gh.lazySingleton<_i456.ChangePasswordCubitUseCases>(
+      () => _i456.ChangePasswordCubitUseCases(
+        changePassword: gh<_i750.ChangePasswordUseCase>(),
+      ),
+    );
+    gh.factory<_i471.HomeCubit>(
+      () => _i471.HomeCubit(useCases: gh<_i435.HomeCubitUseCases>()),
+    );
+    gh.factory<_i379.ChangePasswordCubit>(
+      () => _i379.ChangePasswordCubit(
+        useCases: gh<_i456.ChangePasswordCubitUseCases>(),
+      ),
     );
     gh.lazySingleton<_i123.LoginCubitUseCases>(
       () => _i123.LoginCubitUseCases(
@@ -222,8 +236,14 @@ extension GetItInjectableX on _i174.GetIt {
         setSession: gh<_i636.SetSessionUseCase>(),
       ),
     );
+    gh.lazySingleton<_i735.SignUpCubitUseCases>(
+      () => _i735.SignUpCubitUseCases(signUp: gh<_i979.SignUpUseCase>()),
+    );
     gh.factory<_i912.LoginCubit>(
       () => _i912.LoginCubit(useCases: gh<_i123.LoginCubitUseCases>()),
+    );
+    gh.factory<_i68.SignUpCubit>(
+      () => _i68.SignUpCubit(useCases: gh<_i735.SignUpCubitUseCases>()),
     );
     return this;
   }
