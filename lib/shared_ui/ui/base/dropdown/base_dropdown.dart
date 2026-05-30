@@ -38,7 +38,7 @@ class DefaultDropDown<T> extends StatelessWidget {
 
     final topLeftLabel =
         selectedItem != null &&
-            showLabelAtTopLeft == true &&
+            showLabelAtTopLeft &&
             (label?.isNotEmpty ?? false)
         ? Positioned(
             left: Sizes.p4,
