@@ -21,7 +21,7 @@ Future<bool?> showAlertDialog({
   return showDialog<bool>(
     context: context,
     // Only make the dialog dismissible if there is a cancel button
-    barrierDismissible: cancelActionText != null || actions != null,
+    barrierDismissible: cancelActionText != null,
     builder: (context) => AlertDialog.adaptive(
       key: kDialogDefaultKey,
       title: Row(
