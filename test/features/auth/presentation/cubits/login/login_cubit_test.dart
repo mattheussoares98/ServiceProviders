@@ -40,9 +40,7 @@ void main() {
     userData = TestFactory.makeUserDataEntity().copyWith(
       user: TestFactory.makeUserEntity(),
     );
-    registerFallbackValue(
-      const AuthenticationEntity(username: '', password: ''),
-    );
+    registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
   });
@@ -96,7 +94,7 @@ void main() {
     },
     act: (cubit) async {
       await cubit.login(
-        username: faker.internet.userName(),
+        email: faker.internet.userName(),
         password: faker.internet.password(),
       );
     },
@@ -118,7 +116,7 @@ void main() {
     },
     act: (cubit) async {
       await cubit.login(
-        username: faker.internet.userName(),
+        email: faker.internet.userName(),
         password: faker.internet.password(),
       );
     },
@@ -234,4 +232,54 @@ void main() {
       verify(() => mockGetUserDataUseCase.call()).called(1);
     },
   );
+
+  group('clearSession', () {
+    blocTest<LoginCubit, LoginState>(
+      'should call logOut with email and name when getUserData returns SuccessState',
+      build: () {
+        when(
+          () => mockGetUserDataUseCase.call(),
+        ).thenAnswer((_) async => SuccessState(data: userData));
+        when(
+          () => mockLogOutUseCase.call(
+            email: any(named: 'email'),
+            name: any(named: 'name'),
+          ),
+        ).thenAnswer((_) async {});
+        return loginCubit;
+      },
+      act: (cubit) => cubit.clearSession(),
+      expect: () => <LoginState>[],
+      verify: (_) {
+        verify(() => mockGetUserDataUseCase.call()).called(1);
+        verify(
+          () => mockLogOutUseCase.call(
+            email: userData.user.email,
+            name: userData.user.name,
+          ),
+        ).called(1);
+      },
+    );
+
+    blocTest<LoginCubit, LoginState>(
+      'should not call logOut when getUserData returns FailureState',
+      build: () {
+        when(
+          () => mockGetUserDataUseCase.call(),
+        ).thenAnswer((_) async => FailureState(message: 'Error'));
+        return loginCubit;
+      },
+      act: (cubit) => cubit.clearSession(),
+      expect: () => <LoginState>[],
+      verify: (_) {
+        verify(() => mockGetUserDataUseCase.call()).called(1);
+        verifyNever(
+          () => mockLogOutUseCase.call(
+            email: any(named: 'email'),
+            name: any(named: 'name'),
+          ),
+        );
+      },
+    );
+  });
 }

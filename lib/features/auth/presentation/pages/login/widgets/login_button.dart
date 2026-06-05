@@ -32,7 +32,7 @@ class LoginButton extends StatelessWidget {
         FocusManager.instance.primaryFocus?.unfocus();
 
         context.read<LoginCubit>().login(
-          username: emailController.text,
+          email: emailController.text,
           password: passwordController.text,
         );
       },

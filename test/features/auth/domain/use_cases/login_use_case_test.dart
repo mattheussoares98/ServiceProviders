@@ -15,9 +15,7 @@ void main() {
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     useCase = LoginUseCase(authRepository: mockAuthRepository);
-    registerFallbackValue(
-      const AuthenticationEntity(username: '', password: ''),
-    );
+    registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
   });
 
   final tAuthentication = TestFactory.makeAuthentication().copyWith(

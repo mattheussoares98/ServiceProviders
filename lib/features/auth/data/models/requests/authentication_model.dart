@@ -5,7 +5,7 @@ class AuthenticationModel {
 
   factory AuthenticationModel.fromEntity(AuthenticationEntity authentication) =>
       AuthenticationModel(
-        username: authentication.username,
+        username: authentication.email,
         password: authentication.password,
       );
   final String username;

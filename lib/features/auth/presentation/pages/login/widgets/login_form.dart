@@ -62,7 +62,7 @@ class LoginForm extends StatelessWidget {
                 FocusManager.instance.primaryFocus?.unfocus();
 
                 await context.read<LoginCubit>().login(
-                  username: emailController.text,
+                  email: emailController.text,
                   password: passwordController.text,
                 );
               },

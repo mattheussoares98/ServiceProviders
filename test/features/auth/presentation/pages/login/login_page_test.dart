@@ -46,7 +46,7 @@ void main() {
   setUpAll(() {
     userData = TestFactory.makeUserDataEntity();
     registerFallbackValue(
-      const AuthenticationEntity(username: '', password: ''),
+      const AuthenticationEntity(email: '', password: ''),
     );
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
@@ -93,7 +93,15 @@ void main() {
 
   patrolWidgetTest('Login and save the user credential', ($) async {
     // Arrange
-    when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
+    when(
+      () => mockLogOutUseCase.call(
+        email: any(named: 'email'),
+        name: any(named: 'name'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockGetUserDataUseCase.call(),
+    ).thenAnswer((_) async => SuccessState(data: userData));
     when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
     when(
       () => mockLoginUseCase.call(any()),

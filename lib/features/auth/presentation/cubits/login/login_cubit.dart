@@ -22,11 +22,14 @@ class LoginCubit extends BaseCubit<LoginState> {
   /// Clear any stale session data when login page loads
   /// This handles cases where the auth interceptor navigated to login
   /// but couldn't clear the in-memory session data
-  void clearSession() {
-    _useCases.logOut.call(
-      email: email,
-      name: name,
-    ); //TODO here is the problem that is not saving the email and name
+  Future<void> clearSession() async {
+    final dataState = await _useCases.getUserData.call();
+    if (dataState is SuccessState) {
+      await _useCases.logOut.call(
+        email: dataState.data?.user.email,
+        name: dataState.data?.user.name,
+      );
+    }
   }
 
   Future<void> getUserData() async {
@@ -44,15 +47,12 @@ class LoginCubit extends BaseCubit<LoginState> {
     emit(_currentState);
   }
 
-  Future<void> login({
-    required String username,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     _currentState = _currentState.copyWith(status: StateStatus.loading);
     emit(_currentState);
 
     final authentication = AuthenticationEntity(
-      username: username,
+      email: email,
       password: password,
     );
     final dataState = await _useCases.login.call(authentication);

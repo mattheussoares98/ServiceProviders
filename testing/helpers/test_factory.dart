@@ -38,7 +38,7 @@ abstract final class TestFactory {
 
   static AuthenticationEntity makeAuthentication() {
     return AuthenticationEntity(
-      username: faker.internet.userName(),
+      email: faker.internet.userName(),
       password: faker.internet.password(),
     );
   }
