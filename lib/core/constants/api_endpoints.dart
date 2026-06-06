@@ -12,5 +12,13 @@ class ApiEndpoints {
   // Categories
   static const categories = 'api/categories';
   static String categoryById(String id) => 'api/categories/$id';
+
+  // Locations
+  static const locations = 'api/locations';
+  static String locationById(String id) => 'api/locations/$id';
+
+  // Areas
+  static const areas = 'api/areas';
+  static String areaById(String id) => 'api/areas/$id';
 }
 

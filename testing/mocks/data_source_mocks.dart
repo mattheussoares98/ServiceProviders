@@ -5,6 +5,8 @@ import 'package:clean_architecture/features/categories/data/data_sources/categor
 import 'package:clean_architecture/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
+import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -21,4 +23,9 @@ class MockCompanyLocalDataSource extends Mock implements CompanyLocalDataSource 
 class MockCategoriesRemoteDataSource extends Mock implements CategoriesRemoteDataSource {}
 
 class MockCategoriesLocalDataSource extends Mock implements CategoriesLocalDataSource {}
+
+class MockLocationsRemoteDataSource extends Mock implements LocationsRemoteDataSource {}
+
+class MockLocationsLocalDataSource extends Mock implements LocationsLocalDataSource {}
+
 
