@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,27 +13,22 @@ void main() {
   late MockLocalStorageClient mockLocalDatabase;
   late AuthLocalDataSourceImpl dataSource;
 
+  setUpAll(() {
+    registerFallbackValue(const UserDataEntity.empty());
+  });
+
   setUp(() {
     mockLocalDatabase = MockLocalStorageClient();
     dataSource = AuthLocalDataSourceImpl(localDatabase: mockLocalDatabase);
   });
 
-  const tStorageKey = 'userData';
-
   final userModel = UserModel.fromEntity(TestFactory.makeUserEntity());
 
-  // Assuming UserDataModel has a constructor like this and a toJson method.
   final tUserDataModel = UserDataResponseModel(
     user: userModel,
     accessToken: 'access',
     refreshToken: 'refresh',
   );
-
-  final tUserDataJson = jsonEncode({
-    'user': userModel.toJson(),
-    'access': 'access',
-    'refresh': 'refresh',
-  });
 
   group('saveUserData', () {
     test(
@@ -42,8 +36,8 @@ void main() {
       () async {
         // Arrange
         when(
-          () => mockLocalDatabase.setString(any(), any()),
-        ).thenAnswer((_) async => true);
+          () => mockLocalDatabase.saveUserSession(any()),
+        ).thenAnswer((_) async {});
 
         // Act
         final result = await dataSource.saveUserData(tUserDataModel);
@@ -51,6 +45,9 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
+        verify(
+          () => mockLocalDatabase.saveUserSession(tUserDataModel.toEntity()),
+        ).called(1);
       },
     );
 
@@ -60,7 +57,7 @@ void main() {
         // Arrange
         final exception = Exception('Failed to save');
         when(
-          () => mockLocalDatabase.setString(any(), any()),
+          () => mockLocalDatabase.saveUserSession(any()),
         ).thenThrow(exception);
 
         // Act
@@ -78,8 +75,8 @@ void main() {
       () async {
         // Arrange
         when(
-          () => mockLocalDatabase.getString(tStorageKey),
-        ).thenAnswer((_) => tUserDataJson);
+          () => mockLocalDatabase.getUserSession(),
+        ).thenReturn(tUserDataModel.toEntity());
 
         // Act
         final result = await dataSource.getUserData();
@@ -89,21 +86,22 @@ void main() {
         expect(result.data, isNotNull);
         expect(result.data!.user.id, userModel.id);
         expect(result.data!.accessToken, 'access');
-        verify(() => mockLocalDatabase.getString(tStorageKey)).called(1);
+        verify(() => mockLocalDatabase.getUserSession()).called(1);
       },
     );
 
     test('should return FailureState when no data is found (null)', () async {
       // Arrange
       when(
-        () => mockLocalDatabase.getString(tStorageKey),
-      ).thenAnswer((_) => null);
+        () => mockLocalDatabase.getUserSession(),
+      ).thenReturn(null);
 
       // Act
       final result = await dataSource.getUserData();
 
       // Assert
       expect(result, isA<FailureState<UserDataResponseModel>>());
+      verify(() => mockLocalDatabase.getUserSession()).called(1);
     });
 
     test(
@@ -112,7 +110,7 @@ void main() {
         // Arrange
         final exception = Exception('Failed to read');
         when(
-          () => mockLocalDatabase.getString(tStorageKey),
+          () => mockLocalDatabase.getUserSession(),
         ).thenThrow(exception);
 
         // Act

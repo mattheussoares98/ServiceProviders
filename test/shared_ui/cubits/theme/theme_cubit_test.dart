@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
@@ -29,8 +28,8 @@ void main() {
     test('should initialize with ThemeMode.system when no theme is cached', () {
       // Arrange
       when(
-        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
-      ).thenReturn(null);
+        () => mockLocalStorageClient.getThemeMode(),
+      ).thenReturn('system');
 
       // Act
       themeCubit = ThemeCubit(mockLocalStorageClient);
@@ -39,7 +38,7 @@ void main() {
       expect(themeCubit.state.themeMode, equals(ThemeMode.system));
       expect(themeCubit.state.status, equals(StateStatus.loaded));
       verify(
-        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+        () => mockLocalStorageClient.getThemeMode(),
       ).called(1);
     });
 
@@ -51,7 +50,7 @@ void main() {
         ThemeMode.system.name,
       ]);
       when(
-        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+        () => mockLocalStorageClient.getThemeMode(),
       ).thenReturn(cachedMode);
 
       // Act
@@ -64,7 +63,7 @@ void main() {
       expect(themeCubit.state.themeMode, equals(expectedMode));
       expect(themeCubit.state.status, equals(StateStatus.loaded));
       verify(
-        () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
+        () => mockLocalStorageClient.getThemeMode(),
       ).called(1);
     });
 
@@ -72,11 +71,11 @@ void main() {
       'should emit [loading, loaded] with updated ThemeMode and save it to storage when updateThemeMode is called',
       build: () {
         when(
-          () => mockLocalStorageClient.getString(LocalDbKey.themeMode.key),
-        ).thenReturn(null);
+          () => mockLocalStorageClient.getThemeMode(),
+        ).thenReturn('system');
         when(
-          () => mockLocalStorageClient.setString(any(), any()),
-        ).thenAnswer((_) async => true);
+          () => mockLocalStorageClient.saveThemeMode(any()),
+        ).thenAnswer((_) async {});
         return ThemeCubit(mockLocalStorageClient);
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
@@ -89,10 +88,7 @@ void main() {
       ],
       verify: (_) {
         verify(
-          () => mockLocalStorageClient.setString(
-            LocalDbKey.themeMode.key,
-            ThemeMode.dark.name,
-          ),
+          () => mockLocalStorageClient.saveThemeMode(ThemeMode.dark.name),
         ).called(1);
       },
     );

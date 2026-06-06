@@ -1,5 +1,4 @@
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
@@ -16,26 +15,17 @@ class ThemeCubit extends BaseCubit<ThemeState> {
   final LocalStorageClient _localStorageClient;
 
   void _loadThemeMode() {
-    final savedMode = _localStorageClient.getString(LocalDbKey.themeMode.key);
-    if (savedMode != null) {
-      final mode = ThemeMode.values.firstWhere(
-        (e) => e.name == savedMode,
-        orElse: () => ThemeMode.system,
-      );
-      emit(ThemeState(themeMode: mode, status: StateStatus.loaded));
-    } else {
-      emit(
-        const ThemeState(
-          themeMode: ThemeMode.system,
-          status: StateStatus.loaded,
-        ),
-      );
-    }
+    final savedMode = _localStorageClient.getThemeMode();
+    final mode = ThemeMode.values.firstWhere(
+      (e) => e.name == savedMode,
+      orElse: () => ThemeMode.system,
+    );
+    emit(ThemeState(themeMode: mode, status: StateStatus.loaded));
   }
 
   Future<void> updateThemeMode(ThemeMode mode) async {
     emit(ThemeState(themeMode: mode, status: StateStatus.loading));
-    await _localStorageClient.setString(LocalDbKey.themeMode.key, mode.name);
+    await _localStorageClient.saveThemeMode(mode.name);
     emit(ThemeState(themeMode: mode, status: StateStatus.loaded));
   }
 }

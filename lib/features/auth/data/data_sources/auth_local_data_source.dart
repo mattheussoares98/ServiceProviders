@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
@@ -23,10 +20,7 @@ final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   FutureBool saveUserData(UserDataResponseModel userDataModel) {
     return ErrorHandler.execute(() async {
-      await _localDatabase.setString(
-        LocalDbKey.userData.key,
-        jsonEncode(userDataModel.toJson()),
-      );
+      await _localDatabase.saveUserSession(userDataModel.toEntity());
       return const SuccessState(data: true);
     });
   }
@@ -34,13 +28,9 @@ final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   FutureData<UserDataResponseModel> getUserData() {
     return ErrorHandler.execute(() async {
-      final String userData =
-          _localDatabase.getString(LocalDbKey.userData.key) ?? '';
-
-      if (userData.isNotEmpty) {
-        final userDataModel = UserDataResponseModel.fromJson(
-          jsonDecode(userData) as MapDynamic,
-        );
+      final session = _localDatabase.getUserSession();
+      if (session != null) {
+        final userDataModel = UserDataResponseModel.fromEntity(session);
         return SuccessState(data: userDataModel);
       }
       return FailureState<UserDataResponseModel>(

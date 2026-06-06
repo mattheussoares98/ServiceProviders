@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:injectable/injectable.dart';
 
@@ -18,23 +15,15 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
 
   @override
   Future<UserDataResponseModel?> getUserData() async {
-    final stored = _localStorageClient.getString(LocalDbKey.userData.key);
-    if (stored != null && stored.isNotEmpty) {
-      try {
-        final map = jsonDecode(stored) as Map<String, dynamic>;
-        return UserDataResponseModel.fromJson(map);
-      } catch (_) {
-        return null;
-      }
+    final session = _localStorageClient.getUserSession();
+    if (session != null) {
+      return UserDataResponseModel.fromEntity(session);
     }
     return null;
   }
 
   @override
   Future<void> saveUserData(UserDataResponseModel userData) async {
-    await _localStorageClient.setString(
-      LocalDbKey.userData.key,
-      jsonEncode(userData.toJson()),
-    );
+    await _localStorageClient.saveUserSession(userData.toEntity());
   }
 }

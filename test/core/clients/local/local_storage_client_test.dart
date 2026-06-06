@@ -1,6 +1,9 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:drift/native.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,7 +17,7 @@ void main() {
   });
 
   setUp(() async {
-    database = AppDatabase(NativeDatabase.memory());
+    database = AppDatabase.forTesting(NativeDatabase.memory());
     localStorageClient = LocalStorageClientImpl(database: database);
     await localStorageClient.init();
   });
@@ -23,65 +26,105 @@ void main() {
     await database.close();
   });
 
-  group('LocalStorageClientImpl', () {
-    test('getString returns value from Drift after setting it', () async {
-      await localStorageClient.setString('key', 'value');
-
-      final result = localStorageClient.getString('key');
-
-      expect(result, 'value');
+  group('LocalStorageClientImpl — Theme Mode', () {
+    test('getThemeMode defaults to system', () {
+      expect(localStorageClient.getThemeMode(), 'system');
     });
 
-    test('getString returns null if key does not exist', () {
-      final result = localStorageClient.getString('missing');
+    test('saveThemeMode persists value and updates cache', () async {
+      final newTheme = faker.randomGenerator.element(['light', 'dark', 'system']);
+      await localStorageClient.saveThemeMode(newTheme);
 
-      expect(result, isNull);
-    });
+      expect(localStorageClient.getThemeMode(), newTheme);
 
-    test('setString saves to cache and database', () async {
-      await localStorageClient.setString('key', 'value');
-
-      // Check cache
-      expect(localStorageClient.getString('key'), 'value');
-
-      // Check database directly
-      final dbValue = await (database.select(database.localStorageItems)
-            ..where((t) => t.key.equals('key')))
+      // Check database
+      final dbValue = await (database.select(database.appSettings)
+            ..where((t) => t.id.equals(1)))
           .getSingleOrNull();
-      expect(dbValue?.value, 'value');
+      expect(dbValue?.themeMode, newTheme);
+    });
+  });
+
+  group('LocalStorageClientImpl — User Session', () {
+    test('getUserSession returns null initially', () {
+      expect(localStorageClient.getUserSession(), isNull);
     });
 
-    test('setStringWithEncryption encrypts and saves value', () async {
-      await localStorageClient.setStringWithEncryption('key', 'sensitive');
+    test('saveUserSession persists value and updates cache', () async {
+      final userSession = UserDataEntity(
+        user: UserEntity(
+          id: faker.guid.guid(),
+          name: faker.person.name(),
+          email: faker.internet.email(),
+          isActive: faker.randomGenerator.boolean(),
+        ),
+        accessToken: faker.jwt.valid(),
+        refreshToken: faker.jwt.valid(),
+      );
 
-      // Decrypt and check
-      final result = localStorageClient.getEncryptedString('key');
-      expect(result, 'sensitive');
+      await localStorageClient.saveUserSession(userSession);
+
+      expect(localStorageClient.getUserSession(), userSession);
+
+      // Check database
+      final dbValue = await database.select(database.userSessions).getSingleOrNull();
+      expect(dbValue, isNotNull);
+      expect(dbValue!.id, userSession.user.id);
+      expect(dbValue.name, userSession.user.name);
+      expect(dbValue.email, userSession.user.email);
+      expect(dbValue.isActive, userSession.user.isActive);
+      expect(dbValue.accessToken, userSession.accessToken);
+      expect(dbValue.refreshToken, userSession.refreshToken);
     });
 
-    test('remove deletes from cache and database', () async {
-      await localStorageClient.setString('key', 'value');
-      await localStorageClient.remove('key');
+    test('clearUserSession deletes session from cache and database', () async {
+      final userSession = UserDataEntity(
+        user: UserEntity(
+          id: faker.guid.guid(),
+          name: faker.person.name(),
+          email: faker.internet.email(),
+          isActive: true,
+        ),
+        accessToken: faker.jwt.valid(),
+        refreshToken: faker.jwt.valid(),
+      );
 
-      expect(localStorageClient.getString('key'), isNull);
+      await localStorageClient.saveUserSession(userSession);
+      await localStorageClient.clearUserSession();
 
-      final dbValue = await (database.select(database.localStorageItems)
-            ..where((t) => t.key.equals('key')))
-          .getSingleOrNull();
+      expect(localStorageClient.getUserSession(), isNull);
+
+      final dbValue = await database.select(database.userSessions).getSingleOrNull();
       expect(dbValue, isNull);
     });
+  });
 
-    test('clear deletes all from cache and database', () async {
-      await localStorageClient.setString('key1', 'value1');
-      await localStorageClient.setString('key2', 'value2');
+  group('LocalStorageClientImpl — Global operations', () {
+    test('clearAll wipes both settings and sessions', () async {
+      final userSession = UserDataEntity(
+        user: UserEntity(
+          id: faker.guid.guid(),
+          name: faker.person.name(),
+          email: faker.internet.email(),
+          isActive: true,
+        ),
+        accessToken: faker.jwt.valid(),
+        refreshToken: faker.jwt.valid(),
+      );
 
-      await localStorageClient.clear();
+      await localStorageClient.saveThemeMode('dark');
+      await localStorageClient.saveUserSession(userSession);
 
-      expect(localStorageClient.getString('key1'), isNull);
-      expect(localStorageClient.getString('key2'), isNull);
+      await localStorageClient.clearAll();
 
-      final dbValues = await database.select(database.localStorageItems).get();
-      expect(dbValues, isEmpty);
+      expect(localStorageClient.getThemeMode(), 'system');
+      expect(localStorageClient.getUserSession(), isNull);
+
+      final dbSettings = await database.select(database.appSettings).get();
+      expect(dbSettings, isEmpty);
+
+      final dbSessions = await database.select(database.userSessions).get();
+      expect(dbSessions, isEmpty);
     });
   });
 }

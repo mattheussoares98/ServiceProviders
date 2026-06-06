@@ -22,18 +22,7 @@ interface class HttpAuthInterceptor extends Interceptor {
   /// token is expired, each requests are retried after refreshing token
   final List<DioRequestData> _pendingRequests = [];
 
-  UserDataResponseModel? get _userData {
-    final stored = _localStorageClient.getString(LocalDbKey.userData.key);
-    if (stored != null && stored.isNotEmpty) {
-      try {
-        final map = jsonDecode(stored) as Map<String, dynamic>;
-        return UserDataResponseModel.fromJson(map);
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
-  }
+  UserDataEntity? get _userData => _localStorageClient.getUserSession();
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -115,12 +104,8 @@ interface class HttpAuthInterceptor extends Interceptor {
       );
       if (apiResponse.success) {
         final tokenResponse = RefreshTokenResponse.fromJson(apiResponse.data);
-        final newUserData = userData
-          ..toEntity().copyWith(accessToken: tokenResponse.accessToken);
-        await _localStorageClient.setString(
-          LocalDbKey.userData.key,
-          jsonEncode(newUserData.toJson()),
-        );
+        final newUserData = userData.copyWith(accessToken: tokenResponse.accessToken);
+        await _localStorageClient.saveUserSession(newUserData);
         return true;
       }
     } on DioException catch (_) {
@@ -136,7 +121,7 @@ interface class HttpAuthInterceptor extends Interceptor {
   }
 
   void _clearSessionData() {
-    _localStorageClient.remove(LocalDbKey.userData.key);
+    _localStorageClient.clearUserSession();
     _navigationClient.replaceAllRoute(const LoginRoute());
   }
 

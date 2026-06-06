@@ -1,7 +1,5 @@
-import 'dart:convert';
-
-import 'package:clean_architecture/core/constants/local_db_keys.dart';
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +11,10 @@ import '../../../../../testing/mocks/client_mocks.dart';
 void main() {
   late MockLocalStorageClient mockLocalStorageClient;
   late SessionLocalDataSourceImpl sessionLocalDataSource;
+
+  setUpAll(() {
+    registerFallbackValue(const UserDataEntity.empty());
+  });
 
   setUp(() {
     mockLocalStorageClient = MockLocalStorageClient();
@@ -32,8 +34,8 @@ void main() {
         () async {
           // Arrange
           when(
-            () => mockLocalStorageClient.getString(LocalDbKey.userData.key),
-          ).thenReturn(jsonEncode(userDataResponse.toJson()));
+            () => mockLocalStorageClient.getUserSession(),
+          ).thenReturn(userDataResponse.toEntity());
 
           // Act
           final result = await sessionLocalDataSource.getUserData();
@@ -41,28 +43,15 @@ void main() {
           // Assert
           expect(result, equals(userDataResponse));
           verify(
-            () => mockLocalStorageClient.getString(LocalDbKey.userData.key),
+            () => mockLocalStorageClient.getUserSession(),
           ).called(1);
         },
       );
 
-      test('should return null when cached data is empty', () async {
-        // Arrange
-        when(
-          () => mockLocalStorageClient.getString(LocalDbKey.userData.key),
-        ).thenReturn('');
-
-        // Act
-        final result = await sessionLocalDataSource.getUserData();
-
-        // Assert
-        expect(result, isNull);
-      });
-
       test('should return null when cached data is null', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.getString(LocalDbKey.userData.key),
+          () => mockLocalStorageClient.getUserSession(),
         ).thenReturn(null);
 
         // Act
@@ -70,41 +59,25 @@ void main() {
 
         // Assert
         expect(result, isNull);
+        verify(
+          () => mockLocalStorageClient.getUserSession(),
+        ).called(1);
       });
-
-      test(
-        'should return null (catch error) when cached data is invalid json',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalStorageClient.getString(LocalDbKey.userData.key),
-          ).thenReturn('invalid json');
-
-          // Act
-          final result = await sessionLocalDataSource.getUserData();
-
-          // Assert
-          expect(result, isNull);
-        },
-      );
     });
 
     group('saveUserData', () {
-      test('should call setString with correct key and value', () async {
+      test('should call saveUserSession with correct entity', () async {
         // Arrange
         when(
-          () => mockLocalStorageClient.setString(any(), any()),
-        ).thenAnswer((_) async => true);
+          () => mockLocalStorageClient.saveUserSession(any()),
+        ).thenAnswer((_) async {});
 
         // Act
         await sessionLocalDataSource.saveUserData(userDataResponse);
 
         // Assert
         verify(
-          () => mockLocalStorageClient.setString(
-            LocalDbKey.userData.key,
-            jsonEncode(userDataResponse.toJson()),
-          ),
+          () => mockLocalStorageClient.saveUserSession(userDataResponse.toEntity()),
         ).called(1);
       });
     });
