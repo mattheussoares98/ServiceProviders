@@ -22,5 +22,8 @@
     ".env": ".env.example",
     "development.xctestplan": "production.xctestplan, staging.xctestplan",
     "main.dart": "main_dev.dart, main_stg.dart"
+  },
+  "workbench.editorAssociations": {
+    "*.md": "default"
   }
 }
