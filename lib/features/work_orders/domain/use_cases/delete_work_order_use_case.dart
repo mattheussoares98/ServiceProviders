@@ -1,19 +1,17 @@
 import 'package:clean_architecture/core/domain/use_cases/use_case.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/repositories/work_orders_repository.dart';
 import 'package:injectable/injectable.dart';
 
-/// Fetches all work orders for a given company.
+/// Soft-deletes a work order by its ID.
 @LazySingleton()
-class GetWorkOrdersUseCase
-    implements UseCase<List<WorkOrderEntity>, String> {
-  GetWorkOrdersUseCase({required WorkOrdersRepository workOrdersRepository})
+class DeleteWorkOrderUseCase implements UseCase<bool, String> {
+  DeleteWorkOrderUseCase({required WorkOrdersRepository workOrdersRepository})
       : _workOrdersRepository = workOrdersRepository;
 
   final WorkOrdersRepository _workOrdersRepository;
 
   @override
-  FutureList<WorkOrderEntity> call(String request) =>
-      _workOrdersRepository.getWorkOrders(request);
+  FutureBool call(String request) =>
+      _workOrdersRepository.deleteWorkOrder(request);
 }

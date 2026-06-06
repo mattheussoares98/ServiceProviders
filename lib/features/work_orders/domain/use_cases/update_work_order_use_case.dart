@@ -4,16 +4,14 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/work_orders/domain/repositories/work_orders_repository.dart';
 import 'package:injectable/injectable.dart';
 
-/// Fetches all work orders for a given company.
 @LazySingleton()
-class GetWorkOrdersUseCase
-    implements UseCase<List<WorkOrderEntity>, String> {
-  GetWorkOrdersUseCase({required WorkOrdersRepository workOrdersRepository})
+class UpdateWorkOrderUseCase implements UseCase<bool, WorkOrderEntity> {
+  UpdateWorkOrderUseCase({required WorkOrdersRepository workOrdersRepository})
       : _workOrdersRepository = workOrdersRepository;
 
   final WorkOrdersRepository _workOrdersRepository;
 
   @override
-  FutureList<WorkOrderEntity> call(String request) =>
-      _workOrdersRepository.getWorkOrders(request);
+  FutureBool call(WorkOrderEntity request) =>
+      _workOrdersRepository.updateWorkOrder(request);
 }

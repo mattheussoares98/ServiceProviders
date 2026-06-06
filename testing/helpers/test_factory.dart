@@ -16,7 +16,14 @@ import 'package:clean_architecture/features/locations/domain/entities/location_e
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_request_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_type.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:faker/faker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -202,4 +209,66 @@ abstract final class TestFactory {
 
   static List<UserProfileEntity> makeUserProfileEntityList() =>
       [makeUserProfileEntity(), makeUserProfileEntity(), makeUserProfileEntity()];
+
+  static WorkOrderEntity makeWorkOrderEntity() => WorkOrderEntity(
+        id: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        assetId: faker.guid.guid(),
+        locationId: faker.guid.guid(),
+        assignedToId: faker.guid.guid(),
+        createdById: faker.guid.guid(),
+        maintenancePlanId: faker.guid.guid(),
+        title: faker.company.name(),
+        description: faker.lorem.sentence(),
+        priority: Priority.values[faker.randomGenerator.integer(Priority.values.length)],
+        status: WorkOrderStatus.values[faker.randomGenerator.integer(WorkOrderStatus.values.length)],
+        type: WorkOrderType.values[faker.randomGenerator.integer(WorkOrderType.values.length)],
+        scheduledDate: faker.date.dateTime(),
+        startedAt: faker.date.dateTime(),
+        completedAt: faker.date.dateTime(),
+        estimatedDuration: faker.randomGenerator.integer(120),
+        actualDuration: faker.randomGenerator.integer(120),
+        laborCost: faker.randomGenerator.decimal(),
+        partsCost: faker.randomGenerator.decimal(),
+        totalCost: faker.randomGenerator.decimal(),
+        notes: faker.lorem.sentence(),
+        createdAt: faker.date.dateTime(),
+        updatedAt: faker.date.dateTime(),
+        deletedAt: faker.date.dateTime(),
+      );
+
+  static List<WorkOrderEntity> makeWorkOrderEntityList() =>
+      [makeWorkOrderEntity(), makeWorkOrderEntity(), makeWorkOrderEntity()];
+
+  static WorkOrderHistoryEntity makeWorkOrderHistoryEntity() => WorkOrderHistoryEntity(
+        id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        userId: faker.guid.guid(),
+        action: faker.lorem.word(),
+        oldValue: faker.lorem.word(),
+        newValue: faker.lorem.word(),
+        createdAt: faker.date.dateTime(),
+      );
+
+  static List<WorkOrderHistoryEntity> makeWorkOrderHistoryEntityList() =>
+      [makeWorkOrderHistoryEntity(), makeWorkOrderHistoryEntity(), makeWorkOrderHistoryEntity()];
+
+  static WorkOrderChangeRequestEntity makeWorkOrderChangeRequestEntity() => WorkOrderChangeRequestEntity(
+        id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        requestedById: faker.guid.guid(),
+        changeType: WorkOrderChangeType.values[faker.randomGenerator.integer(WorkOrderChangeType.values.length)],
+        changeData: faker.lorem.sentence(),
+        status: ChangeRequestStatus.values[faker.randomGenerator.integer(ChangeRequestStatus.values.length)],
+        reviewedById: faker.guid.guid(),
+        rejectionReason: faker.lorem.sentence(),
+        createdAt: faker.date.dateTime(),
+        updatedAt: faker.date.dateTime(),
+        deletedAt: faker.date.dateTime(),
+      );
+
+  static List<WorkOrderChangeRequestEntity> makeWorkOrderChangeRequestEntityList() =>
+      [makeWorkOrderChangeRequestEntity(), makeWorkOrderChangeRequestEntity(), makeWorkOrderChangeRequestEntity()];
 }
