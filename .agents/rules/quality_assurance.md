@@ -50,7 +50,7 @@ void main() {
   late LoginCubit loginCubit;
 
   setUpAll(() {
-    registerFallbackValue(Authentication(username: '', password: ''));
+    registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
   });
 
   setUp(() {
@@ -68,7 +68,7 @@ void main() {
     'emits [loading, error] when login fails',
     build: () {
       when(() => mockLoginUseCase.call(any()))
-          .thenAnswer((_) async => FailureState<UserData>(message: 'Error'));
+          .thenAnswer((_) async => const FailureState<UserDataEntity>(message: 'Error'));
       return loginCubit;
     },
     act: (cubit) => cubit.login(
@@ -132,13 +132,13 @@ void main() {
     );
 
     // Act
-    final request = AuthenticationRequest(
-        username: faker.internet.userName(), 
+    final request = AuthenticationRequestModel(
+        email: faker.internet.email(), 
         password: faker.internet.password());
     final result = await dataSource.login(request);
 
     // Assert
-    expect(result, isA<SuccessState<UserDataResponse>>());
+    expect(result, isA<SuccessState<UserDataResponseModel>>());
     verify(() => mockHttpClient.post<dynamic>(
           ApiEndpoints.login,
           data: captureAny(named: 'data'),

@@ -30,16 +30,17 @@ typedef MapDynamic   = Map<String, dynamic>;
 ## Domain Layer
 
 ### 1. Entity
-- Immutable, `final class`, extends `Equatable`
+- Immutable, `class` (do not use `final class` so data layer models can extend it), extends `Equatable`
+- Suffix class names with `Entity` (e.g. `AuthenticationEntity`, `UserDataEntity`)
 - No DI annotations
 - No imports from `data/` or `presentation/`
 
 ```dart
-final class Authentication extends Equatable {
-  const Authentication({required this.username, required this.password});
-  final String username;
+class AuthenticationEntity extends Equatable {
+  const AuthenticationEntity({required this.email, required this.password});
+  final String email;
   final String password;
-  @override List<Object> get props => [username, password];
+  @override List<Object> get props => [email, password];
 }
 ```
 
@@ -50,7 +51,7 @@ final class Authentication extends Equatable {
 
 ```dart
 abstract interface class AuthRepository {
-  FutureData<UserData> login(Authentication authentication);
+  FutureData<UserDataEntity> login(AuthenticationEntity authentication);
   FutureBool checkAuth();
   FutureBool removeUserData();
 }
@@ -62,12 +63,12 @@ Always annotated `@LazySingleton()`. Implement `UseCase<T, P>` (with param) or `
 ```dart
 // With parameter — implements UseCase<ReturnType, ParamType>
 @LazySingleton()
-class LoginUseCase implements UseCase<UserData, Authentication> {
+class LoginUseCase implements UseCase<UserDataEntity, AuthenticationEntity> {
   LoginUseCase({required AuthRepository authRepository})
     : _authRepository = authRepository;
   final AuthRepository _authRepository;
   @override
-  FutureData<UserData> call(Authentication request) =>
+  FutureData<UserDataEntity> call(AuthenticationEntity request) =>
       _authRepository.login(request);
 }
 
@@ -95,39 +96,82 @@ class LogOutUseCase {
 
 ### 4. Request Model
 - Lives in `data/models/requests/`
-- Plain class with `toJson()` and a `fromEntity(Entity)` factory
-- No DI annotations
+- Named using the `*RequestModel` suffix (e.g. `AuthenticationRequestModel`)
+- Extends the domain entity, implements `DataConvertible<Entity>`
+- Must use `super` in the constructor, and must NOT define fields/variables inside the subclass.
 
 ```dart
-class AuthenticationRequest {
-  const AuthenticationRequest({required this.username, required this.password});
-  factory AuthenticationRequest.fromEntity(Authentication domain) =>
-      AuthenticationRequest(username: domain.username, password: domain.password);
-  final String username;
-  final String password;
-  MapDynamic toJson() => {'username': username, 'password': password};
+class AuthenticationRequestModel extends AuthenticationEntity
+    implements DataConvertible<AuthenticationEntity> {
+  const AuthenticationRequestModel({
+    required super.email,
+    required super.password,
+  });
+
+  factory AuthenticationRequestModel.fromEntity(AuthenticationEntity entity) =>
+      AuthenticationRequestModel(
+        email: entity.email,
+        password: entity.password,
+      );
+
+  factory AuthenticationRequestModel.fromJson(MapDynamic json) =>
+      AuthenticationRequestModel(
+        email: json['username'] as String? ?? '',
+        password: json['password'] as String? ?? '',
+      );
+
+  @override
+  MapDynamic toJson() => {'username': email, 'password': password};
+
+  @override
+  AuthenticationEntity toEntity() => AuthenticationEntity(email: email, password: password);
 }
 ```
 
 ### 5. Response Model
 - Lives in `data/models/responses/`
-- Extends `Equatable`, implements `DomainConvertible<Entity>`
-- Must have `fromJson(MapDynamic)`, `toJson()`, `fromEntity(Entity)`, and `toEntity()`
+- Named using the `*ResponseModel` suffix (e.g. `UserDataResponseModel`), or `*Model` for general/shared models (e.g. `UserModel`)
+- Extends the domain entity, implements `DataConvertible<Entity>`
+- Must use `super` in the constructor, and must NOT define fields/variables inside the subclass.
 
 ```dart
-class UserDataResponse extends Equatable implements DomainConvertible<UserData> {
-  const UserDataResponse({required this.accessToken, required this.refreshToken});
-  factory UserDataResponse.fromJson(MapDynamic json) => UserDataResponse(
+class UserDataResponseModel extends UserDataEntity
+    implements DataConvertible<UserDataEntity> {
+  const UserDataResponseModel({
+    required UserModel user,
+    required super.accessToken,
+    required super.refreshToken,
+  }) : super(user: user);
+
+  factory UserDataResponseModel.fromJson(MapDynamic json) => UserDataResponseModel(
+    user: UserModel.fromJson(json['user'] as MapDynamic? ?? {}),
     accessToken: json['access'] as String? ?? '',
     refreshToken: json['refresh'] as String? ?? '',
   );
-  factory UserDataResponse.fromEntity(UserData domain) =>
-      UserDataResponse(accessToken: domain.accessToken, refreshToken: domain.refreshToken);
-  final String accessToken;
-  final String refreshToken;
-  MapDynamic toJson() => {'access': accessToken, 'refresh': refreshToken};
-  @override UserData toEntity() => UserData(accessToken: accessToken, refreshToken: refreshToken);
-  @override List<Object?> get props => [accessToken, refreshToken];
+
+  factory UserDataResponseModel.fromEntity(UserDataEntity domain) =>
+      UserDataResponseModel(
+        user: UserModel.fromEntity(domain.user),
+        accessToken: domain.accessToken,
+        refreshToken: domain.refreshToken,
+      );
+
+  @override
+  UserModel get user => super.user as UserModel;
+
+  @override
+  MapDynamic toJson() => {
+    'user': user.toJson(),
+    'access': accessToken,
+    'refresh': refreshToken,
+  };
+
+  @override
+  UserDataEntity toEntity() => UserDataEntity(
+    user: user.toEntity(),
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+  );
 }
 ```
 
@@ -139,7 +183,7 @@ class UserDataResponse extends Equatable implements DomainConvertible<UserData> 
 
 ```dart
 abstract interface class AuthRemoteDataSource {
-  FutureData<UserDataResponse> login(AuthenticationRequest request);
+  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request);
   FutureBool checkAuth();
 }
 
@@ -149,9 +193,9 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final HttpClient _dioClient;
 
   @override
-  FutureData<UserDataResponse> login(AuthenticationRequest request) =>
+  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) =>
       ApiHandler.call(() => _dioClient.post(ApiEndpoints.login, data: request.toJson()),
-          fromJson: UserDataResponse.fromJson);
+          fromJson: UserDataResponseModel.fromJson);
 
   @override
   FutureBool checkAuth() =>
@@ -172,7 +216,7 @@ final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final LocalStorageClient _localDatabase;
 
   @override
-  FutureBool saveUserData(UserDataResponse model) => ErrorHandler.execute(() async {
+  FutureBool saveUserData(UserDataResponseModel model) => ErrorHandler.execute(() async {
     await _localDatabase.setString(LocalDbKeys.userData, jsonEncode(model.toJson()));
     return const SuccessState(data: true);
   });
@@ -195,10 +239,10 @@ final class AuthRepositoryImpl implements AuthRepository {
   }) : _internet = internet, _remoteDataSource = remoteDataSource, _localDataSource = localDataSource;
 
   @override
-  FutureData<UserData> login(Authentication auth) =>
+  FutureData<UserDataEntity> login(AuthenticationEntity auth) =>
       RepositoryHandler.fetchWithFallbackAndMap(
         isInternetConnected: _internet.isConnected,
-        remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromEntity(auth)),
+        remoteCallback: () => _remoteDataSource.login(AuthenticationRequestModel.fromEntity(auth)),
       );
 
   @override

@@ -64,10 +64,10 @@ class LoginCubit extends BaseCubit<LoginState> {
 
   final LoginCubitUseCases _useCases;
 
-  Future<void> login(String username, String password) async {
+  Future<void> login(String email, String password) async {
     emit(state.copyWith(status: StateStatus.loading));
     
-    final request = Authentication(username: username, password: password);
+    final request = AuthenticationEntity(email: email, password: password);
     final response = await _useCases.login(request);
     
     if (response is SuccessState) {

@@ -135,6 +135,9 @@ Be precise and concise. Avoid over-explaining.
 When delegating, tell the specialist agent exactly which files to create/modify, what classes to define, and which patterns to follow.
 If unsure about the user's intent, ask one clarifying question before delegating.
 
+Rule Evolution & Self-Correction
+- Pay close attention to the conversation and established code patterns. If a new pattern is agreed upon (or if an existing rule is found to be wrong, outdated, or incomplete), proactively suggest new rules or update existing rules across the `.agents/rules/` directory to keep the agent guidelines aligned with the codebase.
+
 Global Constraints (Enforce these upon all Specialist Agents):
 1. Code Delivery: Agents must NEVER output comments like "starting change", "ending change", or similar annotations. Comments should only explain complex logic.
 2. File Paths: Agents must always provide the absolute, most optimal file path for any generated or modified code.

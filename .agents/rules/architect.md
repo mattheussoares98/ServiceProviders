@@ -138,15 +138,15 @@ final class AuthenticatedGuard extends AutoRouteGuard {
 **DataSource** — interface + impl in same file, use `ApiHandler`:
 ```dart
 abstract interface class AuthRemoteDataSource {
-  FutureData<UserDataResponse> login(AuthenticationRequest request);
+  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request);
 }
 @LazySingleton(as: AuthRemoteDataSource)
 final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   const AuthRemoteDataSourceImpl({required HttpClient dioClient}) : _dioClient = dioClient;
   final HttpClient _dioClient;
   @override
-  FutureData<UserDataResponse> login(AuthenticationRequest request) =>
-      ApiHandler.call(() => _dioClient.post(ApiEndpoints.login, data: request.toJson()), fromJson: UserDataResponse.fromJson);
+  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) =>
+      ApiHandler.call(() => _dioClient.post(ApiEndpoints.login, data: request.toJson()), fromJson: UserDataResponseModel.fromJson);
 }
 ```
 
@@ -156,9 +156,9 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 final class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required InternetClient internet, required AuthRemoteDataSource remoteDataSource}) : ...
   @override
-  FutureData<UserData> login(Authentication auth) => RepositoryHandler.fetchWithFallbackAndMap(
+  FutureData<UserDataEntity> login(AuthenticationEntity auth) => RepositoryHandler.fetchWithFallbackAndMap(
     isInternetConnected: _internet.isConnected,
-    remoteCallback: () => _remoteDataSource.login(AuthenticationRequest.fromEntity(auth)),
+    remoteCallback: () => _remoteDataSource.login(AuthenticationRequestModel.fromEntity(auth)),
   );
 }
 ```
@@ -187,17 +187,17 @@ final class AuthRepositoryImpl implements AuthRepository {
 
 ```dart
 // Entity — immutable, Equatable, no DI annotations
-final class Authentication extends Equatable {
-  const Authentication({required this.username, required this.password});
-  final String username; final String password;
-  @override List<Object> get props => [username, password];
+class AuthenticationEntity extends Equatable {
+  const AuthenticationEntity({required this.email, required this.password});
+  final String email; final String password;
+  @override List<Object> get props => [email, password];
 }
 
 // Use case with parameter
-@LazySingleton() class LoginUseCase implements UseCase<UserData, Authentication> {
+@LazySingleton() class LoginUseCase implements UseCase<UserDataEntity, AuthenticationEntity> {
   LoginUseCase({required AuthRepository authRepository}) : _authRepository = authRepository;
   final AuthRepository _authRepository;
-  @override FutureData<UserData> call(Authentication request) => _authRepository.login(request);
+  @override FutureData<UserDataEntity> call(AuthenticationEntity request) => _authRepository.login(request);
 }
 ```
 
