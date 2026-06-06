@@ -1,66 +1,87 @@
+import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
-import '../../../../testing/mocks/external/external_mocks.dart'
-    show MockSharedPreferences;
 
 void main() {
-  late MockSharedPreferences mockSharedPreferences;
+  late AppDatabase database;
   late LocalStorageClientImpl localStorageClient;
 
-  setUp(() {
-    mockSharedPreferences = MockSharedPreferences();
-    localStorageClient = LocalStorageClientImpl(
-      sharedPreferences: mockSharedPreferences,
-    );
+  setUpAll(() async {
+    await dotenv.load();
+    dotenv.env['ENCRYPTION_KEY'] = 'supersecret32charkey123456789012';
+  });
+
+  setUp(() async {
+    database = AppDatabase(NativeDatabase.memory());
+    localStorageClient = LocalStorageClientImpl(database: database);
+    await localStorageClient.init();
+  });
+
+  tearDown(() async {
+    await database.close();
   });
 
   group('LocalStorageClientImpl', () {
-    test('getString returns value from SharedPreferences', () {
-      when(() => mockSharedPreferences.getString('key')).thenReturn('value');
+    test('getString returns value from Drift after setting it', () async {
+      await localStorageClient.setString('key', 'value');
 
       final result = localStorageClient.getString('key');
 
       expect(result, 'value');
-      verify(() => mockSharedPreferences.getString('key')).called(1);
     });
 
     test('getString returns null if key does not exist', () {
-      when(() => mockSharedPreferences.getString('missing')).thenReturn(null);
-
       final result = localStorageClient.getString('missing');
 
       expect(result, isNull);
-      verify(() => mockSharedPreferences.getString('missing')).called(1);
     });
 
-    test('setString calls setString on SharedPreferences', () async {
-      when(
-        () => mockSharedPreferences.setString('key', 'value'),
-      ).thenAnswer((_) async => true);
-
+    test('setString saves to cache and database', () async {
       await localStorageClient.setString('key', 'value');
 
-      verify(() => mockSharedPreferences.setString('key', 'value')).called(1);
+      // Check cache
+      expect(localStorageClient.getString('key'), 'value');
+
+      // Check database directly
+      final dbValue = await (database.select(database.localStorageItems)
+            ..where((t) => t.key.equals('key')))
+          .getSingleOrNull();
+      expect(dbValue?.value, 'value');
     });
 
-    test('remove calls remove on SharedPreferences', () async {
-      when(
-        () => mockSharedPreferences.remove('key'),
-      ).thenAnswer((_) async => true);
+    test('setStringWithEncryption encrypts and saves value', () async {
+      await localStorageClient.setStringWithEncryption('key', 'sensitive');
 
+      // Decrypt and check
+      final result = localStorageClient.getEncryptedString('key');
+      expect(result, 'sensitive');
+    });
+
+    test('remove deletes from cache and database', () async {
+      await localStorageClient.setString('key', 'value');
       await localStorageClient.remove('key');
 
-      verify(() => mockSharedPreferences.remove('key')).called(1);
+      expect(localStorageClient.getString('key'), isNull);
+
+      final dbValue = await (database.select(database.localStorageItems)
+            ..where((t) => t.key.equals('key')))
+          .getSingleOrNull();
+      expect(dbValue, isNull);
     });
 
-    test('clear calls clear on SharedPreferences', () async {
-      when(() => mockSharedPreferences.clear()).thenAnswer((_) async => true);
+    test('clear deletes all from cache and database', () async {
+      await localStorageClient.setString('key1', 'value1');
+      await localStorageClient.setString('key2', 'value2');
 
       await localStorageClient.clear();
 
-      verify(() => mockSharedPreferences.clear()).called(1);
+      expect(localStorageClient.getString('key1'), isNull);
+      expect(localStorageClient.getString('key2'), isNull);
+
+      final dbValues = await database.select(database.localStorageItems).get();
+      expect(dbValues, isEmpty);
     });
   });
 }

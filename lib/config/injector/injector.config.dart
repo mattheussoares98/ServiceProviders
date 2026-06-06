@@ -10,6 +10,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:clean_architecture/config/app_config.dart' as _i37;
+import 'package:clean_architecture/core/clients/local/drift/app_database.dart'
+    as _i144;
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart'
     as _i1009;
 import 'package:clean_architecture/core/clients/remote/http/http_client.dart'
@@ -80,7 +82,6 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
     as _i161;
-import 'package:shared_preferences/shared_preferences.dart' as _i460;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
 
 const String _staging = 'staging';
@@ -94,20 +95,17 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    final localStorageClientModule = _$LocalStorageClientModule();
     final httpClientModule = _$HttpClientModule();
     final internetClientModule = _$InternetClientModule();
     final supabaseModule = _$SupabaseModule();
     final navigationClientModule = _$NavigationClientModule();
-    await gh.factoryAsync<_i460.SharedPreferences>(
-      () => localStorageClientModule.sharedPreferences,
-      preResolve: true,
-    );
+    final localStorageClientModule = _$LocalStorageClientModule();
     gh.factory<bool>(() => httpClientModule.addInterceptors);
     gh.factory<_i1037.KeyboardVisibilityCubit>(
       () => _i1037.KeyboardVisibilityCubit(),
     );
     gh.factory<_i640.ScreenObserverCubit>(() => _i640.ScreenObserverCubit());
+    gh.lazySingleton<_i144.AppDatabase>(() => _i144.AppDatabase());
     gh.lazySingleton<_i361.Dio>(() => httpClientModule.dio);
     gh.lazySingleton<_i244.HttpAuthInterceptor>(
       () => _i244.HttpAuthInterceptor(),
@@ -125,6 +123,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i432.SupabaseAuthClient>(
       () => _i432.SupabaseAuthClientImpl(gh<_i454.GoTrueClient>()),
     );
+    await gh.factoryAsync<_i1009.LocalStorageClient>(
+      () => localStorageClientModule.provideLocalStorageClient(
+        gh<_i144.AppDatabase>(),
+      ),
+      preResolve: true,
+    );
     gh.lazySingleton<_i9.InternetClient>(
       () => _i9.InternetClientImpl(
         internetConnection: gh<_i161.InternetConnection>(),
@@ -133,11 +137,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigDev(),
       registerFor: {_development},
-    );
-    gh.lazySingleton<_i1009.LocalStorageClient>(
-      () => _i1009.LocalStorageClientImpl(
-        sharedPreferences: gh<_i460.SharedPreferences>(),
-      ),
     );
     gh.lazySingleton<_i37.AppConfig>(
       () => _i37.AppConfigProd(),
@@ -250,8 +249,6 @@ extension GetItInjectableX on _i174.GetIt {
   }
 }
 
-class _$LocalStorageClientModule extends _i1009.LocalStorageClientModule {}
-
 class _$HttpClientModule extends _i244.HttpClientModule {}
 
 class _$InternetClientModule extends _i9.InternetClientModule {}
@@ -259,3 +256,5 @@ class _$InternetClientModule extends _i9.InternetClientModule {}
 class _$SupabaseModule extends _i499.SupabaseModule {}
 
 class _$NavigationClientModule extends _i389.NavigationClientModule {}
+
+class _$LocalStorageClientModule extends _i1009.LocalStorageClientModule {}
