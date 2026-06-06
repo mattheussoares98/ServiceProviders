@@ -12,6 +12,7 @@ import 'package:clean_architecture/features/auth/domain/entities/authentication_
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
+import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -139,4 +140,20 @@ abstract final class TestFactory {
         categoryId: faker.guid.guid(),
         deletedAt: faker.date.dateTime(),
       );
+
+  static LocationEntity makeLocationEntity() => LocationEntity(
+        id: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        name: faker.company.name(),
+        address: faker.address.streetAddress(),
+        city: faker.address.city(),
+        state: faker.address.state(),
+        isActive: faker.randomGenerator.boolean(),
+        createdAt: faker.date.dateTime(),
+        updatedAt: faker.date.dateTime(),
+        deletedAt: faker.date.dateTime(),
+      );
+
+  static List<LocationEntity> makeLocationEntityList() =>
+      [makeLocationEntity(), makeLocationEntity(), makeLocationEntity()];
 }
