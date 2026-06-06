@@ -1,14 +1,77 @@
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
+import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
+import 'package:clean_architecture/core/data/handlers/error_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
+import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
+import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
-
-abstract interface class CategoriesLocalDataSource {}
+abstract interface class CategoriesLocalDataSource {
+  FutureList<CategoryResponseModel> getCategories(String companyId);
+  FutureBool saveCategory(CategoryResponseModel category);
+  FutureBool deleteCategory(String id);
+}
 
 @LazySingleton(as: CategoriesLocalDataSource)
 final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
   CategoriesLocalDataSourceImpl({
-    required LocalStorageClient localDatabase,
-  }) : _localDatabase = localDatabase;
+    required AppDatabase database,
+  }) : _database = database;
 
-  final LocalStorageClient _localDatabase;
+  final AppDatabase _database;
+
+  @override
+  FutureList<CategoryResponseModel> getCategories(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.categories)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
+      final rows = await query.get();
+
+      final list = rows
+          .map((row) => CategoryResponseModel(
+                id: row.id,
+                companyId: row.companyId,
+                name: row.name,
+                description: row.description,
+                color: row.color,
+                createdAt: row.createdAt,
+                deletedAt: row.deletedAt,
+              ))
+          .toList();
+
+      return SuccessState(data: list);
+    });
+  }
+
+  @override
+  FutureBool saveCategory(CategoryResponseModel category) {
+    return ErrorHandler.execute(() async {
+      await _database.into(_database.categories).insertOnConflictUpdate(
+            CategoriesCompanion(
+              id: Value(category.id),
+              companyId: Value(category.companyId),
+              name: Value(category.name),
+              description: Value(category.description),
+              color: Value(category.color),
+              createdAt: Value(category.createdAt),
+              deletedAt: Value(category.deletedAt),
+            ),
+          );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deleteCategory(String id) {
+    return ErrorHandler.execute(() async {
+      final query = _database.update(_database.categories)
+        ..where((t) => t.id.equals(id));
+      await query.write(
+        CategoriesCompanion(
+          deletedAt: Value(DateTime.now()),
+        ),
+      );
+      return const SuccessState(data: true);
+    });
+  }
 }
