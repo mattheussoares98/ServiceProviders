@@ -11,6 +11,7 @@ import 'package:clean_architecture/features/auth/data/models/requests/sign_up_re
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -126,4 +127,16 @@ abstract final class TestFactory {
     createdAt: faker.date.dateTime(),
     deletedAt: faker.date.dateTime(),
   );
+
+  static ChecklistTemplateEntity makeChecklistTemplateEntity() =>
+      ChecklistTemplateEntity(
+        id: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        name: faker.company.name(),
+        description: faker.lorem.sentence(),
+        createdAt: faker.date.dateTime(),
+        updatedAt: faker.date.dateTime(),
+        categoryId: faker.guid.guid(),
+        deletedAt: faker.date.dateTime(),
+      );
 }
