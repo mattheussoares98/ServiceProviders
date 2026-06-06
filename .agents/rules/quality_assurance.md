@@ -192,3 +192,5 @@ void main() {
 - ❌ Never write tests that make real network calls. Always mock `HttpClient` or data sources.
 - ❌ Never use `mockito`. The project exclusively uses `mocktail`.
 - ❌ Never write business logic. If a test is hard to write, flag the design issue rather than writing complicated workarounds.
+- ❌ Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. If a model is needed in the test, first retrieve the entity from the factory and convert it to the model (e.g. using `fromEntity`).
+- ❌ In `EntityFactory`, every property that is a list MUST contain exactly 3 items.

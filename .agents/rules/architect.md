@@ -268,4 +268,5 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never use stateful widget boilerplate for controllers in pages — always extend `HookWidget` and use `flutter_hooks` instead
 - ❌ Never use `MediaQuery.of(context).size` — always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary widget rebuilds
 - ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
+- ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
 - ❌ Never write user-visible text in English — all strings displayed to the user (labels, messages, button text, titles, placeholders) must be in **Portuguese (pt-BR)**

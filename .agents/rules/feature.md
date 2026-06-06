@@ -301,4 +301,5 @@ final class SessionRepositoryImpl implements SessionRepository {
 - ❌ Never call `RepositoryHandler` from a data source
 - ❌ Never throw exceptions — return `FailureState` instead
 - ❌ Never annotate an entity with `@LazySingleton` or `@injectable`
+- ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
 - ❌ Never put business logic in a data source — it belongs in use cases or the domain layer
