@@ -5,13 +5,13 @@ import 'package:clean_architecture/features/assets/domain/repositories/assets_re
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetAssetsUseCase implements UseCase<List<AssetEntity>, String> {
-  GetAssetsUseCase({required AssetsRepository assetsRepository})
+class CreateAssetUseCase implements UseCase<bool, AssetEntity> {
+  CreateAssetUseCase({required AssetsRepository assetsRepository})
       : _assetsRepository = assetsRepository;
 
   final AssetsRepository _assetsRepository;
 
   @override
-  FutureList<AssetEntity> call(String request) =>
-      _assetsRepository.getAssets(request);
+  FutureBool call(AssetEntity request) =>
+      _assetsRepository.createAsset(request);
 }
