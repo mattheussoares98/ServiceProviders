@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
@@ -30,7 +30,7 @@ void main() {
     );
 
     registerFallbackValue(
-      const AuthenticationModel(username: '', password: ''),
+      const AuthenticationRequestModel(email: '', password: ''),
     );
     registerFallbackValue(const UserDataEntity.empty());
     registerFallbackValue(

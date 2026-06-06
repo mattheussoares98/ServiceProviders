@@ -53,7 +53,7 @@ void main() {
 
         verify(
           () => mockSupabaseAuthClient.signInWithPassword(
-            email: tAuthenticationRequest.username,
+            email: tAuthenticationRequest.email,
             password: tAuthenticationRequest.password,
           ),
         ).called(1);

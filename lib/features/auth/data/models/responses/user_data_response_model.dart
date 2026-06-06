@@ -1,16 +1,15 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-class UserDataResponseModel extends Equatable
+class UserDataResponseModel extends UserDataEntity
     implements DataConvertible<UserDataEntity> {
   const UserDataResponseModel({
-    required this.user,
-    required this.accessToken,
-    required this.refreshToken,
-  });
+    required UserModel user,
+    required super.accessToken,
+    required super.refreshToken,
+  }) : super(user: user);
 
   factory UserDataResponseModel.fromJson(Map<String, dynamic> json) {
     return UserDataResponseModel(
@@ -35,9 +34,9 @@ class UserDataResponseModel extends Equatable
       refreshToken: domain.refreshToken,
     );
   }
-  final UserModel user;
-  final String accessToken;
-  final String refreshToken;
+
+  @override
+  UserModel get user => super.user as UserModel;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -54,7 +53,4 @@ class UserDataResponseModel extends Equatable
       refreshToken: refreshToken,
     );
   }
-
-  @override
-  List<Object?> get props => [user, accessToken, refreshToken];
 }

@@ -1,14 +1,13 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/domain/entities/user_entity.dart';
-import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-class UserModel extends Equatable implements DataConvertible<UserEntity> {
+class UserModel extends UserEntity implements DataConvertible<UserEntity> {
   const UserModel({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.isActive,
+    required super.id,
+    required super.name,
+    required super.email,
+    required super.isActive,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -37,12 +36,6 @@ class UserModel extends Equatable implements DataConvertible<UserEntity> {
       isActive: user.isActive,
     );
   }
-  @override
-  List<Object?> get props => [id, name, email, isActive];
-  final String id;
-  final String name;
-  final String email;
-  final bool isActive;
 
   @override
   Map<String, dynamic> toJson() => {

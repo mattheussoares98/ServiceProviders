@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/core/domain/entities/user_entity.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
@@ -51,9 +51,9 @@ abstract final class TestFactory {
     );
   }
 
-  static AuthenticationModel makeAuthenticationModel() {
-    return AuthenticationModel(
-      username: faker.internet.email(),
+  static AuthenticationRequestModel makeAuthenticationModel() {
+    return AuthenticationRequestModel(
+      email: faker.internet.email(),
       password: faker.internet.password(),
     );
   }
