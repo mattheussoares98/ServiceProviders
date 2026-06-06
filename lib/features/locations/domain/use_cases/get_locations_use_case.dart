@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 @LazySingleton()
 class GetLocationsUseCase implements UseCase<String, String> {
   GetLocationsUseCase({required LocationsRepository locationsRepository})
-      : _locationsRepository = locationsRepository;
+    : _locationsRepository = locationsRepository;
 
   final LocationsRepository _locationsRepository;
 

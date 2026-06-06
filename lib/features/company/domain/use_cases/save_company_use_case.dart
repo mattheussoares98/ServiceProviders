@@ -5,13 +5,13 @@ import 'package:clean_architecture/features/company/domain/repositories/company_
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetCompanyUseCase implements UseCase<CompanyEntity, String> {
-  GetCompanyUseCase({required CompanyRepository companyRepository})
+class SaveCompanyUseCase implements UseCase<bool, CompanyEntity> {
+  SaveCompanyUseCase({required CompanyRepository companyRepository})
     : _companyRepository = companyRepository;
 
   final CompanyRepository _companyRepository;
 
   @override
-  FutureData<CompanyEntity> call(String request) =>
-      _companyRepository.getCompany(request);
+  FutureBool call(CompanyEntity request) =>
+      _companyRepository.saveCompany(request);
 }

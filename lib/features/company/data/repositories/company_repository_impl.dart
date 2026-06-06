@@ -1,9 +1,14 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_parameter_response_model.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_response_model.dart';
+import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
+import 'package:clean_architecture/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:clean_architecture/features/company/domain/repositories/company_repository.dart';
 import 'package:injectable/injectable.dart';
-
 
 @LazySingleton(as: CompanyRepository)
 final class CompanyRepositoryImpl implements CompanyRepository {
@@ -18,4 +23,24 @@ final class CompanyRepositoryImpl implements CompanyRepository {
   final InternetClient _internet;
   final CompanyRemoteDataSource _remoteDataSource;
   final CompanyLocalDataSource _localDataSource;
+
+  @override
+  FutureData<CompanyEntity> getCompany(String id) =>
+      RepositoryHandler.fetchFromLocalAndMap<CompanyResponseModel, CompanyEntity>(
+        localCallback: () => _localDataSource.getCompany(id),
+      );
+
+  @override
+  FutureData<CompanyParameterEntity> getCompanyParameters(String companyId) =>
+      RepositoryHandler.fetchFromLocalAndMap<CompanyParameterResponseModel, CompanyParameterEntity>(
+        localCallback: () => _localDataSource.getCompanyParameters(companyId),
+      );
+
+  @override
+  FutureBool saveCompany(CompanyEntity company) =>
+      _localDataSource.saveCompany(CompanyResponseModel.fromEntity(company));
+
+  @override
+  FutureBool saveCompanyParameters(CompanyParameterEntity parameters) =>
+      _localDataSource.saveCompanyParameters(CompanyParameterResponseModel.fromEntity(parameters));
 }

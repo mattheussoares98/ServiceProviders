@@ -1,17 +1,18 @@
 import 'package:clean_architecture/core/domain/use_cases/use_case.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
+import 'package:clean_architecture/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:clean_architecture/features/company/domain/repositories/company_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetCompanyUseCase implements UseCase<CompanyEntity, String> {
-  GetCompanyUseCase({required CompanyRepository companyRepository})
+class GetCompanyParametersUseCase
+    implements UseCase<CompanyParameterEntity, String> {
+  GetCompanyParametersUseCase({required CompanyRepository companyRepository})
     : _companyRepository = companyRepository;
 
   final CompanyRepository _companyRepository;
 
   @override
-  FutureData<CompanyEntity> call(String request) =>
-      _companyRepository.getCompany(request);
+  FutureData<CompanyParameterEntity> call(String request) =>
+      _companyRepository.getCompanyParameters(request);
 }

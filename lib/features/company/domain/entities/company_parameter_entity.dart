@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class CompanyParameterEntity extends Equatable {
+class CompanyParameterEntity extends Equatable {
   const CompanyParameterEntity({
     required this.id,
     required this.companyId,

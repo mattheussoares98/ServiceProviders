@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 @LazySingleton()
 class GetAssetsUseCase implements UseCase<String, String> {
   GetAssetsUseCase({required AssetsRepository assetsRepository})
-      : _assetsRepository = assetsRepository;
+    : _assetsRepository = assetsRepository;
 
   final AssetsRepository _assetsRepository;
 

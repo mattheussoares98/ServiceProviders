@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 @LazySingleton()
 class GetAttachmentsUseCase implements UseCase<String, String> {
   GetAttachmentsUseCase({required AttachmentsRepository attachmentsRepository})
-      : _attachmentsRepository = attachmentsRepository;
+    : _attachmentsRepository = attachmentsRepository;
 
   final AttachmentsRepository _attachmentsRepository;
 
