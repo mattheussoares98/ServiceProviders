@@ -156,3 +156,4 @@ Global Constraints (Enforce these upon all Specialist Agents):
 15. MapDynamic Usage: Never use `Map<String, dynamic>` in DTO `fromJson` or `toJson` methods; always use `MapDynamic` instead.
 16. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to the model. All list properties inside `EntityFactory` must contain exactly 3 items.
 17. JSON Testing: Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
+18. Group Use Case Tests: Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
