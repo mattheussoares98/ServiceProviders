@@ -10,8 +10,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockHttpClient mockHttpClient;

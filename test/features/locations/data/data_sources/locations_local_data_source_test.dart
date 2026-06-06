@@ -8,7 +8,7 @@ import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late AppDatabase database;
