@@ -2,7 +2,7 @@ import 'package:clean_architecture/features/attachments/domain/entities/file_typ
 import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
 import 'package:equatable/equatable.dart';
 
-final class AttachmentEntity extends Equatable {
+class AttachmentEntity extends Equatable {
   const AttachmentEntity({
     required this.id,
     required this.workOrderId,

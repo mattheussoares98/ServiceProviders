@@ -2,7 +2,7 @@ import 'package:clean_architecture/features/maintenance_plans/domain/entities/fr
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:equatable/equatable.dart';
 
-final class MaintenancePlanEntity extends Equatable {
+class MaintenancePlanEntity extends Equatable {
   const MaintenancePlanEntity({
     required this.id,
     required this.companyId,

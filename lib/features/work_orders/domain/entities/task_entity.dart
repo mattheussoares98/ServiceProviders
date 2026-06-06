@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class TaskEntity extends Equatable {
+class TaskEntity extends Equatable {
   const TaskEntity({
     required this.id,
     required this.workOrderId,

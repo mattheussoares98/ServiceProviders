@@ -1,7 +1,7 @@
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:equatable/equatable.dart';
 
-final class ChecklistItemEntity extends Equatable {
+class ChecklistItemEntity extends Equatable {
   const ChecklistItemEntity({
     required this.id,
     required this.templateId,

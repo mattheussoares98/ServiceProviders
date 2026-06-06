@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class LocationEntity extends Equatable {
+class LocationEntity extends Equatable {
   const LocationEntity({
     required this.id,
     required this.companyId,

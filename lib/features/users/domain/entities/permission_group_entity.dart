@@ -1,7 +1,7 @@
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:equatable/equatable.dart';
 
-final class PermissionGroupEntity extends Equatable {
+class PermissionGroupEntity extends Equatable {
   const PermissionGroupEntity({
     required this.id,
     required this.companyId,

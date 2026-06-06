@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class AreaEntity extends Equatable {
+class AreaEntity extends Equatable {
   const AreaEntity({
     required this.id,
     required this.locationId,

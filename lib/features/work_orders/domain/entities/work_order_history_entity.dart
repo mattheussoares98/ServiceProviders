@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class WorkOrderHistoryEntity extends Equatable {
+class WorkOrderHistoryEntity extends Equatable {
   const WorkOrderHistoryEntity({
     required this.id,
     required this.workOrderId,

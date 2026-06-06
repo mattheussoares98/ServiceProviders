@@ -2,7 +2,7 @@ import 'package:clean_architecture/features/assets/domain/entities/asset_critica
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:equatable/equatable.dart';
 
-final class AssetEntity extends Equatable {
+class AssetEntity extends Equatable {
   const AssetEntity({
     required this.id,
     required this.companyId,

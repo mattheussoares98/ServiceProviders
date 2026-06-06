@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-final class ChecklistTemplateEntity extends Equatable {
+class ChecklistTemplateEntity extends Equatable {
   const ChecklistTemplateEntity({
     required this.id,
     required this.companyId,

@@ -2,7 +2,7 @@ import 'package:clean_architecture/features/work_orders/domain/entities/change_r
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:equatable/equatable.dart';
 
-final class WorkOrderChangeRequestEntity extends Equatable {
+class WorkOrderChangeRequestEntity extends Equatable {
   const WorkOrderChangeRequestEntity({
     required this.id,
     required this.workOrderId,

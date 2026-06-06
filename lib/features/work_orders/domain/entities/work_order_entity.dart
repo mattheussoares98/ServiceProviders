@@ -3,7 +3,7 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:equatable/equatable.dart';
 
-final class WorkOrderEntity extends Equatable {
+class WorkOrderEntity extends Equatable {
   const WorkOrderEntity({
     required this.id,
     required this.companyId,
