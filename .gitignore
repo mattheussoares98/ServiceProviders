@@ -52,3 +52,7 @@ app.*.map.json
 # Patrol Testing
 /playwright-report
 /test-results
+# Generated injector config
+/lib/config/injector/injector.config.dart
+# Auto-generated routes
+/lib/routing/routes.gr.dart
