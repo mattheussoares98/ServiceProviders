@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 

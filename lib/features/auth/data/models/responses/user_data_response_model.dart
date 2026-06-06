@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserDataResponseModel extends UserDataEntity
@@ -11,9 +12,9 @@ class UserDataResponseModel extends UserDataEntity
     required super.refreshToken,
   }) : super(user: user);
 
-  factory UserDataResponseModel.fromJson(Map<String, dynamic> json) {
+  factory UserDataResponseModel.fromJson(MapDynamic json) {
     return UserDataResponseModel(
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>? ?? {}),
+      user: UserModel.fromJson(json['user'] as MapDynamic? ?? {}),
       accessToken: json['access'] as String? ?? '',
       refreshToken: json['refresh'] as String? ?? '',
     );
@@ -39,7 +40,7 @@ class UserDataResponseModel extends UserDataEntity
   UserModel get user => super.user as UserModel;
 
   @override
-  Map<String, dynamic> toJson() => {
+  MapDynamic toJson() => {
     'user': user.toJson(),
     'access': accessToken,
     'refresh': refreshToken,

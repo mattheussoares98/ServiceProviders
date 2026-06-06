@@ -15,7 +15,7 @@ class CompanyResponseModel extends CompanyEntity
     super.deletedAt,
   });
 
-  factory CompanyResponseModel.fromJson(Map<String, dynamic> json) {
+  factory CompanyResponseModel.fromJson(MapDynamic json) {
     return CompanyResponseModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',

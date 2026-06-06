@@ -5,7 +5,7 @@ class EncryptedData {
 
   const EncryptedData.empty() : ivBase64 = '', encryptedBase64 = '';
 
-  factory EncryptedData.fromJson(Map<String, dynamic> map) {
+  factory EncryptedData.fromJson(MapDynamic map) {
     return EncryptedData(
       ivBase64: map['initializationVector'] as String? ?? '',
       encryptedBase64: map['encryption'] as String? ?? '',
@@ -25,7 +25,7 @@ class EncryptedData {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  MapDynamic toJson() => {
     'initializationVector': ivBase64,
     'encryption': encryptedBase64,
   };

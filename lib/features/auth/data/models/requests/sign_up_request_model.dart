@@ -17,7 +17,7 @@ class SignUpRequestModel extends SignUpEntity
         password: entity.password,
       );
 
-  factory SignUpRequestModel.fromJson(Map<String, dynamic> json) =>
+  factory SignUpRequestModel.fromJson(MapDynamic json) =>
       SignUpRequestModel(
         name: json['name'] as String? ?? '',
         email: json['email'] as String? ?? '',

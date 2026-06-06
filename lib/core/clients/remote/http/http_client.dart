@@ -29,7 +29,7 @@ abstract interface class HttpClient {
   Future<Response<T>> get<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -39,7 +39,7 @@ abstract interface class HttpClient {
   Future<Response<T>> post<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -49,7 +49,7 @@ abstract interface class HttpClient {
   Future<Response<T>> put<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -59,7 +59,7 @@ abstract interface class HttpClient {
   Future<Response<T>> patch<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -69,7 +69,7 @@ abstract interface class HttpClient {
   Future<Response<T>> delete<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   });
@@ -123,7 +123,7 @@ final class HttpClientImpl implements HttpClient {
   Future<Response<T>> get<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -141,7 +141,7 @@ final class HttpClientImpl implements HttpClient {
   Future<Response<T>> post<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -160,7 +160,7 @@ final class HttpClientImpl implements HttpClient {
   Future<Response<T>> put<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -179,7 +179,7 @@ final class HttpClientImpl implements HttpClient {
   Future<Response<T>> patch<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onSendProgress,
@@ -198,7 +198,7 @@ final class HttpClientImpl implements HttpClient {
   Future<Response<T>> delete<T>(
     String path, {
     Object? data,
-    Map<String, dynamic>? queryParameters,
+    MapDynamic? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   }) => _dio.delete(

@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/data/handlers/api_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,13 +17,12 @@ void main() {
       });
       when(() => mockResponse.statusCode).thenReturn(200);
 
-      final result =
-          await ApiHandler.call<Map<String, dynamic>, Map<String, dynamic>>(
-            () async => mockResponse,
-            fromJson: (json) => json,
-          );
+      final result = await ApiHandler.call<MapDynamic, MapDynamic>(
+        () async => mockResponse,
+        fromJson: (json) => json,
+      );
 
-      expect(result, isA<SuccessState<Map<String, dynamic>>>());
+      expect(result, isA<SuccessState<MapDynamic>>());
       expect(result.data, {'id': 1});
       expect(result.message, 'ok');
       expect(result.statusCode, 200);
@@ -35,13 +35,12 @@ void main() {
         when(() => mockResponse.data).thenReturn({'foo': 'bar'});
         when(() => mockResponse.statusCode).thenReturn(200);
 
-        final result =
-            await ApiHandler.call<Map<String, dynamic>, Map<String, dynamic>>(
-              () async => mockResponse,
-              fromJson: (json) => json,
-            );
+        final result = await ApiHandler.call<MapDynamic, MapDynamic>(
+          () async => mockResponse,
+          fromJson: (json) => json,
+        );
 
-        expect(result, isA<FailureState<Map<String, dynamic>>>());
+        expect(result, isA<FailureState<MapDynamic>>());
         expect(result.error, contains('Response missing expected key'));
       },
     );
@@ -57,13 +56,12 @@ void main() {
       });
       when(() => mockResponse.statusCode).thenReturn(200);
 
-      final result =
-          await ApiHandler.call<
-            List<Map<String, dynamic>>,
-            Map<String, dynamic>
-          >(() async => mockResponse, fromJson: (json) => json);
+      final result = await ApiHandler.call<List<MapDynamic>, MapDynamic>(
+        () async => mockResponse,
+        fromJson: (json) => json,
+      );
 
-      expect(result, isA<SuccessState<List<Map<String, dynamic>>>>());
+      expect(result, isA<SuccessState<List<MapDynamic>>>());
       expect(result.data, [
         {'id': 1},
         {'id': 2},
@@ -76,13 +74,12 @@ void main() {
       when(() => mockResponse.data).thenReturn('invalid_string_data');
       when(() => mockResponse.statusCode).thenReturn(200);
 
-      final result =
-          await ApiHandler.call<Map<String, dynamic>, Map<String, dynamic>>(
-            () async => mockResponse,
-            fromJson: (json) => json,
-          );
+      final result = await ApiHandler.call<MapDynamic, MapDynamic>(
+        () async => mockResponse,
+        fromJson: (json) => json,
+      );
 
-      expect(result, isA<FailureState<Map<String, dynamic>>>());
+      expect(result, isA<FailureState<MapDynamic>>());
       expect(result.error, contains('Bad response format'));
     });
 
@@ -91,14 +88,13 @@ void main() {
       when(() => mockResponse.data).thenReturn({'id': 1, 'name': 'test'});
       when(() => mockResponse.statusCode).thenReturn(200);
 
-      final result =
-          await ApiHandler.call<Map<String, dynamic>, Map<String, dynamic>>(
-            () async => mockResponse,
-            fromJson: (json) => json,
-            isStandardResponse: false,
-          );
+      final result = await ApiHandler.call<MapDynamic, MapDynamic>(
+        () async => mockResponse,
+        fromJson: (json) => json,
+        isStandardResponse: false,
+      );
 
-      expect(result, isA<SuccessState<Map<String, dynamic>>>());
+      expect(result, isA<SuccessState<MapDynamic>>());
       expect(result.data, {'id': 1, 'name': 'test'});
     });
 

@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeDto implements DataConvertible<String> {
@@ -11,9 +12,7 @@ class FakeDto implements DataConvertible<String> {
   String toEntity() => 'Mapped: $value';
 
   @override
-  Map<String, dynamic> toJson() {
-    return {'value': value};
-  }
+  MapDynamic toJson() => {'value': value};
 }
 
 void main() {

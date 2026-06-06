@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/domain/entities/user_entity.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserModel extends UserEntity implements DataConvertible<UserEntity> {
@@ -10,7 +11,7 @@ class UserModel extends UserEntity implements DataConvertible<UserEntity> {
     required super.isActive,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(MapDynamic json) {
     return UserModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
@@ -38,7 +39,7 @@ class UserModel extends UserEntity implements DataConvertible<UserEntity> {
   }
 
   @override
-  Map<String, dynamic> toJson() => {
+  MapDynamic toJson() => {
     'id': id,
     'name': name,
     'email': email,

@@ -15,7 +15,7 @@ class AuthenticationRequestModel extends AuthenticationEntity
         password: entity.password,
       );
 
-  factory AuthenticationRequestModel.fromJson(Map<String, dynamic> json) =>
+  factory AuthenticationRequestModel.fromJson(MapDynamic json) =>
       AuthenticationRequestModel(
         email: json['username'] as String? ?? '',
         password: json['password'] as String? ?? '',

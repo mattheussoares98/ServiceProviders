@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable {
@@ -28,7 +29,7 @@ class UserEntity extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  MapDynamic toJson() => {
     'id': id,
     'name': name,
     'email': email,

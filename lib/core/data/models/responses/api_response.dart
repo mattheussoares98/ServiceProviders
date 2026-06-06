@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 
 class ApiResponse<T extends Object?> {
@@ -9,7 +10,7 @@ class ApiResponse<T extends Object?> {
   });
 
   factory ApiResponse.fromResponse(Response<dynamic> response) {
-    final data = response.data as Map<String, dynamic>;
+    final data = response.data as MapDynamic;
     final statusCode = response.statusCode ?? 0;
 
     return ApiResponse<T>(

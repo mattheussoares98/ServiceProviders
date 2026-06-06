@@ -15,7 +15,7 @@ class VerifyTokenRequestModel extends VerifyTokenEntity
         userId: entity.userId,
       );
 
-  factory VerifyTokenRequestModel.fromJson(Map<String, dynamic> json) =>
+  factory VerifyTokenRequestModel.fromJson(MapDynamic json) =>
       VerifyTokenRequestModel(
         token: json['token'] as String? ?? '',
         userId: json['user_id'] as String? ?? '',
