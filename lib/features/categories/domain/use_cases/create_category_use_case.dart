@@ -5,14 +5,13 @@ import 'package:clean_architecture/features/categories/domain/repositories/categ
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetCategoriesUseCase
-    implements UseCase<List<CategoryEntity>, String> {
-  GetCategoriesUseCase({required CategoriesRepository categoriesRepository})
+class CreateCategoryUseCase implements UseCase<bool, CategoryEntity> {
+  CreateCategoryUseCase({required CategoriesRepository categoriesRepository})
       : _categoriesRepository = categoriesRepository;
 
   final CategoriesRepository _categoriesRepository;
 
   @override
-  FutureList<CategoryEntity> call(String request) =>
-      _categoriesRepository.getCategories(request);
+  FutureBool call(CategoryEntity request) =>
+      _categoriesRepository.createCategory(request);
 }
