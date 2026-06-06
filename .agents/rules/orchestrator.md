@@ -154,4 +154,5 @@ Global Constraints (Enforce these upon all Specialist Agents):
 13. BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
 14. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**. Code, comments, and documentation remain in English.
 15. MapDynamic Usage: Never use `Map<String, dynamic>` in DTO `fromJson` or `toJson` methods; always use `MapDynamic` instead.
-16. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to a model. All list properties inside `EntityFactory` must contain exactly 3 items.
+16. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to the model. All list properties inside `EntityFactory` must contain exactly 3 items.
+17. JSON Testing: Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.

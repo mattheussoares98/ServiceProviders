@@ -194,3 +194,5 @@ void main() {
 - ❌ Never write business logic. If a test is hard to write, flag the design issue rather than writing complicated workarounds.
 - ❌ Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. If a model is needed in the test, first retrieve the entity from the factory and convert it to the model (e.g. using `fromEntity`).
 - ❌ In `EntityFactory`, every property that is a list MUST contain exactly 3 items.
+- ❌ Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
+
