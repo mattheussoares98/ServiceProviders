@@ -12,10 +12,13 @@ const String kChangePasswordPath = '/change-password';
 const String kDashboardRoute = 'DashboardRoute';
 const String kDashboardPath = '/dashboard/home';
 
+// Home
 const String kHomeRoute = 'HomeRoute';
 const String kHomePath = '/home';
 
+// Settings
 const String kSettingRoute = 'SettingRoute';
 const String kSettingPath = 'setting';
 
+// E-mail confirmation
 const String kEmailConfirmationPath = '/email-confirmation';
