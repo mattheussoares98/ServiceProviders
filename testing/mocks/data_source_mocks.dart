@@ -1,3 +1,5 @@
+import 'package:clean_architecture/features/assets/data/data_sources/assets_local_data_source.dart';
+import 'package:clean_architecture/features/assets/data/data_sources/assets_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
@@ -16,16 +18,25 @@ class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 class MockSessionLocalDataSource extends Mock
     implements SessionLocalDataSource {}
 
-class MockCompanyRemoteDataSource extends Mock implements CompanyRemoteDataSource {}
+class MockCompanyRemoteDataSource extends Mock
+    implements CompanyRemoteDataSource {}
 
-class MockCompanyLocalDataSource extends Mock implements CompanyLocalDataSource {}
+class MockCompanyLocalDataSource extends Mock
+    implements CompanyLocalDataSource {}
 
-class MockCategoriesRemoteDataSource extends Mock implements CategoriesRemoteDataSource {}
+class MockCategoriesRemoteDataSource extends Mock
+    implements CategoriesRemoteDataSource {}
 
-class MockCategoriesLocalDataSource extends Mock implements CategoriesLocalDataSource {}
+class MockCategoriesLocalDataSource extends Mock
+    implements CategoriesLocalDataSource {}
 
-class MockLocationsRemoteDataSource extends Mock implements LocationsRemoteDataSource {}
+class MockLocationsRemoteDataSource extends Mock
+    implements LocationsRemoteDataSource {}
 
-class MockLocationsLocalDataSource extends Mock implements LocationsLocalDataSource {}
+class MockLocationsLocalDataSource extends Mock
+    implements LocationsLocalDataSource {}
 
+class MockAssetsRemoteDataSource extends Mock
+    implements AssetsRemoteDataSource {}
 
+class MockAssetsLocalDataSource extends Mock implements AssetsLocalDataSource {}

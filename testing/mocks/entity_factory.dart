@@ -1,3 +1,6 @@
+import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
+import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
+import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
@@ -98,6 +101,59 @@ abstract final class EntityFactory {
       makeAreaEntity(),
       makeAreaEntity(),
       makeAreaEntity(),
+    ];
+  }
+
+  // Asset
+  static AssetEntity makeAssetEntity({
+    String? id,
+    String? companyId,
+    String? areaId,
+    String? categoryId,
+    String? parentAssetId,
+    String? name,
+    String? code,
+    String? manufacturer,
+    String? model,
+    String? serialNumber,
+    DateTime? installDate,
+    DateTime? warrantyExpiration,
+    DateTime? revisionForecast,
+    AssetStatus? status,
+    AssetCriticality? criticality,
+    String? notes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return AssetEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      areaId: areaId ?? faker.guid.guid(),
+      categoryId: categoryId,
+      parentAssetId: parentAssetId,
+      name: name ?? faker.company.name(),
+      code: code ?? faker.randomGenerator.string(8),
+      manufacturer: manufacturer ?? faker.company.name(),
+      model: model ?? faker.vehicle.model(),
+      serialNumber: serialNumber ?? faker.randomGenerator.string(12),
+      installDate: installDate ?? faker.date.dateTime(),
+      warrantyExpiration: warrantyExpiration ?? faker.date.dateTime(),
+      revisionForecast: revisionForecast ?? faker.date.dateTime(),
+      status: status ?? AssetStatus.active,
+      criticality: criticality ?? AssetCriticality.medium,
+      notes: notes ?? faker.lorem.sentence(),
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<AssetEntity> makeAssetEntityList() {
+    return [
+      makeAssetEntity(),
+      makeAssetEntity(),
+      makeAssetEntity(),
     ];
   }
 }

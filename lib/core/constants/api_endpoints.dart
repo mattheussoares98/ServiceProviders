@@ -20,5 +20,9 @@ class ApiEndpoints {
   // Areas
   static const areas = 'api/areas';
   static String areaById(String id) => 'api/areas/$id';
+
+  // Assets
+  static const assets = 'api/assets';
+  static String assetById(String id) => 'api/assets/$id';
 }
 
