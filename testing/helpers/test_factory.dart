@@ -3,6 +3,9 @@ import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
@@ -90,4 +93,26 @@ abstract final class TestFactory {
       password: faker.internet.password(),
     );
   }
+
+  static AttachmentEntity makeAttachmentEntity() {
+    return AttachmentEntity(
+      id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      uploadedById: faker.guid.guid(),
+      fileName: faker.company.name(),
+      fileType: makeFileType(),
+      isCompressed: faker.randomGenerator.boolean(),
+      uploadStatus: makeUploadStatus(),
+      createdAt: faker.date.dateTime(),
+    );
+  }
+
+  static FileType makeFileType() =>
+      FileType.values[faker.randomGenerator.integer(FileType.values.length)];
+
+  static UploadStatus makeUploadStatus() =>
+      UploadStatus.values[faker.randomGenerator.integer(
+        UploadStatus.values.length,
+      )];
 }

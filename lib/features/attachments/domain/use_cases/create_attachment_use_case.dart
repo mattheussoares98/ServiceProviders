@@ -5,13 +5,14 @@ import 'package:clean_architecture/features/attachments/domain/repositories/atta
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetAttachmentsUseCase implements UseCase<List<AttachmentEntity>, String> {
-  GetAttachmentsUseCase({required AttachmentsRepository attachmentsRepository})
-    : _attachmentsRepository = attachmentsRepository;
+class CreateAttachmentUseCase implements UseCase<bool, AttachmentEntity> {
+  CreateAttachmentUseCase(
+      {required AttachmentsRepository attachmentsRepository})
+      : _attachmentsRepository = attachmentsRepository;
 
   final AttachmentsRepository _attachmentsRepository;
 
   @override
-  FutureList<AttachmentEntity> call(String request) =>
-      _attachmentsRepository.getAttachmentsByWorkOrder(request);
+  FutureBool call(AttachmentEntity request) =>
+      _attachmentsRepository.createAttachment(request);
 }

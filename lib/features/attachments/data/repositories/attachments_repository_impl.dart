@@ -1,6 +1,8 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_local_data_source.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_remote_data_source.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:clean_architecture/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -17,4 +19,16 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   final InternetClient _internet;
   final AttachmentsRemoteDataSource _remoteDataSource;
   final AttachmentsLocalDataSource _localDataSource;
+
+  // TODO: Wire to local/remote data sources with RepositoryHandler
+  @override
+  FutureList<AttachmentEntity> getAttachmentsByWorkOrder(String workOrderId) =>
+      throw UnimplementedError();
+
+  @override
+  FutureBool createAttachment(AttachmentEntity attachment) =>
+      throw UnimplementedError();
+
+  @override
+  FutureBool deleteAttachment(String id) => throw UnimplementedError();
 }
