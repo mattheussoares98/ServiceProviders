@@ -15,6 +15,7 @@ import 'package:clean_architecture/features/checklists/domain/entities/checklist
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:faker/faker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -184,4 +185,21 @@ abstract final class TestFactory {
 
   static List<MaintenancePlanEntity> makeMaintenancePlanEntityList() =>
       [makeMaintenancePlanEntity(), makeMaintenancePlanEntity(), makeMaintenancePlanEntity()];
+
+  static UserProfileEntity makeUserProfileEntity() => UserProfileEntity(
+        id: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        name: faker.person.name(),
+        email: faker.internet.email(),
+        phone: faker.randomGenerator.string(10),
+        permissionGroupId: faker.guid.guid(),
+        avatarUrl: faker.randomGenerator.string(20),
+        isActive: faker.randomGenerator.boolean(),
+        createdAt: faker.date.dateTime(),
+        updatedAt: faker.date.dateTime(),
+        deletedAt: faker.date.dateTime(),
+      );
+
+  static List<UserProfileEntity> makeUserProfileEntityList() =>
+      [makeUserProfileEntity(), makeUserProfileEntity(), makeUserProfileEntity()];
 }

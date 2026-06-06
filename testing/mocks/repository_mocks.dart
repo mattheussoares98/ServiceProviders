@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/categories/domain/repositories/categ
 import 'package:clean_architecture/features/checklists/domain/repositories/checklists_repository.dart';
 import 'package:clean_architecture/features/locations/domain/repositories/locations_repository.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
+import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAssetsRepository extends Mock implements AssetsRepository {}
@@ -20,6 +21,8 @@ class MockLocationsRepository extends Mock implements LocationsRepository {}
 
 class MockMaintenancePlansRepository extends Mock
     implements MaintenancePlansRepository {}
+
+class MockUsersRepository extends Mock implements UsersRepository {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
