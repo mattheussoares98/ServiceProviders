@@ -26,7 +26,7 @@ void main() {
 
   final workOrderId = faker.guid.guid();
 
-  group('Get templates', () {
+  group('GetChecklistsUseCase', () {
     test(
       'should call repository.getTemplates and return true on success',
       () async {
