@@ -30,4 +30,34 @@ class PermissionGroupEntity extends Equatable {
         createdAt,
         deletedAt,
       ];
+
+  PermissionGroupEntity copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    List<Permission>? permissions,
+    bool? isDefault,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return PermissionGroupEntity(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      permissions: permissions ?? this.permissions,
+      isDefault: isDefault ?? this.isDefault,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  PermissionGroupEntity annulDeletedAt() => PermissionGroupEntity(
+        id: id,
+        companyId: companyId,
+        name: name,
+        permissions: permissions,
+        isDefault: isDefault,
+        createdAt: createdAt,
+        deletedAt: null,
+      );
 }

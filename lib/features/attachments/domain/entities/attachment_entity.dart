@@ -49,4 +49,100 @@ class AttachmentEntity extends Equatable {
         createdAt,
         deletedAt,
       ];
+
+  AttachmentEntity copyWith({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? uploadedById,
+    String? fileName,
+    FileType? fileType,
+    String? localPath,
+    String? remoteUrl,
+    int? fileSizeBytes,
+    bool? isCompressed,
+    UploadStatus? uploadStatus,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return AttachmentEntity(
+      id: id ?? this.id,
+      workOrderId: workOrderId ?? this.workOrderId,
+      companyId: companyId ?? this.companyId,
+      uploadedById: uploadedById ?? this.uploadedById,
+      fileName: fileName ?? this.fileName,
+      fileType: fileType ?? this.fileType,
+      localPath: localPath ?? this.localPath,
+      remoteUrl: remoteUrl ?? this.remoteUrl,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      isCompressed: isCompressed ?? this.isCompressed,
+      uploadStatus: uploadStatus ?? this.uploadStatus,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  AttachmentEntity annulLocalPath() => AttachmentEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        uploadedById: uploadedById,
+        fileName: fileName,
+        fileType: fileType,
+        localPath: null,
+        remoteUrl: remoteUrl,
+        fileSizeBytes: fileSizeBytes,
+        isCompressed: isCompressed,
+        uploadStatus: uploadStatus,
+        createdAt: createdAt,
+        deletedAt: deletedAt,
+      );
+
+  AttachmentEntity annulRemoteUrl() => AttachmentEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        uploadedById: uploadedById,
+        fileName: fileName,
+        fileType: fileType,
+        localPath: localPath,
+        remoteUrl: null,
+        fileSizeBytes: fileSizeBytes,
+        isCompressed: isCompressed,
+        uploadStatus: uploadStatus,
+        createdAt: createdAt,
+        deletedAt: deletedAt,
+      );
+
+  AttachmentEntity annulFileSizeBytes() => AttachmentEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        uploadedById: uploadedById,
+        fileName: fileName,
+        fileType: fileType,
+        localPath: localPath,
+        remoteUrl: remoteUrl,
+        fileSizeBytes: null,
+        isCompressed: isCompressed,
+        uploadStatus: uploadStatus,
+        createdAt: createdAt,
+        deletedAt: deletedAt,
+      );
+
+  AttachmentEntity annulDeletedAt() => AttachmentEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        uploadedById: uploadedById,
+        fileName: fileName,
+        fileType: fileType,
+        localPath: localPath,
+        remoteUrl: remoteUrl,
+        fileSizeBytes: fileSizeBytes,
+        isCompressed: isCompressed,
+        uploadStatus: uploadStatus,
+        createdAt: createdAt,
+        deletedAt: null,
+      );
 }
