@@ -31,26 +31,41 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
   );
 
   factory PermissionGroupResponseModel.fromDb(PermissionGroup db) {
-    return PermissionGroupResponseModel.fromJson({
-      'id': db.id,
-      'company_id': db.companyId,
-      'name': db.name,
-      'permissions': db.permissions,
-      'is_default': db.isDefault,
-      'created_at': db.createdAt.toIso8601String(),
-      'deleted_at': db.deletedAt?.toIso8601String(),
-    });
+    return PermissionGroupResponseModel(
+      id: db.id,
+      companyId: db.companyId,
+      name: db.name,
+      permissions: _parsePermissions(db.permissions),
+      isDefault: db.isDefault,
+      createdAt: db.createdAt,
+      deletedAt: db.deletedAt,
+    );
   }
 
   factory PermissionGroupResponseModel.fromJson(MapDynamic json) {
+    return PermissionGroupResponseModel(
+      id: json['id'] as String? ?? '',
+      companyId: json['company_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      permissions: _parsePermissions(json['permissions']),
+      isDefault: json['is_default'] as bool? ?? false,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      deletedAt: json['deleted_at'] != null
+          ? DateTime.parse(json['deleted_at'] as String)
+          : null,
+    );
+  }
+
+  static List<ResourcePermissionEntity> _parsePermissions(dynamic permissionsRaw) {
     final Map<ResourceType, Set<PermissionAction>> grouped = {};
 
     void addAllActionsForResource(ResourceType resource) {
       grouped.putIfAbsent(resource, () => {}).addAll(PermissionAction.values);
     }
 
-    if (json['permissions'] != null) {
-      final permissionsRaw = json['permissions'];
+    if (permissionsRaw != null) {
       List<dynamic> list = [];
       if (permissionsRaw is String) {
         try {
@@ -96,23 +111,9 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
       }
     }
 
-    final permissions = grouped.entries
+    return grouped.entries
         .map((e) => ResourcePermissionEntity(resource: e.key, actions: e.value))
         .toList();
-
-    return PermissionGroupResponseModel(
-      id: json['id'] as String? ?? '',
-      companyId: json['company_id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      permissions: permissions,
-      isDefault: json['is_default'] as bool? ?? false,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'] as String)
-          : null,
-    );
   }
 
   @override
