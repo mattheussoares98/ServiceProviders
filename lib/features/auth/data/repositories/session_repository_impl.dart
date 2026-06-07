@@ -41,12 +41,12 @@ final class SessionRepositoryImpl implements SessionRepository {
   @override
   Future<void> logout({String? email, String? name}) async {
     final userEmail = email ?? _auth.currentSession?.user.email;
-    _userData = const UserDataEntity.empty();
     final partialModel = UserDataResponseModel.fromEntity(
       const UserDataEntity.empty().copyWith(
         user: const UserEntity.empty().copyWith(email: userEmail, name: name),
       ),
     );
+    _userData = const UserDataEntity.empty();
     await _localDataSource.saveUserData(partialModel);
     await _auth.logout();
   }

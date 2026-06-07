@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
 import 'package:faker/faker.dart';
@@ -107,11 +108,12 @@ void main() {
       test(
         'should call logout and save partial session data with email',
         () async {
+          final email = faker.internet.email();
+          final name = faker.person.name();
+
           registerFallbackValue(
-            const UserDataResponseModel(
-              user: UserModel(id: '', name: '', email: '', isActive: true),
-              accessToken: '',
-              refreshToken: '',
+            UserDataResponseModel.fromEntity(
+              EntityFactory.makeUserDataEntity(),
             ),
           );
           when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
@@ -124,14 +126,20 @@ void main() {
             () => mockSupabaseAuthClient.currentSession,
           ).thenReturn(mockSession);
 
-          await sessionRepository.logout(
-            email: faker.internet.email(),
-            name: faker.person.name(),
-          );
+          await sessionRepository.logout(email: email, name: name);
 
           verify(() => mockSupabaseAuthClient.logout()).called(1);
           verify(
-            () => mockSessionLocalDataSource.saveUserData(any()),
+            () => mockSessionLocalDataSource.saveUserData(
+              UserDataResponseModel.fromEntity(
+                const UserDataEntity.empty().copyWith(
+                  user: const UserEntity.empty().copyWith(
+                    email: email,
+                    name: name,
+                  ),
+                ),
+              ),
+            ),
           ).called(1);
 
           expect(sessionRepository.isLoggedIn, isFalse);

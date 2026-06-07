@@ -22,7 +22,11 @@ class UserDataResponseModel extends UserDataEntity
 
   factory UserDataResponseModel.fromSupabase(sb.AuthResponse response) {
     return UserDataResponseModel(
-      user: UserModel.fromSupabase(response.user!),
+      user: UserModel.fromEntity(
+        UserModel.fromSupabase(
+          response.user!,
+        ).toEntity().copyWith(id: response.user!.id),
+      ),
       accessToken: response.session?.accessToken ?? '',
       refreshToken: response.session?.refreshToken ?? '',
     );
