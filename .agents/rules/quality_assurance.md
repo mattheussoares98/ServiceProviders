@@ -193,8 +193,10 @@ void main() {
 - ❌ Never use `mockito`. The project exclusively uses `mocktail`.
 - ❌ Never write business logic. If a test is hard to write, flag the design issue rather than writing complicated workarounds.
 - ❌ Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. If a model is needed in the test, first retrieve the entity from the factory and convert it to the model (e.g. using `fromEntity`).
+- ❌ `EntityFactory` factory methods (e.g. `makeWorkOrderEntity`) MUST NOT take parameters. To modify fields, the entity must have a `copyWith` method. To annul a field, a custom `annul+FieldName` method (e.g., `annulAssetId()`) must be defined on the entity.
 - ❌ In `EntityFactory`, every property that is a list MUST contain exactly 3 items.
 - ❌ Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
+- ❌ Never use `TestFactory`. Unify all factories inside `EntityFactory`.
 - ❌ Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
 
 
