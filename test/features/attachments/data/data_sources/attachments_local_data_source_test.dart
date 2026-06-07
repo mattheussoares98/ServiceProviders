@@ -124,15 +124,7 @@ void main() {
       // Assert Get List
       expect(getResult, isA<SuccessState<List<AttachmentResponseModel>>>());
       expect(getResult.data, hasLength(1));
-      final resultModel = getResult.data!.first;
-      expect(resultModel.id, tAttachmentModel.id);
-      expect(resultModel.workOrderId, tAttachmentModel.workOrderId);
-      expect(resultModel.companyId, tAttachmentModel.companyId);
-      expect(resultModel.uploadedById, tAttachmentModel.uploadedById);
-      expect(resultModel.fileName, tAttachmentModel.fileName);
-      expect(resultModel.fileType, tAttachmentModel.fileType);
-      expect(resultModel.isCompressed, tAttachmentModel.isCompressed);
-      expect(resultModel.uploadStatus, tAttachmentModel.uploadStatus);
+      expect(getResult.data!.first, equals(tAttachmentModel));
     });
 
     test('should soft-delete an attachment and verify it is not returned', () async {

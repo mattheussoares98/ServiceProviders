@@ -3,9 +3,24 @@ import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
+import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
+import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/task_entity.dart';
@@ -15,25 +30,15 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
-import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:faker/faker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class EntityFactory {
+  static DateTime _makeDateTime() {
+    final dt = faker.date.dateTime();
+    return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+  }
+
   // Category
   static CategoryEntity makeCategoryEntity() {
     return CategoryEntity(
@@ -42,16 +47,12 @@ abstract final class EntityFactory {
       name: faker.company.name(),
       description: faker.lorem.sentence(),
       color: faker.randomGenerator.string(7),
-      createdAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
     );
   }
 
   static List<CategoryEntity> makeCategoryEntityList() {
-    return [
-      makeCategoryEntity(),
-      makeCategoryEntity(),
-      makeCategoryEntity(),
-    ];
+    return [makeCategoryEntity(), makeCategoryEntity(), makeCategoryEntity()];
   }
 
   // Location
@@ -64,17 +65,13 @@ abstract final class EntityFactory {
       city: faker.address.city(),
       state: faker.address.state(),
       isActive: faker.randomGenerator.boolean(),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
   static List<LocationEntity> makeLocationEntityList() {
-    return [
-      makeLocationEntity(),
-      makeLocationEntity(),
-      makeLocationEntity(),
-    ];
+    return [makeLocationEntity(), makeLocationEntity(), makeLocationEntity()];
   }
 
   // Area
@@ -86,17 +83,13 @@ abstract final class EntityFactory {
       name: faker.company.name(),
       floor: faker.randomGenerator.integer(10).toString(),
       description: faker.lorem.sentence(),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
   static List<AreaEntity> makeAreaEntityList() {
-    return [
-      makeAreaEntity(),
-      makeAreaEntity(),
-      makeAreaEntity(),
-    ];
+    return [makeAreaEntity(), makeAreaEntity(), makeAreaEntity()];
   }
 
   // Asset
@@ -113,17 +106,13 @@ abstract final class EntityFactory {
       status: AssetStatus.active,
       criticality: AssetCriticality.medium,
       notes: faker.lorem.sentence(),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
   static List<AssetEntity> makeAssetEntityList() {
-    return [
-      makeAssetEntity(),
-      makeAssetEntity(),
-      makeAssetEntity(),
-    ];
+    return [makeAssetEntity(), makeAssetEntity(), makeAssetEntity()];
   }
 
   // WorkOrder
@@ -141,14 +130,14 @@ abstract final class EntityFactory {
       priority: Priority.medium,
       status: WorkOrderStatus.open,
       type: WorkOrderType.corrective,
-      scheduledDate: faker.date.dateTime(),
+      scheduledDate: _makeDateTime(),
       estimatedDuration: faker.randomGenerator.integer(120),
       laborCost: faker.randomGenerator.decimal(),
       partsCost: faker.randomGenerator.decimal(),
       totalCost: faker.randomGenerator.decimal(),
       notes: faker.lorem.sentence(),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
@@ -170,17 +159,13 @@ abstract final class EntityFactory {
       description: faker.lorem.sentence(),
       isCompleted: false,
       sortOrder: faker.randomGenerator.integer(10),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
   static List<TaskEntity> makeTaskEntityList() {
-    return [
-      makeTaskEntity(),
-      makeTaskEntity(),
-      makeTaskEntity(),
-    ];
+    return [makeTaskEntity(), makeTaskEntity(), makeTaskEntity()];
   }
 
   // WorkOrderChangeRequest
@@ -193,12 +178,13 @@ abstract final class EntityFactory {
       changeType: WorkOrderChangeType.updateNotes,
       changeData: '{"notes": "Updated notes"}',
       status: ChangeRequestStatus.pending,
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
-  static List<WorkOrderChangeRequestEntity> makeWorkOrderChangeRequestEntityList() {
+  static List<WorkOrderChangeRequestEntity>
+  makeWorkOrderChangeRequestEntityList() {
     return [
       makeWorkOrderChangeRequestEntity(),
       makeWorkOrderChangeRequestEntity(),
@@ -216,7 +202,7 @@ abstract final class EntityFactory {
       action: 'status_change',
       oldValue: 'open',
       newValue: 'in_progress',
-      createdAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
     );
   }
 
@@ -235,8 +221,8 @@ abstract final class EntityFactory {
       companyId: faker.guid.guid(),
       name: faker.company.name(),
       description: faker.lorem.sentence(),
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
@@ -258,7 +244,7 @@ abstract final class EntityFactory {
       type: ChecklistItemType.boolean,
       isRequired: false,
       sortOrder: faker.randomGenerator.integer(10),
-      createdAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
     );
   }
 
@@ -279,8 +265,8 @@ abstract final class EntityFactory {
       email: faker.internet.email(),
       phone: faker.randomGenerator.integer(99999999, min: 10000000).toString(),
       isActive: true,
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
@@ -304,7 +290,7 @@ abstract final class EntityFactory {
         Permission.attachmentsAll,
       ],
       isDefault: false,
-      createdAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
     );
   }
 
@@ -326,8 +312,8 @@ abstract final class EntityFactory {
       frequency: Frequency.monthly,
       priority: Priority.medium,
       isActive: true,
-      createdAt: faker.date.dateTime(),
-      updatedAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 
@@ -350,7 +336,7 @@ abstract final class EntityFactory {
       fileType: FileType.image,
       isCompressed: false,
       uploadStatus: UploadStatus.pending,
-      createdAt: faker.date.dateTime(),
+      createdAt: _makeDateTime(),
     );
   }
 
@@ -378,7 +364,7 @@ abstract final class EntityFactory {
       appMetadata: const {},
       userMetadata: const {},
       aud: faker.randomGenerator.string(5),
-      createdAt: faker.date.dateTime().toIso8601String(),
+      createdAt: _makeDateTime().toIso8601String(),
     );
   }
 

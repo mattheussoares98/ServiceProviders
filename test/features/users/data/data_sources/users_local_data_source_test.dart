@@ -52,7 +52,7 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
         expect(result.data, hasLength(1));
-        expect(result.data!.first.id, tUserProfileModel.id);
+        expect(result.data!.first, equals(tUserProfileModel));
       });
 
       test('should save a user profile and successfully retrieve it', () async {
@@ -71,14 +71,7 @@ void main() {
 
         // Assert Get
         expect(getResult, isA<SuccessState<UserProfileResponseModel>>());
-        final resultModel = getResult.data!;
-        expect(resultModel.id, tUserProfileModel.id);
-        expect(resultModel.companyId, tUserProfileModel.companyId);
-        expect(resultModel.name, tUserProfileModel.name);
-        expect(resultModel.email, tUserProfileModel.email);
-        expect(resultModel.phone, tUserProfileModel.phone);
-        expect(resultModel.avatarUrl, tUserProfileModel.avatarUrl);
-        expect(resultModel.isActive, tUserProfileModel.isActive);
+        expect(getResult.data, equals(tUserProfileModel));
       });
 
       test('should return FailureState when getting a non-existent user profile', () async {
@@ -127,12 +120,7 @@ void main() {
         // Assert Get
         expect(getResult, isA<SuccessState<List<PermissionGroupResponseModel>>>());
         expect(getResult.data, hasLength(1));
-        final resultModel = getResult.data!.first;
-        expect(resultModel.id, tPermissionGroupModel.id);
-        expect(resultModel.companyId, tPermissionGroupModel.companyId);
-        expect(resultModel.name, tPermissionGroupModel.name);
-        expect(resultModel.permissions, tPermissionGroupModel.permissions);
-        expect(resultModel.isDefault, tPermissionGroupModel.isDefault);
+        expect(getResult.data!.first, equals(tPermissionGroupModel));
       });
 
       test('should soft-delete a permission group and verify it is not returned', () async {

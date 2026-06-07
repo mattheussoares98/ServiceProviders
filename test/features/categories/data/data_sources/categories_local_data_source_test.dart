@@ -55,12 +55,7 @@ void main() {
       // Assert Get
       expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
       expect(getResult.data, hasLength(1));
-      final resultModel = getResult.data!.first;
-      expect(resultModel.id, tModel.id);
-      expect(resultModel.companyId, tModel.companyId);
-      expect(resultModel.name, tModel.name);
-      expect(resultModel.description, tModel.description);
-      expect(resultModel.color, tModel.color);
+      expect(getResult.data!.first, equals(tModel));
     });
 
     test(

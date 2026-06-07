@@ -53,21 +53,14 @@ void main() {
       // Assert Get List
       expect(getResult, isA<SuccessState<List<MaintenancePlanResponseModel>>>());
       expect(getResult.data, hasLength(1));
-      final resultModel = getResult.data!.first;
-      expect(resultModel.id, tPlanModel.id);
-      expect(resultModel.companyId, tPlanModel.companyId);
-      expect(resultModel.title, tPlanModel.title);
-      expect(resultModel.description, tPlanModel.description);
-      expect(resultModel.frequency, tPlanModel.frequency);
-      expect(resultModel.priority, tPlanModel.priority);
-      expect(resultModel.isActive, tPlanModel.isActive);
+      expect(getResult.data!.first, equals(tPlanModel));
 
       // Act: Get single by id
       final getSingleResult = await dataSource.getPlanById(tPlanModel.id);
 
       // Assert Get Single
       expect(getSingleResult, isA<SuccessState<MaintenancePlanResponseModel>>());
-      expect(getSingleResult.data!.id, tPlanModel.id);
+      expect(getSingleResult.data, equals(tPlanModel));
     });
 
     test('should return FailureState when getting non-existent plan', () async {
