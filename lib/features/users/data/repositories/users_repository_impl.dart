@@ -1,7 +1,10 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
+import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
@@ -21,34 +24,48 @@ final class UsersRepositoryImpl implements UsersRepository {
   final UsersRemoteDataSource _remoteDataSource;
   final UsersLocalDataSource _localDataSource;
 
-  // TODO: Wire to local/remote data sources with RepositoryHandler
   @override
   FutureList<UserProfileEntity> getUserProfiles(String companyId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        UserProfileResponseModel,
+        UserProfileEntity
+      >(localCallback: () => _localDataSource.getUserProfiles(companyId));
 
   @override
   FutureData<UserProfileEntity> getUserProfileById(String id) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMap<
+        UserProfileResponseModel,
+        UserProfileEntity
+      >(localCallback: () => _localDataSource.getUserProfileById(id));
 
   @override
   FutureBool updateUserProfile(UserProfileEntity userProfile) =>
-      throw UnimplementedError();
+      _localDataSource.saveUserProfile(
+        UserProfileResponseModel.fromEntity(userProfile),
+      );
 
   @override
-  FutureBool deleteUserProfile(String id) => throw UnimplementedError();
+  FutureBool deleteUserProfile(String id) => _localDataSource.deleteUserProfile(id);
 
   @override
   FutureList<PermissionGroupEntity> getPermissionGroups(String companyId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        PermissionGroupResponseModel,
+        PermissionGroupEntity
+      >(localCallback: () => _localDataSource.getPermissionGroups(companyId));
 
   @override
   FutureBool createPermissionGroup(PermissionGroupEntity group) =>
-      throw UnimplementedError();
+      _localDataSource.savePermissionGroup(
+        PermissionGroupResponseModel.fromEntity(group),
+      );
 
   @override
   FutureBool updatePermissionGroup(PermissionGroupEntity group) =>
-      throw UnimplementedError();
+      _localDataSource.savePermissionGroup(
+        PermissionGroupResponseModel.fromEntity(group),
+      );
 
   @override
-  FutureBool deletePermissionGroup(String id) => throw UnimplementedError();
+  FutureBool deletePermissionGroup(String id) => _localDataSource.deletePermissionGroup(id);
 }

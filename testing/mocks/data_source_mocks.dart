@@ -17,6 +17,8 @@ import 'package:clean_architecture/features/maintenance_plans/data/data_sources/
 import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_local_data_source.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_remote_data_source.dart';
+import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
+import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -72,3 +74,7 @@ class MockAttachmentsRemoteDataSource extends Mock
 
 class MockAttachmentsLocalDataSource extends Mock
     implements AttachmentsLocalDataSource {}
+
+class MockUsersRemoteDataSource extends Mock implements UsersRemoteDataSource {}
+
+class MockUsersLocalDataSource extends Mock implements UsersLocalDataSource {}
