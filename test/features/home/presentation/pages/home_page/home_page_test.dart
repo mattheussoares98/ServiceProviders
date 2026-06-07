@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit_use_cases.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/home_page.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';

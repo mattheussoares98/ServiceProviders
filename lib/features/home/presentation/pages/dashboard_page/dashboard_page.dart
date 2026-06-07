@@ -4,6 +4,7 @@ import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class DashboardPage extends StatelessWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(Sizes.p16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -37,7 +38,7 @@ class DashboardPage extends StatelessWidget {
                 size: 64,
                 color: context.theme.colorScheme.primary,
               ),
-              const SizedBox(height: 16),
+              gapH16,
               Text(
                 'Bem-vindo ao Painel'.hardcoded,
                 style: context.theme.textTheme.headlineMedium?.copyWith(
@@ -45,9 +46,10 @@ class DashboardPage extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              gapH8,
               Text(
-                'Aqui você verá métricas e ordens de serviço recentes em breve.'.hardcoded,
+                'Aqui você verá métricas e ordens de serviço recentes em breve.'
+                    .hardcoded,
                 style: context.theme.textTheme.bodyMedium?.copyWith(
                   color: context.theme.colorScheme.onSurfaceVariant,
                 ),

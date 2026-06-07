@@ -37,7 +37,7 @@ void main() {
   final tAttachmentModel = AttachmentResponseModel.fromEntity(tAttachmentEntity);
   final tAttachmentEntityList = EntityFactory.makeAttachmentEntityList();
   final tAttachmentModelList = tAttachmentEntityList
-      .map((e) => AttachmentResponseModel.fromEntity(e))
+      .map(AttachmentResponseModel.fromEntity)
       .toList();
 
   group('AttachmentsRepositoryImpl', () {

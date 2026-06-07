@@ -41,12 +41,12 @@ void main() {
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
   final tUserProfileModel = UserProfileResponseModel.fromEntity(tUserProfileEntity);
   final tUserProfileList = [tUserProfileEntity, tUserProfileEntity, tUserProfileEntity];
-  final tUserProfileModelList = tUserProfileList.map((e) => UserProfileResponseModel.fromEntity(e)).toList();
+  final tUserProfileModelList = tUserProfileList.map(UserProfileResponseModel.fromEntity).toList();
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(tPermissionGroupEntity);
   final tPermissionGroupList = [tPermissionGroupEntity, tPermissionGroupEntity, tPermissionGroupEntity];
-  final tPermissionGroupModelList = tPermissionGroupList.map((e) => PermissionGroupResponseModel.fromEntity(e)).toList();
+  final tPermissionGroupModelList = tPermissionGroupList.map(PermissionGroupResponseModel.fromEntity).toList();
 
   group('UsersRepositoryImpl', () {
     group('User Profiles', () {

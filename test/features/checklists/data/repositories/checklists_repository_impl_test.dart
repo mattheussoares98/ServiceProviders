@@ -1,5 +1,4 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/checklists/data/models/responses/checklist_item_response_model.dart';
 import 'package:clean_architecture/features/checklists/data/models/responses/checklist_template_response_model.dart';
 import 'package:clean_architecture/features/checklists/data/repositories/checklists_repository_impl.dart';
@@ -45,14 +44,14 @@ void main() {
   final tTemplateModel = ChecklistTemplateResponseModel.fromEntity(tTemplateEntity);
   final tTemplateEntityList = EntityFactory.makeChecklistTemplateEntityList();
   final tTemplateModelList = tTemplateEntityList
-      .map((e) => ChecklistTemplateResponseModel.fromEntity(e))
+      .map(ChecklistTemplateResponseModel.fromEntity)
       .toList();
 
   final tItemEntity = EntityFactory.makeChecklistItemEntity();
   final tItemModel = ChecklistItemResponseModel.fromEntity(tItemEntity);
   final tItemEntityList = EntityFactory.makeChecklistItemEntityList();
   final tItemModelList = tItemEntityList
-      .map((e) => ChecklistItemResponseModel.fromEntity(e))
+      .map(ChecklistItemResponseModel.fromEntity)
       .toList();
 
   group('ChecklistsRepositoryImpl', () {

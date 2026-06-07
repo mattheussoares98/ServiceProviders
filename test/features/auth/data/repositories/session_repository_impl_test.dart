@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
 
 // ignore: avoid_implementing_value_types

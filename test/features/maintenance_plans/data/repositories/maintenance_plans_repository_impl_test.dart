@@ -37,7 +37,7 @@ void main() {
   final tPlanModel = MaintenancePlanResponseModel.fromEntity(tPlanEntity);
   final tPlanEntityList = EntityFactory.makeMaintenancePlanEntityList();
   final tPlanModelList = tPlanEntityList
-      .map((e) => MaintenancePlanResponseModel.fromEntity(e))
+      .map(MaintenancePlanResponseModel.fromEntity)
       .toList();
 
   group('MaintenancePlansRepositoryImpl', () {

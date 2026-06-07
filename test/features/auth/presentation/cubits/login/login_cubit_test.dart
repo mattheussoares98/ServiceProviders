@@ -17,8 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';

@@ -23,7 +23,7 @@ void main() {
       expect(json['name'], tEntity.name);
 
       // Verify explicit resource.action format is present
-      final List<dynamic> permissions = json['permissions'] as List<dynamic>;
+      final permissions = json['permissions'] as List<dynamic>;
       expect(permissions, contains('work_orders.create'));
       expect(permissions, contains('work_orders.update'));
       expect(permissions, contains('attachments.create'));
