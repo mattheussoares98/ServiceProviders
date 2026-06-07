@@ -272,3 +272,7 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
 - ❌ Never write user-visible text in English — all strings displayed to the user (labels, messages, button text, titles, placeholders) must be in **Portuguese (pt-BR)**
 - ❌ Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI — always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`)
+- ❌ Never use raw Material/Flutter loading indicators (like `CircularProgressIndicator`) or basic action buttons when a matching shared UI component exists in `lib/shared_ui/ui/` (always prefer `LoadingCircle`, `PrimaryButton`, `BaseIconButton`, etc.)
+- ❌ Never allow layouts to overflow on smaller screens. Use `Flexible`, `Expanded`, or responsive widgets (like `LayoutBuilder`, `SingleChildScrollView`) for child widgets that display text/labels in a `Row` or `Column` (e.g., inside card widgets like `StatsCard`)
+- ❌ Never declare color or label mapping methods (e.g., `_getStatusColor`, `_getPriorityLabel`) inside page classes, widget classes, or build methods. For domain enums that require presentation logic (colors, labels, icons), declare Dart extension methods in the presentation layer (or a shared presentation helper file) that extend the domain enums.
+
