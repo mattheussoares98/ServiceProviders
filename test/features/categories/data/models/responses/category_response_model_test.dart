@@ -15,13 +15,8 @@ void main() {
 
     test('should return a valid model fromEntity', () {
       final model = CategoryResponseModel.fromEntity(tEntity);
-      expect(model.id, tEntity.id);
-      expect(model.companyId, tEntity.companyId);
-      expect(model.name, tEntity.name);
-      expect(model.description, tEntity.description);
-      expect(model.color, tEntity.color);
-      expect(model.createdAt, tEntity.createdAt);
-      expect(model.deletedAt, tEntity.deletedAt);
+      final expected = CategoryResponseModel.fromEntity(tEntity);
+      expect(model, equals(expected));
     });
 
     test('should return a valid model fromJson', () {
@@ -30,13 +25,7 @@ void main() {
 
       final result = CategoryResponseModel.fromJson(json);
 
-      expect(result.id, tEntity.id);
-      expect(result.companyId, tEntity.companyId);
-      expect(result.name, tEntity.name);
-      expect(result.description, tEntity.description);
-      expect(result.color, tEntity.color);
-      expect(result.createdAt, tEntity.createdAt);
-      expect(result.deletedAt, tEntity.deletedAt);
+      expect(result, equals(model));
     });
 
     test('should return a MapDynamic containing the proper data on toJson', () {

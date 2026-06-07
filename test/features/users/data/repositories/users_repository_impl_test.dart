@@ -61,7 +61,7 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<List<UserProfileEntity>>>());
         expect(result.data, hasLength(3));
-        expect(result.data!.first.id, tUserProfileModel.id);
+        expect(result.data!.first, equals(tUserProfileEntity));
         verify(() => mockLocalDataSource.getUserProfiles(any())).called(1);
       });
 
@@ -75,7 +75,7 @@ void main() {
 
         // Assert
         expect(result, isA<SuccessState<UserProfileEntity>>());
-        expect(result.data!.id, tUserProfileModel.id);
+        expect(result.data, equals(tUserProfileEntity));
         verify(() => mockLocalDataSource.getUserProfileById(tUserProfileModel.id)).called(1);
       });
 
@@ -120,7 +120,7 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<List<PermissionGroupEntity>>>());
         expect(result.data, hasLength(3));
-        expect(result.data!.first.id, tPermissionGroupModel.id);
+        expect(result.data!.first, equals(tPermissionGroupEntity));
         verify(() => mockLocalDataSource.getPermissionGroups(any())).called(1);
       });
 

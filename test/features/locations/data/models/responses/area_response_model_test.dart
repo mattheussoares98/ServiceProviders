@@ -15,15 +15,8 @@ void main() {
 
     test('should return a valid model fromEntity', () {
       final model = AreaResponseModel.fromEntity(tEntity);
-      expect(model.id, tEntity.id);
-      expect(model.locationId, tEntity.locationId);
-      expect(model.companyId, tEntity.companyId);
-      expect(model.name, tEntity.name);
-      expect(model.floor, tEntity.floor);
-      expect(model.description, tEntity.description);
-      expect(model.createdAt, tEntity.createdAt);
-      expect(model.updatedAt, tEntity.updatedAt);
-      expect(model.deletedAt, tEntity.deletedAt);
+      final expected = AreaResponseModel.fromEntity(tEntity);
+      expect(model, equals(expected));
     });
 
     test('should return a valid model fromJson', () {
@@ -32,15 +25,7 @@ void main() {
 
       final result = AreaResponseModel.fromJson(json);
 
-      expect(result.id, tEntity.id);
-      expect(result.locationId, tEntity.locationId);
-      expect(result.companyId, tEntity.companyId);
-      expect(result.name, tEntity.name);
-      expect(result.floor, tEntity.floor);
-      expect(result.description, tEntity.description);
-      expect(result.createdAt, tEntity.createdAt);
-      expect(result.updatedAt, tEntity.updatedAt);
-      expect(result.deletedAt, tEntity.deletedAt);
+      expect(result, equals(model));
     });
 
     test('should return a MapDynamic containing the proper data on toJson', () {

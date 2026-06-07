@@ -53,7 +53,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<CategoryEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first, equals(tModel));
+          expect(result.data!.first, equals(tEntity));
           verify(() => mockLocalDataSource.getCategories(tCompanyId)).called(1);
         },
       );

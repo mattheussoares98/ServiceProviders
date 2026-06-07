@@ -61,14 +61,7 @@ void main() {
         // Assert Get
         expect(getResult, isA<SuccessState<List<LocationResponseModel>>>());
         expect(getResult.data, hasLength(1));
-        final resultModel = getResult.data!.first;
-        expect(resultModel.id, tLocationModel.id);
-        expect(resultModel.companyId, tLocationModel.companyId);
-        expect(resultModel.name, tLocationModel.name);
-        expect(resultModel.address, tLocationModel.address);
-        expect(resultModel.city, tLocationModel.city);
-        expect(resultModel.state, tLocationModel.state);
-        expect(resultModel.isActive, tLocationModel.isActive);
+        expect(getResult.data!.first, equals(tLocationModel));
       });
 
       test(
@@ -113,13 +106,7 @@ void main() {
         // Assert Get
         expect(getResult, isA<SuccessState<List<AreaResponseModel>>>());
         expect(getResult.data, hasLength(1));
-        final resultModel = getResult.data!.first;
-        expect(resultModel.id, tAreaModel.id);
-        expect(resultModel.locationId, tAreaModel.locationId);
-        expect(resultModel.companyId, tAreaModel.companyId);
-        expect(resultModel.name, tAreaModel.name);
-        expect(resultModel.floor, tAreaModel.floor);
-        expect(resultModel.description, tAreaModel.description);
+        expect(getResult.data!.first, equals(tAreaModel));
       });
 
       test(

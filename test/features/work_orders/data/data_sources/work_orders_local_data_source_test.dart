@@ -121,14 +121,14 @@ void main() {
       // Assert Get List
       expect(getListResult, isA<SuccessState<List<WorkOrderResponseModel>>>());
       expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.id, tWorkOrderModel.id);
+      expect(getListResult.data!.first, equals(tWorkOrderModel));
 
       // Act: Get single by id
       final getSingleResult = await dataSource.getWorkOrderById(tWorkOrderModel.id);
 
       // Assert Get Single
       expect(getSingleResult, isA<SuccessState<WorkOrderResponseModel>>());
-      expect(getSingleResult.data!.id, tWorkOrderModel.id);
+      expect(getSingleResult.data, equals(tWorkOrderModel));
     });
 
     test('should return FailureState when getting a non-existent work order', () async {
@@ -195,7 +195,7 @@ void main() {
       final getListResult = await dataSource.getTasksByWorkOrder(tTaskModel.workOrderId);
       expect(getListResult, isA<SuccessState<List<TaskResponseModel>>>());
       expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.id, tTaskModel.id);
+      expect(getListResult.data!.first, equals(tTaskModel));
 
       // Act: Delete Task
       final deleteResult = await dataSource.deleteTask(tTaskModel.id);
@@ -234,7 +234,7 @@ void main() {
       final getListResult = await dataSource.getChangeRequests(tChangeModel.companyId);
       expect(getListResult, isA<SuccessState<List<WorkOrderChangeRequestResponseModel>>>());
       expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.id, tChangeModel.id);
+      expect(getListResult.data!.first, equals(tChangeModel));
 
       // Act: Review Change Request
       final tReviewerId = faker.guid.guid();
@@ -293,7 +293,7 @@ void main() {
       final getListResult = await dataSource.getWorkOrderHistory(tHistoryModel.workOrderId);
       expect(getListResult, isA<SuccessState<List<WorkOrderHistoryResponseModel>>>());
       expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.id, tHistoryModel.id);
+      expect(getListResult.data!.first, equals(tHistoryModel));
     });
   });
 }

@@ -85,7 +85,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tWorkOrderModel.id);
+          expect(result.data!.first, equals(tWorkOrderEntity));
           verify(() => mockLocalDataSource.getWorkOrders(tCompanyId)).called(1);
         },
       );
@@ -119,7 +119,7 @@ void main() {
 
           // Assert
           expect(result, isA<SuccessState<WorkOrderEntity>>());
-          expect(result.data!.id, tWorkOrderModel.id);
+          expect(result.data, equals(tWorkOrderEntity));
           verify(
             () => mockLocalDataSource.getWorkOrderById(tWorkOrderId),
           ).called(1);
@@ -223,7 +223,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<TaskEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tTaskModel.id);
+          expect(result.data!.first, equals(tTaskEntity));
           verify(
             () => mockLocalDataSource.getTasksByWorkOrder(tWorkOrderId),
           ).called(1);
@@ -311,7 +311,7 @@ void main() {
             isA<SuccessState<List<WorkOrderChangeRequestEntity>>>(),
           );
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tChangeModel.id);
+          expect(result.data!.first, equals(tChangeEntity));
           verify(
             () => mockLocalDataSource.getChangeRequests(tCompanyId),
           ).called(1);
@@ -397,7 +397,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tHistoryModel.id);
+          expect(result.data!.first, equals(tHistoryEntity));
           verify(
             () => mockLocalDataSource.getWorkOrderHistory(tWorkOrderId),
           ).called(1);

@@ -60,7 +60,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<LocationEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tLocationModel.id);
+          expect(result.data!.first, equals(tLocationEntity));
           verify(() => mockLocalDataSource.getLocations(tCompanyId)).called(1);
         },
       );
@@ -150,7 +150,7 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<List<AreaEntity>>>());
           expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tAreaModel.id);
+          expect(result.data!.first, equals(tAreaEntity));
           verify(() => mockLocalDataSource.getAreasByLocation(tLocationId)).called(1);
         },
       );
