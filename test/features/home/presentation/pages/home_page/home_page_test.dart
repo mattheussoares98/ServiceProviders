@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
+import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
@@ -24,10 +25,14 @@ final locator = GetIt.I;
 class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
     implements ScreenObserverCubit {}
 
+class MockDashboardCubit extends MockCubit<DashboardState>
+    implements DashboardCubit {}
+
 void main() {
   late MockLogOutUseCase mockLogOutUseCase;
   late MockNavigationClient mockNavigationClient;
   late MockSessionRepository mockSessionRepository;
+  late MockDashboardCubit mockDashboardCubit;
 
   setUpAll(() {
     registerFallbackValue(const LoginRoute());
@@ -37,8 +42,16 @@ void main() {
     mockLogOutUseCase = MockLogOutUseCase();
     mockNavigationClient = MockNavigationClient();
     mockSessionRepository = MockSessionRepository();
+    mockDashboardCubit = MockDashboardCubit();
 
     when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+    when(
+      () => mockDashboardCubit.state,
+    ).thenReturn(const DashboardState.initial());
+    when(
+      () => mockDashboardCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(() => mockDashboardCubit.loadDashboardData()).thenAnswer((_) async {});
 
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
@@ -48,7 +61,8 @@ void main() {
       )
       ..registerFactory<HomeCubit>(
         () => HomeCubit(useCases: locator<HomeCubitUseCases>()),
-      );
+      )
+      ..registerFactory<DashboardCubit>(() => mockDashboardCubit);
 
     const screenDetails = ScreenDetails(
       logicalSize: Size(1920, 1280),
