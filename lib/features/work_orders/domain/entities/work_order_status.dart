@@ -1,12 +1,13 @@
 enum WorkOrderStatus {
-  open('open'),
-  inProgress('in_progress'),
-  onHold('on_hold'),
-  completed('completed'),
-  cancelled('cancelled');
+  open('open', 'Aberta'),
+  inProgress('in_progress', 'Em Andamento'),
+  onHold('on_hold', 'Em Espera'),
+  completed('completed', 'Concluída'),
+  cancelled('cancelled', 'Cancelada');
 
-  const WorkOrderStatus(this.code);
+  const WorkOrderStatus(this.code, this.label);
   final String code;
+  final String label;
 
   static WorkOrderStatus fromCode(String code) {
     for (final val in WorkOrderStatus.values) {

@@ -1,11 +1,12 @@
 enum Priority {
-  low('low'),
-  medium('medium'),
-  high('high'),
-  critical('critical');
+  low('low', 'Baixa'),
+  medium('medium', 'Média'),
+  high('high', 'Alta'),
+  critical('critical', 'Crítica');
 
-  const Priority(this.code);
+  const Priority(this.code, this.label);
   final String code;
+  final String label;
 
   static Priority fromCode(String code) {
     for (final val in Priority.values) {
