@@ -35,4 +35,64 @@ class AreaEntity extends Equatable {
         updatedAt,
         deletedAt,
       ];
+
+  AreaEntity copyWith({
+    String? id,
+    String? locationId,
+    String? companyId,
+    String? name,
+    String? floor,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return AreaEntity(
+      id: id ?? this.id,
+      locationId: locationId ?? this.locationId,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      floor: floor ?? this.floor,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  AreaEntity annulFloor() => AreaEntity(
+        id: id,
+        locationId: locationId,
+        companyId: companyId,
+        name: name,
+        floor: null,
+        description: description,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        deletedAt: deletedAt,
+      );
+
+  AreaEntity annulDescription() => AreaEntity(
+        id: id,
+        locationId: locationId,
+        companyId: companyId,
+        name: name,
+        floor: floor,
+        description: null,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        deletedAt: deletedAt,
+      );
+
+  AreaEntity annulDeletedAt() => AreaEntity(
+        id: id,
+        locationId: locationId,
+        companyId: companyId,
+        name: name,
+        floor: floor,
+        description: description,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        deletedAt: null,
+      );
 }

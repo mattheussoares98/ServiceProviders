@@ -39,4 +39,56 @@ class ChecklistItemEntity extends Equatable {
         createdAt,
         deletedAt,
       ];
+
+  ChecklistItemEntity copyWith({
+    String? id,
+    String? templateId,
+    String? companyId,
+    String? label,
+    ChecklistItemType? type,
+    bool? isRequired,
+    List<String>? options,
+    int? sortOrder,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return ChecklistItemEntity(
+      id: id ?? this.id,
+      templateId: templateId ?? this.templateId,
+      companyId: companyId ?? this.companyId,
+      label: label ?? this.label,
+      type: type ?? this.type,
+      isRequired: isRequired ?? this.isRequired,
+      options: options ?? this.options,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  ChecklistItemEntity annulOptions() => ChecklistItemEntity(
+        id: id,
+        templateId: templateId,
+        companyId: companyId,
+        label: label,
+        type: type,
+        isRequired: isRequired,
+        options: null,
+        sortOrder: sortOrder,
+        createdAt: createdAt,
+        deletedAt: deletedAt,
+      );
+
+  ChecklistItemEntity annulDeletedAt() => ChecklistItemEntity(
+        id: id,
+        templateId: templateId,
+        companyId: companyId,
+        label: label,
+        type: type,
+        isRequired: isRequired,
+        options: options,
+        sortOrder: sortOrder,
+        createdAt: createdAt,
+        deletedAt: null,
+      );
 }

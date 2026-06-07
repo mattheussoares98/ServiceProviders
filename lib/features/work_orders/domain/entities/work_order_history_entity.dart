@@ -32,4 +32,48 @@ class WorkOrderHistoryEntity extends Equatable {
         newValue,
         createdAt,
       ];
+
+  WorkOrderHistoryEntity copyWith({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? userId,
+    String? action,
+    String? oldValue,
+    String? newValue,
+    DateTime? createdAt,
+  }) {
+    return WorkOrderHistoryEntity(
+      id: id ?? this.id,
+      workOrderId: workOrderId ?? this.workOrderId,
+      companyId: companyId ?? this.companyId,
+      userId: userId ?? this.userId,
+      action: action ?? this.action,
+      oldValue: oldValue ?? this.oldValue,
+      newValue: newValue ?? this.newValue,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  WorkOrderHistoryEntity annulOldValue() => WorkOrderHistoryEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        userId: userId,
+        action: action,
+        oldValue: null,
+        newValue: newValue,
+        createdAt: createdAt,
+      );
+
+  WorkOrderHistoryEntity annulNewValue() => WorkOrderHistoryEntity(
+        id: id,
+        workOrderId: workOrderId,
+        companyId: companyId,
+        userId: userId,
+        action: action,
+        oldValue: oldValue,
+        newValue: null,
+        createdAt: createdAt,
+      );
 }
