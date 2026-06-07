@@ -1,14 +1,142 @@
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
+import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
+import 'package:clean_architecture/core/data/handlers/error_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/core/utils/type_defs.dart';
+import 'package:clean_architecture/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
+import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
-
-abstract interface class MaintenancePlansLocalDataSource {}
+abstract interface class MaintenancePlansLocalDataSource {
+  FutureList<MaintenancePlanResponseModel> getPlans(String companyId);
+  FutureData<MaintenancePlanResponseModel> getPlanById(String id);
+  FutureBool savePlan(MaintenancePlanResponseModel plan);
+  FutureBool deletePlan(String id);
+}
 
 @LazySingleton(as: MaintenancePlansLocalDataSource)
 final class MaintenancePlansLocalDataSourceImpl implements MaintenancePlansLocalDataSource {
   MaintenancePlansLocalDataSourceImpl({
-    required LocalStorageClient localDatabase,
-  }) : _localDatabase = localDatabase;
+    required AppDatabase database,
+  }) : _database = database;
 
-  final LocalStorageClient _localDatabase;
+  final AppDatabase _database;
+
+  @override
+  FutureList<MaintenancePlanResponseModel> getPlans(String companyId) {
+    return ErrorHandler.execute(() async {
+      final list = await (_database.select(_database.maintenancePlans)
+            ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull()))
+          .get();
+
+      return SuccessState(
+        data: list
+            .map(
+              (t) => MaintenancePlanResponseModel(
+                id: t.id,
+                companyId: t.companyId,
+                assetId: t.assetId,
+                locationId: t.locationId,
+                title: t.title,
+                description: t.description,
+                frequency: Frequency.fromCode(t.frequency),
+                dayOfWeek: t.dayOfWeek,
+                dayOfMonth: t.dayOfMonth,
+                monthOfYear: t.monthOfYear,
+                checklistTemplateId: t.checklistTemplateId,
+                assignedToId: t.assignedToId,
+                priority: Priority.fromCode(t.priority),
+                isActive: t.isActive,
+                lastGeneratedAt: t.lastGeneratedAt,
+                nextDueDate: t.nextDueDate,
+                createdAt: t.createdAt,
+                updatedAt: t.updatedAt,
+                deletedAt: t.deletedAt,
+              ),
+            )
+            .toList(),
+      );
+    });
+  }
+
+  @override
+  FutureData<MaintenancePlanResponseModel> getPlanById(String id) {
+    return ErrorHandler.execute(() async {
+      final t = await (_database.select(_database.maintenancePlans)
+            ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
+          .getSingleOrNull();
+
+      if (t != null) {
+        return SuccessState(
+          data: MaintenancePlanResponseModel(
+            id: t.id,
+            companyId: t.companyId,
+            assetId: t.assetId,
+            locationId: t.locationId,
+            title: t.title,
+            description: t.description,
+            frequency: Frequency.fromCode(t.frequency),
+            dayOfWeek: t.dayOfWeek,
+            dayOfMonth: t.dayOfMonth,
+            monthOfYear: t.monthOfYear,
+            checklistTemplateId: t.checklistTemplateId,
+            assignedToId: t.assignedToId,
+            priority: Priority.fromCode(t.priority),
+            isActive: t.isActive,
+            lastGeneratedAt: t.lastGeneratedAt,
+            nextDueDate: t.nextDueDate,
+            createdAt: t.createdAt,
+            updatedAt: t.updatedAt,
+            deletedAt: t.deletedAt,
+          ),
+        );
+      }
+
+      return FailureState<MaintenancePlanResponseModel>(
+        message: 'Maintenance plan not found'.hardcoded,
+      );
+    });
+  }
+
+  @override
+  FutureBool savePlan(MaintenancePlanResponseModel plan) {
+    return ErrorHandler.execute(() async {
+      await _database.into(_database.maintenancePlans).insertOnConflictUpdate(
+            MaintenancePlansCompanion(
+              id: Value(plan.id),
+              companyId: Value(plan.companyId),
+              assetId: Value(plan.assetId),
+              locationId: Value(plan.locationId),
+              title: Value(plan.title),
+              description: Value(plan.description),
+              frequency: Value(plan.frequency.code),
+              dayOfWeek: Value(plan.dayOfWeek),
+              dayOfMonth: Value(plan.dayOfMonth),
+              monthOfYear: Value(plan.monthOfYear),
+              checklistTemplateId: Value(plan.checklistTemplateId),
+              assignedToId: Value(plan.assignedToId),
+              priority: Value(plan.priority.code),
+              isActive: Value(plan.isActive),
+              lastGeneratedAt: Value(plan.lastGeneratedAt),
+              nextDueDate: Value(plan.nextDueDate),
+              createdAt: Value(plan.createdAt),
+              updatedAt: Value(plan.updatedAt),
+              deletedAt: Value(plan.deletedAt),
+            ),
+          );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deletePlan(String id) {
+    return ErrorHandler.execute(() async {
+      await (_database.update(_database.maintenancePlans)
+            ..where((t) => t.id.equals(id)))
+          .write(MaintenancePlansCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
 }
