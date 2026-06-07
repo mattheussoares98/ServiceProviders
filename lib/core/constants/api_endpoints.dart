@@ -24,5 +24,28 @@ class ApiEndpoints {
   // Assets
   static const assets = 'api/assets';
   static String assetById(String id) => 'api/assets/$id';
+
+  // Work Orders
+  static const workOrders = 'api/work-orders';
+  static String workOrderById(String id) => 'api/work-orders/$id';
+
+  // Tasks
+  static const tasks = 'api/tasks';
+  static String taskById(String id) => 'api/tasks/$id';
+
+  // Change Requests
+  static const changeRequests = 'api/change-requests';
+  static String changeRequestById(String id) => 'api/change-requests/$id';
+
+  // History
+  static const workOrderHistory = 'api/work-order-history';
+
+  // Checklist Templates
+  static const checklistTemplates = 'api/checklist-templates';
+  static String checklistTemplateById(String id) => 'api/checklist-templates/$id';
+
+  // Checklist Items
+  static const checklistItems = 'api/checklist-items';
+  static String checklistItemById(String id) => 'api/checklist-items/$id';
 }
 

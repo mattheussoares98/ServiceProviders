@@ -4,6 +4,18 @@ import 'package:clean_architecture/features/assets/domain/entities/asset_status.
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/task_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_request_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_type.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
+import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:faker/faker.dart';
 
 abstract final class EntityFactory {
@@ -154,6 +166,244 @@ abstract final class EntityFactory {
       makeAssetEntity(),
       makeAssetEntity(),
       makeAssetEntity(),
+    ];
+  }
+
+  // WorkOrder
+  static WorkOrderEntity makeWorkOrderEntity({
+    String? id,
+    String? companyId,
+    String? assetId,
+    String? locationId,
+    String? assignedToId,
+    String? createdById,
+    String? maintenancePlanId,
+    String? title,
+    String? description,
+    Priority? priority,
+    WorkOrderStatus? status,
+    WorkOrderType? type,
+    DateTime? scheduledDate,
+    DateTime? startedAt,
+    DateTime? completedAt,
+    int? estimatedDuration,
+    int? actualDuration,
+    double? laborCost,
+    double? partsCost,
+    double? totalCost,
+    String? notes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return WorkOrderEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      assetId: assetId ?? faker.guid.guid(),
+      locationId: locationId ?? faker.guid.guid(),
+      assignedToId: assignedToId ?? faker.guid.guid(),
+      createdById: createdById ?? faker.guid.guid(),
+      maintenancePlanId: maintenancePlanId ?? faker.guid.guid(),
+      title: title ?? faker.company.name(),
+      description: description ?? faker.lorem.sentence(),
+      priority: priority ?? Priority.medium,
+      status: status ?? WorkOrderStatus.open,
+      type: type ?? WorkOrderType.corrective,
+      scheduledDate: scheduledDate ?? faker.date.dateTime(),
+      startedAt: startedAt,
+      completedAt: completedAt,
+      estimatedDuration: estimatedDuration ?? faker.randomGenerator.integer(120),
+      actualDuration: actualDuration,
+      laborCost: laborCost ?? faker.randomGenerator.decimal(),
+      partsCost: partsCost ?? faker.randomGenerator.decimal(),
+      totalCost: totalCost ?? faker.randomGenerator.decimal(),
+      notes: notes ?? faker.lorem.sentence(),
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<WorkOrderEntity> makeWorkOrderEntityList() {
+    return [
+      makeWorkOrderEntity(),
+      makeWorkOrderEntity(),
+      makeWorkOrderEntity(),
+    ];
+  }
+
+  // Task
+  static TaskEntity makeTaskEntity({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? title,
+    String? description,
+    bool? isCompleted,
+    DateTime? completedAt,
+    String? completedById,
+    int? sortOrder,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return TaskEntity(
+      id: id ?? faker.guid.guid(),
+      workOrderId: workOrderId ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      title: title ?? faker.lorem.word(),
+      description: description ?? faker.lorem.sentence(),
+      isCompleted: isCompleted ?? false,
+      completedAt: completedAt,
+      completedById: completedById,
+      sortOrder: sortOrder ?? faker.randomGenerator.integer(10),
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<TaskEntity> makeTaskEntityList() {
+    return [
+      makeTaskEntity(),
+      makeTaskEntity(),
+      makeTaskEntity(),
+    ];
+  }
+
+  // WorkOrderChangeRequest
+  static WorkOrderChangeRequestEntity makeWorkOrderChangeRequestEntity({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? requestedById,
+    WorkOrderChangeType? changeType,
+    String? changeData,
+    ChangeRequestStatus? status,
+    String? reviewedById,
+    String? rejectionReason,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return WorkOrderChangeRequestEntity(
+      id: id ?? faker.guid.guid(),
+      workOrderId: workOrderId ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      requestedById: requestedById ?? faker.guid.guid(),
+      changeType: changeType ?? WorkOrderChangeType.updateNotes,
+      changeData: changeData ?? '{"notes": "Updated notes"}',
+      status: status ?? ChangeRequestStatus.pending,
+      reviewedById: reviewedById,
+      rejectionReason: rejectionReason,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<WorkOrderChangeRequestEntity> makeWorkOrderChangeRequestEntityList() {
+    return [
+      makeWorkOrderChangeRequestEntity(),
+      makeWorkOrderChangeRequestEntity(),
+      makeWorkOrderChangeRequestEntity(),
+    ];
+  }
+
+  // WorkOrderHistory
+  static WorkOrderHistoryEntity makeWorkOrderHistoryEntity({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? userId,
+    String? action,
+    String? oldValue,
+    String? newValue,
+    DateTime? createdAt,
+  }) {
+    return WorkOrderHistoryEntity(
+      id: id ?? faker.guid.guid(),
+      workOrderId: workOrderId ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      userId: userId ?? faker.guid.guid(),
+      action: action ?? 'status_change',
+      oldValue: oldValue ?? 'open',
+      newValue: newValue ?? 'in_progress',
+      createdAt: createdAt ?? faker.date.dateTime(),
+    );
+  }
+
+  static List<WorkOrderHistoryEntity> makeWorkOrderHistoryEntityList() {
+    return [
+      makeWorkOrderHistoryEntity(),
+      makeWorkOrderHistoryEntity(),
+      makeWorkOrderHistoryEntity(),
+    ];
+  }
+
+  // ChecklistTemplate
+  static ChecklistTemplateEntity makeChecklistTemplateEntity({
+    String? id,
+    String? companyId,
+    String? name,
+    String? description,
+    String? categoryId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return ChecklistTemplateEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      name: name ?? faker.company.name(),
+      description: description ?? faker.lorem.sentence(),
+      categoryId: categoryId,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<ChecklistTemplateEntity> makeChecklistTemplateEntityList() {
+    return [
+      makeChecklistTemplateEntity(),
+      makeChecklistTemplateEntity(),
+      makeChecklistTemplateEntity(),
+    ];
+  }
+
+  // ChecklistItem
+  static ChecklistItemEntity makeChecklistItemEntity({
+    String? id,
+    String? templateId,
+    String? companyId,
+    String? label,
+    ChecklistItemType? type,
+    bool? isRequired,
+    List<String>? options,
+    int? sortOrder,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return ChecklistItemEntity(
+      id: id ?? faker.guid.guid(),
+      templateId: templateId ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      label: label ?? faker.lorem.word(),
+      type: type ?? ChecklistItemType.boolean,
+      isRequired: isRequired ?? false,
+      options: options ?? (type == ChecklistItemType.selection ? ['Sim', 'Não'] : null),
+      sortOrder: sortOrder ?? faker.randomGenerator.integer(10),
+      createdAt: createdAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<ChecklistItemEntity> makeChecklistItemEntityList() {
+    return [
+      makeChecklistItemEntity(),
+      makeChecklistItemEntity(),
+      makeChecklistItemEntity(),
     ];
   }
 }

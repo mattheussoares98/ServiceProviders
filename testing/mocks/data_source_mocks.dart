@@ -9,6 +9,10 @@ import 'package:clean_architecture/features/company/data/data_sources/company_lo
 import 'package:clean_architecture/features/company/data/data_sources/company_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
+import 'package:clean_architecture/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
+import 'package:clean_architecture/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
+import 'package:clean_architecture/features/checklists/data/data_sources/checklists_local_data_source.dart';
+import 'package:clean_architecture/features/checklists/data/data_sources/checklists_remote_data_source.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -40,3 +44,15 @@ class MockAssetsRemoteDataSource extends Mock
     implements AssetsRemoteDataSource {}
 
 class MockAssetsLocalDataSource extends Mock implements AssetsLocalDataSource {}
+
+class MockWorkOrdersRemoteDataSource extends Mock
+    implements WorkOrdersRemoteDataSource {}
+
+class MockWorkOrdersLocalDataSource extends Mock
+    implements WorkOrdersLocalDataSource {}
+
+class MockChecklistsRemoteDataSource extends Mock
+    implements ChecklistsRemoteDataSource {}
+
+class MockChecklistsLocalDataSource extends Mock
+    implements ChecklistsLocalDataSource {}
