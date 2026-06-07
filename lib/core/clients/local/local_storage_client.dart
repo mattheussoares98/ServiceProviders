@@ -34,14 +34,16 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   UserDataEntity? _userSession;
 
   Future<void> init() async {
-    final setting = await (_database.select(_database.appSettings)
-          ..where((t) => t.id.equals(1)))
-        .getSingleOrNull();
+    final setting = await (_database.select(
+      _database.appSettings,
+    )..where((t) => t.id.equals(1))).getSingleOrNull();
     if (setting != null) {
       _themeMode = setting.themeMode;
     }
 
-    final session = await _database.select(_database.userSessions).getSingleOrNull();
+    final session = await (_database.select(
+      _database.userSessions,
+    )..limit(1)).getSingleOrNull();
     if (session != null) {
       _userSession = UserDataEntity(
         user: UserEntity(
@@ -59,12 +61,11 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   @override
   Future<void> saveThemeMode(String themeMode) async {
     _themeMode = themeMode;
-    await _database.into(_database.appSettings).insertOnConflictUpdate(
-      AppSettingsCompanion(
-        id: const Value(1),
-        themeMode: Value(themeMode),
-      ),
-    );
+    await _database
+        .into(_database.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion(id: const Value(1), themeMode: Value(themeMode)),
+        );
   }
 
   @override
@@ -73,16 +74,18 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
     _userSession = userSession;
-    await _database.into(_database.userSessions).insertOnConflictUpdate(
-      UserSessionsCompanion(
-        id: Value(userSession.user.id),
-        name: Value(userSession.user.name),
-        email: Value(userSession.user.email),
-        isActive: Value(userSession.user.isActive),
-        accessToken: Value(userSession.accessToken),
-        refreshToken: Value(userSession.refreshToken),
-      ),
-    );
+    await _database
+        .into(_database.userSessions)
+        .insertOnConflictUpdate(
+          UserSessionsCompanion(
+            id: Value(userSession.user.id),
+            name: Value(userSession.user.name),
+            email: Value(userSession.user.email),
+            isActive: Value(userSession.user.isActive),
+            accessToken: Value(userSession.accessToken),
+            refreshToken: Value(userSession.refreshToken),
+          ),
+        );
   }
 
   @override

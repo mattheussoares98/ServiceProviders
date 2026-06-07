@@ -61,6 +61,7 @@ class LoginCubit extends BaseCubit<LoginState> {
 
     if (dataState is SuccessState) {
       _useCases.setSession(dataState.data!);
+      await _useCases.saveUserData(dataState.data!);
       //because it navigates to the home page, doesn't need to emit a new state
       await replaceAllRoute(const HomeRoute());
     }
