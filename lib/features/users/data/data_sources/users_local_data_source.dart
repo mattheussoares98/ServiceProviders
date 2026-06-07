@@ -60,13 +60,11 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               .getSingleOrNull();
 
       if (t != null) {
-        return SuccessState(
-          data: UserProfileResponseModel.fromDb(t),
-        );
+        return SuccessState(data: UserProfileResponseModel.fromDb(t));
       }
 
       return FailureState<UserProfileResponseModel>(
-        message: 'User profile not found'.hardcoded,
+        message: 'Usuário não encontrado'.hardcoded,
       );
     });
   }

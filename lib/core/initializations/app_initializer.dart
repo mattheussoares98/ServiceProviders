@@ -2,6 +2,7 @@ import 'package:clean_architecture/config/injector/injector.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/initializations/notifications_initialization.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/seed_local_user_profile_use_case.dart';
 import 'package:clean_architecture/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -17,7 +18,14 @@ abstract final class AppInitializer {
 
       await Future.wait([_initFirebase(), _initSupabase()]);
       await configureDependencies(environment: environment);
-      await GetIt.I<SessionRepository>().checkForUserCredential();
+
+      final sessionRepo = GetIt.I<SessionRepository>();
+      await sessionRepo.checkForUserCredential();
+
+      // V1: Seed a local user profile on app restart if one doesn't exist
+      if (sessionRepo.isLoggedIn) {
+        await GetIt.I<SeedLocalUserProfileUseCase>()(sessionRepo.userData);
+      }
     });
   }
 

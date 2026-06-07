@@ -8,6 +8,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_ca
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/seed_local_user_profile_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
@@ -37,6 +38,7 @@ void main() {
   late UserDataEntity userData;
   late MockGetUserDataUseCase mockGetUserDataUseCase;
   late MockSaveUserDataUseCase mockSaveUserDataUseCase;
+  late MockSeedLocalUserProfileUseCase mockSeedLocalUserProfileUseCase;
 
   setUpAll(() {
     userData = EntityFactory.makeUserDataEntity().copyWith(
@@ -56,6 +58,7 @@ void main() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockGetUserDataUseCase = MockGetUserDataUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
+    mockSeedLocalUserProfileUseCase = MockSeedLocalUserProfileUseCase();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -65,7 +68,10 @@ void main() {
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
-      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase);
+      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase)
+      ..registerSingleton<SeedLocalUserProfileUseCase>(
+        mockSeedLocalUserProfileUseCase,
+      );
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
@@ -74,6 +80,7 @@ void main() {
       setSession: mockSetSessionUseCase,
       getUserData: mockGetUserDataUseCase,
       saveUserData: mockSaveUserDataUseCase,
+      seedLocalUserProfile: mockSeedLocalUserProfileUseCase,
     );
     loginCubit = LoginCubit(useCases: useCases);
   });
@@ -97,6 +104,9 @@ void main() {
       when(
         () => mockSaveUserDataUseCase.call(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockSeedLocalUserProfileUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState.nil);
 
       return loginCubit;
     },
@@ -110,6 +120,7 @@ void main() {
       verify(() => mockLoginUseCase.call(any())).called(1);
       verify(() => mockSetSessionUseCase.call(any())).called(1);
       verify(() => mockSaveUserDataUseCase.call(any())).called(1);
+      verify(() => mockSeedLocalUserProfileUseCase.call(any())).called(1);
       verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
     },
   );

@@ -35,6 +35,21 @@ final class SessionRepositoryImpl implements SessionRepository {
     final response = await _localDataSource.getUserData();
     if (response != null) {
       _userData = response.toEntity();
+    } else if (_auth.currentSession != null) {
+      final supabaseUser = _auth.currentSession!.user;
+      _userData = UserDataEntity(
+        user: UserEntity(
+          id: supabaseUser.id,
+          name: supabaseUser.userMetadata?['name'] as String? ?? '',
+          email: supabaseUser.email ?? '',
+          isActive: true,
+        ),
+        accessToken: _auth.currentSession!.accessToken,
+        refreshToken: _auth.currentSession!.refreshToken ?? '',
+      );
+      await _localDataSource.saveUserData(
+        UserDataResponseModel.fromEntity(_userData),
+      );
     }
   }
 

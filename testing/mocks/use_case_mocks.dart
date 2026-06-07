@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_ca
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/seed_local_user_profile_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:mocktail/mocktail.dart';
@@ -23,3 +24,6 @@ class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
 class MockGetUserDataUseCase extends Mock implements GetUserDataUseCase {}
 
 class MockSaveUserDataUseCase extends Mock implements SaveUserDataUseCase {}
+
+class MockSeedLocalUserProfileUseCase extends Mock
+    implements SeedLocalUserProfileUseCase {}
