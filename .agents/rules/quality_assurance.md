@@ -31,7 +31,7 @@ You do NOT write feature logic or UI. You test the code written by the Feature a
    - Remember to register fallback values using `registerFallbackValue()` in `setUpAll` if you need to use `any()` with custom classes.
 3. **Data States:** Always test both `SuccessState` and `FailureState` outcomes for repositories and data sources.
 4. **Mock Locations:** Centralize mocks or reuse existing mocks. The project typically stores them in `test/testing/mocks/`.
-5. **Implementation-Then-Tests Sequence:** Always implement a component (datasource, repository, usecase, etc.) and write/run its tests immediately after, in sequence, before moving on to implement other components or features. If modifying an existing class, check for corresponding test files and verify that all tests pass before making changes to other components.
+5. **Test Verification Sequence:** When creating or changing a datasource, repository, usecase, or any class that can have tests, always check if there is an existing test file. If it exists, verify that all tests pass, but only when the changes made could break them. The sequence of actions must always be: write the implementation of a component, then immediately write/update/run its tests, before moving on to make changes to other files or components.
 
 ---
 
