@@ -23,10 +23,7 @@ enum PermissionAction {
   create('create'),
   read('read'),
   update('update'),
-  delete('delete'),
-  viewAssigned('view_assigned'),
-  updateStatus('update_status'),
-  fill('fill');
+  delete('delete');
 
   const PermissionAction(this.code);
   final String code;
@@ -49,16 +46,9 @@ class ResourcePermissionEntity extends Equatable {
   final Set<PermissionAction> actions;
 
   bool get canCreate => actions.contains(PermissionAction.create);
-  bool get canRead =>
-      actions.contains(PermissionAction.read) ||
-      actions.contains(PermissionAction.viewAssigned);
-  bool get canUpdate =>
-      actions.contains(PermissionAction.update) ||
-      actions.contains(PermissionAction.updateStatus);
+  bool get canRead => actions.contains(PermissionAction.read);
+  bool get canUpdate => actions.contains(PermissionAction.update);
   bool get canDelete => actions.contains(PermissionAction.delete);
-  bool get canViewAssigned => actions.contains(PermissionAction.viewAssigned);
-  bool get canUpdateStatus => actions.contains(PermissionAction.updateStatus);
-  bool get canFill => actions.contains(PermissionAction.fill);
 
   @override
   List<Object?> get props => [resource, actions];

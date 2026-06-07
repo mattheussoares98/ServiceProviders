@@ -7,7 +7,6 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
@@ -19,16 +18,17 @@ abstract interface class UsersLocalDataSource {
   FutureBool deleteUserProfile(String id);
 
   // Permission Groups
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(String companyId);
+  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+    String companyId,
+  );
   FutureBool savePermissionGroup(PermissionGroupResponseModel group);
   FutureBool deletePermissionGroup(String id);
 }
 
 @LazySingleton(as: UsersLocalDataSource)
 final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
-  UsersLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+  UsersLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
@@ -39,28 +39,14 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   @override
   FutureList<UserProfileResponseModel> getUserProfiles(String companyId) {
     return ErrorHandler.execute(() async {
-      final list = await (_database.select(_database.userProfiles)
-            ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull()))
-          .get();
+      final list =
+          await (_database.select(_database.userProfiles)..where(
+                (t) => t.companyId.equals(companyId) & t.deletedAt.isNull(),
+              ))
+              .get();
 
       return SuccessState(
-        data: list
-            .map(
-              (t) => UserProfileResponseModel(
-                id: t.id,
-                companyId: t.companyId,
-                name: t.name,
-                email: t.email,
-                phone: t.phone,
-                permissionGroupId: t.permissionGroupId,
-                avatarUrl: t.avatarUrl,
-                isActive: t.isActive,
-                createdAt: t.createdAt,
-                updatedAt: t.updatedAt,
-                deletedAt: t.deletedAt,
-              ),
-            )
-            .toList(),
+        data: list.map(UserProfileResponseModel.fromDb).toList(),
       );
     });
   }
@@ -68,25 +54,14 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   @override
   FutureData<UserProfileResponseModel> getUserProfileById(String id) {
     return ErrorHandler.execute(() async {
-      final t = await (_database.select(_database.userProfiles)
-            ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
-          .getSingleOrNull();
+      final t =
+          await (_database.select(_database.userProfiles)
+                ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
+              .getSingleOrNull();
 
       if (t != null) {
         return SuccessState(
-          data: UserProfileResponseModel(
-            id: t.id,
-            companyId: t.companyId,
-            name: t.name,
-            email: t.email,
-            phone: t.phone,
-            permissionGroupId: t.permissionGroupId,
-            avatarUrl: t.avatarUrl,
-            isActive: t.isActive,
-            createdAt: t.createdAt,
-            updatedAt: t.updatedAt,
-            deletedAt: t.deletedAt,
-          ),
+          data: UserProfileResponseModel.fromDb(t),
         );
       }
 
@@ -99,7 +74,9 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   @override
   FutureBool saveUserProfile(UserProfileResponseModel user) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.userProfiles).insertOnConflictUpdate(
+      await _database
+          .into(_database.userProfiles)
+          .insertOnConflictUpdate(
             UserProfilesCompanion(
               id: Value(user.id),
               companyId: Value(user.companyId),
@@ -133,25 +110,18 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(String companyId) {
+  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+    String companyId,
+  ) {
     return ErrorHandler.execute(() async {
-      final list = await (_database.select(_database.permissionGroups)
-            ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull()))
-          .get();
+      final list =
+          await (_database.select(_database.permissionGroups)..where(
+                (t) => t.companyId.equals(companyId) & t.deletedAt.isNull(),
+              ))
+              .get();
 
       return SuccessState(
-        data: list.map((t) {
-          final jsonMap = {
-            'id': t.id,
-            'company_id': t.companyId,
-            'name': t.name,
-            'permissions': t.permissions,
-            'is_default': t.isDefault,
-            'created_at': t.createdAt.toIso8601String(),
-            'deleted_at': t.deletedAt?.toIso8601String(),
-          };
-          return PermissionGroupResponseModel.fromJson(jsonMap);
-        }).toList(),
+        data: list.map(PermissionGroupResponseModel.fromDb).toList(),
       );
     });
   }
@@ -159,7 +129,9 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   @override
   FutureBool savePermissionGroup(PermissionGroupResponseModel group) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.permissionGroups).insertOnConflictUpdate(
+      await _database
+          .into(_database.permissionGroups)
+          .insertOnConflictUpdate(
             PermissionGroupsCompanion(
               id: Value(group.id),
               companyId: Value(group.companyId),

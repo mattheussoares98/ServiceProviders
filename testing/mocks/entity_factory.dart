@@ -287,10 +287,7 @@ abstract final class EntityFactory {
       permissions: const [
         ResourcePermissionEntity(
           resource: ResourceType.workOrders,
-          actions: {
-            PermissionAction.viewAssigned,
-            PermissionAction.updateStatus,
-          },
+          actions: {PermissionAction.create, PermissionAction.update},
         ),
         ResourcePermissionEntity(
           resource: ResourceType.attachments,

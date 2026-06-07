@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
@@ -31,6 +32,21 @@ class UserProfileResponseModel extends UserProfileEntity
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
+      );
+
+  factory UserProfileResponseModel.fromDb(UserProfile db) =>
+      UserProfileResponseModel(
+        id: db.id,
+        companyId: db.companyId,
+        name: db.name,
+        email: db.email,
+        phone: db.phone,
+        permissionGroupId: db.permissionGroupId,
+        avatarUrl: db.avatarUrl,
+        isActive: db.isActive,
+        createdAt: db.createdAt,
+        updatedAt: db.updatedAt,
+        deletedAt: db.deletedAt,
       );
 
   factory UserProfileResponseModel.fromJson(MapDynamic json) =>
