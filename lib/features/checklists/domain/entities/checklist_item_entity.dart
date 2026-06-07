@@ -51,6 +51,8 @@ class ChecklistItemEntity extends Equatable {
     int? sortOrder,
     DateTime? createdAt,
     DateTime? deletedAt,
+    bool? annulOptions,
+    bool? annulDeletedAt,
   }) {
     return ChecklistItemEntity(
       id: id ?? this.id,
@@ -59,36 +61,10 @@ class ChecklistItemEntity extends Equatable {
       label: label ?? this.label,
       type: type ?? this.type,
       isRequired: isRequired ?? this.isRequired,
-      options: options ?? this.options,
+      options: annulOptions == true ? null : options ?? this.options,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  ChecklistItemEntity annulOptions() => ChecklistItemEntity(
-        id: id,
-        templateId: templateId,
-        companyId: companyId,
-        label: label,
-        type: type,
-        isRequired: isRequired,
-        options: null,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
-
-  ChecklistItemEntity annulDeletedAt() => ChecklistItemEntity(
-        id: id,
-        templateId: templateId,
-        companyId: companyId,
-        label: label,
-        type: type,
-        isRequired: isRequired,
-        options: options,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        deletedAt: null,
-      );
 }

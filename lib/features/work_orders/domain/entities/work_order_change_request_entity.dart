@@ -60,6 +60,9 @@ class WorkOrderChangeRequestEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulReviewedById,
+    bool? annulRejectionReason,
+    bool? annulDeletedAt,
   }) {
     return WorkOrderChangeRequestEntity(
       id: id ?? this.id,
@@ -69,56 +72,11 @@ class WorkOrderChangeRequestEntity extends Equatable {
       changeType: changeType ?? this.changeType,
       changeData: changeData ?? this.changeData,
       status: status ?? this.status,
-      reviewedById: reviewedById ?? this.reviewedById,
-      rejectionReason: rejectionReason ?? this.rejectionReason,
+      reviewedById: annulReviewedById == true ? null : reviewedById ?? this.reviewedById,
+      rejectionReason: annulRejectionReason == true ? null : rejectionReason ?? this.rejectionReason,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  WorkOrderChangeRequestEntity annulReviewedById() => WorkOrderChangeRequestEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        requestedById: requestedById,
-        changeType: changeType,
-        changeData: changeData,
-        status: status,
-        reviewedById: null,
-        rejectionReason: rejectionReason,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  WorkOrderChangeRequestEntity annulRejectionReason() => WorkOrderChangeRequestEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        requestedById: requestedById,
-        changeType: changeType,
-        changeData: changeData,
-        status: status,
-        reviewedById: reviewedById,
-        rejectionReason: null,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  WorkOrderChangeRequestEntity annulDeletedAt() => WorkOrderChangeRequestEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        requestedById: requestedById,
-        changeType: changeType,
-        changeData: changeData,
-        status: status,
-        reviewedById: reviewedById,
-        rejectionReason: rejectionReason,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: null,
-      );
 }

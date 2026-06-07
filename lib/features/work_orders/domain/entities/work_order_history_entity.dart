@@ -42,6 +42,8 @@ class WorkOrderHistoryEntity extends Equatable {
     String? oldValue,
     String? newValue,
     DateTime? createdAt,
+    bool? annulOldValue,
+    bool? annulNewValue,
   }) {
     return WorkOrderHistoryEntity(
       id: id ?? this.id,
@@ -49,31 +51,9 @@ class WorkOrderHistoryEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       userId: userId ?? this.userId,
       action: action ?? this.action,
-      oldValue: oldValue ?? this.oldValue,
-      newValue: newValue ?? this.newValue,
+      oldValue: annulOldValue == true ? null : oldValue ?? this.oldValue,
+      newValue: annulNewValue == true ? null : newValue ?? this.newValue,
       createdAt: createdAt ?? this.createdAt,
     );
   }
-
-  WorkOrderHistoryEntity annulOldValue() => WorkOrderHistoryEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        userId: userId,
-        action: action,
-        oldValue: null,
-        newValue: newValue,
-        createdAt: createdAt,
-      );
-
-  WorkOrderHistoryEntity annulNewValue() => WorkOrderHistoryEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        userId: userId,
-        action: action,
-        oldValue: oldValue,
-        newValue: null,
-        createdAt: createdAt,
-      );
 }

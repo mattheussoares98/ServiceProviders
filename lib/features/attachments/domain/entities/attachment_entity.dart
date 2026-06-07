@@ -64,6 +64,10 @@ class AttachmentEntity extends Equatable {
     UploadStatus? uploadStatus,
     DateTime? createdAt,
     DateTime? deletedAt,
+    bool? annulLocalPath,
+    bool? annulRemoteUrl,
+    bool? annulFileSizeBytes,
+    bool? annulDeletedAt,
   }) {
     return AttachmentEntity(
       id: id ?? this.id,
@@ -72,77 +76,13 @@ class AttachmentEntity extends Equatable {
       uploadedById: uploadedById ?? this.uploadedById,
       fileName: fileName ?? this.fileName,
       fileType: fileType ?? this.fileType,
-      localPath: localPath ?? this.localPath,
-      remoteUrl: remoteUrl ?? this.remoteUrl,
-      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      localPath: annulLocalPath == true ? null : localPath ?? this.localPath,
+      remoteUrl: annulRemoteUrl == true ? null : remoteUrl ?? this.remoteUrl,
+      fileSizeBytes: annulFileSizeBytes == true ? null : fileSizeBytes ?? this.fileSizeBytes,
       isCompressed: isCompressed ?? this.isCompressed,
       uploadStatus: uploadStatus ?? this.uploadStatus,
       createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  AttachmentEntity annulLocalPath() => AttachmentEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        uploadedById: uploadedById,
-        fileName: fileName,
-        fileType: fileType,
-        localPath: null,
-        remoteUrl: remoteUrl,
-        fileSizeBytes: fileSizeBytes,
-        isCompressed: isCompressed,
-        uploadStatus: uploadStatus,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
-
-  AttachmentEntity annulRemoteUrl() => AttachmentEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        uploadedById: uploadedById,
-        fileName: fileName,
-        fileType: fileType,
-        localPath: localPath,
-        remoteUrl: null,
-        fileSizeBytes: fileSizeBytes,
-        isCompressed: isCompressed,
-        uploadStatus: uploadStatus,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
-
-  AttachmentEntity annulFileSizeBytes() => AttachmentEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        uploadedById: uploadedById,
-        fileName: fileName,
-        fileType: fileType,
-        localPath: localPath,
-        remoteUrl: remoteUrl,
-        fileSizeBytes: null,
-        isCompressed: isCompressed,
-        uploadStatus: uploadStatus,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
-
-  AttachmentEntity annulDeletedAt() => AttachmentEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        uploadedById: uploadedById,
-        fileName: fileName,
-        fileType: fileType,
-        localPath: localPath,
-        remoteUrl: remoteUrl,
-        fileSizeBytes: fileSizeBytes,
-        isCompressed: isCompressed,
-        uploadStatus: uploadStatus,
-        createdAt: createdAt,
-        deletedAt: null,
-      );
 }

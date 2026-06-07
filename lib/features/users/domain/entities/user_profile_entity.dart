@@ -54,75 +54,23 @@ class UserProfileEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulPhone,
+    bool? annulPermissionGroupId,
+    bool? annulAvatarUrl,
+    bool? annulDeletedAt,
   }) {
     return UserProfileEntity(
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
       email: email ?? this.email,
-      phone: phone ?? this.phone,
-      permissionGroupId: permissionGroupId ?? this.permissionGroupId,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
+      phone: annulPhone == true ? null : phone ?? this.phone,
+      permissionGroupId: annulPermissionGroupId == true ? null : permissionGroupId ?? this.permissionGroupId,
+      avatarUrl: annulAvatarUrl == true ? null : avatarUrl ?? this.avatarUrl,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  UserProfileEntity annulPhone() => UserProfileEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        email: email,
-        phone: null,
-        permissionGroupId: permissionGroupId,
-        avatarUrl: avatarUrl,
-        isActive: isActive,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  UserProfileEntity annulPermissionGroupId() => UserProfileEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        email: email,
-        phone: phone,
-        permissionGroupId: null,
-        avatarUrl: avatarUrl,
-        isActive: isActive,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  UserProfileEntity annulAvatarUrl() => UserProfileEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        email: email,
-        phone: phone,
-        permissionGroupId: permissionGroupId,
-        avatarUrl: null,
-        isActive: isActive,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  UserProfileEntity annulDeletedAt() => UserProfileEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        email: email,
-        phone: phone,
-        permissionGroupId: permissionGroupId,
-        avatarUrl: avatarUrl,
-        isActive: isActive,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: null,
-      );
 }

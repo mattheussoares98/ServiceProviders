@@ -33,7 +33,7 @@ void main() {
         );
   }
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity().annulPermissionGroupId();
+  final tUserProfileEntity = EntityFactory.makeUserProfileEntity().copyWith(annulPermissionGroupId: true);
   final tUserProfileModel = UserProfileResponseModel.fromEntity(tUserProfileEntity);
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();

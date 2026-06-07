@@ -58,80 +58,24 @@ class TaskEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulDescription,
+    bool? annulCompletedAt,
+    bool? annulCompletedById,
+    bool? annulDeletedAt,
   }) {
     return TaskEntity(
       id: id ?? this.id,
       workOrderId: workOrderId ?? this.workOrderId,
       companyId: companyId ?? this.companyId,
       title: title ?? this.title,
-      description: description ?? this.description,
+      description: annulDescription == true ? null : description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
-      completedAt: completedAt ?? this.completedAt,
-      completedById: completedById ?? this.completedById,
+      completedAt: annulCompletedAt == true ? null : completedAt ?? this.completedAt,
+      completedById: annulCompletedById == true ? null : completedById ?? this.completedById,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  TaskEntity annulDescription() => TaskEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        title: title,
-        description: null,
-        isCompleted: isCompleted,
-        completedAt: completedAt,
-        completedById: completedById,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  TaskEntity annulCompletedAt() => TaskEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        title: title,
-        description: description,
-        isCompleted: isCompleted,
-        completedAt: null,
-        completedById: completedById,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  TaskEntity annulCompletedById() => TaskEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        title: title,
-        description: description,
-        isCompleted: isCompleted,
-        completedAt: completedAt,
-        completedById: null,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  TaskEntity annulDeletedAt() => TaskEntity(
-        id: id,
-        workOrderId: workOrderId,
-        companyId: companyId,
-        title: title,
-        description: description,
-        isCompleted: isCompleted,
-        completedAt: completedAt,
-        completedById: completedById,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: null,
-      );
 }

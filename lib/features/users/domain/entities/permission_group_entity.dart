@@ -39,6 +39,7 @@ class PermissionGroupEntity extends Equatable {
     bool? isDefault,
     DateTime? createdAt,
     DateTime? deletedAt,
+    bool? annulDeletedAt,
   }) {
     return PermissionGroupEntity(
       id: id ?? this.id,
@@ -47,17 +48,7 @@ class PermissionGroupEntity extends Equatable {
       permissions: permissions ?? this.permissions,
       isDefault: isDefault ?? this.isDefault,
       createdAt: createdAt ?? this.createdAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  PermissionGroupEntity annulDeletedAt() => PermissionGroupEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        permissions: permissions,
-        isDefault: isDefault,
-        createdAt: createdAt,
-        deletedAt: null,
-      );
 }

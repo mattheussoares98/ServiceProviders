@@ -42,49 +42,19 @@ class ChecklistTemplateEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulDescription,
+    bool? annulCategoryId,
+    bool? annulDeletedAt,
   }) {
     return ChecklistTemplateEntity(
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
-      description: description ?? this.description,
-      categoryId: categoryId ?? this.categoryId,
+      description: annulDescription == true ? null : description ?? this.description,
+      categoryId: annulCategoryId == true ? null : categoryId ?? this.categoryId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
-
-  ChecklistTemplateEntity annulDescription() => ChecklistTemplateEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        description: null,
-        categoryId: categoryId,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  ChecklistTemplateEntity annulCategoryId() => ChecklistTemplateEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        description: description,
-        categoryId: null,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
-
-  ChecklistTemplateEntity annulDeletedAt() => ChecklistTemplateEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        description: description,
-        categoryId: categoryId,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: null,
-      );
 }
