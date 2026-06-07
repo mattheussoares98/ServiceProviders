@@ -1,7 +1,10 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/checklists/data/data_sources/checklists_local_data_source.dart';
 import 'package:clean_architecture/features/checklists/data/data_sources/checklists_remote_data_source.dart';
+import 'package:clean_architecture/features/checklists/data/models/responses/checklist_item_response_model.dart';
+import 'package:clean_architecture/features/checklists/data/models/responses/checklist_template_response_model.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:clean_architecture/features/checklists/domain/repositories/checklists_repository.dart';
@@ -21,38 +24,50 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   final ChecklistsRemoteDataSource _remoteDataSource;
   final ChecklistsLocalDataSource _localDataSource;
 
-  // TODO: Wire to local/remote data sources with RepositoryHandler
   @override
   FutureList<ChecklistTemplateEntity> getTemplates(String companyId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        ChecklistTemplateResponseModel,
+        ChecklistTemplateEntity
+      >(localCallback: () => _localDataSource.getTemplates(companyId));
 
   @override
   FutureData<ChecklistTemplateEntity> getTemplateById(String id) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMap<
+        ChecklistTemplateResponseModel,
+        ChecklistTemplateEntity
+      >(localCallback: () => _localDataSource.getTemplateById(id));
 
   @override
   FutureBool createTemplate(ChecklistTemplateEntity template) =>
-      throw UnimplementedError();
+      _localDataSource.saveTemplate(
+        ChecklistTemplateResponseModel.fromEntity(template),
+      );
 
   @override
   FutureBool updateTemplate(ChecklistTemplateEntity template) =>
-      throw UnimplementedError();
+      _localDataSource.saveTemplate(
+        ChecklistTemplateResponseModel.fromEntity(template),
+      );
 
   @override
-  FutureBool deleteTemplate(String id) => throw UnimplementedError();
+  FutureBool deleteTemplate(String id) => _localDataSource.deleteTemplate(id);
 
   @override
   FutureList<ChecklistItemEntity> getItemsByTemplate(String templateId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        ChecklistItemResponseModel,
+        ChecklistItemEntity
+      >(localCallback: () => _localDataSource.getItemsByTemplate(templateId));
 
   @override
   FutureBool createItem(ChecklistItemEntity item) =>
-      throw UnimplementedError();
+      _localDataSource.saveItem(ChecklistItemResponseModel.fromEntity(item));
 
   @override
   FutureBool updateItem(ChecklistItemEntity item) =>
-      throw UnimplementedError();
+      _localDataSource.saveItem(ChecklistItemResponseModel.fromEntity(item));
 
   @override
-  FutureBool deleteItem(String id) => throw UnimplementedError();
+  FutureBool deleteItem(String id) => _localDataSource.deleteItem(id);
 }

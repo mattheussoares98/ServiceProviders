@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../../testing/helpers/test_factory.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
@@ -37,8 +37,8 @@ void main() {
   late MockGetUserDataUseCase mockGetUserDataUseCase;
 
   setUpAll(() {
-    userData = TestFactory.makeUserDataEntity().copyWith(
-      user: TestFactory.makeUserEntity(),
+    userData = EntityFactory.makeUserDataEntity().copyWith(
+      user: EntityFactory.makeUserEntity(),
     );
     registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());

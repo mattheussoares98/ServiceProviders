@@ -8,7 +8,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
   late GetCategoriesUseCase getCategoriesUseCase;
 
   setUpAll(() {
-    registerFallbackValue(TestFactory.makeCategoryEntity());
+    registerFallbackValue(EntityFactory.makeCategoryEntity());
   });
 
   setUp(() {
@@ -32,11 +32,11 @@ void main() {
     getCategoriesUseCase = GetCategoriesUseCase(categoriesRepository: mockRepository);
   });
 
-  final tCategory = TestFactory.makeCategoryEntity();
+  final tCategory = EntityFactory.makeCategoryEntity();
   final tCategories = [
-    TestFactory.makeCategoryEntity(),
-    TestFactory.makeCategoryEntity(),
-    TestFactory.makeCategoryEntity(),
+    EntityFactory.makeCategoryEntity(),
+    EntityFactory.makeCategoryEntity(),
+    EntityFactory.makeCategoryEntity(),
   ];
   final tCompanyId = faker.guid.guid();
   final tId = faker.guid.guid();

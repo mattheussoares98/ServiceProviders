@@ -15,7 +15,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -31,8 +31,8 @@ void main() {
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
 
   setUpAll(() {
-    registerFallbackValue(TestFactory.makeWorkOrderChangeRequestEntity());
-    registerFallbackValue(TestFactory.makeWorkOrderEntity());
+    registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
+    registerFallbackValue(EntityFactory.makeWorkOrderEntity());
     registerFallbackValue(ChangeRequestStatus.approved);
   });
 
@@ -66,7 +66,7 @@ void main() {
   });
 
   group('CreateWorkOrderChangeRequestUseCase', () {
-    final tChangeRequest = TestFactory.makeWorkOrderChangeRequestEntity();
+    final tChangeRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
 
     test('should return true on success', () async {
       // Arrange
@@ -101,7 +101,7 @@ void main() {
   });
 
   group('CreateWorkOrderUseCase', () {
-    final tWorkOrder = TestFactory.makeWorkOrderEntity();
+    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
 
     test('should return true on success', () async {
       // Arrange
@@ -136,7 +136,7 @@ void main() {
   });
 
   group('DeleteWorkOrderUseCase', () {
-    final tWorkOrderId = TestFactory.makeWorkOrderEntity().id;
+    final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
 
     test('should return true on success', () async {
       // Arrange
@@ -171,8 +171,8 @@ void main() {
   });
 
   group('GetWorkOrderChangeRequestsUseCase', () {
-    final tCompanyId = TestFactory.makeWorkOrderChangeRequestEntity().companyId;
-    final tRequests = TestFactory.makeWorkOrderChangeRequestEntityList();
+    final tCompanyId = EntityFactory.makeWorkOrderChangeRequestEntity().companyId;
+    final tRequests = EntityFactory.makeWorkOrderChangeRequestEntityList();
 
     test('should return a list of pending change requests on success', () async {
       // Arrange
@@ -208,8 +208,8 @@ void main() {
   });
 
   group('GetWorkOrderHistoryUseCase', () {
-    final tWorkOrderId = TestFactory.makeWorkOrderEntity().id;
-    final tHistory = TestFactory.makeWorkOrderHistoryEntityList();
+    final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
+    final tHistory = EntityFactory.makeWorkOrderHistoryEntityList();
 
     test('should return a list of work order history on success', () async {
       // Arrange
@@ -245,8 +245,8 @@ void main() {
   });
 
   group('GetWorkOrdersUseCase', () {
-    final tCompanyId = TestFactory.makeWorkOrderEntity().companyId;
-    final tWorkOrders = TestFactory.makeWorkOrderEntityList();
+    final tCompanyId = EntityFactory.makeWorkOrderEntity().companyId;
+    final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
 
     test('should return a list of work orders on success', () async {
       // Arrange
@@ -347,7 +347,7 @@ void main() {
   });
 
   group('UpdateWorkOrderUseCase', () {
-    final tWorkOrder = TestFactory.makeWorkOrderEntity();
+    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
 
     test('should return true on success', () async {
       // Arrange

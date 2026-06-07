@@ -1,3 +1,5 @@
+import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
@@ -24,27 +26,23 @@ import 'package:clean_architecture/features/maintenance_plans/domain/entities/fr
 import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
 import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
+import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
+import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:faker/faker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class EntityFactory {
   // Category
-  static CategoryEntity makeCategoryEntity({
-    String? id,
-    String? companyId,
-    String? name,
-    String? description,
-    String? color,
-    DateTime? createdAt,
-    DateTime? deletedAt,
-  }) {
+  static CategoryEntity makeCategoryEntity() {
     return CategoryEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.company.name(),
-      description: description ?? faker.lorem.sentence(),
-      color: color ?? faker.randomGenerator.string(7),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.company.name(),
+      description: faker.lorem.sentence(),
+      color: faker.randomGenerator.string(7),
+      createdAt: faker.date.dateTime(),
     );
   }
 
@@ -57,29 +55,17 @@ abstract final class EntityFactory {
   }
 
   // Location
-  static LocationEntity makeLocationEntity({
-    String? id,
-    String? companyId,
-    String? name,
-    String? address,
-    String? city,
-    String? state,
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static LocationEntity makeLocationEntity() {
     return LocationEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.company.name(),
-      address: address ?? faker.address.streetAddress(),
-      city: city ?? faker.address.city(),
-      state: state ?? faker.address.state(),
-      isActive: isActive ?? faker.randomGenerator.boolean(),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.company.name(),
+      address: faker.address.streetAddress(),
+      city: faker.address.city(),
+      state: faker.address.state(),
+      isActive: faker.randomGenerator.boolean(),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -92,27 +78,16 @@ abstract final class EntityFactory {
   }
 
   // Area
-  static AreaEntity makeAreaEntity({
-    String? id,
-    String? locationId,
-    String? companyId,
-    String? name,
-    String? floor,
-    String? description,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static AreaEntity makeAreaEntity() {
     return AreaEntity(
-      id: id ?? faker.guid.guid(),
-      locationId: locationId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.company.name(),
-      floor: floor ?? faker.randomGenerator.integer(10).toString(),
-      description: description ?? faker.lorem.sentence(),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      locationId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.company.name(),
+      floor: faker.randomGenerator.integer(10).toString(),
+      description: faker.lorem.sentence(),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -125,47 +100,21 @@ abstract final class EntityFactory {
   }
 
   // Asset
-  static AssetEntity makeAssetEntity({
-    String? id,
-    String? companyId,
-    String? areaId,
-    String? categoryId,
-    String? parentAssetId,
-    String? name,
-    String? code,
-    String? manufacturer,
-    String? model,
-    String? serialNumber,
-    DateTime? installDate,
-    DateTime? warrantyExpiration,
-    DateTime? revisionForecast,
-    AssetStatus? status,
-    AssetCriticality? criticality,
-    String? notes,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static AssetEntity makeAssetEntity() {
     return AssetEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      areaId: areaId ?? faker.guid.guid(),
-      categoryId: categoryId,
-      parentAssetId: parentAssetId,
-      name: name ?? faker.company.name(),
-      code: code ?? faker.randomGenerator.string(8),
-      manufacturer: manufacturer ?? faker.company.name(),
-      model: model ?? faker.vehicle.model(),
-      serialNumber: serialNumber ?? faker.randomGenerator.string(12),
-      installDate: installDate ?? faker.date.dateTime(),
-      warrantyExpiration: warrantyExpiration ?? faker.date.dateTime(),
-      revisionForecast: revisionForecast ?? faker.date.dateTime(),
-      status: status ?? AssetStatus.active,
-      criticality: criticality ?? AssetCriticality.medium,
-      notes: notes ?? faker.lorem.sentence(),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      areaId: faker.guid.guid(),
+      name: faker.company.name(),
+      code: faker.randomGenerator.string(8),
+      manufacturer: faker.company.name(),
+      model: faker.vehicle.model(),
+      serialNumber: faker.randomGenerator.string(12),
+      status: AssetStatus.active,
+      criticality: AssetCriticality.medium,
+      notes: faker.lorem.sentence(),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -178,57 +127,28 @@ abstract final class EntityFactory {
   }
 
   // WorkOrder
-  static WorkOrderEntity makeWorkOrderEntity({
-    String? id,
-    String? companyId,
-    String? assetId,
-    String? locationId,
-    String? assignedToId,
-    String? createdById,
-    String? maintenancePlanId,
-    String? title,
-    String? description,
-    Priority? priority,
-    WorkOrderStatus? status,
-    WorkOrderType? type,
-    DateTime? scheduledDate,
-    DateTime? startedAt,
-    DateTime? completedAt,
-    int? estimatedDuration,
-    int? actualDuration,
-    double? laborCost,
-    double? partsCost,
-    double? totalCost,
-    String? notes,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static WorkOrderEntity makeWorkOrderEntity() {
     return WorkOrderEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      assetId: assetId ?? faker.guid.guid(),
-      locationId: locationId ?? faker.guid.guid(),
-      assignedToId: assignedToId ?? faker.guid.guid(),
-      createdById: createdById ?? faker.guid.guid(),
-      maintenancePlanId: maintenancePlanId ?? faker.guid.guid(),
-      title: title ?? faker.company.name(),
-      description: description ?? faker.lorem.sentence(),
-      priority: priority ?? Priority.medium,
-      status: status ?? WorkOrderStatus.open,
-      type: type ?? WorkOrderType.corrective,
-      scheduledDate: scheduledDate ?? faker.date.dateTime(),
-      startedAt: startedAt,
-      completedAt: completedAt,
-      estimatedDuration: estimatedDuration ?? faker.randomGenerator.integer(120),
-      actualDuration: actualDuration,
-      laborCost: laborCost ?? faker.randomGenerator.decimal(),
-      partsCost: partsCost ?? faker.randomGenerator.decimal(),
-      totalCost: totalCost ?? faker.randomGenerator.decimal(),
-      notes: notes ?? faker.lorem.sentence(),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      assetId: faker.guid.guid(),
+      locationId: faker.guid.guid(),
+      assignedToId: faker.guid.guid(),
+      createdById: faker.guid.guid(),
+      maintenancePlanId: faker.guid.guid(),
+      title: faker.company.name(),
+      description: faker.lorem.sentence(),
+      priority: Priority.medium,
+      status: WorkOrderStatus.open,
+      type: WorkOrderType.corrective,
+      scheduledDate: faker.date.dateTime(),
+      estimatedDuration: faker.randomGenerator.integer(120),
+      laborCost: faker.randomGenerator.decimal(),
+      partsCost: faker.randomGenerator.decimal(),
+      totalCost: faker.randomGenerator.decimal(),
+      notes: faker.lorem.sentence(),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -241,33 +161,17 @@ abstract final class EntityFactory {
   }
 
   // Task
-  static TaskEntity makeTaskEntity({
-    String? id,
-    String? workOrderId,
-    String? companyId,
-    String? title,
-    String? description,
-    bool? isCompleted,
-    DateTime? completedAt,
-    String? completedById,
-    int? sortOrder,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static TaskEntity makeTaskEntity() {
     return TaskEntity(
-      id: id ?? faker.guid.guid(),
-      workOrderId: workOrderId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      title: title ?? faker.lorem.word(),
-      description: description ?? faker.lorem.sentence(),
-      isCompleted: isCompleted ?? false,
-      completedAt: completedAt,
-      completedById: completedById,
-      sortOrder: sortOrder ?? faker.randomGenerator.integer(10),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      title: faker.lorem.word(),
+      description: faker.lorem.sentence(),
+      isCompleted: false,
+      sortOrder: faker.randomGenerator.integer(10),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -280,33 +184,17 @@ abstract final class EntityFactory {
   }
 
   // WorkOrderChangeRequest
-  static WorkOrderChangeRequestEntity makeWorkOrderChangeRequestEntity({
-    String? id,
-    String? workOrderId,
-    String? companyId,
-    String? requestedById,
-    WorkOrderChangeType? changeType,
-    String? changeData,
-    ChangeRequestStatus? status,
-    String? reviewedById,
-    String? rejectionReason,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static WorkOrderChangeRequestEntity makeWorkOrderChangeRequestEntity() {
     return WorkOrderChangeRequestEntity(
-      id: id ?? faker.guid.guid(),
-      workOrderId: workOrderId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      requestedById: requestedById ?? faker.guid.guid(),
-      changeType: changeType ?? WorkOrderChangeType.updateNotes,
-      changeData: changeData ?? '{"notes": "Updated notes"}',
-      status: status ?? ChangeRequestStatus.pending,
-      reviewedById: reviewedById,
-      rejectionReason: rejectionReason,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      requestedById: faker.guid.guid(),
+      changeType: WorkOrderChangeType.updateNotes,
+      changeData: '{"notes": "Updated notes"}',
+      status: ChangeRequestStatus.pending,
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -319,25 +207,16 @@ abstract final class EntityFactory {
   }
 
   // WorkOrderHistory
-  static WorkOrderHistoryEntity makeWorkOrderHistoryEntity({
-    String? id,
-    String? workOrderId,
-    String? companyId,
-    String? userId,
-    String? action,
-    String? oldValue,
-    String? newValue,
-    DateTime? createdAt,
-  }) {
+  static WorkOrderHistoryEntity makeWorkOrderHistoryEntity() {
     return WorkOrderHistoryEntity(
-      id: id ?? faker.guid.guid(),
-      workOrderId: workOrderId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      userId: userId ?? faker.guid.guid(),
-      action: action ?? 'status_change',
-      oldValue: oldValue ?? 'open',
-      newValue: newValue ?? 'in_progress',
-      createdAt: createdAt ?? faker.date.dateTime(),
+      id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      userId: faker.guid.guid(),
+      action: 'status_change',
+      oldValue: 'open',
+      newValue: 'in_progress',
+      createdAt: faker.date.dateTime(),
     );
   }
 
@@ -350,25 +229,14 @@ abstract final class EntityFactory {
   }
 
   // ChecklistTemplate
-  static ChecklistTemplateEntity makeChecklistTemplateEntity({
-    String? id,
-    String? companyId,
-    String? name,
-    String? description,
-    String? categoryId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static ChecklistTemplateEntity makeChecklistTemplateEntity() {
     return ChecklistTemplateEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.company.name(),
-      description: description ?? faker.lorem.sentence(),
-      categoryId: categoryId,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.company.name(),
+      description: faker.lorem.sentence(),
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -381,29 +249,16 @@ abstract final class EntityFactory {
   }
 
   // ChecklistItem
-  static ChecklistItemEntity makeChecklistItemEntity({
-    String? id,
-    String? templateId,
-    String? companyId,
-    String? label,
-    ChecklistItemType? type,
-    bool? isRequired,
-    List<String>? options,
-    int? sortOrder,
-    DateTime? createdAt,
-    DateTime? deletedAt,
-  }) {
+  static ChecklistItemEntity makeChecklistItemEntity() {
     return ChecklistItemEntity(
-      id: id ?? faker.guid.guid(),
-      templateId: templateId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      label: label ?? faker.lorem.word(),
-      type: type ?? ChecklistItemType.boolean,
-      isRequired: isRequired ?? false,
-      options: options ?? (type == ChecklistItemType.selection ? ['Sim', 'Não'] : null),
-      sortOrder: sortOrder ?? faker.randomGenerator.integer(10),
-      createdAt: createdAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      templateId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      label: faker.lorem.word(),
+      type: ChecklistItemType.boolean,
+      isRequired: false,
+      sortOrder: faker.randomGenerator.integer(10),
+      createdAt: faker.date.dateTime(),
     );
   }
 
@@ -416,31 +271,16 @@ abstract final class EntityFactory {
   }
 
   // UserProfile
-  static UserProfileEntity makeUserProfileEntity({
-    String? id,
-    String? companyId,
-    String? name,
-    String? email,
-    String? phone,
-    String? permissionGroupId,
-    String? avatarUrl,
-    bool? isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static UserProfileEntity makeUserProfileEntity() {
     return UserProfileEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.person.name(),
-      email: email ?? faker.internet.email(),
-      phone: phone ?? faker.phoneNumber.random(),
-      permissionGroupId: permissionGroupId,
-      avatarUrl: avatarUrl ?? faker.internet.httpsUrl(),
-      isActive: isActive ?? true,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.person.name(),
+      email: faker.internet.email(),
+      phone: faker.randomGenerator.integer(99999999, min: 10000000).toString(),
+      isActive: true,
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -453,27 +293,18 @@ abstract final class EntityFactory {
   }
 
   // PermissionGroup
-  static PermissionGroupEntity makePermissionGroupEntity({
-    String? id,
-    String? companyId,
-    String? name,
-    List<Permission>? permissions,
-    bool? isDefault,
-    DateTime? createdAt,
-    DateTime? deletedAt,
-  }) {
+  static PermissionGroupEntity makePermissionGroupEntity() {
     return PermissionGroupEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      name: name ?? faker.lorem.word(),
-      permissions: permissions ?? [
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      name: faker.lorem.word(),
+      permissions: const [
         Permission.workOrdersViewAssigned,
         Permission.workOrdersUpdateStatus,
         Permission.attachmentsAll,
       ],
-      isDefault: isDefault ?? false,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      isDefault: false,
+      createdAt: faker.date.dateTime(),
     );
   }
 
@@ -486,47 +317,17 @@ abstract final class EntityFactory {
   }
 
   // MaintenancePlan
-  static MaintenancePlanEntity makeMaintenancePlanEntity({
-    String? id,
-    String? companyId,
-    String? assetId,
-    String? locationId,
-    String? title,
-    String? description,
-    Frequency? frequency,
-    int? dayOfWeek,
-    int? dayOfMonth,
-    int? monthOfYear,
-    String? checklistTemplateId,
-    String? assignedToId,
-    Priority? priority,
-    bool? isActive,
-    DateTime? lastGeneratedAt,
-    DateTime? nextDueDate,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    DateTime? deletedAt,
-  }) {
+  static MaintenancePlanEntity makeMaintenancePlanEntity() {
     return MaintenancePlanEntity(
-      id: id ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      assetId: assetId,
-      locationId: locationId,
-      title: title ?? faker.lorem.sentence(),
-      description: description ?? faker.lorem.paragraph(),
-      frequency: frequency ?? Frequency.monthly,
-      dayOfWeek: dayOfWeek,
-      dayOfMonth: dayOfMonth,
-      monthOfYear: monthOfYear,
-      checklistTemplateId: checklistTemplateId,
-      assignedToId: assignedToId,
-      priority: priority ?? Priority.medium,
-      isActive: isActive ?? true,
-      lastGeneratedAt: lastGeneratedAt,
-      nextDueDate: nextDueDate,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      updatedAt: updatedAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      title: faker.lorem.sentence(),
+      description: faker.lorem.sentence(),
+      frequency: Frequency.monthly,
+      priority: Priority.medium,
+      isActive: true,
+      createdAt: faker.date.dateTime(),
+      updatedAt: faker.date.dateTime(),
     );
   }
 
@@ -539,35 +340,17 @@ abstract final class EntityFactory {
   }
 
   // Attachment
-  static AttachmentEntity makeAttachmentEntity({
-    String? id,
-    String? workOrderId,
-    String? companyId,
-    String? uploadedById,
-    String? fileName,
-    FileType? fileType,
-    String? localPath,
-    String? remoteUrl,
-    int? fileSizeBytes,
-    bool? isCompressed,
-    UploadStatus? uploadStatus,
-    DateTime? createdAt,
-    DateTime? deletedAt,
-  }) {
+  static AttachmentEntity makeAttachmentEntity() {
     return AttachmentEntity(
-      id: id ?? faker.guid.guid(),
-      workOrderId: workOrderId ?? faker.guid.guid(),
-      companyId: companyId ?? faker.guid.guid(),
-      uploadedById: uploadedById ?? faker.guid.guid(),
-      fileName: fileName ?? faker.file.fileName(),
-      fileType: fileType ?? FileType.image,
-      localPath: localPath,
-      remoteUrl: remoteUrl,
-      fileSizeBytes: fileSizeBytes ?? faker.randomGenerator.integer(1000000),
-      isCompressed: isCompressed ?? false,
-      uploadStatus: uploadStatus ?? UploadStatus.pending,
-      createdAt: createdAt ?? faker.date.dateTime(),
-      deletedAt: deletedAt,
+      id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      companyId: faker.guid.guid(),
+      uploadedById: faker.guid.guid(),
+      fileName: '${faker.lorem.word()}.jpg',
+      fileType: FileType.image,
+      isCompressed: false,
+      uploadStatus: UploadStatus.pending,
+      createdAt: faker.date.dateTime(),
     );
   }
 
@@ -577,5 +360,63 @@ abstract final class EntityFactory {
       makeAttachmentEntity(),
       makeAttachmentEntity(),
     ];
+  }
+
+  // Unified from TestFactory
+  static UserEntity makeUserEntity() {
+    return UserEntity(
+      id: faker.guid.guid(),
+      name: faker.internet.userName(),
+      email: faker.internet.email(),
+      isActive: true,
+    );
+  }
+
+  static User makeUser() {
+    return User(
+      id: faker.guid.guid(),
+      appMetadata: const {},
+      userMetadata: const {},
+      aud: faker.randomGenerator.string(5),
+      createdAt: faker.date.dateTime().toIso8601String(),
+    );
+  }
+
+  static UserDataEntity makeUserDataEntity() {
+    return UserDataEntity(
+      user: makeUserEntity(),
+      accessToken: faker.jwt.valid(),
+      refreshToken: faker.jwt.valid(),
+    );
+  }
+
+  static AuthenticationEntity makeAuthentication() {
+    return AuthenticationEntity(
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
+  }
+
+  static SignUpEntity makeSignUp() {
+    return SignUpEntity(
+      name: faker.person.name(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
+  }
+
+  static AuthenticationRequestModel makeAuthenticationModel() {
+    return AuthenticationRequestModel(
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
+  }
+
+  static SignUpRequestModel makeSignUpRequest() {
+    return SignUpRequestModel(
+      name: faker.person.name(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
   }
 }

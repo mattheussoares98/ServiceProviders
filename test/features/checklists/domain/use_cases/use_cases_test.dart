@@ -5,7 +5,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -15,13 +15,13 @@ void main() {
   setUp(() {
     mockRepository = MockChecklistsRepository();
     useCase = GetChecklistsUseCase(checklistsRepository: mockRepository);
-    registerFallbackValue(TestFactory.makeChecklistTemplateEntity());
+    registerFallbackValue(EntityFactory.makeChecklistTemplateEntity());
   });
 
   final tTemplates = [
-    TestFactory.makeChecklistTemplateEntity(),
-    TestFactory.makeChecklistTemplateEntity(),
-    TestFactory.makeChecklistTemplateEntity(),
+    EntityFactory.makeChecklistTemplateEntity(),
+    EntityFactory.makeChecklistTemplateEntity(),
+    EntityFactory.makeChecklistTemplateEntity(),
   ];
 
   final workOrderId = faker.guid.guid();

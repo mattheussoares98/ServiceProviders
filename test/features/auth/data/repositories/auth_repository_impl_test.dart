@@ -9,7 +9,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 
@@ -46,18 +46,18 @@ void main() {
   });
 
   // Test data
-  final tAuthentication = TestFactory.makeAuthentication().copyWith(
+  final tAuthentication = EntityFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
 
-  final tUser = TestFactory.makeUserEntity().copyWith(
+  final tUser = EntityFactory.makeUserEntity().copyWith(
     id: '1',
     name: 'test user',
     email: 'test@example.com',
     isActive: true,
   );
-  final tUserData = TestFactory.makeUserDataEntity().copyWith(
+  final tUserData = EntityFactory.makeUserDataEntity().copyWith(
     user: tUser,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -111,7 +111,7 @@ void main() {
   });
 
   group('signUp', () {
-    final tSignUpEntity = TestFactory.makeSignUp().copyWith(
+    final tSignUpEntity = EntityFactory.makeSignUp().copyWith(
       name: 'Test',
       email: 'test@example.com',
       password: 'password',

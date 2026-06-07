@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/users/domain/use_cases/get_users_use
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -16,8 +16,8 @@ void main() {
     useCase = GetUsersUseCase(usersRepository: mockRepository);
   });
 
-  final tCompanyId = TestFactory.makeUserProfileEntity().companyId;
-  final tUsers = TestFactory.makeUserProfileEntityList();
+  final tCompanyId = EntityFactory.makeUserProfileEntity().companyId;
+  final tUsers = EntityFactory.makeUserProfileEntityList();
 
   group('GetUsersUseCase', () {
     test('should return a list of user profiles on success', () async {

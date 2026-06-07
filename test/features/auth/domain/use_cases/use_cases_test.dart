@@ -9,7 +9,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -33,14 +33,14 @@ void main() {
   });
 
   // Test data
-  final tAuthentication = TestFactory.makeAuthentication().copyWith(
+  final tAuthentication = EntityFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
-  final tUserData = TestFactory.makeUserDataEntity().copyWith(
-    user: TestFactory.makeUserEntity(),
+  final tUserData = EntityFactory.makeUserDataEntity().copyWith(
+    user: EntityFactory.makeUserEntity(),
   );
-  final tSignUpEntity = TestFactory.makeSignUp();
+  final tSignUpEntity = EntityFactory.makeSignUp();
   final tNewPassword = faker.internet.password();
 
   group('Auth Use Cases', () {

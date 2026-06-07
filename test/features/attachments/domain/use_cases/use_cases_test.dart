@@ -7,7 +7,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
   late GetAttachmentsUseCase getAttachmentsUseCase;
 
   setUpAll(() {
-    registerFallbackValue(TestFactory.makeAttachmentEntity());
+    registerFallbackValue(EntityFactory.makeAttachmentEntity());
   });
 
   setUp(() {
@@ -29,11 +29,11 @@ void main() {
     getAttachmentsUseCase = GetAttachmentsUseCase(attachmentsRepository: mockRepository);
   });
 
-  final tAttachment = TestFactory.makeAttachmentEntity();
+  final tAttachment = EntityFactory.makeAttachmentEntity();
   final tAttachments = [
-    TestFactory.makeAttachmentEntity(),
-    TestFactory.makeAttachmentEntity(),
-    TestFactory.makeAttachmentEntity(),
+    EntityFactory.makeAttachmentEntity(),
+    EntityFactory.makeAttachmentEntity(),
+    EntityFactory.makeAttachmentEntity(),
   ];
   final tWorkOrderId = faker.guid.guid();
 

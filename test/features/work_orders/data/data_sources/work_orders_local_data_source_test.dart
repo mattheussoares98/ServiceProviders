@@ -172,7 +172,7 @@ void main() {
   group('WorkOrdersLocalDataSourceImpl - Tasks', () {
     final tTaskEntity = EntityFactory.makeTaskEntity();
     final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity(id: tTaskModel.workOrderId);
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(id: tTaskModel.workOrderId);
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
     test('should save a task, retrieve active tasks by workOrderId, and soft delete it', () async {
@@ -211,7 +211,7 @@ void main() {
   group('WorkOrdersLocalDataSourceImpl - Change Requests', () {
     final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
     final tChangeModel = WorkOrderChangeRequestResponseModel.fromEntity(tChangeEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity(id: tChangeModel.workOrderId);
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(id: tChangeModel.workOrderId);
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
     test('should save a change request, retrieve active requests, and review it', () async {
@@ -270,7 +270,7 @@ void main() {
   group('WorkOrdersLocalDataSourceImpl - History', () {
     final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
     final tHistoryModel = WorkOrderHistoryResponseModel.fromEntity(tHistoryEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity(id: tHistoryModel.workOrderId);
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(id: tHistoryModel.workOrderId);
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
     test('should save and retrieve work order history logs', () async {

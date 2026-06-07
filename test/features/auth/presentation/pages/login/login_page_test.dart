@@ -22,7 +22,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:patrol/patrol.dart';
 
-import '../../../../../../testing/helpers/test_factory.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
@@ -44,7 +44,7 @@ void main() {
   late UserDataEntity userData;
 
   setUpAll(() {
-    userData = TestFactory.makeUserDataEntity();
+    userData = EntityFactory.makeUserDataEntity();
     registerFallbackValue(
       const AuthenticationEntity(email: '', password: ''),
     );

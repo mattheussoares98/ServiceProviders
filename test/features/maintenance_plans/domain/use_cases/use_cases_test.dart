@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/g
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -16,8 +16,8 @@ void main() {
     useCase = GetMaintenancePlansUseCase(maintenancePlansRepository: mockRepository);
   });
 
-  final tCompanyId = TestFactory.makeMaintenancePlanEntity().companyId;
-  final tPlans = TestFactory.makeMaintenancePlanEntityList();
+  final tCompanyId = EntityFactory.makeMaintenancePlanEntity().companyId;
+  final tPlans = EntityFactory.makeMaintenancePlanEntityList();
 
   group('GetMaintenancePlansUseCase', () {
     test('should return a list of maintenance plans on success', () async {

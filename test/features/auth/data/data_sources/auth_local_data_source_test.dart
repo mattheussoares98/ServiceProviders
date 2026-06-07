@@ -6,7 +6,7 @@ import 'package:clean_architecture/features/auth/data/models/responses/user_data
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/client_mocks.dart';
 
 void main() {
@@ -22,7 +22,7 @@ void main() {
     dataSource = AuthLocalDataSourceImpl(localDatabase: mockLocalDatabase);
   });
 
-  final userModel = UserModel.fromEntity(TestFactory.makeUserEntity());
+  final userModel = UserModel.fromEntity(EntityFactory.makeUserEntity());
 
   final tUserDataModel = UserDataResponseModel(
     user: userModel,

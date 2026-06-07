@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
 
@@ -31,7 +31,7 @@ void main() {
   });
 
   final userDataResponse = UserDataResponseModel(
-    user: UserModel.fromEntity(TestFactory.makeUserEntity()),
+    user: UserModel.fromEntity(EntityFactory.makeUserEntity()),
     accessToken: faker.lorem.word(),
     refreshToken: faker.lorem.word(),
   );

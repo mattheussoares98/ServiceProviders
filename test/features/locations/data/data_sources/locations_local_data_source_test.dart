@@ -36,7 +36,7 @@ void main() {
   final tLocationEntity = EntityFactory.makeLocationEntity();
   final tLocationModel = LocationResponseModel.fromEntity(tLocationEntity);
 
-  final tAreaEntity = EntityFactory.makeAreaEntity(
+  final tAreaEntity = EntityFactory.makeAreaEntity().copyWith(
     locationId: tLocationEntity.id,
     companyId: tLocationEntity.companyId,
   );

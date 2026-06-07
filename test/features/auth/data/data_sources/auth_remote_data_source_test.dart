@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../testing/helpers/test_factory.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
@@ -22,13 +22,13 @@ void main() {
 
     mockSupabaseAuthClient = MockSupabaseAuthClient();
     dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
-    fakeAuthResponse = AuthResponse(user: TestFactory.makeUser());
+    fakeAuthResponse = AuthResponse(user: EntityFactory.makeUser());
   });
 
   tearDown(() => GetIt.I.reset());
 
   group('login', () {
-    final tAuthenticationRequest = TestFactory.makeAuthenticationModel();
+    final tAuthenticationRequest = EntityFactory.makeAuthenticationModel();
 
     test(
       'should return SuccessState with UserDataResponseModel when Supabase login is successful',
@@ -88,7 +88,7 @@ void main() {
   });
 
   group('signUp', () {
-    final tSignUpRequest = TestFactory.makeSignUpRequest();
+    final tSignUpRequest = EntityFactory.makeSignUpRequest();
 
     test(
       'should return SuccessState with UserDataResponseModel when Supabase signUp is successful',
