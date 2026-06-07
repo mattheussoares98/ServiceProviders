@@ -108,7 +108,10 @@ Page Size Limits: A single Page file must never exceed 100 lines of code. Split 
 Hooks for Controllers: For any pages that use controllers, always extend `HookWidget` and use `flutter_hooks` (e.g. `useTextEditingController`, `useAnimationController`, `useScrollController`) to reduce boilerplate and code size.
 MediaQuery Size: Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary rebuilds.
 BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
+SafeArea with BaseScaffold Restriction: Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
 Portuguese Language: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) must be written in **Portuguese (pt-BR)**. The development language (code, comments, docs) remains English.
+Spacing & Sizing Restrictions: Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI. Always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`).
+
 
 Specialist Agents You Manage
 Agent	Responsibility
@@ -152,10 +155,12 @@ Global Constraints (Enforce these upon all Specialist Agents):
 11. Hooks for Controllers: For any pages that use controllers, always extend `HookWidget` and use `flutter_hooks` to reduce code size.
 12. MediaQuery Size: Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
 13. BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
-14. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**. Code, comments, and documentation remain in English.
-15. MapDynamic Usage: Never use `Map<String, dynamic>` in DTO `fromJson` or `toJson` methods; always use `MapDynamic` instead.
-16. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to the model. `EntityFactory` factory methods (e.g. `makeWorkOrderEntity`) MUST NOT take parameters. To modify fields, the entity must have a `copyWith` method. To annul a field, the entity's `copyWith` method must accept a `bool? annul+FieldName` parameter (e.g. `copyWith(bool? annulAssetId)`). All list properties inside `EntityFactory` must contain exactly 3 items.
-17. JSON Testing: Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
-18. TestFactory Prohibition: Never use `TestFactory`. Unify all factories inside `EntityFactory`.
-19. Group Use Case Tests: Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
-20. Test Verification Sequence: When creating or changing a datasource, repository, usecase, or any class that can have tests, always check if there is an existing test file. If it exists, verify that all tests pass, but only when the changes made could break them. The sequence of actions must always be: write the implementation of a component, then immediately write/update/run its tests, before moving on to make changes to other files or components.
+14. SafeArea Restriction: Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
+15. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**. Code, comments, and documentation remain in English.
+16. MapDynamic Usage: Never use `Map<String, dynamic>` in DTO `fromJson` or `toJson` methods; always use `MapDynamic` instead.
+17. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to the model. `EntityFactory` factory methods (e.g. `makeWorkOrderEntity`) MUST NOT take parameters. To modify fields, the entity must have a `copyWith` method. To annul a field, the entity's `copyWith` method must accept a `bool? annul+FieldName` parameter (e.g. `copyWith(bool? annulAssetId)`). All list properties inside `EntityFactory` must contain exactly 3 items.
+18. JSON Testing: Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
+19. TestFactory Prohibition: Never use `TestFactory`. Unify all factories inside `EntityFactory`.
+20. Group Use Case Tests: Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
+21. Test Verification Sequence: When creating or changing a datasource, repository, usecase, or any class that can have tests, always check if there is an existing test file. If it exists, verify that all tests pass, but only when the changes made could break them. The sequence of actions must always be: write the implementation of a component, then immediately write/update/run its tests, before moving on to make changes to other files or components.
+22. Spacing & Sizing Constraints: Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI — always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`).

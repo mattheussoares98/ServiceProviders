@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Handles the presentation layer: builds Flutter pages, widgets, Cubits, and States. Enforces project aesthetics, responsive design, and UI patterns (UIHelpers, BaseScaffold). Route here for any task involving UI or user interactions
+description: Handles the presentation layer: builds Flutter pages, widgets, Cubits, and States. Enforces project aesthetics, responsive design, and UI patterns (app_sizes, BaseScaffold). Route here for any task involving UI or user interactions
 ---
 
 # UI Expert Agent — ServiceProviders Flutter Project
@@ -105,13 +105,13 @@ class LoginPage extends HookWidget {
       create: (context) => GetIt.I<LoginCubit>(),
       child: BaseScaffold(
         appBar: const BaseAppBar(title: 'Login'),
-        // UIHelpers handles standard paddings
-        padding: UIHelpers.paddingH24, 
+        // Use Sizes constants for custom paddings
+        padding: const EdgeInsets.symmetric(horizontal: Sizes.p24), 
         body: Column(
           children: [
             gapH24,
             LoginForm(controller: usernameController),
-            UIHelpers.spaceV32,
+            gapH32,
             const LoginButton(),
           ],
         ),
@@ -129,14 +129,14 @@ It provides:
 - `onRefresh`: Adds a pull-to-refresh indicator.
 - Standardized padding and safe areas.
 
-### 3. UIHelpers (CRITICAL)
-**Never use hardcoded `SizedBox` or `EdgeInsets` values.** Always use `UIHelpers` from `lib/shared_ui/utils/ui_helpers.dart`.
+### 3. App Sizes & Spacing (CRITICAL)
+**Never use hardcoded `SizedBox`, raw padding values (e.g. `16.0`), or raw spacing values directly in the UI.** Always import and use the pre-defined constants and helper classes from `package:clean_architecture/shared_ui/utils/app_sizes.dart`.
 
-- **Vertical space:** `UIHelpers.spaceV4`, `spaceV8`, `spaceV12`, `spaceV16`, `spaceV24`, `spaceV32`, `spaceV40`, `spaceV48`, `spaceV64`
-- **Horizontal space:** `gapH4`, `spaceH8`, `spaceH12`, `spaceH16`, `spaceH24`, `spaceH32`
-- **All padding:** `UIHelpers.paddingA4`, `paddingA8`, `paddingA12`, `paddingA16`, `paddingA24`
-- **Horizontal/Vertical padding:** `UIHelpers.paddingH12`, `paddingH24`, `paddingV8`, `paddingV16`
-- **Border Radius:** `BorderRadius.all(Radius.circular(Sizes.p4))`, `radiusC8`, `radiusC12`, `radiusC16`, `radiusC24`
+- **Vertical space:** Use `gapH+size` constants, e.g., `gapH4`, `gapH8`, `gapH12`, `gapH16`, `gapH20`, `gapH24`, `gapH32` (never use `SizedBox(height: 16)`).
+- **Horizontal space:** Use `gapW+size` constants, e.g., `gapW4`, `gapW8`, `gapW12`, `gapW16`, `gapW20`, `gapW24`, `gapW32` (never use `SizedBox(width: 16)`).
+- **Sliver layouts:** Use `gapSliverH+size` or `gapSliverW+size` constants, e.g., `gapSliverH16` (never use `SliverToBoxAdapter(child: SizedBox(...))`).
+- **Padding, Margin, and Radius:** Always use `Sizes` constants (e.g., `Sizes.p16` instead of `16.0` or `16`) for all paddings, margins, border radii, or other raw layout measurements.
+
 
 ### 4. Responsiveness
 Use `ScreenUtil.I.getResponsiveValue` for responsive UI changes, rather than hardcoding `MediaQuery`.
@@ -168,7 +168,7 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 ## Absolute Prohibitions
 
 - ❌ Never use `Navigator` directly. Always use `ClientMixin` methods (e.g. `pushRoute()`, `replaceAllRoute()`) which are available inside any `BaseCubit`.
-- ❌ Never use hardcoded values in `SizedBox` or `Padding`. Use `UIHelpers`.
+- ❌ Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`). Always use the constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`).
 - ❌ Never annotate a Page, State, or Widget with `@injectable` or `@LazySingleton`. Only Cubits get `@injectable`.
 - ❌ Never inject Use Cases directly into a Cubit; inject the `*CubitUseCases` aggregator.
 - ❌ Never extend `Cubit<T>` directly. Always extend `BaseCubit<T>`.
@@ -179,4 +179,5 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 - ❌ Never exceed 100 lines of code in a single Page file. Always split sub-widgets into a `widgets/` folder.
 - ❌ Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
 - ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
+- ❌ Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
 - ❌ Never write user-visible text in English. All strings displayed to the user (labels, messages, button text, titles, placeholders) must be written in **Portuguese (pt-BR)**.

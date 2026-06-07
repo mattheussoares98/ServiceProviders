@@ -268,5 +268,7 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never use stateful widget boilerplate for controllers in pages — always extend `HookWidget` and use `flutter_hooks` instead
 - ❌ Never use `MediaQuery.of(context).size` — always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary widget rebuilds
 - ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
+- ❌ Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
 - ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
 - ❌ Never write user-visible text in English — all strings displayed to the user (labels, messages, button text, titles, placeholders) must be in **Portuguese (pt-BR)**
+- ❌ Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI — always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`)
