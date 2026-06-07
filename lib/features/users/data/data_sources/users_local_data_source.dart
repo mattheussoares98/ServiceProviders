@@ -141,28 +141,16 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
 
       return SuccessState(
         data: list.map((t) {
-          List<Permission> parsedPermissions = [];
-          if (t.permissions.isNotEmpty) {
-            try {
-              final decoded = jsonDecode(t.permissions) as List<dynamic>;
-              for (final p in decoded) {
-                final perm = Permission.fromCode(p.toString());
-                if (perm != null) {
-                  parsedPermissions.add(perm);
-                }
-              }
-            } catch (_) {}
-          }
-
-          return PermissionGroupResponseModel(
-            id: t.id,
-            companyId: t.companyId,
-            name: t.name,
-            permissions: parsedPermissions,
-            isDefault: t.isDefault,
-            createdAt: t.createdAt,
-            deletedAt: t.deletedAt,
-          );
+          final jsonMap = {
+            'id': t.id,
+            'company_id': t.companyId,
+            'name': t.name,
+            'permissions': t.permissions,
+            'is_default': t.isDefault,
+            'created_at': t.createdAt.toIso8601String(),
+            'deleted_at': t.deletedAt?.toIso8601String(),
+          };
+          return PermissionGroupResponseModel.fromJson(jsonMap);
         }).toList(),
       );
     });
@@ -176,7 +164,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               id: Value(group.id),
               companyId: Value(group.companyId),
               name: Value(group.name),
-              permissions: Value(jsonEncode(group.permissions.map((e) => e.code).toList())),
+              permissions: Value(jsonEncode(group.toJson()['permissions'])),
               isDefault: Value(group.isDefault),
               createdAt: Value(group.createdAt),
               deletedAt: Value(group.deletedAt),

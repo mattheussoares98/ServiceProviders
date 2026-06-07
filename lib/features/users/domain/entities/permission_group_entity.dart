@@ -15,7 +15,7 @@ class PermissionGroupEntity extends Equatable {
   final String id;
   final String companyId;
   final String name;
-  final List<Permission> permissions;
+  final List<ResourcePermissionEntity> permissions;
   final bool isDefault;
   final DateTime createdAt;
   final DateTime? deletedAt;
@@ -35,7 +35,7 @@ class PermissionGroupEntity extends Equatable {
     String? id,
     String? companyId,
     String? name,
-    List<Permission>? permissions,
+    List<ResourcePermissionEntity>? permissions,
     bool? isDefault,
     DateTime? createdAt,
     DateTime? deletedAt,

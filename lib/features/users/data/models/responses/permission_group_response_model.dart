@@ -28,7 +28,12 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
       );
 
   factory PermissionGroupResponseModel.fromJson(MapDynamic json) {
-    List<Permission> parsedPermissions = [];
+    final Map<ResourceType, Set<PermissionAction>> grouped = {};
+
+    void addAllActionsForResource(ResourceType resource) {
+      grouped.putIfAbsent(resource, () => {}).addAll(PermissionAction.values);
+    }
+
     if (json['permissions'] != null) {
       final permissionsRaw = json['permissions'];
       List<dynamic> list = [];
@@ -40,18 +45,42 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
         list = permissionsRaw;
       }
       for (final p in list) {
-        final perm = Permission.fromCode(p.toString());
-        if (perm != null) {
-          parsedPermissions.add(perm);
+        final code = p.toString();
+        if (code == '*') {
+          for (final res in ResourceType.values) {
+            addAllActionsForResource(res);
+          }
+        } else if (code.endsWith('.*') || code.endsWith(':*')) {
+          final prefix = code.substring(0, code.length - 2);
+          final resource = ResourceType.fromCode(prefix);
+          if (resource != null) {
+            addAllActionsForResource(resource);
+          }
+        } else {
+          final parts = code.split(RegExp(r'[:.]'));
+          if (parts.length == 2) {
+            final resource = ResourceType.fromCode(parts[0]);
+            PermissionAction? action = PermissionAction.fromCode(parts[1]);
+            if (parts[1] == 'view') {
+              action = PermissionAction.read;
+            }
+            if (resource != null && action != null) {
+              grouped.putIfAbsent(resource, () => {}).add(action);
+            }
+          }
         }
       }
     }
+
+    final permissions = grouped.entries
+        .map((e) => ResourcePermissionEntity(resource: e.key, actions: e.value))
+        .toList();
 
     return PermissionGroupResponseModel(
       id: json['id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      permissions: parsedPermissions,
+      permissions: permissions,
       isDefault: json['is_default'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
@@ -67,7 +96,9 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
         'id': id,
         'company_id': companyId,
         'name': name,
-        'permissions': permissions.map((e) => e.code).toList(),
+        'permissions': permissions.expand((rp) {
+          return rp.actions.map((action) => '${rp.resource.code}.${action.code}');
+        }).toList(),
         'is_default': isDefault,
         'created_at': createdAt.toIso8601String(),
         'deleted_at': deletedAt?.toIso8601String(),

@@ -285,9 +285,22 @@ abstract final class EntityFactory {
       companyId: faker.guid.guid(),
       name: faker.lorem.word(),
       permissions: const [
-        Permission.workOrdersViewAssigned,
-        Permission.workOrdersUpdateStatus,
-        Permission.attachmentsAll,
+        ResourcePermissionEntity(
+          resource: ResourceType.workOrders,
+          actions: {
+            PermissionAction.viewAssigned,
+            PermissionAction.updateStatus,
+          },
+        ),
+        ResourcePermissionEntity(
+          resource: ResourceType.attachments,
+          actions: {
+            PermissionAction.create,
+            PermissionAction.read,
+            PermissionAction.update,
+            PermissionAction.delete,
+          },
+        ),
       ],
       isDefault: false,
       createdAt: _makeDateTime(),
