@@ -16,6 +16,14 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
+import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
 import 'package:faker/faker.dart';
 
 abstract final class EntityFactory {
@@ -404,6 +412,170 @@ abstract final class EntityFactory {
       makeChecklistItemEntity(),
       makeChecklistItemEntity(),
       makeChecklistItemEntity(),
+    ];
+  }
+
+  // UserProfile
+  static UserProfileEntity makeUserProfileEntity({
+    String? id,
+    String? companyId,
+    String? name,
+    String? email,
+    String? phone,
+    String? permissionGroupId,
+    String? avatarUrl,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return UserProfileEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      name: name ?? faker.person.name(),
+      email: email ?? faker.internet.email(),
+      phone: phone ?? faker.phoneNumber.random(),
+      permissionGroupId: permissionGroupId,
+      avatarUrl: avatarUrl ?? faker.internet.httpsUrl(),
+      isActive: isActive ?? true,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<UserProfileEntity> makeUserProfileEntityList() {
+    return [
+      makeUserProfileEntity(),
+      makeUserProfileEntity(),
+      makeUserProfileEntity(),
+    ];
+  }
+
+  // PermissionGroup
+  static PermissionGroupEntity makePermissionGroupEntity({
+    String? id,
+    String? companyId,
+    String? name,
+    List<Permission>? permissions,
+    bool? isDefault,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return PermissionGroupEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      name: name ?? faker.lorem.word(),
+      permissions: permissions ?? [
+        Permission.workOrdersViewAssigned,
+        Permission.workOrdersUpdateStatus,
+        Permission.attachmentsAll,
+      ],
+      isDefault: isDefault ?? false,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<PermissionGroupEntity> makePermissionGroupEntityList() {
+    return [
+      makePermissionGroupEntity(),
+      makePermissionGroupEntity(),
+      makePermissionGroupEntity(),
+    ];
+  }
+
+  // MaintenancePlan
+  static MaintenancePlanEntity makeMaintenancePlanEntity({
+    String? id,
+    String? companyId,
+    String? assetId,
+    String? locationId,
+    String? title,
+    String? description,
+    Frequency? frequency,
+    int? dayOfWeek,
+    int? dayOfMonth,
+    int? monthOfYear,
+    String? checklistTemplateId,
+    String? assignedToId,
+    Priority? priority,
+    bool? isActive,
+    DateTime? lastGeneratedAt,
+    DateTime? nextDueDate,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return MaintenancePlanEntity(
+      id: id ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      assetId: assetId,
+      locationId: locationId,
+      title: title ?? faker.lorem.sentence(),
+      description: description ?? faker.lorem.paragraph(),
+      frequency: frequency ?? Frequency.monthly,
+      dayOfWeek: dayOfWeek,
+      dayOfMonth: dayOfMonth,
+      monthOfYear: monthOfYear,
+      checklistTemplateId: checklistTemplateId,
+      assignedToId: assignedToId,
+      priority: priority ?? Priority.medium,
+      isActive: isActive ?? true,
+      lastGeneratedAt: lastGeneratedAt,
+      nextDueDate: nextDueDate,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      updatedAt: updatedAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<MaintenancePlanEntity> makeMaintenancePlanEntityList() {
+    return [
+      makeMaintenancePlanEntity(),
+      makeMaintenancePlanEntity(),
+      makeMaintenancePlanEntity(),
+    ];
+  }
+
+  // Attachment
+  static AttachmentEntity makeAttachmentEntity({
+    String? id,
+    String? workOrderId,
+    String? companyId,
+    String? uploadedById,
+    String? fileName,
+    FileType? fileType,
+    String? localPath,
+    String? remoteUrl,
+    int? fileSizeBytes,
+    bool? isCompressed,
+    UploadStatus? uploadStatus,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+  }) {
+    return AttachmentEntity(
+      id: id ?? faker.guid.guid(),
+      workOrderId: workOrderId ?? faker.guid.guid(),
+      companyId: companyId ?? faker.guid.guid(),
+      uploadedById: uploadedById ?? faker.guid.guid(),
+      fileName: fileName ?? faker.file.fileName(),
+      fileType: fileType ?? FileType.image,
+      localPath: localPath,
+      remoteUrl: remoteUrl,
+      fileSizeBytes: fileSizeBytes ?? faker.randomGenerator.integer(1000000),
+      isCompressed: isCompressed ?? false,
+      uploadStatus: uploadStatus ?? UploadStatus.pending,
+      createdAt: createdAt ?? faker.date.dateTime(),
+      deletedAt: deletedAt,
+    );
+  }
+
+  static List<AttachmentEntity> makeAttachmentEntityList() {
+    return [
+      makeAttachmentEntity(),
+      makeAttachmentEntity(),
+      makeAttachmentEntity(),
     ];
   }
 }
