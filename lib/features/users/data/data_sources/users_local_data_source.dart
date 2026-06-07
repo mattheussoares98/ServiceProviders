@@ -13,6 +13,7 @@ import 'package:injectable/injectable.dart';
 
 abstract interface class UsersLocalDataSource {
   // Profiles
+  FutureList<UserProfileResponseModel> getUserProfiles(String companyId);
   FutureData<UserProfileResponseModel> getUserProfileById(String id);
   FutureBool saveUserProfile(UserProfileResponseModel user);
   FutureBool deleteUserProfile(String id);
@@ -34,6 +35,35 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   // ============================================
   // Profiles
   // ============================================
+
+  @override
+  FutureList<UserProfileResponseModel> getUserProfiles(String companyId) {
+    return ErrorHandler.execute(() async {
+      final list = await (_database.select(_database.userProfiles)
+            ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull()))
+          .get();
+
+      return SuccessState(
+        data: list
+            .map(
+              (t) => UserProfileResponseModel(
+                id: t.id,
+                companyId: t.companyId,
+                name: t.name,
+                email: t.email,
+                phone: t.phone,
+                permissionGroupId: t.permissionGroupId,
+                avatarUrl: t.avatarUrl,
+                isActive: t.isActive,
+                createdAt: t.createdAt,
+                updatedAt: t.updatedAt,
+                deletedAt: t.deletedAt,
+              ),
+            )
+            .toList(),
+      );
+    });
+  }
 
   @override
   FutureData<UserProfileResponseModel> getUserProfileById(String id) {

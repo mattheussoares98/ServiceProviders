@@ -41,6 +41,20 @@ void main() {
 
   group('UsersLocalDataSourceImpl', () {
     group('User Profiles', () {
+      test('should retrieve all user profiles for a company', () async {
+        // Arrange
+        await insertTestCompany(tUserProfileModel.companyId);
+        await dataSource.saveUserProfile(tUserProfileModel);
+
+        // Act
+        final result = await dataSource.getUserProfiles(tUserProfileModel.companyId);
+
+        // Assert
+        expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+        expect(result.data, hasLength(1));
+        expect(result.data!.first.id, tUserProfileModel.id);
+      });
+
       test('should save a user profile and successfully retrieve it', () async {
         // Arrange
         await insertTestCompany(tUserProfileModel.companyId);
