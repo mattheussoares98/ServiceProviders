@@ -1,7 +1,9 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
 import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
+import 'package:clean_architecture/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -21,23 +23,28 @@ final class MaintenancePlansRepositoryImpl
   final MaintenancePlansRemoteDataSource _remoteDataSource;
   final MaintenancePlansLocalDataSource _localDataSource;
 
-  // TODO: Wire to local/remote data sources with RepositoryHandler
   @override
   FutureList<MaintenancePlanEntity> getMaintenancePlans(String companyId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        MaintenancePlanResponseModel,
+        MaintenancePlanEntity
+      >(localCallback: () => _localDataSource.getPlans(companyId));
 
   @override
   FutureData<MaintenancePlanEntity> getMaintenancePlanById(String id) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMap<
+        MaintenancePlanResponseModel,
+        MaintenancePlanEntity
+      >(localCallback: () => _localDataSource.getPlanById(id));
 
   @override
   FutureBool createMaintenancePlan(MaintenancePlanEntity plan) =>
-      throw UnimplementedError();
+      _localDataSource.savePlan(MaintenancePlanResponseModel.fromEntity(plan));
 
   @override
   FutureBool updateMaintenancePlan(MaintenancePlanEntity plan) =>
-      throw UnimplementedError();
+      _localDataSource.savePlan(MaintenancePlanResponseModel.fromEntity(plan));
 
   @override
-  FutureBool deleteMaintenancePlan(String id) => throw UnimplementedError();
+  FutureBool deleteMaintenancePlan(String id) => _localDataSource.deletePlan(id);
 }
