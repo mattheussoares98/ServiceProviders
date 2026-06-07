@@ -1,8 +1,10 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit_use_cases.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/home_page.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/routing/routes.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/themes/theme.dart';
@@ -15,6 +17,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 final locator = GetIt.I;
@@ -25,6 +28,7 @@ class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
 void main() {
   late MockLogOutUseCase mockLogOutUseCase;
   late MockNavigationClient mockNavigationClient;
+  late MockSessionRepository mockSessionRepository;
 
   setUpAll(() {
     registerFallbackValue(const LoginRoute());
@@ -33,9 +37,13 @@ void main() {
   setUp(() {
     mockLogOutUseCase = MockLogOutUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockSessionRepository = MockSessionRepository();
+
+    when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
 
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
+      ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<HomeCubitUseCases>(
         HomeCubitUseCases(logOut: mockLogOutUseCase),
       )
@@ -69,30 +77,36 @@ void main() {
 
     await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
-    // Render the view
+    final appRouter = AppRouter();
+
+    // Render the view using MaterialApp.router to support AutoTabsScaffold context lookup
     await $.pumpWidget(
       BlocProvider<ScreenObserverCubit>(
         create: (_) => mockScreenObserverCubit,
-        child: MaterialApp(theme: lightTheme, home: const HomePage()),
+        child: MaterialApp.router(
+          theme: lightTheme,
+          routerDelegate: appRouter.delegate(),
+          routeInformationParser: appRouter.defaultRouteParser(),
+        ),
       ),
     );
 
     await $.pumpAndSettle();
 
-    // Verify HomePage renders
-    expect($('HomePage'), findsOne);
+    // Verify HomePage renders through active tab (DashboardPage with title 'Painel')
+    expect($('Painel'), findsOne);
 
     // Verify Drawer is NOT open initially
     expect($(Drawer), findsNothing);
 
-    // Tap on the Menu icon in AppBar to open the Drawer
+    // Tap on the Menu icon in AppBar of the active tab to open the Drawer
     await $.tester.tap(find.byIcon(Icons.menu));
     await $.pumpAndSettle();
 
     // Verify Drawer is open
     expect($(Drawer), findsOne);
     expect($('Olá, Usuário!'), findsOne);
-    expect($('Início'), findsOne);
+    expect($(Drawer).$('Início'), findsOne);
     expect($('Perfil'), findsOne);
     expect($('Configurações'), findsOne);
     expect($('Sair'), findsOne);

@@ -16,6 +16,19 @@ const String kDashboardPath = '/dashboard/home';
 const String kHomeRoute = 'HomeRoute';
 const String kHomePath = '/home';
 
+// Sub-routes under Home tabs
+const String kDashboardSubRoute = 'DashboardRoute';
+const String kDashboardSubPath = 'dashboard';
+
+const String kWorkOrdersRoute = 'WorkOrdersRoute';
+const String kWorkOrdersPath = 'work-orders';
+
+const String kAssetsRoute = 'AssetsRoute';
+const String kAssetsPath = 'assets';
+
+const String kLocationsRoute = 'LocationsRoute';
+const String kLocationsPath = 'locations';
+
 // Settings
 const String kSettingRoute = 'SettingRoute';
 const String kSettingPath = 'setting';

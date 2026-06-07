@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +10,9 @@ class CategoriesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BaseScaffold(
-      appBar: BaseAppBar(title: 'Categories'),
-      body: SafeArea(
-        child: Column(
-          
-        ),
-      ),
+    return BaseScaffold(
+      appBar: BaseAppBar(title: 'Categorias'.hardcoded),
+      body: const Column(),
     );
   }
 }

@@ -20,9 +20,11 @@ class AppRouter extends RootStackRouter {
       page: HomeRoute.page,
       initial: true,
       guards: const [AuthenticatedGuard()],
-      children: const [
-        // AutoRoute(path: kHomePath, page: HomeRoute.page, initial: true),
-        // AutoRoute(path: kSettingPath, page: SettingRoute.page),
+      children: [
+        AutoRoute(page: DashboardRoute.page, path: kDashboardSubPath),
+        AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
+        AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
+        AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
       ],
     ),
   ];

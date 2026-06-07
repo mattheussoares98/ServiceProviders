@@ -11,10 +11,8 @@ class ChecklistsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseScaffold(
       appBar: BaseAppBar(title: 'Checklists'),
-      body: SafeArea(
-        child: Column(
-          
-        ),
+      body: Column(
+        
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/home/presentation/pages/home_page/wi
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 
 /// A premium, responsive navigation Drawer for the HomePage dashboard.
@@ -14,10 +15,8 @@ class HomeDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Drawer(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: context.theme.colorScheme.surface,
       width: MediaQuery.sizeOf(context).width * 0.85,
       child: const Column(
         children: [
