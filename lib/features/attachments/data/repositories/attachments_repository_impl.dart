@@ -1,7 +1,9 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_local_data_source.dart';
 import 'package:clean_architecture/features/attachments/data/data_sources/attachments_remote_data_source.dart';
+import 'package:clean_architecture/features/attachments/data/models/responses/attachment_response_model.dart';
 import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:clean_architecture/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -20,15 +22,17 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   final AttachmentsRemoteDataSource _remoteDataSource;
   final AttachmentsLocalDataSource _localDataSource;
 
-  // TODO: Wire to local/remote data sources with RepositoryHandler
   @override
   FutureList<AttachmentEntity> getAttachmentsByWorkOrder(String workOrderId) =>
-      throw UnimplementedError();
+      RepositoryHandler.fetchFromLocalAndMapList<
+        AttachmentResponseModel,
+        AttachmentEntity
+      >(localCallback: () => _localDataSource.getAttachmentsByWorkOrder(workOrderId));
 
   @override
   FutureBool createAttachment(AttachmentEntity attachment) =>
-      throw UnimplementedError();
+      _localDataSource.saveAttachment(AttachmentResponseModel.fromEntity(attachment));
 
   @override
-  FutureBool deleteAttachment(String id) => throw UnimplementedError();
+  FutureBool deleteAttachment(String id) => _localDataSource.deleteAttachment(id);
 }
