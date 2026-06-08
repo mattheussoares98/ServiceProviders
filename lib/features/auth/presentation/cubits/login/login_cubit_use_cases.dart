@@ -3,7 +3,6 @@ import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_ca
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/seed_local_user_profile_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:injectable/injectable.dart';
 
@@ -16,7 +15,6 @@ class LoginCubitUseCases {
     required this.setSession,
     required this.getUserData,
     required this.saveUserData,
-    required this.seedLocalUserProfile,
   });
 
   final LoginUseCase login;
@@ -25,5 +23,4 @@ class LoginCubitUseCases {
   final SetSessionUseCase setSession;
   final GetUserDataUseCase getUserData;
   final SaveUserDataUseCase saveUserData;
-  final SeedLocalUserProfileUseCase seedLocalUserProfile;
 }
