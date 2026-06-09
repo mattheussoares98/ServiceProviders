@@ -10,7 +10,7 @@ abstract final class RepositoryHandler {
   static FutureData<T> fetchWithFallback<T>({
     required bool isInternetConnected,
     required FutureData<T> Function() remoteCallback,
-    void Function(T data)? onRemoteSuccess,
+    FutureData<Object?> Function(T data)? onRemoteSuccess,
     FutureData<T> Function()? localCallback,
   }) async {
     if (isInternetConnected) {
@@ -19,7 +19,15 @@ abstract final class RepositoryHandler {
 
       // 1. Perform an action on successful remote fetch (e.g., cache the data)
       if (data != null && onRemoteSuccess != null) {
-        onRemoteSuccess(data);
+        final sideEffectState = await onRemoteSuccess(data);
+        if (sideEffectState is FailureState<Object?>) {
+          return FailureState<T>(
+            message: sideEffectState.message,
+            error: sideEffectState.error,
+            statusCode: sideEffectState.statusCode,
+            response: sideEffectState.response,
+          );
+        }
       }
       return dataState;
     }
@@ -34,7 +42,7 @@ abstract final class RepositoryHandler {
   fetchWithFallbackAndMap<T extends DataConvertible<R>, R>({
     required bool isInternetConnected,
     required FutureData<T> Function() remoteCallback,
-    void Function(T data)? onRemoteSuccess,
+    FutureData<Object?> Function(T data)? onRemoteSuccess,
     FutureData<T> Function()? localCallback,
   }) async {
     final dtoState = await fetchWithFallback(
@@ -54,7 +62,7 @@ abstract final class RepositoryHandler {
   fetchWithFallbackAndMapList<T extends DataConvertible<R>, R>({
     required bool isInternetConnected,
     required FutureList<T> Function() remoteCallback,
-    void Function(List<T> data)? onRemoteSuccess,
+    FutureData<Object?> Function(List<T> data)? onRemoteSuccess,
     FutureData<List<T>> Function()? localCallback,
   }) async {
     final dtoState = await fetchWithFallback(

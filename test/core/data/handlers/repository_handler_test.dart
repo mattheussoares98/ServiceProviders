@@ -31,7 +31,10 @@ void main() {
       await RepositoryHandler.fetchWithFallback<int>(
         isInternetConnected: true,
         remoteCallback: () async => const SuccessState(data: 99),
-        onRemoteSuccess: (data) => callbackValue = data,
+        onRemoteSuccess: (data) async {
+          callbackValue = data;
+          return const SuccessState(data: true);
+        },
       );
       expect(callbackValue, 99);
     });
@@ -41,7 +44,10 @@ void main() {
       await RepositoryHandler.fetchWithFallback<int>(
         isInternetConnected: true,
         remoteCallback: () async => const SuccessState(data: null),
-        onRemoteSuccess: (data) => wasCalled = true,
+        onRemoteSuccess: (data) async {
+          wasCalled = true;
+          return const SuccessState(data: true);
+        },
       );
       expect(wasCalled, false);
     });
@@ -94,7 +100,10 @@ void main() {
           await RepositoryHandler.fetchWithFallbackAndMap<FakeDto, String>(
             isInternetConnected: true,
             remoteCallback: () async => const SuccessState(data: FakeDto(99)),
-            onRemoteSuccess: (data) => rawData = data,
+            onRemoteSuccess: (data) async {
+              rawData = data;
+              return const SuccessState(data: true);
+            },
           );
       expect(rawData?.value, 99);
       expect(result.data, 'Mapped: 99');
@@ -130,7 +139,10 @@ void main() {
           await RepositoryHandler.fetchWithFallbackAndMapList<FakeDto, String>(
             isInternetConnected: true,
             remoteCallback: () async => const SuccessState(data: [FakeDto(3)]),
-            onRemoteSuccess: (data) => rawData = data,
+            onRemoteSuccess: (data) async {
+              rawData = data;
+              return const SuccessState(data: true);
+            },
           );
       expect(rawData?.length, 1);
       expect(rawData?.first.value, 3);
