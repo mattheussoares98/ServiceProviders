@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserDataResponseModel extends UserDataEntity
@@ -10,6 +11,7 @@ class UserDataResponseModel extends UserDataEntity
     required UserModel user,
     required super.accessToken,
     required super.refreshToken,
+    this.userProfile,
   }) : super(user: user);
 
   factory UserDataResponseModel.fromJson(MapDynamic json) {
@@ -32,6 +34,23 @@ class UserDataResponseModel extends UserDataEntity
     );
   }
 
+  factory UserDataResponseModel.fromSupabaseProfile({
+    required sb.AuthResponse response,
+    required UserProfileResponseModel profile,
+  }) {
+    return UserDataResponseModel(
+      user: UserModel(
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        isActive: profile.isActive,
+      ),
+      accessToken: response.session?.accessToken ?? '',
+      refreshToken: response.session?.refreshToken ?? '',
+      userProfile: profile,
+    );
+  }
+
   factory UserDataResponseModel.fromEntity(UserDataEntity domain) {
     return UserDataResponseModel(
       user: UserModel.fromEntity(domain.user),
@@ -39,6 +58,8 @@ class UserDataResponseModel extends UserDataEntity
       refreshToken: domain.refreshToken,
     );
   }
+
+  final UserProfileResponseModel? userProfile;
 
   @override
   UserModel get user => super.user as UserModel;

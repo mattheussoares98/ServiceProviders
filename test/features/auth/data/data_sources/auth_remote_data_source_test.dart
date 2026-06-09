@@ -1,7 +1,9 @@
 import 'package:clean_architecture/config/app_config.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,15 +16,30 @@ import '../../../../../testing/mocks/external/external_mocks.dart';
 
 void main() {
   late MockSupabaseAuthClient mockSupabaseAuthClient;
+  late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
   late AuthRemoteDataSourceImpl dataSource;
   late AuthResponse fakeAuthResponse;
+  late UserProfileResponseModel fakeUserProfile;
+
+  setUpAll(() {
+    registerFallbackValue(<SupabaseFilter>[]);
+  });
 
   setUp(() {
     GetIt.I.registerLazySingleton<AppConfig>(() => const TestAppConfig());
 
     mockSupabaseAuthClient = MockSupabaseAuthClient();
-    dataSource = AuthRemoteDataSourceImpl(supabaseAuth: mockSupabaseAuthClient);
+    mockSupabaseDatabaseClient = MockSupabaseDatabaseClient();
+    dataSource = AuthRemoteDataSourceImpl(
+      supabaseAuth: mockSupabaseAuthClient,
+      supabaseDatabase: mockSupabaseDatabaseClient,
+    );
     fakeAuthResponse = AuthResponse(user: EntityFactory.makeUser());
+    fakeUserProfile = UserProfileResponseModel.fromEntity(
+      EntityFactory.makeUserProfileEntity().copyWith(
+        id: fakeAuthResponse.user!.id,
+      ),
+    );
   });
 
   tearDown(() => GetIt.I.reset());
@@ -40,6 +57,13 @@ void main() {
             password: any(named: 'password'),
           ),
         ).thenAnswer((_) async => fakeAuthResponse);
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => fakeUserProfile.toJson());
 
         // Act
         final result = await dataSource.login(tAuthenticationRequest);
@@ -48,13 +72,22 @@ void main() {
         expect(result, isA<SuccessState<UserDataResponseModel>>());
         expect(
           result.data,
-          UserDataResponseModel.fromSupabase(fakeAuthResponse),
+          UserDataResponseModel.fromSupabaseProfile(
+            response: fakeAuthResponse,
+            profile: fakeUserProfile,
+          ),
         );
 
         verify(
           () => mockSupabaseAuthClient.signInWithPassword(
             email: tAuthenticationRequest.email,
             password: tAuthenticationRequest.password,
+          ),
+        ).called(1);
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'user_profiles',
+            filters: [SupabaseFilter.eq('id', fakeAuthResponse.user!.id)],
           ),
         ).called(1);
       },
@@ -200,21 +233,24 @@ void main() {
 
   group('changePassword', () {
     final newPassword = faker.internet.password();
-    test('should return SuccessState when password is changed successfully', () async {
-      // Arrange
-      when(
-        () => mockSupabaseAuthClient.updateUserPassword(any()),
-      ).thenAnswer((_) async {});
+    test(
+      'should return SuccessState when password is changed successfully',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseAuthClient.updateUserPassword(any()),
+        ).thenAnswer((_) async {});
 
-      // Act
-      final result = await dataSource.changePassword(newPassword);
+        // Act
+        final result = await dataSource.changePassword(newPassword);
 
-      // Assert
-      expect(result, isA<SuccessState<void>>());
-      verify(
-        () => mockSupabaseAuthClient.updateUserPassword(newPassword),
-      ).called(1);
-    });
+        // Assert
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockSupabaseAuthClient.updateUserPassword(newPassword),
+        ).called(1);
+      },
+    );
 
     test('should return FailureState when password update fails', () async {
       // Arrange
