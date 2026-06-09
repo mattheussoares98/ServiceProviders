@@ -115,6 +115,7 @@ Brazilian enterprises that need to manage preventive and corrective maintenance 
 |---|---|
 | Auth | Supabase Auth (email/password + Google OAuth) — **already implemented** |
 | Database | Supabase PostgreSQL for the remote source of truth |
+| Database access | One generic `SupabaseDatabaseClient` with structured CRUD/RPC methods; feature data sources own table-specific queries and DTO parsing |
 | Multi-tenancy | `company_id` column on every table + RLS policies |
 | Edge Functions | Presigned URL generation for R2, user invitation flow |
 | Real-time | ⏳ V2 — Supabase WebSocket channels for permission changes |
@@ -598,6 +599,17 @@ lib/core/clients/local/drift/
 
 > [!NOTE]
 > All 17 tables live inside a **single `AppDatabase` class** → a **single `.sqlite` file** on disk. Drift tables will declare local `@Index` annotations mirroring PostgreSQL indexes to prevent frame drops on mobile CPUs when searching and filtering.
+
+#### Supabase Database Client
+```
+lib/core/clients/remote/supabase/
+├── supabase_auth_client.dart          # Auth-only wrapper around Supabase Auth
+├── supabase_database_client.dart      # Generic structured CRUD/RPC wrapper
+└── supabase_module.dart               # Injectable module for Supabase SDK clients
+```
+
+> [!IMPORTANT]
+> Remote feature data sources must use the generic `SupabaseDatabaseClient` methods (`selectOne`, `selectList`, `insert`, `update`, `upsert`, `delete`, `rpc`) with structured `SupabaseFilter` and `SupabaseOrder` values. Do **not** add one method per table/action to `SupabaseDatabaseClient` (for example, avoid `getUserProfile`, `getCompany`, `getAssets`). Table names, columns, filters, and DTO parsing belong inside each feature data source.
 
 #### File Storage Client
 ```
