@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/auth/data/models/requests/authentica
 import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -17,16 +18,19 @@ void main() {
   late MockInternetClient mockInternetClient;
   late MockAuthRemoteDataSource mockAuthRemoteDataSource;
   late MockAuthLocalDataSource mockAuthLocalDataSource;
+  late MockUsersLocalDataSource mockUsersLocalDataSource;
   late AuthRepositoryImpl repository;
 
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockAuthRemoteDataSource = MockAuthRemoteDataSource();
     mockAuthLocalDataSource = MockAuthLocalDataSource();
+    mockUsersLocalDataSource = MockUsersLocalDataSource();
     repository = AuthRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockAuthRemoteDataSource,
       localDataSource: mockAuthLocalDataSource,
+      usersLocalDataSource: mockUsersLocalDataSource,
     );
 
     registerFallbackValue(
@@ -42,6 +46,11 @@ void main() {
     );
     registerFallbackValue(
       const SignUpRequestModel(name: '', email: '', password: ''),
+    );
+    registerFallbackValue(
+      UserProfileResponseModel.fromEntity(
+        EntityFactory.makeUserProfileEntity(),
+      ),
     );
   });
 
@@ -65,10 +74,96 @@ void main() {
 
   // Build DTO from domain test data
   final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
+  final tUserProfileModel = UserProfileResponseModel.fromEntity(
+    EntityFactory.makeUserProfileEntity().copyWith(id: tUser.id),
+  );
+  final tUserDataModelWithProfile = UserDataResponseModel(
+    user: UserModel.fromEntity(tUser),
+    accessToken: tUserData.accessToken,
+    refreshToken: tUserData.refreshToken,
+    userProfile: tUserProfileModel,
+  );
 
   group('login', () {
     test(
       'should call remoteDataSource.login when internet is connected and return its result mapped to domain',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(() => mockAuthRemoteDataSource.login(any())).thenAnswer(
+          (_) async => SuccessState(data: tUserDataModelWithProfile),
+        );
+        when(
+          () => mockUsersLocalDataSource.saveUserProfile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.login(tAuthentication);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataEntity>>());
+        expect(result.data, tUserData);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockAuthRemoteDataSource.login(any())).called(1);
+        verifyNever(
+          () => mockAuthRemoteDataSource.getCurrentUserProfile(any()),
+        );
+        verify(
+          () => mockUsersLocalDataSource.saveUserProfile(tUserProfileModel),
+        ).called(1);
+        verifyNoMoreInteractions(mockInternetClient);
+        verifyNoMoreInteractions(mockAuthRemoteDataSource);
+        verifyZeroInteractions(mockAuthLocalDataSource);
+        verifyNoMoreInteractions(mockUsersLocalDataSource);
+      },
+    );
+
+    test(
+      'should save profile from login response without fetching it again',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(() => mockAuthRemoteDataSource.login(any())).thenAnswer(
+          (_) async => SuccessState(data: tUserDataModelWithProfile),
+        );
+        when(
+          () => mockUsersLocalDataSource.saveUserProfile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.login(tAuthentication);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataEntity>>());
+        verify(() => mockAuthRemoteDataSource.login(any())).called(1);
+        verifyNever(
+          () => mockAuthRemoteDataSource.getCurrentUserProfile(any()),
+        );
+        verify(
+          () => mockUsersLocalDataSource.saveUserProfile(tUserProfileModel),
+        ).called(1);
+      },
+    );
+
+    test('should return FailureState when remote login fails', () async {
+      // Arrange
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockAuthRemoteDataSource.login(any()),
+      ).thenAnswer((_) async => FailureState<UserDataResponseModel>());
+
+      // Act
+      final result = await repository.login(tAuthentication);
+
+      // Assert
+      expect(result, isA<FailureState<UserDataEntity>>());
+      verify(() => mockAuthRemoteDataSource.login(any())).called(1);
+      verifyNever(() => mockAuthRemoteDataSource.getCurrentUserProfile(any()));
+      verifyZeroInteractions(mockUsersLocalDataSource);
+    });
+
+    test(
+      'should return FailureState when login response has no user profile',
       () async {
         // Arrange
         when(() => mockInternetClient.isConnected).thenReturn(true);
@@ -80,13 +175,35 @@ void main() {
         final result = await repository.login(tAuthentication);
 
         // Assert
-        expect(result, isA<SuccessState<UserDataEntity>>());
-        expect(result.data, tUserData);
-        verify(() => mockInternetClient.isConnected).called(1);
+        expect(result, isA<FailureState<UserDataEntity>>());
         verify(() => mockAuthRemoteDataSource.login(any())).called(1);
-        verifyNoMoreInteractions(mockInternetClient);
-        verifyNoMoreInteractions(mockAuthRemoteDataSource);
-        verifyZeroInteractions(mockAuthLocalDataSource);
+        verifyNever(
+          () => mockAuthRemoteDataSource.getCurrentUserProfile(any()),
+        );
+        verifyZeroInteractions(mockUsersLocalDataSource);
+      },
+    );
+
+    test(
+      'should return FailureState when saving user profile locally fails',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(() => mockAuthRemoteDataSource.login(any())).thenAnswer(
+          (_) async => SuccessState(data: tUserDataModelWithProfile),
+        );
+        when(
+          () => mockUsersLocalDataSource.saveUserProfile(any()),
+        ).thenAnswer((_) async => FailureState<bool>());
+
+        // Act
+        final result = await repository.login(tAuthentication);
+
+        // Assert
+        expect(result, isA<FailureState<UserDataEntity>>());
+        verify(
+          () => mockUsersLocalDataSource.saveUserProfile(tUserProfileModel),
+        ).called(1);
       },
     );
 
@@ -106,6 +223,7 @@ void main() {
         verifyNoMoreInteractions(mockInternetClient);
         verifyZeroInteractions(mockAuthRemoteDataSource);
         verifyZeroInteractions(mockAuthLocalDataSource);
+        verifyZeroInteractions(mockUsersLocalDataSource);
       },
     );
   });
@@ -163,6 +281,7 @@ void main() {
   group('resetPassword', () {
     test('should call remoteDataSource.resetPassword', () async {
       // Arrange
+      when(() => mockInternetClient.isConnected).thenReturn(true);
       when(
         () => mockAuthRemoteDataSource.resetPassword(any()),
       ).thenAnswer((_) async => SuccessState.nil);
@@ -182,6 +301,7 @@ void main() {
     test('should call remoteDataSource.changePassword', () async {
       final tPassword = faker.internet.password();
       // Arrange
+      when(() => mockInternetClient.isConnected).thenReturn(true);
       when(
         () => mockAuthRemoteDataSource.changePassword(any()),
       ).thenAnswer((_) async => SuccessState.nil);

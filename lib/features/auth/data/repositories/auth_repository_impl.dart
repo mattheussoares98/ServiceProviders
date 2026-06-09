@@ -1,6 +1,8 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
@@ -10,6 +12,7 @@ import 'package:clean_architecture/features/auth/data/models/responses/user_data
 import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
 import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/auth_repository.dart';
+import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthRepository)
@@ -18,13 +21,16 @@ final class AuthRepositoryImpl implements AuthRepository {
     required InternetClient internet,
     required AuthRemoteDataSource remoteDataSource,
     required AuthLocalDataSource localDataSource,
+    required UsersLocalDataSource usersLocalDataSource,
   }) : _localDataSource = localDataSource,
        _remoteDataSource = remoteDataSource,
+       _usersLocalDataSource = usersLocalDataSource,
        _internet = internet;
 
   final InternetClient _internet;
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
+  final UsersLocalDataSource _usersLocalDataSource;
 
   @override
   FutureData<UserDataEntity> login(AuthenticationEntity authentication) {
@@ -33,6 +39,17 @@ final class AuthRepositoryImpl implements AuthRepository {
       remoteCallback: () => _remoteDataSource.login(
         AuthenticationRequestModel.fromEntity(authentication),
       ),
+      onRemoteSuccess: (data) {
+        final profile = data.userProfile;
+        if (profile == null) {
+          return Future.value(
+            FailureState<Object?>(
+              message: 'Perfil de usuário não encontrado.'.hardcoded,
+            ),
+          );
+        }
+        return _usersLocalDataSource.saveUserProfile(profile);
+      },
     );
   }
 
