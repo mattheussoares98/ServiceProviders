@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -13,7 +13,7 @@ void main() {
   late SessionLocalDataSourceImpl sessionLocalDataSource;
 
   setUpAll(() {
-    registerFallbackValue(const UserDataEntity.empty());
+    registerFallbackValue(UserDataEntity.empty());
   });
 
   setUp(() {
@@ -22,7 +22,9 @@ void main() {
   });
 
   final userDataResponse = UserDataResponseModel(
-    user: UserModel.fromEntity(EntityFactory.makeUserEntity()),
+    user: UserProfileResponseModel.fromEntity(
+      EntityFactory.makeUserProfileEntity(),
+    ),
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   );
@@ -42,26 +44,20 @@ void main() {
 
           // Assert
           expect(result, equals(userDataResponse));
-          verify(
-            () => mockLocalStorageClient.getUserSession(),
-          ).called(1);
+          verify(() => mockLocalStorageClient.getUserSession()).called(1);
         },
       );
 
       test('should return null when cached data is null', () async {
         // Arrange
-        when(
-          () => mockLocalStorageClient.getUserSession(),
-        ).thenReturn(null);
+        when(() => mockLocalStorageClient.getUserSession()).thenReturn(null);
 
         // Act
         final result = await sessionLocalDataSource.getUserData();
 
         // Assert
         expect(result, isNull);
-        verify(
-          () => mockLocalStorageClient.getUserSession(),
-        ).called(1);
+        verify(() => mockLocalStorageClient.getUserSession()).called(1);
       });
     });
 
@@ -77,7 +73,9 @@ void main() {
 
         // Assert
         verify(
-          () => mockLocalStorageClient.saveUserSession(userDataResponse.toEntity()),
+          () => mockLocalStorageClient.saveUserSession(
+            userDataResponse.toEntity(),
+          ),
         ).called(1);
       });
     });

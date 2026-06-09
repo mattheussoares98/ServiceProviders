@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -32,15 +32,19 @@ void main() {
     });
 
     test('saveThemeMode persists value and updates cache', () async {
-      final newTheme = faker.randomGenerator.element(['light', 'dark', 'system']);
+      final newTheme = faker.randomGenerator.element([
+        'light',
+        'dark',
+        'system',
+      ]);
       await localStorageClient.saveThemeMode(newTheme);
 
       expect(localStorageClient.getThemeMode(), newTheme);
 
       // Check database
-      final dbValue = await (database.select(database.appSettings)
-            ..where((t) => t.id.equals(1)))
-          .getSingleOrNull();
+      final dbValue = await (database.select(
+        database.appSettings,
+      )..where((t) => t.id.equals(1))).getSingleOrNull();
       expect(dbValue?.themeMode, newTheme);
     });
   });
@@ -52,11 +56,14 @@ void main() {
 
     test('saveUserSession persists value and updates cache', () async {
       final userSession = UserDataEntity(
-        user: UserEntity(
+        user: UserProfileEntity(
           id: faker.guid.guid(),
+          companyId: faker.guid.guid(),
           name: faker.person.name(),
           email: faker.internet.email(),
           isActive: faker.randomGenerator.boolean(),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
@@ -67,7 +74,9 @@ void main() {
       expect(localStorageClient.getUserSession(), userSession);
 
       // Check database
-      final dbValue = await database.select(database.userSessions).getSingleOrNull();
+      final dbValue = await database
+          .select(database.userSessions)
+          .getSingleOrNull();
       expect(dbValue, isNotNull);
       expect(dbValue!.id, userSession.user.id);
       expect(dbValue.name, userSession.user.name);
@@ -79,11 +88,14 @@ void main() {
 
     test('clearUserSession deletes session from cache and database', () async {
       final userSession = UserDataEntity(
-        user: UserEntity(
+        user: UserProfileEntity(
           id: faker.guid.guid(),
+          companyId: faker.guid.guid(),
           name: faker.person.name(),
           email: faker.internet.email(),
           isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
@@ -94,19 +106,61 @@ void main() {
 
       expect(localStorageClient.getUserSession(), isNull);
 
-      final dbValue = await database.select(database.userSessions).getSingleOrNull();
+      final dbValue = await database
+          .select(database.userSessions)
+          .getSingleOrNull();
       expect(dbValue, isNull);
+    });
+
+    test('saveUserSession replaces any previous session row', () async {
+      final firstSession = UserDataEntity(
+        user: UserProfileEntity(
+          id: faker.guid.guid(),
+          companyId: faker.guid.guid(),
+          name: faker.person.name(),
+          email: faker.internet.email(),
+          isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+        accessToken: faker.jwt.valid(),
+        refreshToken: faker.jwt.valid(),
+      );
+      final secondSession = UserDataEntity(
+        user: UserProfileEntity(
+          id: faker.guid.guid(),
+          companyId: faker.guid.guid(),
+          name: faker.person.name(),
+          email: faker.internet.email(),
+          isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+        accessToken: faker.jwt.valid(),
+        refreshToken: faker.jwt.valid(),
+      );
+
+      await localStorageClient.saveUserSession(firstSession);
+      await localStorageClient.saveUserSession(secondSession);
+
+      final dbSessions = await database.select(database.userSessions).get();
+      expect(dbSessions, hasLength(1));
+      expect(dbSessions.single.id, secondSession.user.id);
+      expect(localStorageClient.getUserSession(), secondSession);
     });
   });
 
   group('LocalStorageClientImpl — Global operations', () {
     test('clearAll wipes both settings and sessions', () async {
       final userSession = UserDataEntity(
-        user: UserEntity(
+        user: UserProfileEntity(
           id: faker.guid.guid(),
+          companyId: faker.guid.guid(),
           name: faker.person.name(),
           email: faker.internet.email(),
           isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         ),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),

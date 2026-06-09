@@ -145,9 +145,15 @@ void main() {
 
         // Assert
         expect(result, isA<SuccessState<UserDataResponseModel>>());
+        expect(result.data?.user.id, fakeAuthResponse.user!.id);
+        expect(result.data?.user.email, fakeAuthResponse.user!.email ?? '');
         expect(
-          result.data,
-          UserDataResponseModel.fromSupabase(fakeAuthResponse),
+          result.data?.accessToken,
+          fakeAuthResponse.session?.accessToken ?? '',
+        );
+        expect(
+          result.data?.refreshToken,
+          fakeAuthResponse.session?.refreshToken ?? '',
         );
 
         verify(

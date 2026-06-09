@@ -42,7 +42,7 @@ void main() {
     password: 'password',
   );
   final tUserData = EntityFactory.makeUserDataEntity().copyWith(
-    user: EntityFactory.makeUserEntity(),
+    user: EntityFactory.makeUserProfileEntity(),
   );
   final tSignUpEntity = EntityFactory.makeSignUp();
   final tNewPassword = faker.internet.password();

@@ -23,7 +23,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     emit(state.copyWith(status: StateStatus.loading, annulErrorMessage: true));
 
     final user = _useCases.getSessionUser.call();
-    if (user.id.isEmpty) {
+    if (user.id.isEmpty || user.companyId.isEmpty) {
       emit(
         state.copyWith(
           status: StateStatus.error,
@@ -33,21 +33,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
       return;
     }
 
-    final userProfileResult = await _useCases.getUserProfileById.call(user.id);
-
-    if (userProfileResult is FailureState) {
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage:
-              (userProfileResult as FailureState).message ??
-              'Erro ao carregar perfil'.hardcoded,
-        ),
-      );
-      return;
-    }
-
-    final companyId = userProfileResult.data!.companyId;
+    final companyId = user.companyId;
 
     // Run work orders and assets calls concurrently
     final results = await Future.wait([

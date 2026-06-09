@@ -15,6 +15,19 @@ class UserProfileEntity extends Equatable {
     this.deletedAt,
   });
 
+  UserProfileEntity.empty()
+    : id = '',
+      companyId = '',
+      name = '',
+      email = '',
+      phone = null,
+      permissionGroupId = null,
+      avatarUrl = null,
+      isActive = false,
+      createdAt = DateTime.fromMillisecondsSinceEpoch(0),
+      updatedAt = DateTime.fromMillisecondsSinceEpoch(0),
+      deletedAt = null;
+
   final String id;
   final String companyId;
   final String name;
@@ -29,18 +42,18 @@ class UserProfileEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        email,
-        phone,
-        permissionGroupId,
-        avatarUrl,
-        isActive,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    email,
+    phone,
+    permissionGroupId,
+    avatarUrl,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   UserProfileEntity copyWith({
     String? id,
@@ -65,7 +78,9 @@ class UserProfileEntity extends Equatable {
       name: name ?? this.name,
       email: email ?? this.email,
       phone: annulPhone == true ? null : phone ?? this.phone,
-      permissionGroupId: annulPermissionGroupId == true ? null : permissionGroupId ?? this.permissionGroupId,
+      permissionGroupId: annulPermissionGroupId == true
+          ? null
+          : permissionGroupId ?? this.permissionGroupId,
       avatarUrl: annulAvatarUrl == true ? null : avatarUrl ?? this.avatarUrl,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,

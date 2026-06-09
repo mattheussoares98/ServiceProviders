@@ -33,6 +33,7 @@ final class UsersRepositoryImpl implements UsersRepository {
 
   @override
   FutureData<UserProfileEntity> getUserProfileById(String id) =>
+      //TODO add remote loading here
       RepositoryHandler.fetchFromLocalAndMap<
         UserProfileResponseModel,
         UserProfileEntity
@@ -45,7 +46,8 @@ final class UsersRepositoryImpl implements UsersRepository {
       );
 
   @override
-  FutureBool deleteUserProfile(String id) => _localDataSource.deleteUserProfile(id);
+  FutureBool deleteUserProfile(String id) =>
+      _localDataSource.deleteUserProfile(id);
 
   @override
   FutureList<PermissionGroupEntity> getPermissionGroups(String companyId) =>
@@ -67,5 +69,6 @@ final class UsersRepositoryImpl implements UsersRepository {
       );
 
   @override
-  FutureBool deletePermissionGroup(String id) => _localDataSource.deletePermissionGroup(id);
+  FutureBool deletePermissionGroup(String id) =>
+      _localDataSource.deletePermissionGroup(id);
 }

@@ -1,5 +1,4 @@
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
@@ -358,16 +357,6 @@ abstract final class EntityFactory {
     ];
   }
 
-  // Unified from TestFactory
-  static UserEntity makeUserEntity() {
-    return UserEntity(
-      id: faker.guid.guid(),
-      name: faker.internet.userName(),
-      email: faker.internet.email(),
-      isActive: true,
-    );
-  }
-
   static User makeUser() {
     return User(
       id: faker.guid.guid(),
@@ -380,7 +369,7 @@ abstract final class EntityFactory {
 
   static UserDataEntity makeUserDataEntity() {
     return UserDataEntity(
-      user: makeUserEntity(),
+      user: makeUserProfileEntity(),
       accessToken: faker.jwt.valid(),
       refreshToken: faker.jwt.valid(),
     );

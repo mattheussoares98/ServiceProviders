@@ -1,11 +1,10 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/assets/domain/use_cases/get_assets_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
@@ -18,9 +17,6 @@ import 'package:mocktail/mocktail.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 
-class MockGetUserProfileByIdUseCase extends Mock
-    implements GetUserProfileByIdUseCase {}
-
 class MockGetWorkOrdersUseCase extends Mock implements GetWorkOrdersUseCase {}
 
 class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
@@ -28,7 +24,6 @@ class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 void main() {
-  late MockGetUserProfileByIdUseCase mockGetUserProfileByIdUseCase;
   late MockGetWorkOrdersUseCase mockGetWorkOrdersUseCase;
   late MockGetAssetsUseCase mockGetAssetsUseCase;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
@@ -38,7 +33,6 @@ void main() {
   late DashboardCubit cubit;
 
   setUp(() {
-    mockGetUserProfileByIdUseCase = MockGetUserProfileByIdUseCase();
     mockGetWorkOrdersUseCase = MockGetWorkOrdersUseCase();
     mockGetAssetsUseCase = MockGetAssetsUseCase();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
@@ -47,7 +41,6 @@ void main() {
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     useCases = DashboardCubitUseCases(
-      getUserProfileById: mockGetUserProfileByIdUseCase,
       getWorkOrders: mockGetWorkOrdersUseCase,
       getAssets: mockGetAssetsUseCase,
       getSessionUser: mockGetSessionUserUseCase,
@@ -70,7 +63,7 @@ void main() {
       build: () {
         when(
           () => mockGetSessionUserUseCase.call(),
-        ).thenReturn(const UserEntity.empty());
+        ).thenReturn(UserProfileEntity.empty());
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -91,15 +84,12 @@ void main() {
     );
 
     blocTest<DashboardCubit, DashboardState>(
-      'emits [loading, error] when user profile fetch fails',
+      'emits [loading, error] when current session has no company id',
       build: () {
-        final userData = EntityFactory.makeUserDataEntity();
-        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
-        when(
-          () => mockGetUserProfileByIdUseCase.call(userData.user.id),
-        ).thenAnswer(
-          (_) async => FailureState(message: 'Error fetching profile'),
+        final profile = EntityFactory.makeUserProfileEntity().copyWith(
+          companyId: '',
         );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(profile);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -114,7 +104,7 @@ void main() {
             .having(
               (s) => s.errorMessage,
               'errorMessage',
-              'Error fetching profile',
+              'Usuário não autenticado',
             ),
       ],
     );
@@ -123,17 +113,13 @@ void main() {
       'emits [loading, error] when work orders fetch fails',
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
-        final profile = EntityFactory.makeUserProfileEntity();
-        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetUserProfileByIdUseCase.call(userData.user.id),
-        ).thenAnswer((_) async => SuccessState(data: profile));
-        when(
-          () => mockGetWorkOrdersUseCase.call(profile.companyId),
+          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => FailureState(message: 'Error work orders'));
         when(
-          () => mockGetAssetsUseCase.call(profile.companyId),
+          () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => const SuccessState(data: []));
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -153,17 +139,13 @@ void main() {
       'emits [loading, error] when assets fetch fails',
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
-        final profile = EntityFactory.makeUserProfileEntity();
-        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetUserProfileByIdUseCase.call(userData.user.id),
-        ).thenAnswer((_) async => SuccessState(data: profile));
-        when(
-          () => mockGetWorkOrdersUseCase.call(profile.companyId),
+          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => const SuccessState(data: []));
         when(
-          () => mockGetAssetsUseCase.call(profile.companyId),
+          () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => FailureState(message: 'Error assets'));
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -183,7 +165,6 @@ void main() {
       'emits [loading, loaded] with correct stats and sorted recent work orders',
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
-        final profile = EntityFactory.makeUserProfileEntity();
 
         final workOrder1 = EntityFactory.makeWorkOrderEntity().copyWith(
           status: WorkOrderStatus.open,
@@ -210,13 +191,12 @@ void main() {
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetUserProfileByIdUseCase.call(userData.user.id),
-        ).thenAnswer((_) async => SuccessState(data: profile));
-        when(() => mockGetWorkOrdersUseCase.call(profile.companyId)).thenAnswer(
+          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+        ).thenAnswer(
           (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
         );
         when(
-          () => mockGetAssetsUseCase.call(profile.companyId),
+          () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => SuccessState(data: [asset1, asset2, asset3]));
         return cubit;
       },
@@ -235,7 +215,7 @@ void main() {
               'inProgressWorkOrdersCount',
               1,
             )
-            .having((s) => s.pendingRevisionsCount, 'pendingRevisionsCount', 1)
+            .having((s) => s.pendingRevisionsCount, 'pendingRevisionsCount', 2)
             .having(
               (s) => s.recentWorkOrders,
               'recentWorkOrders',

@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
@@ -36,10 +35,12 @@ void main() {
     registerFallbackValue(
       const AuthenticationRequestModel(email: '', password: ''),
     );
-    registerFallbackValue(const UserDataEntity.empty());
+    registerFallbackValue(UserDataEntity.empty());
     registerFallbackValue(
-      const UserDataResponseModel(
-        user: UserModel(id: '1', name: '', email: '', isActive: true),
+      UserDataResponseModel(
+        user: UserProfileResponseModel.fromEntity(
+          EntityFactory.makeUserProfileEntity(),
+        ),
         accessToken: '',
         refreshToken: '',
       ),
@@ -60,7 +61,7 @@ void main() {
     password: 'password',
   );
 
-  final tUser = EntityFactory.makeUserEntity().copyWith(
+  final tUser = EntityFactory.makeUserProfileEntity().copyWith(
     id: '1',
     name: 'test user',
     email: 'test@example.com',
@@ -74,14 +75,14 @@ void main() {
 
   // Build DTO from domain test data
   final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(
-    EntityFactory.makeUserProfileEntity().copyWith(id: tUser.id),
+  final tUserProfileModel = UserProfileResponseModel.fromEntity(tUser);
+  final tIncompleteUserDataModel = UserDataResponseModel.fromEntity(
+    tUserData.copyWith(user: tUser.copyWith(companyId: '')),
   );
   final tUserDataModelWithProfile = UserDataResponseModel(
-    user: UserModel.fromEntity(tUser),
+    user: tUserProfileModel,
     accessToken: tUserData.accessToken,
     refreshToken: tUserData.refreshToken,
-    userProfile: tUserProfileModel,
   );
 
   group('login', () {
@@ -169,7 +170,7 @@ void main() {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
           () => mockAuthRemoteDataSource.login(any()),
-        ).thenAnswer((_) async => SuccessState(data: tUserDataModel));
+        ).thenAnswer((_) async => SuccessState(data: tIncompleteUserDataModel));
 
         // Act
         final result = await repository.login(tAuthentication);

@@ -40,7 +40,7 @@ void main() {
 
   setUpAll(() {
     userData = EntityFactory.makeUserDataEntity().copyWith(
-      user: EntityFactory.makeUserEntity(),
+      user: EntityFactory.makeUserProfileEntity(),
     );
     registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());

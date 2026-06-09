@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
@@ -45,13 +45,16 @@ final class LocalStorageClientImpl implements LocalStorageClient {
       _database.userSessions,
     )..limit(1)).getSingleOrNull();
     if (session != null) {
+      final profile =
+          await (_database.select(_database.userProfiles)
+                ..where((t) => t.id.equals(session.id) & t.deletedAt.isNull()))
+              .getSingleOrNull();
+      if (profile == null) {
+        return;
+      }
+
       _userSession = UserDataEntity(
-        user: UserEntity(
-          id: session.id,
-          name: session.name,
-          email: session.email,
-          isActive: session.isActive,
-        ),
+        user: UserProfileResponseModel.fromDb(profile).toEntity(),
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
       );
@@ -74,18 +77,21 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
     _userSession = userSession;
-    await _database
-        .into(_database.userSessions)
-        .insertOnConflictUpdate(
-          UserSessionsCompanion(
-            id: Value(userSession.user.id),
-            name: Value(userSession.user.name),
-            email: Value(userSession.user.email),
-            isActive: Value(userSession.user.isActive),
-            accessToken: Value(userSession.accessToken),
-            refreshToken: Value(userSession.refreshToken),
-          ),
-        );
+    await _database.transaction(() async {
+      await _database.delete(_database.userSessions).go();
+      await _database
+          .into(_database.userSessions)
+          .insert(
+            UserSessionsCompanion(
+              id: Value(userSession.user.id),
+              name: Value(userSession.user.name),
+              email: Value(userSession.user.email),
+              isActive: Value(userSession.user.isActive),
+              accessToken: Value(userSession.accessToken),
+              refreshToken: Value(userSession.refreshToken),
+            ),
+          );
+    });
   }
 
   @override

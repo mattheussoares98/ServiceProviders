@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,8 +21,16 @@ class MockUser extends Mock implements User {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      const UserDataResponseModel(
-        user: UserModel(id: '', name: '', email: '', isActive: false),
+      UserDataResponseModel(
+        user: UserProfileResponseModel(
+          id: '',
+          companyId: '',
+          name: '',
+          email: '',
+          isActive: false,
+          createdAt: DateTime(0),
+          updatedAt: DateTime(0),
+        ),
         accessToken: '',
         refreshToken: '',
       ),
@@ -45,7 +53,9 @@ void main() {
   });
 
   final userDataResponse = UserDataResponseModel(
-    user: UserModel.fromEntity(EntityFactory.makeUserEntity()),
+    user: UserProfileResponseModel.fromEntity(
+      EntityFactory.makeUserProfileEntity(),
+    ),
     accessToken: faker.lorem.word(),
     refreshToken: faker.lorem.word(),
   );
@@ -91,32 +101,18 @@ void main() {
           // Assert
           verify(() => mockSessionLocalDataSource.getUserData()).called(1);
           expect(sessionRepository.isLoggedIn, isFalse);
-          expect(
-            sessionRepository.userData,
-            equals(const UserDataEntity.empty()),
-          );
+          expect(sessionRepository.userData, equals(UserDataEntity.empty()));
         },
       );
 
       test(
-        'should hydrate session from Supabase when cached data is null but Supabase session is active',
+        'should not hydrate session from Supabase when cached profile data is null',
         () async {
           // Arrange
           final mockSession = MockSession();
-          final mockUser = MockUser();
-          final userId = faker.guid.guid();
-          final email = faker.internet.email();
-          final name = faker.person.name();
           final accessToken = faker.lorem.word();
-          final refreshToken = faker.lorem.word();
 
-          when(() => mockSession.user).thenReturn(mockUser);
           when(() => mockSession.accessToken).thenReturn(accessToken);
-          when(() => mockSession.refreshToken).thenReturn(refreshToken);
-
-          when(() => mockUser.id).thenReturn(userId);
-          when(() => mockUser.email).thenReturn(email);
-          when(() => mockUser.userMetadata).thenReturn({'name': name});
 
           when(
             () => mockSupabaseAuthClient.currentSession,
@@ -124,27 +120,15 @@ void main() {
           when(
             () => mockSessionLocalDataSource.getUserData(),
           ).thenAnswer((_) async => null);
-          when(
-            () => mockSessionLocalDataSource.saveUserData(any()),
-          ).thenAnswer((_) async {});
-
-          registerFallbackValue(
-            UserDataResponseModel.fromEntity(
-              EntityFactory.makeUserDataEntity(),
-            ),
-          );
 
           // Act
           await sessionRepository.checkForUserCredential();
 
           // Assert
           verify(() => mockSessionLocalDataSource.getUserData()).called(1);
-          verify(
-            () => mockSessionLocalDataSource.saveUserData(any()),
-          ).called(1);
-          expect(sessionRepository.userData.user.id, equals(userId));
-          expect(sessionRepository.userData.user.email, equals(email));
-          expect(sessionRepository.userData.user.name, equals(name));
+          verifyNever(() => mockSessionLocalDataSource.saveUserData(any()));
+          expect(sessionRepository.isLoggedIn, isFalse);
+          expect(sessionRepository.userData, equals(UserDataEntity.empty()));
         },
       );
     });
@@ -195,8 +179,8 @@ void main() {
           verify(
             () => mockSessionLocalDataSource.saveUserData(
               UserDataResponseModel.fromEntity(
-                const UserDataEntity.empty().copyWith(
-                  user: const UserEntity.empty().copyWith(
+                UserDataEntity.empty().copyWith(
+                  user: UserProfileEntity.empty().copyWith(
                     email: email,
                     name: name,
                   ),
@@ -206,10 +190,7 @@ void main() {
           ).called(1);
 
           expect(sessionRepository.isLoggedIn, isFalse);
-          expect(
-            sessionRepository.userData,
-            equals(const UserDataEntity.empty()),
-          );
+          expect(sessionRepository.userData, equals(UserDataEntity.empty()));
         },
       );
     });

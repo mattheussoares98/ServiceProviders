@@ -1,9 +1,9 @@
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/domain/entities/user_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:injectable/injectable.dart';
 
 /// A class that stores user data
@@ -18,10 +18,13 @@ final class SessionRepositoryImpl implements SessionRepository {
   final SessionLocalDataSource _localDataSource;
   final SupabaseAuthClient _auth;
 
-  UserDataEntity _userData = const UserDataEntity.empty();
+  UserDataEntity _userData = UserDataEntity.empty();
 
   @override
-  bool get isLoggedIn => _auth.currentSession?.accessToken.isNotEmpty ?? false;
+  bool get isLoggedIn =>
+      (_auth.currentSession?.accessToken.isNotEmpty ?? false) &&
+      _userData.user.id.isNotEmpty &&
+      _userData.user.companyId.isNotEmpty;
 
   @override
   UserDataEntity get userData => _userData;
@@ -35,21 +38,6 @@ final class SessionRepositoryImpl implements SessionRepository {
     final response = await _localDataSource.getUserData();
     if (response != null) {
       _userData = response.toEntity();
-    } else if (_auth.currentSession != null) {
-      final supabaseUser = _auth.currentSession!.user;
-      _userData = UserDataEntity(
-        user: UserEntity(
-          id: supabaseUser.id,
-          name: supabaseUser.userMetadata?['name'] as String? ?? '',
-          email: supabaseUser.email ?? '',
-          isActive: true,
-        ),
-        accessToken: _auth.currentSession!.accessToken,
-        refreshToken: _auth.currentSession!.refreshToken ?? '',
-      );
-      await _localDataSource.saveUserData(
-        UserDataResponseModel.fromEntity(_userData),
-      );
     }
   }
 
@@ -57,11 +45,11 @@ final class SessionRepositoryImpl implements SessionRepository {
   Future<void> logout({String? email, String? name}) async {
     final userEmail = email ?? _auth.currentSession?.user.email;
     final partialModel = UserDataResponseModel.fromEntity(
-      const UserDataEntity.empty().copyWith(
-        user: const UserEntity.empty().copyWith(email: userEmail, name: name),
+      UserDataEntity.empty().copyWith(
+        user: UserProfileEntity.empty().copyWith(email: userEmail, name: name),
       ),
     );
-    _userData = const UserDataEntity.empty();
+    _userData = UserDataEntity.empty();
     await _localDataSource.saveUserData(partialModel);
     await _auth.logout();
   }

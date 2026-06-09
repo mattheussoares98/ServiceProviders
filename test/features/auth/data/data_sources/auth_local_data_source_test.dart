@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/models/responses/user_model.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -14,7 +14,7 @@ void main() {
   late AuthLocalDataSourceImpl dataSource;
 
   setUpAll(() {
-    registerFallbackValue(const UserDataEntity.empty());
+    registerFallbackValue(UserDataEntity.empty());
   });
 
   setUp(() {
@@ -22,7 +22,9 @@ void main() {
     dataSource = AuthLocalDataSourceImpl(localDatabase: mockLocalDatabase);
   });
 
-  final userModel = UserModel.fromEntity(EntityFactory.makeUserEntity());
+  final userModel = UserProfileResponseModel.fromEntity(
+    EntityFactory.makeUserProfileEntity(),
+  );
 
   final tUserDataModel = UserDataResponseModel(
     user: userModel,
@@ -92,9 +94,7 @@ void main() {
 
     test('should return FailureState when no data is found (null)', () async {
       // Arrange
-      when(
-        () => mockLocalDatabase.getUserSession(),
-      ).thenReturn(null);
+      when(() => mockLocalDatabase.getUserSession()).thenReturn(null);
 
       // Act
       final result = await dataSource.getUserData();
@@ -109,9 +109,7 @@ void main() {
       () async {
         // Arrange
         final exception = Exception('Failed to read');
-        when(
-          () => mockLocalDatabase.getUserSession(),
-        ).thenThrow(exception);
+        when(() => mockLocalDatabase.getUserSession()).thenThrow(exception);
 
         // Act
         final result = await dataSource.getUserData();

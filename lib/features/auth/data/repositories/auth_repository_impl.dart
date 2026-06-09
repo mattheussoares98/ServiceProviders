@@ -40,8 +40,8 @@ final class AuthRepositoryImpl implements AuthRepository {
         AuthenticationRequestModel.fromEntity(authentication),
       ),
       onRemoteSuccess: (data) {
-        final profile = data.userProfile;
-        if (profile == null) {
+        final profile = data.user;
+        if (profile.id.isEmpty || profile.companyId.isEmpty) {
           return Future.value(
             FailureState<Object?>(
               message: 'Perfil de usuário não encontrado.'.hardcoded,
