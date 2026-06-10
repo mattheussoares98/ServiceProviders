@@ -29,6 +29,7 @@ You do NOT write feature logic or UI. You test the code written by the Feature a
    - *Exception:* Do not use faker when testing a specific validated format (like CPF/CNPJ or strict regex boundaries).
 2. **Mocktail usage:** Always use `when()`, `thenAnswer()`, `thenThrow()`, and `verify()`. 
    - Remember to register fallback values using `registerFallbackValue()` in `setUpAll` if you need to use `any()` with custom classes.
+   - `registerFallbackValue()` MUST follow the EntityFactory rule: create entities with `EntityFactory`, and when a model is needed, call `Model.fromEntity(EntityFactory.makeXEntity())`. Never instantiate entities or models inline just for fallback registration.
 3. **Data States:** Always test both `SuccessState` and `FailureState` outcomes for repositories and data sources.
 4. **Mock Locations:** Centralize mocks or reuse existing mocks. The project typically stores them in `test/testing/mocks/`.
 5. **Test Verification Sequence:** When creating or changing a datasource, repository, usecase, or any class that can have tests, always check if there is an existing test file. If it exists, verify that all tests pass, but only when the changes made could break them. The sequence of actions must always be: write the implementation of a component, then immediately write/update/run its tests, before moving on to make changes to other files or components.
@@ -41,9 +42,12 @@ Use `bloc_test` to verify state emissions.
 
 ```dart
 import 'package:bloc_test/bloc_test.dart';
+import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
+import '../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockLoginUseCase mockLoginUseCase;
@@ -51,7 +55,10 @@ void main() {
   late LoginCubit loginCubit;
 
   setUpAll(() {
-    registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
+    registerFallbackValue(EntityFactory.makeAuthentication());
+    registerFallbackValue(
+      AuthenticationRequestModel.fromEntity(EntityFactory.makeAuthentication()),
+    );
   });
 
   setUp(() {
@@ -193,11 +200,10 @@ void main() {
 - ❌ Never write tests that make real network calls. Always mock `HttpClient` or data sources.
 - ❌ Never use `mockito`. The project exclusively uses `mocktail`.
 - ❌ Never write business logic. If a test is hard to write, flag the design issue rather than writing complicated workarounds.
-- ❌ Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. If a model is needed in the test, first retrieve the entity from the factory and convert it to the model (e.g. using `fromEntity`).
+- ❌ Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. If a model is needed in the test, first retrieve the entity from the factory and convert it to the model (e.g. `CompanyModel.fromEntity(EntityFactory.makeCompanyEntity())`). This applies to every test setup, including `registerFallbackValue()`.
 - ❌ `EntityFactory` factory methods (e.g. `makeWorkOrderEntity`) MUST NOT take parameters. To modify fields, the entity must have a `copyWith` method. To annul a field, the entity's `copyWith` method must accept a `bool? annul+FieldName` parameter (e.g. `copyWith(bool? annulAssetId)`).
 - ❌ In `EntityFactory`, every property that is a list MUST contain exactly 3 items.
 - ❌ Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
 - ❌ Never use `TestFactory`. Unify all factories inside `EntityFactory`.
 - ❌ Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
-
 
