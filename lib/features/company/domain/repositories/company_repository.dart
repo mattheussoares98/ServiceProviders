@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/company/domain/entities/company_enti
 import 'package:clean_architecture/features/company/domain/entities/company_parameter_entity.dart';
 
 abstract interface class CompanyRepository {
+  FutureData<CompanyEntity> createCompany(CompanyEntity company);
   FutureData<CompanyEntity> getCompany(String id);
   FutureData<CompanyParameterEntity> getCompanyParameters(String companyId);
   FutureBool saveCompany(CompanyEntity company);

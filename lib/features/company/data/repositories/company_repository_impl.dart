@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:clean_architecture/features/company/data/models/requests/company_request_model.dart';
 import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
 import 'package:clean_architecture/features/company/data/models/responses/company_parameter_model.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
@@ -23,6 +24,15 @@ final class CompanyRepositoryImpl implements CompanyRepository {
   final InternetClient _internet;
   final CompanyRemoteDataSource _remoteDataSource;
   final CompanyLocalDataSource _localDataSource;
+
+  @override
+  FutureData<CompanyEntity> createCompany(CompanyEntity company) =>
+      RepositoryHandler.fetchWithFallbackAndMap<CompanyModel, CompanyEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.createCompany(
+          CompanyRequestModel.fromEntity(company),
+        ),
+      );
 
   @override
   FutureData<CompanyEntity> getCompany(String id) =>

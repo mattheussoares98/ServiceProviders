@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/company/data/models/requests/company_request_model.dart';
 import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
 import 'package:clean_architecture/features/company/data/models/responses/company_parameter_model.dart';
 import 'package:clean_architecture/features/company/data/repositories/company_repository_impl.dart';
@@ -46,6 +47,15 @@ void main() {
         updatedAt: DateTime.now(),
       ),
     );
+    registerFallbackValue(
+      CompanyRequestModel(
+        id: '',
+        name: '',
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    );
   });
 
   final tCompanyId = faker.guid.guid();
@@ -69,6 +79,71 @@ void main() {
   );
 
   group('CompanyRepositoryImpl', () {
+    group('createCompany', () {
+      test(
+        'should call remoteDataSource.createCompany and return mapped entity when internet is connected',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.createCompany(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
+
+          // Act
+          final result = await repository.createCompany(
+            tCompanyModel.toEntity(),
+          );
+
+          // Assert
+          expect(result, isA<SuccessState<CompanyEntity>>());
+          expect(result.data, tCompanyModel.toEntity());
+
+          verify(
+            () => mockRemoteDataSource.createCompany(
+              CompanyRequestModel.fromEntity(tCompanyModel),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remoteDataSource.createCompany fails',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(() => mockRemoteDataSource.createCompany(any())).thenAnswer(
+            (_) async => FailureState<CompanyModel>(message: 'Error'),
+          );
+
+          // Act
+          final result = await repository.createCompany(
+            tCompanyModel.toEntity(),
+          );
+
+          // Assert
+          expect(result, isA<FailureState<CompanyEntity>>());
+          verify(() => mockRemoteDataSource.createCompany(any())).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when internet is disconnected',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+
+          // Act
+          final result = await repository.createCompany(
+            tCompanyModel.toEntity(),
+          );
+
+          // Assert
+          expect(result, isA<FailureState<CompanyEntity>>());
+          verifyNever(() => mockRemoteDataSource.createCompany(any()));
+        },
+      );
+    });
+
     group('getCompany', () {
       test(
         'should call localDataSource.getCompany and return mapped entity on success',
