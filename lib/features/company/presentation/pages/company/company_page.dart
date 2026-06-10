@@ -1,8 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
+import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:clean_architecture/features/company/presentation/pages/company/widgets/create_company_modal.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 @RoutePage()
 class CompanyPage extends StatelessWidget {
@@ -10,9 +19,42 @@ class CompanyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      appBar: BaseAppBar(title: 'Companhia'.hardcoded),
-      body: const Column(),
+    return BlocProvider(
+      create: (_) => GetIt.I<CompanyCubit>(),
+      child: BaseScaffold(
+        appBar: BaseAppBar(title: 'Empresa'.hardcoded),
+        body: const _CompanyBody(),
+      ),
+    );
+  }
+}
+
+class _CompanyBody extends StatelessWidget {
+  const _CompanyBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BaseText.title('Empresas'.hardcoded),
+        gapH8,
+        BaseText.bodyLarge('Nenhuma empresa cadastrada'.hardcoded),
+        gapH24,
+        PrimaryButton(
+          expandWidth: true,
+          onTap: () {
+            showModalPage<CompanyEntity>(
+              BlocProvider.value(
+                value: context.read<CompanyCubit>(),
+                child: const CreateCompanyModal(),
+              ),
+              context,
+            );
+          },
+          text: 'CRIAR EMPRESA'.hardcoded,
+        ),
+      ],
     );
   }
 }

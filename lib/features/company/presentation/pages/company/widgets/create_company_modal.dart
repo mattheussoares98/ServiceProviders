@@ -1,0 +1,89 @@
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validator.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+class CreateCompanyModal extends HookWidget {
+  const CreateCompanyModal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+    final nameController = useTextEditingController();
+    final cnpjController = useTextEditingController();
+    final cnpjFocusNode = useFocusNode();
+    final isLoading = context.select(
+      (CompanyCubit cubit) => cubit.state.status == StateStatus.loading,
+    );
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: Sizes.p20),
+      children: [
+        Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              BaseText.title('Criar empresa'.hardcoded),
+              gapH20,
+              BaseTextFormField(
+                autofocus: true,
+                enabled: !isLoading,
+                labelText: 'Nome'.hardcoded,
+                hintText: 'Digite o nome da empresa'.hardcoded,
+                controller: nameController,
+                validator: FormValidators.compose([NonEmptyValidator()]),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => cnpjFocusNode.requestFocus(),
+              ),
+              gapH20,
+              BaseTextFormField(
+                enabled: !isLoading,
+                focusNode: cnpjFocusNode,
+                labelText: 'CNPJ'.hardcoded,
+                hintText: 'Digite o CNPJ'.hardcoded,
+                //TODO add CNPJ validator
+                controller: cnpjController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) =>
+                    _submit(context, formKey, nameController, cnpjController),
+              ),
+              gapH24,
+              PrimaryButton(
+                isLoading: isLoading,
+                expandWidth: true,
+                onTap: () =>
+                    _submit(context, formKey, nameController, cnpjController),
+                text: 'SALVAR'.hardcoded,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _submit(
+    BuildContext context,
+    GlobalKey<FormState> formKey,
+    TextEditingController nameController,
+    TextEditingController cnpjController,
+  ) async {
+    if (!formKey.currentState!.validate()) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    await context.read<CompanyCubit>().createCompany(
+      name: nameController.text,
+      cnpj: cnpjController.text,
+    );
+  }
+}
