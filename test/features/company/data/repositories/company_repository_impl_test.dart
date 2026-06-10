@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_parameter_response_model.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_response_model.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_parameter_model.dart';
 import 'package:clean_architecture/features/company/data/repositories/company_repository_impl.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_parameter_entity.dart';
@@ -28,7 +28,7 @@ void main() {
     );
 
     registerFallbackValue(
-      CompanyResponseModel(
+      CompanyModel(
         id: '',
         name: '',
         isActive: true,
@@ -37,7 +37,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      CompanyParameterResponseModel(
+      CompanyParameterModel(
         id: '',
         companyId: '',
         maxOfflineDurationHours: 2,
@@ -49,7 +49,7 @@ void main() {
   });
 
   final tCompanyId = faker.guid.guid();
-  final tCompanyModel = CompanyResponseModel(
+  final tCompanyModel = CompanyModel(
     id: tCompanyId,
     name: faker.company.name(),
     cnpj: '12345678000199',
@@ -59,7 +59,7 @@ void main() {
     updatedAt: DateTime.now(),
   );
 
-  final tCompanyParameterModel = CompanyParameterResponseModel(
+  final tCompanyParameterModel = CompanyParameterModel(
     id: faker.guid.guid(),
     companyId: tCompanyId,
     maxOfflineDurationHours: 4,
@@ -70,93 +70,127 @@ void main() {
 
   group('CompanyRepositoryImpl', () {
     group('getCompany', () {
-      test('should call localDataSource.getCompany and return mapped entity on success', () async {
-        // Arrange
-        when(() => mockLocalDataSource.getCompany(any()))
-            .thenAnswer((_) async => SuccessState(data: tCompanyModel));
+      test(
+        'should call localDataSource.getCompany and return mapped entity on success',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalDataSource.getCompany(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
 
-        // Act
-        final result = await repository.getCompany(tCompanyId);
+          // Act
+          final result = await repository.getCompany(tCompanyId);
 
-        // Assert
-        expect(result, isA<SuccessState<CompanyEntity>>());
-        expect(result.data, tCompanyModel.toEntity());
-        verify(() => mockLocalDataSource.getCompany(tCompanyId)).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<CompanyEntity>>());
+          expect(result.data, tCompanyModel.toEntity());
+          verify(() => mockLocalDataSource.getCompany(tCompanyId)).called(1);
+        },
+      );
 
-      test('should return FailureState when localDataSource.getCompany fails', () async {
-        // Arrange
-        when(() => mockLocalDataSource.getCompany(any()))
-            .thenAnswer((_) async => FailureState<CompanyResponseModel>(message: 'Error'));
+      test(
+        'should return FailureState when localDataSource.getCompany fails',
+        () async {
+          // Arrange
+          when(() => mockLocalDataSource.getCompany(any())).thenAnswer(
+            (_) async => FailureState<CompanyModel>(message: 'Error'),
+          );
 
-        // Act
-        final result = await repository.getCompany(tCompanyId);
+          // Act
+          final result = await repository.getCompany(tCompanyId);
 
-        // Assert
-        expect(result, isA<FailureState<CompanyEntity>>());
-        verify(() => mockLocalDataSource.getCompany(tCompanyId)).called(1);
-      });
+          // Assert
+          expect(result, isA<FailureState<CompanyEntity>>());
+          verify(() => mockLocalDataSource.getCompany(tCompanyId)).called(1);
+        },
+      );
     });
 
     group('getCompanyParameters', () {
-      test('should call localDataSource.getCompanyParameters and return mapped entity on success', () async {
-        // Arrange
-        when(() => mockLocalDataSource.getCompanyParameters(any()))
-            .thenAnswer((_) async => SuccessState(data: tCompanyParameterModel));
+      test(
+        'should call localDataSource.getCompanyParameters and return mapped entity on success',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalDataSource.getCompanyParameters(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyParameterModel));
 
-        // Act
-        final result = await repository.getCompanyParameters(tCompanyId);
+          // Act
+          final result = await repository.getCompanyParameters(tCompanyId);
 
-        // Assert
-        expect(result, isA<SuccessState<CompanyParameterEntity>>());
-        expect(result.data, tCompanyParameterModel.toEntity());
-        verify(() => mockLocalDataSource.getCompanyParameters(tCompanyId)).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<CompanyParameterEntity>>());
+          expect(result.data, tCompanyParameterModel.toEntity());
+          verify(
+            () => mockLocalDataSource.getCompanyParameters(tCompanyId),
+          ).called(1);
+        },
+      );
 
-      test('should return FailureState when localDataSource.getCompanyParameters fails', () async {
-        // Arrange
-        when(() => mockLocalDataSource.getCompanyParameters(any()))
-            .thenAnswer((_) async => FailureState<CompanyParameterResponseModel>(message: 'Error'));
+      test(
+        'should return FailureState when localDataSource.getCompanyParameters fails',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalDataSource.getCompanyParameters(any()),
+          ).thenAnswer(
+            (_) async => FailureState<CompanyParameterModel>(message: 'Error'),
+          );
 
-        // Act
-        final result = await repository.getCompanyParameters(tCompanyId);
+          // Act
+          final result = await repository.getCompanyParameters(tCompanyId);
 
-        // Assert
-        expect(result, isA<FailureState<CompanyParameterEntity>>());
-        verify(() => mockLocalDataSource.getCompanyParameters(tCompanyId)).called(1);
-      });
+          // Assert
+          expect(result, isA<FailureState<CompanyParameterEntity>>());
+          verify(
+            () => mockLocalDataSource.getCompanyParameters(tCompanyId),
+          ).called(1);
+        },
+      );
     });
 
     group('saveCompany', () {
-      test('should call localDataSource.saveCompany and return true on success', () async {
-        // Arrange
-        when(() => mockLocalDataSource.saveCompany(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should call localDataSource.saveCompany and return true on success',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalDataSource.saveCompany(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
-        final result = await repository.saveCompany(tCompanyModel.toEntity());
+          // Act
+          final result = await repository.saveCompany(tCompanyModel.toEntity());
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(() => mockLocalDataSource.saveCompany(any())).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockLocalDataSource.saveCompany(any())).called(1);
+        },
+      );
     });
 
     group('saveCompanyParameters', () {
-      test('should call localDataSource.saveCompanyParameters and return true on success', () async {
-        // Arrange
-        when(() => mockLocalDataSource.saveCompanyParameters(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should call localDataSource.saveCompanyParameters and return true on success',
+        () async {
+          // Arrange
+          when(
+            () => mockLocalDataSource.saveCompanyParameters(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
-        final result = await repository.saveCompanyParameters(tCompanyParameterModel.toEntity());
+          // Act
+          final result = await repository.saveCompanyParameters(
+            tCompanyParameterModel.toEntity(),
+          );
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(() => mockLocalDataSource.saveCompanyParameters(any())).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockLocalDataSource.saveCompanyParameters(any()),
+          ).called(1);
+        },
+      );
     });
   });
 }

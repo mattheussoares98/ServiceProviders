@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
 import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:flutter/material.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,9 @@ class MockAuthInterceptor extends Mock implements HttpAuthInterceptor {}
 class MockInternetClient extends Mock implements InternetClient {}
 
 class MockLocalStorageClient extends Mock implements LocalStorageClient {}
+
+class MockSupabaseDatabaseClient extends Mock
+    implements SupabaseDatabaseClient {}
 
 class MockAuthResponse extends Mock implements AuthResponse {}
 

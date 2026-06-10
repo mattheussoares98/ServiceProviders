@@ -3,18 +3,16 @@ import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_parameter_response_model.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_response_model.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
+import 'package:clean_architecture/features/company/data/models/responses/company_parameter_model.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class CompanyLocalDataSource {
-  FutureData<CompanyResponseModel> getCompany(String id);
-  FutureData<CompanyParameterResponseModel> getCompanyParameters(
-    String companyId,
-  );
-  FutureBool saveCompany(CompanyResponseModel company);
-  FutureBool saveCompanyParameters(CompanyParameterResponseModel parameters);
+  FutureData<CompanyModel> getCompany(String id);
+  FutureData<CompanyParameterModel> getCompanyParameters(String companyId);
+  FutureBool saveCompany(CompanyModel company);
+  FutureBool saveCompanyParameters(CompanyParameterModel parameters);
 }
 
 @LazySingleton(as: CompanyLocalDataSource)
@@ -25,7 +23,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
   final AppDatabase _database;
 
   @override
-  FutureData<CompanyResponseModel> getCompany(String id) {
+  FutureData<CompanyModel> getCompany(String id) {
     return ErrorHandler.execute(() async {
       final company = await (_database.select(
         _database.companies,
@@ -33,7 +31,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
 
       if (company != null) {
         return SuccessState(
-          data: CompanyResponseModel(
+          data: CompanyModel(
             id: company.id,
             name: company.name,
             cnpj: company.cnpj,
@@ -45,16 +43,14 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
           ),
         );
       }
-      return FailureState<CompanyResponseModel>(
+      return FailureState<CompanyModel>(
         message: 'Empresa não encontrada'.hardcoded,
       );
     });
   }
 
   @override
-  FutureData<CompanyParameterResponseModel> getCompanyParameters(
-    String companyId,
-  ) {
+  FutureData<CompanyParameterModel> getCompanyParameters(String companyId) {
     return ErrorHandler.execute(() async {
       final params = await (_database.select(
         _database.companyParameters,
@@ -62,7 +58,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
 
       if (params != null) {
         return SuccessState(
-          data: CompanyParameterResponseModel(
+          data: CompanyParameterModel(
             id: params.id,
             companyId: params.companyId,
             maxOfflineDurationHours: params.maxOfflineDurationHours,
@@ -73,14 +69,14 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
           ),
         );
       }
-      return FailureState<CompanyParameterResponseModel>(
+      return FailureState<CompanyParameterModel>(
         message: 'Parâmetros da empresa não encontrados'.hardcoded,
       );
     });
   }
 
   @override
-  FutureBool saveCompany(CompanyResponseModel company) {
+  FutureBool saveCompany(CompanyModel company) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.companies)
@@ -101,7 +97,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
   }
 
   @override
-  FutureBool saveCompanyParameters(CompanyParameterResponseModel parameters) {
+  FutureBool saveCompanyParameters(CompanyParameterModel parameters) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.companyParameters)

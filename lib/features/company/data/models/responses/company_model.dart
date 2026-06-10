@@ -2,9 +2,9 @@ import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 
-class CompanyResponseModel extends CompanyEntity
+class CompanyModel extends CompanyEntity
     implements DataConvertible<CompanyEntity> {
-  const CompanyResponseModel({
+  const CompanyModel({
     required super.id,
     required super.name,
     super.cnpj,
@@ -15,8 +15,8 @@ class CompanyResponseModel extends CompanyEntity
     super.deletedAt,
   });
 
-  factory CompanyResponseModel.fromJson(MapDynamic json) {
-    return CompanyResponseModel(
+  factory CompanyModel.fromJson(MapDynamic json) {
+    return CompanyModel(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       cnpj: json['cnpj'] as String?,
@@ -34,8 +34,8 @@ class CompanyResponseModel extends CompanyEntity
     );
   }
 
-  factory CompanyResponseModel.fromEntity(CompanyEntity entity) {
-    return CompanyResponseModel(
+  factory CompanyModel.fromEntity(CompanyEntity entity) {
+    return CompanyModel(
       id: entity.id,
       name: entity.name,
       cnpj: entity.cnpj,
@@ -49,15 +49,15 @@ class CompanyResponseModel extends CompanyEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'name': name,
-        'cnpj': cnpj,
-        'logo_url': logoUrl,
-        'is_active': isActive,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'cnpj': cnpj,
+    'logo_url': logoUrl,
+    'is_active': isActive,
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   CompanyEntity toEntity() {

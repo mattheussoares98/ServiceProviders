@@ -23,13 +23,35 @@ class CompanyEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        cnpj,
-        logoUrl,
-        isActive,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    name,
+    cnpj,
+    logoUrl,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+
+  CompanyEntity copyWith({
+    String? id,
+    String? name,
+    String? cnpj,
+    String? logoUrl,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return CompanyEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      cnpj: cnpj ?? this.cnpj,
+      logoUrl: logoUrl ?? this.logoUrl,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 }
