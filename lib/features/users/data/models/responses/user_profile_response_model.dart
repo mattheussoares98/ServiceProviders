@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProfileResponseModel extends UserProfileEntity
     implements DataConvertible<UserProfileEntity> {
@@ -14,6 +15,7 @@ class UserProfileResponseModel extends UserProfileEntity
     super.permissionGroupId,
     super.avatarUrl,
     required super.isActive,
+    required super.isAdmin,
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
@@ -29,6 +31,7 @@ class UserProfileResponseModel extends UserProfileEntity
         permissionGroupId: entity.permissionGroupId,
         avatarUrl: entity.avatarUrl,
         isActive: entity.isActive,
+        isAdmin: entity.isAdmin,
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
@@ -44,10 +47,25 @@ class UserProfileResponseModel extends UserProfileEntity
         permissionGroupId: db.permissionGroupId,
         avatarUrl: db.avatarUrl,
         isActive: db.isActive,
+        isAdmin: db.isAdmin,
         createdAt: db.createdAt,
         updatedAt: db.updatedAt,
         deletedAt: db.deletedAt,
       );
+  factory UserProfileResponseModel.fromSupabase(AuthResponse response) {
+    final now = DateTime.now();
+
+    return UserProfileResponseModel(
+      id: response.user!.id,
+      companyId: '',
+      name: response.user!.userMetadata?['name'] as String? ?? '',
+      email: response.user!.email ?? '',
+      isAdmin: response.user!.userMetadata?['is_admin'] as bool? ?? false,
+      isActive: true,
+      createdAt: DateTime.tryParse(response.user?.createdAt ?? '') ?? now,
+      updatedAt: DateTime.tryParse(response.user?.updatedAt ?? '') ?? now,
+    );
+  }
 
   factory UserProfileResponseModel.fromJson(MapDynamic json) =>
       UserProfileResponseModel(
@@ -59,6 +77,7 @@ class UserProfileResponseModel extends UserProfileEntity
         permissionGroupId: json['permission_group_id'] as String?,
         avatarUrl: json['avatar_url'] as String?,
         isActive: json['is_active'] as bool? ?? true,
+        isAdmin: json['is_admin'] as bool? ?? false,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : DateTime.now(),
@@ -72,31 +91,33 @@ class UserProfileResponseModel extends UserProfileEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'company_id': companyId,
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'permission_group_id': permissionGroupId,
-        'avatar_url': avatarUrl,
-        'is_active': isActive,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'company_id': companyId,
+    'name': name,
+    'email': email,
+    'phone': phone,
+    'permission_group_id': permissionGroupId,
+    'avatar_url': avatarUrl,
+    'is_active': isActive,
+    'is_admin': isAdmin,
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   UserProfileEntity toEntity() => UserProfileEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        email: email,
-        phone: phone,
-        permissionGroupId: permissionGroupId,
-        avatarUrl: avatarUrl,
-        isActive: isActive,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    companyId: companyId,
+    name: name,
+    email: email,
+    phone: phone,
+    permissionGroupId: permissionGroupId,
+    avatarUrl: avatarUrl,
+    isActive: isActive,
+    isAdmin: isAdmin,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  );
 }

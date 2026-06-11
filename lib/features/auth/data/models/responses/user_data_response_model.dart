@@ -23,17 +23,8 @@ class UserDataResponseModel extends UserDataEntity
   }
 
   factory UserDataResponseModel.fromSupabase(sb.AuthResponse response) {
-    final now = DateTime.now();
     return UserDataResponseModel(
-      user: UserProfileResponseModel(
-        id: response.user!.id,
-        companyId: '',
-        name: response.user!.userMetadata?['name'] as String? ?? '',
-        email: response.user!.email ?? '',
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      ),
+      user: UserProfileResponseModel.fromSupabase(response),
       accessToken: response.session?.accessToken ?? '',
       refreshToken: response.session?.refreshToken ?? '',
     );

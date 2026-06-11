@@ -278,6 +278,7 @@ abstract final class EntityFactory {
       email: faker.internet.email(),
       phone: faker.randomGenerator.integer(99999999, min: 10000000).toString(),
       isActive: true,
+      isAdmin: false,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
     );

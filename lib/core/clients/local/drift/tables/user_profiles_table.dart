@@ -12,6 +12,7 @@ class UserProfiles extends Table {
   TextColumn get permissionGroupId => text().nullable().references(PermissionGroups, #id, onDelete: KeyAction.setNull)();
   TextColumn get avatarUrl => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  BoolColumn get isAdmin => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

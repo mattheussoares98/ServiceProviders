@@ -21,19 +21,7 @@ class MockUser extends Mock implements User {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      UserDataResponseModel(
-        user: UserProfileResponseModel(
-          id: '',
-          companyId: '',
-          name: '',
-          email: '',
-          isActive: false,
-          createdAt: DateTime(0),
-          updatedAt: DateTime(0),
-        ),
-        accessToken: '',
-        refreshToken: '',
-      ),
+      UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
     );
   });
 

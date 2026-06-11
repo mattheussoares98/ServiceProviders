@@ -97,6 +97,7 @@ Extended profile details mapping to Supabase authenticated users.
 | `permission_group_id` | UUID (Text) | NULL | - | Foreign Key -> `permission_groups.id` (Set Null) |
 | `avatar_url` | TEXT | NULL | - | URL to user avatar image |
 | `is_active` | BOOLEAN | NOT NULL | true | Active status toggle |
+| `is_admin` | BOOLEAN | NOT NULL | false | Administrative privileges flag |
 | `created_at` | TIMESTAMP | NOT NULL | now() | Record creation date |
 | `updated_at` | TIMESTAMP | NOT NULL | now() | Record update date |
 | `deleted_at` | TIMESTAMP | NULL | - | Soft delete flag |

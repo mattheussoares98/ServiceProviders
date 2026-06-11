@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:clean_architecture/routing/guards/admin_guard.dart';
 import 'package:clean_architecture/routing/guards/authenticated_guard.dart';
 import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
@@ -25,6 +26,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
         AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
         AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
+        AutoRoute(page: CompanyRoute.page, path: kCompanyPath, guards: const [AdminGuard()]),
       ],
     ),
   ];

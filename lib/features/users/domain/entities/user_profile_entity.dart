@@ -10,6 +10,7 @@ class UserProfileEntity extends Equatable {
     this.permissionGroupId,
     this.avatarUrl,
     required this.isActive,
+    required this.isAdmin,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -24,6 +25,7 @@ class UserProfileEntity extends Equatable {
       permissionGroupId = null,
       avatarUrl = null,
       isActive = false,
+      isAdmin = false,
       createdAt = DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt = DateTime.fromMillisecondsSinceEpoch(0),
       deletedAt = null;
@@ -36,6 +38,7 @@ class UserProfileEntity extends Equatable {
   final String? permissionGroupId;
   final String? avatarUrl;
   final bool isActive;
+  final bool isAdmin;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -50,6 +53,7 @@ class UserProfileEntity extends Equatable {
     permissionGroupId,
     avatarUrl,
     isActive,
+    isAdmin,
     createdAt,
     updatedAt,
     deletedAt,
@@ -64,6 +68,7 @@ class UserProfileEntity extends Equatable {
     String? permissionGroupId,
     String? avatarUrl,
     bool? isActive,
+    bool? isAdmin,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -83,6 +88,7 @@ class UserProfileEntity extends Equatable {
           : permissionGroupId ?? this.permissionGroupId,
       avatarUrl: annulAvatarUrl == true ? null : avatarUrl ?? this.avatarUrl,
       isActive: isActive ?? this.isActive,
+      isAdmin: isAdmin ?? this.isAdmin,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

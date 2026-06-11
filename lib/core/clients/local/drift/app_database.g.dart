@@ -1686,6 +1686,21 @@ class $UserProfilesTable extends UserProfiles
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _isAdminMeta = const VerificationMeta(
+    'isAdmin',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdmin = GeneratedColumn<bool>(
+    'is_admin',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_admin" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1731,6 +1746,7 @@ class $UserProfilesTable extends UserProfiles
     permissionGroupId,
     avatarUrl,
     isActive,
+    isAdmin,
     createdAt,
     updatedAt,
     deletedAt,
@@ -1803,6 +1819,12 @@ class $UserProfilesTable extends UserProfiles
         isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
       );
     }
+    if (data.containsKey('is_admin')) {
+      context.handle(
+        _isAdminMeta,
+        isAdmin.isAcceptableOrUnknown(data['is_admin']!, _isAdminMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1862,6 +1884,10 @@ class $UserProfilesTable extends UserProfiles
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
       )!,
+      isAdmin: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_admin'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1892,6 +1918,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
   final String? permissionGroupId;
   final String? avatarUrl;
   final bool isActive;
+  final bool isAdmin;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -1904,6 +1931,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     this.permissionGroupId,
     this.avatarUrl,
     required this.isActive,
+    required this.isAdmin,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -1925,6 +1953,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       map['avatar_url'] = Variable<String>(avatarUrl);
     }
     map['is_active'] = Variable<bool>(isActive);
+    map['is_admin'] = Variable<bool>(isAdmin);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -1949,6 +1978,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           ? const Value.absent()
           : Value(avatarUrl),
       isActive: Value(isActive),
+      isAdmin: Value(isAdmin),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -1973,6 +2003,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       ),
       avatarUrl: serializer.fromJson<String?>(json['avatarUrl']),
       isActive: serializer.fromJson<bool>(json['isActive']),
+      isAdmin: serializer.fromJson<bool>(json['isAdmin']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -1990,6 +2021,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       'permissionGroupId': serializer.toJson<String?>(permissionGroupId),
       'avatarUrl': serializer.toJson<String?>(avatarUrl),
       'isActive': serializer.toJson<bool>(isActive),
+      'isAdmin': serializer.toJson<bool>(isAdmin),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -2005,6 +2037,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     Value<String?> permissionGroupId = const Value.absent(),
     Value<String?> avatarUrl = const Value.absent(),
     bool? isActive,
+    bool? isAdmin,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
@@ -2019,6 +2052,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
         : this.permissionGroupId,
     avatarUrl: avatarUrl.present ? avatarUrl.value : this.avatarUrl,
     isActive: isActive ?? this.isActive,
+    isAdmin: isAdmin ?? this.isAdmin,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -2035,6 +2069,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           : this.permissionGroupId,
       avatarUrl: data.avatarUrl.present ? data.avatarUrl.value : this.avatarUrl,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      isAdmin: data.isAdmin.present ? data.isAdmin.value : this.isAdmin,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -2052,6 +2087,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           ..write('permissionGroupId: $permissionGroupId, ')
           ..write('avatarUrl: $avatarUrl, ')
           ..write('isActive: $isActive, ')
+          ..write('isAdmin: $isAdmin, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -2069,6 +2105,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     permissionGroupId,
     avatarUrl,
     isActive,
+    isAdmin,
     createdAt,
     updatedAt,
     deletedAt,
@@ -2085,6 +2122,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           other.permissionGroupId == this.permissionGroupId &&
           other.avatarUrl == this.avatarUrl &&
           other.isActive == this.isActive &&
+          other.isAdmin == this.isAdmin &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -2099,6 +2137,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
   final Value<String?> permissionGroupId;
   final Value<String?> avatarUrl;
   final Value<bool> isActive;
+  final Value<bool> isAdmin;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -2112,6 +2151,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.permissionGroupId = const Value.absent(),
     this.avatarUrl = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.isAdmin = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -2126,6 +2166,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.permissionGroupId = const Value.absent(),
     this.avatarUrl = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.isAdmin = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -2143,6 +2184,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Expression<String>? permissionGroupId,
     Expression<String>? avatarUrl,
     Expression<bool>? isActive,
+    Expression<bool>? isAdmin,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -2157,6 +2199,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       if (permissionGroupId != null) 'permission_group_id': permissionGroupId,
       if (avatarUrl != null) 'avatar_url': avatarUrl,
       if (isActive != null) 'is_active': isActive,
+      if (isAdmin != null) 'is_admin': isAdmin,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -2173,6 +2216,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Value<String?>? permissionGroupId,
     Value<String?>? avatarUrl,
     Value<bool>? isActive,
+    Value<bool>? isAdmin,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
@@ -2187,6 +2231,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       permissionGroupId: permissionGroupId ?? this.permissionGroupId,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       isActive: isActive ?? this.isActive,
+      isAdmin: isAdmin ?? this.isAdmin,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -2221,6 +2266,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
+    if (isAdmin.present) {
+      map['is_admin'] = Variable<bool>(isAdmin.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2247,6 +2295,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
           ..write('permissionGroupId: $permissionGroupId, ')
           ..write('avatarUrl: $avatarUrl, ')
           ..write('isActive: $isActive, ')
+          ..write('isAdmin: $isAdmin, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -15444,6 +15493,7 @@ typedef $$UserProfilesTableCreateCompanionBuilder =
       Value<String?> permissionGroupId,
       Value<String?> avatarUrl,
       Value<bool> isActive,
+      Value<bool> isAdmin,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -15459,6 +15509,7 @@ typedef $$UserProfilesTableUpdateCompanionBuilder =
       Value<String?> permissionGroupId,
       Value<String?> avatarUrl,
       Value<bool> isActive,
+      Value<bool> isAdmin,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -15654,6 +15705,11 @@ class $$UserProfilesTableFilterComposer
 
   ColumnFilters<bool> get isActive => $composableBuilder(
     column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdmin => $composableBuilder(
+    column: $table.isAdmin,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15883,6 +15939,11 @@ class $$UserProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isAdmin => $composableBuilder(
+    column: $table.isAdmin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -15971,6 +16032,9 @@ class $$UserProfilesTableAnnotationComposer
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAdmin =>
+      $composableBuilder(column: $table.isAdmin, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -16197,6 +16261,7 @@ class $$UserProfilesTableTableManager
                 Value<String?> permissionGroupId = const Value.absent(),
                 Value<String?> avatarUrl = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<bool> isAdmin = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -16210,6 +16275,7 @@ class $$UserProfilesTableTableManager
                 permissionGroupId: permissionGroupId,
                 avatarUrl: avatarUrl,
                 isActive: isActive,
+                isAdmin: isAdmin,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -16225,6 +16291,7 @@ class $$UserProfilesTableTableManager
                 Value<String?> permissionGroupId = const Value.absent(),
                 Value<String?> avatarUrl = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<bool> isAdmin = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -16238,6 +16305,7 @@ class $$UserProfilesTableTableManager
                 permissionGroupId: permissionGroupId,
                 avatarUrl: avatarUrl,
                 isActive: isActive,
+                isAdmin: isAdmin,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
