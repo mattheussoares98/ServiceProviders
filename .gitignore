@@ -56,3 +56,6 @@ app.*.map.json
 /lib/config/injector/injector.config.dart
 # Auto-generated routes
 /lib/routing/routes.gr.dart
+
+# Generated files
+*.g.dart
