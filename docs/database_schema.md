@@ -355,21 +355,4 @@ Audited tracking records capturing work order lifecycle updates.
 
 ## Remote Security & RLS (Supabase Only)
 
-Row Level Security is enabled on all tables. Queries filter dynamically based on the current authenticated user's company membership.
-
-```sql
--- Helper function to resolve the current user's company
-CREATE OR REPLACE FUNCTION get_user_company_id()
-RETURNS UUID
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-AS $$
-  SELECT company_id FROM user_profiles WHERE id = auth.uid();
-$$;
-
--- RLS standard multi-tenant filter:
-CREATE POLICY "Users read own company data"
-  ON [table_name] FOR SELECT
-  USING (company_id = get_user_company_id());
-```
+Row Level Security, soft deletion triggers, and relational deletion constraints are configured on the database. For detailed information, SQL definitions, and implementation patterns, see [Database Global Rules](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/database/global_rules.md).
