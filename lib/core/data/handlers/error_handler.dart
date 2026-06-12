@@ -79,7 +79,10 @@ abstract final class ErrorHandler {
       );
     } catch (error, stackTrace) {
       _debugError(error, stackTrace);
-      return FailureState<T>(error: error.toString());
+      return FailureState<T>(
+        message: error.toString(),
+        error: error.toString(),
+      );
     }
   }
 
