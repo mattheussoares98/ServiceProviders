@@ -79,6 +79,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               id: Value(user.id),
               companyId: Value(user.companyId),
               name: Value(user.name),
+              isAdmin: Value(user.isAdmin),
               email: Value(user.email),
               phone: Value(user.phone),
               permissionGroupId: Value(user.permissionGroupId),

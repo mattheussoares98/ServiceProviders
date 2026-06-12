@@ -24,7 +24,9 @@ void main() {
   });
 
   Future<void> insertTestCompany(String companyId) async {
-    await database.into(database.companies).insert(
+    await database
+        .into(database.companies)
+        .insert(
           CompaniesCompanion.insert(
             id: companyId,
             name: faker.company.name(),
@@ -33,115 +35,310 @@ void main() {
         );
   }
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity().copyWith(annulPermissionGroupId: true);
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(tUserProfileEntity);
+  Future<void> openAndCloseDatabase() async {
+    await database.customSelect('SELECT 1').get();
+    await database.close();
+  }
+
+  final tUserProfileEntity = EntityFactory.makeUserProfileEntity().copyWith(
+    annulPermissionGroupId: true,
+  );
+  final tUserProfileModel = UserProfileResponseModel.fromEntity(
+    tUserProfileEntity,
+  );
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
-  final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(tPermissionGroupEntity);
+  final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(
+    tPermissionGroupEntity,
+  );
 
   group('UsersLocalDataSourceImpl', () {
     group('User Profiles', () {
       test('should retrieve all user profiles for a company', () async {
-        // Arrange
         await insertTestCompany(tUserProfileModel.companyId);
         await dataSource.saveUserProfile(tUserProfileModel);
 
-        // Act
-        final result = await dataSource.getUserProfiles(tUserProfileModel.companyId);
+        final result = await dataSource.getUserProfiles(
+          tUserProfileModel.companyId,
+        );
 
-        // Assert
         expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first, equals(tUserProfileModel));
       });
 
+      test(
+        'should retrieve only user profiles for the specified company',
+        () async {
+          final otherCompanyId = faker.guid.guid();
+          final otherProfileEntity = EntityFactory.makeUserProfileEntity()
+              .copyWith(
+                companyId: otherCompanyId,
+                annulPermissionGroupId: true,
+              );
+          final otherProfileModel = UserProfileResponseModel.fromEntity(
+            otherProfileEntity,
+          );
+
+          await insertTestCompany(tUserProfileModel.companyId);
+          await insertTestCompany(otherCompanyId);
+
+          await dataSource.saveUserProfile(tUserProfileModel);
+          await dataSource.saveUserProfile(otherProfileModel);
+
+          final result = await dataSource.getUserProfiles(
+            tUserProfileModel.companyId,
+          );
+
+          expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+          expect(result.data, hasLength(1));
+          expect(result.data!.first, equals(tUserProfileModel));
+        },
+      );
+
+      test(
+        'should return empty list when no user profiles exist for that company',
+        () async {
+          final result = await dataSource.getUserProfiles(faker.guid.guid());
+
+          expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+          expect(result.data, isEmpty);
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on getUserProfiles',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.getUserProfiles(
+            tUserProfileModel.companyId,
+          );
+
+          expect(result, isA<FailureState<List<UserProfileResponseModel>>>());
+        },
+      );
+
       test('should save a user profile and successfully retrieve it', () async {
-        // Arrange
         await insertTestCompany(tUserProfileModel.companyId);
 
-        // Act: Save
         final saveResult = await dataSource.saveUserProfile(tUserProfileModel);
 
-        // Assert Save
         expect(saveResult, isA<SuccessState<bool>>());
         expect(saveResult.data, isTrue);
 
-        // Act: Get
-        final getResult = await dataSource.getUserProfileById(tUserProfileModel.id);
+        final getResult = await dataSource.getUserProfileById(
+          tUserProfileModel.id,
+        );
 
-        // Assert Get
         expect(getResult, isA<SuccessState<UserProfileResponseModel>>());
         expect(getResult.data, equals(tUserProfileModel));
       });
 
-      test('should return FailureState when getting a non-existent user profile', () async {
-        // Act
-        final result = await dataSource.getUserProfileById(faker.guid.guid());
+      test(
+        'should return FailureState when getting a non-existent user profile',
+        () async {
+          final result = await dataSource.getUserProfileById(faker.guid.guid());
 
-        // Assert
-        expect(result, isA<FailureState<UserProfileResponseModel>>());
-      });
+          expect(result, isA<FailureState<UserProfileResponseModel>>());
+        },
+      );
 
-      test('should soft-delete a user profile and verify it is not returned', () async {
-        // Arrange
-        await insertTestCompany(tUserProfileModel.companyId);
-        await dataSource.saveUserProfile(tUserProfileModel);
+      test(
+        'should return FailureState when database throws an exception on getUserProfileById',
+        () async {
+          await openAndCloseDatabase();
 
-        // Act: Delete
-        final deleteResult = await dataSource.deleteUserProfile(tUserProfileModel.id);
+          final result = await dataSource.getUserProfileById(
+            tUserProfileModel.id,
+          );
 
-        // Assert Delete
-        expect(deleteResult, isA<SuccessState<bool>>());
-        expect(deleteResult.data, isTrue);
+          expect(result, isA<FailureState<UserProfileResponseModel>>());
+        },
+      );
 
-        // Act: Get
-        final getResult = await dataSource.getUserProfileById(tUserProfileModel.id);
+      test(
+        'should return FailureState when database throws an exception on saveUserProfile',
+        () async {
+          await openAndCloseDatabase();
 
-        // Assert Get: Should fail
-        expect(getResult, isA<FailureState<UserProfileResponseModel>>());
-      });
+          final result = await dataSource.saveUserProfile(tUserProfileModel);
+
+          expect(result, isA<FailureState<bool>>());
+        },
+      );
+
+      test(
+        'should soft-delete a user profile and verify it is not returned',
+        () async {
+          await insertTestCompany(tUserProfileModel.companyId);
+          await dataSource.saveUserProfile(tUserProfileModel);
+
+          final deleteResult = await dataSource.deleteUserProfile(
+            tUserProfileModel.id,
+          );
+
+          expect(deleteResult, isA<SuccessState<bool>>());
+          expect(deleteResult.data, isTrue);
+
+          final getResult = await dataSource.getUserProfileById(
+            tUserProfileModel.id,
+          );
+
+          expect(getResult, isA<FailureState<UserProfileResponseModel>>());
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on deleteUserProfile',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.deleteUserProfile(
+            tUserProfileModel.id,
+          );
+
+          expect(result, isA<FailureState<bool>>());
+        },
+      );
     });
 
     group('Permission Groups', () {
-      test('should save a permission group and successfully retrieve it', () async {
-        // Arrange
-        await insertTestCompany(tPermissionGroupModel.companyId);
+      test(
+        'should save a permission group and successfully retrieve it',
+        () async {
+          await insertTestCompany(tPermissionGroupModel.companyId);
 
-        // Act: Save
-        final saveResult = await dataSource.savePermissionGroup(tPermissionGroupModel);
+          final saveResult = await dataSource.savePermissionGroup(
+            tPermissionGroupModel,
+          );
 
-        // Assert Save
-        expect(saveResult, isA<SuccessState<bool>>());
-        expect(saveResult.data, isTrue);
+          expect(saveResult, isA<SuccessState<bool>>());
+          expect(saveResult.data, isTrue);
 
-        // Act: Get
-        final getResult = await dataSource.getPermissionGroups(tPermissionGroupModel.companyId);
+          final getResult = await dataSource.getPermissionGroups(
+            tPermissionGroupModel.companyId,
+          );
 
-        // Assert Get
-        expect(getResult, isA<SuccessState<List<PermissionGroupResponseModel>>>());
-        expect(getResult.data, hasLength(1));
-        expect(getResult.data!.first, equals(tPermissionGroupModel));
-      });
+          expect(
+            getResult,
+            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+          );
+          expect(getResult.data, hasLength(1));
+          expect(getResult.data!.first, equals(tPermissionGroupModel));
+        },
+      );
 
-      test('should soft-delete a permission group and verify it is not returned', () async {
-        // Arrange
-        await insertTestCompany(tPermissionGroupModel.companyId);
-        await dataSource.savePermissionGroup(tPermissionGroupModel);
+      test(
+        'should retrieve only permission groups for the specified company',
+        () async {
+          final otherCompanyId = faker.guid.guid();
+          final otherGroupEntity = EntityFactory.makePermissionGroupEntity()
+              .copyWith(companyId: otherCompanyId);
+          final otherGroupModel = PermissionGroupResponseModel.fromEntity(
+            otherGroupEntity,
+          );
 
-        // Act: Delete
-        final deleteResult = await dataSource.deletePermissionGroup(tPermissionGroupModel.id);
+          await insertTestCompany(tPermissionGroupModel.companyId);
+          await insertTestCompany(otherCompanyId);
 
-        // Assert Delete
-        expect(deleteResult, isA<SuccessState<bool>>());
-        expect(deleteResult.data, isTrue);
+          await dataSource.savePermissionGroup(tPermissionGroupModel);
+          await dataSource.savePermissionGroup(otherGroupModel);
 
-        // Act: Get
-        final getResult = await dataSource.getPermissionGroups(tPermissionGroupModel.companyId);
+          final result = await dataSource.getPermissionGroups(
+            tPermissionGroupModel.companyId,
+          );
 
-        // Assert Get: Should be empty
-        expect(getResult, isA<SuccessState<List<PermissionGroupResponseModel>>>());
-        expect(getResult.data, isEmpty);
-      });
+          expect(
+            result,
+            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+          );
+          expect(result.data, hasLength(1));
+          expect(result.data!.first, equals(tPermissionGroupModel));
+        },
+      );
+
+      test(
+        'should return empty list when no permission groups exist for that company',
+        () async {
+          final result = await dataSource.getPermissionGroups(
+            faker.guid.guid(),
+          );
+
+          expect(
+            result,
+            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+          );
+          expect(result.data, isEmpty);
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on getPermissionGroups',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.getPermissionGroups(
+            tPermissionGroupModel.companyId,
+          );
+
+          expect(
+            result,
+            isA<FailureState<List<PermissionGroupResponseModel>>>(),
+          );
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on savePermissionGroup',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.savePermissionGroup(
+            tPermissionGroupModel,
+          );
+
+          expect(result, isA<FailureState<bool>>());
+        },
+      );
+
+      test(
+        'should soft-delete a permission group and verify it is not returned',
+        () async {
+          await insertTestCompany(tPermissionGroupModel.companyId);
+          await dataSource.savePermissionGroup(tPermissionGroupModel);
+
+          final deleteResult = await dataSource.deletePermissionGroup(
+            tPermissionGroupModel.id,
+          );
+
+          expect(deleteResult, isA<SuccessState<bool>>());
+          expect(deleteResult.data, isTrue);
+
+          final getResult = await dataSource.getPermissionGroups(
+            tPermissionGroupModel.companyId,
+          );
+
+          expect(
+            getResult,
+            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+          );
+          expect(getResult.data, isEmpty);
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on deletePermissionGroup',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.deletePermissionGroup(
+            tPermissionGroupModel.id,
+          );
+
+          expect(result, isA<FailureState<bool>>());
+        },
+      );
     });
   });
 }
