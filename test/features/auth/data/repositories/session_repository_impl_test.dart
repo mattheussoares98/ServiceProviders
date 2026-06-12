@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
@@ -119,6 +121,26 @@ void main() {
           expect(sessionRepository.userData, equals(UserDataEntity.empty()));
         },
       );
+
+      test(
+        'should emit updated userData on sessionStream when cached data exists',
+        () async {
+          final mockSession = MockSession();
+          when(() => mockSession.accessToken).thenReturn('access_token');
+          when(
+            () => mockSupabaseAuthClient.currentSession,
+          ).thenReturn(mockSession);
+          when(
+            () => mockSessionLocalDataSource.getUserData(),
+          ).thenAnswer((_) async => userDataResponse);
+
+          unawaited(
+            expectLater(sessionRepository.sessionStream, emits(userData)),
+          );
+
+          await sessionRepository.checkForUserCredential();
+        },
+      );
     });
 
     group('setUserData', () {
@@ -136,6 +158,20 @@ void main() {
         // Assert
         expect(sessionRepository.isLoggedIn, isTrue);
         expect(sessionRepository.userData, equals(userData));
+      });
+
+      test('should emit updated userData on sessionStream', () {
+        final mockSession = MockSession();
+        when(() => mockSession.accessToken).thenReturn('access_token');
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
+
+        unawaited(
+          expectLater(sessionRepository.sessionStream, emits(userData)),
+        );
+
+        sessionRepository.setUserData = userData;
       });
     });
 
@@ -181,6 +217,33 @@ void main() {
           expect(sessionRepository.userData, equals(UserDataEntity.empty()));
         },
       );
+
+      test('should emit empty userData on sessionStream', () async {
+        final email = faker.internet.email();
+        final name = faker.person.name();
+
+        registerFallbackValue(
+          UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
+        );
+        when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+        final mockSession = MockSession();
+        when(() => mockSession.accessToken).thenReturn('');
+        when(
+          () => mockSessionLocalDataSource.saveUserData(any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
+
+        unawaited(
+          expectLater(
+            sessionRepository.sessionStream,
+            emits(UserDataEntity.empty()),
+          ),
+        );
+
+        await sessionRepository.logout(email: email, name: name);
+      });
     });
   });
 }

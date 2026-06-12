@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
@@ -17,6 +19,8 @@ final class SessionRepositoryImpl implements SessionRepository {
 
   final SessionLocalDataSource _localDataSource;
   final SupabaseAuthClient _auth;
+  final StreamController<UserDataEntity> _sessionController =
+      StreamController<UserDataEntity>.broadcast();
 
   UserDataEntity _userData = UserDataEntity.empty();
 
@@ -30,7 +34,13 @@ final class SessionRepositoryImpl implements SessionRepository {
   UserDataEntity get userData => _userData;
 
   @override
-  set setUserData(UserDataEntity model) => _userData = model;
+  Stream<UserDataEntity> get sessionStream => _sessionController.stream;
+
+  @override
+  set setUserData(UserDataEntity model) {
+    _userData = model;
+    _sessionController.add(model);
+  }
 
   /// Check user's logged in credentials and store it before starting the app
   @override
@@ -38,6 +48,7 @@ final class SessionRepositoryImpl implements SessionRepository {
     final response = await _localDataSource.getUserData();
     if (response != null) {
       _userData = response.toEntity();
+      _sessionController.add(_userData);
     }
   }
 
@@ -50,6 +61,7 @@ final class SessionRepositoryImpl implements SessionRepository {
       ),
     );
     _userData = UserDataEntity.empty();
+    _sessionController.add(_userData);
     await _localDataSource.saveUserData(partialModel);
     await _auth.logout();
   }
