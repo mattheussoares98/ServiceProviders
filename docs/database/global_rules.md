@@ -23,6 +23,21 @@ AS $$
 $$;
 ```
 
+### Admin Context Helper
+
+The database uses a security definer helper function to check if the currently authenticated user is an administrator:
+
+```sql
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+AS $$
+  SELECT COALESCE(is_admin, false) FROM public.user_profiles WHERE id = auth.uid();
+$$;
+```
+
 ### Table Policies
 
 #### companies
@@ -31,22 +46,17 @@ $$;
 CREATE POLICY "Users read own company"
   ON public.companies FOR SELECT
   TO authenticated
-  USING (id = public.get_user_company_id());
+  USING (id = public.get_user_company_id() OR public.is_admin());
 
 CREATE POLICY "Admins can insert companies"
   ON public.companies FOR INSERT
   TO authenticated
-  WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.user_profiles
-      WHERE id = auth.uid() AND is_admin = true
-    )
-  );
+  WITH CHECK (public.is_admin());
 
 CREATE POLICY "Users update own company"
   ON public.companies FOR UPDATE
   TO authenticated
-  USING (id = public.get_user_company_id());
+  USING (id = public.get_user_company_id() OR public.is_admin());
   //TODO respect the permission group from the user
 ```
 
