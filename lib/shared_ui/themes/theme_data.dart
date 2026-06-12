@@ -8,7 +8,8 @@ ColorScheme get colorScheme => ColorScheme.fromSeed(
   error: AppColors.error,
 );
 
-IconThemeData get iconThemeData => IconThemeData(color: colorScheme.onSurface);
+IconThemeData get iconThemeData =>
+    const IconThemeData(color: AppColors.primaryLight);
 
 ColorScheme get darkColorScheme => ColorScheme.fromSeed(
   seedColor: AppColors.primary,
@@ -19,7 +20,7 @@ ColorScheme get darkColorScheme => ColorScheme.fromSeed(
 );
 
 IconThemeData get darkIconThemeData =>
-    IconThemeData(color: darkColorScheme.onSurface);
+    const IconThemeData(color: AppColors.primaryLight);
 
 /// App ar Theme
 AppBarTheme get appBarTheme => const AppBarTheme(
