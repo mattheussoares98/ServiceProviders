@@ -34,9 +34,12 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (dataState is SuccessState<CompanyEntity>) {
       await maybePopRoute();
     }
-    emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
+
+    if (isClosed) return;
     showDataStateToast(
-      SuccessState(data: 'Empresa criada com sucesso'.hardcoded),
+      dataState,
+      message: 'Empresa criada com sucesso'.hardcoded,
     );
+    emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
   }
 }
