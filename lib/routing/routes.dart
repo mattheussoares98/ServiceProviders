@@ -26,7 +26,11 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
         AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
         AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
-        AutoRoute(page: CompanyRoute.page, path: kCompanyPath, guards: const [AdminGuard()]),
+        AutoRoute(
+          page: CompanyRoute.page,
+          path: kCompanyPath,
+          guards: const [AdminGuard()],
+        ), //TODO create "CreateEnterprise" page and put the AdminGuard there
       ],
     ),
   ];
