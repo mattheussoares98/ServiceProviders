@@ -27,34 +27,45 @@ import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [
-  AppSettings,
-  UserSessions,
-  Companies,
-  PermissionGroups,
-  UserProfiles,
-  Locations,
-  Areas,
-  Categories,
-  Assets,
-  ChecklistTemplates,
-  ChecklistItems,
-  MaintenancePlans,
-  WorkOrders,
-  Tasks,
-  Attachments,
-  WorkOrderChangeRequests,
-  CompanyParameters,
-  SyncAuditLogs,
-  WorkOrderHistory,
-])
+@DriftDatabase(
+  tables: [
+    AppSettings,
+    UserSessions,
+    Companies,
+    PermissionGroups,
+    UserProfiles,
+    Locations,
+    Areas,
+    Categories,
+    Assets,
+    ChecklistTemplates,
+    ChecklistItems,
+    MaintenancePlans,
+    WorkOrders,
+    Tasks,
+    Attachments,
+    WorkOrderChangeRequests,
+    CompanyParameters,
+    SyncAuditLogs,
+    WorkOrderHistory,
+  ],
+)
 @LazySingleton()
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(userProfiles, userProfiles.isAdmin);
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {
