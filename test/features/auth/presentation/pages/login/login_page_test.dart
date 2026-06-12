@@ -96,12 +96,7 @@ void main() {
 
   patrolWidgetTest('Login and save the user credential', ($) async {
     // Arrange
-    when(
-      () => mockLogOutUseCase.call(
-        email: any(named: 'email'),
-        name: any(named: 'name'),
-      ),
-    ).thenAnswer((_) async {});
+    when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
     when(
       () => mockGetUserDataUseCase.call(),
     ).thenAnswer((_) async => SuccessState(data: userData));

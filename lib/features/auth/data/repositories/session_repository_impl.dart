@@ -5,7 +5,6 @@ import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:injectable/injectable.dart';
 
 /// A class that stores user data
@@ -34,7 +33,15 @@ final class SessionRepositoryImpl implements SessionRepository {
   UserDataEntity get userData => _userData;
 
   @override
-  Stream<UserDataEntity> get sessionStream => _sessionController.stream;
+  Stream<UserDataEntity> get sessionStream => Stream.multi((controller) {
+    controller.add(_userData);
+    final subscription = _sessionController.stream.listen(
+      controller.add,
+      onError: controller.addError,
+      onDone: controller.close,
+    );
+    controller.onCancel = subscription.cancel;
+  });
 
   @override
   set setUserData(UserDataEntity model) {
@@ -53,16 +60,15 @@ final class SessionRepositoryImpl implements SessionRepository {
   }
 
   @override
-  Future<void> logout({String? email, String? name}) async {
-    final userEmail = email ?? _auth.currentSession?.user.email;
-    final partialModel = UserDataResponseModel.fromEntity(
-      UserDataEntity.empty().copyWith(
-        user: UserProfileEntity.empty().copyWith(email: userEmail, name: name),
-      ),
+  Future<void> logout() async {
+    final cleanedUser = UserDataEntity.empty().copyWith(
+      user: _userData.user.copyWith(email: _userData.user.email),
     );
-    _userData = UserDataEntity.empty();
-    _sessionController.add(_userData);
-    await _localDataSource.saveUserData(partialModel);
+    _userData = cleanedUser;
+    _sessionController.add(cleanedUser);
+    await _localDataSource.saveUserData(
+      UserDataResponseModel.fromEntity(cleanedUser),
+    );
     await _auth.logout();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:dio/dio.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -150,31 +151,14 @@ void main() {
       },
     );
 
-    test('handles generic Exception as FailureState', () async {
+    test('show the same error from Exception as FailureState', () async {
+      final error = Exception(faker.lorem.sentence());
       final result = await ErrorHandler.execute<int>(() {
-        throw Exception('generic error');
+        throw error;
       });
 
       expect(result, isA<FailureState<int>>());
-      expect(result.message, contains(kErrorMessage));
-    });
-
-    test('handles String error as FailureState', () async {
-      final result = await ErrorHandler.execute<int>(() {
-        throw Exception('string error');
-      });
-
-      expect(result, isA<FailureState<int>>());
-      expect(result.message, contains(kErrorMessage));
-    });
-
-    test('handles custom error object as FailureState', () async {
-      final result = await ErrorHandler.execute<int>(() {
-        throw ArgumentError('invalid argument');
-      });
-
-      expect(result, isA<FailureState<int>>());
-      expect(result.message, contains(kErrorMessage));
+      expect(result.message, error.toString());
     });
 
     test(

@@ -25,10 +25,7 @@ class LoginCubit extends BaseCubit<LoginState> {
   Future<void> clearSession() async {
     final dataState = await _useCases.getUserData.call();
     if (dataState is SuccessState) {
-      await _useCases.logOut.call(
-        email: dataState.data?.user.email,
-        name: dataState.data?.user.name,
-      );
+      await _useCases.logOut.call();
     }
   }
 

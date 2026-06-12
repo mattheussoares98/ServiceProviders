@@ -2,18 +2,22 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit_use_cases.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../testing/mocks/client_mocks.dart';
 import '../../../../testing/mocks/entity_factory.dart';
 import '../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late MockWatchSessionUseCase mockWatchSessionUseCase;
+  late MockNavigationClient mockNavigationClient;
   late SessionCubitUseCases useCases;
   late StreamController<UserDataEntity> streamController;
 
@@ -27,11 +31,14 @@ void main() {
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
     mockWatchSessionUseCase = MockWatchSessionUseCase();
     streamController = StreamController<UserDataEntity>.broadcast();
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     when(() => mockGetSessionUserUseCase.call()).thenReturn(tUserProfile);
-    when(() => mockWatchSessionUseCase.call()).thenAnswer(
-      (_) => streamController.stream,
-    );
+    when(
+      () => mockWatchSessionUseCase.call(),
+    ).thenAnswer((_) => streamController.stream);
 
     useCases = SessionCubitUseCases(
       getSessionUser: mockGetSessionUserUseCase,
@@ -41,6 +48,7 @@ void main() {
 
   tearDown(() {
     streamController.close();
+    GetIt.I.unregister<NavigationClient>();
   });
 
   group('SessionCubit', () {

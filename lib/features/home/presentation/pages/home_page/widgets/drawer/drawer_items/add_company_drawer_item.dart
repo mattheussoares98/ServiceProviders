@@ -14,7 +14,8 @@ class AddCompanyDrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<SessionCubit, SessionState, bool>(
       selector: (state) => state.user.isAdmin,
-      builder: (context, isLoading) {
+      builder: (context, isAdmin) {
+        if (!isAdmin) return const SizedBox.shrink();
         return BaseDrawerItem(
           onTap: () {
             context.read<HomeCubit>().navigateToCompany();

@@ -76,10 +76,12 @@ class UserProfileEntity extends Equatable {
     bool? annulPermissionGroupId,
     bool? annulAvatarUrl,
     bool? annulDeletedAt,
+    bool? annulId,
+    bool? annulCompanyId,
   }) {
     return UserProfileEntity(
-      id: id ?? this.id,
-      companyId: companyId ?? this.companyId,
+      id: annulId == true ? '' : id ?? this.id,
+      companyId: annulCompanyId == true ? '' : companyId ?? this.companyId,
       name: name ?? this.name,
       email: email ?? this.email,
       phone: annulPhone == true ? null : phone ?? this.phone,

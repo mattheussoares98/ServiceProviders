@@ -4,7 +4,6 @@ import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:clean_architecture/features/auth/data/repositories/session_repository_impl.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -135,7 +134,10 @@ void main() {
           ).thenAnswer((_) async => userDataResponse);
 
           unawaited(
-            expectLater(sessionRepository.sessionStream, emits(userData)),
+            expectLater(
+              sessionRepository.sessionStream,
+              emitsThrough(userData),
+            ),
           );
 
           await sessionRepository.checkForUserCredential();
@@ -168,7 +170,7 @@ void main() {
         ).thenReturn(mockSession);
 
         unawaited(
-          expectLater(sessionRepository.sessionStream, emits(userData)),
+          expectLater(sessionRepository.sessionStream, emitsThrough(userData)),
         );
 
         sessionRepository.setUserData = userData;
@@ -176,52 +178,44 @@ void main() {
     });
 
     group('Logout', () {
-      test(
-        'should call logout and save partial session data with email',
-        () async {
-          final email = faker.internet.email();
-          final name = faker.person.name();
+      test('should clean IDs, permission and tokens on logout', () async {
+        registerFallbackValue(
+          UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
+        );
+        when(
+          () => mockSessionLocalDataSource.getUserData(),
+        ).thenAnswer((_) async => userDataResponse);
+        when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+        final mockSession = MockSession();
+        when(() => mockSession.accessToken).thenReturn('');
+        when(
+          () => mockSessionLocalDataSource.saveUserData(any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
 
-          registerFallbackValue(
-            UserDataResponseModel.fromEntity(
-              EntityFactory.makeUserDataEntity(),
-            ),
-          );
-          when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
-          final mockSession = MockSession();
-          when(() => mockSession.accessToken).thenReturn('');
-          when(
-            () => mockSessionLocalDataSource.saveUserData(any()),
-          ).thenAnswer((_) async {});
-          when(
-            () => mockSupabaseAuthClient.currentSession,
-          ).thenReturn(mockSession);
+        //load the user first
+        await sessionRepository.checkForUserCredential();
+        await sessionRepository.logout();
 
-          await sessionRepository.logout(email: email, name: name);
+        final cleanedUser = UserDataEntity.empty().copyWith(
+          user: userDataResponse.user.copyWith(
+            email: userDataResponse.user.email,
+          ),
+        );
+        verify(() => mockSupabaseAuthClient.logout()).called(1);
+        verify(
+          () => mockSessionLocalDataSource.saveUserData(
+            UserDataResponseModel.fromEntity(cleanedUser),
+          ),
+        ).called(1);
 
-          verify(() => mockSupabaseAuthClient.logout()).called(1);
-          verify(
-            () => mockSessionLocalDataSource.saveUserData(
-              UserDataResponseModel.fromEntity(
-                UserDataEntity.empty().copyWith(
-                  user: UserProfileEntity.empty().copyWith(
-                    email: email,
-                    name: name,
-                  ),
-                ),
-              ),
-            ),
-          ).called(1);
-
-          expect(sessionRepository.isLoggedIn, isFalse);
-          expect(sessionRepository.userData, equals(UserDataEntity.empty()));
-        },
-      );
+        expect(sessionRepository.isLoggedIn, isFalse);
+        expect(sessionRepository.userData, equals(cleanedUser));
+      });
 
       test('should emit empty userData on sessionStream', () async {
-        final email = faker.internet.email();
-        final name = faker.person.name();
-
         registerFallbackValue(
           UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
         );
@@ -238,11 +232,11 @@ void main() {
         unawaited(
           expectLater(
             sessionRepository.sessionStream,
-            emits(UserDataEntity.empty()),
+            emitsThrough(UserDataEntity.empty()),
           ),
         );
 
-        await sessionRepository.logout(email: email, name: name);
+        await sessionRepository.logout();
       });
     });
   });

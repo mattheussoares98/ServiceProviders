@@ -249,24 +249,14 @@ void main() {
         when(
           () => mockGetUserDataUseCase.call(),
         ).thenAnswer((_) async => SuccessState(data: userData));
-        when(
-          () => mockLogOutUseCase.call(
-            email: any(named: 'email'),
-            name: any(named: 'name'),
-          ),
-        ).thenAnswer((_) async {});
+        when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
         return loginCubit;
       },
       act: (cubit) => cubit.clearSession(),
       expect: () => <LoginState>[],
       verify: (_) {
         verify(() => mockGetUserDataUseCase.call()).called(1);
-        verify(
-          () => mockLogOutUseCase.call(
-            email: userData.user.email,
-            name: userData.user.name,
-          ),
-        ).called(1);
+        verify(() => mockLogOutUseCase.call()).called(1);
       },
     );
 
@@ -282,12 +272,7 @@ void main() {
       expect: () => <LoginState>[],
       verify: (_) {
         verify(() => mockGetUserDataUseCase.call()).called(1);
-        verifyNever(
-          () => mockLogOutUseCase.call(
-            email: any(named: 'email'),
-            name: any(named: 'name'),
-          ),
-        );
+        verifyNever(() => mockLogOutUseCase.call());
       },
     );
   });
