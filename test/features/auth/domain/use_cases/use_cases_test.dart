@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/change_passwor
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:clean_architecture/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,12 +14,14 @@ import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockAuthRepository mockAuthRepository;
+  late MockSessionRepository mockSessionRepository;
 
   // Use cases
   late LoginUseCase loginUseCase;
   late SignUpUseCase signUpUseCase;
   late ChangePasswordUseCase changePasswordUseCase;
   late SaveUserDataUseCase saveUserDataUseCase;
+  late WatchSessionUseCase watchSessionUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAuthentication());
@@ -28,12 +31,16 @@ void main() {
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
+    mockSessionRepository = MockSessionRepository();
     loginUseCase = LoginUseCase(authRepository: mockAuthRepository);
     signUpUseCase = SignUpUseCase(authRepository: mockAuthRepository);
     changePasswordUseCase = ChangePasswordUseCase(
       repository: mockAuthRepository,
     );
     saveUserDataUseCase = SaveUserDataUseCase(mockAuthRepository);
+    watchSessionUseCase = WatchSessionUseCase(
+      sessionRepository: mockSessionRepository,
+    );
   });
 
   // Test data
@@ -214,6 +221,20 @@ void main() {
           verify(() => mockAuthRepository.saveUserData(tUserData)).called(1);
         },
       );
+    });
+
+    group('WatchSessionUseCase', () {
+      test('should return session stream from sessionRepository', () {
+        final stream = Stream<UserDataEntity>.value(tUserData);
+        when(() => mockSessionRepository.sessionStream).thenAnswer(
+          (_) => stream,
+        );
+
+        final result = watchSessionUseCase();
+
+        expect(result, equals(stream));
+        verify(() => mockSessionRepository.sessionStream).called(1);
+      });
     });
   });
 }

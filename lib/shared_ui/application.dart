@@ -7,6 +7,7 @@ import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
 import 'package:clean_architecture/shared_ui/themes/theme.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
@@ -28,6 +29,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
   late final ScreenObserverCubit _screenObserverCubit;
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
   late final ThemeCubit _themeCubit;
+  late final SessionCubit _sessionCubit;
   StreamSubscription<AuthState>? _authSubscription;
 
   @override
@@ -36,6 +38,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     _screenObserverCubit = GetIt.I<ScreenObserverCubit>();
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
     _themeCubit = GetIt.I<ThemeCubit>();
+    _sessionCubit = GetIt.I<SessionCubit>();
     WidgetsBinding.instance.addObserver(this);
     
     // Listen for Supabase Auth state changes (specifically for password recovery redirect)
@@ -57,6 +60,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     _screenObserverCubit.close();
     _keyboardVisibilityCubit.close();
     _themeCubit.close();
+    _sessionCubit.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -85,6 +89,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
         BlocProvider.value(value: _screenObserverCubit),
         BlocProvider.value(value: _keyboardVisibilityCubit),
         BlocProvider.value(value: _themeCubit),
+        BlocProvider.value(value: _sessionCubit),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
