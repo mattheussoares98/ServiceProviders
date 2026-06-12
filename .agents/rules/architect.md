@@ -275,4 +275,5 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never use raw Material/Flutter loading indicators (like `CircularProgressIndicator`) or basic action buttons when a matching shared UI component exists in `lib/shared_ui/ui/` (always prefer `LoadingCircle`, `PrimaryButton`, `BaseIconButton`, etc.)
 - ❌ Never allow layouts to overflow on smaller screens. Use `Flexible`, `Expanded`, or responsive widgets (like `LayoutBuilder`, `SingleChildScrollView`) for child widgets that display text/labels in a `Row` or `Column` (e.g., inside card widgets like `StatsCard`)
 - ❌ Never declare color or label mapping methods (e.g., `_getStatusColor`, `_getPriorityLabel`) inside page classes, widget classes, or build methods. For domain enums that require presentation logic (colors, labels, icons), declare Dart extension methods in the presentation layer (or a shared presentation helper file) that extend the domain enums.
+- ❌ Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since the user already has build_runner running in watch mode on their machine.
 

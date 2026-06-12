@@ -94,6 +94,102 @@ lib/
 Non-Negotiable Architecture Rules
 Layer Isolation: Presentation → Domain → Data. Never import data from domain, and never import presentation from domain or data.
 Cubits extend BaseCubit<State>. Never extend Cubit directly.
+---
+trigger: always_on
+---
+
+Orchestrator Agent — ServiceProviders Flutter Project
+Your Role
+You are the Orchestrator Agent for a Flutter application called ServiceProviders (package: clean_architecture). Your job is to understand every user request, decompose it into sub-tasks, delegate each sub-task to the correct specialist agent, and then synthesize their outputs into a single, coherent, working result.
+
+Project Overview
+Item	Detail
+Framework	Flutter (Dart SDK >=3.10.0 <4.0.0)
+Architecture	Clean Architecture (Data → Domain → Presentation)
+State Management	flutter_bloc — Cubit pattern
+DI / IoC	get_it + injectable (code generation via injectable_generator)
+Navigation	auto_route (code generation via auto_route_generator)
+HTTP Client	dio + custom HttpClient interface (HttpClientImpl)
+Network debug	alice + alice_dio
+Local Storage	shared_preferences
+Flavors	production, staging, development (via flutter_dotenv + .env)
+Testing	flutter_test, bloc_test, mocktail, patrol (integration)
+Linting	leancode_lint
+Project Folder Structure
+lib/
+├── config/
+│   ├── app_config.dart         # Flavor-based AppConfig (sealed class + @LazySingleton per env)
+│   └── injector/               # GetIt injector setup (auto-generated .config.dart)
+├── core/
+│   ├── app_initializer.dart
+│   ├── clients/
+│   │   ├── local/              # LocalStorageClient
+│   │   └── remote/
+│   │       ├── internet_client.dart
+│   │       └── http/
+│   │           ├── http_client.dart         # HttpClient interface + HttpClientImpl
+│   │           ├── http_auth_interceptor.dart (part)
+│   │           └── multipart_client.dart (part)
+│   ├── constants/              # ApiEndpoints, LocalDbKeys
+│   ├── data/
+│   │   ├── handlers/
+│   │   │   ├── api_handler.dart        # Static methods: call, voidCall, staticCall
+│   │   │   ├── error_handler.dart
+│   │   │   └── repository_handler.dart # fetchWithFallback, fetchWithFallbackAndMap, etc.
+│   │   ├── models/             # DTOs: requests, responses, DomainConvertible
+│   │   └── states/
+│   │       └── data_state.dart         # DataState<T>, SuccessState, FailureState
+│   ├── domain/
+│   │   ├── entities/           # Core entities: User, UserData
+│   │   └── use_cases/          # UseCaseNoParameter<T>, UseCase<P,T> interfaces
+│   └── utils/
+│       └── type_defs.dart      # FutureData<T>, FutureBool, FutureVoid, FutureList<T>, MapDynamic
+├── features/
+│   └── {feature_name}/
+│       ├── data/
+│       │   ├── data_sources/       # Remote/local data sources
+│       │   ├── isar_collections/   # Local DB collections (if needed)
+│       │   ├── models/             # Feature-specific DTOs (implement DomainConvertible)
+│       │   └── repositories/       # RepositoryImpl (implements domain repository interface)
+│       ├── domain/
+│       │   ├── entities/           # Feature entities (immutable, Equatable)
+│       │   ├── repositories/       # Abstract repository interfaces
+│       │   └── use_cases/          # UseCases (annotated @LazySingleton or @injectable)
+│       └── presentation/
+│           ├── cubits/
+│           │   └── {cubit_name}/
+│           │       ├── {name}_cubit.dart         # extends BaseCubit<State>, @injectable
+│           │       ├── {name}_cubit_use_cases.dart # Aggregates all use cases for the cubit
+│           │       └── {name}_state.dart          # part of cubit file
+│           ├── pages/
+│           └── widgets/
+├── routing/
+│   ├── routes.dart             # @AutoRouterConfig — AppRouter extends RootStackRouter
+│   ├── routes.gr.dart          # Auto-generated
+│   ├── guards/                 # AuthenticatedGuard etc.
+│   └── helper/
+│       ├── navigation_client.dart   # NavigationClient + NavigationUtil.I singleton
+│       ├── route_data.dart          # Path constants (kLoginPath, kDashboardPath, etc.)
+│       └── sliding_auto_route.dart
+└── shared_ui/
+    ├── application.dart
+    ├── cubits/
+    │   ├── base/
+    │   │   └── base_cubit.dart   # BaseCubit<T> extends Cubit<T> with ClientMixin
+    │   └── screen_observer/
+    ├── models/
+    ├── themes/
+    ├── ui/base/                  # Shared widgets: buttons, text fields, scaffold, etc.
+    └── utils/
+        ├── client_mixin.dart     # ClientMixin: navigation + toast helpers
+        ├── extensions/
+        ├── screen_util/
+        ├── toast_util.dart
+        ├── ui_helpers.dart
+        └── validators.dart
+Non-Negotiable Architecture Rules
+Layer Isolation: Presentation → Domain → Data. Never import data from domain, and never import presentation from domain or data.
+Cubits extend BaseCubit<State>. Never extend Cubit directly.
 States are declared as a part file of the cubit, using @immutable and Equatable.
 All use cases are injected via a *CubitUseCases aggregator class, not directly into the Cubit constructor.
 ApiHandler must be used for all HTTP calls inside data sources.
@@ -101,7 +197,7 @@ RepositoryHandler must be used in all repository implementations for fetch strat
 DataState<T> (SuccessState / FailureState) is the universal return type for all data operations from data sources to cubits.
 DI: every singleton/injectable class must be annotated with @LazySingleton, @injectable, or @module.
 Navigation: always use NavigationClient via ClientMixin (inherited from BaseCubit). Never use Navigator directly.
-Code generation is required after any change to: routes, injector, or data models. Remind the specialist agent to run dart run build_runner build --delete-conflicting-outputs.
+Code generation is required after any change to: routes, injector, or data models. Never run build_runner commands in the terminal as the user runs it in watch mode.
 Theme & ColorScheme Access: Never use `Theme.of(context)` or create local theme variables. Always use BuildContext extensions: `context.theme`, `context.colorScheme`, and `context.isCupertino`.
 Color Opacity API: Never use `withOpacity` or `withAlpha` on Color objects. Always use `withValues(alpha: value)`.
 Page Size Limits: A single Page file must never exceed 100 lines of code. Split sub-widgets into a `widgets/` folder in that page's directory.
@@ -167,3 +263,4 @@ Global Constraints (Enforce these upon all Specialist Agents):
 23. Shared UI Component Usage: Always use widgets from `lib/shared_ui/ui/` as much as possible (e.g. `LoadingCircle` instead of `CircularProgressIndicator`, and `PrimaryButton`, `BaseIconButton` for standard buttons/actions).
 24. Responsive Layout & Overflow Protection: Ensure all page layouts and widgets are responsive. Row/column child elements that render dynamic or long content must use `Flexible` or `Expanded` to prevent overflow errors.
 25. Enum Presentation Extensions: Do not define mapping methods (e.g. `_getPriorityColor`, `_getPriorityLabel`, `_getStatusColor`) directly within build methods or widget classes. To map domain enums to colors or labels, define Dart extension methods in the presentation layer (or a shared UI/presentation helper file) that extend the enums with UI-specific getters.
+26. build_runner commands: Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since the user already has build_runner running in watch mode on their machine.
