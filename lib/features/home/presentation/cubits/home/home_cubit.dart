@@ -19,4 +19,8 @@ class HomeCubit extends BaseCubit<HomeState> {
     unawaited(_useCases.logOut.call());
     await replaceAllRoute(const LoginRoute());
   }
+
+  Future<void> navigateToCompany() async {
+    await pushRoute(const CompanyRoute());
+  }
 }

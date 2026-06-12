@@ -50,5 +50,17 @@ void main() {
         ).called(1);
       },
     );
+
+    blocTest<HomeCubit, HomeState>(
+      'navigateToCompany should push CompanyRoute',
+      build: () => homeCubit,
+      act: (cubit) => cubit.navigateToCompany(),
+      expect: () => <HomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const CompanyRoute()),
+        ).called(1);
+      },
+    );
   });
 }
