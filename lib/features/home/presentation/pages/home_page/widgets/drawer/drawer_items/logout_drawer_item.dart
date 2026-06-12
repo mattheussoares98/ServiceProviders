@@ -17,6 +17,7 @@ class LogoutDrawerItem extends StatelessWidget {
       platformIcon: const PlatformIcon(
         materialIcon: Icons.logout,
         cupertinoIcon: CupertinoIcons.square_arrow_right,
+        color: Colors.red,
       ),
       onTap: () async {
         await context.read<HomeCubit>().logout();
