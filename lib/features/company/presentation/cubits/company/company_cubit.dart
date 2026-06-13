@@ -45,7 +45,14 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   }
 
   Future<void> navigateToCreateCompany() async {
-    //TODO check if the user is admin
-    await pushRoute(const CreateCompanyRoute());
+    final user = _useCases.getSessionUser();
+    if (user.isAdmin) {
+      await pushRoute(const CreateCompanyRoute());
+    } else {
+      showErrorToast(
+        'Somente administradores podem acessar essa página. Essa opção nem deveria estar aparecendo para você já que você não é administrador'
+            .hardcoded,
+      );
+    }
   }
 }

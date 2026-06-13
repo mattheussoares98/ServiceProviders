@@ -1,9 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:clean_architecture/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -22,7 +24,9 @@ void main() {
 
   late MockCreateCompanyUseCase mockCreateCompanyUseCase;
   late MockNavigationClient mockNavigationClient;
+  late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late CompanyCubit companyCubit;
+  late UserProfileEntity userSession;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCompanyEntity());
@@ -31,17 +35,25 @@ void main() {
   setUp(() {
     mockCreateCompanyUseCase = MockCreateCompanyUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetSessionUserUseCase = MockGetSessionUserUseCase();
+
+    userSession = EntityFactory.makeUserProfileEntity().copyWith(isAdmin: true);
 
     locator
       ..registerSingleton<CreateCompanyUseCase>(mockCreateCompanyUseCase)
-      ..registerSingleton<NavigationClient>(mockNavigationClient);
+      ..registerSingleton<NavigationClient>(mockNavigationClient)
+      ..registerSingleton<GetSessionUserUseCase>(mockGetSessionUserUseCase);
 
     when(
       () => mockNavigationClient.maybePop<CompanyEntity>(any()),
     ).thenAnswer((_) async => true);
+    when(() => mockGetSessionUserUseCase.call()).thenAnswer((_) => userSession);
 
     companyCubit = CompanyCubit(
-      useCases: CompanyCubitUseCases(createCompany: mockCreateCompanyUseCase),
+      useCases: CompanyCubitUseCases(
+        createCompany: mockCreateCompanyUseCase,
+        getSessionUser: mockGetSessionUserUseCase,
+      ),
     );
   });
 
@@ -107,15 +119,34 @@ void main() {
     },
   );
 
-  blocTest<CompanyCubit, CompanyState>(
-    'navigateToCreateCompany should push CreateCompanyRoute',
-    build: () => companyCubit,
-    act: (cubit) => cubit.navigateToCreateCompany(),
-    expect: () => <CompanyState>[],
-    verify: (_) {
-      verify(
-        () => mockNavigationClient.pushRoute(const CreateCompanyRoute()),
-      ).called(1);
-    },
-  );
+  group('Navigate to create company', () {
+    blocTest<CompanyCubit, CompanyState>(
+      'Should navigate if the user is admin (mocked with true value already)',
+      build: () => companyCubit,
+      act: (cubit) => cubit.navigateToCreateCompany(),
+      expect: () => <CompanyState>[],
+      verify: (_) {
+        verify(
+          () => mockNavigationClient.pushRoute(const CreateCompanyRoute()),
+        ).called(1);
+      },
+    );
+    blocTest<CompanyCubit, CompanyState>(
+      'Should not navigate if the user is not admin',
+      build: () {
+        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: false,
+        );
+
+        return companyCubit;
+      },
+      act: (cubit) => cubit.navigateToCreateCompany(),
+      expect: () => <CompanyState>[],
+      verify: (_) {
+        verifyNever(
+          () => mockNavigationClient.pushRoute(const CreateCompanyRoute()),
+        );
+      },
+    );
+  });
 }
