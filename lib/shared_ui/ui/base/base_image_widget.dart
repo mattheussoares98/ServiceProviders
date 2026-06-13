@@ -101,6 +101,14 @@ class BaseImageWidget extends StatelessWidget {
     );
   }
 
+  int _getStableCacheSize(int physicalPixels, int maxPhysicalSize) {
+    final clamped = physicalPixels.clamp(1, maxPhysicalSize);
+    if (clamped <= 256) return 256;
+    if (clamped <= 512) return 512;
+    if (clamped <= 1024) return 1024;
+    return (clamped / 512).ceil() * 512;
+  }
+
   @override
   Widget build(BuildContext context) {
     final fallbackWidget =
@@ -117,18 +125,22 @@ class BaseImageWidget extends StatelessWidget {
     final int maxPhysicalHeight = (screenSize.height * devicePixelRatio)
         .round();
 
-    final int resolvedCacheWidth = width != null
-        ? (width! * devicePixelRatio).round().clamp(1, maxPhysicalWidth)
-        : maxPhysicalWidth;
-    final int resolvedCacheHeight = height != null
-        ? (height! * devicePixelRatio).round().clamp(1, maxPhysicalHeight)
-        : maxPhysicalHeight;
+    final int resolvedCacheWidth = _getStableCacheSize(
+      width != null ? (width! * devicePixelRatio).round() : maxPhysicalWidth,
+      maxPhysicalWidth,
+    );
+    final int resolvedCacheHeight = _getStableCacheSize(
+      height != null ? (height! * devicePixelRatio).round() : maxPhysicalHeight,
+      maxPhysicalHeight,
+    );
 
     final image = switch (source) {
       NetworkImageSource(:final url) =>
         url?.isEmpty ?? true
             ? fallbackWidget
             : CachedNetworkImage(
+                key: ValueKey(url),
+                cacheKey: url,
                 imageUrl: url!,
                 width: width,
                 height: height,
@@ -146,6 +158,7 @@ class BaseImageWidget extends StatelessWidget {
             ? fallbackWidget
             : (path!.startsWith('assets/')
                   ? Image.asset(
+                      key: ValueKey(path),
                       path,
                       width: width,
                       height: height,
@@ -156,6 +169,7 @@ class BaseImageWidget extends StatelessWidget {
                           fallbackWidget,
                     )
                   : Image.file(
+                      key: ValueKey(path),
                       File(path),
                       width: width,
                       height: height,
