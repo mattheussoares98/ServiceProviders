@@ -16,26 +16,32 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: EmailConfirmationRoute.page, path: kEmailConfirmationPath),
     AutoRoute(page: ChangePasswordRoute.page, path: kChangePasswordPath),
     AutoRoute(
-      page: CompanyRoute.page,
-      path: kCompanyPath,
-      children: [
-        AutoRoute(
-          page: CreateCompanyRoute.page,
-          path: kCreateCompanyPath,
-          guards: const [AdminGuard()],
-        ),
-      ],
-    ),
-    AutoRoute(
       path: kHomePath,
       page: HomeRoute.page,
       initial: true,
       guards: const [AuthenticatedGuard()],
       children: [
-        AutoRoute(page: DashboardRoute.page, path: kDashboardSubPath),
-        AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
-        AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
-        AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
+        AutoRoute(
+          path: '',
+          page: HomeTabsRoute.page,
+          children: [
+            AutoRoute(page: DashboardRoute.page, path: kDashboardSubPath),
+            AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
+            AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
+            AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
+          ],
+        ),
+        AutoRoute(
+          page: CompanyRoute.page,
+          path: kCompanyPath,
+          children: [
+            AutoRoute(
+              page: CreateCompanyRoute.page,
+              path: kCreateCompanyPath,
+              guards: const [AdminGuard()],
+            ),
+          ],
+        ),
       ],
     ),
   ];

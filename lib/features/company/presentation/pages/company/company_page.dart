@@ -15,7 +15,6 @@ import 'package:clean_architecture/shared_ui/utils/extensions/build_context_exte
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 @RoutePage()
 class CompanyPage extends StatelessWidget {
@@ -23,38 +22,29 @@ class CompanyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => GetIt.I<CompanyCubit>()..loadCompany(),
-      child: Builder(
-        builder: (context) {
-          return BaseScaffold(
-            observeScreenChanges: true,
-            onRefresh: () =>
-                context.read<CompanyCubit>().loadCompany(forceRefresh: true),
-            appBar: BaseAppBar(
-              title: 'Empresa'.hardcoded,
-              actions: [
-                BlocSelector<SessionCubit, SessionState, bool>(
-                  selector: (state) => state.user.isAdmin,
-                  builder: (context, isAdmin) {
-                    if (!isAdmin) return const SizedBox.shrink();
-                    return BaseIconButton(
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.add,
-                        cupertinoIcon: CupertinoIcons.add,
-                      ),
-                      onPressed: context
-                          .read<CompanyCubit>()
-                          .navigateToCreateCompany,
-                    );
-                  },
+    return BaseScaffold(
+      observeScreenChanges: true,
+      onRefresh: () =>
+          context.read<CompanyCubit>().loadCompany(forceRefresh: true),
+      appBar: BaseAppBar(
+        title: 'Empresa'.hardcoded,
+        actions: [
+          BlocSelector<SessionCubit, SessionState, bool>(
+            selector: (state) => state.user.isAdmin,
+            builder: (context, isAdmin) {
+              if (!isAdmin) return const SizedBox.shrink();
+              return BaseIconButton(
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.add,
+                  cupertinoIcon: CupertinoIcons.add,
                 ),
-              ],
-            ),
-            body: const _CompanyBody(),
-          );
-        },
+                onPressed: context.read<CompanyCubit>().navigateToCreateCompany,
+              );
+            },
+          ),
+        ],
       ),
+      body: const _CompanyBody(),
     );
   }
 }
