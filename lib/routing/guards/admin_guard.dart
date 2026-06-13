@@ -13,6 +13,6 @@ final class AdminGuard extends AutoRouteGuard {
       return resolver.next();
     }
 
-    router.replaceAll([const HomeRoute()]);
+    router.replaceAll([const CompanyRoute()]);
   }
 }

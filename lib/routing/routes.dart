@@ -34,13 +34,11 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: CompanyRoute.page,
           path: kCompanyPath,
-          children: [
-            AutoRoute(
-              page: CreateCompanyRoute.page,
-              path: kCreateCompanyPath,
-              guards: const [AdminGuard()],
-            ),
-          ],
+        ),
+        AutoRoute(
+          page: CreateCompanyRoute.page,
+          path: '$kCompanyPath/$kCreateCompanyPath',
+          guards: const [AdminGuard()],
         ),
       ],
     ),
