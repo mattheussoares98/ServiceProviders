@@ -27,6 +27,27 @@ class BaseAppBar extends StatelessWidget {
   final bool centerTitle;
   final List<Widget>? actions;
 
+  BaseAppBar copyWith({
+    bool? showLeading,
+    Widget? leading,
+    String? title,
+    FontWeight? titleFontWeight,
+    TextStyle? titleStyle,
+    bool? centerTitle,
+    List<Widget>? actions,
+  }) {
+    return BaseAppBar(
+      key: key,
+      showLeading: showLeading ?? this.showLeading,
+      leading: leading ?? this.leading,
+      title: title ?? this.title,
+      titleFontWeight: titleFontWeight ?? this.titleFontWeight,
+      titleStyle: titleStyle ?? this.titleStyle,
+      centerTitle: centerTitle ?? this.centerTitle,
+      actions: actions ?? this.actions,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // AppBar padding
