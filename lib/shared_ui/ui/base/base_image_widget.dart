@@ -35,6 +35,7 @@ class BaseImageWidget extends StatelessWidget {
     this.errorWidget,
     this.enableFullScreenOnTap = false,
     this.heroTag,
+    this.borderRadius,
     super.key,
   });
 
@@ -46,6 +47,7 @@ class BaseImageWidget extends StatelessWidget {
   final Widget? errorWidget;
   final bool enableFullScreenOnTap;
   final String? heroTag;
+  final BorderRadius? borderRadius;
 
   void _showFullScreenImage(BuildContext context) {
     final tag = heroTag ?? source.hashCode.toString();
@@ -169,7 +171,9 @@ class BaseImageWidget extends StatelessWidget {
 
     final content = Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(Sizes.p8)),
+      decoration: BoxDecoration(
+        borderRadius: borderRadius ?? BorderRadius.circular(Sizes.p8),
+      ),
       child: Hero(tag: tag, child: image),
     );
 
