@@ -1,5 +1,5 @@
+import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';

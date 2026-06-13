@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/assets/domain/use_cases/get_assets_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
