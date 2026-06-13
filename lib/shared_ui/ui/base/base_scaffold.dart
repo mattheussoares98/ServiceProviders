@@ -1,5 +1,9 @@
+import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,6 +86,27 @@ class _BaseScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget newChild = params.body;
 
+    Widget? finalAppBar = params.appBar;
+
+    if (params.onRefresh != null &&
+        (PlatformUtil.isWeb || PlatformUtil.isDesktop)) {
+      if (finalAppBar is BaseAppBar) {
+        final refreshAction = BaseIconButton(
+          onPressed: params.onRefresh!,
+          platformIcon: const PlatformIcon(
+            materialIcon: Icons.refresh,
+            cupertinoIcon: CupertinoIcons.refresh,
+          ),
+        );
+        finalAppBar = finalAppBar.copyWith(
+          actions: [
+            ...?finalAppBar.actions,
+            refreshAction,
+          ].map((e) => Flexible(child: e)).toList(),
+        );
+      }
+    }
+
     final effectivePadding = params.usePadding
         ? params.padding ??
               (params.observeScreenChanges
@@ -110,10 +135,10 @@ class _BaseScaffold extends StatelessWidget {
     }
 
     PreferredSize? appBarWidget;
-    if (params.appBar != null) {
+    if (finalAppBar != null) {
       appBarWidget = PreferredSize(
         preferredSize: const Size(double.maxFinite, 50),
-        child: params.appBar!,
+        child: finalAppBar,
       );
     }
 
@@ -151,10 +176,10 @@ class _BaseScaffold extends StatelessWidget {
             )
           : newChild;
 
-      if (params.appBar != null) {
+      if (finalAppBar != null) {
         cupertinoBody = Column(
           children: [
-            params.appBar!,
+            finalAppBar,
             Expanded(child: cupertinoBody),
           ],
         );
