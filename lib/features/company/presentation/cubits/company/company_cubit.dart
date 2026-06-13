@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
 
@@ -41,5 +42,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       message: 'Empresa criada com sucesso'.hardcoded,
     );
     emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
+  }
+
+  Future<void> navigateToCreateCompany() async {
+    //TODO check if the user is admin
+    await pushRoute(const CreateCompanyRoute());
   }
 }

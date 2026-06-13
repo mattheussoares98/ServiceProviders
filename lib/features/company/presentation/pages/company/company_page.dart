@@ -1,14 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
-import 'package:clean_architecture/features/company/presentation/pages/company/widgets/create_company_modal.dart';
+import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -22,7 +22,24 @@ class CompanyPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => GetIt.I<CompanyCubit>(),
       child: BaseScaffold(
-        appBar: BaseAppBar(title: 'Empresa'.hardcoded),
+        appBar: BaseAppBar(
+          title: 'Empresa'.hardcoded,
+          actions: [
+            BlocSelector<SessionCubit, SessionState, bool>(
+              selector: (state) => state.user.isAdmin,
+              builder: (context, isAdmin) {
+                if (!isAdmin) return const SizedBox.shrink();
+                return BaseIconButton(
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.add,
+                    cupertinoIcon: CupertinoIcons.add,
+                  ),
+                  onPressed: context.read<CompanyCubit>().navigateToCreateCompany,
+                );
+              },
+            ),
+          ],
+        ),
         body: const _CompanyBody(),
       ),
     );
@@ -41,19 +58,6 @@ class _CompanyBody extends StatelessWidget {
         gapH8,
         BaseText.bodyLarge('Nenhuma empresa cadastrada'.hardcoded),
         gapH24,
-        PrimaryButton(
-          expandWidth: true,
-          onTap: () {
-            showModalPage<CompanyEntity>(
-              BlocProvider.value(
-                value: context.read<CompanyCubit>(),
-                child: const CreateCompanyModal(),
-              ),
-              context,
-            );
-          },
-          text: 'CRIAR EMPRESA'.hardcoded,
-        ),
       ],
     );
   }

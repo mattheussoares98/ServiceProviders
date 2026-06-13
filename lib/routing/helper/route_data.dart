@@ -39,3 +39,6 @@ const String kEmailConfirmationPath = '/email-confirmation';
 // Company
 const String kCompanyRoute = 'CompanyRoute';
 const String kCompanyPath = '/company';
+
+const String kCreateCompanyRoute = 'CreateCompanyRoute';
+const String kCreateCompanyPath = 'create';

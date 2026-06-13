@@ -24,3 +24,4 @@ class HomeCubit extends BaseCubit<HomeState> {
     await pushRoute(const CompanyRoute());
   }
 }
+

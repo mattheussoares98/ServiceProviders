@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/company/domain/use_cases/create_comp
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -103,6 +104,18 @@ void main() {
     verify: (_) {
       verify(() => mockCreateCompanyUseCase.call(any())).called(1);
       verifyNever(() => mockNavigationClient.maybePop<CompanyEntity>(any()));
+    },
+  );
+
+  blocTest<CompanyCubit, CompanyState>(
+    'navigateToCreateCompany should push CreateCompanyRoute',
+    build: () => companyCubit,
+    act: (cubit) => cubit.navigateToCreateCompany(),
+    expect: () => <CompanyState>[],
+    verify: (_) {
+      verify(
+        () => mockNavigationClient.pushRoute(const CreateCompanyRoute()),
+      ).called(1);
     },
   );
 }
