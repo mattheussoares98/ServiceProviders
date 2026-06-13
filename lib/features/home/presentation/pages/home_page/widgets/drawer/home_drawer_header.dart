@@ -1,7 +1,10 @@
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_image_widget.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,16 +37,37 @@ class HomeDrawerHeader extends StatelessWidget {
                   },
                 ),
                 Positioned(
-                  bottom: Sizes.p12,
-                  left: Sizes.p12,
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: context.theme.colorScheme.onPrimary,
-                    child: Icon(
-                      Icons.person,
-                      size: 35,
-                      color: context.theme.colorScheme.primary,
-                    ),
+                  bottom: 0,
+                  left: 0,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(Sizes.p12),
+                        child: CircleAvatar(
+                          radius: Sizes.p48,
+                          backgroundColor: context.theme.colorScheme.onPrimary,
+                          child: PlatformIcon(
+                            materialIcon: Icons.person,
+                            cupertinoIcon: CupertinoIcons.person,
+                            size: 35,
+                            color: context.theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: BaseIconButton(
+                          onPressed: () {
+                            //TODO add option to change the image
+                          },
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.add_a_photo,
+                            cupertinoIcon: CupertinoIcons.photo_camera_solid,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
