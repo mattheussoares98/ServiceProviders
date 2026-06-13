@@ -68,6 +68,7 @@ class BaseAppBar extends StatelessWidget {
     if (context.isCupertino) {
       return CupertinoNavigationBar(
         automaticallyImplyLeading: false,
+        transitionBetweenRoutes: false,
         leading: leadingWidget,
         middle: titleWidget,
         trailing: actions != null
