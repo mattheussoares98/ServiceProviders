@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/company/domain/entities/company_para
 
 abstract interface class CompanyRepository {
   FutureData<CompanyEntity> createCompany(CompanyEntity company);
-  FutureData<CompanyEntity> getCompany(String id);
+  FutureData<CompanyEntity> getCompany(String id, {bool forceRefresh = false});
   FutureData<CompanyParameterEntity> getCompanyParameters(String companyId);
   FutureBool saveCompany(CompanyEntity company);
   FutureBool saveCompanyParameters(CompanyParameterEntity parameters);

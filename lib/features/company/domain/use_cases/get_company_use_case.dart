@@ -12,6 +12,6 @@ class GetCompanyUseCase implements UseCase<CompanyEntity, String> {
   final CompanyRepository _companyRepository;
 
   @override
-  FutureData<CompanyEntity> call(String request) =>
-      _companyRepository.getCompany(request);
+  FutureData<CompanyEntity> call(String request, {bool forceRefresh = false}) =>
+      _companyRepository.getCompany(request, forceRefresh: forceRefresh);
 }

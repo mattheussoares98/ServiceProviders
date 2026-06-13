@@ -217,6 +217,60 @@ void main() {
         verifyNever(() => mockRemoteDataSource.getCompany(any()));
         verify(() => mockLocalDataSource.getCompany(tCompanyId)).called(1);
       });
+
+      test(
+        'should return cached company on subsequent calls without querying data sources again',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getCompany(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
+          when(
+            () => mockLocalDataSource.saveCompany(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result1 = await repository.getCompany(tCompanyId);
+          final result2 = await repository.getCompany(tCompanyId);
+
+          expect(result1, isA<SuccessState<CompanyEntity>>());
+          expect(result2, isA<SuccessState<CompanyEntity>>());
+          expect(result1.data, tCompanyModel.toEntity());
+          expect(result2.data, tCompanyModel.toEntity());
+
+          verify(() => mockRemoteDataSource.getCompany(tCompanyId)).called(1);
+          verify(
+            () => mockLocalDataSource.saveCompany(tCompanyModel),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.getCompany(any()));
+        },
+      );
+
+      test(
+        'should bypass cache and query data sources again when forceRefresh is true',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getCompany(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
+          when(
+            () => mockLocalDataSource.saveCompany(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result1 = await repository.getCompany(tCompanyId);
+          final result2 = await repository.getCompany(tCompanyId, forceRefresh: true);
+
+          expect(result1, isA<SuccessState<CompanyEntity>>());
+          expect(result2, isA<SuccessState<CompanyEntity>>());
+          expect(result1.data, tCompanyModel.toEntity());
+          expect(result2.data, tCompanyModel.toEntity());
+
+          verify(() => mockRemoteDataSource.getCompany(tCompanyId)).called(2);
+          verify(
+            () => mockLocalDataSource.saveCompany(tCompanyModel),
+          ).called(2);
+          verifyNever(() => mockLocalDataSource.getCompany(any()));
+        },
+      );
     });
 
     group('getCompanyParameters', () {
