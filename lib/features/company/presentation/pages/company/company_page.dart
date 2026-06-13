@@ -25,28 +25,35 @@ class CompanyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GetIt.I<CompanyCubit>()..loadCompany(),
-      child: BaseScaffold(
-        appBar: BaseAppBar(
-          title: 'Empresa'.hardcoded,
-          actions: [
-            BlocSelector<SessionCubit, SessionState, bool>(
-              selector: (state) => state.user.isAdmin,
-              builder: (context, isAdmin) {
-                if (!isAdmin) return const SizedBox.shrink();
-                return BaseIconButton(
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.add,
-                    cupertinoIcon: CupertinoIcons.add,
-                  ),
-                  onPressed: context
-                      .read<CompanyCubit>()
-                      .navigateToCreateCompany,
-                );
-              },
+      child: Builder(
+        builder: (context) {
+          return BaseScaffold(
+            observeScreenChanges: true,
+            onRefresh: () =>
+                context.read<CompanyCubit>().loadCompany(forceRefresh: true),
+            appBar: BaseAppBar(
+              title: 'Empresa'.hardcoded,
+              actions: [
+                BlocSelector<SessionCubit, SessionState, bool>(
+                  selector: (state) => state.user.isAdmin,
+                  builder: (context, isAdmin) {
+                    if (!isAdmin) return const SizedBox.shrink();
+                    return BaseIconButton(
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.add,
+                        cupertinoIcon: CupertinoIcons.add,
+                      ),
+                      onPressed: context
+                          .read<CompanyCubit>()
+                          .navigateToCreateCompany,
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-        body: const _CompanyBody(),
+            body: const _CompanyBody(),
+          );
+        },
       ),
     );
   }
