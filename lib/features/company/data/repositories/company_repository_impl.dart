@@ -36,8 +36,11 @@ final class CompanyRepositoryImpl implements CompanyRepository {
 
   @override
   FutureData<CompanyEntity> getCompany(String id) =>
-      RepositoryHandler.fetchFromLocalAndMap<CompanyModel, CompanyEntity>(
+      RepositoryHandler.fetchWithFallbackAndMap<CompanyModel, CompanyEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getCompany(id),
         localCallback: () => _localDataSource.getCompany(id),
+        onRemoteSuccess: _localDataSource.saveCompany,
       );
 
   @override
