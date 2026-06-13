@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:clean_architecture/features/company/domain/use_cases/create_company_use_case.dart';
+import 'package:clean_architecture/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
@@ -25,6 +26,7 @@ void main() {
   late MockCreateCompanyUseCase mockCreateCompanyUseCase;
   late MockNavigationClient mockNavigationClient;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
+  late MockGetCompanyUseCase mockGetCompanyUseCase;
   late CompanyCubit companyCubit;
   late UserProfileEntity userSession;
 
@@ -36,23 +38,29 @@ void main() {
     mockCreateCompanyUseCase = MockCreateCompanyUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
+    mockGetCompanyUseCase = MockGetCompanyUseCase();
 
     userSession = EntityFactory.makeUserProfileEntity().copyWith(isAdmin: true);
 
     locator
       ..registerSingleton<CreateCompanyUseCase>(mockCreateCompanyUseCase)
       ..registerSingleton<NavigationClient>(mockNavigationClient)
-      ..registerSingleton<GetSessionUserUseCase>(mockGetSessionUserUseCase);
+      ..registerSingleton<GetSessionUserUseCase>(mockGetSessionUserUseCase)
+      ..registerSingleton<GetCompanyUseCase>(mockGetCompanyUseCase);
 
     when(
       () => mockNavigationClient.maybePop<CompanyEntity>(any()),
     ).thenAnswer((_) async => true);
     when(() => mockGetSessionUserUseCase.call()).thenAnswer((_) => userSession);
+    when(() => mockGetCompanyUseCase.call(any())).thenAnswer(
+      (_) async => SuccessState(data: EntityFactory.makeCompanyEntity()),
+    );
 
     companyCubit = CompanyCubit(
       useCases: CompanyCubitUseCases(
         createCompany: mockCreateCompanyUseCase,
         getSessionUser: mockGetSessionUserUseCase,
+        getCompany: mockGetCompanyUseCase,
       ),
     );
   });
@@ -147,6 +155,75 @@ void main() {
           () => mockNavigationClient.pushRoute(const CreateCompanyRoute()),
         );
       },
+    );
+  });
+
+  group('loadCompany', () {
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit loaded status and company when company loads successfully',
+      build: () {
+        final company = EntityFactory.makeCompanyEntity();
+        when(
+          () => mockGetCompanyUseCase.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: company));
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<CompanyState>()
+            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having((state) => state.company, 'company', isA<CompanyEntity>()),
+      ],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit error status when loading fails',
+      build: () {
+        when(() => mockGetCompanyUseCase.call(any())).thenAnswer(
+          (_) async => FailureState<CompanyEntity>(message: 'Load failed'),
+        );
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.error,
+        ),
+      ],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit loaded status and null company when user has no companyId',
+      build: () {
+        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: true,
+          annulCompanyId: true,
+        );
+        when(
+          () => mockGetSessionUserUseCase.call(),
+        ).thenAnswer((_) => userSession);
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
     );
   });
 }

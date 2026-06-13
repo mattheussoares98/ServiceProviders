@@ -16,6 +16,26 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
   final CompanyCubitUseCases _useCases;
 
+  Future<void> loadCompany() async {
+    final user = _useCases.getSessionUser();
+    if (user.companyId.isEmpty) {
+      emit(state.copyWith(status: StateStatus.loaded, annulCompany: true));
+      return;
+    }
+
+    emit(state.copyWith(status: StateStatus.loading));
+
+    final dataState = await _useCases.getCompany(user.companyId);
+    if (isClosed) return;
+
+    if (dataState is SuccessState<CompanyEntity>) {
+      emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
+    } else {
+      emit(state.copyWith(status: StateStatus.error));
+      showDataStateToast(dataState);
+    }
+  }
+
   Future<void> createCompany({required String name, String? cnpj}) async {
     emit(state.copyWith(status: StateStatus.loading, annulCompany: true));
 

@@ -9,6 +9,7 @@ import 'package:clean_architecture/features/auth/domain/use_cases/set_session_us
 import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:clean_architecture/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:clean_architecture/features/company/domain/use_cases/create_company_use_case.dart';
+import 'package:clean_architecture/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
@@ -32,3 +33,5 @@ class MockCreateCompanyUseCase extends Mock implements CreateCompanyUseCase {}
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockWatchSessionUseCase extends Mock implements WatchSessionUseCase {}
+
+class MockGetCompanyUseCase extends Mock implements GetCompanyUseCase {}

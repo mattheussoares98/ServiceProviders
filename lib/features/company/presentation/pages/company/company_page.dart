@@ -20,7 +20,7 @@ class CompanyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => GetIt.I<CompanyCubit>(),
+      create: (_) => GetIt.I<CompanyCubit>()..loadCompany(),
       child: BaseScaffold(
         appBar: BaseAppBar(
           title: 'Empresa'.hardcoded,
