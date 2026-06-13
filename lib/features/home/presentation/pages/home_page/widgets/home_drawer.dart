@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/home/presentation/pages/home_page/wi
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/profile_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
+import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -22,6 +23,7 @@ class HomeDrawer extends StatelessWidget {
       child: const Column(
         children: [
           HomeDrawerHeader(),
+          UserDrawerItem(),
           CompanyDrawerItem(),
           HomeDrawerItem(),
           ProfileDrawerItem(),
