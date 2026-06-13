@@ -1,6 +1,8 @@
 import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/company/data/models/requests/company_request_model.dart';
 import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
@@ -8,6 +10,7 @@ import 'package:injectable/injectable.dart';
 
 abstract interface class CompanyRemoteDataSource {
   FutureData<CompanyModel> createCompany(CompanyRequestModel request);
+  FutureData<CompanyModel> getCompany(String id);
 }
 
 @LazySingleton(as: CompanyRemoteDataSource)
@@ -26,4 +29,19 @@ final class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
         );
         return SuccessState(data: CompanyModel.fromJson(rows.first));
       });
+
+  @override
+  FutureData<CompanyModel> getCompany(String id) {
+    return ErrorHandler.execute(() async {
+      final company = await _database.selectOne(
+        table: 'companies',
+        filters: [SupabaseFilter.eq('id', id)],
+      );
+
+      if (company == null) {
+        return FailureState(message: 'Empresa não encontrada'.hardcoded);
+      }
+      return SuccessState(data: CompanyModel.fromJson(company));
+    });
+  }
 }
