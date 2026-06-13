@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
+import 'package:clean_architecture/shared_ui/ui/base/base_image_widget.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -40,33 +41,20 @@ class CompanyDetailCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: Sizes.p64,
-            height: Sizes.p64,
-            decoration: BoxDecoration(
-              color: context.colorScheme.primaryContainer.withValues(
-                alpha: 0.2,
+          Flexible(
+            child: BaseImageWidget(
+              source: BaseImageSource.network(logoUrl),
+              enableFullScreenOnTap: true,
+              heroTag: '${company.id}_logo',
+              width: 120,
+              height: 120,
+              errorWidget: PlatformIcon(
+                cupertinoIcon: CupertinoIcons.building_2_fill,
+                materialIcon: Icons.business,
+                size: Sizes.p32,
+                color: context.colorScheme.primary,
               ),
-              borderRadius: BorderRadius.circular(Sizes.p12),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: logoUrl != null && logoUrl.isNotEmpty
-                ? Image.network(
-                    //TODO centralize where will show images to improve it
-                    logoUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.business,
-                      size: Sizes.p32,
-                      color: context.colorScheme.primary,
-                    ),
-                  )
-                : PlatformIcon(
-                    cupertinoIcon: CupertinoIcons.building_2_fill,
-                    materialIcon: Icons.business,
-                    size: Sizes.p32,
-                    color: context.colorScheme.primary,
-                  ),
           ),
           gapW16,
           Expanded(
