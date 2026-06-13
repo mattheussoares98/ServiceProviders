@@ -225,5 +225,26 @@ void main() {
         ),
       ],
     );
+    blocTest<CompanyCubit, CompanyState>(
+      'should pass forceRefresh parameter to usecase correctly',
+      build: () {
+        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: true,
+        );
+        when(
+          () => mockGetSessionUserUseCase.call(),
+        ).thenAnswer((_) => userSession);
+        when(
+          () => mockGetCompanyUseCase.call(any(), forceRefresh: true),
+        ).thenAnswer((_) async => const SuccessState(data: null));
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(forceRefresh: true),
+      verify: (_) {
+        verify(
+          () => mockGetCompanyUseCase.call(any(), forceRefresh: true),
+        ).called(1);
+      },
+    );
   });
 }
