@@ -6,6 +6,7 @@ import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/validators/cpf_cnpj_validator.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validator.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,9 @@ class CreateCompanyPage extends HookWidget {
                 focusNode: cnpjFocusNode,
                 labelText: 'CNPJ'.hardcoded,
                 hintText: 'Digite o CNPJ'.hardcoded,
-                //TODO add CNPJ validator
+                validator: FormValidators.compose([
+                  CpfCnpjValidator(validateOnlyCnpj: true),
+                ]),
                 controller: cnpjController,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
@@ -81,7 +84,7 @@ class CreateCompanyPage extends HookWidget {
     TextEditingController nameController,
     TextEditingController cnpjController,
   ) async {
-    if (!formKey.currentState!.validate()) return;
+    if (formKey.currentState?.validate() != true) return;
     FocusManager.instance.primaryFocus?.unfocus();
     await context.read<CompanyCubit>().createCompany(
       name: nameController.text,
