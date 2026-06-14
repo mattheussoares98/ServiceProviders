@@ -42,7 +42,6 @@ final class LocalStorageClientImpl implements LocalStorageClient {
     )..where((t) => t.id.equals(1))).getSingleOrNull();
     if (setting != null) {
       _themeMode = setting.themeMode;
-      //TODO get it from the app settings correctly
       _pushNotificationsEnabled = setting.pushNotificationsEnabled;
     }
 
