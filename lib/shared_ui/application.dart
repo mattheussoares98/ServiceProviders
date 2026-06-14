@@ -1,14 +1,15 @@
 import 'dart:async';
+
 import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
+import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
 import 'package:clean_architecture/shared_ui/themes/theme.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     with WidgetsBindingObserver {
   late final ScreenObserverCubit _screenObserverCubit;
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
-  late final ThemeCubit _themeCubit;
+  late final ConfigurationsCubit _configurationsCubit;
   late final SessionCubit _sessionCubit;
   StreamSubscription<AuthState>? _authSubscription;
 
@@ -37,12 +38,14 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     super.initState();
     _screenObserverCubit = GetIt.I<ScreenObserverCubit>();
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
-    _themeCubit = GetIt.I<ThemeCubit>();
+    _configurationsCubit = GetIt.I<ConfigurationsCubit>();
     _sessionCubit = GetIt.I<SessionCubit>();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Listen for Supabase Auth state changes (specifically for password recovery redirect)
-    _authSubscription = GetIt.I<SupabaseAuthClient>().onAuthStateChange.listen((data) {
+    _authSubscription = GetIt.I<SupabaseAuthClient>().onAuthStateChange.listen((
+      data,
+    ) {
       if (data.event == AuthChangeEvent.passwordRecovery) {
         NavigationUtil.I.replaceAllRoute(const ChangePasswordRoute());
       }
@@ -59,7 +62,7 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
     _authSubscription?.cancel();
     _screenObserverCubit.close();
     _keyboardVisibilityCubit.close();
-    _themeCubit.close();
+    _configurationsCubit.close();
     _sessionCubit.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -88,17 +91,17 @@ class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
       providers: [
         BlocProvider.value(value: _screenObserverCubit),
         BlocProvider.value(value: _keyboardVisibilityCubit),
-        BlocProvider.value(value: _themeCubit),
+        BlocProvider.value(value: _configurationsCubit),
         BlocProvider.value(value: _sessionCubit),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) {
+      child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
+        builder: (context, state) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
             title: AppConfigUtil.I.appTitle,
             theme: lightTheme,
             darkTheme: darkTheme,
-            themeMode: themeState.themeMode,
+            themeMode: state.themeMode,
             routerDelegate: NavigationUtil.I.routerDelegate,
             routeInformationParser: NavigationUtil.I.routeInformationParser,
           );

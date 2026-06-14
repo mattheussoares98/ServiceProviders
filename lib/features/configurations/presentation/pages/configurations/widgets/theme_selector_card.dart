@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
 import 'package:clean_architecture/features/configurations/presentation/pages/configurations/widgets/configuration_item.dart';
-import 'package:clean_architecture/shared_ui/cubits/theme/theme_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -21,119 +21,111 @@ class ThemeSelectorCard extends StatelessWidget {
       ),
       title: 'Tema'.hardcoded,
       subtitle: 'Escolha a aparência visual do aplicativo'.hardcoded,
-      actionWidget: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, state) {
-          final currentMode = state.themeMode;
-          return Row(
-            mainAxisAlignment: .spaceEvenly,
-            children: [
-              Flexible(
-                child: _ThemeOptionButton(
-                  label: 'Claro'.hardcoded,
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.light_mode_outlined,
-                    cupertinoIcon: CupertinoIcons.sun_max,
-                  ),
-                  selected: currentMode == ThemeMode.light,
-                  onTap: () => context.read<ThemeCubit>().updateThemeMode(
-                    ThemeMode.light,
-                  ),
-                ),
+      actionWidget: const Row(
+        mainAxisAlignment: .spaceEvenly,
+        children: [
+          Flexible(
+            child: _ThemeOptionButton(
+              platformIcon: PlatformIcon(
+                materialIcon: Icons.light_mode_outlined,
+                cupertinoIcon: CupertinoIcons.sun_max,
               ),
-              gapW8,
-              Flexible(
-                child: _ThemeOptionButton(
-                  label: 'Escuro'.hardcoded,
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.dark_mode_outlined,
-                    cupertinoIcon: CupertinoIcons.moon_stars,
-                  ),
-                  selected: currentMode == ThemeMode.dark,
-                  onTap: () => context.read<ThemeCubit>().updateThemeMode(
-                    ThemeMode.dark,
-                  ),
-                ),
+              theme: ThemeMode.light,
+            ),
+          ),
+          gapW8,
+          Flexible(
+            child: _ThemeOptionButton(
+              platformIcon: PlatformIcon(
+                materialIcon: Icons.dark_mode_outlined,
+                cupertinoIcon: CupertinoIcons.moon_stars,
               ),
-              gapW8,
-              Flexible(
-                child: _ThemeOptionButton(
-                  label: 'Sistema'.hardcoded,
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.brightness_auto_outlined,
-                    cupertinoIcon: CupertinoIcons.globe,
-                  ),
-                  selected: currentMode == ThemeMode.system,
-                  onTap: () => context.read<ThemeCubit>().updateThemeMode(
-                    ThemeMode.system,
-                  ),
-                ),
+              theme: ThemeMode.dark,
+            ),
+          ),
+          gapW8,
+          Flexible(
+            child: _ThemeOptionButton(
+              platformIcon: PlatformIcon(
+                materialIcon: Icons.brightness_auto_outlined,
+                cupertinoIcon: CupertinoIcons.globe,
               ),
-            ],
-          );
-        },
+              theme: ThemeMode.system,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _ThemeOptionButton extends StatelessWidget {
-  const _ThemeOptionButton({
-    required this.label,
-    required this.platformIcon,
-    required this.selected,
-    required this.onTap,
-  });
+  const _ThemeOptionButton({required this.platformIcon, required this.theme});
 
-  final String label;
   final PlatformIcon platformIcon;
-  final bool selected;
-  final VoidCallback onTap;
+  final ThemeMode theme;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(Sizes.p8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: Sizes.p12,
-            horizontal: Sizes.p8,
-          ),
-          decoration: BoxDecoration(
-            color: selected
-                ? context.colorScheme.primaryContainer.withValues(alpha: 0.3)
-                : Colors.transparent,
-            border: Border.all(
-              color: selected
-                  ? context.colorScheme.primary
-                  : context.colorScheme.outlineVariant.withValues(alpha: 0.3),
-              width: selected ? 1.5 : 1.0,
-            ),
+    final label = switch (theme) {
+      ThemeMode.light => 'Claro'.hardcoded,
+      ThemeMode.dark => 'Escuro'.hardcoded,
+      ThemeMode.system => 'Sistema'.hardcoded,
+    };
+    return BlocSelector<ConfigurationsCubit, ConfigurationsState, ThemeMode>(
+      selector: (state) => state.themeMode,
+      builder: (context, currentMode) {
+        final selected = theme == currentMode;
+        return SizedBox(
+          width: 200,
+          child: InkWell(
+            onTap: () =>
+                context.read<ConfigurationsCubit>().updateThemeMode(theme),
             borderRadius: BorderRadius.circular(Sizes.p8),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              platformIcon.copyWith(
-                color: selected
-                    ? context.colorScheme.primary
-                    : context.colorScheme.onSurfaceVariant,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: Sizes.p12,
+                horizontal: Sizes.p8,
               ),
-              gapH4,
-              BaseText(
-                label,
+              decoration: BoxDecoration(
                 color: selected
-                    ? context.colorScheme.primary
-                    : context.colorScheme.onSurfaceVariant,
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                overflow: TextOverflow.ellipsis,
+                    ? context.colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      )
+                    : Colors.transparent,
+                border: Border.all(
+                  color: selected
+                      ? context.colorScheme.primary
+                      : context.colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
+                  width: selected ? 1.5 : 1.0,
+                ),
+                borderRadius: BorderRadius.circular(Sizes.p8),
               ),
-            ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  platformIcon.copyWith(
+                    color: selected
+                        ? context.colorScheme.primary
+                        : context.colorScheme.onSurfaceVariant,
+                  ),
+                  gapH4,
+                  BaseText(
+                    label,
+                    color: selected
+                        ? context.colorScheme.primary
+                        : context.colorScheme.onSurfaceVariant,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

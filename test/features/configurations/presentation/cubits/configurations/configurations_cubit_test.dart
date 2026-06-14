@@ -7,6 +7,7 @@ import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
@@ -35,6 +36,8 @@ void main() {
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(() => mockLocalStorageClient.getThemeMode()).thenReturn('system');
 
     final useCases = ConfigurationsCubitUseCases(
       getConfigurations: mockGetConfigurations,
@@ -109,9 +112,8 @@ void main() {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
       'should emit [loading, loaded] with updated preference when toggle succeeds',
       build: () {
-        final tEnabled = faker.randomGenerator.boolean();
         when(
-          () => mockSaveConfigurations.call(tEnabled),
+          () => mockSaveConfigurations.call(true),
         ).thenAnswer((_) async => const SuccessState(data: true));
         return cubit;
       },
@@ -158,6 +160,32 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockSaveConfigurations.call(false)).called(1);
+      },
+    );
+  });
+
+  group('updateThemeMode', () {
+    blocTest<ConfigurationsCubit, ConfigurationsState>(
+      'should emit [loading, loaded] with updated theme mode when updateThemeMode succeeds',
+      build: () {
+        when(
+          () => mockLocalStorageClient.saveThemeMode(any()),
+        ).thenAnswer((_) async => {});
+        return cubit;
+      },
+      act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
+      expect: () => [
+        isA<ConfigurationsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<ConfigurationsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.configurations.themeMode, 'themeMode', 'dark'),
+      ],
+      verify: (_) {
+        verify(() => mockLocalStorageClient.saveThemeMode('dark')).called(1);
       },
     );
   });

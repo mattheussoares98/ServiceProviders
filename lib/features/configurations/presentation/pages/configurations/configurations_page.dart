@@ -9,27 +9,19 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:get_it/get_it.dart';
 
 @RoutePage()
-class ConfigurationsPage extends StatelessWidget {
+class ConfigurationsPage extends HookWidget {
   const ConfigurationsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ConfigurationsCubit>(
-      create: (context) => GetIt.I<ConfigurationsCubit>()..loadConfigurations(),
-      child: const _ConfigurationsPageBody(),
-    );
-  }
-}
-
-class _ConfigurationsPageBody extends HookWidget {
-  const _ConfigurationsPageBody();
-
-  @override
-  Widget build(BuildContext context) {
     final lifecycleState = useAppLifecycleState();
+
+    useEffect(() {
+      context.read<ConfigurationsCubit>().loadConfigurations();
+      return null;
+    }, []);
 
     useEffect(() {
       if (lifecycleState == AppLifecycleState.resumed) {

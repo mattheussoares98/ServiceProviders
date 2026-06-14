@@ -18,6 +18,13 @@ class ConfigurationsState extends BaseState {
   final ConfigurationsEntity configurations;
   final String errorMessage;
 
+  ThemeMode get themeMode {
+    return ThemeMode.values.firstWhere(
+      (e) => e.name == configurations.themeMode,
+      orElse: () => ThemeMode.system,
+    );
+  }
+
   ConfigurationsState copyWith({
     ConfigurationsEntity? configurations,
     StateStatus? status,

@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/configurations/domain/entities/confi
 import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit_use_cases.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
 part 'configurations_state.dart';
@@ -15,10 +16,21 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
     required LocalStorageClient localStorageClient,
   }) : _useCases = useCases,
        _localStorageClient = localStorageClient,
-       super(const ConfigurationsState.initial());
+       super(const ConfigurationsState.initial()) {
+    _loadThemeMode();
+  }
 
   final ConfigurationsCubitUseCases _useCases;
   final LocalStorageClient _localStorageClient;
+
+  void _loadThemeMode() {
+    final savedMode = _localStorageClient.getThemeMode();
+    emit(
+      state.copyWith(
+        configurations: state.configurations.copyWith(themeMode: savedMode),
+      ),
+    );
+  }
 
   Future<void> loadConfigurations() async {
     emit(state.copyWith(status: StateStatus.loading));
@@ -50,7 +62,17 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
       emit(state.copyWith(status: StateStatus.error));
     }
   }
-  //TODO move change theme mode for here
+
+  Future<void> updateThemeMode(ThemeMode mode) async {
+    emit(state.copyWith(status: StateStatus.loading));
+    await _localStorageClient.saveThemeMode(mode.name);
+    emit(
+      state.copyWith(
+        configurations: state.configurations.copyWith(themeMode: mode.name),
+        status: StateStatus.loaded,
+      ),
+    );
+  }
 
   Future<void> clearAppCache() async {
     emit(state.copyWith(status: StateStatus.loading));
