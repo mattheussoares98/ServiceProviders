@@ -42,6 +42,7 @@ void main() {
         final entity = (result as SuccessState<ConfigurationsEntity>).data;
         expect(entity?.pushNotificationsEnabled, tPushEnabled);
         expect(entity?.themeMode, tThemeMode);
+        expect(entity?.systemNotificationsEnabled, false);
         verify(() => mockLocalStorageClient.getPushNotifications()).called(1);
         verify(() => mockLocalStorageClient.getThemeMode()).called(1);
       },

@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class ConfigurationsLocalDataSource {
@@ -24,10 +25,21 @@ final class ConfigurationsLocalDataSourceImpl
       ErrorHandler.execute(() async {
         final pushEnabled = _localDatabase.getPushNotifications();
         final themeMode = _localDatabase.getThemeMode();
+        var systemEnabled = true;
+        try {
+          final settings = await FirebaseMessaging.instance
+              .getNotificationSettings();
+          systemEnabled =
+              settings.authorizationStatus == AuthorizationStatus.authorized ||
+              settings.authorizationStatus == AuthorizationStatus.provisional;
+        } catch (_) {
+          systemEnabled = false;
+        }
         return SuccessState(
           data: ConfigurationsEntity(
             pushNotificationsEnabled: pushEnabled,
             themeMode: themeMode,
+            systemNotificationsEnabled: systemEnabled,
           ),
         );
       });
