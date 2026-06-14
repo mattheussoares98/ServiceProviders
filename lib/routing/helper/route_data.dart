@@ -29,9 +29,9 @@ const String kAssetsPath = 'assets';
 const String kLocationsRoute = 'LocationsRoute';
 const String kLocationsPath = 'locations';
 
-// Settings
-const String kSettingRoute = 'SettingRoute';
-const String kSettingPath = 'setting';
+// Configurations
+const String kConfigurationsRoute = 'ConfigurationsRoute';
+const String kConfigurationsPath = 'configurations';
 
 // E-mail confirmation
 const String kEmailConfirmationPath = '/email-confirmation';

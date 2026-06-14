@@ -23,5 +23,9 @@ class HomeCubit extends BaseCubit<HomeState> {
   Future<void> navigateToCompany() async {
     await pushRoute(const CompanyRoute());
   }
+
+  Future<void> navigateToConfigurations() async {
+    await pushRoute(const ConfigurationsRoute());
+  }
 }
 
