@@ -77,6 +77,24 @@ class PlatformIcon extends StatelessWidget {
   final EdgeInsetsGeometry? materialPadding;
   final EdgeInsetsGeometry? cupertinoPadding;
 
+  PlatformIcon copyWith({
+    IconData? materialIcon,
+    IconData? cupertinoIcon,
+    Color? color,
+    double? size,
+    EdgeInsetsGeometry? materialPadding,
+    EdgeInsetsGeometry? cupertinoPadding,
+  }) {
+    return PlatformIcon(
+      materialIcon: materialIcon ?? this.materialIcon,
+      cupertinoIcon: cupertinoIcon ?? this.cupertinoIcon,
+      color: color ?? this.color,
+      size: size ?? this.size,
+      materialPadding: materialPadding ?? this.materialPadding,
+      cupertinoPadding: cupertinoPadding ?? this.cupertinoPadding,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (context.isCupertino) {
