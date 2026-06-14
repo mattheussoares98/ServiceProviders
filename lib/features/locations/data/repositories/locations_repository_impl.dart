@@ -16,9 +16,9 @@ final class LocationsRepositoryImpl implements LocationsRepository {
     required InternetClient internet,
     required LocationsRemoteDataSource remoteDataSource,
     required LocationsLocalDataSource localDataSource,
-  })  : _internet = internet,
-        _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _internet = internet,
+       _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   final InternetClient _internet;
   final LocationsRemoteDataSource _remoteDataSource;
@@ -26,18 +26,17 @@ final class LocationsRepositoryImpl implements LocationsRepository {
 
   @override
   FutureList<LocationEntity> getLocations(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<LocationResponseModel,
-          LocationEntity>(
+      RepositoryHandler.fetchFromLocalAndMapList<LocationModel, LocationEntity>(
         localCallback: () => _localDataSource.getLocations(companyId),
       );
 
   @override
   FutureBool createLocation(LocationEntity location) =>
-      _localDataSource.saveLocation(LocationResponseModel.fromEntity(location));
+      _localDataSource.saveLocation(LocationModel.fromEntity(location));
 
   @override
   FutureBool updateLocation(LocationEntity location) =>
-      _localDataSource.saveLocation(LocationResponseModel.fromEntity(location));
+      _localDataSource.saveLocation(LocationModel.fromEntity(location));
 
   @override
   FutureBool deleteLocation(String id) => _localDataSource.deleteLocation(id);

@@ -23,7 +23,7 @@ void main() {
   });
 
   final tLocationEntity = EntityFactory.makeLocationEntity();
-  final tLocationModel = LocationResponseModel.fromEntity(tLocationEntity);
+  final tLocationModel = LocationModel.fromEntity(tLocationEntity);
   final tLocationRequest = LocationRequestModel.fromEntity(tLocationEntity);
 
   final tAreaEntity = EntityFactory.makeAreaEntity();
@@ -35,105 +35,111 @@ void main() {
 
   group('LocationsRemoteDataSourceImpl', () {
     group('Locations', () {
-      test('should return SuccessState<List<LocationResponseModel>> on 200',
-          () async {
-        // Arrange
-        final fakeResponse = {
-          'data': [tLocationModel.toJson()],
-          'message': 'Success',
-        };
+      test(
+        'should return SuccessState<List<LocationResponseModel>> on 200',
+        () async {
+          // Arrange
+          final fakeResponse = {
+            'data': [tLocationModel.toJson()],
+            'message': 'Success',
+          };
 
-        when(() => mockHttpClient.get<dynamic>(
+          when(
+            () => mockHttpClient.get<dynamic>(
               any(),
               queryParameters: any(named: 'queryParameters'),
-            )).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.locations),
-            data: fakeResponse,
-            statusCode: 200,
-          ),
-        );
+            ),
+          ).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(path: ApiEndpoints.locations),
+              data: fakeResponse,
+              statusCode: 200,
+            ),
+          );
 
-        // Act
-        final result = await dataSource.getLocations(tCompanyId);
+          // Act
+          final result = await dataSource.getLocations(tCompanyId);
 
-        // Assert
-        expect(result, isA<SuccessState<List<LocationResponseModel>>>());
-        expect(result.data, hasLength(1));
-        expect(result.data!.first.id, tLocationModel.id);
-        verify(() => mockHttpClient.get<dynamic>(
+          // Assert
+          expect(result, isA<SuccessState<List<LocationModel>>>());
+          expect(result.data, hasLength(1));
+          expect(result.data!.first.id, tLocationModel.id);
+          verify(
+            () => mockHttpClient.get<dynamic>(
               ApiEndpoints.locations,
               queryParameters: {'company_id': tCompanyId},
-            )).called(1);
-      });
+            ),
+          ).called(1);
+        },
+      );
 
-      test('should return SuccessState<LocationResponseModel> on create',
-          () async {
-        // Arrange
-        final fakeResponse = {
-          'data': tLocationModel.toJson(),
-          'message': 'Success',
-        };
+      test(
+        'should return SuccessState<LocationResponseModel> on create',
+        () async {
+          // Arrange
+          final fakeResponse = {
+            'data': tLocationModel.toJson(),
+            'message': 'Success',
+          };
 
-        when(() => mockHttpClient.post<dynamic>(
-              any(),
-              data: any(named: 'data'),
-            )).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.locations),
-            data: fakeResponse,
-            statusCode: 200,
-          ),
-        );
+          when(
+            () => mockHttpClient.post<dynamic>(any(), data: any(named: 'data')),
+          ).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(path: ApiEndpoints.locations),
+              data: fakeResponse,
+              statusCode: 200,
+            ),
+          );
 
-        // Act
-        final result = await dataSource.createLocation(tLocationRequest);
+          // Act
+          final result = await dataSource.createLocation(tLocationRequest);
 
-        // Assert
-        expect(result, isA<SuccessState<LocationResponseModel>>());
-        expect(result.data!.id, tLocationModel.id);
-      });
+          // Assert
+          expect(result, isA<SuccessState<LocationModel>>());
+          expect(result.data!.id, tLocationModel.id);
+        },
+      );
 
-      test('should return SuccessState<LocationResponseModel> on update',
-          () async {
-        // Arrange
-        final fakeResponse = {
-          'data': tLocationModel.toJson(),
-          'message': 'Success',
-        };
+      test(
+        'should return SuccessState<LocationResponseModel> on update',
+        () async {
+          // Arrange
+          final fakeResponse = {
+            'data': tLocationModel.toJson(),
+            'message': 'Success',
+          };
 
-        when(() => mockHttpClient.put<dynamic>(
-              any(),
-              data: any(named: 'data'),
-            )).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(
-                path: ApiEndpoints.locationById(tLocationRequest.id)),
-            data: fakeResponse,
-            statusCode: 200,
-          ),
-        );
+          when(
+            () => mockHttpClient.put<dynamic>(any(), data: any(named: 'data')),
+          ).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(
+                path: ApiEndpoints.locationById(tLocationRequest.id),
+              ),
+              data: fakeResponse,
+              statusCode: 200,
+            ),
+          );
 
-        // Act
-        final result = await dataSource.updateLocation(tLocationRequest);
+          // Act
+          final result = await dataSource.updateLocation(tLocationRequest);
 
-        // Assert
-        expect(result, isA<SuccessState<LocationResponseModel>>());
-        expect(result.data!.id, tLocationModel.id);
-      });
+          // Assert
+          expect(result, isA<SuccessState<LocationModel>>());
+          expect(result.data!.id, tLocationModel.id);
+        },
+      );
 
       test('should return SuccessState<void> on delete', () async {
         // Arrange
-        final fakeResponse = {
-          'message': 'Deleted',
-        };
+        final fakeResponse = {'message': 'Deleted'};
 
-        when(() => mockHttpClient.delete<dynamic>(
-              any(),
-            )).thenAnswer(
+        when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
           (_) async => Response(
             requestOptions: RequestOptions(
-                path: ApiEndpoints.locationById(tLocationModel.id)),
+              path: ApiEndpoints.locationById(tLocationModel.id),
+            ),
             data: fakeResponse,
             statusCode: 200,
           ),
@@ -148,37 +154,43 @@ void main() {
     });
 
     group('Areas', () {
-      test('should return SuccessState<List<AreaResponseModel>> on 200',
-          () async {
-        // Arrange
-        final fakeResponse = {
-          'data': [tAreaModel.toJson()],
-          'message': 'Success',
-        };
+      test(
+        'should return SuccessState<List<AreaResponseModel>> on 200',
+        () async {
+          // Arrange
+          final fakeResponse = {
+            'data': [tAreaModel.toJson()],
+            'message': 'Success',
+          };
 
-        when(() => mockHttpClient.get<dynamic>(
+          when(
+            () => mockHttpClient.get<dynamic>(
               any(),
               queryParameters: any(named: 'queryParameters'),
-            )).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.areas),
-            data: fakeResponse,
-            statusCode: 200,
-          ),
-        );
+            ),
+          ).thenAnswer(
+            (_) async => Response(
+              requestOptions: RequestOptions(path: ApiEndpoints.areas),
+              data: fakeResponse,
+              statusCode: 200,
+            ),
+          );
 
-        // Act
-        final result = await dataSource.getAreasByLocation(tLocationId);
+          // Act
+          final result = await dataSource.getAreasByLocation(tLocationId);
 
-        // Assert
-        expect(result, isA<SuccessState<List<AreaResponseModel>>>());
-        expect(result.data, hasLength(1));
-        expect(result.data!.first.id, tAreaModel.id);
-        verify(() => mockHttpClient.get<dynamic>(
+          // Assert
+          expect(result, isA<SuccessState<List<AreaResponseModel>>>());
+          expect(result.data, hasLength(1));
+          expect(result.data!.first.id, tAreaModel.id);
+          verify(
+            () => mockHttpClient.get<dynamic>(
               ApiEndpoints.areas,
               queryParameters: {'location_id': tLocationId},
-            )).called(1);
-      });
+            ),
+          ).called(1);
+        },
+      );
 
       test('should return SuccessState<AreaResponseModel> on create', () async {
         // Arrange
@@ -187,10 +199,9 @@ void main() {
           'message': 'Success',
         };
 
-        when(() => mockHttpClient.post<dynamic>(
-              any(),
-              data: any(named: 'data'),
-            )).thenAnswer(
+        when(
+          () => mockHttpClient.post<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
           (_) async => Response(
             requestOptions: RequestOptions(path: ApiEndpoints.areas),
             data: fakeResponse,
@@ -213,13 +224,13 @@ void main() {
           'message': 'Success',
         };
 
-        when(() => mockHttpClient.put<dynamic>(
-              any(),
-              data: any(named: 'data'),
-            )).thenAnswer(
+        when(
+          () => mockHttpClient.put<dynamic>(any(), data: any(named: 'data')),
+        ).thenAnswer(
           (_) async => Response(
-            requestOptions:
-                RequestOptions(path: ApiEndpoints.areaById(tAreaRequest.id)),
+            requestOptions: RequestOptions(
+              path: ApiEndpoints.areaById(tAreaRequest.id),
+            ),
             data: fakeResponse,
             statusCode: 200,
           ),
@@ -235,16 +246,13 @@ void main() {
 
       test('should return SuccessState<void> on delete', () async {
         // Arrange
-        final fakeResponse = {
-          'message': 'Deleted',
-        };
+        final fakeResponse = {'message': 'Deleted'};
 
-        when(() => mockHttpClient.delete<dynamic>(
-              any(),
-            )).thenAnswer(
+        when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
           (_) async => Response(
-            requestOptions:
-                RequestOptions(path: ApiEndpoints.areaById(tAreaModel.id)),
+            requestOptions: RequestOptions(
+              path: ApiEndpoints.areaById(tAreaModel.id),
+            ),
             data: fakeResponse,
             statusCode: 200,
           ),

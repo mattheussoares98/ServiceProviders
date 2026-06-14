@@ -8,8 +8,8 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class LocationsLocalDataSource {
-  FutureList<LocationResponseModel> getLocations(String companyId);
-  FutureBool saveLocation(LocationResponseModel location);
+  FutureList<LocationModel> getLocations(String companyId);
+  FutureBool saveLocation(LocationModel location);
   FutureBool deleteLocation(String id);
 
   FutureList<AreaResponseModel> getAreasByLocation(String locationId);
@@ -19,32 +19,37 @@ abstract interface class LocationsLocalDataSource {
 
 @LazySingleton(as: LocationsLocalDataSource)
 final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
-  LocationsLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+  LocationsLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
   @override
-  FutureList<LocationResponseModel> getLocations(String companyId) {
+  FutureList<LocationModel> getLocations(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.locations)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
       final rows = await query.get();
 
       final list = rows
-          .map((row) => LocationResponseModel(
-                id: row.id,
-                companyId: row.companyId,
-                name: row.name,
-                address: row.address,
-                city: row.city,
-                state: row.state,
-                isActive: row.isActive,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => LocationModel(
+              id: row.id,
+              companyId: row.companyId,
+              name: row.name,
+              address: row.address,
+              city: row.city,
+              state: row.state,
+              isActive: row.isActive,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
+              complement: row.complement,
+              number: row.number,
+              neighborhood: row.neighborhood,
+              postalCode: row.postalCode,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -52,9 +57,11 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
   }
 
   @override
-  FutureBool saveLocation(LocationResponseModel location) {
+  FutureBool saveLocation(LocationModel location) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.locations).insertOnConflictUpdate(
+      await _database
+          .into(_database.locations)
+          .insertOnConflictUpdate(
             LocationsCompanion(
               id: Value(location.id),
               companyId: Value(location.companyId),
@@ -66,6 +73,10 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
               createdAt: Value(location.createdAt),
               updatedAt: Value(location.updatedAt),
               deletedAt: Value(location.deletedAt),
+              complement: Value(location.complement),
+              number: Value(location.number),
+              neighborhood: Value(location.neighborhood),
+              postalCode: Value(location.postalCode),
             ),
           );
       return const SuccessState(data: true);
@@ -77,11 +88,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.locations)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        LocationsCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(LocationsCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
@@ -94,17 +101,19 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
       final rows = await query.get();
 
       final list = rows
-          .map((row) => AreaResponseModel(
-                id: row.id,
-                locationId: row.locationId,
-                companyId: row.companyId,
-                name: row.name,
-                floor: row.floor,
-                description: row.description,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => AreaResponseModel(
+              id: row.id,
+              locationId: row.locationId,
+              companyId: row.companyId,
+              name: row.name,
+              floor: row.floor,
+              description: row.description,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -114,7 +123,9 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
   @override
   FutureBool saveArea(AreaResponseModel area) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.areas).insertOnConflictUpdate(
+      await _database
+          .into(_database.areas)
+          .insertOnConflictUpdate(
             AreasCompanion(
               id: Value(area.id),
               locationId: Value(area.locationId),
@@ -136,11 +147,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.areas)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        AreasCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(AreasCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }

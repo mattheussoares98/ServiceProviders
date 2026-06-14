@@ -20,7 +20,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      LocationResponseModel.fromEntity(EntityFactory.makeLocationEntity()),
+      LocationModel.fromEntity(EntityFactory.makeLocationEntity()),
     );
     registerFallbackValue(
       AreaResponseModel.fromEntity(EntityFactory.makeAreaEntity()),
@@ -39,7 +39,7 @@ void main() {
   });
 
   final tLocationEntity = EntityFactory.makeLocationEntity();
-  final tLocationModel = LocationResponseModel.fromEntity(tLocationEntity);
+  final tLocationModel = LocationModel.fromEntity(tLocationEntity);
   final tAreaEntity = EntityFactory.makeAreaEntity();
   final tAreaModel = AreaResponseModel.fromEntity(tAreaEntity);
   final tCompanyId = faker.guid.guid();
@@ -51,8 +51,9 @@ void main() {
         'should return list of LocationEntity on success from local data source',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.getLocations(any()))
-              .thenAnswer((_) async => SuccessState(data: [tLocationModel]));
+          when(
+            () => mockLocalDataSource.getLocations(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tLocationModel]));
 
           // Act
           final result = await repository.getLocations(tCompanyId);
@@ -67,8 +68,9 @@ void main() {
 
       test('should return FailureState when local data source fails', () async {
         // Arrange
-        when(() => mockLocalDataSource.getLocations(any()))
-            .thenAnswer((_) async => FailureState(message: 'Database error'));
+        when(
+          () => mockLocalDataSource.getLocations(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
         // Act
         final result = await repository.getLocations(tCompanyId);
@@ -84,8 +86,9 @@ void main() {
         'should return true when location is saved successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.saveLocation(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.saveLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.createLocation(tLocationEntity);
@@ -93,7 +96,9 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
         },
       );
     });
@@ -103,8 +108,9 @@ void main() {
         'should return true when location is updated successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.saveLocation(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.saveLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.updateLocation(tLocationEntity);
@@ -112,7 +118,9 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
         },
       );
     });
@@ -122,8 +130,9 @@ void main() {
         'should return true when location is deleted successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.deleteLocation(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.deleteLocation(tLocationEntity.id);
@@ -131,7 +140,9 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.deleteLocation(tLocationEntity.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteLocation(tLocationEntity.id),
+          ).called(1);
         },
       );
     });
@@ -141,8 +152,9 @@ void main() {
         'should return list of AreaEntity on success from local data source',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.getAreasByLocation(any()))
-              .thenAnswer((_) async => SuccessState(data: [tAreaModel]));
+          when(
+            () => mockLocalDataSource.getAreasByLocation(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
 
           // Act
           final result = await repository.getAreasByLocation(tLocationId);
@@ -151,14 +163,17 @@ void main() {
           expect(result, isA<SuccessState<List<AreaEntity>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tAreaEntity));
-          verify(() => mockLocalDataSource.getAreasByLocation(tLocationId)).called(1);
+          verify(
+            () => mockLocalDataSource.getAreasByLocation(tLocationId),
+          ).called(1);
         },
       );
 
       test('should return FailureState when local data source fails', () async {
         // Arrange
-        when(() => mockLocalDataSource.getAreasByLocation(any()))
-            .thenAnswer((_) async => FailureState(message: 'Database error'));
+        when(
+          () => mockLocalDataSource.getAreasByLocation(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
         // Act
         final result = await repository.getAreasByLocation(tLocationId);
@@ -174,8 +189,9 @@ void main() {
         'should return true when area is saved successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.saveArea(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.saveArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.createArea(tAreaEntity);
@@ -193,8 +209,9 @@ void main() {
         'should return true when area is updated successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.saveArea(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.saveArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.updateArea(tAreaEntity);
@@ -212,8 +229,9 @@ void main() {
         'should return true when area is deleted successfully locally',
         () async {
           // Arrange
-          when(() => mockLocalDataSource.deleteArea(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockLocalDataSource.deleteArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.deleteArea(tAreaEntity.id);
@@ -221,7 +239,9 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.deleteArea(tAreaEntity.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteArea(tAreaEntity.id),
+          ).called(1);
         },
       );
     });

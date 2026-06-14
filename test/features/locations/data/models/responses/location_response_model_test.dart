@@ -9,27 +9,27 @@ void main() {
 
   group('LocationResponseModel', () {
     test('should be a subclass of LocationEntity', () {
-      final model = LocationResponseModel.fromEntity(tEntity);
+      final model = LocationModel.fromEntity(tEntity);
       expect(model, isA<LocationEntity>());
     });
 
     test('should return a valid model fromEntity', () {
-      final model = LocationResponseModel.fromEntity(tEntity);
-      final expected = LocationResponseModel.fromEntity(tEntity);
+      final model = LocationModel.fromEntity(tEntity);
+      final expected = LocationModel.fromEntity(tEntity);
       expect(model, equals(expected));
     });
 
     test('should return a valid model fromJson', () {
-      final model = LocationResponseModel.fromEntity(tEntity);
+      final model = LocationModel.fromEntity(tEntity);
       final json = model.toJson();
 
-      final result = LocationResponseModel.fromJson(json);
+      final result = LocationModel.fromJson(json);
 
       expect(result, equals(model));
     });
 
     test('should return a MapDynamic containing the proper data on toJson', () {
-      final model = LocationResponseModel.fromEntity(tEntity);
+      final model = LocationModel.fromEntity(tEntity);
       final expectedJson = model.toJson();
 
       final result = model.toJson();
@@ -38,7 +38,7 @@ void main() {
     });
 
     test('should convert to a LocationEntity correctly on toEntity', () {
-      final model = LocationResponseModel.fromEntity(tEntity);
+      final model = LocationModel.fromEntity(tEntity);
       final entity = model.toEntity();
       expect(entity, tEntity);
     });

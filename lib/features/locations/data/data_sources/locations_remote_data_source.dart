@@ -9,13 +9,9 @@ import 'package:clean_architecture/features/locations/data/models/responses/loca
 import 'package:injectable/injectable.dart';
 
 abstract interface class LocationsRemoteDataSource {
-  FutureList<LocationResponseModel> getLocations(String companyId);
-  FutureData<LocationResponseModel> createLocation(
-    LocationRequestModel request,
-  );
-  FutureData<LocationResponseModel> updateLocation(
-    LocationRequestModel request,
-  );
+  FutureList<LocationModel> getLocations(String companyId);
+  FutureData<LocationModel> createLocation(LocationRequestModel request);
+  FutureData<LocationModel> updateLocation(LocationRequestModel request);
   FutureVoid deleteLocation(String id);
 
   FutureList<AreaResponseModel> getAreasByLocation(String locationId);
@@ -32,33 +28,30 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   final HttpClient _httpClient;
 
   @override
-  FutureList<LocationResponseModel> getLocations(String companyId) =>
+  FutureList<LocationModel> getLocations(String companyId) => ApiHandler.call(
+    () => _httpClient.get(
+      ApiEndpoints.locations,
+      queryParameters: {'company_id': companyId},
+    ),
+    fromJson: LocationModel.fromJson,
+  );
+
+  @override
+  FutureData<LocationModel> createLocation(LocationRequestModel request) =>
       ApiHandler.call(
-        () => _httpClient.get(
-          ApiEndpoints.locations,
-          queryParameters: {'company_id': companyId},
-        ),
-        fromJson: LocationResponseModel.fromJson,
+        () => _httpClient.post(ApiEndpoints.locations, data: request.toJson()),
+        fromJson: LocationModel.fromJson,
       );
 
   @override
-  FutureData<LocationResponseModel> createLocation(
-    LocationRequestModel request,
-  ) => ApiHandler.call(
-    () => _httpClient.post(ApiEndpoints.locations, data: request.toJson()),
-    fromJson: LocationResponseModel.fromJson,
-  );
-
-  @override
-  FutureData<LocationResponseModel> updateLocation(
-    LocationRequestModel request,
-  ) => ApiHandler.call(
-    () => _httpClient.put(
-      ApiEndpoints.locationById(request.id),
-      data: request.toJson(),
-    ),
-    fromJson: LocationResponseModel.fromJson,
-  );
+  FutureData<LocationModel> updateLocation(LocationRequestModel request) =>
+      ApiHandler.call(
+        () => _httpClient.put(
+          ApiEndpoints.locationById(request.id),
+          data: request.toJson(),
+        ),
+        fromJson: LocationModel.fromJson,
+      );
 
   @override
   FutureVoid deleteLocation(String id) => ApiHandler.voidCall(

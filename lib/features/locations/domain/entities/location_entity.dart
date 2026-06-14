@@ -12,6 +12,10 @@ class LocationEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.number,
+    this.complement,
+    this.neighborhood,
+    this.postalCode,
   });
 
   final String id;
@@ -24,20 +28,24 @@ class LocationEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final String? number;
+  final String? complement;
+  final String? neighborhood;
+  final String? postalCode;
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        address,
-        city,
-        state,
-        isActive,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    address,
+    city,
+    state,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   LocationEntity copyWith({
     String? id,
@@ -50,10 +58,18 @@ class LocationEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    String? number,
+    String? complement,
+    String? neighborhood,
+    String? postalCode,
     bool? annulAddress,
     bool? annulCity,
     bool? annulState,
     bool? annulDeletedAt,
+    bool? annulNumber,
+    bool? annulComplement,
+    bool? annulNeighborhood,
+    bool? annulPostalCode,
   }) {
     return LocationEntity(
       id: id ?? this.id,
@@ -66,6 +82,16 @@ class LocationEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      number: annulNumber == true ? null : number ?? this.number,
+      complement: annulComplement == true
+          ? null
+          : complement ?? this.complement,
+      neighborhood: annulNeighborhood == true
+          ? null
+          : neighborhood ?? this.neighborhood,
+      postalCode: annulPostalCode == true
+          ? null
+          : postalCode ?? this.postalCode,
     );
   }
 }
