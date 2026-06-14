@@ -56,20 +56,24 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.addColumn(userProfiles, userProfiles.isAdmin);
-          }
-        },
-      );
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(userProfiles, userProfiles.isAdmin);
+      }
+      if (from < 3) {
+        await m.addColumn(appSettings, appSettings.pushNotificationsEnabled);
+      }
+    },
+  );
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
+    //TODO check if it is working correctly in all platforms
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'app.db'));
     return NativeDatabase.createInBackground(file);

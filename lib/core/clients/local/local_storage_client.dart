@@ -7,6 +7,8 @@ import 'package:injectable/injectable.dart';
 abstract interface class LocalStorageClient {
   Future<void> saveThemeMode(String themeMode);
   String getThemeMode();
+  Future<void> savePushNotifications(bool enabled);
+  bool getPushNotifications();
   Future<void> saveUserSession(UserDataEntity userSession);
   UserDataEntity? getUserSession();
   Future<void> clearUserSession();
@@ -31,6 +33,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   final AppDatabase _database;
   String _themeMode = 'system';
+  bool _pushNotificationsEnabled = true;
   UserDataEntity? _userSession;
 
   Future<void> init() async {
@@ -39,6 +42,8 @@ final class LocalStorageClientImpl implements LocalStorageClient {
     )..where((t) => t.id.equals(1))).getSingleOrNull();
     if (setting != null) {
       _themeMode = setting.themeMode;
+      //TODO get it from the app settings correctly
+      _pushNotificationsEnabled = setting.pushNotificationsEnabled;
     }
 
     final session = await (_database.select(
@@ -75,6 +80,22 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   String getThemeMode() => _themeMode;
 
   @override
+  Future<void> savePushNotifications(bool enabled) async {
+    _pushNotificationsEnabled = enabled;
+    await _database
+        .into(_database.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion(
+            id: const Value(1),
+            pushNotificationsEnabled: Value(enabled),
+          ),
+        );
+  }
+
+  @override
+  bool getPushNotifications() => _pushNotificationsEnabled;
+
+  @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
     _userSession = userSession;
     await _database.transaction(() async {
@@ -106,6 +127,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   @override
   Future<void> clearAll() async {
     _themeMode = 'system';
+    _pushNotificationsEnabled = false;
     _userSession = null;
     await _database.transaction(() async {
       await _database.delete(_database.appSettings).go();
