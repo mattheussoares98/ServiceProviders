@@ -34,7 +34,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) {
-    return SupabaseHandler.authCall(() async {
+    return SupabaseHandler.call(() async {
       final response = await _supabaseAuth.signInWithPassword(
         email: request.email, // Supabase uses email/password
         password: request.password,
@@ -50,20 +50,20 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   FutureData<UserProfileResponseModel> getCurrentUserProfile(String userId) {
-    return SupabaseHandler.authCall(() => _getUserProfile(userId));
+    return SupabaseHandler.call(() => _getUserProfile(userId));
   }
 
   @override
   FutureVoid resetPassword(String email) {
     final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kChangePasswordPath';
-    return SupabaseHandler.voidAuthCall(
+    return SupabaseHandler.voidCall(
       () => _supabaseAuth.resetPasswordForEmail(email, redirectTo: redirectUrl),
     );
   }
 
   @override
   FutureVoid changePassword(String newPassword) {
-    return SupabaseHandler.voidAuthCall(
+    return SupabaseHandler.voidCall(
       () => _supabaseAuth.updateUserPassword(newPassword),
     );
   }
@@ -72,7 +72,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   FutureData<UserDataResponseModel> signUp(SignUpRequestModel request) {
     // Build the full redirect URL: base URL + email-confirmation path
     final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kEmailConfirmationPath';
-    return SupabaseHandler.authCall(() async {
+    return SupabaseHandler.call(() async {
       final response = await _supabaseAuth.signUp(
         email: request.email,
         password: request.password,
