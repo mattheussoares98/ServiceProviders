@@ -14,6 +14,7 @@ import 'package:clean_architecture/features/checklists/domain/entities/checklist
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
+import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
@@ -417,6 +418,13 @@ abstract final class EntityFactory {
       name: faker.person.name(),
       email: faker.internet.email(),
       password: faker.internet.password(),
+    );
+  }
+
+  static ConfigurationsEntity makeConfigurationsEntity() {
+    return ConfigurationsEntity(
+      pushNotificationsEnabled: faker.randomGenerator.boolean(),
+      themeMode: faker.randomGenerator.element(['light', 'dark', 'system']),
     );
   }
 }
