@@ -1,8 +1,10 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
+import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
@@ -38,7 +40,26 @@ final class LocationsRepositoryImpl implements LocationsRepository {
 
   @override
   FutureBool createLocation(LocationEntity location) =>
-      _localDataSource.saveLocation(LocationModel.fromEntity(location));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () =>
+            _localDataSource.saveLocation(LocationModel.fromEntity(location)),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createLocation(
+            LocationRequestModel.fromEntity(location),
+          );
+          if (result is SuccessState<LocationModel>) {
+            await _localDataSource.saveLocation(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
   FutureBool updateLocation(LocationEntity location) =>

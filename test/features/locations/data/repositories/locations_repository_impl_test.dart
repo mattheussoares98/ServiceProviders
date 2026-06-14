@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/data/repositories/locations_repository_impl.dart';
@@ -21,6 +22,9 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       LocationModel.fromEntity(EntityFactory.makeLocationEntity()),
+    );
+    registerFallbackValue(
+      LocationRequestModel.fromEntity(EntityFactory.makeLocationEntity()),
     );
     registerFallbackValue(AreaModel.fromEntity(EntityFactory.makeAreaEntity()));
     registerFallbackValue(<LocationModel>[]);
@@ -142,9 +146,10 @@ void main() {
 
     group('createLocation', () {
       test(
-        'should return true when location is saved successfully locally',
+        'should save location locally and return true when offline',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.saveLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -155,9 +160,51 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(
-            () => mockLocalDataSource.saveLocation(tLocationModel),
-          ).called(1);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verifyNever(() => mockRemoteDataSource.createLocation(any()));
+        },
+      );
+
+      test(
+        'should create location remotely, save locally, and return true when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(() => mockRemoteDataSource.createLocation(any()))
+              .thenAnswer((_) async => SuccessState(data: tLocationModel));
+          when(() => mockLocalDataSource.saveLocation(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+
+          // Act
+          final result = await repository.createLocation(tLocationEntity);
+
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createLocation(any())).called(1);
+          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote creation fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(() => mockRemoteDataSource.createLocation(any()))
+              .thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.createLocation(tLocationEntity);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createLocation(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveLocation(any()));
         },
       );
     });
