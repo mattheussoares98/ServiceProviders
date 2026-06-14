@@ -11,6 +11,8 @@ import 'package:clean_architecture/features/checklists/data/data_sources/checkli
 import 'package:clean_architecture/features/checklists/data/data_sources/checklists_remote_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:clean_architecture/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:clean_architecture/features/configurations/data/data_sources/configurations_local_data_source.dart';
+import 'package:clean_architecture/features/configurations/data/data_sources/configurations_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
@@ -78,3 +80,9 @@ class MockAttachmentsLocalDataSource extends Mock
 class MockUsersRemoteDataSource extends Mock implements UsersRemoteDataSource {}
 
 class MockUsersLocalDataSource extends Mock implements UsersLocalDataSource {}
+
+class MockConfigurationsRemoteDataSource extends Mock
+    implements ConfigurationsRemoteDataSource {}
+
+class MockConfigurationsLocalDataSource extends Mock
+    implements ConfigurationsLocalDataSource {}
