@@ -16,6 +16,7 @@ abstract interface class LocationsLocalDataSource {
   FutureList<AreaModel> getAreasByLocation(String locationId);
   FutureBool saveArea(AreaModel area);
   FutureBool deleteArea(String id);
+  FutureBool saveAreas(List<AreaModel> areas);
 }
 
 @LazySingleton(as: LocationsLocalDataSource)
@@ -181,6 +182,33 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
       final query = _database.update(_database.areas)
         ..where((t) => t.id.equals(id));
       await query.write(AreasCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool saveAreas(List<AreaModel> areas) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.areas,
+          areas
+              .map(
+                (area) => AreasCompanion(
+                  id: Value(area.id),
+                  locationId: Value(area.locationId),
+                  companyId: Value(area.companyId),
+                  name: Value(area.name),
+                  floor: Value(area.floor),
+                  description: Value(area.description),
+                  createdAt: Value(area.createdAt),
+                  updatedAt: Value(area.updatedAt),
+                  deletedAt: Value(area.deletedAt),
+                ),
+              )
+              .toList(),
+        );
+      });
       return const SuccessState(data: true);
     });
   }

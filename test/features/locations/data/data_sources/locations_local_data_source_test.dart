@@ -190,6 +190,50 @@ void main() {
           expect(getResult.data, isEmpty);
         },
       );
+
+      test(
+        'should save a list of areas and successfully retrieve them',
+        () async {
+          final areas = [
+            AreaModel.fromEntity(
+              EntityFactory.makeAreaEntity().copyWith(
+                locationId: tLocationEntity.id,
+                companyId: tLocationEntity.companyId,
+              ),
+            ),
+            AreaModel.fromEntity(
+              EntityFactory.makeAreaEntity().copyWith(
+                locationId: tLocationEntity.id,
+                companyId: tLocationEntity.companyId,
+              ),
+            ),
+            AreaModel.fromEntity(
+              EntityFactory.makeAreaEntity().copyWith(
+                locationId: tLocationEntity.id,
+                companyId: tLocationEntity.companyId,
+              ),
+            ),
+          ];
+
+          await insertTestCompany(tLocationModel.companyId);
+          await dataSource.saveLocation(tLocationModel);
+
+          final saveResult = await dataSource.saveAreas(areas);
+
+          expect(saveResult, isA<SuccessState<bool>>());
+          expect(saveResult.data, isTrue);
+
+          final getResult = await dataSource.getAreasByLocation(
+            tLocationModel.id,
+          );
+
+          expect(getResult, isA<SuccessState<List<AreaModel>>>());
+          expect(getResult.data, hasLength(areas.length));
+          expect(getResult.data, contains(areas[0]));
+          expect(getResult.data, contains(areas[1]));
+          expect(getResult.data, contains(areas[2]));
+        },
+      );
     });
   });
 }

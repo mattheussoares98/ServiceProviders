@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
@@ -27,7 +28,11 @@ void main() {
       LocationRequestModel.fromEntity(EntityFactory.makeLocationEntity()),
     );
     registerFallbackValue(AreaModel.fromEntity(EntityFactory.makeAreaEntity()));
+    registerFallbackValue(
+      AreaRequestModel.fromEntity(EntityFactory.makeAreaEntity()),
+    );
     registerFallbackValue(<LocationModel>[]);
+    registerFallbackValue(<AreaModel>[]);
   });
 
   setUp(() {
@@ -54,10 +59,12 @@ void main() {
         'should fetch locations from remote, cache them locally, and return list on success when online',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(() => mockRemoteDataSource.getLocations(any()))
-              .thenAnswer((_) async => SuccessState(data: [tLocationModel]));
-          when(() => mockLocalDataSource.saveLocations(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockRemoteDataSource.getLocations(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tLocationModel]));
+          when(
+            () => mockLocalDataSource.saveLocations(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           final result = await repository.getLocations(tCompanyId);
 
@@ -66,7 +73,9 @@ void main() {
           expect(result.data!.first, equals(tLocationEntity));
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.getLocations(tCompanyId)).called(1);
-          verify(() => mockLocalDataSource.saveLocations([tLocationModel])).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocations([tLocationModel]),
+          ).called(1);
           verifyNever(() => mockLocalDataSource.getLocations(any()));
         },
       );
@@ -75,10 +84,12 @@ void main() {
         'should return failure when remote fetch succeeds but local cache fails when online',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(() => mockRemoteDataSource.getLocations(any()))
-              .thenAnswer((_) async => SuccessState(data: [tLocationModel]));
-          when(() => mockLocalDataSource.saveLocations(any()))
-              .thenAnswer((_) async => FailureState(message: 'Cache error'));
+          when(
+            () => mockRemoteDataSource.getLocations(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tLocationModel]));
+          when(
+            () => mockLocalDataSource.saveLocations(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Cache error'));
 
           final result = await repository.getLocations(tCompanyId);
 
@@ -86,7 +97,9 @@ void main() {
           expect(result.message, 'Cache error');
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.getLocations(tCompanyId)).called(1);
-          verify(() => mockLocalDataSource.saveLocations([tLocationModel])).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocations([tLocationModel]),
+          ).called(1);
         },
       );
 
@@ -94,8 +107,9 @@ void main() {
         'should return failure when remote fetch fails when online',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(() => mockRemoteDataSource.getLocations(any()))
-              .thenAnswer((_) async => FailureState(message: 'Server error'));
+          when(
+            () => mockRemoteDataSource.getLocations(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
           final result = await repository.getLocations(tCompanyId);
 
@@ -111,8 +125,9 @@ void main() {
         'should return list of LocationEntity from local when offline',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(() => mockLocalDataSource.getLocations(any()))
-              .thenAnswer((_) async => SuccessState(data: [tLocationModel]));
+          when(
+            () => mockLocalDataSource.getLocations(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tLocationModel]));
 
           final result = await repository.getLocations(tCompanyId);
 
@@ -130,8 +145,9 @@ void main() {
         'should return failure when local fetch fails when offline',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(() => mockLocalDataSource.getLocations(any()))
-              .thenAnswer((_) async => FailureState(message: 'Database error'));
+          when(
+            () => mockLocalDataSource.getLocations(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
           final result = await repository.getLocations(tCompanyId);
 
@@ -161,7 +177,9 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
           verifyNever(() => mockRemoteDataSource.createLocation(any()));
         },
       );
@@ -171,10 +189,12 @@ void main() {
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(() => mockRemoteDataSource.createLocation(any()))
-              .thenAnswer((_) async => SuccessState(data: tLocationModel));
-          when(() => mockLocalDataSource.saveLocation(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockRemoteDataSource.createLocation(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocationModel));
+          when(
+            () => mockLocalDataSource.saveLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.createLocation(tLocationEntity);
@@ -184,7 +204,9 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.createLocation(any())).called(1);
-          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
         },
       );
 
@@ -193,8 +215,9 @@ void main() {
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(() => mockRemoteDataSource.createLocation(any()))
-              .thenAnswer((_) async => FailureState(message: 'Server error'));
+          when(
+            () => mockRemoteDataSource.createLocation(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
           // Act
           final result = await repository.createLocation(tLocationEntity);
@@ -211,9 +234,10 @@ void main() {
 
     group('updateLocation', () {
       test(
-        'should return true when location is updated successfully locally',
+        'should save location locally and return true when offline',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.saveLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -224,18 +248,68 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
           verify(
             () => mockLocalDataSource.saveLocation(tLocationModel),
           ).called(1);
+          verifyNever(() => mockRemoteDataSource.updateLocation(any()));
+        },
+      );
+
+      test(
+        'should update location remotely, save locally, and return true when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateLocation(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocationModel));
+          when(
+            () => mockLocalDataSource.saveLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          // Act
+          final result = await repository.updateLocation(tLocationEntity);
+
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateLocation(any())).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote update fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateLocation(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.updateLocation(tLocationEntity);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateLocation(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveLocation(any()));
         },
       );
     });
 
     group('deleteLocation', () {
       test(
-        'should return true when location is deleted successfully locally',
+        'should delete location locally and return true when offline',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.deleteLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -246,18 +320,149 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
           verify(
             () => mockLocalDataSource.deleteLocation(tLocationEntity.id),
           ).called(1);
+          verifyNever(() => mockRemoteDataSource.deleteLocation(any()));
+        },
+      );
+
+      test(
+        'should delete location remotely, delete locally, and return true when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(
+            () => mockLocalDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          // Act
+          final result = await repository.deleteLocation(tLocationEntity.id);
+
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteLocation(tLocationEntity.id),
+          ).called(1);
+          verify(
+            () => mockLocalDataSource.deleteLocation(tLocationEntity.id),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote deletion fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.deleteLocation(tLocationEntity.id);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteLocation(tLocationEntity.id),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.deleteLocation(any()));
         },
       );
     });
 
     group('getAreasByLocation', () {
       test(
-        'should return list of AreaEntity on success from local data source',
+        'should fetch areas from remote, cache them locally, and return list on success when online',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getAreasByLocation(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
+          when(
+            () => mockLocalDataSource.saveAreas(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          // Act
+          final result = await repository.getAreasByLocation(tLocationId);
+
+          // Assert
+          expect(result, isA<SuccessState<List<AreaEntity>>>());
+          expect(result.data, hasLength(1));
+          expect(result.data!.first, equals(tAreaEntity));
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
+          ).called(1);
+          verify(() => mockLocalDataSource.saveAreas([tAreaModel])).called(1);
+          verifyNever(() => mockLocalDataSource.getAreasByLocation(any()));
+        },
+      );
+
+      test(
+        'should return failure when remote fetch succeeds but local cache fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getAreasByLocation(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
+          when(
+            () => mockLocalDataSource.saveAreas(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Cache error'));
+
+          // Act
+          final result = await repository.getAreasByLocation(tLocationId);
+
+          // Assert
+          expect(result, isA<FailureState<List<AreaEntity>>>());
+          expect(result.message, 'Cache error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
+          ).called(1);
+          verify(() => mockLocalDataSource.saveAreas([tAreaModel])).called(1);
+        },
+      );
+
+      test(
+        'should return failure when remote fetch fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getAreasByLocation(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.getAreasByLocation(tLocationId);
+
+          // Assert
+          expect(result, isA<FailureState<List<AreaEntity>>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.saveAreas(any()));
+        },
+      );
+
+      test(
+        'should return list of AreaEntity from local when offline',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.getAreasByLocation(any()),
           ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
@@ -269,32 +474,66 @@ void main() {
           expect(result, isA<SuccessState<List<AreaEntity>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tAreaEntity));
+          verify(() => mockInternetClient.isConnected).called(1);
           verify(
             () => mockLocalDataSource.getAreasByLocation(tLocationId),
           ).called(1);
+          verifyNever(() => mockRemoteDataSource.getAreasByLocation(any()));
+          verifyNever(() => mockLocalDataSource.saveAreas(any()));
         },
       );
 
-      test('should return FailureState when local data source fails', () async {
-        // Arrange
-        when(
-          () => mockLocalDataSource.getAreasByLocation(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Database error'));
+      test(
+        'should return failure when local fetch fails when offline',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.getAreasByLocation(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
-        // Act
-        final result = await repository.getAreasByLocation(tLocationId);
+          // Act
+          final result = await repository.getAreasByLocation(tLocationId);
 
-        // Assert
-        expect(result, isA<FailureState<List<AreaEntity>>>());
-        expect(result.message, 'Database error');
-      });
+          // Assert
+          expect(result, isA<FailureState<List<AreaEntity>>>());
+          expect(result.message, 'Database error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockLocalDataSource.getAreasByLocation(tLocationId),
+          ).called(1);
+          verifyNever(() => mockRemoteDataSource.getAreasByLocation(any()));
+        },
+      );
     });
 
     group('createArea', () {
+      test('should save area locally and return true when offline', () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveArea(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.createArea(tAreaEntity);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.createArea(any()));
+      });
+
       test(
-        'should return true when area is saved successfully locally',
+        'should create area remotely, save locally, and return true when online',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.createArea(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreaModel));
           when(
             () => mockLocalDataSource.saveArea(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -305,16 +544,61 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createArea(any())).called(1);
           verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote creation fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.createArea(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.createArea(tAreaEntity);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createArea(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveArea(any()));
         },
       );
     });
 
     group('updateArea', () {
+      test('should save area locally and return true when offline', () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveArea(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.updateArea(tAreaEntity);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.updateArea(any()));
+      });
+
       test(
-        'should return true when area is updated successfully locally',
+        'should update area remotely, save locally, and return true when online',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateArea(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreaModel));
           when(
             () => mockLocalDataSource.saveArea(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -325,16 +609,61 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateArea(any())).called(1);
           verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote update fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateArea(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.updateArea(tAreaEntity);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateArea(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveArea(any()));
         },
       );
     });
 
     group('deleteArea', () {
+      test('should delete area locally and return true when offline', () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.deleteArea(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.deleteArea(tAreaEntity.id);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockLocalDataSource.deleteArea(tAreaEntity.id)).called(1);
+        verifyNever(() => mockRemoteDataSource.deleteArea(any()));
+      });
+
       test(
-        'should return true when area is deleted successfully locally',
+        'should delete area remotely, delete locally, and return true when online',
         () async {
           // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteArea(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
           when(
             () => mockLocalDataSource.deleteArea(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -345,9 +674,36 @@ void main() {
           // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteArea(tAreaEntity.id),
+          ).called(1);
           verify(
             () => mockLocalDataSource.deleteArea(tAreaEntity.id),
           ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote deletion fails when online',
+        () async {
+          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteArea(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          // Act
+          final result = await repository.deleteArea(tAreaEntity.id);
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteArea(tAreaEntity.id),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.deleteArea(any()));
         },
       );
     });

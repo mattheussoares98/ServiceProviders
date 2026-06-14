@@ -4,6 +4,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
+import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
@@ -63,25 +64,118 @@ final class LocationsRepositoryImpl implements LocationsRepository {
 
   @override
   FutureBool updateLocation(LocationEntity location) =>
-      _localDataSource.saveLocation(LocationModel.fromEntity(location));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateLocation(
+            LocationRequestModel.fromEntity(location),
+          );
+          if (result is SuccessState<LocationModel>) {
+            await _localDataSource.saveLocation(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+        localCallback: () =>
+            _localDataSource.saveLocation(LocationModel.fromEntity(location)),
+      );
 
   @override
-  FutureBool deleteLocation(String id) => _localDataSource.deleteLocation(id);
+  FutureBool deleteLocation(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deleteLocation(id);
+          if (result is SuccessState<void>) {
+            await _localDataSource.deleteLocation(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+        localCallback: () => _localDataSource.deleteLocation(id),
+      );
 
   @override
   FutureList<AreaEntity> getAreasByLocation(String locationId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<AreaModel, AreaEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<AreaModel, AreaEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getAreasByLocation(locationId),
         localCallback: () => _localDataSource.getAreasByLocation(locationId),
+        onRemoteSuccess: _localDataSource.saveAreas,
       );
 
   @override
   FutureBool createArea(AreaEntity area) =>
-      _localDataSource.saveArea(AreaModel.fromEntity(area));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createArea(
+            AreaRequestModel.fromEntity(area),
+          );
+          if (result is SuccessState<AreaModel>) {
+            await _localDataSource.saveArea(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+        localCallback: () =>
+            _localDataSource.saveArea(AreaModel.fromEntity(area)),
+      );
 
   @override
   FutureBool updateArea(AreaEntity area) =>
-      _localDataSource.saveArea(AreaModel.fromEntity(area));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateArea(
+            AreaRequestModel.fromEntity(area),
+          );
+          if (result is SuccessState<AreaModel>) {
+            await _localDataSource.saveArea(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+        localCallback: () =>
+            _localDataSource.saveArea(AreaModel.fromEntity(area)),
+      );
 
   @override
-  FutureBool deleteArea(String id) => _localDataSource.deleteArea(id);
+  FutureBool deleteArea(String id) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    remoteCallback: () async {
+      final result = await _remoteDataSource.deleteArea(id);
+      if (result is SuccessState<void>) {
+        await _localDataSource.deleteArea(id);
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    },
+    localCallback: () => _localDataSource.deleteArea(id),
+  );
 }
