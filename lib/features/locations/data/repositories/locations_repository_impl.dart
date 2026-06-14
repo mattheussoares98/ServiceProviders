@@ -26,8 +26,14 @@ final class LocationsRepositoryImpl implements LocationsRepository {
 
   @override
   FutureList<LocationEntity> getLocations(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<LocationModel, LocationEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        LocationModel,
+        LocationEntity
+      >(
         localCallback: () => _localDataSource.getLocations(companyId),
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getLocations(companyId),
+        onRemoteSuccess: _localDataSource.saveLocations,
       );
 
   @override
