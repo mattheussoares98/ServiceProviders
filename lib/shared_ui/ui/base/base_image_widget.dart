@@ -111,12 +111,14 @@ class BaseImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackWidget =
-        errorWidget ??
-        const PlatformIcon(
-          materialIcon: Icons.broken_image,
-          cupertinoIcon: Icons.broken_image,
-        );
+    final fallbackWidget = Center(
+      child:
+          errorWidget ??
+          const PlatformIcon(
+            materialIcon: Icons.broken_image,
+            cupertinoIcon: Icons.broken_image,
+          ),
+    );
 
     final double devicePixelRatio =
         MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
