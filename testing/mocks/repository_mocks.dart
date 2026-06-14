@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/auth/domain/repositories/session_rep
 import 'package:clean_architecture/features/categories/domain/repositories/categories_repository.dart';
 import 'package:clean_architecture/features/checklists/domain/repositories/checklists_repository.dart';
 import 'package:clean_architecture/features/company/domain/repositories/company_repository.dart';
+import 'package:clean_architecture/features/configurations/domain/repositories/configurations_repository.dart';
 import 'package:clean_architecture/features/locations/domain/repositories/locations_repository.dart';
 import 'package:clean_architecture/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
 import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
@@ -33,3 +34,6 @@ class MockWorkOrdersRepository extends Mock implements WorkOrdersRepository {}
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockSessionRepository extends Mock implements SessionRepository {}
+
+class MockConfigurationsRepository extends Mock
+    implements ConfigurationsRepository {}
