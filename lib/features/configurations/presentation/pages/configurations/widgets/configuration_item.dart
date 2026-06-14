@@ -18,7 +18,6 @@ class ConfigurationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p8),
@@ -26,10 +25,8 @@ class ConfigurationItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                if (screenWidth > 200) ...[
-                  FittedBox(child: platformIcon),
-                  gapW16,
-                ],
+                FittedBox(child: platformIcon),
+                gapW16,
                 Expanded(child: BaseText.titleMedium(title)),
               ],
             ),
