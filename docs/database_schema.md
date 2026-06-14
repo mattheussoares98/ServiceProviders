@@ -111,13 +111,18 @@ Facilities/sites managed by a company.
 | `id` | UUID (Text) | NOT NULL | - | Primary Key |
 | `company_id` | UUID (Text) | NOT NULL | - | Foreign Key -> `companies.id` (Cascade) |
 | `name` | VARCHAR(255) | NOT NULL | - | Facility name (Unique per company) |
-| `address` | VARCHAR(500) | NULL | - | Full street address |
+| `address` | VARCHAR(500) | NULL | - | Street name / logradouro |
+| `number` | VARCHAR(20) | NULL | - | Street/building number |
+| `complement` | VARCHAR(255) | NULL | - | Address complement (e.g. apartment, suite) |
+| `neighborhood` | VARCHAR(100) | NULL | - | Neighborhood name |
 | `city` | VARCHAR(100) | NULL | - | City location |
 | `state` | VARCHAR(50) | NULL | - | State code |
+| `postal_code` | VARCHAR(20) | NULL | - | Postal/zip code |
 | `is_active` | BOOLEAN | NOT NULL | true | Status toggle |
 | `created_at` | TIMESTAMP | NOT NULL | now() | Record creation date |
 | `updated_at` | TIMESTAMP | NOT NULL | now() | Record update date |
 | `deleted_at` | TIMESTAMP | NULL | - | Soft delete flag |
+
 
 ### 5. areas
 Internal zones or rooms within a location.
