@@ -2,7 +2,7 @@ import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
@@ -12,8 +12,8 @@ abstract interface class LocationsLocalDataSource {
   FutureBool saveLocation(LocationModel location);
   FutureBool deleteLocation(String id);
 
-  FutureList<AreaResponseModel> getAreasByLocation(String locationId);
-  FutureBool saveArea(AreaResponseModel area);
+  FutureList<AreaModel> getAreasByLocation(String locationId);
+  FutureBool saveArea(AreaModel area);
   FutureBool deleteArea(String id);
 }
 
@@ -94,7 +94,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
   }
 
   @override
-  FutureList<AreaResponseModel> getAreasByLocation(String locationId) {
+  FutureList<AreaModel> getAreasByLocation(String locationId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.areas)
         ..where((t) => t.locationId.equals(locationId) & t.deletedAt.isNull());
@@ -102,7 +102,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
 
       final list = rows
           .map(
-            (row) => AreaResponseModel(
+            (row) => AreaModel(
               id: row.id,
               locationId: row.locationId,
               companyId: row.companyId,
@@ -121,7 +121,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
   }
 
   @override
-  FutureBool saveArea(AreaResponseModel area) {
+  FutureBool saveArea(AreaModel area) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.areas)

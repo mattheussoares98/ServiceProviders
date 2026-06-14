@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
@@ -27,7 +27,7 @@ void main() {
   final tLocationRequest = LocationRequestModel.fromEntity(tLocationEntity);
 
   final tAreaEntity = EntityFactory.makeAreaEntity();
-  final tAreaModel = AreaResponseModel.fromEntity(tAreaEntity);
+  final tAreaModel = AreaModel.fromEntity(tAreaEntity);
   final tAreaRequest = AreaRequestModel.fromEntity(tAreaEntity);
 
   final tCompanyId = faker.guid.guid();
@@ -180,7 +180,7 @@ void main() {
           final result = await dataSource.getAreasByLocation(tLocationId);
 
           // Assert
-          expect(result, isA<SuccessState<List<AreaResponseModel>>>());
+          expect(result, isA<SuccessState<List<AreaModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tAreaModel.id);
           verify(
@@ -213,7 +213,7 @@ void main() {
         final result = await dataSource.createArea(tAreaRequest);
 
         // Assert
-        expect(result, isA<SuccessState<AreaResponseModel>>());
+        expect(result, isA<SuccessState<AreaModel>>());
         expect(result.data!.id, tAreaModel.id);
       });
 
@@ -240,7 +240,7 @@ void main() {
         final result = await dataSource.updateArea(tAreaRequest);
 
         // Assert
-        expect(result, isA<SuccessState<AreaResponseModel>>());
+        expect(result, isA<SuccessState<AreaModel>>());
         expect(result.data!.id, tAreaModel.id);
       });
 

@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -42,7 +42,7 @@ void main() {
     locationId: tLocationEntity.id,
     companyId: tLocationEntity.companyId,
   );
-  final tAreaModel = AreaResponseModel.fromEntity(tAreaEntity);
+  final tAreaModel = AreaModel.fromEntity(tAreaEntity);
 
   group('LocationsLocalDataSourceImpl', () {
     group('Locations', () {
@@ -115,7 +115,7 @@ void main() {
         );
 
         // Assert Get
-        expect(getResult, isA<SuccessState<List<AreaResponseModel>>>());
+        expect(getResult, isA<SuccessState<List<AreaModel>>>());
         expect(getResult.data, hasLength(1));
         expect(getResult.data!.first, equals(tAreaModel));
       });
@@ -141,7 +141,7 @@ void main() {
           );
 
           // Assert Get: Should be empty
-          expect(getResult, isA<SuccessState<List<AreaResponseModel>>>());
+          expect(getResult, isA<SuccessState<List<AreaModel>>>());
           expect(getResult.data, isEmpty);
         },
       );

@@ -4,7 +4,7 @@ import 'package:clean_architecture/core/data/handlers/api_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,9 +14,9 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<LocationModel> updateLocation(LocationRequestModel request);
   FutureVoid deleteLocation(String id);
 
-  FutureList<AreaResponseModel> getAreasByLocation(String locationId);
-  FutureData<AreaResponseModel> createArea(AreaRequestModel request);
-  FutureData<AreaResponseModel> updateArea(AreaRequestModel request);
+  FutureList<AreaModel> getAreasByLocation(String locationId);
+  FutureData<AreaModel> createArea(AreaRequestModel request);
+  FutureData<AreaModel> updateArea(AreaRequestModel request);
   FutureVoid deleteArea(String id);
 }
 
@@ -59,31 +59,29 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   );
 
   @override
-  FutureList<AreaResponseModel> getAreasByLocation(String locationId) =>
+  FutureList<AreaModel> getAreasByLocation(String locationId) =>
       ApiHandler.call(
         () => _httpClient.get(
           ApiEndpoints.areas,
           queryParameters: {'location_id': locationId},
         ),
-        fromJson: AreaResponseModel.fromJson,
+        fromJson: AreaModel.fromJson,
       );
 
   @override
-  FutureData<AreaResponseModel> createArea(AreaRequestModel request) =>
-      ApiHandler.call(
-        () => _httpClient.post(ApiEndpoints.areas, data: request.toJson()),
-        fromJson: AreaResponseModel.fromJson,
-      );
+  FutureData<AreaModel> createArea(AreaRequestModel request) => ApiHandler.call(
+    () => _httpClient.post(ApiEndpoints.areas, data: request.toJson()),
+    fromJson: AreaModel.fromJson,
+  );
 
   @override
-  FutureData<AreaResponseModel> updateArea(AreaRequestModel request) =>
-      ApiHandler.call(
-        () => _httpClient.put(
-          ApiEndpoints.areaById(request.id),
-          data: request.toJson(),
-        ),
-        fromJson: AreaResponseModel.fromJson,
-      );
+  FutureData<AreaModel> updateArea(AreaRequestModel request) => ApiHandler.call(
+    () => _httpClient.put(
+      ApiEndpoints.areaById(request.id),
+      data: request.toJson(),
+    ),
+    fromJson: AreaModel.fromJson,
+  );
 
   @override
   FutureVoid deleteArea(String id) =>

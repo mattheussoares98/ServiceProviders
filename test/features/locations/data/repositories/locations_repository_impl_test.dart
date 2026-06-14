@@ -1,5 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/data/repositories/locations_repository_impl.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
@@ -22,9 +22,7 @@ void main() {
     registerFallbackValue(
       LocationModel.fromEntity(EntityFactory.makeLocationEntity()),
     );
-    registerFallbackValue(
-      AreaResponseModel.fromEntity(EntityFactory.makeAreaEntity()),
-    );
+    registerFallbackValue(AreaModel.fromEntity(EntityFactory.makeAreaEntity()));
   });
 
   setUp(() {
@@ -41,7 +39,7 @@ void main() {
   final tLocationEntity = EntityFactory.makeLocationEntity();
   final tLocationModel = LocationModel.fromEntity(tLocationEntity);
   final tAreaEntity = EntityFactory.makeAreaEntity();
-  final tAreaModel = AreaResponseModel.fromEntity(tAreaEntity);
+  final tAreaModel = AreaModel.fromEntity(tAreaEntity);
   final tCompanyId = faker.guid.guid();
   final tLocationId = faker.guid.guid();
 

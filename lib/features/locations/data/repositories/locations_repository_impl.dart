@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
@@ -43,17 +43,17 @@ final class LocationsRepositoryImpl implements LocationsRepository {
 
   @override
   FutureList<AreaEntity> getAreasByLocation(String locationId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<AreaResponseModel, AreaEntity>(
+      RepositoryHandler.fetchFromLocalAndMapList<AreaModel, AreaEntity>(
         localCallback: () => _localDataSource.getAreasByLocation(locationId),
       );
 
   @override
   FutureBool createArea(AreaEntity area) =>
-      _localDataSource.saveArea(AreaResponseModel.fromEntity(area));
+      _localDataSource.saveArea(AreaModel.fromEntity(area));
 
   @override
   FutureBool updateArea(AreaEntity area) =>
-      _localDataSource.saveArea(AreaResponseModel.fromEntity(area));
+      _localDataSource.saveArea(AreaModel.fromEntity(area));
 
   @override
   FutureBool deleteArea(String id) => _localDataSource.deleteArea(id);
