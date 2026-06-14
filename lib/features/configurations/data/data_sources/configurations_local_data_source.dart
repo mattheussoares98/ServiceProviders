@@ -25,7 +25,7 @@ final class ConfigurationsLocalDataSourceImpl
       ErrorHandler.execute(() async {
         final pushEnabled = _localDatabase.getPushNotifications();
         final themeMode = _localDatabase.getThemeMode();
-        var systemEnabled = true;
+        bool systemEnabled = true;
         try {
           final settings = await FirebaseMessaging.instance
               .getNotificationSettings();
