@@ -12,9 +12,9 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
     required InternetClient internet,
     required ConfigurationsRemoteDataSource remoteDataSource,
     required ConfigurationsLocalDataSource localDataSource,
-  })  : _internet = internet,
-        _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _internet = internet,
+       _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   final InternetClient _internet;
   final ConfigurationsRemoteDataSource _remoteDataSource;
@@ -23,8 +23,10 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
   @override
   FutureData<ConfigurationsEntity> getConfigurations() =>
       _localDataSource.getConfigurations();
+  //TODO load remotely too
 
   @override
   FutureBool savePushNotifications(bool enabled) =>
       _localDataSource.savePushNotifications(enabled);
+  //TODO load remotely too
 }
