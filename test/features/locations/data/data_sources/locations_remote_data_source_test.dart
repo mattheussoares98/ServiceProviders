@@ -1,11 +1,10 @@
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
-import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -14,12 +13,14 @@ import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
-  late MockHttpClient mockHttpClient;
+  late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
   late LocationsRemoteDataSourceImpl dataSource;
 
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = LocationsRemoteDataSourceImpl(httpClient: mockHttpClient);
+    mockSupabaseDatabaseClient = MockSupabaseDatabaseClient();
+    dataSource = LocationsRemoteDataSourceImpl(
+      database: mockSupabaseDatabaseClient,
+    );
   });
 
   final tLocationEntity = EntityFactory.makeLocationEntity();
@@ -35,179 +36,134 @@ void main() {
 
   group('LocationsRemoteDataSourceImpl', () {
     group('Locations', () {
-      test(
-        'should return SuccessState<List<LocationResponseModel>> on 200',
-        () async {
-          // Arrange
-          final fakeResponse = {
-            'data': [tLocationModel.toJson()],
-            'message': 'Success',
-          };
+      test('should return SuccessState<List<LocationModel>> on 200', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tLocationModel.toJson()]);
 
-          when(
-            () => mockHttpClient.get<dynamic>(
-              any(),
-              queryParameters: any(named: 'queryParameters'),
-            ),
-          ).thenAnswer(
-            (_) async => Response(
-              requestOptions: RequestOptions(path: ApiEndpoints.locations),
-              data: fakeResponse,
-              statusCode: 200,
-            ),
-          );
+        // Act
+        final result = await dataSource.getLocations(tCompanyId);
 
-          // Act
-          final result = await dataSource.getLocations(tCompanyId);
+        // Assert
+        expect(result, isA<SuccessState<List<LocationModel>>>());
+        expect(result.data, hasLength(1));
+        expect(result.data!.first.id, tLocationModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'locations',
+            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+          ),
+        ).called(1);
+      });
 
-          // Assert
-          expect(result, isA<SuccessState<List<LocationModel>>>());
-          expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tLocationModel.id);
-          verify(
-            () => mockHttpClient.get<dynamic>(
-              ApiEndpoints.locations,
-              queryParameters: {'company_id': tCompanyId},
-            ),
-          ).called(1);
-        },
-      );
+      test('should return SuccessState<LocationModel> on create', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          ),
+        ).thenAnswer((_) async => [tLocationModel.toJson()]);
 
-      test(
-        'should return SuccessState<LocationResponseModel> on create',
-        () async {
-          // Arrange
-          final fakeResponse = {
-            'data': tLocationModel.toJson(),
-            'message': 'Success',
-          };
+        // Act
+        final result = await dataSource.createLocation(tLocationRequest);
 
-          when(
-            () => mockHttpClient.post<dynamic>(any(), data: any(named: 'data')),
-          ).thenAnswer(
-            (_) async => Response(
-              requestOptions: RequestOptions(path: ApiEndpoints.locations),
-              data: fakeResponse,
-              statusCode: 200,
-            ),
-          );
+        // Assert
+        expect(result, isA<SuccessState<LocationModel>>());
+        expect(result.data!.id, tLocationModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.insert(
+            table: 'locations',
+            values: tLocationRequest.toJson(),
+          ),
+        ).called(1);
+      });
 
-          // Act
-          final result = await dataSource.createLocation(tLocationRequest);
+      test('should return SuccessState<LocationModel> on update', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tLocationModel.toJson()]);
 
-          // Assert
-          expect(result, isA<SuccessState<LocationModel>>());
-          expect(result.data!.id, tLocationModel.id);
-        },
-      );
+        // Act
+        final result = await dataSource.updateLocation(tLocationRequest);
 
-      test(
-        'should return SuccessState<LocationResponseModel> on update',
-        () async {
-          // Arrange
-          final fakeResponse = {
-            'data': tLocationModel.toJson(),
-            'message': 'Success',
-          };
-
-          when(
-            () => mockHttpClient.put<dynamic>(any(), data: any(named: 'data')),
-          ).thenAnswer(
-            (_) async => Response(
-              requestOptions: RequestOptions(
-                path: ApiEndpoints.locationById(tLocationRequest.id),
-              ),
-              data: fakeResponse,
-              statusCode: 200,
-            ),
-          );
-
-          // Act
-          final result = await dataSource.updateLocation(tLocationRequest);
-
-          // Assert
-          expect(result, isA<SuccessState<LocationModel>>());
-          expect(result.data!.id, tLocationModel.id);
-        },
-      );
+        // Assert
+        expect(result, isA<SuccessState<LocationModel>>());
+        expect(result.data!.id, tLocationModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.update(
+            table: 'locations',
+            values: tLocationRequest.toJson(),
+            filters: [SupabaseFilter.eq('id', tLocationRequest.id)],
+          ),
+        ).called(1);
+      });
 
       test('should return SuccessState<void> on delete', () async {
         // Arrange
-        final fakeResponse = {'message': 'Deleted'};
-
-        when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(
-              path: ApiEndpoints.locationById(tLocationModel.id),
-            ),
-            data: fakeResponse,
-            statusCode: 200,
+        when(
+          () => mockSupabaseDatabaseClient.delete(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        );
+        ).thenAnswer((_) async => []);
 
         // Act
         final result = await dataSource.deleteLocation(tLocationModel.id);
 
         // Assert
         expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockSupabaseDatabaseClient.delete(
+            table: 'locations',
+            filters: [SupabaseFilter.eq('id', tLocationModel.id)],
+          ),
+        ).called(1);
       });
     });
 
     group('Areas', () {
-      test(
-        'should return SuccessState<List<AreaResponseModel>> on 200',
-        () async {
-          // Arrange
-          final fakeResponse = {
-            'data': [tAreaModel.toJson()],
-            'message': 'Success',
-          };
-
-          when(
-            () => mockHttpClient.get<dynamic>(
-              any(),
-              queryParameters: any(named: 'queryParameters'),
-            ),
-          ).thenAnswer(
-            (_) async => Response(
-              requestOptions: RequestOptions(path: ApiEndpoints.areas),
-              data: fakeResponse,
-              statusCode: 200,
-            ),
-          );
-
-          // Act
-          final result = await dataSource.getAreasByLocation(tLocationId);
-
-          // Assert
-          expect(result, isA<SuccessState<List<AreaModel>>>());
-          expect(result.data, hasLength(1));
-          expect(result.data!.first.id, tAreaModel.id);
-          verify(
-            () => mockHttpClient.get<dynamic>(
-              ApiEndpoints.areas,
-              queryParameters: {'location_id': tLocationId},
-            ),
-          ).called(1);
-        },
-      );
-
-      test('should return SuccessState<AreaResponseModel> on create', () async {
+      test('should return SuccessState<List<AreaModel>> on 200', () async {
         // Arrange
-        final fakeResponse = {
-          'data': tAreaModel.toJson(),
-          'message': 'Success',
-        };
-
         when(
-          () => mockHttpClient.post<dynamic>(any(), data: any(named: 'data')),
-        ).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.areas),
-            data: fakeResponse,
-            statusCode: 200,
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        );
+        ).thenAnswer((_) async => [tAreaModel.toJson()]);
+
+        // Act
+        final result = await dataSource.getAreasByLocation(tLocationId);
+
+        // Assert
+        expect(result, isA<SuccessState<List<AreaModel>>>());
+        expect(result.data, hasLength(1));
+        expect(result.data!.first.id, tAreaModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'areas',
+            filters: [SupabaseFilter.eq('location_id', tLocationId)],
+          ),
+        ).called(1);
+      });
+
+      test('should return SuccessState<AreaModel> on create', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          ),
+        ).thenAnswer((_) async => [tAreaModel.toJson()]);
 
         // Act
         final result = await dataSource.createArea(tAreaRequest);
@@ -215,26 +171,23 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<AreaModel>>());
         expect(result.data!.id, tAreaModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.insert(
+            table: 'areas',
+            values: tAreaRequest.toJson(),
+          ),
+        ).called(1);
       });
 
-      test('should return SuccessState<AreaResponseModel> on update', () async {
+      test('should return SuccessState<AreaModel> on update', () async {
         // Arrange
-        final fakeResponse = {
-          'data': tAreaModel.toJson(),
-          'message': 'Success',
-        };
-
         when(
-          () => mockHttpClient.put<dynamic>(any(), data: any(named: 'data')),
-        ).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(
-              path: ApiEndpoints.areaById(tAreaRequest.id),
-            ),
-            data: fakeResponse,
-            statusCode: 200,
+          () => mockSupabaseDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
           ),
-        );
+        ).thenAnswer((_) async => [tAreaModel.toJson()]);
 
         // Act
         final result = await dataSource.updateArea(tAreaRequest);
@@ -242,27 +195,35 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<AreaModel>>());
         expect(result.data!.id, tAreaModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.update(
+            table: 'areas',
+            values: tAreaRequest.toJson(),
+            filters: [SupabaseFilter.eq('id', tAreaRequest.id)],
+          ),
+        ).called(1);
       });
 
       test('should return SuccessState<void> on delete', () async {
         // Arrange
-        final fakeResponse = {'message': 'Deleted'};
-
-        when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(
-              path: ApiEndpoints.areaById(tAreaModel.id),
-            ),
-            data: fakeResponse,
-            statusCode: 200,
+        when(
+          () => mockSupabaseDatabaseClient.delete(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        );
+        ).thenAnswer((_) async => []);
 
-        // Act
+        // Act {
         final result = await dataSource.deleteArea(tAreaModel.id);
 
         // Assert
         expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockSupabaseDatabaseClient.delete(
+            table: 'areas',
+            filters: [SupabaseFilter.eq('id', tAreaModel.id)],
+          ),
+        ).called(1);
       });
     });
   });

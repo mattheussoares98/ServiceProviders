@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
-import 'package:clean_architecture/core/data/handlers/api_handler.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
@@ -22,68 +22,87 @@ abstract interface class LocationsRemoteDataSource {
 
 @LazySingleton(as: LocationsRemoteDataSource)
 final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
-  const LocationsRemoteDataSourceImpl({required HttpClient httpClient})
-    : _httpClient = httpClient;
+  const LocationsRemoteDataSourceImpl({
+    required SupabaseDatabaseClient database,
+  }) : _database = database;
 
-  final HttpClient _httpClient;
+  final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<LocationModel> getLocations(String companyId) => ApiHandler.call(
-    () => _httpClient.get(
-      ApiEndpoints.locations,
-      queryParameters: {'company_id': companyId},
-    ),
-    fromJson: LocationModel.fromJson,
-  );
+  FutureList<LocationModel> getLocations(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'locations',
+          filters: [SupabaseFilter.eq('company_id', companyId)],
+        );
+        return response.map(LocationModel.fromJson).toList();
+      });
 
   @override
   FutureData<LocationModel> createLocation(LocationRequestModel request) =>
-      ApiHandler.call(
-        () => _httpClient.post(ApiEndpoints.locations, data: request.toJson()),
-        fromJson: LocationModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.insert(
+          table: 'locations',
+          values: request.toJson(),
+        );
+        return LocationModel.fromJson(response.first);
+      });
 
   @override
   FutureData<LocationModel> updateLocation(LocationRequestModel request) =>
-      ApiHandler.call(
-        () => _httpClient.put(
-          ApiEndpoints.locationById(request.id),
-          data: request.toJson(),
-        ),
-        fromJson: LocationModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.update(
+          table: 'locations',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return LocationModel.fromJson(response.first);
+      });
 
   @override
-  FutureVoid deleteLocation(String id) => ApiHandler.voidCall(
-    () => _httpClient.delete(ApiEndpoints.locationById(id)),
-  );
+  FutureVoid deleteLocation(String id) => SupabaseHandler.call(() async {
+    await _database.delete(
+      table: 'locations',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 
   @override
   FutureList<AreaModel> getAreasByLocation(String locationId) =>
-      ApiHandler.call(
-        () => _httpClient.get(
-          ApiEndpoints.areas,
-          queryParameters: {'location_id': locationId},
-        ),
-        fromJson: AreaModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'areas',
+          filters: [SupabaseFilter.eq('location_id', locationId)],
+        );
+        return response.map(AreaModel.fromJson).toList();
+      });
 
   @override
-  FutureData<AreaModel> createArea(AreaRequestModel request) => ApiHandler.call(
-    () => _httpClient.post(ApiEndpoints.areas, data: request.toJson()),
-    fromJson: AreaModel.fromJson,
-  );
+  FutureData<AreaModel> createArea(AreaRequestModel request) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.insert(
+          table: 'areas',
+          values: request.toJson(),
+        );
+        return AreaModel.fromJson(response.first);
+      });
 
   @override
-  FutureData<AreaModel> updateArea(AreaRequestModel request) => ApiHandler.call(
-    () => _httpClient.put(
-      ApiEndpoints.areaById(request.id),
-      data: request.toJson(),
-    ),
-    fromJson: AreaModel.fromJson,
-  );
+  FutureData<AreaModel> updateArea(AreaRequestModel request) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.update(
+          table: 'areas',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return AreaModel.fromJson(response.first);
+      });
 
   @override
-  FutureVoid deleteArea(String id) =>
-      ApiHandler.voidCall(() => _httpClient.delete(ApiEndpoints.areaById(id)));
+  FutureVoid deleteArea(String id) => SupabaseHandler.call(() async {
+    await _database.delete(
+      table: 'areas',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }
