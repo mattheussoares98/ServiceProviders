@@ -2435,6 +2435,37 @@ class $LocationsTable extends Locations
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _complementMeta = const VerificationMeta(
+    'complement',
+  );
+  @override
+  late final GeneratedColumn<String> complement = GeneratedColumn<String>(
+    'complement',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _neighborhoodMeta = const VerificationMeta(
+    'neighborhood',
+  );
+  @override
+  late final GeneratedColumn<String> neighborhood = GeneratedColumn<String>(
+    'neighborhood',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _cityMeta = const VerificationMeta('city');
   @override
   late final GeneratedColumn<String> city = GeneratedColumn<String>(
@@ -2448,6 +2479,17 @@ class $LocationsTable extends Locations
   @override
   late final GeneratedColumn<String> state = GeneratedColumn<String>(
     'state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _postalCodeMeta = const VerificationMeta(
+    'postalCode',
+  );
+  @override
+  late final GeneratedColumn<String> postalCode = GeneratedColumn<String>(
+    'postal_code',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -2509,8 +2551,12 @@ class $LocationsTable extends Locations
     companyId,
     name,
     address,
+    number,
+    complement,
+    neighborhood,
     city,
     state,
+    postalCode,
     isActive,
     createdAt,
     updatedAt,
@@ -2555,6 +2601,27 @@ class $LocationsTable extends Locations
         address.isAcceptableOrUnknown(data['address']!, _addressMeta),
       );
     }
+    if (data.containsKey('number')) {
+      context.handle(
+        _numberMeta,
+        number.isAcceptableOrUnknown(data['number']!, _numberMeta),
+      );
+    }
+    if (data.containsKey('complement')) {
+      context.handle(
+        _complementMeta,
+        complement.isAcceptableOrUnknown(data['complement']!, _complementMeta),
+      );
+    }
+    if (data.containsKey('neighborhood')) {
+      context.handle(
+        _neighborhoodMeta,
+        neighborhood.isAcceptableOrUnknown(
+          data['neighborhood']!,
+          _neighborhoodMeta,
+        ),
+      );
+    }
     if (data.containsKey('city')) {
       context.handle(
         _cityMeta,
@@ -2565,6 +2632,12 @@ class $LocationsTable extends Locations
       context.handle(
         _stateMeta,
         state.isAcceptableOrUnknown(data['state']!, _stateMeta),
+      );
+    }
+    if (data.containsKey('postal_code')) {
+      context.handle(
+        _postalCodeMeta,
+        postalCode.isAcceptableOrUnknown(data['postal_code']!, _postalCodeMeta),
       );
     }
     if (data.containsKey('is_active')) {
@@ -2620,6 +2693,18 @@ class $LocationsTable extends Locations
         DriftSqlType.string,
         data['${effectivePrefix}address'],
       ),
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      ),
+      complement: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}complement'],
+      ),
+      neighborhood: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}neighborhood'],
+      ),
       city: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}city'],
@@ -2627,6 +2712,10 @@ class $LocationsTable extends Locations
       state: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}state'],
+      ),
+      postalCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}postal_code'],
       ),
       isActive: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -2658,8 +2747,12 @@ class Location extends DataClass implements Insertable<Location> {
   final String companyId;
   final String name;
   final String? address;
+  final String? number;
+  final String? complement;
+  final String? neighborhood;
   final String? city;
   final String? state;
+  final String? postalCode;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -2669,8 +2762,12 @@ class Location extends DataClass implements Insertable<Location> {
     required this.companyId,
     required this.name,
     this.address,
+    this.number,
+    this.complement,
+    this.neighborhood,
     this.city,
     this.state,
+    this.postalCode,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
@@ -2685,11 +2782,23 @@ class Location extends DataClass implements Insertable<Location> {
     if (!nullToAbsent || address != null) {
       map['address'] = Variable<String>(address);
     }
+    if (!nullToAbsent || number != null) {
+      map['number'] = Variable<String>(number);
+    }
+    if (!nullToAbsent || complement != null) {
+      map['complement'] = Variable<String>(complement);
+    }
+    if (!nullToAbsent || neighborhood != null) {
+      map['neighborhood'] = Variable<String>(neighborhood);
+    }
     if (!nullToAbsent || city != null) {
       map['city'] = Variable<String>(city);
     }
     if (!nullToAbsent || state != null) {
       map['state'] = Variable<String>(state);
+    }
+    if (!nullToAbsent || postalCode != null) {
+      map['postal_code'] = Variable<String>(postalCode);
     }
     map['is_active'] = Variable<bool>(isActive);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -2708,10 +2817,22 @@ class Location extends DataClass implements Insertable<Location> {
       address: address == null && nullToAbsent
           ? const Value.absent()
           : Value(address),
+      number: number == null && nullToAbsent
+          ? const Value.absent()
+          : Value(number),
+      complement: complement == null && nullToAbsent
+          ? const Value.absent()
+          : Value(complement),
+      neighborhood: neighborhood == null && nullToAbsent
+          ? const Value.absent()
+          : Value(neighborhood),
       city: city == null && nullToAbsent ? const Value.absent() : Value(city),
       state: state == null && nullToAbsent
           ? const Value.absent()
           : Value(state),
+      postalCode: postalCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(postalCode),
       isActive: Value(isActive),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -2731,8 +2852,12 @@ class Location extends DataClass implements Insertable<Location> {
       companyId: serializer.fromJson<String>(json['companyId']),
       name: serializer.fromJson<String>(json['name']),
       address: serializer.fromJson<String?>(json['address']),
+      number: serializer.fromJson<String?>(json['number']),
+      complement: serializer.fromJson<String?>(json['complement']),
+      neighborhood: serializer.fromJson<String?>(json['neighborhood']),
       city: serializer.fromJson<String?>(json['city']),
       state: serializer.fromJson<String?>(json['state']),
+      postalCode: serializer.fromJson<String?>(json['postalCode']),
       isActive: serializer.fromJson<bool>(json['isActive']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -2747,8 +2872,12 @@ class Location extends DataClass implements Insertable<Location> {
       'companyId': serializer.toJson<String>(companyId),
       'name': serializer.toJson<String>(name),
       'address': serializer.toJson<String?>(address),
+      'number': serializer.toJson<String?>(number),
+      'complement': serializer.toJson<String?>(complement),
+      'neighborhood': serializer.toJson<String?>(neighborhood),
       'city': serializer.toJson<String?>(city),
       'state': serializer.toJson<String?>(state),
+      'postalCode': serializer.toJson<String?>(postalCode),
       'isActive': serializer.toJson<bool>(isActive),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -2761,8 +2890,12 @@ class Location extends DataClass implements Insertable<Location> {
     String? companyId,
     String? name,
     Value<String?> address = const Value.absent(),
+    Value<String?> number = const Value.absent(),
+    Value<String?> complement = const Value.absent(),
+    Value<String?> neighborhood = const Value.absent(),
     Value<String?> city = const Value.absent(),
     Value<String?> state = const Value.absent(),
+    Value<String?> postalCode = const Value.absent(),
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -2772,8 +2905,12 @@ class Location extends DataClass implements Insertable<Location> {
     companyId: companyId ?? this.companyId,
     name: name ?? this.name,
     address: address.present ? address.value : this.address,
+    number: number.present ? number.value : this.number,
+    complement: complement.present ? complement.value : this.complement,
+    neighborhood: neighborhood.present ? neighborhood.value : this.neighborhood,
     city: city.present ? city.value : this.city,
     state: state.present ? state.value : this.state,
+    postalCode: postalCode.present ? postalCode.value : this.postalCode,
     isActive: isActive ?? this.isActive,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -2785,8 +2922,18 @@ class Location extends DataClass implements Insertable<Location> {
       companyId: data.companyId.present ? data.companyId.value : this.companyId,
       name: data.name.present ? data.name.value : this.name,
       address: data.address.present ? data.address.value : this.address,
+      number: data.number.present ? data.number.value : this.number,
+      complement: data.complement.present
+          ? data.complement.value
+          : this.complement,
+      neighborhood: data.neighborhood.present
+          ? data.neighborhood.value
+          : this.neighborhood,
       city: data.city.present ? data.city.value : this.city,
       state: data.state.present ? data.state.value : this.state,
+      postalCode: data.postalCode.present
+          ? data.postalCode.value
+          : this.postalCode,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -2801,8 +2948,12 @@ class Location extends DataClass implements Insertable<Location> {
           ..write('companyId: $companyId, ')
           ..write('name: $name, ')
           ..write('address: $address, ')
+          ..write('number: $number, ')
+          ..write('complement: $complement, ')
+          ..write('neighborhood: $neighborhood, ')
           ..write('city: $city, ')
           ..write('state: $state, ')
+          ..write('postalCode: $postalCode, ')
           ..write('isActive: $isActive, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -2817,8 +2968,12 @@ class Location extends DataClass implements Insertable<Location> {
     companyId,
     name,
     address,
+    number,
+    complement,
+    neighborhood,
     city,
     state,
+    postalCode,
     isActive,
     createdAt,
     updatedAt,
@@ -2832,8 +2987,12 @@ class Location extends DataClass implements Insertable<Location> {
           other.companyId == this.companyId &&
           other.name == this.name &&
           other.address == this.address &&
+          other.number == this.number &&
+          other.complement == this.complement &&
+          other.neighborhood == this.neighborhood &&
           other.city == this.city &&
           other.state == this.state &&
+          other.postalCode == this.postalCode &&
           other.isActive == this.isActive &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -2845,8 +3004,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
   final Value<String> companyId;
   final Value<String> name;
   final Value<String?> address;
+  final Value<String?> number;
+  final Value<String?> complement;
+  final Value<String?> neighborhood;
   final Value<String?> city;
   final Value<String?> state;
+  final Value<String?> postalCode;
   final Value<bool> isActive;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -2857,8 +3020,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     this.companyId = const Value.absent(),
     this.name = const Value.absent(),
     this.address = const Value.absent(),
+    this.number = const Value.absent(),
+    this.complement = const Value.absent(),
+    this.neighborhood = const Value.absent(),
     this.city = const Value.absent(),
     this.state = const Value.absent(),
+    this.postalCode = const Value.absent(),
     this.isActive = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -2870,8 +3037,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     required String companyId,
     required String name,
     this.address = const Value.absent(),
+    this.number = const Value.absent(),
+    this.complement = const Value.absent(),
+    this.neighborhood = const Value.absent(),
     this.city = const Value.absent(),
     this.state = const Value.absent(),
+    this.postalCode = const Value.absent(),
     this.isActive = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -2885,8 +3056,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     Expression<String>? companyId,
     Expression<String>? name,
     Expression<String>? address,
+    Expression<String>? number,
+    Expression<String>? complement,
+    Expression<String>? neighborhood,
     Expression<String>? city,
     Expression<String>? state,
+    Expression<String>? postalCode,
     Expression<bool>? isActive,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -2898,8 +3073,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       if (companyId != null) 'company_id': companyId,
       if (name != null) 'name': name,
       if (address != null) 'address': address,
+      if (number != null) 'number': number,
+      if (complement != null) 'complement': complement,
+      if (neighborhood != null) 'neighborhood': neighborhood,
       if (city != null) 'city': city,
       if (state != null) 'state': state,
+      if (postalCode != null) 'postal_code': postalCode,
       if (isActive != null) 'is_active': isActive,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -2913,8 +3092,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     Value<String>? companyId,
     Value<String>? name,
     Value<String?>? address,
+    Value<String?>? number,
+    Value<String?>? complement,
+    Value<String?>? neighborhood,
     Value<String?>? city,
     Value<String?>? state,
+    Value<String?>? postalCode,
     Value<bool>? isActive,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -2926,8 +3109,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
       address: address ?? this.address,
+      number: number ?? this.number,
+      complement: complement ?? this.complement,
+      neighborhood: neighborhood ?? this.neighborhood,
       city: city ?? this.city,
       state: state ?? this.state,
+      postalCode: postalCode ?? this.postalCode,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -2951,11 +3138,23 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     if (address.present) {
       map['address'] = Variable<String>(address.value);
     }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (complement.present) {
+      map['complement'] = Variable<String>(complement.value);
+    }
+    if (neighborhood.present) {
+      map['neighborhood'] = Variable<String>(neighborhood.value);
+    }
     if (city.present) {
       map['city'] = Variable<String>(city.value);
     }
     if (state.present) {
       map['state'] = Variable<String>(state.value);
+    }
+    if (postalCode.present) {
+      map['postal_code'] = Variable<String>(postalCode.value);
     }
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
@@ -2982,8 +3181,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
           ..write('companyId: $companyId, ')
           ..write('name: $name, ')
           ..write('address: $address, ')
+          ..write('number: $number, ')
+          ..write('complement: $complement, ')
+          ..write('neighborhood: $neighborhood, ')
           ..write('city: $city, ')
           ..write('state: $state, ')
+          ..write('postalCode: $postalCode, ')
           ..write('isActive: $isActive, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -16644,8 +16847,12 @@ typedef $$LocationsTableCreateCompanionBuilder =
       required String companyId,
       required String name,
       Value<String?> address,
+      Value<String?> number,
+      Value<String?> complement,
+      Value<String?> neighborhood,
       Value<String?> city,
       Value<String?> state,
+      Value<String?> postalCode,
       Value<bool> isActive,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -16658,8 +16865,12 @@ typedef $$LocationsTableUpdateCompanionBuilder =
       Value<String> companyId,
       Value<String> name,
       Value<String?> address,
+      Value<String?> number,
+      Value<String?> complement,
+      Value<String?> neighborhood,
       Value<String?> city,
       Value<String?> state,
+      Value<String?> postalCode,
       Value<bool> isActive,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -16775,6 +16986,21 @@ class $$LocationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get complement => $composableBuilder(
+    column: $table.complement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get neighborhood => $composableBuilder(
+    column: $table.neighborhood,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get city => $composableBuilder(
     column: $table.city,
     builder: (column) => ColumnFilters(column),
@@ -16782,6 +17008,11 @@ class $$LocationsTableFilterComposer
 
   ColumnFilters<String> get state => $composableBuilder(
     column: $table.state,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16928,6 +17159,21 @@ class $$LocationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get complement => $composableBuilder(
+    column: $table.complement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get neighborhood => $composableBuilder(
+    column: $table.neighborhood,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get city => $composableBuilder(
     column: $table.city,
     builder: (column) => ColumnOrderings(column),
@@ -16935,6 +17181,11 @@ class $$LocationsTableOrderingComposer
 
   ColumnOrderings<String> get state => $composableBuilder(
     column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -17000,11 +17251,29 @@ class $$LocationsTableAnnotationComposer
   GeneratedColumn<String> get address =>
       $composableBuilder(column: $table.address, builder: (column) => column);
 
+  GeneratedColumn<String> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get complement => $composableBuilder(
+    column: $table.complement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get neighborhood => $composableBuilder(
+    column: $table.neighborhood,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get city =>
       $composableBuilder(column: $table.city, builder: (column) => column);
 
   GeneratedColumn<String> get state =>
       $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<String> get postalCode => $composableBuilder(
+    column: $table.postalCode,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
@@ -17154,8 +17423,12 @@ class $$LocationsTableTableManager
                 Value<String> companyId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> address = const Value.absent(),
+                Value<String?> number = const Value.absent(),
+                Value<String?> complement = const Value.absent(),
+                Value<String?> neighborhood = const Value.absent(),
                 Value<String?> city = const Value.absent(),
                 Value<String?> state = const Value.absent(),
+                Value<String?> postalCode = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -17166,8 +17439,12 @@ class $$LocationsTableTableManager
                 companyId: companyId,
                 name: name,
                 address: address,
+                number: number,
+                complement: complement,
+                neighborhood: neighborhood,
                 city: city,
                 state: state,
+                postalCode: postalCode,
                 isActive: isActive,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -17180,8 +17457,12 @@ class $$LocationsTableTableManager
                 required String companyId,
                 required String name,
                 Value<String?> address = const Value.absent(),
+                Value<String?> number = const Value.absent(),
+                Value<String?> complement = const Value.absent(),
+                Value<String?> neighborhood = const Value.absent(),
                 Value<String?> city = const Value.absent(),
                 Value<String?> state = const Value.absent(),
+                Value<String?> postalCode = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -17192,8 +17473,12 @@ class $$LocationsTableTableManager
                 companyId: companyId,
                 name: name,
                 address: address,
+                number: number,
+                complement: complement,
+                neighborhood: neighborhood,
                 city: city,
                 state: state,
+                postalCode: postalCode,
                 isActive: isActive,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
