@@ -1,3 +1,5 @@
+import 'dart:developer' as console;
+
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:equatable/equatable.dart';
@@ -25,6 +27,8 @@ class ScreenObserverCubit extends BaseCubit<ScreenObserverState> {
     final hasScreenTypeChanged = oldScreenType != newScreenType;
     final hasDesktopLayoutChanged = wasDesktop != isDesktop;
 
+    console.log('w: ${ScreenUtil.I.width}');
+    console.log('h: ${ScreenUtil.I.height}');
     emit(
       state.copyWith(
         width: ScreenUtil.I.width,
