@@ -1,6 +1,7 @@
-import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
-import 'package:clean_architecture/core/data/handlers/api_handler.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
@@ -12,21 +13,20 @@ import 'package:clean_architecture/features/work_orders/data/models/responses/wo
 import 'package:injectable/injectable.dart';
 
 abstract interface class WorkOrdersRemoteDataSource {
-  // Work Orders
   FutureList<WorkOrderResponseModel> getWorkOrders(String companyId);
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
   FutureBool createWorkOrder(WorkOrderRequestModel request);
   FutureBool updateWorkOrder(WorkOrderRequestModel request);
   FutureBool deleteWorkOrder(String id);
 
-  // Tasks
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId);
   FutureBool createTask(TaskRequestModel request);
   FutureBool updateTask(TaskRequestModel request);
   FutureBool deleteTask(String id);
 
-  // Change Requests
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(String companyId);
+  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
+    String companyId,
+  );
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request);
   FutureBool reviewChangeRequest({
     required String id,
@@ -35,106 +35,129 @@ abstract interface class WorkOrdersRemoteDataSource {
     required String reviewedById,
   });
 
-  // History
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(String workOrderId);
+  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
+    String workOrderId,
+  );
 }
 
 @LazySingleton(as: WorkOrdersRemoteDataSource)
-final class WorkOrdersRemoteDataSourceImpl implements WorkOrdersRemoteDataSource {
+final class WorkOrdersRemoteDataSourceImpl
+    implements WorkOrdersRemoteDataSource {
   const WorkOrdersRemoteDataSourceImpl({
-    required HttpClient httpClient,
-  }) : _httpClient = httpClient;
+    required SupabaseDatabaseClient database,
+  }) : _database = database;
 
-  final HttpClient _httpClient;
-
-  // ============================================
-  // Work Orders
-  // ============================================
+  final SupabaseDatabaseClient _database;
 
   @override
   FutureList<WorkOrderResponseModel> getWorkOrders(String companyId) =>
-      ApiHandler.call(
-        () => _httpClient.get(ApiEndpoints.workOrders, queryParameters: {'company_id': companyId}),
-        fromJson: WorkOrderResponseModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'work_orders',
+          filters: [SupabaseFilter.eq('company_id', companyId)],
+        );
+        return response.map(WorkOrderResponseModel.fromJson).toList();
+      });
 
   @override
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id) =>
-      ApiHandler.call(
-        () => _httpClient.get(ApiEndpoints.workOrderById(id)),
-        fromJson: WorkOrderResponseModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.selectOne(
+          table: 'work_orders',
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+        if (response == null) {
+          throw _NotFoundException(
+            'Ordem de serviço não encontrada.'.hardcoded,
+          );
+        }
+        return WorkOrderResponseModel.fromJson(response);
+      });
 
   @override
   FutureBool createWorkOrder(WorkOrderRequestModel request) =>
-      ApiHandler.staticCall(
-        () => _httpClient.post(ApiEndpoints.workOrders, data: request.toJson()),
-        staticData: true,
-      );
+      SupabaseHandler.call(() async {
+        await _database.insert(table: 'work_orders', values: request.toJson());
+        return true;
+      });
 
   @override
   FutureBool updateWorkOrder(WorkOrderRequestModel request) =>
-      ApiHandler.staticCall(
-        () => _httpClient.put(ApiEndpoints.workOrderById(request.id), data: request.toJson()),
-        staticData: true,
-      );
+      SupabaseHandler.call(() async {
+        await _database.update(
+          table: 'work_orders',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return true;
+      });
 
   @override
-  FutureBool deleteWorkOrder(String id) =>
-      ApiHandler.staticCall(
-        () => _httpClient.delete(ApiEndpoints.workOrderById(id)),
-        staticData: true,
-      );
-
-  // ============================================
-  // Tasks
-  // ============================================
+  FutureBool deleteWorkOrder(String id) => SupabaseHandler.call(() async {
+    await _database.delete(
+      table: 'work_orders',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 
   @override
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) =>
-      ApiHandler.call(
-        () => _httpClient.get(ApiEndpoints.tasks, queryParameters: {'work_order_id': workOrderId}),
-        fromJson: TaskResponseModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'tasks',
+          filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+        );
+        return response.map(TaskResponseModel.fromJson).toList();
+      });
 
   @override
   FutureBool createTask(TaskRequestModel request) =>
-      ApiHandler.staticCall(
-        () => _httpClient.post(ApiEndpoints.tasks, data: request.toJson()),
-        staticData: true,
-      );
+      SupabaseHandler.call(() async {
+        await _database.insert(table: 'tasks', values: request.toJson());
+        return true;
+      });
 
   @override
   FutureBool updateTask(TaskRequestModel request) =>
-      ApiHandler.staticCall(
-        () => _httpClient.put(ApiEndpoints.taskById(request.id), data: request.toJson()),
-        staticData: true,
-      );
+      SupabaseHandler.call(() async {
+        await _database.update(
+          table: 'tasks',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return true;
+      });
 
   @override
-  FutureBool deleteTask(String id) =>
-      ApiHandler.staticCall(
-        () => _httpClient.delete(ApiEndpoints.taskById(id)),
-        staticData: true,
-      );
-
-  // ============================================
-  // Change Requests
-  // ============================================
+  FutureBool deleteTask(String id) => SupabaseHandler.call(() async {
+    await _database.delete(
+      table: 'tasks',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 
   @override
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(String companyId) =>
-      ApiHandler.call(
-        () => _httpClient.get(ApiEndpoints.changeRequests, queryParameters: {'company_id': companyId}),
-        fromJson: WorkOrderChangeRequestResponseModel.fromJson,
-      );
+  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
+    String companyId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'work_order_change_requests',
+      filters: [SupabaseFilter.eq('company_id', companyId)],
+    );
+    return response.map(WorkOrderChangeRequestResponseModel.fromJson).toList();
+  });
 
   @override
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request) =>
-      ApiHandler.staticCall(
-        () => _httpClient.post(ApiEndpoints.changeRequests, data: request.toJson()),
-        staticData: true,
-      );
+      SupabaseHandler.call(() async {
+        await _database.insert(
+          table: 'work_order_change_requests',
+          values: request.toJson(),
+        );
+        return true;
+      });
 
   @override
   FutureBool reviewChangeRequest({
@@ -142,27 +165,35 @@ final class WorkOrdersRemoteDataSourceImpl implements WorkOrdersRemoteDataSource
     required String status,
     String? rejectionReason,
     required String reviewedById,
-  }) =>
-      ApiHandler.staticCall(
-        () => _httpClient.post(
-          '${ApiEndpoints.changeRequests}/$id/review',
-          data: {
-            'status': status,
-            'rejection_reason': rejectionReason,
-            'reviewed_by_id': reviewedById,
-          },
-        ),
-        staticData: true,
-      );
-
-  // ============================================
-  // History
-  // ============================================
+  }) => SupabaseHandler.call(() async {
+    await _database.update(
+      table: 'work_order_change_requests',
+      values: {
+        'status': status,
+        'rejection_reason': rejectionReason,
+        'reviewed_by_id': reviewedById,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 
   @override
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(String workOrderId) =>
-      ApiHandler.call(
-        () => _httpClient.get(ApiEndpoints.workOrderHistory, queryParameters: {'work_order_id': workOrderId}),
-        fromJson: WorkOrderHistoryResponseModel.fromJson,
-      );
+  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
+    String workOrderId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'work_order_history',
+      filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+    );
+    return response.map(WorkOrderHistoryResponseModel.fromJson).toList();
+  });
+}
+
+final class _NotFoundException implements Exception {
+  const _NotFoundException(this.message);
+  final String message;
+  @override
+  String toString() => message;
 }

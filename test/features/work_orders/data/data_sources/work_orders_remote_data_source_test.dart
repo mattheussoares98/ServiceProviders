@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:clean_architecture/features/work_orders/data/models/requests/task_request_model.dart';
@@ -8,7 +8,6 @@ import 'package:clean_architecture/features/work_orders/data/models/responses/ta
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_response_model.dart';
-import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -17,12 +16,17 @@ import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
-  late MockHttpClient mockHttpClient;
+  late MockSupabaseDatabaseClient mockDatabase;
   late WorkOrdersRemoteDataSourceImpl dataSource;
 
+  setUpAll(() {
+    registerFallbackValue(<String, dynamic>{});
+    registerFallbackValue(<SupabaseFilter>[]);
+  });
+
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = WorkOrdersRemoteDataSourceImpl(httpClient: mockHttpClient);
+    mockDatabase = MockSupabaseDatabaseClient();
+    dataSource = WorkOrdersRemoteDataSourceImpl(database: mockDatabase);
   });
 
   final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
@@ -46,305 +50,239 @@ void main() {
   final tChangeId = faker.guid.guid();
 
   group('WorkOrdersRemoteDataSourceImpl - Work Orders', () {
-    test('getWorkOrders should return SuccessState<List<WorkOrderResponseModel>> on 200', () async {
-      // Arrange
-      final fakeResponse = {
-        'data': [tWorkOrderModel.toJson()],
-        'message': 'Success',
-      };
+    test('getWorkOrders should return SuccessState<List<WorkOrderResponseModel>>', () async {
+      when(() => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
 
-      when(() => mockHttpClient.get<dynamic>(
-            any(),
-            queryParameters: any(named: 'queryParameters'),
-          )).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrders),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.getWorkOrders(tCompanyId);
 
-      // Assert
       expect(result, isA<SuccessState<List<WorkOrderResponseModel>>>());
       expect(result.data, hasLength(1));
       expect(result.data!.first.id, tWorkOrderModel.id);
-      verify(() => mockHttpClient.get<dynamic>(
-            ApiEndpoints.workOrders,
-            queryParameters: {'company_id': tCompanyId},
+      verify(() => mockDatabase.selectList(
+            table: 'work_orders',
+            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
           )).called(1);
     });
 
-    test('getWorkOrderById should return SuccessState<WorkOrderResponseModel> on 200', () async {
-      // Arrange
-      final fakeResponse = {
-        'data': tWorkOrderModel.toJson(),
-        'message': 'Success',
-      };
+    test('getWorkOrders should return FailureState when selectList throws', () async {
+      when(() => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenThrow(Exception('database error'));
 
-      when(() => mockHttpClient.get<dynamic>(any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrderById(tWorkOrderId)),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
+      final result = await dataSource.getWorkOrders(tCompanyId);
 
-      // Act
+      expect(result, isA<FailureState<List<WorkOrderResponseModel>>>());
+    });
+
+    test('getWorkOrderById should return SuccessState<WorkOrderResponseModel> when found', () async {
+      when(() => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => tWorkOrderModel.toJson());
+
       final result = await dataSource.getWorkOrderById(tWorkOrderId);
 
-      // Assert
       expect(result, isA<SuccessState<WorkOrderResponseModel>>());
       expect(result.data!.id, tWorkOrderModel.id);
-      verify(() => mockHttpClient.get<dynamic>(ApiEndpoints.workOrderById(tWorkOrderId))).called(1);
+      verify(() => mockDatabase.selectOne(
+            table: 'work_orders',
+            filters: [SupabaseFilter.eq('id', tWorkOrderId)],
+          )).called(1);
     });
 
-    test('createWorkOrder should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Created'};
+    test('getWorkOrderById should return FailureState when not found', () async {
+      when(() => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => null);
 
-      when(() => mockHttpClient.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrders),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
+      final result = await dataSource.getWorkOrderById(tWorkOrderId);
 
-      // Act
+      expect(result, isA<FailureState<WorkOrderResponseModel>>());
+      final failure = result as FailureState<WorkOrderResponseModel>;
+      expect(failure.message, 'Ordem de serviço não encontrada.');
+    });
+
+    test('createWorkOrder should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+
       final result = await dataSource.createWorkOrder(tWorkOrderRequest);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.post<dynamic>(
-            ApiEndpoints.workOrders,
-            data: tWorkOrderRequest.toJson(),
+      verify(() => mockDatabase.insert(
+            table: 'work_orders',
+            values: tWorkOrderRequest.toJson(),
           )).called(1);
     });
 
-    test('updateWorkOrder should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Updated'};
+    test('createWorkOrder should return FailureState when insert throws', () async {
+      when(() => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          )).thenThrow(Exception('database error'));
 
-      when(() => mockHttpClient.put<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrderById(tWorkOrderRequest.id)),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
+      final result = await dataSource.createWorkOrder(tWorkOrderRequest);
 
-      // Act
+      expect(result, isA<FailureState<bool>>());
+    });
+
+    test('updateWorkOrder should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+
       final result = await dataSource.updateWorkOrder(tWorkOrderRequest);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.put<dynamic>(
-            ApiEndpoints.workOrderById(tWorkOrderRequest.id),
-            data: tWorkOrderRequest.toJson(),
+      verify(() => mockDatabase.update(
+            table: 'work_orders',
+            values: tWorkOrderRequest.toJson(),
+            filters: [SupabaseFilter.eq('id', tWorkOrderRequest.id)],
           )).called(1);
     });
 
-    test('deleteWorkOrder should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Deleted'};
+    test('deleteWorkOrder should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.delete(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
 
-      when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrderById(tWorkOrderId)),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.deleteWorkOrder(tWorkOrderId);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.delete<dynamic>(ApiEndpoints.workOrderById(tWorkOrderId))).called(1);
+      verify(() => mockDatabase.delete(
+            table: 'work_orders',
+            filters: [SupabaseFilter.eq('id', tWorkOrderId)],
+          )).called(1);
     });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - Tasks', () {
-    test('getTasksByWorkOrder should return SuccessState<List<TaskResponseModel>> on 200', () async {
-      // Arrange
-      final fakeResponse = {
-        'data': [tTaskModel.toJson()],
-        'message': 'Success',
-      };
+    test('getTasksByWorkOrder should return SuccessState<List<TaskResponseModel>>', () async {
+      when(() => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tTaskModel.toJson()]);
 
-      when(() => mockHttpClient.get<dynamic>(
-            any(),
-            queryParameters: any(named: 'queryParameters'),
-          )).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.tasks),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.getTasksByWorkOrder(tWorkOrderId);
 
-      // Assert
       expect(result, isA<SuccessState<List<TaskResponseModel>>>());
       expect(result.data, hasLength(1));
       expect(result.data!.first.id, tTaskModel.id);
-      verify(() => mockHttpClient.get<dynamic>(
-            ApiEndpoints.tasks,
-            queryParameters: {'work_order_id': tWorkOrderId},
+      verify(() => mockDatabase.selectList(
+            table: 'tasks',
+            filters: [SupabaseFilter.eq('work_order_id', tWorkOrderId)],
           )).called(1);
     });
 
-    test('createTask should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Created'};
+    test('createTask should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          )).thenAnswer((_) async => [tTaskModel.toJson()]);
 
-      when(() => mockHttpClient.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.tasks),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.createTask(tTaskRequest);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.post<dynamic>(
-            ApiEndpoints.tasks,
-            data: tTaskRequest.toJson(),
+      verify(() => mockDatabase.insert(
+            table: 'tasks',
+            values: tTaskRequest.toJson(),
           )).called(1);
     });
 
-    test('updateTask should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Updated'};
+    test('updateTask should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tTaskModel.toJson()]);
 
-      when(() => mockHttpClient.put<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.taskById(tTaskRequest.id)),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.updateTask(tTaskRequest);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.put<dynamic>(
-            ApiEndpoints.taskById(tTaskRequest.id),
-            data: tTaskRequest.toJson(),
+      verify(() => mockDatabase.update(
+            table: 'tasks',
+            values: tTaskRequest.toJson(),
+            filters: [SupabaseFilter.eq('id', tTaskRequest.id)],
           )).called(1);
     });
 
-    test('deleteTask should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Deleted'};
+    test('deleteTask should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.delete(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tTaskModel.toJson()]);
 
-      when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.taskById(tTaskId)),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.deleteTask(tTaskId);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.delete<dynamic>(ApiEndpoints.taskById(tTaskId))).called(1);
+      verify(() => mockDatabase.delete(
+            table: 'tasks',
+            filters: [SupabaseFilter.eq('id', tTaskId)],
+          )).called(1);
     });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - Change Requests', () {
-    test('getChangeRequests should return SuccessState<List<WorkOrderChangeRequestResponseModel>> on 200', () async {
-      // Arrange
-      final fakeResponse = {
-        'data': [tChangeModel.toJson()],
-        'message': 'Success',
-      };
+    test('getChangeRequests should return SuccessState<List<WorkOrderChangeRequestResponseModel>>', () async {
+      when(() => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tChangeModel.toJson()]);
 
-      when(() => mockHttpClient.get<dynamic>(
-            any(),
-            queryParameters: any(named: 'queryParameters'),
-          )).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.changeRequests),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.getChangeRequests(tCompanyId);
 
-      // Assert
       expect(result, isA<SuccessState<List<WorkOrderChangeRequestResponseModel>>>());
       expect(result.data, hasLength(1));
       expect(result.data!.first.id, tChangeModel.id);
-      verify(() => mockHttpClient.get<dynamic>(
-            ApiEndpoints.changeRequests,
-            queryParameters: {'company_id': tCompanyId},
+      verify(() => mockDatabase.selectList(
+            table: 'work_order_change_requests',
+            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
           )).called(1);
     });
 
-    test('createChangeRequest should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Created'};
+    test('createChangeRequest should return SuccessState<bool>(true)', () async {
+      when(() => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          )).thenAnswer((_) async => [tChangeModel.toJson()]);
 
-      when(() => mockHttpClient.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.changeRequests),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.createChangeRequest(tChangeRequest);
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.post<dynamic>(
-            ApiEndpoints.changeRequests,
-            data: tChangeRequest.toJson(),
+      verify(() => mockDatabase.insert(
+            table: 'work_order_change_requests',
+            values: tChangeRequest.toJson(),
           )).called(1);
     });
 
-    test('reviewChangeRequest should return SuccessState<bool>(true) on 200', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Reviewed'};
+    test('reviewChangeRequest should return SuccessState<bool>(true)', () async {
       final tStatus = faker.randomGenerator.element(['approved', 'rejected']);
       final tRejectionReason = faker.lorem.sentence();
       final tReviewerId = faker.guid.guid();
 
-      when(() => mockHttpClient.post<dynamic>(any(), data: any(named: 'data'))).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: '${ApiEndpoints.changeRequests}/$tChangeId/review'),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
+      when(() => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tChangeModel.toJson()]);
 
-      // Act
       final result = await dataSource.reviewChangeRequest(
         id: tChangeId,
         status: tStatus,
@@ -352,49 +290,31 @@ void main() {
         reviewedById: tReviewerId,
       );
 
-      // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockHttpClient.post<dynamic>(
-            '${ApiEndpoints.changeRequests}/$tChangeId/review',
-            data: {
-              'status': tStatus,
-              'rejection_reason': tRejectionReason,
-              'reviewed_by_id': tReviewerId,
-            },
+      verify(() => mockDatabase.update(
+            table: 'work_order_change_requests',
+            values: any(named: 'values'),
+            filters: [SupabaseFilter.eq('id', tChangeId)],
           )).called(1);
     });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
-    test('getWorkOrderHistory should return SuccessState<List<WorkOrderHistoryResponseModel>> on 200', () async {
-      // Arrange
-      final fakeResponse = {
-        'data': [tHistoryModel.toJson()],
-        'message': 'Success',
-      };
+    test('getWorkOrderHistory should return SuccessState<List<WorkOrderHistoryResponseModel>>', () async {
+      when(() => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          )).thenAnswer((_) async => [tHistoryModel.toJson()]);
 
-      when(() => mockHttpClient.get<dynamic>(
-            any(),
-            queryParameters: any(named: 'queryParameters'),
-          )).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.workOrderHistory),
-          data: fakeResponse,
-          statusCode: 200,
-        ),
-      );
-
-      // Act
       final result = await dataSource.getWorkOrderHistory(tWorkOrderId);
 
-      // Assert
       expect(result, isA<SuccessState<List<WorkOrderHistoryResponseModel>>>());
       expect(result.data, hasLength(1));
       expect(result.data!.first.id, tHistoryModel.id);
-      verify(() => mockHttpClient.get<dynamic>(
-            ApiEndpoints.workOrderHistory,
-            queryParameters: {'work_order_id': tWorkOrderId},
+      verify(() => mockDatabase.selectList(
+            table: 'work_order_history',
+            filters: [SupabaseFilter.eq('work_order_id', tWorkOrderId)],
           )).called(1);
     });
   });
