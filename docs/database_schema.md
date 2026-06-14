@@ -46,6 +46,7 @@ erDiagram
     UserProfiles ||--o{ WorkOrderChangeRequests : reviewed_by
     UserProfiles ||--o{ SyncAuditLogs : logs
     UserProfiles ||--o{ WorkOrderHistory : logs
+    UserProfiles ||--o{ UserParameters : has
     WorkOrders ||--o{ Tasks : contains
     WorkOrders ||--o{ Attachments : contains
     WorkOrders ||--o{ WorkOrderChangeRequests : changes
@@ -324,7 +325,19 @@ Configuration limits governing client offline allowances.
 | `updated_at` | TIMESTAMP | NOT NULL | now() | Record update date |
 | `deleted_at` | TIMESTAMP | NULL | - | Soft delete flag |
 
-### 16. sync_audit_logs
+### 16. user_parameters
+User configuration and notification parameters.
+
+| Column | Type | Nullability | Default | Description |
+|---|---|---|---|---|
+| `id` | UUID (Text) | NOT NULL | - | Primary Key |
+| `user_profile_id` | UUID (Text) | NOT NULL | - | Foreign Key -> `user_profiles.id` (Cascade, Unique) |
+| `push_notifications_enabled` | BOOLEAN | NOT NULL | true | In-app push notifications enabled preference |
+| `created_at` | TIMESTAMP | NOT NULL | now() | Record creation date |
+| `updated_at` | TIMESTAMP | NOT NULL | now() | Record update date |
+| `deleted_at` | TIMESTAMP | NULL | - | Soft delete flag |
+
+### 17. sync_audit_logs
 Audited records documenting synchronizer operations.
 
 | Column | Type | Nullability | Default | Description |
@@ -337,7 +350,7 @@ Audited records documenting synchronizer operations.
 | `operation` | VARCHAR(50) | NOT NULL | - | insert / update / delete |
 | `synced_at` | TIMESTAMP | NOT NULL | now() | Execution timestamp |
 
-### 17. work_order_history
+### 18. work_order_history
 Audited tracking records capturing work order lifecycle updates.
 
 | Column | Type | Nullability | Default | Description |
