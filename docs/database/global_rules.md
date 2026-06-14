@@ -88,6 +88,7 @@ CREATE POLICY "Users delete own company permission groups"
   //TODO respect the permission group from the user
 ```
 
+
 #### user_profiles
 
 ```sql
@@ -109,6 +110,26 @@ CREATE POLICY "Users update own profile"
   USING (id = auth.uid());
   //TODO respect the permission group from the user
 ```
+
+#### locations
+
+```sql
+CREATE POLICY "Users read own company locations"
+  ON public.locations FOR SELECT
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users insert own company locations"
+  ON public.locations FOR INSERT
+  TO authenticated
+  WITH CHECK (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users update own company locations"
+  ON public.locations FOR UPDATE
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+```
+
 
 ---
 
@@ -132,6 +153,7 @@ $$ LANGUAGE plpgsql;
 #### Applied Tables:
 - **companies** (`tr_prevent_delete_companies` trigger)
 - **user_profiles** (`tr_prevent_delete_user_profiles` trigger)
+- **locations** (`tr_prevent_delete_locations` trigger)
 
 ```sql
 CREATE TRIGGER tr_prevent_delete_companies
@@ -141,6 +163,11 @@ EXECUTE FUNCTION public.prevent_delete();
 
 CREATE TRIGGER tr_prevent_delete_user_profiles
 BEFORE DELETE ON public.user_profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_delete();
+
+CREATE TRIGGER tr_prevent_delete_locations
+BEFORE DELETE ON public.locations
 FOR EACH ROW
 EXECUTE FUNCTION public.prevent_delete();
 ```
