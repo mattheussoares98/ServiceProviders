@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/locations/data/data_sources/location
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';

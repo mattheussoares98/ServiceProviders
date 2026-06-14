@@ -5,7 +5,7 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class LocationsRemoteDataSource {

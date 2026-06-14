@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 

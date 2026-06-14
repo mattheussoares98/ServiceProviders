@@ -1,6 +1,6 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_response_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_response_model.dart';
+import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/data/repositories/locations_repository_impl.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
