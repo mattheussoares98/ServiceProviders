@@ -425,6 +425,7 @@ abstract final class EntityFactory {
     return ConfigurationsEntity(
       pushNotificationsEnabled: faker.randomGenerator.boolean(),
       themeMode: faker.randomGenerator.element(['light', 'dark', 'system']),
+      systemNotificationsEnabled: faker.randomGenerator.boolean(),
     );
   }
 }
