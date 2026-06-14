@@ -69,6 +69,51 @@ void main() {
       });
 
       test(
+        'should save a list of locations and successfully retrieve true',
+        () async {
+          // Arrange
+          final locations = [
+            LocationModel.fromEntity(
+              EntityFactory.makeLocationEntity().copyWith(
+                companyId: tLocationModel.companyId,
+              ),
+            ),
+            LocationModel.fromEntity(
+              EntityFactory.makeLocationEntity().copyWith(
+                companyId: tLocationModel.companyId,
+              ),
+            ),
+            LocationModel.fromEntity(
+              EntityFactory.makeLocationEntity().copyWith(
+                companyId: tLocationModel.companyId,
+              ),
+            ),
+          ];
+
+          await insertTestCompany(tLocationModel.companyId);
+
+          // Act: Save
+          final saveResult = await dataSource.saveLocations(locations);
+
+          // Assert Save
+          expect(saveResult, isA<SuccessState<bool>>());
+          expect(saveResult.data, isTrue);
+
+          // Act: Get locations
+          final getResult = await dataSource.getLocations(
+            tLocationModel.companyId,
+          );
+
+          // Assert Get
+          expect(getResult, isA<SuccessState<List<LocationModel>>>());
+          expect(getResult.data, hasLength(locations.length));
+          expect(getResult.data, contains(locations[0]));
+          expect(getResult.data, contains(locations[1]));
+          expect(getResult.data, contains(locations[2]));
+        },
+      );
+
+      test(
         'should soft-delete a location and verify it is not returned in getLocations',
         () async {
           // Arrange

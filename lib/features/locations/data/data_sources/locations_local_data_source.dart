@@ -11,6 +11,7 @@ abstract interface class LocationsLocalDataSource {
   FutureList<LocationModel> getLocations(String companyId);
   FutureBool saveLocation(LocationModel location);
   FutureBool deleteLocation(String id);
+  FutureBool saveLocations(List<LocationModel> locations);
 
   FutureList<AreaModel> getAreasByLocation(String locationId);
   FutureBool saveArea(AreaModel area);
@@ -79,6 +80,38 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
               postalCode: Value(location.postalCode),
             ),
           );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool saveLocations(List<LocationModel> locations) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.locations,
+          locations
+              .map(
+                (location) => LocationsCompanion(
+                  id: Value(location.id),
+                  companyId: Value(location.companyId),
+                  name: Value(location.name),
+                  address: Value(location.address),
+                  city: Value(location.city),
+                  state: Value(location.state),
+                  isActive: Value(location.isActive),
+                  createdAt: Value(location.createdAt),
+                  updatedAt: Value(location.updatedAt),
+                  deletedAt: Value(location.deletedAt),
+                  complement: Value(location.complement),
+                  number: Value(location.number),
+                  neighborhood: Value(location.neighborhood),
+                  postalCode: Value(location.postalCode),
+                ),
+              )
+              .toList(),
+        );
+      });
       return const SuccessState(data: true);
     });
   }
