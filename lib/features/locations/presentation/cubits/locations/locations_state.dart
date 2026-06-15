@@ -9,10 +9,10 @@ class LocationsState extends BaseState {
   });
 
   const LocationsState.initial()
-      : locations = const [],
-        areasByLocation = const {},
-        errorMessage = '',
-        super(status: StateStatus.initial);
+    : locations = const [],
+      areasByLocation = const <String, List<AreaEntity>>{},
+      errorMessage = '',
+      super(status: StateStatus.initial);
 
   final List<LocationEntity> locations;
   final Map<String, List<AreaEntity>> areasByLocation;

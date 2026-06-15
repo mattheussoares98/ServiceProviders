@@ -5,7 +5,7 @@ import 'package:clean_architecture/features/locations/domain/use_cases/create_ar
 import 'package:clean_architecture/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_location_use_case.dart';
-import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_by_location_use_case.dart';
+import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_location_use_case.dart';
@@ -27,7 +27,7 @@ void main() {
   late CreateAreaUseCase createAreaUseCase;
   late UpdateAreaUseCase updateAreaUseCase;
   late DeleteAreaUseCase deleteAreaUseCase;
-  late GetAreasByLocationUseCase getAreasByLocationUseCase;
+  late GetAreasUseCase getAreasUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeLocationEntity());
@@ -43,7 +43,7 @@ void main() {
     createAreaUseCase = CreateAreaUseCase(locationsRepository: mockRepository);
     updateAreaUseCase = UpdateAreaUseCase(locationsRepository: mockRepository);
     deleteAreaUseCase = DeleteAreaUseCase(locationsRepository: mockRepository);
-    getAreasByLocationUseCase = GetAreasByLocationUseCase(locationsRepository: mockRepository);
+    getAreasUseCase = GetAreasUseCase(locationsRepository: mockRepository);
   });
 
   final tLocationEntity = EntityFactory.makeLocationEntity();
@@ -256,32 +256,32 @@ void main() {
       });
     });
 
-    group('GetAreasByLocationUseCase', () {
-      test('should call repository.getAreasByLocation and return list of areas', () async {
+    group('GetAreasUseCase', () {
+      test('should call repository.getAreas and return list of areas', () async {
         // Arrange
-        when(() => mockRepository.getAreasByLocation(any()))
+        when(() => mockRepository.getAreas(any()))
             .thenAnswer((_) async => SuccessState(data: tAreaList));
 
         // Act
-        final result = await getAreasByLocationUseCase(tId);
+        final result = await getAreasUseCase(tId);
 
         // Assert
         expect(result, isA<SuccessState<List<AreaEntity>>>());
         expect(result.data, tAreaList);
-        verify(() => mockRepository.getAreasByLocation(tId)).called(1);
+        verify(() => mockRepository.getAreas(tId)).called(1);
       });
 
       test('should return FailureState when repository fails', () async {
         // Arrange
-        when(() => mockRepository.getAreasByLocation(any()))
+        when(() => mockRepository.getAreas(any()))
             .thenAnswer((_) async => FailureState<List<AreaEntity>>(message: 'Error'));
 
         // Act
-        final result = await getAreasByLocationUseCase(tId);
+        final result = await getAreasUseCase(tId);
 
         // Assert
         expect(result, isA<FailureState<List<AreaEntity>>>());
-        verify(() => mockRepository.getAreasByLocation(tId)).called(1);
+        verify(() => mockRepository.getAreas(tId)).called(1);
       });
     });
   });

@@ -13,7 +13,7 @@ abstract interface class LocationsLocalDataSource {
   FutureBool deleteLocation(String id);
   FutureBool saveLocations(List<LocationModel> locations);
 
-  FutureList<AreaModel> getAreasByLocation(String locationId);
+  FutureList<AreaModel> getAreas(String companyId);
   FutureBool saveArea(AreaModel area);
   FutureBool deleteArea(String id);
   FutureBool saveAreas(List<AreaModel> areas);
@@ -128,10 +128,10 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
   }
 
   @override
-  FutureList<AreaModel> getAreasByLocation(String locationId) {
+  FutureList<AreaModel> getAreas(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.areas)
-        ..where((t) => t.locationId.equals(locationId) & t.deletedAt.isNull());
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
       final rows = await query.get();
 
       final list = rows

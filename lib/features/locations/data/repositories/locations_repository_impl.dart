@@ -106,11 +106,11 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
-  FutureList<AreaEntity> getAreasByLocation(String locationId) =>
+  FutureList<AreaEntity> getAreas(String companyId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<AreaModel, AreaEntity>(
         isInternetConnected: _internet.isConnected,
-        remoteCallback: () => _remoteDataSource.getAreasByLocation(locationId),
-        localCallback: () => _localDataSource.getAreasByLocation(locationId),
+        remoteCallback: () => _remoteDataSource.getAreas(companyId),
+        localCallback: () => _localDataSource.getAreas(companyId),
         onRemoteSuccess: _localDataSource.saveAreas,
       );
 

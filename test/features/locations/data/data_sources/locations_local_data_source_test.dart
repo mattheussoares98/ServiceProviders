@@ -155,8 +155,8 @@ void main() {
         expect(saveResult.data, isTrue);
 
         // Act: Get Areas
-        final getResult = await dataSource.getAreasByLocation(
-          tLocationModel.id,
+        final getResult = await dataSource.getAreas(
+          tLocationModel.companyId,
         );
 
         // Assert Get
@@ -166,7 +166,7 @@ void main() {
       });
 
       test(
-        'should soft-delete an area and verify it is not returned in getAreasByLocation',
+        'should soft-delete an area and verify it is not returned in getAreas',
         () async {
           // Arrange
           await insertTestCompany(tLocationModel.companyId);
@@ -181,8 +181,8 @@ void main() {
           expect(deleteResult.data, isTrue);
 
           // Act: Get
-          final getResult = await dataSource.getAreasByLocation(
-            tLocationModel.id,
+          final getResult = await dataSource.getAreas(
+            tLocationModel.companyId,
           );
 
           // Assert Get: Should be empty
@@ -223,8 +223,8 @@ void main() {
           expect(saveResult, isA<SuccessState<bool>>());
           expect(saveResult.data, isTrue);
 
-          final getResult = await dataSource.getAreasByLocation(
-            tLocationModel.id,
+          final getResult = await dataSource.getAreas(
+            tLocationModel.companyId,
           );
 
           expect(getResult, isA<SuccessState<List<AreaModel>>>());

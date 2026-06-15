@@ -28,35 +28,56 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     emit(state.copyWith(status: StateStatus.loading));
 
-    final dataState = await _useCases.getLocations(user.companyId);
+    final results = await Future.wait([
+      _useCases.getLocations(user.companyId),
+      _useCases.getAreas(user.companyId),
+    ]);
+
     if (isClosed) return;
 
-    if (dataState is SuccessState<List<LocationEntity>>) {
-      emit(
-        state.copyWith(status: StateStatus.loaded, locations: dataState.data),
-      );
-    } else {
+    final locationsResult = results[0];
+    final areasResult = results[1];
+
+    if (locationsResult is SuccessState<List<LocationEntity>> &&
+        areasResult is SuccessState<List<AreaEntity>>) {
+      final areas = areasResult.data ?? [];
+      final Map<String, List<AreaEntity>> areasByLocation = {};
+      for (final area in areas) {
+        areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
+      }
       emit(
         state.copyWith(
-          status: StateStatus.error,
-          errorMessage: dataState.message,
+          status: StateStatus.loaded,
+          locations: locationsResult.data,
+          areasByLocation: areasByLocation,
         ),
       );
-      showDataStateToast(dataState);
+    } else {
+      final errorMessage = locationsResult is FailureState
+          ? locationsResult.message
+          : areasResult.message;
+      emit(
+        state.copyWith(status: StateStatus.error, errorMessage: errorMessage),
+      );
+      if (locationsResult is FailureState) {
+        showDataStateToast(locationsResult);
+      } else {
+        showDataStateToast(areasResult);
+      }
     }
   }
 
-  //TODO delete this method and create a new one that return all areas to avoid so many requests
-  Future<void> loadAreasForLocation(String locationId) async {
-    final dataState = await _useCases.getAreasByLocation(locationId);
+  Future<void> loadAreas(String companyId) async {
+    final dataState = await _useCases.getAreas(companyId);
     if (isClosed) return;
 
     if (dataState is SuccessState<List<AreaEntity>>) {
-      final updatedAreas = Map<String, List<AreaEntity>>.from(
-        state.areasByLocation,
-      );
-      updatedAreas[locationId] = dataState.data!;
-      emit(state.copyWith(areasByLocation: updatedAreas));
+      final areas = dataState.data ?? [];
+      final Map<String, List<AreaEntity>> areasByLocation = {};
+      for (final area in areas) {
+        areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
+      }
+      emit(state.copyWith(areasByLocation: areasByLocation));
     } else {
       showDataStateToast(dataState);
     }
@@ -112,7 +133,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Área criada com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
-      await loadAreasForLocation(area.locationId);
+      final user = _useCases.getSessionUser();
+      await loadAreas(user.companyId);
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
@@ -127,7 +149,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Área atualizada com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
-      await loadAreasForLocation(area.locationId);
+      final user = _useCases.getSessionUser();
+      await loadAreas(user.companyId);
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
@@ -142,7 +165,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Área excluída com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
-      await loadAreasForLocation(locationId);
+      final user = _useCases.getSessionUser();
+      await loadAreas(user.companyId);
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);

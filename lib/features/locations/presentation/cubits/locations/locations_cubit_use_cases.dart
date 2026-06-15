@@ -3,7 +3,7 @@ import 'package:clean_architecture/features/locations/domain/use_cases/create_ar
 import 'package:clean_architecture/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_location_use_case.dart';
-import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_by_location_use_case.dart';
+import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_location_use_case.dart';
@@ -14,7 +14,7 @@ class LocationsCubitUseCases {
   const LocationsCubitUseCases({
     required this.getSessionUser,
     required this.getLocations,
-    required this.getAreasByLocation,
+    required this.getAreas,
     required this.createLocation,
     required this.updateLocation,
     required this.deleteLocation,
@@ -25,7 +25,7 @@ class LocationsCubitUseCases {
 
   final GetSessionUserUseCase getSessionUser;
   final GetLocationsUseCase getLocations;
-  final GetAreasByLocationUseCase getAreasByLocation;
+  final GetAreasUseCase getAreas;
   final CreateLocationUseCase createLocation;
   final UpdateLocationUseCase updateLocation;
   final DeleteLocationUseCase deleteLocation;

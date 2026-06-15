@@ -51,7 +51,6 @@ void main() {
   final tAreaEntity = EntityFactory.makeAreaEntity();
   final tAreaModel = AreaModel.fromEntity(tAreaEntity);
   final tCompanyId = faker.guid.guid();
-  final tLocationId = faker.guid.guid();
 
   group('LocationsRepositoryImpl', () {
     group('getLocations', () {
@@ -380,32 +379,30 @@ void main() {
       );
     });
 
-    group('getAreasByLocation', () {
+    group('getAreas', () {
       test(
         'should fetch areas from remote, cache them locally, and return list on success when online',
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(true);
           when(
-            () => mockRemoteDataSource.getAreasByLocation(any()),
+            () => mockRemoteDataSource.getAreas(any()),
           ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
           when(
             () => mockLocalDataSource.saveAreas(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
-          final result = await repository.getAreasByLocation(tLocationId);
+          final result = await repository.getAreas(tCompanyId);
 
           // Assert
           expect(result, isA<SuccessState<List<AreaEntity>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tAreaEntity));
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
-          ).called(1);
+          verify(() => mockRemoteDataSource.getAreas(tCompanyId)).called(1);
           verify(() => mockLocalDataSource.saveAreas([tAreaModel])).called(1);
-          verifyNever(() => mockLocalDataSource.getAreasByLocation(any()));
+          verifyNever(() => mockLocalDataSource.getAreas(any()));
         },
       );
 
@@ -415,22 +412,20 @@ void main() {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(true);
           when(
-            () => mockRemoteDataSource.getAreasByLocation(any()),
+            () => mockRemoteDataSource.getAreas(any()),
           ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
           when(
             () => mockLocalDataSource.saveAreas(any()),
           ).thenAnswer((_) async => FailureState(message: 'Cache error'));
 
           // Act
-          final result = await repository.getAreasByLocation(tLocationId);
+          final result = await repository.getAreas(tCompanyId);
 
           // Assert
           expect(result, isA<FailureState<List<AreaEntity>>>());
           expect(result.message, 'Cache error');
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
-          ).called(1);
+          verify(() => mockRemoteDataSource.getAreas(tCompanyId)).called(1);
           verify(() => mockLocalDataSource.saveAreas([tAreaModel])).called(1);
         },
       );
@@ -441,19 +436,17 @@ void main() {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(true);
           when(
-            () => mockRemoteDataSource.getAreasByLocation(any()),
+            () => mockRemoteDataSource.getAreas(any()),
           ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
           // Act
-          final result = await repository.getAreasByLocation(tLocationId);
+          final result = await repository.getAreas(tCompanyId);
 
           // Assert
           expect(result, isA<FailureState<List<AreaEntity>>>());
           expect(result.message, 'Server error');
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockRemoteDataSource.getAreasByLocation(tLocationId),
-          ).called(1);
+          verify(() => mockRemoteDataSource.getAreas(tCompanyId)).called(1);
           verifyNever(() => mockLocalDataSource.saveAreas(any()));
         },
       );
@@ -464,21 +457,19 @@ void main() {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
-            () => mockLocalDataSource.getAreasByLocation(any()),
+            () => mockLocalDataSource.getAreas(any()),
           ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
 
           // Act
-          final result = await repository.getAreasByLocation(tLocationId);
+          final result = await repository.getAreas(tCompanyId);
 
           // Assert
           expect(result, isA<SuccessState<List<AreaEntity>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tAreaEntity));
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.getAreasByLocation(tLocationId),
-          ).called(1);
-          verifyNever(() => mockRemoteDataSource.getAreasByLocation(any()));
+          verify(() => mockLocalDataSource.getAreas(tCompanyId)).called(1);
+          verifyNever(() => mockRemoteDataSource.getAreas(any()));
           verifyNever(() => mockLocalDataSource.saveAreas(any()));
         },
       );
@@ -489,20 +480,18 @@ void main() {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
-            () => mockLocalDataSource.getAreasByLocation(any()),
+            () => mockLocalDataSource.getAreas(any()),
           ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
           // Act
-          final result = await repository.getAreasByLocation(tLocationId);
+          final result = await repository.getAreas(tCompanyId);
 
           // Assert
           expect(result, isA<FailureState<List<AreaEntity>>>());
           expect(result.message, 'Database error');
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.getAreasByLocation(tLocationId),
-          ).called(1);
-          verifyNever(() => mockRemoteDataSource.getAreasByLocation(any()));
+          verify(() => mockLocalDataSource.getAreas(tCompanyId)).called(1);
+          verifyNever(() => mockRemoteDataSource.getAreas(any()));
         },
       );
     });

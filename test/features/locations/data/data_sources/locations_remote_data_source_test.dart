@@ -32,7 +32,6 @@ void main() {
   final tAreaRequest = AreaRequestModel.fromEntity(tAreaEntity);
 
   final tCompanyId = faker.guid.guid();
-  final tLocationId = faker.guid.guid();
 
   group('LocationsRemoteDataSourceImpl', () {
     group('Locations', () {
@@ -142,7 +141,7 @@ void main() {
         ).thenAnswer((_) async => [tAreaModel.toJson()]);
 
         // Act
-        final result = await dataSource.getAreasByLocation(tLocationId);
+        final result = await dataSource.getAreas(tCompanyId);
 
         // Assert
         expect(result, isA<SuccessState<List<AreaModel>>>());
@@ -151,7 +150,7 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'areas',
-            filters: [SupabaseFilter.eq('location_id', tLocationId)],
+            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
           ),
         ).called(1);
       });

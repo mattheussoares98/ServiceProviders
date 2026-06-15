@@ -7,7 +7,7 @@ import 'package:clean_architecture/features/locations/domain/use_cases/create_ar
 import 'package:clean_architecture/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/delete_location_use_case.dart';
-import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_by_location_use_case.dart';
+import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/update_location_use_case.dart';
@@ -28,8 +28,7 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockGetLocationsUseCase extends Mock implements GetLocationsUseCase {}
 
-class MockGetAreasByLocationUseCase extends Mock
-    implements GetAreasByLocationUseCase {}
+class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
 
 class MockCreateLocationUseCase extends Mock implements CreateLocationUseCase {}
 
@@ -48,7 +47,7 @@ void main() {
 
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetLocationsUseCase mockGetLocations;
-  late MockGetAreasByLocationUseCase mockGetAreasByLocation;
+  late MockGetAreasUseCase mockGetAreas;
   late MockCreateLocationUseCase mockCreateLocation;
   late MockUpdateLocationUseCase mockUpdateLocation;
   late MockDeleteLocationUseCase mockDeleteLocation;
@@ -68,7 +67,7 @@ void main() {
   setUp(() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetLocations = MockGetLocationsUseCase();
-    mockGetAreasByLocation = MockGetAreasByLocationUseCase();
+    mockGetAreas = MockGetAreasUseCase();
     mockCreateLocation = MockCreateLocationUseCase();
     mockUpdateLocation = MockUpdateLocationUseCase();
     mockDeleteLocation = MockDeleteLocationUseCase();
@@ -86,7 +85,7 @@ void main() {
     final useCases = LocationsCubitUseCases(
       getSessionUser: mockGetSessionUser,
       getLocations: mockGetLocations,
-      getAreasByLocation: mockGetAreasByLocation,
+      getAreas: mockGetAreas,
       createLocation: mockCreateLocation,
       updateLocation: mockUpdateLocation,
       deleteLocation: mockDeleteLocation,
@@ -106,9 +105,13 @@ void main() {
         'should emit loading and loaded when locations load successfully',
         build: () {
           final tLocations = EntityFactory.makeLocationEntityList();
+          final tAreas = EntityFactory.makeAreaEntityList();
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
           return cubit;
         },
         act: (cubit) => cubit.loadLocations(),
@@ -124,6 +127,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -134,6 +138,9 @@ void main() {
           when(() => mockGetLocations.call(any())).thenAnswer(
             (_) async => FailureState<List<LocationEntity>>(message: tMessage),
           );
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.loadLocations(),
@@ -149,6 +156,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -173,41 +181,41 @@ void main() {
       );
     });
 
-    group('loadAreasForLocation', () {
+    group('loadAreas', () {
       blocTest<LocationsCubit, LocationsState>(
         'should emit updated areasByLocation map when areas load successfully',
         build: () {
           final tAreas = EntityFactory.makeAreaEntityList();
           when(
-            () => mockGetAreasByLocation.call(any()),
+            () => mockGetAreas.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAreas));
           return cubit;
         },
-        act: (cubit) => cubit.loadAreasForLocation('loc1'),
+        act: (cubit) => cubit.loadAreas(tUserProfile.companyId),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.areasByLocation['loc1'],
-            'areas',
+            (s) => s.areasByLocation,
+            'areasByLocation',
             isNotEmpty,
           ),
         ],
         verify: (_) {
-          verify(() => mockGetAreasByLocation.call('loc1')).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<LocationsCubit, LocationsState>(
         'should not emit state but show error when areas load fails',
         build: () {
-          when(() => mockGetAreasByLocation.call(any())).thenAnswer(
+          when(() => mockGetAreas.call(any())).thenAnswer(
             (_) async => FailureState<List<AreaEntity>>(message: 'Error'),
           );
           return cubit;
         },
-        act: (cubit) => cubit.loadAreasForLocation('loc1'),
+        act: (cubit) => cubit.loadAreas(tUserProfile.companyId),
         expect: () => <LocationsState>[],
         verify: (_) {
-          verify(() => mockGetAreasByLocation.call('loc1')).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
     });
@@ -405,7 +413,7 @@ void main() {
             () => mockCreateArea.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
-            () => mockGetAreasByLocation.call(any()),
+            () => mockGetAreas.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
@@ -429,7 +437,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockCreateArea.call(tArea)).called(1);
-          verify(() => mockGetAreasByLocation.call(tArea.locationId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -456,7 +464,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockCreateArea.call(tArea)).called(1);
-          verifyNever(() => mockGetAreasByLocation.call(any()));
+          verifyNever(() => mockGetAreas.call(any()));
         },
       );
     });
@@ -471,7 +479,7 @@ void main() {
             () => mockUpdateArea.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
-            () => mockGetAreasByLocation.call(any()),
+            () => mockGetAreas.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
@@ -495,7 +503,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockUpdateArea.call(tArea)).called(1);
-          verify(() => mockGetAreasByLocation.call(tArea.locationId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -522,7 +530,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockUpdateArea.call(tArea)).called(1);
-          verifyNever(() => mockGetAreasByLocation.call(any()));
+          verifyNever(() => mockGetAreas.call(any()));
         },
       );
     });
@@ -538,7 +546,7 @@ void main() {
             () => mockDeleteArea.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
-            () => mockGetAreasByLocation.call(any()),
+            () => mockGetAreas.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
@@ -562,7 +570,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);
-          verify(() => mockGetAreasByLocation.call(tLocationId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -589,7 +597,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);
-          verifyNever(() => mockGetAreasByLocation.call(any()));
+          verifyNever(() => mockGetAreas.call(any()));
         },
       );
     });

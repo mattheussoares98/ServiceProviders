@@ -10,7 +10,7 @@ abstract interface class LocationsRepository {
   FutureBool deleteLocation(String id);
 
   // Areas
-  FutureList<AreaEntity> getAreasByLocation(String locationId);
+  FutureList<AreaEntity> getAreas(String companyId);
   FutureBool createArea(AreaEntity area);
   FutureBool updateArea(AreaEntity area);
   FutureBool deleteArea(String id);

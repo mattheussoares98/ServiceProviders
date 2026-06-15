@@ -14,7 +14,7 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<LocationModel> updateLocation(LocationRequestModel request);
   FutureVoid deleteLocation(String id);
 
-  FutureList<AreaModel> getAreasByLocation(String locationId);
+  FutureList<AreaModel> getAreas(String companyId);
   FutureData<AreaModel> createArea(AreaRequestModel request);
   FutureData<AreaModel> updateArea(AreaRequestModel request);
   FutureVoid deleteArea(String id);
@@ -68,11 +68,11 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   });
 
   @override
-  FutureList<AreaModel> getAreasByLocation(String locationId) =>
+  FutureList<AreaModel> getAreas(String companyId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'areas',
-          filters: [SupabaseFilter.eq('location_id', locationId)],
+          filters: [SupabaseFilter.eq('company_id', companyId)],
         );
         return response.map(AreaModel.fromJson).toList();
       });

@@ -5,13 +5,13 @@ import 'package:clean_architecture/features/locations/domain/repositories/locati
 import 'package:injectable/injectable.dart';
 
 @LazySingleton()
-class GetAreasByLocationUseCase implements UseCase<List<AreaEntity>, String> {
-  GetAreasByLocationUseCase({required LocationsRepository locationsRepository})
+class GetAreasUseCase implements UseCase<List<AreaEntity>, String> {
+  GetAreasUseCase({required LocationsRepository locationsRepository})
       : _locationsRepository = locationsRepository;
 
   final LocationsRepository _locationsRepository;
 
   @override
   FutureList<AreaEntity> call(String request) =>
-      _locationsRepository.getAreasByLocation(request);
+      _locationsRepository.getAreas(request);
 }
