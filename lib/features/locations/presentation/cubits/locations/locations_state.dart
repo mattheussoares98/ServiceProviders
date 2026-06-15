@@ -5,18 +5,16 @@ class LocationsState extends BaseState {
     required this.locations,
     required this.areasByLocation,
     super.status = StateStatus.initial,
-    this.errorMessage = '',
+    super.errorMessage = '',
   });
 
   const LocationsState.initial()
     : locations = const [],
       areasByLocation = const <String, List<AreaEntity>>{},
-      errorMessage = '',
-      super(status: StateStatus.initial);
+      super(status: StateStatus.initial, errorMessage: '');
 
   final List<LocationEntity> locations;
   final Map<String, List<AreaEntity>> areasByLocation;
-  final String errorMessage;
 
   LocationsState copyWith({
     List<LocationEntity>? locations,

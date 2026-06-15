@@ -4,7 +4,7 @@ class ConfigurationsState extends BaseState {
   const ConfigurationsState({
     required this.configurations,
     super.status = StateStatus.initial,
-    this.errorMessage = '',
+    super.errorMessage = '',
   });
 
   const ConfigurationsState.initial()
@@ -12,11 +12,9 @@ class ConfigurationsState extends BaseState {
           pushNotificationsEnabled: true,
           themeMode: 'system',
         ),
-        errorMessage = '',
-        super(status: StateStatus.initial);
+        super(status: StateStatus.initial, errorMessage: '');
 
   final ConfigurationsEntity configurations;
-  final String errorMessage;
 
   ThemeMode get themeMode {
     return ThemeMode.values.firstWhere(

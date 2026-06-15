@@ -7,7 +7,7 @@ class DashboardState extends BaseState {
     required this.inProgressWorkOrdersCount,
     required this.pendingRevisionsCount,
     required this.recentWorkOrders,
-    this.errorMessage,
+    super.errorMessage,
   });
 
   const DashboardState.initial()
@@ -15,14 +15,12 @@ class DashboardState extends BaseState {
       inProgressWorkOrdersCount = 0,
       pendingRevisionsCount = 0,
       recentWorkOrders = const [],
-      errorMessage = null,
       super(status: StateStatus.initial);
 
   final int openWorkOrdersCount;
   final int inProgressWorkOrdersCount;
   final int pendingRevisionsCount;
   final List<WorkOrderEntity> recentWorkOrders;
-  final String? errorMessage;
 
   DashboardState copyWith({
     StateStatus? status,
