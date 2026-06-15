@@ -130,6 +130,25 @@ CREATE POLICY "Users update own company locations"
   USING (company_id = public.get_user_company_id());
 ```
 
+#### areas
+
+```sql
+CREATE POLICY "Users read own company areas"
+  ON public.areas FOR SELECT
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users insert own company areas"
+  ON public.areas FOR INSERT
+  TO authenticated
+  WITH CHECK (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users update own company areas"
+  ON public.areas FOR UPDATE
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+```
+
 
 ---
 
@@ -154,6 +173,7 @@ $$ LANGUAGE plpgsql;
 - **companies** (`tr_prevent_delete_companies` trigger)
 - **user_profiles** (`tr_prevent_delete_user_profiles` trigger)
 - **locations** (`tr_prevent_delete_locations` trigger)
+- **areas** (`tr_prevent_delete_areas` trigger)
 
 ```sql
 CREATE TRIGGER tr_prevent_delete_companies
@@ -168,6 +188,11 @@ EXECUTE FUNCTION public.prevent_delete();
 
 CREATE TRIGGER tr_prevent_delete_locations
 BEFORE DELETE ON public.locations
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_delete();
+
+CREATE TRIGGER tr_prevent_delete_areas
+BEFORE DELETE ON public.areas
 FOR EACH ROW
 EXECUTE FUNCTION public.prevent_delete();
 ```
