@@ -16,7 +16,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   final LocationsCubitUseCases _useCases;
 
-  Future<void> loadLocations() async {
+  Future<void> loadLocationsAndAreas() async {
     final user = _useCases.getSessionUser();
     if (user.companyId.isEmpty) {
       showErrorToast(
@@ -90,7 +90,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Local criado com sucesso'.hardcoded);
-      await loadLocations();
+      await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
@@ -104,7 +104,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Local atualizado com sucesso'.hardcoded);
-      await loadLocations();
+      await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
@@ -118,7 +118,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       showSuccessToast('Local excluído com sucesso'.hardcoded);
-      await loadLocations();
+      await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);

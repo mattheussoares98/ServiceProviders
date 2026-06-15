@@ -114,7 +114,7 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: tAreas));
           return cubit;
         },
-        act: (cubit) => cubit.loadLocations(),
+        act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -143,7 +143,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.loadLocations(),
+        act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -167,7 +167,7 @@ void main() {
           when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
           return cubit;
         },
-        act: (cubit) => cubit.loadLocations(),
+        act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
