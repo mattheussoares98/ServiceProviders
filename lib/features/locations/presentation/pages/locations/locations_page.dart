@@ -20,6 +20,7 @@ class LocationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
+      isScrollable: false,
       appBar: BaseAppBar(
         title: 'Locais'.hardcoded,
         leading: BaseIconButton(
