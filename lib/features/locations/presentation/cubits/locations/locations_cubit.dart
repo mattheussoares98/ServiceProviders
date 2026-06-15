@@ -59,11 +59,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(status: StateStatus.error, errorMessage: errorMessage),
       );
-      if (locationsResult is FailureState) {
-        showDataStateToast(locationsResult);
-      } else {
-        showDataStateToast(areasResult);
-      }
+      //* Already showing the error direct in the UI
+      // if (locationsResult is FailureState) {
+      //   showDataStateToast(locationsResult);
+      // } else {
+      //   showDataStateToast(areasResult);
+      // }
     }
   }
 
