@@ -94,159 +94,66 @@ class LogOutUseCase {
 
 ## Data Layer
 
-### 4. Request Model
-- Lives in `data/models/requests/`
-- Named using the `*RequestModel` suffix (e.g. `AuthenticationRequestModel`)
-- Extends the domain entity, implements `DataConvertible<Entity>`
-- Must use `super` in the constructor, and must NOT define fields/variables inside the subclass.
+### 4. Data Layer Code Patterns
 
 ```dart
-class AuthenticationRequestModel extends AuthenticationEntity
-    implements DataConvertible<AuthenticationEntity> {
-  const AuthenticationRequestModel({
-    required super.email,
-    required super.password,
-  });
-
-  factory AuthenticationRequestModel.fromEntity(AuthenticationEntity entity) =>
-      AuthenticationRequestModel(
-        email: entity.email,
-        password: entity.password,
-      );
-
-  factory AuthenticationRequestModel.fromJson(MapDynamic json) =>
-      AuthenticationRequestModel(
-        email: json['username'] as String? ?? '',
-        password: json['password'] as String? ?? '',
-      );
-
-  @override
-  MapDynamic toJson() => {'username': email, 'password': password};
-
-  @override
-  AuthenticationEntity toEntity() => AuthenticationEntity(email: email, password: password);
+// Request Model (data/models/requests/auth_request_model.dart)
+class AuthRequestModel extends AuthEntity implements DataConvertible<AuthEntity> {
+  const AuthRequestModel({required super.email, required super.password});
+  factory AuthRequestModel.fromEntity(AuthEntity entity) => AuthRequestModel(email: entity.email, password: entity.password);
+  factory AuthRequestModel.fromJson(MapDynamic json) => AuthRequestModel(email: json['email'] as String? ?? '', password: json['password'] as String? ?? '');
+  @override MapDynamic toJson() => {'email': email, 'password': password};
+  @override AuthEntity toEntity() => AuthEntity(email: email, password: password);
 }
-```
 
-### 5. Response Model
-- Lives in `data/models/responses/`
-- Named using the `*ResponseModel` suffix (e.g. `UserDataResponseModel`), or `*Model` for general/shared models (e.g. `UserModel`)
-- Extends the domain entity, implements `DataConvertible<Entity>`
-- Must use `super` in the constructor, and must NOT define fields/variables inside the subclass.
-
-```dart
-class UserDataResponseModel extends UserDataEntity
-    implements DataConvertible<UserDataEntity> {
-  const UserDataResponseModel({
-    required UserModel user,
-    required super.accessToken,
-    required super.refreshToken,
-  }) : super(user: user);
-
-  factory UserDataResponseModel.fromJson(MapDynamic json) => UserDataResponseModel(
-    user: UserModel.fromJson(json['user'] as MapDynamic? ?? {}),
-    accessToken: json['access'] as String? ?? '',
-    refreshToken: json['refresh'] as String? ?? '',
-  );
-
-  factory UserDataResponseModel.fromEntity(UserDataEntity domain) =>
-      UserDataResponseModel(
-        user: UserModel.fromEntity(domain.user),
-        accessToken: domain.accessToken,
-        refreshToken: domain.refreshToken,
-      );
-
-  @override
-  UserModel get user => super.user as UserModel;
-
-  @override
-  MapDynamic toJson() => {
-    'user': user.toJson(),
-    'access': accessToken,
-    'refresh': refreshToken,
-  };
-
-  @override
-  UserDataEntity toEntity() => UserDataEntity(
-    user: user.toEntity(),
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-  );
+// Response Model (data/models/responses/user_response_model.dart)
+class UserResponseModel extends UserEntity implements DataConvertible<UserEntity> {
+  const UserResponseModel({required super.id, required super.name}) : super();
+  factory UserResponseModel.fromJson(MapDynamic json) => UserResponseModel(id: json['id'] as String? ?? '', name: json['name'] as String? ?? '');
+  @override MapDynamic toJson() => {'id': id, 'name': name};
+  @override UserEntity toEntity() => UserEntity(id: id, name: name);
 }
-```
 
-### 6. Remote DataSource
-- Interface + impl in the **same file** (`data/data_sources/{name}_remote_data_source.dart`)
-- Impl annotated `@LazySingleton(as: Interface)`
-- Injects `HttpClient` (never `Dio` directly)
-- All HTTP calls go through `ApiHandler` — never call `dio` directly
-
-```dart
+// Remote DataSource (data/data_sources/auth_remote_data_source.dart)
 abstract interface class AuthRemoteDataSource {
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request);
-  FutureBool checkAuth();
+  FutureData<UserResponseModel> login(AuthRequestModel request);
 }
-
 @LazySingleton(as: AuthRemoteDataSource)
 final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  const AuthRemoteDataSourceImpl({required HttpClient dioClient}) : _dioClient = dioClient;
-  final HttpClient _dioClient;
-
-  @override
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) =>
-      ApiHandler.call(() => _dioClient.post(ApiEndpoints.login, data: request.toJson()),
-          fromJson: UserDataResponseModel.fromJson);
-
-  @override
-  FutureBool checkAuth() =>
-      ApiHandler.call(() => _dioClient.get(ApiEndpoints.checkAuth), fromJson: (_) => true);
+  const AuthRemoteDataSourceImpl({required HttpClient client}) : _client = client;
+  final HttpClient _client;
+  @override FutureData<UserResponseModel> login(AuthRequestModel req) =>
+      ApiHandler.call(() => _client.post(ApiEndpoints.login, data: req.toJson()), fromJson: UserResponseModel.fromJson);
 }
-```
 
-### 7. Local DataSource
-- Same file pattern as remote data source
-- Injects `LocalStorageClient` (never `SharedPreferences` directly)
-- Wrap all logic with `ErrorHandler.execute(() async { ... })` to safely return `FailureState` on error
-
-```dart
+// Local DataSource (data/data_sources/auth_local_data_source.dart)
+abstract interface class AuthLocalDataSource {
+  FutureBool saveUserId(String id);
+}
 @LazySingleton(as: AuthLocalDataSource)
 final class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  const AuthLocalDataSourceImpl({required LocalStorageClient localDatabase})
-    : _localDatabase = localDatabase;
-  final LocalStorageClient _localDatabase;
-
-  @override
-  FutureBool saveUserData(UserDataResponseModel model) => ErrorHandler.execute(() async {
-    await _localDatabase.setString(LocalDbKeys.userData, jsonEncode(model.toJson()));
+  const AuthLocalDataSourceImpl({required LocalStorageClient db}) : _db = db;
+  final LocalStorageClient _db;
+  @override FutureBool saveUserId(String id) => ErrorHandler.execute(() async {
+    await _db.setString(LocalDbKeys.userData, id);
     return const SuccessState(data: true);
   });
 }
-```
 
-### 8. Repository Implementation
-- Lives in `data/repositories/{name}_repository_impl.dart`
-- Annotated `@LazySingleton(as: RepositoryInterface)`
-- Injects `InternetClient`, remote and/or local data sources
-- All fetch strategies go through `RepositoryHandler` — never call `ApiHandler` here
-
-```dart
+// Repository Implementation (data/repositories/auth_repository_impl.dart)
 @LazySingleton(as: AuthRepository)
 final class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({
-    required InternetClient internet,
-    required AuthRemoteDataSource remoteDataSource,
-    required AuthLocalDataSource localDataSource,
-  }) : _internet = internet, _remoteDataSource = remoteDataSource, _localDataSource = localDataSource;
+  const AuthRepositoryImpl({required InternetClient internet, required AuthRemoteDataSource remote, required AuthLocalDataSource local})
+      : _internet = internet, _remote = remote, _local = local;
+  final InternetClient _internet;
+  final AuthRemoteDataSource _remote;
+  final AuthLocalDataSource _local;
 
-  @override
-  FutureData<UserDataEntity> login(AuthenticationEntity auth) =>
+  @override FutureData<UserEntity> login(AuthEntity auth) =>
       RepositoryHandler.fetchWithFallbackAndMap(
         isInternetConnected: _internet.isConnected,
-        remoteCallback: () => _remoteDataSource.login(AuthenticationRequestModel.fromEntity(auth)),
+        remoteCallback: () => _remote.login(AuthRequestModel.fromEntity(auth)),
       );
-
-  @override
-  FutureBool removeUserData() => _localDataSource.removeUserData();
 }
 ```
 

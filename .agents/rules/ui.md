@@ -21,61 +21,30 @@ You focus on aesthetics, responsiveness, and clean widget trees. You do NOT writ
 - Must implement `props` for Equatable.
 
 ```dart
+// State (presentation/cubits/login/login_state.dart)
 part of 'login_cubit.dart';
-
 class LoginState extends BaseState {
-  const LoginState({
-    super.status, // Inherited from BaseState (initial, loading, loaded, error)
-    required this.passwordVisibility,
-  });
-
-  const LoginState.initial() 
-      : passwordVisibility = false,
-        super(status: StateStatus.initial);
-
-  final bool passwordVisibility;
-
-  // Use copyWith to emit new states
-  LoginState copyWith({StateStatus? status, bool? passwordVisibility}) {
-    return LoginState(
-      status: status ?? this.status,
-      passwordVisibility: passwordVisibility ?? this.passwordVisibility,
-    );
-  }
-
-  @override
-  List<Object> get props => [status, passwordVisibility];
+  const LoginState({super.status, required this.showPassword});
+  const LoginState.initial() : showPassword = false, super(status: StateStatus.initial);
+  final bool showPassword;
+  LoginState copyWith({StateStatus? status, bool? showPassword}) =>
+      LoginState(status: status ?? this.status, showPassword: showPassword ?? this.showPassword);
+  @override List<Object> get props => [status, showPassword];
 }
-```
 
-### 2. Cubit
-- Lives in `presentation/cubits/{name}/{name}_cubit.dart`
-- Must extend `BaseCubit<T>` (never `Cubit` directly).
-- Annotated with `@injectable`.
-- Injects a `*CubitUseCases` aggregator class (never inject individual use cases).
-- Includes `part '{name}_state.dart';`.
-
-```dart
+// Cubit (presentation/cubits/login/login_cubit.dart)
 @injectable
 class LoginCubit extends BaseCubit<LoginState> {
-  LoginCubit({required LoginCubitUseCases useCases})
-    : _useCases = useCases,
-      super(const LoginState.initial());
-
+  LoginCubit({required LoginCubitUseCases useCases}) : _useCases = useCases, super(const LoginState.initial());
   final LoginCubitUseCases _useCases;
-
-  Future<void> login(String email, String password) async {
+  Future<void> login(String e, String p) async {
     emit(state.copyWith(status: StateStatus.loading));
-    
-    final request = AuthenticationEntity(email: email, password: password);
-    final response = await _useCases.login(request);
-    
-    if (response is SuccessState) {
-      // Access navigation via ClientMixin methods (pushRoute, replaceAllRoute)
+    final res = await _useCases.login(AuthEntity(email: e, password: p));
+    if (res is SuccessState) {
       await replaceAllRoute(const HomeRoute());
     } else {
       emit(state.copyWith(status: StateStatus.error));
-      showToast(response.message); // from ClientMixin
+      showToast(res.message);
     }
   }
 }
@@ -96,25 +65,14 @@ class LoginCubit extends BaseCubit<LoginState> {
 @RoutePage()
 class LoginPage extends HookWidget {
   const LoginPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final usernameController = useTextEditingController();
-
+  @override Widget build(BuildContext context) {
+    final controller = useTextEditingController();
     return BlocProvider(
-      create: (context) => GetIt.I<LoginCubit>(),
+      create: (_) => GetIt.I<LoginCubit>(),
       child: BaseScaffold(
         appBar: const BaseAppBar(title: 'Login'),
-        // Use Sizes constants for custom paddings
-        padding: const EdgeInsets.symmetric(horizontal: Sizes.p24), 
-        body: Column(
-          children: [
-            gapH24,
-            LoginForm(controller: usernameController),
-            gapH32,
-            const LoginButton(),
-          ],
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: Sizes.p24),
+        body: Column(children: [gapH24, LoginForm(controller: controller), gapH32, const LoginButton()]),
       ),
     );
   }
@@ -165,6 +123,34 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 
 ---
 
+## Shared UI Widgets Mapping (CRITICAL)
+
+To ensure visual consistency and correct platform adaptation, you MUST always use the custom widgets defined in `package:clean_architecture/shared_ui/` instead of raw Flutter/Material/Cupertino components.
+
+The following table maps standard widgets to their corresponding custom shared counterparts:
+
+| Standard Component | Required Custom Widget | Import & Construction Guidelines |
+| :--- | :--- | :--- |
+| `Text` | `BaseText` | Import `package:clean_architecture/shared_ui/ui/base/text/base_text.dart`. Use style-specific constructors (e.g., `BaseText.bodyMedium(...)`, `BaseText.titleMedium(...)`, `BaseText.caption(...)`). |
+| `ElevatedButton` / `MaterialButton` | `PrimaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart`. |
+| `TextButton` | `BaseTextButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart`. |
+| `IconButton` | `BaseIconButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart`. |
+| `OutlinedButton` | `SecondaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart`. |
+| `AlertDialog` / `showDialog` | `showAlertDialog` | Import `package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart`. Call the asynchronous `showAlertDialog(...)` helper function. |
+| `BottomNavigationBar` | `BaseBottomNavigationBar` | Import `package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart` and use it with `BaseBottomNavigationBarItem`. |
+| `ListTile` | `BaseListTile` | Import `package:clean_architecture/shared_ui/ui/base/base_list_tile.dart`. |
+| `Switch` | `BaseSwitch` | Import `package:clean_architecture/shared_ui/ui/base/base_switch.dart`. |
+| `Checkbox` | `BaseCheckbox` | Import `package:clean_architecture/shared_ui/ui/base/base_checkbox.dart`. |
+| `ChoiceChip` | `BaseChoiceChip` | Import `package:clean_architecture/shared_ui/ui/base/base_choice_chip.dart`. |
+| `SegmentedButton` | `BaseSegmentedButtons` | Import `package:clean_architecture/shared_ui/ui/base/base_segmented_buttons.dart`. |
+| `CircularProgressIndicator` | `LoadingCircle` | Import `package:clean_architecture/shared_ui/ui/base/loading_circle.dart`. |
+| `DropdownButton` / `DropdownButtonFormField` | `BaseDropdown` | Import `package:clean_architecture/shared_ui/ui/base/dropdown/base_dropdown.dart`. |
+| `TextField` / `TextFormField` | `BaseTextFormField` | Import `package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart`. |
+| `Scaffold` | `BaseScaffold` | Import `package:clean_architecture/shared_ui/ui/base/base_scaffold.dart`. |
+| `Icon` (with platform variant) | `PlatformIcon` | Import `package:clean_architecture/shared_ui/ui/base/platform_icon.dart`. |
+
+---
+
 ## Absolute Prohibitions
 
 - ❌ Never use `Navigator` directly. Always use `ClientMixin` methods (e.g. `pushRoute()`, `replaceAllRoute()`) which are available inside any `BaseCubit`.
@@ -182,5 +168,6 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 - ❌ Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
 - ❌ Never write user-visible text in English. All strings displayed to the user (labels, messages, button text, titles, placeholders) must be written in **Portuguese (pt-BR)**.
 - ❌ Never use raw Material/Flutter loading indicators (like `CircularProgressIndicator`) or basic action buttons when a matching shared UI component exists in `lib/shared_ui/ui/` (always prefer `LoadingCircle`, `PrimaryButton`, `BaseIconButton`, etc.).
+- ❌ Never use standard Flutter/Material widgets when a custom equivalent exists in `lib/shared_ui/ui/base/` (e.g. never use `Text`, `ElevatedButton`, `TextButton`, `IconButton`, `OutlinedButton`, `AlertDialog`, `showDialog`, `BottomNavigationBar`, `ListTile`, `Switch`, `Checkbox`, `ChoiceChip`, `SegmentedButton`, `DropdownButton`, `DropdownButtonFormField`, `TextField`, or `TextFormField`).
 - ❌ Never allow layouts to overflow on smaller screens. Use `Flexible`, `Expanded`, or responsive widgets (like `LayoutBuilder`, `SingleChildScrollView`) for child widgets that display text/labels in a `Row` or `Column` (e.g., inside card widgets like `StatsCard`).
 - ❌ Never declare color or label mapping methods (e.g., `_getStatusColor`, `_getPriorityLabel`) inside page classes, widget classes, or build methods. For domain enums that require presentation logic (colors, labels, icons), declare Dart extension methods in the presentation layer (or a shared presentation helper file) that extend the domain enums.

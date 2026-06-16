@@ -236,32 +236,20 @@ If unsure about the user's intent, ask one clarifying question before delegating
 
 Rule Evolution & Self-Correction
 - Pay close attention to the conversation and established code patterns. If a new pattern is agreed upon (or if an existing rule is found to be wrong, outdated, or incomplete), proactively suggest new rules or update existing rules across the `.agents/rules/` directory to keep the agent guidelines aligned with the codebase.
+- **Rule Design & Token Conservation**: When modifying or adding rules in any rule file, keep all text and code examples highly compressed, concise, and direct to conserve token budget. Do not duplicate presentation, testing, or feature rules across multiple agent files; respect each agent's context and let each agent read its respective file.
 
-Global Constraints (Enforce these upon all Specialist Agents):
-1. Code Delivery: Agents must NEVER output comments like "starting change", "ending change", or similar annotations. Comments should only explain complex logic.
-2. File Paths: Agents must always provide the absolute, most optimal file path for any generated or modified code.
-3. Performance: Agents must always prioritize execution speed and resource efficiency. If a requested code block can be written in a more performant way, the agent must output the optimized version and briefly explain the performance gain.
-4. UI/Widget Rules: The UI Agent must NEVER use the `faker` package when generating widgets.
-5. Testing Rules: The QA Agent MUST use the `faker` package to generate variables for test code instead of manual or fixed inputs, EXCEPT when testing a specific validated format (like CPF/CNPJ).
-6. Language: All explanations and code comments must be in English.
-7. Documentation: Every new important implementation should have a comment on the code to explain the decision or how it works.
-8. Theme & ColorScheme Access: Never use `Theme.of(context)` or create local theme variables. Always use BuildContext extension methods (`context.theme`, `context.colorScheme`, `context.isCupertino`).
-9. Color Opacity: Never use `withOpacity` or `withAlpha`. Always use `withValues(alpha: value)`.
-10. Page Size & Modularization: Never exceed 100 lines of code in a single Page file. Always split sub-widgets into a `widgets/` folder.
-11. Hooks for Controllers: For any pages that use controllers, always extend `HookWidget` and use `flutter_hooks` to reduce code size.
-12. MediaQuery Size: Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
-13. BaseScaffold Requirement: Every page in the project should use `BaseScaffold` instead of raw `Scaffold`.
-14. SafeArea Restriction: Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
-15. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**. Code, comments, and documentation remain in English.
-16. MapDynamic Usage: Never use `Map<String, dynamic>` in DTO `fromJson` or `toJson` methods; always use `MapDynamic` instead.
-17. Test EntityFactory: Never create entities or models inline in test files. Always create them inside a unique file called `EntityFactory` in the mocks folder. For tests requiring models, retrieve the entity first and convert it to the model (e.g. `CompanyModel.fromEntity(EntityFactory.makeCompanyEntity())`). This applies to every test setup, including `registerFallbackValue()`: fallback values must also come from `EntityFactory`, and model fallbacks must be created with `Model.fromEntity(EntityFactory.makeXEntity())`. `EntityFactory` factory methods (e.g. `makeWorkOrderEntity`) MUST NOT take parameters. To modify fields, the entity must have a `copyWith` method. To annul a field, the entity's `copyWith` method must accept a `bool? annul+FieldName` parameter (e.g. `copyWith(bool? annulAssetId)`). All list properties inside `EntityFactory` must contain exactly 3 items.
-18. JSON Testing: Never write JSON maps manually in test files when testing values from JSON. Instead, construct the model using `fromEntity` and convert it to JSON using `.toJson()`.
-19. TestFactory Prohibition: Never use `TestFactory`. Unify all factories inside `EntityFactory`.
-20. Group Use Case Tests: Never create separate test files for each use case of a feature. Always group all use cases tests into a single file called `use_cases_test.dart` under the feature's `domain/use_cases/` test folder.
-21. Test Verification Sequence: When creating or changing a datasource, repository, usecase, or any class that can have tests, always check if there is an existing test file. If it exists, verify that all tests pass, but only when the changes made could break them. The sequence of actions must always be: write the implementation of a component, then immediately write/update/run its tests, before moving on to make changes to other files or components.
-22. Spacing & Sizing Constraints: Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI — always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`).
-23. Shared UI Component Usage: Always use widgets from `lib/shared_ui/ui/` as much as possible (e.g. `LoadingCircle` instead of `CircularProgressIndicator`, and `PrimaryButton`, `BaseIconButton` for standard buttons/actions).
-24. Responsive Layout & Overflow Protection: Ensure all page layouts and widgets are responsive. Row/column child elements that render dynamic or long content must use `Flexible` or `Expanded` to prevent overflow errors.
-25. Enum Presentation Extensions: Do not define mapping methods (e.g. `_getPriorityColor`, `_getPriorityLabel`, `_getStatusColor`) directly within build methods or widget classes. To map domain enums to colors or labels, define Dart extension methods in the presentation layer (or a shared UI/presentation helper file) that extend the enums with UI-specific getters.
-26. build_runner commands: Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since the user already has build_runner running in watch mode on their machine.
-27. English Correction: At the very beginning of every response, the agent must check the user's message for English grammatical and spelling mistakes, and provide a single-line correction in the format: "Correction: [wrong] -> [correct] ([reason])".
+Global Constraints & Agent Delegation:
+1. Code Delivery: Specialist agents must NEVER output comments like "starting change", "ending change", or similar annotations. Comments should only explain complex logic.
+2. File Paths: Always provide the absolute, most optimal file path for any generated or modified code.
+3. Performance: Prioritize execution speed and resource efficiency.
+4. Language: All explanations and code comments must be in English.
+5. Documentation: Every new important implementation should have a comment on the code to explain the decision or how it works.
+6. Portuguese UI Text: All user-visible strings (labels, messages, button text, titles, placeholders, error messages) MUST be written in **Portuguese (pt-BR)**.
+7. English Correction: At the very beginning of every response, the orchestrator must check the user's message for English grammatical and spelling mistakes, and provide a single-line correction in the format: "Correction: [wrong] -> [correct] ([reason])".
+8. Rule Adherence & Delegation: The Orchestrator must ensure that each delegated specialist agent reads and strictly follows their own dedicated rule file inside `.agents/rules/`:
+   - **Architect Agent**: Follows [architect.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/architect.md) for DI, routing, layer isolation, and file structures.
+   - **Feature Specialist Agent**: Follows [feature.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/feature.md) for domain entities, use cases, repository interfaces/implementations, and data sources.
+   - **UI Expert Agent**: Follows [ui.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/ui.md) for state management (cubits/states), hooks, page layouts, app sizes/spacing, and shared UI widget mappings.
+   - **QA Agent**: Follows [quality_assurance.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/quality_assurance.md) for testing setups, mocks, `EntityFactory` usage, and test coverage.
+   - **Database Specialist**: Follows [database.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/database.md) for PostgreSQL schema design, migrations, and RLS policies.
+

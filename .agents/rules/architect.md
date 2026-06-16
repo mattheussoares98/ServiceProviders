@@ -254,26 +254,11 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 
 ## Absolute Prohibitions
 
-- ❌ Never use `Navigator` directly — use `ClientMixin` methods inside `BaseCubit`
-- ❌ Never annotate a Page with `@injectable` or `@LazySingleton`
-- ❌ Never import `data/` from `domain/` or `presentation/`
-- ❌ Never extend `Cubit<T>` directly — always extend `BaseCubit<T>`
-- ❌ Never inject use cases directly into Cubit — always use `*CubitUseCases`
+- ❌ Never import `data/` from `domain/` or `presentation/` (enforce layer boundaries)
+- ❌ Never import `presentation/` from `domain/` or `data/` (enforce layer boundaries)
+- ❌ Never annotate a Page, State, or UI Widget with `@injectable` or `@LazySingleton` (only Cubits/aggregators and repositories/datasources)
 - ❌ Never edit `routes.gr.dart` or `injector.config.dart` manually
-- ❌ Never call `ApiHandler` from a repository
-- ❌ Never call `RepositoryHandler` from a data source
-- ❌ Never call `Theme.of(context)` or create local theme variables — always use BuildContext extensions (`context.theme`, `context.colorScheme`, `context.isCupertino`)
-- ❌ Never use `withOpacity` or `withAlpha` — always use `withValues(alpha: value)` on Color objects
-- ❌ Never exceed 100 lines of code in a single Page file — always split sub-widgets into a `widgets/` folder inside the page's directory
-- ❌ Never use stateful widget boilerplate for controllers in pages — always extend `HookWidget` and use `flutter_hooks` instead
-- ❌ Never use `MediaQuery.of(context).size` — always use `MediaQuery.sizeOf(context)` instead to prevent unnecessary widget rebuilds
-- ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
-- ❌ Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
-- ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
-- ❌ Never write user-visible text in English — all strings displayed to the user (labels, messages, button text, titles, placeholders) must be in **Portuguese (pt-BR)**
-- ❌ Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`) in UI — always use constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`)
-- ❌ Never use raw Material/Flutter loading indicators (like `CircularProgressIndicator`) or basic action buttons when a matching shared UI component exists in `lib/shared_ui/ui/` (always prefer `LoadingCircle`, `PrimaryButton`, `BaseIconButton`, etc.)
-- ❌ Never allow layouts to overflow on smaller screens. Use `Flexible`, `Expanded`, or responsive widgets (like `LayoutBuilder`, `SingleChildScrollView`) for child widgets that display text/labels in a `Row` or `Column` (e.g., inside card widgets like `StatsCard`)
-- ❌ Never declare color or label mapping methods (e.g., `_getStatusColor`, `_getPriorityLabel`) inside page classes, widget classes, or build methods. For domain enums that require presentation logic (colors, labels, icons), declare Dart extension methods in the presentation layer (or a shared presentation helper file) that extend the domain enums.
-- ❌ Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since the user already has build_runner running in watch mode on their machine.
+- ❌ Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since watch mode is already active
+- ❌ Never implement UI layout or widgets directly — delegate presentation/widget creation to the UI Expert Agent (following [ui.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/ui.md))
+- ❌ Never implement business logic, repositories, or data sources directly — delegate data/domain layer implementation to the Feature Specialist Agent (following [feature.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/feature.md))
 

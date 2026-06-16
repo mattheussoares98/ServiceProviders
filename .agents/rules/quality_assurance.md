@@ -41,52 +41,21 @@ You do NOT write feature logic or UI. You test the code written by the Feature a
 Use `bloc_test` to verify state emissions.
 
 ```dart
-import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
-import 'package:faker/faker.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
-import '../../../../testing/mocks/entity_factory.dart';
-
 void main() {
-  late MockLoginUseCase mockLoginUseCase;
-  late MockNavigationClient mockNavigationClient;
-  late LoginCubit loginCubit;
-
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAuthentication());
-    registerFallbackValue(
-      AuthenticationRequestModel.fromEntity(EntityFactory.makeAuthentication()),
-    );
+    registerFallbackValue(AuthRequestModel.fromEntity(EntityFactory.makeAuthentication()));
   });
-
-  setUp(() {
-    mockLoginUseCase = MockLoginUseCase();
-    mockNavigationClient = MockNavigationClient();
-    
-    // Set up get_it locator if needed
-    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
-
-    final useCases = LoginCubitUseCases(login: mockLoginUseCase, ...);
-    loginCubit = LoginCubit(useCases: useCases);
-  });
-
   blocTest<LoginCubit, LoginState>(
     'emits [loading, error] when login fails',
     build: () {
-      when(() => mockLoginUseCase.call(any()))
-          .thenAnswer((_) async => const FailureState<UserDataEntity>(message: 'Error'));
-      return loginCubit;
+      final mock = MockLoginUseCase();
+      when(() => mock.call(any())).thenAnswer((_) async => const FailureState(message: 'Err'));
+      return LoginCubit(useCases: LoginCubitUseCases(login: mock));
     },
-    act: (cubit) => cubit.login(
-      username: faker.internet.userName(), 
-      password: faker.internet.password(),
-    ),
+    act: (cubit) => cubit.login(faker.internet.email(), faker.internet.password()),
     expect: () => [
-      // Check for loading state first
       isA<LoginState>().having((s) => s.status, 'status', StateStatus.loading),
-      // Then check for error state
       isA<LoginState>().having((s) => s.status, 'status', StateStatus.error),
     ],
   );
@@ -100,58 +69,14 @@ void main() {
 Mock `HttpClient` (for remote) or `LocalStorageClient` (for local).
 
 ```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:faker/faker.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:dio/dio.dart';
-
-class MockOptions extends Mock implements Options {}
-
 void main() {
-  late MockHttpClient mockHttpClient;
-  late AuthRemoteDataSourceImpl dataSource;
-
-  setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = AuthRemoteDataSourceImpl(dioClient: mockHttpClient);
-    registerFallbackValue(MockOptions());
-  });
-
-  test('should return SuccessState when API call is 200', () async {
-    // Arrange
-    final fakeResponse = {
-      'data': {
-        'access': faker.jwt.valid(),
-        'refresh': faker.jwt.valid(),
-      },
-      'message': 'Success',
-    };
-
-    when(() => mockHttpClient.post<dynamic>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-        )).thenAnswer(
-      (_) async => Response(
-        requestOptions: RequestOptions(path: ApiEndpoints.login),
-        data: fakeResponse,
-        statusCode: 200,
-      ),
-    );
-
-    // Act
-    final request = AuthenticationRequestModel(
-        email: faker.internet.email(), 
-        password: faker.internet.password());
-    final result = await dataSource.login(request);
-
-    // Assert
-    expect(result, isA<SuccessState<UserDataResponseModel>>());
-    verify(() => mockHttpClient.post<dynamic>(
-          ApiEndpoints.login,
-          data: captureAny(named: 'data'),
-          options: captureAny(named: 'options'),
-        )).called(1);
+  test('returns SuccessState when API is 200', () async {
+    final client = MockHttpClient();
+    when(() => client.post<dynamic>(any(), data: any(named: 'data'), options: any(named: 'options')))
+        .thenAnswer((_) async => Response(requestOptions: RequestOptions(path: ''), statusCode: 200, data: {'data': {'token': faker.jwt.valid()}}));
+    
+    final result = await AuthRemoteDataSourceImpl(client: client).login(AuthRequestModel(email: faker.internet.email(), password: faker.internet.password()));
+    expect(result, isA<SuccessState<UserResponseModel>>());
   });
 }
 ```
@@ -164,30 +89,14 @@ Mock the remote and local data sources, and `InternetClient` to test `Repository
 
 ```dart
 void main() {
-  late MockInternetClient mockInternetClient;
-  late MockAuthRemoteDataSource mockRemoteDataSource;
-  late AuthRepositoryImpl repository;
+  test('calls remote source when internet is connected', () async {
+    final net = MockInternetClient();
+    final remote = MockAuthRemoteDataSource();
+    when(() => net.isConnected).thenReturn(true);
+    when(() => remote.login(any())).thenAnswer((_) async => SuccessState(data: tResponseModel));
 
-  setUp(() {
-    mockInternetClient = MockInternetClient();
-    mockRemoteDataSource = MockAuthRemoteDataSource();
-    repository = AuthRepositoryImpl(
-      internet: mockInternetClient,
-      remoteDataSource: mockRemoteDataSource,
-    );
-  });
-
-  test('should call remote data source when internet is connected', () async {
-    // Arrange
-    when(() => mockInternetClient.isConnected).thenReturn(true);
-    when(() => mockRemoteDataSource.login(any()))
-        .thenAnswer((_) async => SuccessState(data: tResponseModel));
-
-    // Act
-    await repository.login(tAuthenticationEntity);
-
-    // Assert
-    verify(() => mockRemoteDataSource.login(any())).called(1);
+    await AuthRepositoryImpl(internet: net, remote: remote, local: MockAuthLocalDataSource()).login(tAuthenticationEntity);
+    verify(() => remote.login(any())).called(1);
   });
 }
 ```
