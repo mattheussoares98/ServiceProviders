@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
-import 'package:clean_architecture/core/data/handlers/api_handler.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/categories/data/models/requests/category_request_model.dart';
 import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
@@ -20,42 +20,50 @@ abstract interface class CategoriesRemoteDataSource {
 @LazySingleton(as: CategoriesRemoteDataSource)
 final class CategoriesRemoteDataSourceImpl
     implements CategoriesRemoteDataSource {
-  const CategoriesRemoteDataSourceImpl({required HttpClient httpClient})
-    : _httpClient = httpClient;
+  const CategoriesRemoteDataSourceImpl({
+    required SupabaseDatabaseClient database,
+  }) : _database = database;
 
-  final HttpClient _httpClient;
+  final SupabaseDatabaseClient _database;
 
   @override
   FutureList<CategoryResponseModel> getCategories(String companyId) =>
-      ApiHandler.call(
-        () => _httpClient.get(
-          ApiEndpoints.categories,
-          queryParameters: {'company_id': companyId},
-        ),
-        fromJson: CategoryResponseModel.fromJson,
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'categories',
+          filters: [SupabaseFilter.eq('company_id', companyId)],
+        );
+        return response.map(CategoryResponseModel.fromJson).toList();
+      });
 
   @override
   FutureData<CategoryResponseModel> createCategory(
     CategoryRequestModel request,
-  ) => ApiHandler.call(
-    () => _httpClient.post(ApiEndpoints.categories, data: request.toJson()),
-    fromJson: CategoryResponseModel.fromJson,
-  );
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.insert(
+      table: 'categories',
+      values: request.toJson(),
+    );
+    return CategoryResponseModel.fromJson(response.first);
+  });
 
   @override
   FutureData<CategoryResponseModel> updateCategory(
     CategoryRequestModel request,
-  ) => ApiHandler.call(
-    () => _httpClient.put(
-      ApiEndpoints.categoryById(request.id),
-      data: request.toJson(),
-    ),
-    fromJson: CategoryResponseModel.fromJson,
-  );
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.update(
+      table: 'categories',
+      values: request.toJson(),
+      filters: [SupabaseFilter.eq('id', request.id)],
+    );
+    return CategoryResponseModel.fromJson(response.first);
+  });
 
   @override
-  FutureVoid deleteCategory(String id) => ApiHandler.voidCall(
-    () => _httpClient.delete(ApiEndpoints.categoryById(id)),
-  );
+  FutureVoid deleteCategory(String id) => SupabaseHandler.voidCall(() async {
+    await _database.delete(
+      table: 'categories',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }
