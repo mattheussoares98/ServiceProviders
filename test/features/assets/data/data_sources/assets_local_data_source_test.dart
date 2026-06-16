@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/data/data_sources/assets_local_data_source.dart';
 import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:drift/drift.dart';
@@ -135,7 +136,7 @@ void main() {
 
         // Assert
         expect(result, isA<FailureState<AssetModel>>());
-        expect(result.message, 'Asset not found');
+        expect(result.message, 'Equipamento não encontrado'.hardcoded);
       },
     );
 

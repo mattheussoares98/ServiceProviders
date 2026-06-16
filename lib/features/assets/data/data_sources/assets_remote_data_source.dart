@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
@@ -16,9 +17,8 @@ abstract interface class AssetsRemoteDataSource {
 
 @LazySingleton(as: AssetsRemoteDataSource)
 final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
-  const AssetsRemoteDataSourceImpl({
-    required SupabaseDatabaseClient database,
-  }) : _database = database;
+  const AssetsRemoteDataSourceImpl({required SupabaseDatabaseClient database})
+    : _database = database;
 
   final SupabaseDatabaseClient _database;
 
@@ -40,7 +40,7 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
           filters: [SupabaseFilter.eq('id', id)],
         );
         if (response == null) {
-          throw Exception('Asset not found');
+          throw Exception('Equipamento não encontrado'.hardcoded);
         }
         return AssetModel.fromJson(response);
       });
@@ -68,9 +68,9 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
 
   @override
   FutureVoid deleteAsset(String id) => SupabaseHandler.voidCall(() async {
-        await _database.delete(
-          table: 'assets',
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+    await _database.delete(
+      table: 'assets',
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }

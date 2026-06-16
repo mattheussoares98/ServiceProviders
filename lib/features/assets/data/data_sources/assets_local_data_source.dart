@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
@@ -68,7 +69,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
       final row = await query.getSingleOrNull();
 
       if (row == null) {
-        return FailureState(message: 'Asset not found');
+        return FailureState(message: 'Equipamento não encontrado'.hardcoded);
       }
 
       final model = AssetModel(
