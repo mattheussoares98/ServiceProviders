@@ -9,6 +9,12 @@ import 'package:clean_architecture/features/assets/domain/use_cases/get_assets_u
 import 'package:clean_architecture/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
+import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
+import 'package:clean_architecture/features/categories/domain/use_cases/get_categories_use_case.dart';
+import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
+import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
+import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_use_case.dart';
+import 'package:clean_architecture/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -26,6 +32,9 @@ class MockGetAssetByIdUseCase extends Mock implements GetAssetByIdUseCase {}
 class MockCreateAssetUseCase extends Mock implements CreateAssetUseCase {}
 class MockUpdateAssetUseCase extends Mock implements UpdateAssetUseCase {}
 class MockDeleteAssetUseCase extends Mock implements DeleteAssetUseCase {}
+class MockGetLocationsUseCase extends Mock implements GetLocationsUseCase {}
+class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
+class MockGetCategoriesUseCase extends Mock implements GetCategoriesUseCase {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +45,9 @@ void main() {
   late MockCreateAssetUseCase mockCreateAsset;
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
+  late MockGetLocationsUseCase mockGetLocations;
+  late MockGetAreasUseCase mockGetAreas;
+  late MockGetCategoriesUseCase mockGetCategories;
   late MockNavigationClient mockNavigationClient;
 
   late AssetsCubit cubit;
@@ -52,6 +64,9 @@ void main() {
     mockCreateAsset = MockCreateAssetUseCase();
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
+    mockGetLocations = MockGetLocationsUseCase();
+    mockGetAreas = MockGetAreasUseCase();
+    mockGetCategories = MockGetCategoriesUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -66,6 +81,9 @@ void main() {
       createAsset: mockCreateAsset,
       updateAsset: mockUpdateAsset,
       deleteAsset: mockDeleteAsset,
+      getLocations: mockGetLocations,
+      getAreas: mockGetAreas,
+      getCategories: mockGetCategories,
     );
 
     cubit = AssetsCubit(useCases: useCases);
@@ -79,8 +97,17 @@ void main() {
         'should emit loading and loaded when assets load successfully',
         build: () {
           final tAssets = EntityFactory.makeAssetEntityList();
+          final tLocations = EntityFactory.makeLocationEntityList();
+          final tAreas = EntityFactory.makeAreaEntityList();
+          final tCategories = EntityFactory.makeCategoryEntityList();
           when(() => mockGetAssets.call(any()))
               .thenAnswer((_) async => SuccessState(data: tAssets));
+          when(() => mockGetLocations.call(any()))
+              .thenAnswer((_) async => SuccessState(data: tLocations));
+          when(() => mockGetAreas.call(any()))
+              .thenAnswer((_) async => SuccessState(data: tAreas));
+          when(() => mockGetCategories.call(any()))
+              .thenAnswer((_) async => SuccessState(data: tCategories));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
@@ -88,10 +115,16 @@ void main() {
           isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.assets, 'assets', isNotEmpty),
+              .having((s) => s.assets, 'assets', isNotEmpty)
+              .having((s) => s.locations, 'locations', isNotEmpty)
+              .having((s) => s.areas, 'areas', isNotEmpty)
+              .having((s) => s.categories, 'categories', isNotEmpty),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -101,6 +134,12 @@ void main() {
           final tMessage = faker.lorem.sentence();
           when(() => mockGetAssets.call(any()))
               .thenAnswer((_) async => FailureState<List<AssetEntity>>(message: tMessage));
+          when(() => mockGetLocations.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetAreas.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetCategories.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),

@@ -2,6 +2,9 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
+import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
+import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
+import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
 
@@ -27,22 +30,47 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
     emit(state.copyWith(status: StateStatus.loading));
 
-    final result = await _useCases.getAssets(user.companyId);
+    final results = await Future.wait([
+      _useCases.getAssets(user.companyId),
+      _useCases.getLocations(user.companyId),
+      _useCases.getAreas(user.companyId),
+      _useCases.getCategories(user.companyId),
+    ]);
 
     if (isClosed) return;
 
-    if (result is SuccessState<List<AssetEntity>>) {
+    final assetsResult = results[0];
+    final locationsResult = results[1];
+    final areasResult = results[2];
+    final categoriesResult = results[3];
+
+    if (assetsResult is SuccessState<List<AssetEntity>> &&
+        locationsResult is SuccessState<List<LocationEntity>> &&
+        areasResult is SuccessState<List<AreaEntity>> &&
+        categoriesResult is SuccessState<List<CategoryEntity>>) {
       emit(
         state.copyWith(
           status: StateStatus.loaded,
-          assets: result.data ?? [],
+          assets: assetsResult.data ?? [],
+          locations: locationsResult.data ?? [],
+          areas: areasResult.data ?? [],
+          categories: categoriesResult.data ?? [],
         ),
       );
     } else {
+      final errorMessage = assetsResult is FailureState
+          ? assetsResult.message
+          : locationsResult is FailureState
+              ? locationsResult.message
+              : areasResult is FailureState
+                  ? areasResult.message
+                  : categoriesResult is FailureState
+                      ? categoriesResult.message
+                      : '';
       emit(
         state.copyWith(
           status: StateStatus.error,
-          errorMessage: result.message,
+          errorMessage: errorMessage,
         ),
       );
     }
