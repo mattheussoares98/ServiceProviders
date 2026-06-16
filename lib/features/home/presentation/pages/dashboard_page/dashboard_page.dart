@@ -45,8 +45,9 @@ class DashboardView extends HookWidget {
 
     final theme = context.theme;
 
+    //TODO create default button because it is repeating in all tab pages
     final drawerButton = BaseIconButton(
-      onPressed: () => Scaffold.of(context).openDrawer(),
+      onPressed: Scaffold.of(context).openDrawer,
       platformIcon: const PlatformIcon(
         materialIcon: Icons.menu,
         cupertinoIcon: CupertinoIcons.bars,
