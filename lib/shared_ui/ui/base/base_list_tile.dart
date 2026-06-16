@@ -15,11 +15,15 @@ class BaseListTile extends StatelessWidget {
     required this.title,
     required this.platformIcon,
     this.onTap,
+    this.subtitle,
+    this.padding,
   });
 
   final String title;
   final PlatformIcon platformIcon;
   final VoidCallback? onTap;
+  final String? subtitle;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +35,18 @@ class BaseListTile extends StatelessWidget {
 
     if (PlatformUtil.isCupertino) {
       return CupertinoListTile(
+        padding: padding,
         title: BaseText(title),
         leading: leadingWidget,
+        subtitle: subtitle != null ? BaseText(subtitle!) : null,
         onTap: onTap,
       );
     } else {
       return ListTile(
+        contentPadding: padding,
         title: BaseText(title),
         leading: leadingWidget,
+        subtitle: subtitle != null ? BaseText(subtitle!) : null,
         onTap: onTap,
       );
     }
