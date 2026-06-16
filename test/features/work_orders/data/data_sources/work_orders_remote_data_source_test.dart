@@ -90,7 +90,10 @@ void main() {
       expect(result.data!.id, tWorkOrderModel.id);
       verify(() => mockDatabase.selectOne(
             table: 'work_orders',
-            filters: [SupabaseFilter.eq('id', tWorkOrderId)],
+            filters: [
+              SupabaseFilter.eq('id', tWorkOrderId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           )).called(1);
     });
 
@@ -185,7 +188,10 @@ void main() {
       expect(result.data!.first.id, tTaskModel.id);
       verify(() => mockDatabase.selectList(
             table: 'tasks',
-            filters: [SupabaseFilter.eq('work_order_id', tWorkOrderId)],
+            filters: [
+              SupabaseFilter.eq('work_order_id', tWorkOrderId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           )).called(1);
     });
 
@@ -256,7 +262,10 @@ void main() {
       expect(result.data!.first.id, tChangeModel.id);
       verify(() => mockDatabase.selectList(
             table: 'work_order_change_requests',
-            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+            filters: [
+              SupabaseFilter.eq('company_id', tCompanyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           )).called(1);
     });
 

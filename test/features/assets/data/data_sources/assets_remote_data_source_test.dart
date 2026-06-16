@@ -56,7 +56,10 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'assets',
-            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+            filters: [
+              SupabaseFilter.eq('company_id', tCompanyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           ),
         ).called(1);
       },
@@ -79,33 +82,36 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectOne(
             table: 'assets',
-            filters: [SupabaseFilter.eq('id', tId)],
+            filters: [
+              SupabaseFilter.eq('id', tId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           ),
         ).called(1);
       },
     );
 
-    test(
-      'should return FailureState when selectOne returns null',
-      () async {
-        when(
-          () => mockSupabaseDatabaseClient.selectOne(
-            table: any(named: 'table'),
-            filters: any(named: 'filters'),
-          ),
-        ).thenAnswer((_) async => null);
+    test('should return FailureState when selectOne returns null', () async {
+      when(
+        () => mockSupabaseDatabaseClient.selectOne(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => null);
 
-        final result = await dataSource.getAssetById(tId);
+      final result = await dataSource.getAssetById(tId);
 
-        expect(result, isA<FailureState<AssetModel>>());
-        verify(
-          () => mockSupabaseDatabaseClient.selectOne(
-            table: 'assets',
-            filters: [SupabaseFilter.eq('id', tId)],
-          ),
-        ).called(1);
-      },
-    );
+      expect(result, isA<FailureState<AssetModel>>());
+      verify(
+        () => mockSupabaseDatabaseClient.selectOne(
+          table: 'assets',
+          filters: [
+            SupabaseFilter.eq('id', tId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        ),
+      ).called(1);
+    });
 
     test('should return SuccessState<AssetModel> on create', () async {
       when(

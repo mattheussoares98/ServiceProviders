@@ -54,7 +54,10 @@ final class WorkOrdersRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'work_orders',
-          filters: [SupabaseFilter.eq('company_id', companyId)],
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(WorkOrderResponseModel.fromJson).toList();
       });
@@ -64,7 +67,10 @@ final class WorkOrdersRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'work_orders',
-          filters: [SupabaseFilter.eq('id', id)],
+          filters: [
+            SupabaseFilter.eq('id', id),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         if (response == null) {
           throw _NotFoundException(
@@ -94,20 +100,23 @@ final class WorkOrdersRemoteDataSourceImpl
 
   @override
   FutureBool deleteWorkOrder(String id) => SupabaseHandler.call(() async {
-        await _database.update(
-          table: 'work_orders',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-        return true;
-      });
+    await _database.update(
+      table: 'work_orders',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 
   @override
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'tasks',
-          filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+          filters: [
+            SupabaseFilter.eq('work_order_id', workOrderId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(TaskResponseModel.fromJson).toList();
       });
@@ -132,13 +141,13 @@ final class WorkOrdersRemoteDataSourceImpl
 
   @override
   FutureBool deleteTask(String id) => SupabaseHandler.call(() async {
-        await _database.update(
-          table: 'tasks',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-        return true;
-      });
+    await _database.update(
+      table: 'tasks',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 
   @override
   FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
@@ -146,7 +155,10 @@ final class WorkOrdersRemoteDataSourceImpl
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectList(
       table: 'work_order_change_requests',
-      filters: [SupabaseFilter.eq('company_id', companyId)],
+      filters: [
+        SupabaseFilter.eq('company_id', companyId),
+        SupabaseFilter.isFilter('deleted_at', null),
+      ],
     );
     return response.map(WorkOrderChangeRequestResponseModel.fromJson).toList();
   });

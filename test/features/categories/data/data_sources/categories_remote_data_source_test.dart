@@ -53,7 +53,10 @@ void main() {
           verify(
             () => mockDatabase.selectList(
               table: 'categories',
-              filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+              filters: [
+                SupabaseFilter.eq('company_id', tCompanyId),
+                SupabaseFilter.isFilter('deleted_at', null),
+              ],
             ),
           ).called(1);
         },
@@ -61,49 +64,55 @@ void main() {
     });
 
     group('createCategory', () {
-      test('should return SuccessState<CategoryResponseModel> on success', () async {
-        when(
-          () => mockDatabase.insert(
-            table: any(named: 'table'),
-            values: any(named: 'values'),
-          ),
-        ).thenAnswer((_) async => [tModel.toJson()]);
+      test(
+        'should return SuccessState<CategoryResponseModel> on success',
+        () async {
+          when(
+            () => mockDatabase.insert(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+            ),
+          ).thenAnswer((_) async => [tModel.toJson()]);
 
-        final result = await dataSource.createCategory(tRequest);
+          final result = await dataSource.createCategory(tRequest);
 
-        expect(result, isA<SuccessState<CategoryResponseModel>>());
-        expect(result.data!.id, tModel.id);
-        verify(
-          () => mockDatabase.insert(
-            table: 'categories',
-            values: tRequest.toJson(),
-          ),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<CategoryResponseModel>>());
+          expect(result.data!.id, tModel.id);
+          verify(
+            () => mockDatabase.insert(
+              table: 'categories',
+              values: tRequest.toJson(),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('updateCategory', () {
-      test('should return SuccessState<CategoryResponseModel> on success', () async {
-        when(
-          () => mockDatabase.update(
-            table: any(named: 'table'),
-            values: any(named: 'values'),
-            filters: any(named: 'filters'),
-          ),
-        ).thenAnswer((_) async => [tModel.toJson()]);
+      test(
+        'should return SuccessState<CategoryResponseModel> on success',
+        () async {
+          when(
+            () => mockDatabase.update(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+              filters: any(named: 'filters'),
+            ),
+          ).thenAnswer((_) async => [tModel.toJson()]);
 
-        final result = await dataSource.updateCategory(tRequest);
+          final result = await dataSource.updateCategory(tRequest);
 
-        expect(result, isA<SuccessState<CategoryResponseModel>>());
-        expect(result.data!.id, tModel.id);
-        verify(
-          () => mockDatabase.update(
-            table: 'categories',
-            values: tRequest.toJson(),
-            filters: [SupabaseFilter.eq('id', tRequest.id)],
-          ),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<CategoryResponseModel>>());
+          expect(result.data!.id, tModel.id);
+          verify(
+            () => mockDatabase.update(
+              table: 'categories',
+              values: tRequest.toJson(),
+              filters: [SupabaseFilter.eq('id', tRequest.id)],
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('deleteCategory', () {

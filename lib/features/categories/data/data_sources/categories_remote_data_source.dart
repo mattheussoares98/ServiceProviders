@@ -31,7 +31,10 @@ final class CategoriesRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'categories',
-          filters: [SupabaseFilter.eq('company_id', companyId)],
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(CategoryResponseModel.fromJson).toList();
       });
@@ -61,10 +64,10 @@ final class CategoriesRemoteDataSourceImpl
 
   @override
   FutureVoid deleteCategory(String id) => SupabaseHandler.voidCall(() async {
-        await _database.update(
-          table: 'categories',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+    await _database.update(
+      table: 'categories',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }

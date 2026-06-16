@@ -27,7 +27,10 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'assets',
-          filters: [SupabaseFilter.eq('company_id', companyId)],
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(AssetModel.fromJson).toList();
       });
@@ -37,7 +40,10 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'assets',
-          filters: [SupabaseFilter.eq('id', id)],
+          filters: [
+            SupabaseFilter.eq('id', id),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         if (response == null) {
           throw Exception('Equipamento não encontrado'.hardcoded);
@@ -68,10 +74,10 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
 
   @override
   FutureVoid deleteAsset(String id) => SupabaseHandler.voidCall(() async {
-        await _database.update(
-          table: 'assets',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+    await _database.update(
+      table: 'assets',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }

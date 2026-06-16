@@ -33,7 +33,10 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'locations',
-          filters: [SupabaseFilter.eq('company_id', companyId)],
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(LocationModel.fromJson).toList();
       });
@@ -61,19 +64,22 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
 
   @override
   FutureVoid deleteLocation(String id) => SupabaseHandler.voidCall(() async {
-        await _database.update(
-          table: 'locations',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+    await _database.update(
+      table: 'locations',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 
   @override
   FutureList<AreaModel> getAreas(String companyId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'areas',
-          filters: [SupabaseFilter.eq('company_id', companyId)],
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
         return response.map(AreaModel.fromJson).toList();
       });
@@ -101,10 +107,10 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
 
   @override
   FutureVoid deleteArea(String id) => SupabaseHandler.voidCall(() async {
-        await _database.update(
-          table: 'areas',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+    await _database.update(
+      table: 'areas',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }
