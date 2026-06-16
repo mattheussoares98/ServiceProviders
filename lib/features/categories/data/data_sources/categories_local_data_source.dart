@@ -10,13 +10,13 @@ abstract interface class CategoriesLocalDataSource {
   FutureList<CategoryResponseModel> getCategories(String companyId);
   FutureBool saveCategory(CategoryResponseModel category);
   FutureBool deleteCategory(String id);
+  FutureBool saveCategories(List<CategoryResponseModel> categories);
 }
 
 @LazySingleton(as: CategoriesLocalDataSource)
 final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
-  CategoriesLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+  CategoriesLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
@@ -28,15 +28,17 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
       final rows = await query.get();
 
       final list = rows
-          .map((row) => CategoryResponseModel(
-                id: row.id,
-                companyId: row.companyId,
-                name: row.name,
-                description: row.description,
-                color: row.color,
-                createdAt: row.createdAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => CategoryResponseModel(
+              id: row.id,
+              companyId: row.companyId,
+              name: row.name,
+              description: row.description,
+              color: row.color,
+              createdAt: row.createdAt,
+              deletedAt: row.deletedAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -46,7 +48,9 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
   @override
   FutureBool saveCategory(CategoryResponseModel category) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.categories).insertOnConflictUpdate(
+      await _database
+          .into(_database.categories)
+          .insertOnConflictUpdate(
             CategoriesCompanion(
               id: Value(category.id),
               companyId: Value(category.companyId),
@@ -66,11 +70,32 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.categories)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        CategoriesCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(CategoriesCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool saveCategories(List<CategoryResponseModel> categories) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.categories,
+          categories
+              .map(
+                (category) => CategoriesCompanion(
+                  id: Value(category.id),
+                  companyId: Value(category.companyId),
+                  name: Value(category.name),
+                  description: Value(category.description),
+                  color: Value(category.color),
+                  createdAt: Value(category.createdAt),
+                  deletedAt: Value(category.deletedAt),
+                ),
+              )
+              .toList(),
+        );
+      });
       return const SuccessState(data: true);
     });
   }

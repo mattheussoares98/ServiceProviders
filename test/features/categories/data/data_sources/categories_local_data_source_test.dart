@@ -80,5 +80,25 @@ void main() {
         expect(getResult.data, isEmpty);
       },
     );
+
+    test('should save a list of categories and successfully retrieve them', () async {
+      final companyId = faker.guid.guid();
+      await insertTestCompany(companyId);
+      final entities = EntityFactory.makeCategoryEntityList()
+          .map((e) => e.copyWith(companyId: companyId))
+          .toList();
+      final models = entities.map(CategoryResponseModel.fromEntity).toList();
+
+      final saveResult = await dataSource.saveCategories(models);
+
+      expect(saveResult, isA<SuccessState<bool>>());
+      expect(saveResult.data, isTrue);
+
+      final getResult = await dataSource.getCategories(companyId);
+
+      expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
+      expect(getResult.data, hasLength(models.length));
+      expect(getResult.data, containsAll(models));
+    });
   });
 }
