@@ -39,7 +39,7 @@ final class AssetsRepositoryImpl implements AssetsRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () => _remoteDataSource.getAssetById(id),
         localCallback: () => _localDataSource.getAssetById(id),
-        onRemoteSuccess: (asset) => _localDataSource.saveAsset(asset),
+        onRemoteSuccess: _localDataSource.saveAsset,
       );
 
   @override
