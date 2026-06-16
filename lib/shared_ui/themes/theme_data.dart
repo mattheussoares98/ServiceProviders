@@ -179,3 +179,6 @@ BottomNavigationBarThemeData get darkBottomNavigationBarTheme =>
       elevation: 0,
       type: BottomNavigationBarType.fixed,
     );
+
+CardThemeData get cardTheme =>
+    const CardThemeData(margin: EdgeInsets.symmetric(vertical: Sizes.p4));

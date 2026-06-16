@@ -22,6 +22,7 @@ ThemeData lightTheme = ThemeData(
   listTileTheme: listTileThemeData,
   bottomNavigationBarTheme: bottomNavigationBarTheme,
   expansionTileTheme: expansionTileThemeData,
+  cardTheme: cardTheme,
   // platform: TargetPlatform.iOS,
 );
 
@@ -42,4 +43,5 @@ ThemeData darkTheme = ThemeData(
   listTileTheme: listTileThemeData,
   bottomNavigationBarTheme: darkBottomNavigationBarTheme,
   expansionTileTheme: darkExpansionTileThemeData,
+  cardTheme: cardTheme,
 );
