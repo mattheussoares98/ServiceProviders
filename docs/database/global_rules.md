@@ -168,6 +168,25 @@ CREATE POLICY "Users update own company assets"
   USING (company_id = public.get_user_company_id());
 ```
 
+#### categories
+
+```sql
+CREATE POLICY "Users read own company categories"
+  ON public.categories FOR SELECT
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users insert own company categories"
+  ON public.categories FOR INSERT
+  TO authenticated
+  WITH CHECK (company_id = public.get_user_company_id());
+
+CREATE POLICY "Users update own company categories"
+  ON public.categories FOR UPDATE
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
+
+
 
 
 ---
@@ -195,6 +214,7 @@ $$ LANGUAGE plpgsql;
 - **locations** (`tr_prevent_delete_locations` trigger)
 - **areas** (`tr_prevent_delete_areas` trigger)
 - **assets** (`tr_prevent_delete_assets` trigger)
+- **categories** (`tr_prevent_delete_categories` trigger)
 
 ```sql
 CREATE TRIGGER tr_prevent_delete_companies
@@ -219,6 +239,11 @@ EXECUTE FUNCTION public.prevent_delete();
 
 CREATE TRIGGER tr_prevent_delete_assets
 BEFORE DELETE ON public.assets
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_delete();
+
+CREATE TRIGGER tr_prevent_delete_categories
+BEFORE DELETE ON public.categories
 FOR EACH ROW
 EXECUTE FUNCTION public.prevent_delete();
 ```
