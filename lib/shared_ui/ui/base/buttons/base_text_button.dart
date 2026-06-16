@@ -1,5 +1,7 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,7 @@ class BaseTextButton extends StatelessWidget {
     this.visualDensity,
     this.elevation,
     this.isLoading = false,
+    this.platformIcon,
   });
   final void Function() onPressed;
   final String text;
@@ -28,6 +31,7 @@ class BaseTextButton extends StatelessWidget {
   final VisualDensity? visualDensity;
   final double? elevation;
   final bool isLoading;
+  final PlatformIcon? platformIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -36,18 +40,26 @@ class BaseTextButton extends StatelessWidget {
     final baseColor = textColor ?? color ?? AppColors.hightLight;
     final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
 
-    final baseText = BaseText(
+    Widget childWidget = BaseText(
       text,
       color: finalColor,
       textType: appliedTextType,
       fontWeight: appliedFontWeight,
     );
+
+    if (platformIcon != null) {
+      childWidget = Row(
+        mainAxisSize: .min,
+        children: [platformIcon!, gapW8, childWidget],
+      );
+    }
+
     if (context.isCupertino) {
       return CupertinoButton(
         onPressed: isLoading ? null : onPressed,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
-        child: baseText,
+        child: childWidget,
       );
     }
 
@@ -59,7 +71,7 @@ class BaseTextButton extends StatelessWidget {
         visualDensity: visualDensity,
         elevation: elevation,
       ),
-      child: baseText,
+      child: childWidget,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading_circle.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -19,6 +20,7 @@ class PrimaryButton extends StatelessWidget {
     this.color,
     this.isLoading = false,
     this.expandWidth = false,
+    this.platformIcon,
   });
   final VoidCallback onTap;
   final String text;
@@ -30,11 +32,12 @@ class PrimaryButton extends StatelessWidget {
   final bool isLoading;
   final Color? color;
   final bool expandWidth;
+  final PlatformIcon? platformIcon;
 
   @override
   Widget build(BuildContext context) {
     final effectiveForegroundColor = foregroundColor ?? AppColors.white;
-    final childWidget = isLoading
+    Widget childWidget = isLoading
         ? LoadingCircle.small(effectiveForegroundColor)
         : BaseText(
             text,
@@ -42,6 +45,13 @@ class PrimaryButton extends StatelessWidget {
             textType: textType ?? TextType.bodyLarge,
             fontWeight: textFontWeight ?? FontWeight.w500,
           );
+
+    if (platformIcon != null) {
+      childWidget = Row(
+        mainAxisSize: .min,
+        children: [platformIcon!, gapW8, childWidget],
+      );
+    }
 
     return SizedBox(
       height: height ?? 50,
