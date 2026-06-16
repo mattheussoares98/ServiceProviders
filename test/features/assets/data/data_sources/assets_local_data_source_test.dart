@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/assets/data/data_sources/assets_local_data_source.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_response_model.dart';
+import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
@@ -76,7 +76,7 @@ void main() {
   }
 
   final tAssetEntity = EntityFactory.makeAssetEntity();
-  final tAssetModel = AssetResponseModel.fromEntity(tAssetEntity);
+  final tAssetModel = AssetModel.fromEntity(tAssetEntity);
   final tLocationId = faker.guid.guid();
 
   group('AssetsLocalDataSourceImpl', () {
@@ -102,7 +102,7 @@ void main() {
         final getListResult = await dataSource.getAssets(tAssetModel.companyId);
 
         // Assert Get List
-        expect(getListResult, isA<SuccessState<List<AssetResponseModel>>>());
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
         expect(getListResult.data, hasLength(1));
         final resultModel = getListResult.data!.first;
         expect(resultModel.id, tAssetModel.id);
@@ -122,7 +122,7 @@ void main() {
         final getSingleResult = await dataSource.getAssetById(tAssetModel.id);
 
         // Assert Get Single
-        expect(getSingleResult, isA<SuccessState<AssetResponseModel>>());
+        expect(getSingleResult, isA<SuccessState<AssetModel>>());
         expect(getSingleResult.data!.id, tAssetModel.id);
       },
     );
@@ -134,7 +134,7 @@ void main() {
         final result = await dataSource.getAssetById(faker.guid.guid());
 
         // Assert
-        expect(result, isA<FailureState<AssetResponseModel>>());
+        expect(result, isA<FailureState<AssetModel>>());
         expect(result.message, 'Asset not found');
       },
     );
@@ -160,12 +160,12 @@ void main() {
 
         // Act: Get list
         final getListResult = await dataSource.getAssets(tAssetModel.companyId);
-        expect(getListResult, isA<SuccessState<List<AssetResponseModel>>>());
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
         expect(getListResult.data, isEmpty);
 
         // Act: Get single
         final getSingleResult = await dataSource.getAssetById(tAssetModel.id);
-        expect(getSingleResult, isA<FailureState<AssetResponseModel>>());
+        expect(getSingleResult, isA<FailureState<AssetModel>>());
       },
     );
   });

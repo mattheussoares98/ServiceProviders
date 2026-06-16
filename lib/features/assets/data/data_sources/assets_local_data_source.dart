@@ -2,56 +2,57 @@ import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_response_model.dart';
+import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class AssetsLocalDataSource {
-  FutureList<AssetResponseModel> getAssets(String companyId);
-  FutureData<AssetResponseModel> getAssetById(String id);
-  FutureBool saveAsset(AssetResponseModel asset);
+  FutureList<AssetModel> getAssets(String companyId);
+  FutureData<AssetModel> getAssetById(String id);
+  FutureBool saveAsset(AssetModel asset);
   FutureBool deleteAsset(String id);
 }
 
 @LazySingleton(as: AssetsLocalDataSource)
 final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
-  AssetsLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+  AssetsLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
   @override
-  FutureList<AssetResponseModel> getAssets(String companyId) {
+  FutureList<AssetModel> getAssets(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.assets)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
       final rows = await query.get();
 
       final list = rows
-          .map((row) => AssetResponseModel(
-                id: row.id,
-                companyId: row.companyId,
-                areaId: row.areaId,
-                categoryId: row.categoryId,
-                parentAssetId: row.parentAssetId,
-                name: row.name,
-                code: row.code,
-                manufacturer: row.manufacturer,
-                model: row.model,
-                serialNumber: row.serialNumber,
-                installDate: row.installDate,
-                warrantyExpiration: row.warrantyExpiration,
-                revisionForecast: row.revisionForecast,
-                status: AssetStatus.fromCode(row.status),
-                criticality: AssetCriticality.fromCode(row.criticality),
-                notes: row.notes,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => AssetModel(
+              id: row.id,
+              companyId: row.companyId,
+              areaId: row.areaId,
+              categoryId: row.categoryId,
+              parentAssetId: row.parentAssetId,
+              name: row.name,
+              code: row.code,
+              manufacturer: row.manufacturer,
+              model: row.model,
+              serialNumber: row.serialNumber,
+              installDate: row.installDate,
+              warrantyExpiration: row.warrantyExpiration,
+              revisionForecast: row.revisionForecast,
+              status: AssetStatus.fromCode(row.status),
+              criticality: AssetCriticality.fromCode(row.criticality),
+              notes: row.notes,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -59,7 +60,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   }
 
   @override
-  FutureData<AssetResponseModel> getAssetById(String id) {
+  FutureData<AssetModel> getAssetById(String id) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.assets)
         ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
@@ -69,7 +70,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
         return FailureState(message: 'Asset not found');
       }
 
-      final model = AssetResponseModel(
+      final model = AssetModel(
         id: row.id,
         companyId: row.companyId,
         areaId: row.areaId,
@@ -96,9 +97,11 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   }
 
   @override
-  FutureBool saveAsset(AssetResponseModel asset) {
+  FutureBool saveAsset(AssetModel asset) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.assets).insertOnConflictUpdate(
+      await _database
+          .into(_database.assets)
+          .insertOnConflictUpdate(
             AssetsCompanion(
               id: Value(asset.id),
               companyId: Value(asset.companyId),
@@ -130,11 +133,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.assets)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        AssetsCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(AssetsCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
