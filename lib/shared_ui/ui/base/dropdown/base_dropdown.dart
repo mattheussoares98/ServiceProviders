@@ -7,8 +7,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DefaultDropDown<T> extends StatelessWidget {
-  const DefaultDropDown({
+class BaseDropDown<T> extends StatelessWidget {
+  const BaseDropDown({
     required this.onChanged,
     required this.items,
     required this.selectedItem,
@@ -86,37 +86,39 @@ class DefaultDropDown<T> extends StatelessWidget {
                                 final selected =
                                     await showCupertinoModalPopup<T>(
                                       context: context,
-                                      builder: (_) => CupertinoActionSheet(
-                                        title: Text('Selecionar'.hardcoded),
-                                        actions: items!.map((item) {
-                                          return CupertinoActionSheetAction(
-                                            onPressed: () {
-                                              if (item.enabled) {
-                                                Navigator.of(
-                                                  context,
-                                                ).pop(item.value);
-                                              }
-                                            },
-                                            child: item.child,
-                                          );
-                                        }).toList(),
-                                        cancelButton:
-                                            CupertinoActionSheetAction(
-                                              isDefaultAction: true,
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: Text(
-                                                'Cancelar'.hardcoded,
-                                                style: theme
-                                                    .textTheme
-                                                    .titleMedium
-                                                    ?.copyWith(
-                                                      color: CupertinoColors
-                                                          .destructiveRed,
-                                                    ),
-                                              ),
-                                            ),
-                                      ),
+                                      builder: (sheetContext) =>
+                                          CupertinoActionSheet(
+                                            title: Text('Selecionar'.hardcoded),
+                                            actions: items!.map((item) {
+                                              return CupertinoActionSheetAction(
+                                                onPressed: () {
+                                                  if (item.enabled) {
+                                                    Navigator.of(
+                                                      sheetContext,
+                                                    ).pop(item.value);
+                                                  }
+                                                },
+                                                child: item.child,
+                                              );
+                                            }).toList(),
+                                            cancelButton:
+                                                CupertinoActionSheetAction(
+                                                  isDefaultAction: true,
+                                                  onPressed: () => Navigator.of(
+                                                    sheetContext,
+                                                  ).pop(),
+                                                  child: Text(
+                                                    'Cancelar'.hardcoded,
+                                                    style: theme
+                                                        .textTheme
+                                                        .titleMedium
+                                                        ?.copyWith(
+                                                          color: CupertinoColors
+                                                              .destructiveRed,
+                                                        ),
+                                                  ),
+                                                ),
+                                          ),
                                     );
 
                                 if (selected != null && onChanged != null) {
