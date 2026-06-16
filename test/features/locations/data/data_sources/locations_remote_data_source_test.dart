@@ -110,11 +110,12 @@ void main() {
       test('should return SuccessState<void> on delete', () async {
         // Arrange
         when(
-          () => mockSupabaseDatabaseClient.delete(
+          () => mockSupabaseDatabaseClient.update(
             table: any(named: 'table'),
+            values: any(named: 'values'),
             filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => []);
+        ).thenAnswer((_) async => [tLocationModel.toJson()]);
 
         // Act
         final result = await dataSource.deleteLocation(tLocationModel.id);
@@ -122,8 +123,9 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<void>>());
         verify(
-          () => mockSupabaseDatabaseClient.delete(
+          () => mockSupabaseDatabaseClient.update(
             table: 'locations',
+            values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tLocationModel.id)],
           ),
         ).called(1);
@@ -206,20 +208,22 @@ void main() {
       test('should return SuccessState<void> on delete', () async {
         // Arrange
         when(
-          () => mockSupabaseDatabaseClient.delete(
+          () => mockSupabaseDatabaseClient.update(
             table: any(named: 'table'),
+            values: any(named: 'values'),
             filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => []);
+        ).thenAnswer((_) async => [tAreaModel.toJson()]);
 
-        // Act {
+        // Act
         final result = await dataSource.deleteArea(tAreaModel.id);
 
         // Assert
         expect(result, isA<SuccessState<void>>());
         verify(
-          () => mockSupabaseDatabaseClient.delete(
+          () => mockSupabaseDatabaseClient.update(
             table: 'areas',
+            values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tAreaModel.id)],
           ),
         ).called(1);

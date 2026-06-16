@@ -61,9 +61,10 @@ final class CategoriesRemoteDataSourceImpl
 
   @override
   FutureVoid deleteCategory(String id) => SupabaseHandler.voidCall(() async {
-    await _database.delete(
-      table: 'categories',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-  });
+        await _database.update(
+          table: 'categories',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+      });
 }

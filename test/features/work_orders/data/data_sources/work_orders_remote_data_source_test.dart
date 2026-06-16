@@ -153,8 +153,9 @@ void main() {
     });
 
     test('deleteWorkOrder should return SuccessState<bool>(true)', () async {
-      when(() => mockDatabase.delete(
+      when(() => mockDatabase.update(
             table: any(named: 'table'),
+            values: any(named: 'values'),
             filters: any(named: 'filters'),
           )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
 
@@ -162,8 +163,9 @@ void main() {
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockDatabase.delete(
+      verify(() => mockDatabase.update(
             table: 'work_orders',
+            values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tWorkOrderId)],
           )).called(1);
     });
@@ -222,8 +224,9 @@ void main() {
     });
 
     test('deleteTask should return SuccessState<bool>(true)', () async {
-      when(() => mockDatabase.delete(
+      when(() => mockDatabase.update(
             table: any(named: 'table'),
+            values: any(named: 'values'),
             filters: any(named: 'filters'),
           )).thenAnswer((_) async => [tTaskModel.toJson()]);
 
@@ -231,8 +234,9 @@ void main() {
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, isTrue);
-      verify(() => mockDatabase.delete(
+      verify(() => mockDatabase.update(
             table: 'tasks',
+            values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tTaskId)],
           )).called(1);
     });

@@ -151,18 +151,20 @@ void main() {
 
     test('should return SuccessState<void> on delete', () async {
       when(
-        () => mockSupabaseDatabaseClient.delete(
+        () => mockSupabaseDatabaseClient.update(
           table: any(named: 'table'),
+          values: any(named: 'values'),
           filters: any(named: 'filters'),
         ),
-      ).thenAnswer((_) async => []);
+      ).thenAnswer((_) async => [tAssetModel.toJson()]);
 
       final result = await dataSource.deleteAsset(tAssetModel.id);
 
       expect(result, isA<SuccessState<void>>());
       verify(
-        () => mockSupabaseDatabaseClient.delete(
+        () => mockSupabaseDatabaseClient.update(
           table: 'assets',
+          values: any(named: 'values'),
           filters: [SupabaseFilter.eq('id', tAssetModel.id)],
         ),
       ).called(1);

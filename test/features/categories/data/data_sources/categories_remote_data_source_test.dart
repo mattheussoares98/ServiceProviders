@@ -109,18 +109,20 @@ void main() {
     group('deleteCategory', () {
       test('should return SuccessState<void> on success', () async {
         when(
-          () => mockDatabase.delete(
+          () => mockDatabase.update(
             table: any(named: 'table'),
+            values: any(named: 'values'),
             filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => []);
+        ).thenAnswer((_) async => [tModel.toJson()]);
 
         final result = await dataSource.deleteCategory(tModel.id);
 
         expect(result, isA<SuccessState<void>>());
         verify(
-          () => mockDatabase.delete(
+          () => mockDatabase.update(
             table: 'categories',
+            values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tModel.id)],
           ),
         ).called(1);

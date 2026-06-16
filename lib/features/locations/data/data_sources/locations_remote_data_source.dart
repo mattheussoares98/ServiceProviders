@@ -60,12 +60,13 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
       });
 
   @override
-  FutureVoid deleteLocation(String id) => SupabaseHandler.call(() async {
-    await _database.delete(
-      table: 'locations',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-  });
+  FutureVoid deleteLocation(String id) => SupabaseHandler.voidCall(() async {
+        await _database.update(
+          table: 'locations',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+      });
 
   @override
   FutureList<AreaModel> getAreas(String companyId) =>
@@ -99,10 +100,11 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
       });
 
   @override
-  FutureVoid deleteArea(String id) => SupabaseHandler.call(() async {
-    await _database.delete(
-      table: 'areas',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-  });
+  FutureVoid deleteArea(String id) => SupabaseHandler.voidCall(() async {
+        await _database.update(
+          table: 'areas',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+      });
 }

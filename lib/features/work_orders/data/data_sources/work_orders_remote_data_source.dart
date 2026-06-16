@@ -94,12 +94,13 @@ final class WorkOrdersRemoteDataSourceImpl
 
   @override
   FutureBool deleteWorkOrder(String id) => SupabaseHandler.call(() async {
-    await _database.delete(
-      table: 'work_orders',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-    return true;
-  });
+        await _database.update(
+          table: 'work_orders',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+        return true;
+      });
 
   @override
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) =>
@@ -131,12 +132,13 @@ final class WorkOrdersRemoteDataSourceImpl
 
   @override
   FutureBool deleteTask(String id) => SupabaseHandler.call(() async {
-    await _database.delete(
-      table: 'tasks',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-    return true;
-  });
+        await _database.update(
+          table: 'tasks',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+        return true;
+      });
 
   @override
   FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(

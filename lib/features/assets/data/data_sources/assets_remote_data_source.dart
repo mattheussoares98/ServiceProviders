@@ -68,9 +68,10 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
 
   @override
   FutureVoid deleteAsset(String id) => SupabaseHandler.voidCall(() async {
-    await _database.delete(
-      table: 'assets',
-      filters: [SupabaseFilter.eq('id', id)],
-    );
-  });
+        await _database.update(
+          table: 'assets',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
+      });
 }
