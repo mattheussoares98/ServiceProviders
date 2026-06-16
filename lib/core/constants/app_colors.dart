@@ -20,6 +20,7 @@ abstract final class AppColors {
   // Random
   static const base = Color(0xFF121212);
   static const fade = Color(0xFF5E6A75);
+  static const fadeLight = Color(0x4D5E6A75);
   static const hightLight = Color(0xFF254EDB);
   static const iconContainer = Color(0xFFFEF3EB);
 

@@ -128,6 +128,39 @@ ListTileThemeData get listTileThemeData => const ListTileThemeData(
   minLeadingWidth: 0,
 );
 
+ExpansionTileThemeData get expansionTileThemeData =>
+    const ExpansionTileThemeData(
+      childrenPadding: EdgeInsets.all(Sizes.p8),
+      tilePadding: EdgeInsets.all(Sizes.p8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+      ),
+      collapsedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+      ),
+      iconColor: AppColors.primary,
+      textColor: AppColors.primary,
+      collapsedIconColor: AppColors.fade,
+      collapsedTextColor: AppColors.onSurface,
+    );
+
+ExpansionTileThemeData get darkExpansionTileThemeData =>
+    const ExpansionTileThemeData(
+      childrenPadding: EdgeInsets.all(Sizes.p8),
+      tilePadding: EdgeInsets.all(Sizes.p8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+      ),
+      collapsedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+      ),
+      iconColor: AppColors.primaryLight,
+      textColor: AppColors.primaryLight,
+      collapsedIconColor: Color(0xFF64748B),
+      collapsedTextColor: Color(0xFFE2E8F0),
+      backgroundColor: AppColors.fadeLight,
+    );
+
 /// Bottom Navigation Bar Themes
 BottomNavigationBarThemeData get bottomNavigationBarTheme =>
     const BottomNavigationBarThemeData(
