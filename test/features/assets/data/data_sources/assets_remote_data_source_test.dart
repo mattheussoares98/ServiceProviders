@@ -1,9 +1,8 @@
-import 'package:clean_architecture/core/constants/api_endpoints.dart';
+import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/assets/data/data_sources/assets_remote_data_source.dart';
 import 'package:clean_architecture/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
-import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -12,12 +11,23 @@ import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
-  late MockHttpClient mockHttpClient;
+  late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
   late AssetsRemoteDataSourceImpl dataSource;
 
+  setUpAll(() {
+    registerFallbackValue(
+      AssetModel.fromEntity(EntityFactory.makeAssetEntity()),
+    );
+    registerFallbackValue(
+      AssetRequestModel.fromEntity(EntityFactory.makeAssetEntity()),
+    );
+  });
+
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = AssetsRemoteDataSourceImpl(httpClient: mockHttpClient);
+    mockSupabaseDatabaseClient = MockSupabaseDatabaseClient();
+    dataSource = AssetsRemoteDataSourceImpl(
+      database: mockSupabaseDatabaseClient,
+    );
   });
 
   final tAssetEntity = EntityFactory.makeAssetEntity();
@@ -29,137 +39,133 @@ void main() {
 
   group('AssetsRemoteDataSourceImpl', () {
     test(
-      'should return SuccessState<List<AssetResponseModel>> on 200 (getAssets)',
+      'should return SuccessState<List<AssetModel>> on selectList success',
       () async {
-        // Arrange
-        final fakeResponse = {
-          'data': [tAssetModel.toJson()],
-          'message': 'Success',
-        };
-
         when(
-          () => mockHttpClient.get<dynamic>(
-            any(),
-            queryParameters: any(named: 'queryParameters'),
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        ).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.assets),
-            data: fakeResponse,
-            statusCode: 200,
-          ),
-        );
+        ).thenAnswer((_) async => [tAssetModel.toJson()]);
 
-        // Act
         final result = await dataSource.getAssets(tCompanyId);
 
-        // Assert
         expect(result, isA<SuccessState<List<AssetModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first.id, tAssetModel.id);
         verify(
-          () => mockHttpClient.get<dynamic>(
-            ApiEndpoints.assets,
-            queryParameters: {'company_id': tCompanyId},
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'assets',
+            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
           ),
         ).called(1);
       },
     );
 
     test(
-      'should return SuccessState<AssetResponseModel> on 200 (getAssetById)',
+      'should return SuccessState<AssetModel> on selectOne success',
       () async {
-        // Arrange
-        final fakeResponse = {
-          'data': tAssetModel.toJson(),
-          'message': 'Success',
-        };
-
-        when(() => mockHttpClient.get<dynamic>(any())).thenAnswer(
-          (_) async => Response(
-            requestOptions: RequestOptions(path: ApiEndpoints.assetById(tId)),
-            data: fakeResponse,
-            statusCode: 200,
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        );
+        ).thenAnswer((_) async => tAssetModel.toJson());
 
-        // Act
         final result = await dataSource.getAssetById(tId);
 
-        // Assert
         expect(result, isA<SuccessState<AssetModel>>());
         expect(result.data!.id, tAssetModel.id);
         verify(
-          () => mockHttpClient.get<dynamic>(ApiEndpoints.assetById(tId)),
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'assets',
+            filters: [SupabaseFilter.eq('id', tId)],
+          ),
         ).called(1);
       },
     );
 
-    test('should return SuccessState<AssetResponseModel> on create', () async {
-      // Arrange
-      final fakeResponse = {'data': tAssetModel.toJson(), 'message': 'Success'};
+    test(
+      'should return FailureState when selectOne returns null',
+      () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => null);
 
+        final result = await dataSource.getAssetById(tId);
+
+        expect(result, isA<FailureState<AssetModel>>());
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'assets',
+            filters: [SupabaseFilter.eq('id', tId)],
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return SuccessState<AssetModel> on create', () async {
       when(
-        () => mockHttpClient.post<dynamic>(any(), data: any(named: 'data')),
-      ).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(path: ApiEndpoints.assets),
-          data: fakeResponse,
-          statusCode: 200,
+        () => mockSupabaseDatabaseClient.insert(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
         ),
-      );
+      ).thenAnswer((_) async => [tAssetModel.toJson()]);
 
-      // Act
       final result = await dataSource.createAsset(tAssetRequest);
 
-      // Assert
       expect(result, isA<SuccessState<AssetModel>>());
       expect(result.data!.id, tAssetModel.id);
+      verify(
+        () => mockSupabaseDatabaseClient.insert(
+          table: 'assets',
+          values: tAssetRequest.toJson(),
+        ),
+      ).called(1);
     });
 
-    test('should return SuccessState<AssetResponseModel> on update', () async {
-      // Arrange
-      final fakeResponse = {'data': tAssetModel.toJson(), 'message': 'Success'};
-
+    test('should return SuccessState<AssetModel> on update', () async {
       when(
-        () => mockHttpClient.put<dynamic>(any(), data: any(named: 'data')),
-      ).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(
-            path: ApiEndpoints.assetById(tAssetRequest.id),
-          ),
-          data: fakeResponse,
-          statusCode: 200,
+        () => mockSupabaseDatabaseClient.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
         ),
-      );
+      ).thenAnswer((_) async => [tAssetModel.toJson()]);
 
-      // Act
       final result = await dataSource.updateAsset(tAssetRequest);
 
-      // Assert
       expect(result, isA<SuccessState<AssetModel>>());
       expect(result.data!.id, tAssetModel.id);
+      verify(
+        () => mockSupabaseDatabaseClient.update(
+          table: 'assets',
+          values: tAssetRequest.toJson(),
+          filters: [SupabaseFilter.eq('id', tAssetRequest.id)],
+        ),
+      ).called(1);
     });
 
     test('should return SuccessState<void> on delete', () async {
-      // Arrange
-      final fakeResponse = {'message': 'Deleted'};
-
-      when(() => mockHttpClient.delete<dynamic>(any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(
-            path: ApiEndpoints.assetById(tAssetModel.id),
-          ),
-          data: fakeResponse,
-          statusCode: 200,
+      when(
+        () => mockSupabaseDatabaseClient.delete(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
         ),
-      );
+      ).thenAnswer((_) async => []);
 
-      // Act
       final result = await dataSource.deleteAsset(tAssetModel.id);
 
-      // Assert
       expect(result, isA<SuccessState<void>>());
+      verify(
+        () => mockSupabaseDatabaseClient.delete(
+          table: 'assets',
+          filters: [SupabaseFilter.eq('id', tAssetModel.id)],
+        ),
+      ).called(1);
     });
   });
 }

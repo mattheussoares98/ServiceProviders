@@ -13,6 +13,7 @@ abstract interface class AssetsLocalDataSource {
   FutureData<AssetModel> getAssetById(String id);
   FutureBool saveAsset(AssetModel asset);
   FutureBool deleteAsset(String id);
+  FutureBool saveAssets(List<AssetModel> assets);
 }
 
 @LazySingleton(as: AssetsLocalDataSource)
@@ -134,6 +135,43 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
       final query = _database.update(_database.assets)
         ..where((t) => t.id.equals(id));
       await query.write(AssetsCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool saveAssets(List<AssetModel> assets) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.assets,
+          assets
+              .map(
+                (asset) => AssetsCompanion(
+                  id: Value(asset.id),
+                  companyId: Value(asset.companyId),
+                  areaId: Value(asset.areaId),
+                  categoryId: Value(asset.categoryId),
+                  parentAssetId: Value(asset.parentAssetId),
+                  name: Value(asset.name),
+                  code: Value(asset.code),
+                  manufacturer: Value(asset.manufacturer),
+                  model: Value(asset.model),
+                  serialNumber: Value(asset.serialNumber),
+                  installDate: Value(asset.installDate),
+                  warrantyExpiration: Value(asset.warrantyExpiration),
+                  revisionForecast: Value(asset.revisionForecast),
+                  status: Value(asset.status.code),
+                  criticality: Value(asset.criticality.code),
+                  notes: Value(asset.notes),
+                  createdAt: Value(asset.createdAt),
+                  updatedAt: Value(asset.updatedAt),
+                  deletedAt: Value(asset.deletedAt),
+                ),
+              )
+              .toList(),
+        );
+      });
       return const SuccessState(data: true);
     });
   }
