@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/categories/data/models/requests/category_request_model.dart';
 import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
 import 'package:clean_architecture/features/categories/data/repositories/categories_repository_impl.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
@@ -20,6 +21,10 @@ void main() {
     registerFallbackValue(
       CategoryResponseModel.fromEntity(EntityFactory.makeCategoryEntity()),
     );
+    registerFallbackValue(
+      CategoryRequestModel.fromEntity(EntityFactory.makeCategoryEntity()),
+    );
+    registerFallbackValue(<CategoryResponseModel>[]);
   });
 
   setUp(() {
@@ -40,99 +45,302 @@ void main() {
   group('CategoriesRepositoryImpl', () {
     group('getCategories', () {
       test(
-        'should return list of CategoryEntity on success from local data source',
+        'should fetch categories from remote, cache them locally, and return list on success when online',
         () async {
-          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getCategories(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tModel]));
+          when(
+            () => mockLocalDataSource.saveCategories(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.getCategories(tCompanyId);
+
+          expect(result, isA<SuccessState<List<CategoryEntity>>>());
+          expect(result.data, hasLength(1));
+          expect(result.data!.first, equals(tEntity));
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategories([tModel]),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.getCategories(any()));
+        },
+      );
+
+      test(
+        'should return failure when remote fetch succeeds but local cache fails when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getCategories(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tModel]));
+          when(
+            () => mockLocalDataSource.saveCategories(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Cache error'));
+
+          final result = await repository.getCategories(tCompanyId);
+
+          expect(result, isA<FailureState<List<CategoryEntity>>>());
+          expect(result.message, 'Cache error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategories([tModel]),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return failure when remote fetch fails when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getCategories(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          final result = await repository.getCategories(tCompanyId);
+
+          expect(result, isA<FailureState<List<CategoryEntity>>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
+          verifyNever(() => mockLocalDataSource.saveCategories(any()));
+        },
+      );
+
+      test(
+        'should return list of CategoryEntity from local when offline',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.getCategories(any()),
           ).thenAnswer((_) async => SuccessState(data: [tModel]));
 
-          // Act
           final result = await repository.getCategories(tCompanyId);
 
-          // Assert
           expect(result, isA<SuccessState<List<CategoryEntity>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tEntity));
+          verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockLocalDataSource.getCategories(tCompanyId)).called(1);
+          verifyNever(() => mockRemoteDataSource.getCategories(any()));
+          verifyNever(() => mockLocalDataSource.saveCategories(any()));
         },
       );
 
-      test('should return FailureState when local data source fails', () async {
-        // Arrange
-        when(
-          () => mockLocalDataSource.getCategories(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Database error'));
+      test(
+        'should return failure when local fetch fails when offline',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.getCategories(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Database error'));
 
-        // Act
-        final result = await repository.getCategories(tCompanyId);
+          final result = await repository.getCategories(tCompanyId);
 
-        // Assert
-        expect(result, isA<FailureState<List<CategoryEntity>>>());
-        expect(result.message, 'Database error');
-      });
+          expect(result, isA<FailureState<List<CategoryEntity>>>());
+          expect(result.message, 'Database error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockLocalDataSource.getCategories(tCompanyId)).called(1);
+          verifyNever(() => mockRemoteDataSource.getCategories(any()));
+        },
+      );
     });
 
     group('createCategory', () {
       test(
-        'should return true when category is saved successfully locally',
+        'should save category locally and return true when offline',
         () async {
-          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.saveCategory(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
           final result = await repository.createCategory(tEntity);
 
-          // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategory(tModel),
+          ).called(1);
+          verifyNever(() => mockRemoteDataSource.createCategory(any()));
+        },
+      );
+
+      test(
+        'should create category remotely, save locally, and return true when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.createCategory(any()),
+          ).thenAnswer((_) async => SuccessState(data: tModel));
+          when(
+            () => mockLocalDataSource.saveCategory(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.createCategory(tEntity);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createCategory(any())).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategory(tModel),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote creation fails when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.createCategory(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          final result = await repository.createCategory(tEntity);
+
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.createCategory(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveCategory(any()));
         },
       );
     });
 
     group('updateCategory', () {
       test(
-        'should return true when category is updated successfully locally',
+        'should save category locally and return true when offline',
         () async {
-          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.saveCategory(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
           final result = await repository.updateCategory(tEntity);
 
-          // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategory(tModel),
+          ).called(1);
+          verifyNever(() => mockRemoteDataSource.updateCategory(any()));
+        },
+      );
+
+      test(
+        'should update category remotely, save locally, and return true when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateCategory(any()),
+          ).thenAnswer((_) async => SuccessState(data: tModel));
+          when(
+            () => mockLocalDataSource.saveCategory(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.updateCategory(tEntity);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateCategory(any())).called(1);
+          verify(
+            () => mockLocalDataSource.saveCategory(tModel),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when remote update fails when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateCategory(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          final result = await repository.updateCategory(tEntity);
+
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.updateCategory(any())).called(1);
+          verifyNever(() => mockLocalDataSource.saveCategory(any()));
         },
       );
     });
 
     group('deleteCategory', () {
       test(
-        'should return true when category is deleted successfully locally',
+        'should delete category locally and return true when offline',
         () async {
-          // Arrange
+          when(() => mockInternetClient.isConnected).thenReturn(false);
           when(
             () => mockLocalDataSource.deleteCategory(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
           final result = await repository.deleteCategory(tEntity.id);
 
-          // Assert
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockLocalDataSource.deleteCategory(tEntity.id),
+          ).called(1);
+          verifyNever(() => mockRemoteDataSource.deleteCategory(any()));
+        },
+      );
+
+      test(
+        'should delete category remotely, delete locally, and return true when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteCategory(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(
+            () => mockLocalDataSource.deleteCategory(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.deleteCategory(tEntity.id);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteCategory(tEntity.id),
+          ).called(1);
           verify(
             () => mockLocalDataSource.deleteCategory(tEntity.id),
           ).called(1);
         },
       );
+
+      test(
+        'should return FailureState when remote deletion fails when online',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteCategory(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+          final result = await repository.deleteCategory(tEntity.id);
+
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Server error');
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteCategory(tEntity.id),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.deleteCategory(any()));
+        },
+      );
     });
   });
 }
+
