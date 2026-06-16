@@ -24,65 +24,65 @@ class LocationsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => GetIt.I<LocationsCubit>()..loadLocationsAndAreas(),
-      child: BaseScaffold(
-        isScrollable: false,
-        appBar: BaseAppBar(
-          title: 'Locais'.hardcoded,
-          leading: BaseIconButton(
-            onPressed: Scaffold.of(context).openDrawer,
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.menu,
-              cupertinoIcon: CupertinoIcons.bars,
-            ),
-          ),
-          actions: [
-            Builder(
-              builder: (context) => BaseIconButton(
-                onPressed: () => showModalPage<void>(
-                  BlocProvider.value(
-                    value: context.read<LocationsCubit>(),
-                    child: const CreateLocation(),
-                  ),
-                  context,
-                ),
+      child: Builder(
+        builder: (context) {
+          return BaseScaffold(
+            onRefresh: context.read<LocationsCubit>().loadLocationsAndAreas,
+            isScrollable: false,
+            appBar: BaseAppBar(
+              title: 'Locais'.hardcoded,
+              leading: BaseIconButton(
+                onPressed: Scaffold.of(context).openDrawer,
                 platformIcon: const PlatformIcon(
-                  materialIcon: Icons.add,
-                  cupertinoIcon: CupertinoIcons.add,
+                  materialIcon: Icons.menu,
+                  cupertinoIcon: CupertinoIcons.bars,
                 ),
               ),
+              actions: [
+                BaseIconButton(
+                  onPressed: () => showModalPage<void>(
+                    BlocProvider.value(
+                      value: context.read<LocationsCubit>(),
+                      child: const CreateLocation(),
+                    ),
+                    context,
+                  ),
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.add,
+                    cupertinoIcon: CupertinoIcons.add,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        body: Builder(
-          builder: (context) {
-            return BaseStateView<
-              LocationsCubit,
-              LocationsState,
-              List<LocationEntity>
-            >(
-              dataSelector: (state) => state.locations,
-              onRetry: context.read<LocationsCubit>().loadLocationsAndAreas,
-              builder: (context, locations) {
-                final state = context.watch<LocationsCubit>().state;
-                if (locations.isEmpty) {
-                  return Center(
-                    child: BaseText('Nenhum local cadastrado'.hardcoded),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: locations.length,
-                  itemBuilder: (context, index) {
-                    final location = locations[index];
-                    return LocationCard(
-                      location: location,
-                      areas: state.areasByLocation[location.id] ?? const [],
+            body:
+                BaseStateView<
+                  LocationsCubit,
+                  LocationsState,
+                  List<LocationEntity>
+                >(
+                  dataSelector: (state) => state.locations,
+                  onRetry: context.read<LocationsCubit>().loadLocationsAndAreas,
+                  builder: (context, locations) {
+                    final state = context.watch<LocationsCubit>().state;
+                    if (locations.isEmpty) {
+                      return Center(
+                        child: BaseText('Nenhum local cadastrado'.hardcoded),
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: locations.length,
+                      itemBuilder: (context, index) {
+                        final location = locations[index];
+                        return LocationCard(
+                          location: location,
+                          areas: state.areasByLocation[location.id] ?? const [],
+                        );
+                      },
                     );
                   },
-                );
-              },
-            );
-          },
-        ),
+                ),
+          );
+        },
       ),
     );
   }
