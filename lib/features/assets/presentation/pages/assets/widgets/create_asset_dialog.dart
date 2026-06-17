@@ -50,6 +50,7 @@ class CreateAssetDialog extends HookWidget {
     final serialNumberController = useTextEditingController();
     final notesController = useTextEditingController();
 
+    final selectedLocationId = useState<String?>(null);
     final selectedAreaId = useState<String?>(null);
     final selectedCategoryId = useState<String?>(null);
     final selectedParentAssetId = useState<String?>(null);
@@ -108,19 +109,20 @@ class CreateAssetDialog extends HookWidget {
       context.read<AssetsCubit>().createAsset(asset);
     }
 
-    final areaDropdownItems = areas.map((area) {
-      String locationName = '';
-      for (final l in locations) {
-        if (l.id == area.locationId) {
-          locationName = l.name;
-          break;
-        }
-      }
+    final locationDropdownItems = locations.map((loc) {
+      return DropdownMenuItem<String>(value: loc.id, child: BaseText(loc.name));
+    }).toList();
+
+    final filteredAreas = selectedLocationId.value != null
+        ? areas
+              .where((area) => area.locationId == selectedLocationId.value)
+              .toList()
+        : <AreaEntity>[];
+
+    final areaDropdownItems = filteredAreas.map((area) {
       return DropdownMenuItem<String>(
         value: area.id,
-        child: BaseText(
-          locationName.isNotEmpty ? '${area.name} ($locationName)' : area.name,
-        ),
+        child: BaseText(area.name),
       );
     }).toList();
 
@@ -164,13 +166,33 @@ class CreateAssetDialog extends HookWidget {
               ),
               gapH16,
               BaseDropDown<String>(
+                key: const ValueKey('Location'),
+                label: 'Local *'.hardcoded,
+                selectedItem: selectedLocationId.value,
+                validator: (val) =>
+                    val == null ? 'Selecione um local'.hardcoded : null,
+                items: locationDropdownItems,
+                onChanged: (val) {
+                  selectedLocationId.value = val;
+                  selectedAreaId.value = null;
+                },
+              ),
+              gapH16,
+              BaseDropDown<String>(
                 key: const ValueKey('Area'),
                 label: 'Área *'.hardcoded,
                 selectedItem: selectedAreaId.value,
+                hint: selectedLocationId.value == null
+                    ? BaseText('Selecione primeiro o local'.hardcoded)
+                    : (filteredAreas.isEmpty
+                          ? BaseText('Sem áreas cadastradas'.hardcoded)
+                          : BaseText('Selecione a área'.hardcoded)),
                 validator: (val) =>
                     val == null ? 'Selecione uma área'.hardcoded : null,
                 items: areaDropdownItems,
-                onChanged: (val) => selectedAreaId.value = val,
+                onChanged: selectedLocationId.value == null
+                    ? null
+                    : (val) => selectedAreaId.value = val,
               ),
               gapH16,
               BaseDropDown<String>(
