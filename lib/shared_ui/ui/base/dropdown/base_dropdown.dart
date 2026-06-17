@@ -139,12 +139,16 @@ class BaseDropDown<T> extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     child: selectedMenuItem.child,
                                   )
-                                : Text(
-                                    label ?? 'Selecionar'.hardcoded,
-                                    maxLines: 1,
-                                    style: theme.textTheme.bodyLarge,
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
+                                : Center(
+                                    child:
+                                        hint ??
+                                        Text(
+                                          label ?? 'Selecionar'.hardcoded,
+                                          maxLines: 1,
+                                          style: theme.textTheme.bodyLarge,
+                                          textAlign: TextAlign.center,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                   ),
                           ),
                           if (screenWidth > 300)
