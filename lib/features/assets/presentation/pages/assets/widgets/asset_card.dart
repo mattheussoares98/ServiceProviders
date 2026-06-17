@@ -13,6 +13,7 @@ import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,51 +40,26 @@ class AssetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AreaEntity? area;
-    for (final a in areas) {
-      if (a.id == asset.areaId) {
-        area = a;
-        break;
-      }
-    }
+    final AreaEntity? area = areas.firstWhereOrNull(
+      (e) => e.id == asset.areaId,
+    );
 
-    LocationEntity? location;
-    if (area != null) {
-      for (final l in locations) {
-        if (l.id == area.locationId) {
-          location = l;
-          break;
-        }
-      }
-    }
+    final LocationEntity? location = locations.firstWhereOrNull(
+      (e) => e.id == area?.locationId,
+    );
 
-    CategoryEntity? category;
-    if (asset.categoryId != null) {
-      for (final c in categories) {
-        if (c.id == asset.categoryId) {
-          category = c;
-          break;
-        }
-      }
-    }
+    final CategoryEntity? category = categories.firstWhereOrNull(
+      (e) => e.id == asset.categoryId,
+    );
 
-    AssetEntity? parentAsset;
-    if (asset.parentAssetId != null) {
-      for (final a in allAssets) {
-        if (a.id == asset.parentAssetId) {
-          parentAsset = a;
-          break;
-        }
-      }
-    }
+    final AssetEntity? parentAsset = allAssets.firstWhereOrNull(
+      (e) => e.id == asset.parentAssetId,
+    );
 
-    final locationInfo = [
-      if (area != null) area.name,
-      if (location != null) location.name,
-    ].join(' - ');
+    final locationInfo = [area?.name, location?.name].join(' - ');
 
     final subtitleParts = [
-      if (asset.code != null && asset.code!.isNotEmpty) '[${asset.code}]',
+      if (asset.code?.isNotEmpty ?? false) '[${asset.code}]',
       if (locationInfo.isNotEmpty) locationInfo,
     ].join(' ');
 
