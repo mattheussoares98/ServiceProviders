@@ -1,4 +1,7 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/task_request_model.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -28,11 +31,27 @@ void main() {
       WorkOrderResponseModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
     registerFallbackValue(
+      WorkOrderRequestModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+    );
+    registerFallbackValue(
       TaskResponseModel.fromEntity(EntityFactory.makeTaskEntity()),
+    );
+    registerFallbackValue(
+      TaskRequestModel.fromEntity(EntityFactory.makeTaskEntity()),
     );
     registerFallbackValue(
       WorkOrderChangeRequestResponseModel.fromEntity(
         EntityFactory.makeWorkOrderChangeRequestEntity(),
+      ),
+    );
+    registerFallbackValue(
+      WorkOrderChangeRequestRequestModel.fromEntity(
+        EntityFactory.makeWorkOrderChangeRequestEntity(),
+      ),
+    );
+    registerFallbackValue(
+      WorkOrderHistoryResponseModel.fromEntity(
+        EntityFactory.makeWorkOrderHistoryEntity(),
       ),
     );
   });
@@ -68,341 +87,866 @@ void main() {
   final tWorkOrderId = faker.guid.guid();
   final tTaskId = faker.guid.guid();
   final tChangeId = faker.guid.guid();
+  final tReviewerId = faker.guid.guid();
 
-  group('WorkOrdersRepositoryImpl - Work Orders', () {
-    group('getWorkOrders', () {
-      test(
-        'should return SuccessState<List<WorkOrderEntity>> when local data source is successful',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.getWorkOrders(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
-
-          // Act
-          final result = await repository.getWorkOrders(tCompanyId);
-
-          // Assert
-          expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
-          expect(result.data, hasLength(1));
-          expect(result.data!.first, equals(tWorkOrderEntity));
-          verify(() => mockLocalDataSource.getWorkOrders(tCompanyId)).called(1);
-        },
-      );
-
-      test('should return FailureState when local data source fails', () async {
-        // Arrange
+  group('getWorkOrders', () {
+    test(
+      'should return remote data and cache it locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockLocalDataSource.getWorkOrders(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Database error'));
+          () => mockRemoteDataSource.getWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
         final result = await repository.getWorkOrders(tCompanyId);
 
-        // Assert
+        expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
+        expect(result.data, [tWorkOrderEntity]);
+        verify(() => mockRemoteDataSource.getWorkOrders(tCompanyId)).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+      },
+    );
+
+    test('should return local data when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getWorkOrders(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
+
+      final result = await repository.getWorkOrders(tCompanyId);
+
+      expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
+      expect(result.data, [tWorkOrderEntity]);
+      verify(() => mockLocalDataSource.getWorkOrders(tCompanyId)).called(1);
+      verifyNever(() => mockRemoteDataSource.getWorkOrders(any()));
+    });
+
+    test(
+      'should return FailureState when remote call fails and internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getWorkOrders(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.getWorkOrders(tCompanyId);
+
         expect(result, isA<FailureState<List<WorkOrderEntity>>>());
-        expect(result.message, 'Database error');
-      });
-    });
-
-    group('getWorkOrderById', () {
-      test(
-        'should return SuccessState<WorkOrderEntity> when local data source returns work order',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.getWorkOrderById(any()),
-          ).thenAnswer((_) async => SuccessState(data: tWorkOrderModel));
-
-          // Act
-          final result = await repository.getWorkOrderById(tWorkOrderId);
-
-          // Assert
-          expect(result, isA<SuccessState<WorkOrderEntity>>());
-          expect(result.data, equals(tWorkOrderEntity));
-          verify(
-            () => mockLocalDataSource.getWorkOrderById(tWorkOrderId),
-          ).called(1);
-        },
-      );
-
-      test(
-        'should return FailureState when local data source fails to find work order',
-        () async {
-          // Arrange
-          when(() => mockLocalDataSource.getWorkOrderById(any())).thenAnswer(
-            (_) async => FailureState(message: 'Work order not found'),
-          );
-
-          // Act
-          final result = await repository.getWorkOrderById(tWorkOrderId);
-
-          // Assert
-          expect(result, isA<FailureState<WorkOrderEntity>>());
-          expect(result.message, 'Work order not found');
-        },
-      );
-    });
-
-    group('createWorkOrder', () {
-      test(
-        'should return SuccessState<bool>(true) when save is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.saveWorkOrder(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-
-          // Act
-          final result = await repository.createWorkOrder(tWorkOrderEntity);
-
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveWorkOrder(any())).called(1);
-        },
-      );
-    });
-
-    group('updateWorkOrder', () {
-      test(
-        'should return SuccessState<bool>(true) when update is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.saveWorkOrder(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-
-          // Act
-          final result = await repository.updateWorkOrder(tWorkOrderEntity);
-
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveWorkOrder(any())).called(1);
-        },
-      );
-    });
-
-    group('deleteWorkOrder', () {
-      test(
-        'should return SuccessState<bool>(true) when deletion is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.deleteWorkOrder(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-
-          // Act
-          final result = await repository.deleteWorkOrder(tWorkOrderId);
-
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(
-            () => mockLocalDataSource.deleteWorkOrder(tWorkOrderId),
-          ).called(1);
-        },
-      );
-    });
+        expect(result.message, 'Server error');
+        verify(() => mockRemoteDataSource.getWorkOrders(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.getWorkOrders(any()));
+      },
+    );
   });
 
-  group('WorkOrdersRepositoryImpl - Tasks', () {
-    group('getTasksByWorkOrder', () {
-      test(
-        'should return SuccessState<List<TaskEntity>> when local call is successful',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.getTasksByWorkOrder(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tTaskModel]));
+  group('getWorkOrderById', () {
+    test(
+      'should return remote data and cache it locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getWorkOrderById(any()),
+        ).thenAnswer((_) async => SuccessState(data: tWorkOrderModel));
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
-          final result = await repository.getTasksByWorkOrder(tWorkOrderId);
+        final result = await repository.getWorkOrderById(tWorkOrderId);
 
-          // Assert
-          expect(result, isA<SuccessState<List<TaskEntity>>>());
-          expect(result.data, hasLength(1));
-          expect(result.data!.first, equals(tTaskEntity));
-          verify(
-            () => mockLocalDataSource.getTasksByWorkOrder(tWorkOrderId),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<WorkOrderEntity>>());
+        expect(result.data, tWorkOrderEntity);
+        verify(
+          () => mockRemoteDataSource.getWorkOrderById(tWorkOrderId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+      },
+    );
+
+    test('should return local data when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getWorkOrderById(any()),
+      ).thenAnswer((_) async => SuccessState(data: tWorkOrderModel));
+
+      final result = await repository.getWorkOrderById(tWorkOrderId);
+
+      expect(result, isA<SuccessState<WorkOrderEntity>>());
+      expect(result.data, tWorkOrderEntity);
+      verify(
+        () => mockLocalDataSource.getWorkOrderById(tWorkOrderId),
+      ).called(1);
+      verifyNever(() => mockRemoteDataSource.getWorkOrderById(any()));
     });
 
-    group('createTask', () {
-      test(
-        'should return SuccessState<bool>(true) when save is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.saveTask(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return FailureState when remote call fails and internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getWorkOrderById(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
-          // Act
-          final result = await repository.createTask(tTaskEntity);
+        final result = await repository.getWorkOrderById(tWorkOrderId);
 
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveTask(any())).called(1);
-        },
-      );
-    });
-
-    group('updateTask', () {
-      test(
-        'should return SuccessState<bool>(true) when update is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.saveTask(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-
-          // Act
-          final result = await repository.updateTask(tTaskEntity);
-
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveTask(any())).called(1);
-        },
-      );
-    });
-
-    group('deleteTask', () {
-      test(
-        'should return SuccessState<bool>(true) when deletion is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.deleteTask(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-
-          // Act
-          final result = await repository.deleteTask(tTaskId);
-
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.deleteTask(tTaskId)).called(1);
-        },
-      );
-    });
+        expect(result, isA<FailureState<WorkOrderEntity>>());
+        expect(result.message, 'Server error');
+        verify(
+          () => mockRemoteDataSource.getWorkOrderById(tWorkOrderId),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.getWorkOrderById(any()));
+      },
+    );
   });
 
-  group('WorkOrdersRepositoryImpl - Change Requests', () {
-    group('getChangeRequests', () {
-      test(
-        'should return SuccessState<List<WorkOrderChangeRequestEntity>> when local call is successful',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.getChangeRequests(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tChangeModel]));
+  group('createWorkOrder', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
-          final result = await repository.getChangeRequests(tCompanyId);
+        final result = await repository.createWorkOrder(tWorkOrderEntity);
 
-          // Assert
-          expect(
-            result,
-            isA<SuccessState<List<WorkOrderChangeRequestEntity>>>(),
-          );
-          expect(result.data, hasLength(1));
-          expect(result.data!.first, equals(tChangeEntity));
-          verify(
-            () => mockLocalDataSource.getChangeRequests(tCompanyId),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.createWorkOrder(any())).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createWorkOrder(tWorkOrderEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+        verifyNever(() => mockRemoteDataSource.createWorkOrder(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createWorkOrder(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.createWorkOrder(tWorkOrderEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.saveWorkOrder(tWorkOrderModel));
+      },
+    );
+  });
+
+  group('updateWorkOrder', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.updateWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateWorkOrder(tWorkOrderEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.updateWorkOrder(any())).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateWorkOrder(tWorkOrderEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+        ).called(1);
+        verifyNever(() => mockRemoteDataSource.updateWorkOrder(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.updateWorkOrder(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.updateWorkOrder(tWorkOrderEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.saveWorkOrder(tWorkOrderModel));
+      },
+    );
+  });
+
+  group('deleteWorkOrder', () {
+    test(
+      'should call remote, delete locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteWorkOrder(tWorkOrderId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockRemoteDataSource.deleteWorkOrder(tWorkOrderId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.deleteWorkOrder(tWorkOrderId),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should only delete locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteWorkOrder(tWorkOrderId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.deleteWorkOrder(tWorkOrderId),
+        ).called(1);
+        verifyNever(() => mockRemoteDataSource.deleteWorkOrder(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.deleteWorkOrder(tWorkOrderId);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.deleteWorkOrder(tWorkOrderId));
+      },
+    );
+  });
+
+  group('getTasksByWorkOrder', () {
+    test(
+      'should return remote data and cache it locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getTasksByWorkOrder(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tTaskModel]));
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.getTasksByWorkOrder(tWorkOrderId);
+
+        expect(result, isA<SuccessState<List<TaskEntity>>>());
+        expect(result.data, [tTaskEntity]);
+        verify(
+          () => mockRemoteDataSource.getTasksByWorkOrder(tWorkOrderId),
+        ).called(1);
+        verify(() => mockLocalDataSource.saveTask(tTaskModel)).called(1);
+      },
+    );
+
+    test('should return local data when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getTasksByWorkOrder(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tTaskModel]));
+
+      final result = await repository.getTasksByWorkOrder(tWorkOrderId);
+
+      expect(result, isA<SuccessState<List<TaskEntity>>>());
+      expect(result.data, [tTaskEntity]);
+      verify(
+        () => mockLocalDataSource.getTasksByWorkOrder(tWorkOrderId),
+      ).called(1);
+      verifyNever(() => mockRemoteDataSource.getTasksByWorkOrder(any()));
     });
 
-    group('createChangeRequest', () {
-      test(
-        'should return SuccessState<bool>(true) when save is successful locally',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.saveChangeRequest(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return FailureState when remote call fails and internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getTasksByWorkOrder(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
-          // Act
-          final result = await repository.createChangeRequest(tChangeEntity);
+        final result = await repository.getTasksByWorkOrder(tWorkOrderId);
 
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveChangeRequest(any())).called(1);
-        },
-      );
+        expect(result, isA<FailureState<List<TaskEntity>>>());
+        expect(result.message, 'Server error');
+        verify(
+          () => mockRemoteDataSource.getTasksByWorkOrder(tWorkOrderId),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.getTasksByWorkOrder(any()));
+      },
+    );
+  });
+
+  group('createTask', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createTask(tTaskEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.createTask(any())).called(1);
+        verify(() => mockLocalDataSource.saveTask(tTaskModel)).called(1);
+      },
+    );
+
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createTask(tTaskEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockLocalDataSource.saveTask(tTaskModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.createTask(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createTask(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.createTask(tTaskEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.saveTask(tTaskModel));
+      },
+    );
+  });
+
+  group('updateTask', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.updateTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateTask(tTaskEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.updateTask(any())).called(1);
+        verify(() => mockLocalDataSource.saveTask(tTaskModel)).called(1);
+      },
+    );
+
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateTask(tTaskEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockLocalDataSource.saveTask(tTaskModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.updateTask(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.updateTask(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.updateTask(tTaskEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.saveTask(tTaskModel));
+      },
+    );
+  });
+
+  group('deleteTask', () {
+    test(
+      'should call remote, delete locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.deleteTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.deleteTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteTask(tTaskId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.deleteTask(tTaskId)).called(1);
+        verify(() => mockLocalDataSource.deleteTask(tTaskId)).called(1);
+      },
+    );
+
+    test(
+      'should only delete locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.deleteTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteTask(tTaskId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockLocalDataSource.deleteTask(tTaskId)).called(1);
+        verifyNever(() => mockRemoteDataSource.deleteTask(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.deleteTask(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.deleteTask(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.deleteTask(tTaskId);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.deleteTask(tTaskId));
+      },
+    );
+  });
+
+  group('getChangeRequests', () {
+    test(
+      'should return remote data and cache it locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getChangeRequests(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tChangeModel]));
+        when(
+          () => mockLocalDataSource.saveChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.getChangeRequests(tCompanyId);
+
+        expect(result, isA<SuccessState<List<WorkOrderChangeRequestEntity>>>());
+        expect(result.data, [tChangeEntity]);
+        verify(
+          () => mockRemoteDataSource.getChangeRequests(tCompanyId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveChangeRequest(tChangeModel),
+        ).called(1);
+      },
+    );
+
+    test('should return local data when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getChangeRequests(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tChangeModel]));
+
+      final result = await repository.getChangeRequests(tCompanyId);
+
+      expect(result, isA<SuccessState<List<WorkOrderChangeRequestEntity>>>());
+      expect(result.data, [tChangeEntity]);
+      verify(() => mockLocalDataSource.getChangeRequests(tCompanyId)).called(1);
+      verifyNever(() => mockRemoteDataSource.getChangeRequests(any()));
     });
 
-    group('reviewChangeRequest', () {
-      test(
-        'should return SuccessState<bool>(true) when review is successful locally',
-        () async {
-          // Arrange
-          const tStatus = ChangeRequestStatus.approved;
-          final tReason = faker.lorem.sentence();
-          final tReviewerId = faker.guid.guid();
+    test(
+      'should return FailureState when remote call fails and internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getChangeRequests(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
-          when(
-            () => mockLocalDataSource.reviewChangeRequest(
-              id: any(named: 'id'),
-              status: any(named: 'status'),
-              rejectionReason: any(named: 'rejectionReason'),
-              reviewedById: any(named: 'reviewedById'),
-            ),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+        final result = await repository.getChangeRequests(tCompanyId);
 
-          // Act
-          final result = await repository.reviewChangeRequest(
+        expect(result, isA<FailureState<List<WorkOrderChangeRequestEntity>>>());
+        expect(result.message, 'Server error');
+        verify(
+          () => mockRemoteDataSource.getChangeRequests(tCompanyId),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.getChangeRequests(any()));
+      },
+    );
+  });
+
+  group('createChangeRequest', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createChangeRequest(tChangeEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockRemoteDataSource.createChangeRequest(any())).called(1);
+        verify(
+          () => mockLocalDataSource.saveChangeRequest(tChangeModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createChangeRequest(tChangeEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.saveChangeRequest(tChangeModel),
+        ).called(1);
+        verifyNever(() => mockRemoteDataSource.createChangeRequest(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.saveChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.createChangeRequest(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.createChangeRequest(tChangeEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.saveChangeRequest(tChangeModel));
+      },
+    );
+  });
+
+  group('reviewChangeRequest', () {
+    test(
+      'should call remote, save locally, and return SuccessState(true) when internet is connected',
+      () async {
+        const tStatus = ChangeRequestStatus.approved;
+        final tReason = faker.lorem.sentence();
+
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.reviewChangeRequest(
+          id: tChangeId,
+          status: tStatus,
+          rejectionReason: tReason,
+          reviewedById: tReviewerId,
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockRemoteDataSource.reviewChangeRequest(
             id: tChangeId,
-            status: tStatus,
+            status: tStatus.code,
             rejectionReason: tReason,
             reviewedById: tReviewerId,
-          );
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: tChangeId,
+            status: tStatus.code,
+            rejectionReason: tReason,
+            reviewedById: tReviewerId,
+          ),
+        ).called(1);
+      },
+    );
 
-          // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(
-            () => mockLocalDataSource.reviewChangeRequest(
-              id: tChangeId,
-              status: tStatus.code,
-              rejectionReason: tReason,
-              reviewedById: tReviewerId,
-            ),
-          ).called(1);
-        },
-      );
-    });
+    test(
+      'should only save locally and return SuccessState(true) when internet is disconnected',
+      () async {
+        const tStatus = ChangeRequestStatus.approved;
+        final tReason = faker.lorem.sentence();
+
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.reviewChangeRequest(
+          id: tChangeId,
+          status: tStatus,
+          rejectionReason: tReason,
+          reviewedById: tReviewerId,
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: tChangeId,
+            status: tStatus.code,
+            rejectionReason: tReason,
+            reviewedById: tReviewerId,
+          ),
+        ).called(1);
+        verifyNever(
+          () => mockRemoteDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        const tStatus = ChangeRequestStatus.approved;
+        final tReason = faker.lorem.sentence();
+
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRemoteDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.reviewChangeRequest(
+          id: tChangeId,
+          status: tStatus,
+          rejectionReason: tReason,
+          reviewedById: tReviewerId,
+        );
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(
+          () => mockLocalDataSource.reviewChangeRequest(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            rejectionReason: any(named: 'rejectionReason'),
+            reviewedById: any(named: 'reviewedById'),
+          ),
+        );
+      },
+    );
   });
 
-  group('WorkOrdersRepositoryImpl - History', () {
-    group('getWorkOrderHistory', () {
-      test(
-        'should return SuccessState<List<WorkOrderHistoryEntity>> when local call is successful',
-        () async {
-          // Arrange
-          when(
-            () => mockLocalDataSource.getWorkOrderHistory(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tHistoryModel]));
+  group('getWorkOrderHistory', () {
+    test(
+      'should return remote data and cache it locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getWorkOrderHistory(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tHistoryModel]));
+        when(
+          () => mockLocalDataSource.saveWorkOrderHistory(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-          // Act
-          final result = await repository.getWorkOrderHistory(tWorkOrderId);
+        final result = await repository.getWorkOrderHistory(tWorkOrderId);
 
-          // Assert
-          expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
-          expect(result.data, hasLength(1));
-          expect(result.data!.first, equals(tHistoryEntity));
-          verify(
-            () => mockLocalDataSource.getWorkOrderHistory(tWorkOrderId),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
+        expect(result.data, [tHistoryEntity]);
+        verify(
+          () => mockRemoteDataSource.getWorkOrderHistory(tWorkOrderId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrderHistory(tHistoryModel),
+        ).called(1);
+      },
+    );
+
+    test('should return local data when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getWorkOrderHistory(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tHistoryModel]));
+
+      final result = await repository.getWorkOrderHistory(tWorkOrderId);
+
+      expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
+      expect(result.data, [tHistoryEntity]);
+      verify(
+        () => mockLocalDataSource.getWorkOrderHistory(tWorkOrderId),
+      ).called(1);
+      verifyNever(() => mockRemoteDataSource.getWorkOrderHistory(any()));
     });
+
+    test(
+      'should return FailureState when remote call fails and internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getWorkOrderHistory(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.getWorkOrderHistory(tWorkOrderId);
+
+        expect(result, isA<FailureState<List<WorkOrderHistoryEntity>>>());
+        expect(result.message, 'Server error');
+        verify(
+          () => mockRemoteDataSource.getWorkOrderHistory(tWorkOrderId),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.getWorkOrderHistory(any()));
+      },
+    );
   });
 }

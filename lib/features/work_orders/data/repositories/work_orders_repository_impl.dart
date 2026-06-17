@@ -1,8 +1,12 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
 import 'package:clean_architecture/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/task_request_model.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -21,9 +25,9 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required InternetClient internet,
     required WorkOrdersRemoteDataSource remoteDataSource,
     required WorkOrdersLocalDataSource localDataSource,
-  })  : _internet = internet,
-        _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _internet = internet,
+       _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
@@ -31,58 +35,226 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
 
   @override
   FutureList<WorkOrderEntity> getWorkOrders(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<WorkOrderResponseModel,
-          WorkOrderEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        WorkOrderResponseModel,
+        WorkOrderEntity
+      >(
+        isInternetConnected: _internet.isConnected,
         localCallback: () => _localDataSource.getWorkOrders(companyId),
+        remoteCallback: () => _remoteDataSource.getWorkOrders(companyId),
+        onRemoteSuccess: (list) async {
+          await Future.wait(list.map(_localDataSource.saveWorkOrder).toList());
+          return const SuccessState(data: true);
+        },
       );
 
   @override
   FutureData<WorkOrderEntity> getWorkOrderById(String id) =>
-      RepositoryHandler.fetchFromLocalAndMap<WorkOrderResponseModel,
-          WorkOrderEntity>(
+      RepositoryHandler.fetchWithFallbackAndMap<
+        WorkOrderResponseModel,
+        WorkOrderEntity
+      >(
+        isInternetConnected: _internet.isConnected,
         localCallback: () => _localDataSource.getWorkOrderById(id),
+        remoteCallback: () => _remoteDataSource.getWorkOrderById(id),
+        onRemoteSuccess: _localDataSource.saveWorkOrder,
       );
 
   @override
   FutureBool createWorkOrder(WorkOrderEntity workOrder) =>
-      _localDataSource.saveWorkOrder(WorkOrderResponseModel.fromEntity(workOrder));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.saveWorkOrder(
+          WorkOrderResponseModel.fromEntity(workOrder),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createWorkOrder(
+            WorkOrderRequestModel.fromEntity(workOrder),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.saveWorkOrder(
+              WorkOrderResponseModel.fromEntity(workOrder),
+            );
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
   FutureBool updateWorkOrder(WorkOrderEntity workOrder) =>
-      _localDataSource.saveWorkOrder(WorkOrderResponseModel.fromEntity(workOrder));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.saveWorkOrder(
+          WorkOrderResponseModel.fromEntity(workOrder),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateWorkOrder(
+            WorkOrderRequestModel.fromEntity(workOrder),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.saveWorkOrder(
+              WorkOrderResponseModel.fromEntity(workOrder),
+            );
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
-  FutureBool deleteWorkOrder(String id) => _localDataSource.deleteWorkOrder(id);
+  FutureBool deleteWorkOrder(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.deleteWorkOrder(id),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deleteWorkOrder(id);
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.deleteWorkOrder(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
   FutureList<TaskEntity> getTasksByWorkOrder(String workOrderId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<TaskResponseModel, TaskEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        TaskResponseModel,
+        TaskEntity
+      >(
+        isInternetConnected: _internet.isConnected,
         localCallback: () => _localDataSource.getTasksByWorkOrder(workOrderId),
+        remoteCallback: () =>
+            _remoteDataSource.getTasksByWorkOrder(workOrderId),
+        onRemoteSuccess: (list) async {
+          await Future.wait(list.map(_localDataSource.saveTask).toList());
+          return const SuccessState(data: true);
+        },
       );
 
   @override
   FutureBool createTask(TaskEntity task) =>
-      _localDataSource.saveTask(TaskResponseModel.fromEntity(task));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () =>
+            _localDataSource.saveTask(TaskResponseModel.fromEntity(task)),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createTask(
+            TaskRequestModel.fromEntity(task),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.saveTask(TaskResponseModel.fromEntity(task));
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
   FutureBool updateTask(TaskEntity task) =>
-      _localDataSource.saveTask(TaskResponseModel.fromEntity(task));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () =>
+            _localDataSource.saveTask(TaskResponseModel.fromEntity(task)),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateTask(
+            TaskRequestModel.fromEntity(task),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.saveTask(TaskResponseModel.fromEntity(task));
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
-  FutureBool deleteTask(String id) => _localDataSource.deleteTask(id);
+  FutureBool deleteTask(String id) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    localCallback: () => _localDataSource.deleteTask(id),
+    remoteCallback: () async {
+      final result = await _remoteDataSource.deleteTask(id);
+      if (result is SuccessState<bool> && result.data == true) {
+        await _localDataSource.deleteTask(id);
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    },
+  );
 
   @override
   FutureList<WorkOrderChangeRequestEntity> getChangeRequests(
-          String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<
-          WorkOrderChangeRequestResponseModel, WorkOrderChangeRequestEntity>(
+    String companyId,
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        WorkOrderChangeRequestResponseModel,
+        WorkOrderChangeRequestEntity
+      >(
+        isInternetConnected: _internet.isConnected,
         localCallback: () => _localDataSource.getChangeRequests(companyId),
+        remoteCallback: () => _remoteDataSource.getChangeRequests(companyId),
+        onRemoteSuccess: (list) async {
+          await Future.wait(list.map(_localDataSource.saveChangeRequest));
+          return const SuccessState(data: true);
+        },
       );
 
   @override
   FutureBool createChangeRequest(WorkOrderChangeRequestEntity request) =>
-      _localDataSource.saveChangeRequest(
-          WorkOrderChangeRequestResponseModel.fromEntity(request));
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.saveChangeRequest(
+          WorkOrderChangeRequestResponseModel.fromEntity(request),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createChangeRequest(
+            WorkOrderChangeRequestRequestModel.fromEntity(request),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.saveChangeRequest(
+              WorkOrderChangeRequestResponseModel.fromEntity(request),
+            );
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   @override
   FutureBool reviewChangeRequest({
@@ -90,19 +262,52 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required ChangeRequestStatus status,
     String? rejectionReason,
     required String reviewedById,
-  }) =>
-      _localDataSource.reviewChangeRequest(
+  }) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    localCallback: () => _localDataSource.reviewChangeRequest(
+      id: id,
+      status: status.code,
+      rejectionReason: rejectionReason,
+      reviewedById: reviewedById,
+    ),
+    remoteCallback: () async {
+      final result = await _remoteDataSource.reviewChangeRequest(
         id: id,
         status: status.code,
         rejectionReason: rejectionReason,
         reviewedById: reviewedById,
       );
+      if (result is SuccessState<bool> && result.data == true) {
+        await _localDataSource.reviewChangeRequest(
+          id: id,
+          status: status.code,
+          rejectionReason: rejectionReason,
+          reviewedById: reviewedById,
+        );
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    },
+  );
 
   @override
-  FutureList<WorkOrderHistoryEntity> getWorkOrderHistory(
-          String workOrderId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<
-          WorkOrderHistoryResponseModel, WorkOrderHistoryEntity>(
+  FutureList<WorkOrderHistoryEntity> getWorkOrderHistory(String workOrderId) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        WorkOrderHistoryResponseModel,
+        WorkOrderHistoryEntity
+      >(
+        isInternetConnected: _internet.isConnected,
         localCallback: () => _localDataSource.getWorkOrderHistory(workOrderId),
+        remoteCallback: () =>
+            _remoteDataSource.getWorkOrderHistory(workOrderId),
+        onRemoteSuccess: (list) async {
+          await Future.wait(list.map(_localDataSource.saveWorkOrderHistory));
+          return const SuccessState(data: true);
+        },
       );
 }
