@@ -90,7 +90,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Local criado com sucesso'.hardcoded);
       await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -104,7 +103,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Local atualizado com sucesso'.hardcoded);
       await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -118,7 +116,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Local excluído com sucesso'.hardcoded);
       await loadLocationsAndAreas();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -132,7 +129,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Área criada com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
@@ -148,7 +144,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Área atualizada com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
@@ -164,7 +159,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Área excluída com sucesso'.hardcoded);
       emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
