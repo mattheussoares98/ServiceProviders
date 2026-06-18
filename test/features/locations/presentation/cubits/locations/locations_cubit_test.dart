@@ -232,9 +232,14 @@ void main() {
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.createLocation(tLocation),
+        act: (cubit) async {
+          expect(await cubit.createLocation(tLocation), isTrue);
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -261,7 +266,9 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.createLocation(tLocation),
+        act: (cubit) async {
+          expect(await cubit.createLocation(tLocation), isFalse);
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -293,9 +300,13 @@ void main() {
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.updateLocation(tLocation),
+        act: (cubit) async =>
+            expect(await cubit.updateLocation(tLocation), isTrue),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -322,7 +333,8 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.updateLocation(tLocation),
+        act: (cubit) async =>
+            expect(await cubit.updateLocation(tLocation), isFalse),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
