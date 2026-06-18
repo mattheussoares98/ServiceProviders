@@ -3,9 +3,13 @@ import 'package:clean_architecture/features/locations/domain/entities/area_entit
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area_dialog.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_location.dart';
+import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_list_tile.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,6 +37,50 @@ class LocationCard extends StatelessWidget {
       child: ExpansionTile(
         title: Center(child: BaseText.titleMedium(location.name)),
         subtitle: addressText.isNotEmpty ? BaseText(addressText) : null,
+        trailing: FittedBox(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: BaseIconButton(
+                  onPressed: () {
+                    showModalPage<void>(
+                      CreateLocation(location: location),
+                      context,
+                    );
+                  },
+                  platformIcon: const PlatformIcon(
+                    cupertinoIcon: CupertinoIcons.pencil,
+                    materialIcon: Icons.edit,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: BaseIconButton(
+                  onPressed: () {
+                    showAlertDialog(
+                      context: context,
+                      title: 'Excluir local?'.hardcoded,
+                      onOkPressed: () => context
+                          .read<LocationsCubit>()
+                          .deleteLocation(location.id),
+                      contentText:
+                          'Tem certeza que deseja excluir o local?'.hardcoded,
+                      defaultActionText: 'Sim'.hardcoded,
+                      cancelActionText: 'Cancelar'.hardcoded,
+                    );
+                  },
+                  platformIcon: const PlatformIcon(
+                    cupertinoIcon: CupertinoIcons.trash,
+                    materialIcon: Icons.delete_outline,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         children: [
           Column(
             children: [
