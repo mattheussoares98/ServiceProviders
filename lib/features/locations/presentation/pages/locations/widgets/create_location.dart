@@ -15,19 +15,24 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateLocation extends HookWidget {
-  const CreateLocation({super.key});
+  const CreateLocation({super.key, this.location});
+  final LocationEntity? location;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    final nameController = useTextEditingController();
-    final cepController = useTextEditingController();
-    final addressController = useTextEditingController();
-    final numberController = useTextEditingController();
-    final complementController = useTextEditingController();
-    final neighborhoodController = useTextEditingController();
-    final cityController = useTextEditingController();
-    final stateController = useTextEditingController();
+    final nameController = useTextEditingController(text: location?.name);
+    final cepController = useTextEditingController(text: location?.postalCode);
+    final addressController = useTextEditingController(text: location?.address);
+    final numberController = useTextEditingController(text: location?.number);
+    final complementController = useTextEditingController(
+      text: location?.complement,
+    );
+    final neighborhoodController = useTextEditingController(
+      text: location?.neighborhood,
+    );
+    final cityController = useTextEditingController(text: location?.city);
+    final stateController = useTextEditingController(text: location?.state);
     final cepFocusNode = useFocusNode();
     final addressFocusNode = useFocusNode();
     final numberFocusNode = useFocusNode();
