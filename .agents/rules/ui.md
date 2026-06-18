@@ -153,21 +153,20 @@ The following table maps standard widgets to their corresponding custom shared c
 
 ## Absolute Prohibitions
 
-- ❌ Never use `Navigator` directly. Always use `ClientMixin` methods (e.g. `pushRoute()`, `replaceAllRoute()`) which are available inside any `BaseCubit`.
-- ❌ Never use hardcoded spacing (e.g. `SizedBox(height: 16)`) or padding values directly (e.g. `16.0`). Always use the constants from `package:clean_architecture/shared_ui/utils/app_sizes.dart` (e.g., `gapH16` or `Sizes.p16`).
-- ❌ Never annotate a Page, State, or Widget with `@injectable` or `@LazySingleton`. Only Cubits get `@injectable`.
-- ❌ Never inject Use Cases directly into a Cubit; inject the `*CubitUseCases` aggregator.
-- ❌ Never extend `Cubit<T>` directly. Always extend `BaseCubit<T>`.
-- ❌ Never handle raw HTTP responses or parsing in the UI. Ensure data comes cleanly from the Cubit's state.
-- ❌ Never use the `faker` package in UI code (it is strictly for tests).
-- ❌ Never call `Theme.of(context)` or create local theme variables. Always use BuildContext extension methods (`context.theme`, `context.colorScheme`, `context.isCupertino`).
-- ❌ Never use `withOpacity` or `withAlpha`. Always use `withValues(alpha: value)`.
-- ❌ Never exceed 100 lines of code in a single Page file. Always split sub-widgets into a `widgets/` folder.
-- ❌ Never use `MediaQuery.of(context).size`. Always use `MediaQuery.sizeOf(context)` instead.
-- ❌ Never use raw Scaffold in a page. Always use BaseScaffold.
-- ❌ Never wrap the body of a Page in a SafeArea when using BaseScaffold, because BaseScaffold automatically manages SafeArea configuration on its body.
-- ❌ Never write user-visible text in English. All strings displayed to the user (labels, messages, button text, titles, placeholders) must be written in **Portuguese (pt-BR)**.
-- ❌ Never use raw Material/Flutter loading indicators (like `CircularProgressIndicator`) or basic action buttons when a matching shared UI component exists in `lib/shared_ui/ui/` (always prefer `LoadingCircle`, `PrimaryButton`, `BaseIconButton`, etc.).
-- ❌ Never use standard Flutter/Material widgets when a custom equivalent exists in `lib/shared_ui/ui/base/` (e.g. never use `Text`, `ElevatedButton`, `TextButton`, `IconButton`, `OutlinedButton`, `AlertDialog`, `showDialog`, `BottomNavigationBar`, `ListTile`, `Switch`, `Checkbox`, `ChoiceChip`, `SegmentedButton`, `DropdownButton`, `DropdownButtonFormField`, `TextField`, or `TextFormField`).
-- ❌ Never allow layouts to overflow on smaller screens. Use `Flexible`, `Expanded`, or responsive widgets (like `LayoutBuilder`, `SingleChildScrollView`) for child widgets that display text/labels in a `Row` or `Column` (e.g., inside card widgets like `StatsCard`).
-- ❌ Never declare color or label mapping methods (e.g., `_getStatusColor`, `_getPriorityLabel`) inside page classes, widget classes, or build methods. For domain enums that require presentation logic (colors, labels, icons), declare Dart extension methods in the presentation layer (or a shared presentation helper file) that extend the domain enums.
+- ❌ No `Navigator` directly — use `ClientMixin` (`pushRoute`, `replaceAllRoute`) in `BaseCubit`.
+- ❌ No hardcoded spacing/padding — use `app_sizes.dart` constants (`gapH16`, `Sizes.p16`).
+- ❌ No `@injectable`/`@LazySingleton` on Pages, States, or Widgets — only Cubits get `@injectable`.
+- ❌ No direct Use Case injection into Cubits — always inject the `*CubitUseCases` aggregator.
+- ❌ No `Cubit<T>` extension — always extend `BaseCubit<T>`.
+- ❌ No raw HTTP responses in UI — data comes from Cubit state only.
+- ❌ No `faker` in UI code — strictly for tests.
+- ❌ No `Theme.of(context)` — use `context.theme`, `context.colorScheme`, `context.isCupertino`.
+- ❌ No `.withOpacity()` / `.withAlpha()` — use `.withValues(alpha: value)`.
+- ❌ No Page file > 100 lines — split sub-widgets into `widgets/` folder.
+- ❌ No `MediaQuery.of(context).size` — use `MediaQuery.sizeOf(context)`.
+- ❌ No raw `Scaffold` — always `BaseScaffold`.
+- ❌ No `SafeArea` wrapping on `BaseScaffold` body — it manages safe areas internally.
+- ❌ No English user-visible strings — all labels/messages/buttons/placeholders in **pt-BR**.
+- ❌ No standard Flutter/Material widgets when a custom equivalent exists in `lib/shared_ui/ui/base/` (see widget mapping table above).
+- ❌ No overflow-prone layouts — use `Flexible`, `Expanded`, `LayoutBuilder`, `SingleChildScrollView`.
+- ❌ No color/label mapping methods inside page/widget classes — declare as Dart extension methods on domain enums in the presentation layer.

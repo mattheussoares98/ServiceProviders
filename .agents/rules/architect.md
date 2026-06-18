@@ -75,22 +75,10 @@ File naming: always `snake_case`.
 @module abstract class HttpClientModule {
   @lazySingleton Dio get dio => Dio();
 }
-
-// Implementation against interface
-@LazySingleton(as: AuthRemoteDataSource)
-final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource { ... }
-
-// Use case
-@LazySingleton()
-class LoginUseCase implements UseCase<UserData, Authentication> { ... }
-
 // Cubit — always @injectable, never @LazySingleton
-@injectable
-class LoginCubit extends BaseCubit<LoginState> { ... }
-
+@injectable class LoginCubit extends BaseCubit<LoginState> { ... }
 // Use cases aggregator — always @LazySingleton
-@LazySingleton()
-class LoginCubitUseCases { ... }
+@LazySingleton() class LoginCubitUseCases { ... }
 ```
 
 `build_runner` runs in **watch mode** — files regenerate automatically on save.
@@ -133,103 +121,6 @@ final class AuthenticatedGuard extends AutoRouteGuard {
 
 ---
 
-## Data Layer
-
-**DataSource** — interface + impl in same file, use `ApiHandler`:
-```dart
-abstract interface class AuthRemoteDataSource {
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request);
-}
-@LazySingleton(as: AuthRemoteDataSource)
-final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  const AuthRemoteDataSourceImpl({required HttpClient dioClient}) : _dioClient = dioClient;
-  final HttpClient _dioClient;
-  @override
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) =>
-      ApiHandler.call(() => _dioClient.post(ApiEndpoints.login, data: request.toJson()), fromJson: UserDataResponseModel.fromJson);
-}
-```
-
-**Repository** — interface in `domain/`, impl in `data/`, use `RepositoryHandler`:
-```dart
-@LazySingleton(as: AuthRepository)
-final class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({required InternetClient internet, required AuthRemoteDataSource remoteDataSource}) : ...
-  @override
-  FutureData<UserDataEntity> login(AuthenticationEntity auth) => RepositoryHandler.fetchWithFallbackAndMap(
-    isInternetConnected: _internet.isConnected,
-    remoteCallback: () => _remoteDataSource.login(AuthenticationRequestModel.fromEntity(auth)),
-  );
-}
-```
-
-**RepositoryHandler selection:**
-
-| Scenario | Method |
-|---|---|
-| Remote + fallback to local | `fetchWithFallback` |
-| Remote + map DTO→entity | `fetchWithFallbackAndMap` |
-| Remote + map list | `fetchWithFallbackAndMapList` |
-| Local only + map DTO→entity | `fetchFromLocalAndMap` |
-| Local only + map list | `fetchFromLocalAndMapList` |
-
-**ApiHandler selection:**
-
-| Scenario | Method |
-|---|---|
-| Parse JSON response | `ApiHandler.call<T,R>(request, fromJson: ...)` |
-| No response body | `ApiHandler.voidCall(request)` |
-| Hardcoded value on success | `ApiHandler.staticCall(request, staticData: value)` |
-
----
-
-## Domain Layer
-
-```dart
-// Entity — immutable, Equatable, no DI annotations
-class AuthenticationEntity extends Equatable {
-  const AuthenticationEntity({required this.email, required this.password});
-  final String email; final String password;
-  @override List<Object> get props => [email, password];
-}
-
-// Use case with parameter
-@LazySingleton() class LoginUseCase implements UseCase<UserDataEntity, AuthenticationEntity> {
-  LoginUseCase({required AuthRepository authRepository}) : _authRepository = authRepository;
-  final AuthRepository _authRepository;
-  @override FutureData<UserDataEntity> call(AuthenticationEntity request) => _authRepository.login(request);
-}
-```
-
----
-
-## Presentation Layer
-
-```dart
-// State — part file of cubit, extends BaseState
-part of 'login_cubit.dart';
-class LoginState extends BaseState {
-  const LoginState({required this.passwordVisibility}) ;
-  const LoginState.initial() : passwordVisibility = false;
-  final bool passwordVisibility;
-  @override List<Object> get props => [passwordVisibility];
-}
-
-// Cubit — @injectable, extends BaseCubit
-@injectable class LoginCubit extends BaseCubit<LoginState> {
-  LoginCubit({required LoginCubitUseCases useCases}) : _useCases = useCases, super(const LoginState.initial());
-  final LoginCubitUseCases _useCases;
-}
-
-// UseCases aggregator — @LazySingleton
-@LazySingleton() class LoginCubitUseCases {
-  const LoginCubitUseCases({required this.login, required this.logOut});
-  final LoginUseCase login; final LogOutUseCase logOut;
-}
-```
-
----
-
 ## Constants
 
 | Type | File |
@@ -237,8 +128,6 @@ class LoginState extends BaseState {
 | API paths | `lib/core/constants/api_endpoints.dart` |
 | Local DB keys | `lib/core/constants/local_db_keys.dart` |
 | Route paths/names | `lib/routing/helper/route_data.dart` |
-
----
 
 ## Flavors
 
@@ -254,11 +143,10 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 
 ## Absolute Prohibitions
 
-- ❌ Never import `data/` from `domain/` or `presentation/` (enforce layer boundaries)
-- ❌ Never import `presentation/` from `domain/` or `data/` (enforce layer boundaries)
-- ❌ Never annotate a Page, State, or UI Widget with `@injectable` or `@LazySingleton` (only Cubits/aggregators and repositories/datasources)
+- ❌ Never import `data/` from `domain/` or `presentation/`
+- ❌ Never import `presentation/` from `domain/` or `data/`
+- ❌ Never annotate a Page, State, or UI Widget with `@injectable` or `@LazySingleton`
 - ❌ Never edit `routes.gr.dart` or `injector.config.dart` manually
-- ❌ Never run build_runner commands (e.g., `dart run build_runner build`) in the terminal since watch mode is already active
-- ❌ Never implement UI layout or widgets directly — delegate presentation/widget creation to the UI Expert Agent (following [ui.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/ui.md))
-- ❌ Never implement business logic, repositories, or data sources directly — delegate data/domain layer implementation to the Feature Specialist Agent (following [feature.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/feature.md))
-
+- ❌ Never run build_runner commands — watch mode is already active
+- ❌ Never implement UI — delegate to UI Expert Agent ([ui.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/ui.md))
+- ❌ Never implement business logic/data sources — delegate to Feature Agent ([feature.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/feature.md))
