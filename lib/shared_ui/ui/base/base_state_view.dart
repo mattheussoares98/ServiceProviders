@@ -41,7 +41,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
                   if (onRetry != null) ...[
                     gapH16,
                     PrimaryButton(
-                      onTap: onRetry!,
+                      onTap: onRetry,
                       text: 'Tentar novamente'.hardcoded,
                     ),
                   ],
