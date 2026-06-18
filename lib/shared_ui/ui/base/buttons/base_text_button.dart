@@ -21,7 +21,7 @@ class BaseTextButton extends StatelessWidget {
     this.isLoading = false,
     this.platformIcon,
   });
-  final void Function() onPressed;
+  final VoidCallback? onPressed;
   final String text;
   final Color? textColor;
   final TextType? textType;

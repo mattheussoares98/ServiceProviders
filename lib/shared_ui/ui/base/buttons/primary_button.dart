@@ -22,7 +22,7 @@ class PrimaryButton extends StatelessWidget {
     this.expandWidth = false,
     this.platformIcon,
   });
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final String text;
   final TextType? textType;
   final FontWeight? textFontWeight;
