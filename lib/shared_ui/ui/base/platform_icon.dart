@@ -52,6 +52,14 @@ class PlatformIcon extends StatelessWidget {
         color: color,
         size: size,
       );
+  factory PlatformIcon.add({Key? key, Color? color, double? size}) =>
+      PlatformIcon(
+        key: key,
+        materialIcon: Icons.add,
+        cupertinoIcon: CupertinoIcons.add,
+        color: color,
+        size: size,
+      );
 
   factory PlatformIcon.delete({Key? key, Color? color, double? size}) =>
       PlatformIcon(
