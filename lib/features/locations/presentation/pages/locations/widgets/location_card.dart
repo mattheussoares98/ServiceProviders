@@ -45,7 +45,10 @@ class LocationCard extends StatelessWidget {
                 child: BaseIconButton(
                   onPressed: () {
                     showModalPage<void>(
-                      CreateLocation(location: location),
+                      BlocProvider.value(
+                        value: context.read<LocationsCubit>(),
+                        child: CreateLocation(existingLocation: location),
+                      ),
                       context,
                     );
                   },

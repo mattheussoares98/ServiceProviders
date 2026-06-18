@@ -15,24 +15,36 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateLocation extends HookWidget {
-  const CreateLocation({super.key, this.location});
-  final LocationEntity? location;
+  const CreateLocation({super.key, this.existingLocation});
+  final LocationEntity? existingLocation;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    final nameController = useTextEditingController(text: location?.name);
-    final cepController = useTextEditingController(text: location?.postalCode);
-    final addressController = useTextEditingController(text: location?.address);
-    final numberController = useTextEditingController(text: location?.number);
+    final nameController = useTextEditingController(
+      text: existingLocation?.name,
+    );
+    final cepController = useTextEditingController(
+      text: existingLocation?.postalCode,
+    );
+    final addressController = useTextEditingController(
+      text: existingLocation?.address,
+    );
+    final numberController = useTextEditingController(
+      text: existingLocation?.number,
+    );
     final complementController = useTextEditingController(
-      text: location?.complement,
+      text: existingLocation?.complement,
     );
     final neighborhoodController = useTextEditingController(
-      text: location?.neighborhood,
+      text: existingLocation?.neighborhood,
     );
-    final cityController = useTextEditingController(text: location?.city);
-    final stateController = useTextEditingController(text: location?.state);
+    final cityController = useTextEditingController(
+      text: existingLocation?.city,
+    );
+    final stateController = useTextEditingController(
+      text: existingLocation?.state,
+    );
     final cepFocusNode = useFocusNode();
     final addressFocusNode = useFocusNode();
     final numberFocusNode = useFocusNode();
@@ -41,7 +53,7 @@ class CreateLocation extends HookWidget {
     final cityFocusNode = useFocusNode();
     final stateFocusNode = useFocusNode();
 
-    void submit() {
+    Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
       final companyId = context.read<SessionCubit>().state.user.companyId;
@@ -49,7 +61,7 @@ class CreateLocation extends HookWidget {
 
       //TODO Add ViaCep methods to load the addresses
       final location = LocationEntity(
-        id: const Uuid().v4(), //TODO move it to cubit
+        id: existingLocation?.id ?? const Uuid().v4(), //TODO move it to cubit
         companyId: companyId,
         name: nameController.text.trim(),
         postalCode:
@@ -81,8 +93,20 @@ class CreateLocation extends HookWidget {
         updatedAt: now,
       );
 
-      Navigator.of(context).pop();
-      context.read<LocationsCubit>().createLocation(location);
+      bool succeeds;
+
+      if (existingLocation == null) {
+        succeeds = await context.read<LocationsCubit>().createLocation(
+          location,
+        );
+      } else {
+        succeeds = await context.read<LocationsCubit>().updateLocation(
+          location,
+        );
+      }
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
 
     return Padding(
@@ -203,7 +227,9 @@ class CreateLocation extends HookWidget {
                   PrimaryButton(
                     onTap: submit,
                     width: Sizes.p120,
-                    text: 'Criar'.hardcoded,
+                    text: existingLocation == null
+                        ? 'Criar'.hardcoded
+                        : 'Alterar'.hardcoded,
                   ),
                 ],
               ),

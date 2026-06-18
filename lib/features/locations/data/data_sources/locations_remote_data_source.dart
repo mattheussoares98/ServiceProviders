@@ -3,15 +3,14 @@ import 'package:clean_architecture/core/clients/remote/supabase/database/supabas
 import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class LocationsRemoteDataSource {
   FutureList<LocationModel> getLocations(String companyId);
-  FutureData<LocationModel> createLocation(LocationRequestModel request);
-  FutureData<LocationModel> updateLocation(LocationRequestModel request);
+  FutureData<LocationModel> createLocation(LocationModel request);
+  FutureData<LocationModel> updateLocation(LocationModel request);
   FutureVoid deleteLocation(String id);
 
   FutureList<AreaModel> getAreas(String companyId);
@@ -42,7 +41,7 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
       });
 
   @override
-  FutureData<LocationModel> createLocation(LocationRequestModel request) =>
+  FutureData<LocationModel> createLocation(LocationModel request) =>
       SupabaseHandler.call(() async {
         final response = await _database.insert(
           table: 'locations',
@@ -52,7 +51,7 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
       });
 
   @override
-  FutureData<LocationModel> updateLocation(LocationRequestModel request) =>
+  FutureData<LocationModel> updateLocation(LocationModel request) =>
       SupabaseHandler.call(() async {
         final response = await _database.update(
           table: 'locations',

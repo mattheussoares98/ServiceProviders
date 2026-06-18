@@ -2,7 +2,6 @@ import 'package:clean_architecture/core/clients/remote/supabase/database/supabas
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:faker/faker.dart';
@@ -25,7 +24,7 @@ void main() {
 
   final tLocationEntity = EntityFactory.makeLocationEntity();
   final tLocationModel = LocationModel.fromEntity(tLocationEntity);
-  final tLocationRequest = LocationRequestModel.fromEntity(tLocationEntity);
+  final tLocationRequest = LocationModel.fromEntity(tLocationEntity);
 
   final tAreaEntity = EntityFactory.makeAreaEntity();
   final tAreaModel = AreaModel.fromEntity(tAreaEntity);

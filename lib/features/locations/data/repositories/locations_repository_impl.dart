@@ -5,7 +5,6 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:clean_architecture/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
@@ -47,7 +46,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
             _localDataSource.saveLocation(LocationModel.fromEntity(location)),
         remoteCallback: () async {
           final result = await _remoteDataSource.createLocation(
-            LocationRequestModel.fromEntity(location),
+            LocationModel.fromEntity(location),
           );
           if (result is SuccessState<LocationModel>) {
             await _localDataSource.saveLocation(result.data!);
@@ -68,7 +67,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () async {
           final result = await _remoteDataSource.updateLocation(
-            LocationRequestModel.fromEntity(location),
+            LocationModel.fromEntity(location),
           );
           if (result is SuccessState<LocationModel>) {
             await _localDataSource.saveLocation(result.data!);

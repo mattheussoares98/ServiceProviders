@@ -1,6 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/requests/location_request_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
 import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:clean_architecture/features/locations/data/repositories/locations_repository_impl.dart';
@@ -23,9 +22,6 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       LocationModel.fromEntity(EntityFactory.makeLocationEntity()),
-    );
-    registerFallbackValue(
-      LocationRequestModel.fromEntity(EntityFactory.makeLocationEntity()),
     );
     registerFallbackValue(AreaModel.fromEntity(EntityFactory.makeAreaEntity()));
     registerFallbackValue(
