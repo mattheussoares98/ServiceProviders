@@ -1,11 +1,13 @@
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/animated_ellipsis.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 void observeLoading(
   List<BaseCubit<BaseState>> cubits, {
-  String message = 'Aguarde...',
+  String message = 'Aguarde',
 }) {
   final context = useContext();
   final overlayEntry = useRef<OverlayEntry?>(null);
@@ -32,8 +34,15 @@ void observeLoading(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const LoadingCircle(centered: false),
-                  const SizedBox(width: 16),
-                  Expanded(child: Text(message)),
+                  const SizedBox(width: Sizes.p16),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(child: Text(message)),
+                        const AnimatedEllipsis(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
