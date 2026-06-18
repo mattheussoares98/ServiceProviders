@@ -9,10 +9,7 @@ import 'package:clean_architecture/features/assets/domain/use_cases/get_assets_u
 import 'package:clean_architecture/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:clean_architecture/features/categories/domain/use_cases/get_categories_use_case.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:clean_architecture/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
@@ -27,13 +24,21 @@ import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
+
 class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
+
 class MockGetAssetByIdUseCase extends Mock implements GetAssetByIdUseCase {}
+
 class MockCreateAssetUseCase extends Mock implements CreateAssetUseCase {}
+
 class MockUpdateAssetUseCase extends Mock implements UpdateAssetUseCase {}
+
 class MockDeleteAssetUseCase extends Mock implements DeleteAssetUseCase {}
+
 class MockGetLocationsUseCase extends Mock implements GetLocationsUseCase {}
+
 class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
+
 class MockGetCategoriesUseCase extends Mock implements GetCategoriesUseCase {}
 
 void main() {
@@ -100,19 +105,27 @@ void main() {
           final tLocations = EntityFactory.makeLocationEntityList();
           final tAreas = EntityFactory.makeAreaEntityList();
           final tCategories = EntityFactory.makeCategoryEntityList();
-          when(() => mockGetAssets.call(any()))
-              .thenAnswer((_) async => SuccessState(data: tAssets));
-          when(() => mockGetLocations.call(any()))
-              .thenAnswer((_) async => SuccessState(data: tLocations));
-          when(() => mockGetAreas.call(any()))
-              .thenAnswer((_) async => SuccessState(data: tAreas));
-          when(() => mockGetCategories.call(any()))
-              .thenAnswer((_) async => SuccessState(data: tCategories));
+          when(
+            () => mockGetAssets.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAssets));
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCategories));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
@@ -124,7 +137,9 @@ void main() {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+          verify(
+            () => mockGetCategories.call(tUserProfile.companyId),
+          ).called(1);
         },
       );
 
@@ -132,19 +147,27 @@ void main() {
         'should emit loading and error when assets load fails',
         build: () {
           final tMessage = faker.lorem.sentence();
-          when(() => mockGetAssets.call(any()))
-              .thenAnswer((_) async => FailureState<List<AssetEntity>>(message: tMessage));
-          when(() => mockGetLocations.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
-          when(() => mockGetAreas.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
-          when(() => mockGetCategories.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetAssets.call(any())).thenAnswer(
+            (_) async => FailureState<List<AssetEntity>>(message: tMessage),
+          );
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.error)
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
@@ -163,7 +186,11 @@ void main() {
         },
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.error),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.error,
+          ),
         ],
         verify: (_) {
           verifyNever(() => mockGetAssets.call(any()));
@@ -177,17 +204,31 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading, load assets, and show success toast when create succeeds',
         build: () {
-          when(() => mockCreateAsset.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetAssets.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockCreateAsset.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetAssets.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.createAsset(tAsset),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loaded),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockCreateAsset.call(tAsset)).called(1);
@@ -198,14 +239,23 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit error and show failure toast when create fails',
         build: () {
-          when(() => mockCreateAsset.call(any()))
-              .thenAnswer((_) async => FailureState<bool>(message: 'Error'));
+          when(
+            () => mockCreateAsset.call(any()),
+          ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
         act: (cubit) => cubit.createAsset(tAsset),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.error),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockCreateAsset.call(tAsset)).called(1);
@@ -220,17 +270,31 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading, load assets, and show success toast when update succeeds',
         build: () {
-          when(() => mockUpdateAsset.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetAssets.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockUpdateAsset.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetAssets.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.updateAsset(tAsset),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loaded),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockUpdateAsset.call(tAsset)).called(1);
@@ -241,14 +305,23 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit error and show failure toast when update fails',
         build: () {
-          when(() => mockUpdateAsset.call(any()))
-              .thenAnswer((_) async => FailureState<bool>(message: 'Error'));
+          when(
+            () => mockUpdateAsset.call(any()),
+          ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
         act: (cubit) => cubit.updateAsset(tAsset),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.error),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockUpdateAsset.call(tAsset)).called(1);
@@ -263,17 +336,31 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading, load assets, and show success toast when delete succeeds',
         build: () {
-          when(() => mockDeleteAsset.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetAssets.call(any()))
-              .thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockDeleteAsset.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetAssets.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.deleteAsset(tId),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loaded),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteAsset.call(tId)).called(1);
@@ -284,14 +371,23 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit error and show failure toast when delete fails',
         build: () {
-          when(() => mockDeleteAsset.call(any()))
-              .thenAnswer((_) async => FailureState<bool>(message: 'Error'));
+          when(
+            () => mockDeleteAsset.call(any()),
+          ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
         act: (cubit) => cubit.deleteAsset(tId),
         expect: () => [
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.loading),
-          isA<AssetsState>().having((s) => s.status, 'status', StateStatus.error),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteAsset.call(tId)).called(1);
