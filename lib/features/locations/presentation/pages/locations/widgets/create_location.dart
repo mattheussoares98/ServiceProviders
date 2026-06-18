@@ -5,6 +5,7 @@ import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
@@ -20,6 +21,7 @@ class CreateLocation extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    observeLoading([context.read<LocationsCubit>()]);
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(
       text: existingLocation?.name,
