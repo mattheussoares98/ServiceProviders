@@ -58,7 +58,7 @@ class PlatformIcon extends StatelessWidget {
         key: key,
         materialIcon: Icons.delete_outline,
         cupertinoIcon: CupertinoIcons.trash,
-        color: color,
+        color: color ?? Colors.red,
         size: size,
       );
 
