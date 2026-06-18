@@ -697,8 +697,8 @@ lib/features/
 
 ## 6. Supabase PostgreSQL Schema
 
-The remote Supabase PostgreSQL database schema is fully documented and maintained in the primary schema file: [database_schema.md](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/database_schema.md).
-All table layouts, types, RLS policies, indexes, and triggers are defined and updated there to prevent redundancy.
+The remote Supabase PostgreSQL database schema is fully documented and maintained in the [schema directory](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/schema/).
+The [index.md](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/schema/index.md) contains the ERD, common columns, and links to individual table files. All table layouts, types, RLS policies, indexes, and triggers are defined and updated there to prevent redundancy.
 
 
 ## 7. Backend Documentation Rule
@@ -707,15 +707,11 @@ All table layouts, types, RLS policies, indexes, and triggers are defined and up
 > This is **already enforced** by the Database Specialist Agent rule in [database.md](file:///c:/Development/Projects/ServiceProviders/.agents/rules/database.md).
 
 The rule states:
-- **Primary File**: `docs/database_schema.md`
-- **Mandatory Update**: After every schema change (table creation, column modification, RLS update), the agent MUST verify and update the documentation
-- **Content Requirements**:
-  - **Mermaid Diagram**: Visual representation of tables and relationships
-  - **Data Dictionary**: For each table, list columns, types, nullability, and description
-  - **Security Summary**: Document RLS policies applied to each table
+- **Schema Directory**: `docs/schema/` (one file per table + `index.md` with ERD and common columns)
+- **Mandatory Update**: After every schema change, the agent MUST update the relevant table file and `index.md` if relationships changed
 - **Consistency**: Documentation must exactly match the live database state
 
-This means every time any database command is run (new table, new index, new function, column change, RLS policy), the `docs/database_schema.md` file is automatically updated. **No additional configuration needed — it is already an always-on rule.**
+This means every time any database command is run (new table, new index, new function, column change, RLS policy), the relevant `docs/schema/` file is automatically updated. **No additional configuration needed — it is already an always-on rule.**
 
 ---
 
@@ -733,7 +729,7 @@ This means every time any database command is run (new table, new index, new fun
 | Create all 17 Drift table definitions (including change requests, parameters, logs, history, and local @Index annotations) | 4.5h |
 | Create `AppDatabase` class with DI registration | 1h |
 | Run `build_runner`, verify compilation | 1h |
-| Create `docs/database_schema.md` initial version | 2h |
+| Create `docs/schema/` initial version | 2h |
 
 ---
 
@@ -793,7 +789,7 @@ This means every time any database command is run (new table, new index, new fun
 | Create `StorageClient` interface + R2 impl | 2h |
 | Remote data sources for each feature | 5h |
 | Update repositories to include remote callbacks | 3h |
-| Update `docs/database_schema.md` | 2h |
+| Update `docs/schema/` | 2h |
 
 ---
 
@@ -844,7 +840,7 @@ This means every time any database command is run (new table, new index, new fun
 | Q8 | Offline scope | Edits to work orders are allowed. If edited/closed by someone else, subsequent sync requests are automatically redirected to `WorkOrderChangeRequest` by database triggers to avoid conflicts. |
 | Q9 | Localization | `.hardcoded` extension on all strings for future i18n |
 | Q10 | File compression | `image_compress_plus`, quality 75-80, max 1920px |
-| Q11 | DB documentation | Already enforced in `database.md` agent rule → `docs/database_schema.md` |
+| Q11 | DB documentation | Already enforced in `database.md` agent rule → `docs/schema/` |
 | Q12 | Permission groups | 3 default groups (Admin, Gestor, Técnico) + custom per company |
 | Q13 | revisionForecast | Added to Asset entity for proactive notifications |
 | Q14 | Handling Closed Orders | Edits to completed/cancelled orders are saved as change requests in a queue rather than direct updates or requiring pre-approval reopening (to support offline-first). Intercepted automatically by database triggers. |
@@ -885,9 +881,8 @@ To ensure consistency and clarity before and during implementation, we will main
    - Details coding standards, layer isolations, and Clean Architecture constraints.
    - Restates rules for using context extensions (e.g., `context.colorScheme`), custom colors, controller hooks (`HookWidget`), and page line limitations (<100 lines).
 
-2. **Database Schema (`docs/database_schema.md`)**
-   - A complete reference of Drift tables, Supabase tables, indexes, triggers, and Row Level Security (RLS) policies.
-   - Includes a Mermaid ERD diagram representing all entity relationships.
+2. **Database Schema (`docs/schema/`)**
+   - Split into one file per table + `index.md` with ERD, common columns, and table index.
    - Mandatory update on every schema change (enforced via DB specialist).
 
 3. **API Contracts (`docs/api_endpoints.md`)**

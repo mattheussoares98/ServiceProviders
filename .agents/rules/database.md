@@ -29,10 +29,9 @@ Use the `supabase-mcp-server` to:
 - `get_advisors` to check for security vulnerabilities.
 
 ## Documentation Responsibility
-- **Primary File**: `docs/database_schema.md`
-- **Mandatory Update**: After every schema change (table creation, column modification, RLS update), you MUST verify and update the documentation.
-- **Content Requirements**:
-    - **Mermaid Diagram**: A visual representation of the tables and their relationships.
-    - **Data Dictionary**: For each table, list columns, types, nullability, and a brief description.
-    - **Security Summary**: Document the RLS policies applied to each table.
-- **Consistency**: Ensure the documentation exactly matches the state of the database found via `list_tables`.
+- **Schema Directory**: `docs/schema/`
+  - `index.md` — ERD, common columns, table index
+  - One file per table (e.g. `work_orders.md`, `assets.md`)
+- **Mandatory Update**: After every schema change, update the relevant table file in `docs/schema/` and the ERD in `index.md` if relationships changed.
+- **Common Columns**: `id`, `company_id`, `created_at`, `updated_at`, `deleted_at` are documented once in `index.md` — do NOT repeat them in table files.
+- **Consistency**: Ensure documentation matches the state found via `list_tables`.
