@@ -57,6 +57,7 @@ $$ LANGUAGE plpgsql;
 - **assets** (`tr_prevent_delete_assets`)
 - **categories** (`tr_prevent_delete_categories`)
 - **work_orders** (`tr_prevent_delete_work_orders`)
+- **work_order_change_requests** (`tr_prevent_delete_work_order_change_requests`)
 
 ---
 
@@ -71,6 +72,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [assets_rules.md](assets_rules.md)
 - [categories_rules.md](categories_rules.md)
 - [work_orders_rules.md](work_orders_rules.md)
+- [work_order_change_requests_rules.md](work_order_change_requests_rules.md)
 
 ---
 
