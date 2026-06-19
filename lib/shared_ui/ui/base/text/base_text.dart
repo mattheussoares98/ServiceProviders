@@ -120,6 +120,18 @@ class BaseText extends StatelessWidget {
     textType: TextType.headlineLarge,
     fontWeight: FontWeight.w600,
   );
+  factory BaseText.error(
+    String text, {
+    TextAlign? textAlign,
+    FontWeight? fontWeight,
+  }) => BaseText(
+    text,
+    textAlign: textAlign,
+    color: Colors.red,
+    textType: TextType.titleMedium,
+    fontWeight: fontWeight ?? FontWeight.w600,
+  );
+
   final String text;
   final TextAlign? textAlign;
   final TextOverflow? overflow;
