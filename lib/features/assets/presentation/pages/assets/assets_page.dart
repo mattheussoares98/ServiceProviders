@@ -69,8 +69,8 @@ class AssetsPage extends StatelessWidget {
               builder: (context, assets) {
                 final state = context.watch<AssetsCubit>().state;
                 if (assets.isEmpty) {
-                  return Center(
-                    child: BaseText('Nenhum equipamento cadastrado'.hardcoded),
+                  return BaseText.error(
+                    'Nenhum equipamento cadastrado'.hardcoded,
                   );
                 }
                 return ListView.builder(

@@ -126,7 +126,7 @@ class BaseText extends StatelessWidget {
     FontWeight? fontWeight,
   }) => BaseText(
     text,
-    textAlign: textAlign,
+    textAlign: textAlign ?? TextAlign.center,
     color: Colors.red,
     textType: TextType.titleMedium,
     fontWeight: fontWeight ?? FontWeight.w600,

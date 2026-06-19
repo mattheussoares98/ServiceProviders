@@ -51,11 +51,8 @@ class WorkOrdersPage extends StatelessWidget {
                       .loadWorkOrdersAndChangeRequests,
                   builder: (context, workOrders) {
                     if (workOrders.isEmpty) {
-                      return Center(
-                        child: BaseText.titleMedium(
-                          'Nenhum local cadastrado'.hardcoded,
-                          color: Colors.red,
-                        ),
+                      return BaseText.error(
+                        'Nenhuma ordem foi encontrada'.hardcoded,
                       );
                     }
 

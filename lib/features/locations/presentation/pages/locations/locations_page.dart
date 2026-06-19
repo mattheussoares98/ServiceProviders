@@ -65,10 +65,11 @@ class LocationsPage extends StatelessWidget {
                   builder: (context, locations) {
                     final state = context.watch<LocationsCubit>().state;
                     if (locations.isEmpty) {
-                      return Center(
-                        child: BaseText('Nenhum local cadastrado'.hardcoded),
+                      return BaseText.error(
+                        'Nenhum local cadastrado'.hardcoded,
                       );
                     }
+
                     return ListView.builder(
                       itemCount: locations.length,
                       itemBuilder: (context, index) {
