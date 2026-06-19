@@ -11,7 +11,7 @@ import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
 abstract interface class ToastUtil {
   static final _navigationClient = NavigationUtil.I;
   static const _toastSetting = SlidingToastSetting(
-    displayDuration: Duration(milliseconds: 3000),
+    displayDuration: Duration(milliseconds: 6000),
     toastStartPosition: ToastPosition.top,
     toastAlignment: Alignment.topCenter,
   );
