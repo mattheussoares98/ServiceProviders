@@ -148,5 +148,5 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never annotate a Page, State, or UI Widget with `@injectable` or `@LazySingleton`
 - ❌ Never edit `routes.gr.dart` or `injector.config.dart` manually
 - ❌ Never run build_runner commands — watch mode is already active
-- ❌ Never implement UI — delegate to UI Expert Agent ([ui.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/ui.md))
-- ❌ Never implement business logic/data sources — delegate to Feature Agent ([feature.md](file:///Users/mattheus/Development/Projects/ServiceProviders/.agents/rules/feature.md))
+- ❌ Never implement UI — delegate to UI Expert Agent ([ui.md](file:/.agents/rules/ui.md))
+- ❌ Never implement business logic/data sources — delegate to Feature Agent ([feature.md](file:/.agents/rules/feature.md))

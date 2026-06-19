@@ -95,4 +95,4 @@ erDiagram
 
 ## Remote Security & RLS (Supabase Only)
 
-See [Database Global Rules](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/database/global_rules.md).
+See [Database Global Rules](/docs/database/global_rules.md).
