@@ -22,7 +22,9 @@ abstract class LocalStorageClientModule {
     AppDatabase database,
   ) async {
     final client = LocalStorageClientImpl(database: database);
-    await client.init();
+    try {
+      await client.init();
+    } catch (_) {}
     return client;
   }
 }

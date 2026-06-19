@@ -1,9 +1,8 @@
-import 'dart:io' show Platform;
-
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/data/handlers/error_handler.dart';
 import 'package:clean_architecture/routing/routes.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
@@ -115,9 +114,9 @@ final class NavigationClientImpl implements NavigationClient {
     return ErrorHandler.executeSafeReturn(() async {
       platform ??= kIsWeb
           ? 'web'
-          : Platform.isAndroid
+          : defaultTargetPlatform == TargetPlatform.android
           ? 'android'
-          : Platform.isIOS
+          : defaultTargetPlatform == TargetPlatform.iOS
           ? 'ios'
           : null;
 
