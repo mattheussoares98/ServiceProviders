@@ -47,7 +47,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final changeRequestsResult = results[1];
 
     if (workOrdersResult is SuccessState<List<WorkOrderEntity>> &&
-        changeRequestsResult is SuccessState<List<WorkOrderChangeRequestEntity>>) {
+        changeRequestsResult
+            is SuccessState<List<WorkOrderChangeRequestEntity>>) {
       emit(
         state.copyWith(
           status: StateStatus.loaded,
@@ -87,7 +88,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Ordem de serviço criada com sucesso'.hardcoded);
       await loadWorkOrdersAndChangeRequests();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -101,7 +101,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Ordem de serviço atualizada com sucesso'.hardcoded);
       await loadWorkOrdersAndChangeRequests();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -115,7 +114,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Ordem de serviço excluída com sucesso'.hardcoded);
       await loadWorkOrdersAndChangeRequests();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -129,7 +127,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Solicitação de alteração enviada com sucesso'.hardcoded);
+      showSuccessToast(
+        'Solicitação de alteração enviada com sucesso'.hardcoded,
+      );
       await loadWorkOrdersAndChangeRequests();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -143,7 +143,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      showSuccessToast('Solicitação de alteração avaliada com sucesso'.hardcoded);
+      showSuccessToast(
+        'Solicitação de alteração avaliada com sucesso'.hardcoded,
+      );
       await loadWorkOrdersAndChangeRequests();
     } else {
       emit(state.copyWith(status: StateStatus.error));
