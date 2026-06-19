@@ -13,3 +13,12 @@ Facilities/sites managed by a company.
 | `state` | VARCHAR(50) | YES | - | State code |
 | `postal_code` | VARCHAR(20) | YES | - | Postal/zip code |
 | `is_active` | BOOLEAN | NO | true | Status toggle |
+
+## Deletion Rules
+
+* **Hard Deletes**: Prohibited by the general `prevent_delete()` trigger.
+* **Soft Deletes**: Blocked if there are active assets or open work orders associated with the location:
+  * Trigger: `tr_prevent_delete_locations_with_relations`
+  * Active Assets Check: Blocked if any assets in the location (via areas) have `deleted_at IS NULL`.
+  * Open Work Orders Check: Blocked if any work orders in the location have `status != 'completed'` and `deleted_at IS NULL`.
+

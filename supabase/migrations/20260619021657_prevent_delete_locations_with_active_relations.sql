@@ -1,27 +1,3 @@
-# Locations Table Policies
-
-```sql
-CREATE POLICY "Users read own company locations"
-  ON public.locations FOR SELECT
-  TO authenticated
-  USING (company_id = public.get_user_company_id());
-
-CREATE POLICY "Users insert own company locations"
-  ON public.locations FOR INSERT
-  TO authenticated
-  WITH CHECK (company_id = public.get_user_company_id());
-
-CREATE POLICY "Users update own company locations"
-  ON public.locations FOR UPDATE
-  TO authenticated
-  USING (company_id = public.get_user_company_id());
-```
-
-## Soft-Delete Prevention Trigger
-
-Soft-deleting a location is only allowed if there are no active assets and no open work orders associated with it.
-
-```sql
 CREATE OR REPLACE FUNCTION public.check_location_before_delete()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -56,4 +32,3 @@ CREATE OR REPLACE TRIGGER tr_prevent_delete_locations_with_relations
   BEFORE UPDATE ON public.locations
   FOR EACH ROW
   EXECUTE FUNCTION public.check_location_before_delete();
-```
