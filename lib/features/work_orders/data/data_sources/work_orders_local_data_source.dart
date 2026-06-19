@@ -56,37 +56,48 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureList<WorkOrderResponseModel> getWorkOrders(String companyId) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.workOrders)
-        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
+      final query = _database.select(_database.workOrders).join([
+        innerJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.workOrders.locationId),
+        ),
+      ])..where(
+        _database.workOrders.companyId.equals(companyId) &
+            _database.workOrders.deletedAt.isNull() &
+            _database.locations.deletedAt.isNull(),
+      );
       final rows = await query.get();
 
       final list = rows
-          .map((row) => WorkOrderResponseModel(
-                id: row.id,
-                companyId: row.companyId,
-                assetId: row.assetId,
-                locationId: row.locationId,
-                assignedToId: row.assignedToId,
-                createdById: row.createdById,
-                maintenancePlanId: row.maintenancePlanId,
-                title: row.title,
-                description: row.description,
-                priority: Priority.fromCode(row.priority),
-                status: WorkOrderStatus.fromCode(row.status),
-                type: WorkOrderType.fromCode(row.type),
-                scheduledDate: row.scheduledDate,
-                startedAt: row.startedAt,
-                completedAt: row.completedAt,
-                estimatedDuration: row.estimatedDuration,
-                actualDuration: row.actualDuration,
-                laborCost: row.laborCost,
-                partsCost: row.partsCost,
-                totalCost: row.totalCost,
-                notes: row.notes,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map((row) {
+            final order = row.readTable(_database.workOrders);
+            return WorkOrderResponseModel(
+              id: order.id,
+              companyId: order.companyId,
+              assetId: order.assetId,
+              locationId: order.locationId,
+              assignedToId: order.assignedToId,
+              createdById: order.createdById,
+              maintenancePlanId: order.maintenancePlanId,
+              title: order.title,
+              description: order.description,
+              priority: Priority.fromCode(order.priority),
+              status: WorkOrderStatus.fromCode(order.status),
+              type: WorkOrderType.fromCode(order.type),
+              scheduledDate: order.scheduledDate,
+              startedAt: order.startedAt,
+              completedAt: order.completedAt,
+              estimatedDuration: order.estimatedDuration,
+              actualDuration: order.actualDuration,
+              laborCost: order.laborCost,
+              partsCost: order.partsCost,
+              totalCost: order.totalCost,
+              notes: order.notes,
+              createdAt: order.createdAt,
+              updatedAt: order.updatedAt,
+              deletedAt: order.deletedAt,
+            );
+          })
           .toList();
 
       return SuccessState(data: list);
@@ -96,39 +107,48 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.workOrders)
-        ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
+      final query = _database.select(_database.workOrders).join([
+        innerJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.workOrders.locationId),
+        ),
+      ])..where(
+        _database.workOrders.id.equals(id) &
+            _database.workOrders.deletedAt.isNull() &
+            _database.locations.deletedAt.isNull(),
+      );
       final row = await query.getSingleOrNull();
 
       if (row == null) {
         return FailureState(message: 'Work order not found');
       }
 
+      final order = row.readTable(_database.workOrders);
       final model = WorkOrderResponseModel(
-        id: row.id,
-        companyId: row.companyId,
-        assetId: row.assetId,
-        locationId: row.locationId,
-        assignedToId: row.assignedToId,
-        createdById: row.createdById,
-        maintenancePlanId: row.maintenancePlanId,
-        title: row.title,
-        description: row.description,
-        priority: Priority.fromCode(row.priority),
-        status: WorkOrderStatus.fromCode(row.status),
-        type: WorkOrderType.fromCode(row.type),
-        scheduledDate: row.scheduledDate,
-        startedAt: row.startedAt,
-        completedAt: row.completedAt,
-        estimatedDuration: row.estimatedDuration,
-        actualDuration: row.actualDuration,
-        laborCost: row.laborCost,
-        partsCost: row.partsCost,
-        totalCost: row.totalCost,
-        notes: row.notes,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        deletedAt: row.deletedAt,
+        id: order.id,
+        companyId: order.companyId,
+        assetId: order.assetId,
+        locationId: order.locationId,
+        assignedToId: order.assignedToId,
+        createdById: order.createdById,
+        maintenancePlanId: order.maintenancePlanId,
+        title: order.title,
+        description: order.description,
+        priority: Priority.fromCode(order.priority),
+        status: WorkOrderStatus.fromCode(order.status),
+        type: WorkOrderType.fromCode(order.type),
+        scheduledDate: order.scheduledDate,
+        startedAt: order.startedAt,
+        completedAt: order.completedAt,
+        estimatedDuration: order.estimatedDuration,
+        actualDuration: order.actualDuration,
+        laborCost: order.laborCost,
+        partsCost: order.partsCost,
+        totalCost: order.totalCost,
+        notes: order.notes,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        deletedAt: order.deletedAt,
       );
 
       return SuccessState(data: model);

@@ -167,6 +167,32 @@ void main() {
       final getSingleResult = await dataSource.getWorkOrderById(tWorkOrderModel.id);
       expect(getSingleResult, isA<FailureState<WorkOrderResponseModel>>());
     });
+
+    test('should not return work order in getWorkOrders/getWorkOrderById when its location is soft-deleted', () async {
+      // Arrange
+      await insertDependencies(
+        companyId: tWorkOrderModel.companyId,
+        userId: tWorkOrderModel.createdById,
+        locationId: tWorkOrderModel.locationId,
+        areaId: faker.guid.guid(),
+        assetId: tWorkOrderModel.assetId!,
+      );
+      await dataSource.saveWorkOrder(tWorkOrderModel);
+
+      // Soft-delete the location
+      await database
+          .update(database.locations)
+          .write(LocationsCompanion(deletedAt: Value(DateTime.now())));
+
+      // Act
+      final getListResult = await dataSource.getWorkOrders(tWorkOrderModel.companyId);
+      final getSingleResult = await dataSource.getWorkOrderById(tWorkOrderModel.id);
+
+      // Assert
+      expect(getListResult, isA<SuccessState<List<WorkOrderResponseModel>>>());
+      expect(getListResult.data, isEmpty);
+      expect(getSingleResult, isA<FailureState<WorkOrderResponseModel>>());
+    });
   });
 
   group('WorkOrdersLocalDataSourceImpl - Tasks', () {

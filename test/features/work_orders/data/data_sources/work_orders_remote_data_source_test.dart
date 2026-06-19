@@ -53,6 +53,7 @@ void main() {
     test('getWorkOrders should return SuccessState<List<WorkOrderResponseModel>>', () async {
       when(() => mockDatabase.selectList(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           )).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
 
@@ -63,13 +64,19 @@ void main() {
       expect(result.data!.first.id, tWorkOrderModel.id);
       verify(() => mockDatabase.selectList(
             table: 'work_orders',
-            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+            columns: '*, locations!inner(deleted_at)',
+            filters: [
+              SupabaseFilter.eq('company_id', tCompanyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+              SupabaseFilter.isFilter('locations.deleted_at', null),
+            ],
           )).called(1);
     });
 
     test('getWorkOrders should return FailureState when selectList throws', () async {
       when(() => mockDatabase.selectList(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           )).thenThrow(Exception('database error'));
 
@@ -81,6 +88,7 @@ void main() {
     test('getWorkOrderById should return SuccessState<WorkOrderResponseModel> when found', () async {
       when(() => mockDatabase.selectOne(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           )).thenAnswer((_) async => tWorkOrderModel.toJson());
 
@@ -90,9 +98,11 @@ void main() {
       expect(result.data!.id, tWorkOrderModel.id);
       verify(() => mockDatabase.selectOne(
             table: 'work_orders',
+            columns: '*, locations!inner(deleted_at)',
             filters: [
               SupabaseFilter.eq('id', tWorkOrderId),
               SupabaseFilter.isFilter('deleted_at', null),
+              SupabaseFilter.isFilter('locations.deleted_at', null),
             ],
           )).called(1);
     });
@@ -100,6 +110,7 @@ void main() {
     test('getWorkOrderById should return FailureState when not found', () async {
       when(() => mockDatabase.selectOne(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           )).thenAnswer((_) async => null);
 
@@ -108,6 +119,15 @@ void main() {
       expect(result, isA<FailureState<WorkOrderResponseModel>>());
       final failure = result as FailureState<WorkOrderResponseModel>;
       expect(failure.message, 'Ordem de serviço não encontrada.');
+      verify(() => mockDatabase.selectOne(
+            table: 'work_orders',
+            columns: '*, locations!inner(deleted_at)',
+            filters: [
+              SupabaseFilter.eq('id', tWorkOrderId),
+              SupabaseFilter.isFilter('deleted_at', null),
+              SupabaseFilter.isFilter('locations.deleted_at', null),
+            ],
+          )).called(1);
     });
 
     test('createWorkOrder should return SuccessState<bool>(true)', () async {

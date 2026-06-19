@@ -54,9 +54,11 @@ final class WorkOrdersRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'work_orders',
+          columns: '*, locations!inner(deleted_at)',
           filters: [
             SupabaseFilter.eq('company_id', companyId),
             SupabaseFilter.isFilter('deleted_at', null),
+            SupabaseFilter.isFilter('locations.deleted_at', null),
           ],
         );
         return response.map(WorkOrderResponseModel.fromJson).toList();
@@ -67,9 +69,11 @@ final class WorkOrdersRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'work_orders',
+          columns: '*, locations!inner(deleted_at)',
           filters: [
             SupabaseFilter.eq('id', id),
             SupabaseFilter.isFilter('deleted_at', null),
+            SupabaseFilter.isFilter('locations.deleted_at', null),
           ],
         );
         if (response == null) {
