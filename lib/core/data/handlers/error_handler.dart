@@ -77,6 +77,14 @@ abstract final class ErrorHandler {
         error: exception.toString(),
         statusCode: statusCode,
       );
+    } on PostgrestException catch (exception, stackTrace) {
+      _debugError(exception, stackTrace);
+
+      return FailureState<T>(
+        message: exception.message,
+        error: exception.toString(),
+        statusCode: exception.code?.toInt(),
+      );
     } catch (error, stackTrace) {
       _debugError(error, stackTrace);
       return FailureState<T>(
