@@ -23,33 +23,43 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<AssetModel> getAssets(String companyId) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'assets',
-          filters: [
-            SupabaseFilter.eq('company_id', companyId),
-            SupabaseFilter.isFilter('deleted_at', null),
-          ],
-        );
-        return response.map(AssetModel.fromJson).toList();
-      });
+  FutureList<AssetModel> getAssets(
+    String companyId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'assets',
+      columns:
+          '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
+      filters: [
+        SupabaseFilter.eq('company_id', companyId),
+        SupabaseFilter.isFilter('deleted_at', null),
+        SupabaseFilter.isFilter('areas.deleted_at', null),
+        SupabaseFilter.isFilter('areas.locations.deleted_at', null),
+      ],
+    );
+    return response.map(AssetModel.fromJson).toList();
+  });
 
   @override
-  FutureData<AssetModel> getAssetById(String id) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectOne(
-          table: 'assets',
-          filters: [
-            SupabaseFilter.eq('id', id),
-            SupabaseFilter.isFilter('deleted_at', null),
-          ],
-        );
-        if (response == null) {
-          throw Exception('Equipamento não encontrado'.hardcoded);
-        }
-        return AssetModel.fromJson(response);
-      });
+  FutureData<AssetModel> getAssetById(
+    String id,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectOne(
+      table: 'assets',
+      columns:
+          '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
+      filters: [
+        SupabaseFilter.eq('id', id),
+        SupabaseFilter.isFilter('deleted_at', null),
+        SupabaseFilter.isFilter('areas.deleted_at', null),
+        SupabaseFilter.isFilter('areas.locations.deleted_at', null),
+      ],
+    );
+    if (response == null) {
+      throw Exception('Equipamento não encontrado'.hardcoded);
+    }
+    return AssetModel.fromJson(response);
+  });
 
   @override
   FutureData<AssetModel> createAsset(AssetRequestModel request) =>

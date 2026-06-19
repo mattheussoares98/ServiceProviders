@@ -169,5 +169,61 @@ void main() {
         expect(getSingleResult, isA<FailureState<AssetModel>>());
       },
     );
+
+    test(
+      'should not return asset in getAssets/getAssetById when its parent area is soft-deleted',
+      () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tAssetModel.companyId,
+          locationId: tLocationId,
+          areaId: tAssetModel.areaId,
+          categoryId: tAssetModel.categoryId ?? faker.guid.guid(),
+        );
+        await dataSource.saveAsset(tAssetModel);
+
+        // Soft-delete the area
+        await database
+            .update(database.areas)
+            .write(AreasCompanion(deletedAt: Value(DateTime.now())));
+
+        // Act
+        final getListResult = await dataSource.getAssets(tAssetModel.companyId);
+        final getSingleResult = await dataSource.getAssetById(tAssetModel.id);
+
+        // Assert
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
+        expect(getListResult.data, isEmpty);
+        expect(getSingleResult, isA<FailureState<AssetModel>>());
+      },
+    );
+
+    test(
+      'should not return asset in getAssets/getAssetById when its parent location is soft-deleted',
+      () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tAssetModel.companyId,
+          locationId: tLocationId,
+          areaId: tAssetModel.areaId,
+          categoryId: tAssetModel.categoryId ?? faker.guid.guid(),
+        );
+        await dataSource.saveAsset(tAssetModel);
+
+        // Soft-delete the location
+        await database
+            .update(database.locations)
+            .write(LocationsCompanion(deletedAt: Value(DateTime.now())));
+
+        // Act
+        final getListResult = await dataSource.getAssets(tAssetModel.companyId);
+        final getSingleResult = await dataSource.getAssetById(tAssetModel.id);
+
+        // Assert
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
+        expect(getListResult.data, isEmpty);
+        expect(getSingleResult, isA<FailureState<AssetModel>>());
+      },
+    );
   });
 }

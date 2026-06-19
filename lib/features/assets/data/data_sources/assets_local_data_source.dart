@@ -27,34 +27,48 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   @override
   FutureList<AssetModel> getAssets(String companyId) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.assets)
-        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
+      final query = _database.select(_database.assets).join([
+        innerJoin(
+          _database.areas,
+          _database.areas.id.equalsExp(_database.assets.areaId),
+        ),
+        innerJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.areas.locationId),
+        ),
+      ])..where(
+        _database.assets.companyId.equals(companyId) &
+            _database.assets.deletedAt.isNull() &
+            _database.areas.deletedAt.isNull() &
+            _database.locations.deletedAt.isNull(),
+      );
       final rows = await query.get();
 
       final list = rows
-          .map(
-            (row) => AssetModel(
-              id: row.id,
-              companyId: row.companyId,
-              areaId: row.areaId,
-              categoryId: row.categoryId,
-              parentAssetId: row.parentAssetId,
-              name: row.name,
-              code: row.code,
-              manufacturer: row.manufacturer,
-              model: row.model,
-              serialNumber: row.serialNumber,
-              installDate: row.installDate,
-              warrantyExpiration: row.warrantyExpiration,
-              revisionForecast: row.revisionForecast,
-              status: AssetStatus.fromCode(row.status),
-              criticality: AssetCriticality.fromCode(row.criticality),
-              notes: row.notes,
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
-              deletedAt: row.deletedAt,
-            ),
-          )
+          .map((row) {
+            final asset = row.readTable(_database.assets);
+            return AssetModel(
+              id: asset.id,
+              companyId: asset.companyId,
+              areaId: asset.areaId,
+              categoryId: asset.categoryId,
+              parentAssetId: asset.parentAssetId,
+              name: asset.name,
+              code: asset.code,
+              manufacturer: asset.manufacturer,
+              model: asset.model,
+              serialNumber: asset.serialNumber,
+              installDate: asset.installDate,
+              warrantyExpiration: asset.warrantyExpiration,
+              revisionForecast: asset.revisionForecast,
+              status: AssetStatus.fromCode(asset.status),
+              criticality: AssetCriticality.fromCode(asset.criticality),
+              notes: asset.notes,
+              createdAt: asset.createdAt,
+              updatedAt: asset.updatedAt,
+              deletedAt: asset.deletedAt,
+            );
+          })
           .toList();
 
       return SuccessState(data: list);
@@ -64,34 +78,48 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   @override
   FutureData<AssetModel> getAssetById(String id) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.assets)
-        ..where((t) => t.id.equals(id) & t.deletedAt.isNull());
+      final query = _database.select(_database.assets).join([
+        innerJoin(
+          _database.areas,
+          _database.areas.id.equalsExp(_database.assets.areaId),
+        ),
+        innerJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.areas.locationId),
+        ),
+      ])..where(
+        _database.assets.id.equals(id) &
+            _database.assets.deletedAt.isNull() &
+            _database.areas.deletedAt.isNull() &
+            _database.locations.deletedAt.isNull(),
+      );
       final row = await query.getSingleOrNull();
 
       if (row == null) {
         return FailureState(message: 'Equipamento não encontrado'.hardcoded);
       }
 
+      final asset = row.readTable(_database.assets);
       final model = AssetModel(
-        id: row.id,
-        companyId: row.companyId,
-        areaId: row.areaId,
-        categoryId: row.categoryId,
-        parentAssetId: row.parentAssetId,
-        name: row.name,
-        code: row.code,
-        manufacturer: row.manufacturer,
-        model: row.model,
-        serialNumber: row.serialNumber,
-        installDate: row.installDate,
-        warrantyExpiration: row.warrantyExpiration,
-        revisionForecast: row.revisionForecast,
-        status: AssetStatus.fromCode(row.status),
-        criticality: AssetCriticality.fromCode(row.criticality),
-        notes: row.notes,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        deletedAt: row.deletedAt,
+        id: asset.id,
+        companyId: asset.companyId,
+        areaId: asset.areaId,
+        categoryId: asset.categoryId,
+        parentAssetId: asset.parentAssetId,
+        name: asset.name,
+        code: asset.code,
+        manufacturer: asset.manufacturer,
+        model: asset.model,
+        serialNumber: asset.serialNumber,
+        installDate: asset.installDate,
+        warrantyExpiration: asset.warrantyExpiration,
+        revisionForecast: asset.revisionForecast,
+        status: AssetStatus.fromCode(asset.status),
+        criticality: AssetCriticality.fromCode(asset.criticality),
+        notes: asset.notes,
+        createdAt: asset.createdAt,
+        updatedAt: asset.updatedAt,
+        deletedAt: asset.deletedAt,
       );
 
       return SuccessState(data: model);

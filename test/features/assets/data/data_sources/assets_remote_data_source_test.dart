@@ -44,6 +44,7 @@ void main() {
         when(
           () => mockSupabaseDatabaseClient.selectList(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           ),
         ).thenAnswer((_) async => [tAssetModel.toJson()]);
@@ -56,9 +57,13 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'assets',
+            columns:
+                '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
             filters: [
               SupabaseFilter.eq('company_id', tCompanyId),
               SupabaseFilter.isFilter('deleted_at', null),
+              SupabaseFilter.isFilter('areas.deleted_at', null),
+              SupabaseFilter.isFilter('areas.locations.deleted_at', null),
             ],
           ),
         ).called(1);
@@ -71,6 +76,7 @@ void main() {
         when(
           () => mockSupabaseDatabaseClient.selectOne(
             table: any(named: 'table'),
+            columns: any(named: 'columns'),
             filters: any(named: 'filters'),
           ),
         ).thenAnswer((_) async => tAssetModel.toJson());
@@ -82,9 +88,13 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectOne(
             table: 'assets',
+            columns:
+                '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
             filters: [
               SupabaseFilter.eq('id', tId),
               SupabaseFilter.isFilter('deleted_at', null),
+              SupabaseFilter.isFilter('areas.deleted_at', null),
+              SupabaseFilter.isFilter('areas.locations.deleted_at', null),
             ],
           ),
         ).called(1);
@@ -95,6 +105,7 @@ void main() {
       when(
         () => mockSupabaseDatabaseClient.selectOne(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
         ),
       ).thenAnswer((_) async => null);
@@ -105,9 +116,13 @@ void main() {
       verify(
         () => mockSupabaseDatabaseClient.selectOne(
           table: 'assets',
+          columns:
+              '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
           filters: [
             SupabaseFilter.eq('id', tId),
             SupabaseFilter.isFilter('deleted_at', null),
+            SupabaseFilter.isFilter('areas.deleted_at', null),
+            SupabaseFilter.isFilter('areas.locations.deleted_at', null),
           ],
         ),
       ).called(1);
