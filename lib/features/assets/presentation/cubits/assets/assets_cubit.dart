@@ -13,8 +13,8 @@ part 'assets_state.dart';
 @injectable
 class AssetsCubit extends BaseCubit<AssetsState> {
   AssetsCubit({required AssetsCubitUseCases useCases})
-      : _useCases = useCases,
-        super(const AssetsState.initial());
+    : _useCases = useCases,
+      super(const AssetsState.initial());
 
   final AssetsCubitUseCases _useCases;
 
@@ -61,17 +61,14 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       final errorMessage = assetsResult is FailureState
           ? assetsResult.message
           : locationsResult is FailureState
-              ? locationsResult.message
-              : areasResult is FailureState
-                  ? areasResult.message
-                  : categoriesResult is FailureState
-                      ? categoriesResult.message
-                      : '';
+          ? locationsResult.message
+          : areasResult is FailureState
+          ? areasResult.message
+          : categoriesResult is FailureState
+          ? categoriesResult.message
+          : '';
       emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: errorMessage,
-        ),
+        state.copyWith(status: StateStatus.error, errorMessage: errorMessage),
       );
     }
   }
@@ -82,7 +79,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      showSuccessToast('Equipamento criado com sucesso'.hardcoded);
       await loadAssets();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -96,7 +92,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      showSuccessToast('Equipamento atualizado com sucesso'.hardcoded);
       await loadAssets();
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -110,7 +105,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      showSuccessToast('Equipamento excluído com sucesso'.hardcoded);
       await loadAssets();
     } else {
       emit(state.copyWith(status: StateStatus.error));
