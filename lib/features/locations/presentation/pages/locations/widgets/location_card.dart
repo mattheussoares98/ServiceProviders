@@ -68,7 +68,9 @@ class LocationCard extends StatelessWidget {
                           .read<LocationsCubit>()
                           .deleteLocation(location.id),
                       contentText:
-                          'Tem certeza que deseja excluir o local?'.hardcoded,
+                          'Tem certeza que deseja excluir o local?\n\n'
+                                  'Todos equipamentos, ordens de serviço e áreas associadas não serão mais exibidos'
+                              .hardcoded,
                       defaultActionText: 'Sim'.hardcoded,
                       cancelActionText: 'Cancelar'.hardcoded,
                     );
