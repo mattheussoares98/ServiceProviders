@@ -33,7 +33,6 @@ class LocationCard extends StatelessWidget {
     ].join(', ');
 
     return Card(
-      //TODO add option to delete the Location
       child: ExpansionTile(
         title: Center(child: BaseText.titleMedium(location.name)),
         subtitle: addressText.isNotEmpty ? BaseText(addressText) : null,
