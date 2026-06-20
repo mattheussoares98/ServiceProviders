@@ -14,7 +14,7 @@ class BaseDropDown<T> extends StatelessWidget {
     required this.selectedItem,
     required this.label,
     this.hint,
-    this.dropdownHeight = 40,
+    this.dropdownHeight = 45,
     this.validator,
     this.showLabelAtTopLeft = false,
     this.isSimple = false,
@@ -44,7 +44,11 @@ class BaseDropDown<T> extends StatelessWidget {
             left: Sizes.p4,
             child: Text(
               label!,
-              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 10),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontSize: 8,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+              ),
             ),
           )
         : null;
