@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,6 +33,7 @@ class HomePage extends HookWidget {
           create: (context) =>
               GetIt.I<WorkOrdersCubit>()..loadWorkOrdersAndChangeRequests(),
         ),
+        BlocProvider<UsersCubit>(create: (context) => GetIt.I<UsersCubit>()),
       ],
       child: HeroControllerScope(
         controller: controller,
