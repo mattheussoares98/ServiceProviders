@@ -18,3 +18,11 @@ Equipment or physical property items requiring maintenance.
 | `status` | VARCHAR(50) | NO | 'active' | active / inactive / decommissioned |
 | `criticality` | VARCHAR(50) | NO | 'medium' | low / medium / high / mission_critical |
 | `notes` | VARCHAR(2000) | YES | - | Additional notes |
+
+## Deletion Rules
+
+* **Hard Deletes**: Prohibited by the general `prevent_delete()` trigger.
+* **Soft Deletes**: Blocked if there are open work orders associated with the asset:
+  * Trigger: `tr_prevent_delete_assets_with_relations`
+  * Open Work Orders Check: Blocked if any work orders associated with this asset have `status != 'completed'` and `deleted_at IS NULL`.
+
