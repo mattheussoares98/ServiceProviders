@@ -14,16 +14,21 @@ class EditLocationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDeleting = context.select<LocationsCubit, bool>(
+      (cubit) => cubit.state.deletingIds.contains(location.id),
+    );
     return BaseIconButton(
-      onPressed: () {
-        showModalPage<void>(
-          BlocProvider.value(
-            value: context.read<LocationsCubit>(),
-            child: CreateLocation(existingLocation: location),
-          ),
-          context,
-        );
-      },
+      onPressed: isDeleting
+          ? null
+          : () {
+              showModalPage<void>(
+                BlocProvider.value(
+                  value: context.read<LocationsCubit>(),
+                  child: CreateLocation(existingLocation: location),
+                ),
+                context,
+              );
+            },
       platformIcon: const PlatformIcon(
         cupertinoIcon: CupertinoIcons.pencil,
         materialIcon: Icons.edit,
