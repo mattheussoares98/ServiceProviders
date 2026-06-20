@@ -334,16 +334,15 @@ void main() {
         act: (cubit) async =>
             expect(await cubit.updateLocation(tLocation), isTrue),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.updatingIds, 'updatingIds', {tLocation.id}),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.updatingIds, 'updatingIds', {tLocation.id}),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.updatingIds, 'updatingIds', <String>{}),
         ],
         verify: (_) {
           verify(() => mockUpdateLocation.call(tLocation)).called(1);
@@ -399,16 +398,15 @@ void main() {
         },
         act: (cubit) => cubit.deleteLocation(tId),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.initial,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.deletingIds, 'deletingIds', {tId}),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingIds, 'deletingIds', {tId}),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
         ],
         verify: (_) {
           verify(() => mockDeleteLocation.call(tId)).called(1);
