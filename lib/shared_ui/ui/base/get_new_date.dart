@@ -34,7 +34,7 @@ class GetNewDate {
         ? correctMinimumDate
         : currentSelectedDate;
 
-    if (PlatformUtil.isCupertino) {
+    if (PlatformUtil.isIOS) {
       selectedDate = await _showCupertinoDatePicker(
         firstDate: firstDate,
         context: context,
@@ -55,7 +55,7 @@ class GetNewDate {
 
     TimeOfDay? selectedTime;
 
-    if (PlatformUtil.isCupertino) {
+    if (PlatformUtil.isIOS) {
       if (!context.mounted) return null;
       final time = await _showCupertinoDatePicker(
         firstDate: firstDate,
@@ -109,10 +109,10 @@ class GetNewDate {
     required DateTime? initialDate,
     required BuildContext context,
     required CupertinoDatePickerMode mode,
-  }) async {
+  }) {
     DateTime? tempPickedDate = firstDate;
 
-    return await showCupertinoModalPopup<Future<DateTime>>(
+    return showCupertinoModalPopup<DateTime>(
       context: context,
       builder: (BuildContext context) {
         return CupertinoTheme(
@@ -160,7 +160,7 @@ class GetNewDate {
                     ),
                     CupertinoButton(
                       child: Text('OK'.hardcoded),
-                      onPressed: () => context.pop(tempPickedDate),
+                      onPressed: () => context.pop<DateTime?>(tempPickedDate),
                     ),
                   ],
                 ),
