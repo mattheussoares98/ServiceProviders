@@ -54,7 +54,8 @@ class BaseDropDown<T> extends StatelessWidget {
       final selectedMenuItem = items?.firstWhereOrNull(
         (item) => item.value == selectedItem,
       );
-      return FormField(
+      return FormField<T>(
+        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
         validator: validator,
         initialValue: selectedItem,
         builder: (state) {
@@ -122,6 +123,7 @@ class BaseDropDown<T> extends StatelessWidget {
                                     );
 
                                 if (selected != null && onChanged != null) {
+                                  state.didChange(selected);
                                   onChanged!(selected);
                                 }
                               }
