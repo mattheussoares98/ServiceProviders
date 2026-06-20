@@ -44,6 +44,8 @@ class LoginForm extends StatelessWidget {
               validator: FormValidators.compose([EmailValidator()]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onFieldSubmitted: (_) => passwordFocusNode.requestFocus(),
+              autofillHints: const [AutofillHints.email],
+              keyboardType: TextInputType.emailAddress,
             ),
             gapH8,
             BaseTextFormField(
@@ -55,6 +57,7 @@ class LoginForm extends StatelessWidget {
               validator: FormValidators.compose([MinLengthValidator(3)]),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !state.passwordVisibility,
+              autofillHints: const [AutofillHints.password],
               onFieldSubmitted: (_) async {
                 if (!formKey.currentState!.validate()) {
                   return;

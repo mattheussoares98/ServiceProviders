@@ -50,11 +50,13 @@ class LoginPage extends HookWidget {
             gapH12,
             Form(
               key: formKey,
-              child: LoginForm(
-                formKey: formKey,
-                emailController: emailController,
-                passwordController: passwordController,
-                passwordFocusNode: passwordFocusNode,
+              child: AutofillGroup(
+                child: LoginForm(
+                  formKey: formKey,
+                  emailController: emailController,
+                  passwordController: passwordController,
+                  passwordFocusNode: passwordFocusNode,
+                ),
               ),
             ),
             gapH32,
