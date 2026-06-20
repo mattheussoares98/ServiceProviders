@@ -128,33 +128,37 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
-  Future<void> createArea(AreaEntity area) async {
+  Future<bool> createArea(AreaEntity area) async {
     emit(state.copyWith(status: StateStatus.loading));
     final dataState = await _useCases.createArea(area);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
+      return true;
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
+      return false;
     }
   }
 
-  Future<void> updateArea(AreaEntity area) async {
+  Future<bool> updateArea(AreaEntity area) async {
     emit(state.copyWith(status: StateStatus.loading));
     final dataState = await _useCases.updateArea(area);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
+      return true;
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
+      return false;
     }
   }
 

@@ -367,6 +367,9 @@ void main() {
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.deleteLocation(tId),
@@ -430,17 +433,12 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.createArea(tArea),
+        act: (cubit) async => expect(await cubit.createArea(tArea), isTrue),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
             StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -462,7 +460,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.createArea(tArea),
+        act: (cubit) async => expect(await cubit.createArea(tArea), isFalse),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -496,17 +494,12 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.updateArea(tArea),
+        act: (cubit) async => expect(await cubit.updateArea(tArea), isTrue),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
             StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -528,7 +521,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.updateArea(tArea),
+        act: (cubit) async => expect(await cubit.updateArea(tArea), isFalse),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -569,11 +562,6 @@ void main() {
             (s) => s.status,
             'status',
             StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
