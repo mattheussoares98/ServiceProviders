@@ -131,6 +131,36 @@ void main() {
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
+      blocTest<LocationsCubit, LocationsState>(
+        'should not emit loading when pass a false value',
+        build: () {
+          final tLocations = EntityFactory.makeLocationEntityList();
+          final tAreas = EntityFactory.makeAreaEntityList();
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadLocationsAndAreas(showLoading: false),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.initial,
+          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.errorMessage, 'errorMessage', isNull)
+              .having((s) => s.locations, 'locations', isNotEmpty),
+        ],
+        verify: (_) {
+          verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
+        },
+      );
 
       blocTest<LocationsCubit, LocationsState>(
         'should emit loading and error when locations load fails',

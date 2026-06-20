@@ -16,7 +16,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   final LocationsCubitUseCases _useCases;
 
-  Future<void> loadLocationsAndAreas() async {
+  Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
     final user = _useCases.getSessionUser();
     if (user.companyId.isEmpty) {
       showErrorToast(
@@ -26,7 +26,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       return;
     }
 
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
 
     final results = await Future.wait([
       _useCases.getLocations(user.companyId),
