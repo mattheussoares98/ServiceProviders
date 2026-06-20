@@ -198,7 +198,7 @@ class CreateAssetDialog extends HookWidget {
               gapH16,
               BaseDropDown<String>(
                 key: const ValueKey('Category'),
-                label: 'Categoria (opcional)'.hardcoded,
+                label: 'Categoria (opcional)'.hardcoded, //TODO implement it
                 selectedItem: selectedCategoryId.value,
                 items: categoryDropdownItems,
                 onChanged: (val) => selectedCategoryId.value = val,
