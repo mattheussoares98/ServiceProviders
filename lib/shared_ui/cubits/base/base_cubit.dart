@@ -19,6 +19,11 @@ abstract class BaseState extends Equatable {
   List<Object?> get props => [status, errorMessage];
 }
 
+mixin PendingActionsState {
+  Set<String> get deletingIds;
+  Set<String> get updatingIds;
+}
+
 abstract class BaseCubit<T> extends Cubit<T> with ClientMixin {
   BaseCubit(super.initialState);
 }
