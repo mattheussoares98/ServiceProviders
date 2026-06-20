@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/locations/presentation/cubits/locati
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
@@ -18,25 +19,28 @@ class CreateAreaDialog extends HookWidget {
     super.key,
     required this.locationId,
     required this.companyId,
+    this.area,
   });
 
   final String locationId;
   final String companyId;
+  final AreaEntity? area;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    final nameController = useTextEditingController();
-    final floorController = useTextEditingController();
-    final descController = useTextEditingController();
+    final nameController = useTextEditingController(text: area?.name);
+    final floorController = useTextEditingController(text: area?.floor);
+    final descController = useTextEditingController(text: area?.description);
     final floorFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
+    observeLoading([context.read<LocationsCubit>()]);
 
-    void submit() {
+    Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
-      final area = AreaEntity(
-        id: const Uuid().v4(),
+      final newArea = AreaEntity(
+        id: area?.id ?? const Uuid().v4(),
         locationId: locationId,
         companyId: companyId,
         name: nameController.text.trim(),
@@ -50,8 +54,15 @@ class CreateAreaDialog extends HookWidget {
         updatedAt: DateTime.now(),
       );
 
-      Navigator.of(context).pop();
-      context.read<LocationsCubit>().createArea(area);
+      bool succeeds = false;
+      if (area == null) {
+        succeeds = await context.read<LocationsCubit>().createArea(newArea);
+      } else {
+        succeeds = await context.read<LocationsCubit>().updateArea(newArea);
+      }
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
 
     return Dialog(

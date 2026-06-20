@@ -66,9 +66,7 @@ class LocationCard extends StatelessWidget {
                           .read<LocationsCubit>()
                           .deleteLocation(location.id),
                       contentText:
-                          'Tem certeza que deseja excluir o local?\n\n'
-                                  'Todos equipamentos, ordens de serviço e áreas associadas não serão mais exibidos'
-                              .hardcoded,
+                          'Tem certeza que deseja excluir o local?'.hardcoded,
                       defaultActionText: 'Sim'.hardcoded,
                       cancelActionText: 'Cancelar'.hardcoded,
                     );
@@ -115,6 +113,48 @@ class LocationCard extends StatelessWidget {
                             gapH4,
                             BaseText.bodySmall(areaSubtitle),
                           ],
+                        ),
+                      ),
+                      BaseIconButton(
+                        onPressed: () {
+                          showDialog<void>(
+                            context: context,
+                            builder: (_) => BlocProvider.value(
+                              value: context.read<LocationsCubit>(),
+                              child: CreateAreaDialog(
+                                locationId: location.id,
+                                companyId: location.companyId,
+                                area: area,
+                              ),
+                            ),
+                          );
+                        },
+                        platformIcon: const PlatformIcon(
+                          materialIcon: Icons.edit,
+                          cupertinoIcon: CupertinoIcons.pencil,
+                          isSmall: true,
+                        ),
+                      ),
+                      BaseIconButton(
+                        onPressed: () {
+                          showAlertDialog(
+                            context: context,
+                            title: 'Excluir área'.hardcoded,
+                            onOkPressed: () => context
+                                .read<LocationsCubit>()
+                                .deleteArea(area.id, area.locationId),
+                            contentText:
+                                'Tem certeza que deseja excluir a área?'
+                                    .hardcoded,
+                            defaultActionText: 'Sim'.hardcoded,
+                            cancelActionText: 'Cancelar'.hardcoded,
+                          );
+                        },
+                        platformIcon: const PlatformIcon(
+                          materialIcon: Icons.delete_outline,
+                          cupertinoIcon: CupertinoIcons.trash,
+                          color: Colors.red,
+                          isSmall: true,
                         ),
                       ),
                     ],
