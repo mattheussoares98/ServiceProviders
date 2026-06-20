@@ -108,81 +108,72 @@ class AssetCard extends StatelessWidget {
               )
             : null,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(Sizes.p16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (category != null)
-                  _DetailRow(
-                    label: 'Categoria:'.hardcoded,
-                    value: category.name,
-                  ),
-                if (parentAsset != null)
-                  _DetailRow(
-                    label: 'Equipamento Pai:'.hardcoded,
-                    value: parentAsset.name,
-                  ),
-                if (asset.manufacturer != null &&
-                    asset.manufacturer!.isNotEmpty)
-                  _DetailRow(
-                    label: 'Fabricante:'.hardcoded,
-                    value: asset.manufacturer!,
-                  ),
-                if (asset.model != null && asset.model!.isNotEmpty)
-                  _DetailRow(label: 'Modelo:'.hardcoded, value: asset.model!),
-                if (asset.serialNumber != null &&
-                    asset.serialNumber!.isNotEmpty)
-                  _DetailRow(
-                    label: 'Número de Série:'.hardcoded,
-                    value: asset.serialNumber!,
-                  ),
-                if (asset.installDate != null)
-                  _DetailRow(
-                    label: 'Data de Instalação:'.hardcoded,
-                    value: _formatDate(asset.installDate),
-                  ),
-                if (asset.warrantyExpiration != null)
-                  _DetailRow(
-                    label: 'Vencimento Garantia:'.hardcoded,
-                    value: _formatDate(asset.warrantyExpiration),
-                  ),
-                if (asset.revisionForecast != null)
-                  _DetailRow(
-                    label: 'Previsão de Revisão:'.hardcoded,
-                    value: _formatDate(asset.revisionForecast),
-                  ),
-                if (asset.notes != null && asset.notes!.isNotEmpty)
-                  _DetailRow(
-                    label: 'Observações:'.hardcoded,
-                    value: asset.notes!,
-                  ),
-                gapH16,
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: BaseTextButton(
-                    onPressed: () async {
-                      final confirmed = await showAlertDialog(
-                        context: context,
-                        title: 'Excluir Equipamento'.hardcoded,
-                        contentText:
-                            'Tem certeza que deseja excluir este equipamento?'
-                                .hardcoded,
-                        cancelActionText: 'Cancelar'.hardcoded,
-                        defaultActionText: 'Excluir'.hardcoded,
-                      );
-                      if (confirmed == true && context.mounted) {
-                        unawaited(
-                          context.read<AssetsCubit>().deleteAsset(asset.id),
-                        );
-                      }
-                    },
-                    text: 'Excluir Equipamento'.hardcoded,
-                    textColor: AppColors.error,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (category != null)
+                _DetailRow(label: 'Categoria:'.hardcoded, value: category.name),
+              if (parentAsset != null)
+                _DetailRow(
+                  label: 'Equipamento Pai:'.hardcoded,
+                  value: parentAsset.name,
                 ),
-              ],
-            ),
+              if (asset.manufacturer != null && asset.manufacturer!.isNotEmpty)
+                _DetailRow(
+                  label: 'Fabricante:'.hardcoded,
+                  value: asset.manufacturer!,
+                ),
+              if (asset.model != null && asset.model!.isNotEmpty)
+                _DetailRow(label: 'Modelo:'.hardcoded, value: asset.model!),
+              if (asset.serialNumber != null && asset.serialNumber!.isNotEmpty)
+                _DetailRow(
+                  label: 'Número de série:'.hardcoded,
+                  value: asset.serialNumber!,
+                ),
+              if (asset.installDate != null)
+                _DetailRow(
+                  label: 'Data de instalação:'.hardcoded,
+                  value: _formatDate(asset.installDate),
+                ),
+              if (asset.warrantyExpiration != null)
+                _DetailRow(
+                  label: 'Vencimento da garantia:'.hardcoded,
+                  value: _formatDate(asset.warrantyExpiration),
+                ),
+              if (asset.revisionForecast != null)
+                _DetailRow(
+                  label: 'Previsão de revisão:'.hardcoded,
+                  value: _formatDate(asset.revisionForecast),
+                ),
+              if (asset.notes != null && asset.notes!.isNotEmpty)
+                _DetailRow(
+                  label: 'Observações:'.hardcoded,
+                  value: asset.notes!,
+                ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: BaseTextButton(
+                  onPressed: () async {
+                    final confirmed = await showAlertDialog(
+                      context: context,
+                      title: 'Excluir equipamento'.hardcoded,
+                      contentText:
+                          'Tem certeza que deseja excluir este equipamento?'
+                              .hardcoded,
+                      cancelActionText: 'Cancelar'.hardcoded,
+                      defaultActionText: 'Excluir'.hardcoded,
+                    );
+                    if (confirmed == true && context.mounted) {
+                      unawaited(
+                        context.read<AssetsCubit>().deleteAsset(asset.id),
+                      );
+                    }
+                  },
+                  text: 'Excluir equipamento'.hardcoded,
+                  textColor: AppColors.error,
+                ),
+              ),
+            ],
           ),
         ],
       ),
