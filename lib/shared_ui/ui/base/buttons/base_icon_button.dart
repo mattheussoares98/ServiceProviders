@@ -17,7 +17,7 @@ class BaseIconButton extends HookWidget {
     this.excludeFromFocus = false,
     this.isLoading = false,
   });
-  final FutureOr<void>? Function() onPressed;
+  final FutureOr<void>? Function()? onPressed;
   final PlatformIcon platformIcon;
   final EdgeInsets? padding;
   final double? targetSize;
@@ -30,7 +30,7 @@ class BaseIconButton extends HookWidget {
     final effectiveLoading = isLoading || localLoading.value;
 
     Future<void> tapCallback() async {
-      final result = onPressed();
+      final result = onPressed?.call();
       if (result is Future) {
         localLoading.value = true;
         try {
