@@ -8,3 +8,12 @@ Internal zones/rooms within a location.
 | `name` | VARCHAR(255) | NO | - | Zone name (e.g. Sala 102) |
 | `floor` | VARCHAR(50) | YES | - | Floor level |
 | `description` | VARCHAR(1000) | YES | - | Zone details |
+
+## Deletion Rules
+
+* **Hard Deletes**: Prohibited by the general `prevent_delete()` trigger.
+* **Soft Deletes**: Blocked if there are active assets or open work orders associated with the area:
+  * Trigger: `tr_prevent_delete_areas_with_relations`
+  * Active Assets Check: Blocked if any assets in the area have `deleted_at IS NULL`.
+  * Open Work Orders Check: Blocked if any work orders linked to assets in this area have `status != 'completed'` and `deleted_at IS NULL`.
+
