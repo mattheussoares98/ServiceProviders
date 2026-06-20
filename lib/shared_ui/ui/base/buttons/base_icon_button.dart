@@ -15,32 +15,35 @@ class BaseIconButton extends HookWidget {
     this.padding,
     this.targetSize,
     this.excludeFromFocus = false,
+    this.isLoading = false,
   });
   final FutureOr<void>? Function() onPressed;
   final PlatformIcon platformIcon;
   final EdgeInsets? padding;
   final double? targetSize;
   final bool excludeFromFocus;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = useState(false);
+    final localLoading = useState(false);
+    final effectiveLoading = isLoading || localLoading.value;
 
     Future<void> tapCallback() async {
       final result = onPressed();
       if (result is Future) {
-        isLoading.value = true;
+        localLoading.value = true;
         try {
           await result;
         } finally {
           if (context.mounted) {
-            isLoading.value = false;
+            localLoading.value = false;
           }
         }
       }
     }
 
-    final iconWidget = isLoading.value
+    final iconWidget = effectiveLoading
         ? LoadingCircle.small(platformIcon.color)
         : platformIcon;
 
@@ -48,13 +51,13 @@ class BaseIconButton extends HookWidget {
 
     if (context.isCupertino) {
       child = CupertinoButton(
-        onPressed: isLoading.value ? null : tapCallback,
+        onPressed: effectiveLoading ? null : tapCallback,
         padding: padding ?? EdgeInsets.zero,
         child: iconWidget,
       );
     } else {
       child = IconButton(
-        onPressed: isLoading.value ? null : tapCallback,
+        onPressed: effectiveLoading ? null : tapCallback,
         icon: iconWidget,
         padding: padding ?? EdgeInsets.zero,
       );
