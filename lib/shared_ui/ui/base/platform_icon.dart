@@ -15,6 +15,7 @@ class PlatformIcon extends StatelessWidget {
     this.size,
     this.materialPadding,
     this.cupertinoPadding,
+    this.isSmall = false,
   });
 
   factory PlatformIcon.back({Key? key, Color? color, double? size}) =>
@@ -84,6 +85,7 @@ class PlatformIcon extends StatelessWidget {
   final double? size;
   final EdgeInsetsGeometry? materialPadding;
   final EdgeInsetsGeometry? cupertinoPadding;
+  final bool isSmall;
 
   PlatformIcon copyWith({
     IconData? materialIcon,
@@ -106,12 +108,20 @@ class PlatformIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (context.isCupertino) {
-      final iconWidget = Icon(cupertinoIcon, color: color, size: size);
+      final iconWidget = Icon(
+        cupertinoIcon,
+        color: color,
+        size: isSmall ? 16 : size,
+      );
       return cupertinoPadding != null
           ? Padding(padding: cupertinoPadding!, child: iconWidget)
           : iconWidget;
     } else {
-      final iconWidget = Icon(materialIcon, color: color, size: size);
+      final iconWidget = Icon(
+        materialIcon,
+        color: color,
+        size: isSmall ? 16 : size,
+      );
       return materialPadding != null
           ? Padding(padding: materialPadding!, child: iconWidget)
           : iconWidget;
