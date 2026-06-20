@@ -1,14 +1,14 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/area_name_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/description_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/floor_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -66,7 +66,6 @@ class CreateAreaDialog extends HookWidget {
     }
 
     return Dialog(
-      //TODO add option to delete the Area
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
         child: Form(
@@ -81,32 +80,21 @@ class CreateAreaDialog extends HookWidget {
                   textAlign: TextAlign.center,
                 ),
                 gapH16,
-                BaseTextFormField(
-                  labelText: 'Nome da Área *'.hardcoded,
-                  hintText: 'Ex: Sala de Reunião'.hardcoded,
-                  controller: nameController,
-                  onFieldSubmitted: (_) => floorFocusNode.requestFocus(),
-                  validator: FormValidators.compose([NonEmptyValidator()]),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  textInputAction: TextInputAction.next,
+                AreaNameField(
+                  nameController: nameController,
+                  floorFocusNode: floorFocusNode,
                 ),
                 gapH16,
-                BaseTextFormField(
-                  labelText: 'Andar / Piso (Opcional)'.hardcoded,
-                  hintText: 'Ex: 2º Andar'.hardcoded,
-                  controller: floorController,
-                  focusNode: floorFocusNode,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => descFocusNode.requestFocus(),
+                FloorField(
+                  floorController: floorController,
+                  floorFocusNode: floorFocusNode,
+                  descFocusNode: descFocusNode,
                 ),
                 gapH16,
-                BaseTextFormField(
-                  labelText: 'Descrição (Opcional)'.hardcoded,
-                  hintText: 'Ex: Sala de reuniões principal'.hardcoded,
-                  controller: descController,
-                  focusNode: descFocusNode,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => submit(),
+                DescriptionField(
+                  descController: descController,
+                  descFocusNode: descFocusNode,
+                  submit: submit,
                 ),
                 gapH24,
                 Row(
