@@ -99,14 +99,21 @@ class CreateAreaDialog extends HookWidget {
                 ),
                 gapH24,
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    BaseTextButton(
-                      onPressed: Navigator.of(context).pop,
-                      text: 'Cancelar'.hardcoded,
+                    Flexible(
+                      child: BaseTextButton(
+                        onPressed: Navigator.of(context).pop,
+                        text: 'Cancelar'.hardcoded,
+                      ),
                     ),
                     gapW16,
-                    PrimaryButton(onTap: submit, text: 'Criar'.hardcoded),
+                    Flexible(
+                      child: PrimaryButton(
+                        onTap: submit,
+                        text: 'Criar'.hardcoded,
+                      ),
+                    ),
                   ],
                 ),
               ],

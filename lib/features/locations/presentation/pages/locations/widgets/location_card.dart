@@ -5,7 +5,6 @@ import 'package:clean_architecture/features/locations/presentation/cubits/locati
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area_dialog.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_location.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_list_tile.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -101,14 +100,24 @@ class LocationCard extends StatelessWidget {
                     if (area.description?.isNotEmpty ?? false) area.description,
                   ].join(' - ');
 
-                  return BaseListTile(
-                    title: area.name,
-                    platformIcon: const PlatformIcon(
-                      materialIcon: Icons.room,
-                      cupertinoIcon: CupertinoIcons.location,
-                    ),
-                    subtitle: areaSubtitle.isNotEmpty ? areaSubtitle : null,
-                    padding: EdgeInsets.zero,
+                  return Row(
+                    children: [
+                      const PlatformIcon(
+                        materialIcon: Icons.room,
+                        cupertinoIcon: CupertinoIcons.location,
+                      ),
+                      gapW12,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: .start,
+                          children: [
+                            BaseText.titleMedium(area.name),
+                            gapH4,
+                            BaseText.bodySmall(areaSubtitle),
+                          ],
+                        ),
+                      ),
+                    ],
                   );
                 }),
               gapH16,
