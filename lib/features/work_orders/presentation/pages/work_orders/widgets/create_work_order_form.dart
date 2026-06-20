@@ -1,6 +1,7 @@
-import 'dart:developer';
-
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
@@ -15,6 +16,7 @@ import 'package:clean_architecture/features/work_orders/presentation/pages/work_
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/responsible_dropdown.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/title_field.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/work_order_type_dropdown.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
@@ -41,9 +43,6 @@ class CreateWorkOrderForm extends HookWidget {
     final descFocusNode = useFocusNode();
     final durationFocusNode = useFocusNode();
 
-    final isLoadingData = useState<bool>(true);
-    final errorMessage = useState<String?>(null);
-
     final selectedLocationId = useState<String?>(null);
     final selectedAssetId = useState<String?>(null);
     final selectedAssignedToId = useState<String?>(null);
@@ -51,38 +50,54 @@ class CreateWorkOrderForm extends HookWidget {
     final selectedType = useState<WorkOrderType>(WorkOrderType.corrective);
     final selectedScheduledDate = useState<DateTime?>(null);
 
-    useEffect(() {
-      Future<void> loadFormData() async {
-        try {
-          final companyId = context.select(
-            (SessionCubit cubit) => cubit.state.user.companyId,
-          );
-          if (companyId.isEmpty) {
-            errorMessage.value = 'Erro: Usuário sem ID de empresa'.hardcoded;
-            isLoadingData.value = false;
-            return;
-          }
-        } catch (e) {
-          log(e.toString());
-          errorMessage.value = 'Erro ao carregar dados do formulário'.hardcoded;
-        } finally {
-          isLoadingData.value = false;
-        }
-      }
+    final (assetsError, assetsLoading) = context.select(
+      (AssetsCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+    final (locationsError, locationsLoading) = context.select(
+      (LocationsCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+    final (usersError, usersLoading) = context.select(
+      (UsersCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
 
-      loadFormData();
-      return null;
-    }, []);
+    final isLoading = assetsLoading || locationsLoading || usersLoading;
+    final hasError =
+        assetsError?.isNotEmpty == true ||
+        locationsError?.isNotEmpty == true ||
+        usersError?.isNotEmpty == true;
 
-    if (isLoadingData.value) {
+    if (isLoading) {
       return const LoadingCircle();
     }
 
-    if (errorMessage.value != null) {
+    if (hasError) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(Sizes.p16),
-          child: BaseText.error(errorMessage.value!),
+          child: Column(
+            children: [
+              BaseText.error(
+                '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}',
+              ),
+              gapH32,
+              PrimaryButton(
+                onTap: () async {
+                  await Future.wait([
+                    if (assetsError?.isNotEmpty == true)
+                      context.read<AssetsCubit>().loadAssets(),
+                    if (locationsError?.isNotEmpty == true)
+                      context.read<LocationsCubit>().loadLocationsAndAreas(),
+                    // if (usersError?.isNotEmpty == true)
+                    // context.read<UsersCubit>().loadUsers(),//TODO fix
+                  ]);
+                },
+                text: 'Tentar novamente'.hardcoded,
+              ),
+            ],
+          ),
         ),
       );
     }
