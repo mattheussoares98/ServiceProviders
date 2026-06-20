@@ -50,6 +50,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           status: StateStatus.loaded,
           locations: locationsResult.data,
           areasByLocation: areasByLocation,
+          annulErrorMessage: true,
         ),
       );
     } else {

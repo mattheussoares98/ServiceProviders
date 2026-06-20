@@ -54,6 +54,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           status: StateStatus.loaded,
           workOrders: workOrdersResult.data,
           changeRequests: changeRequestsResult.data,
+          annulErrorMessage: true,
         ),
       );
     } else {

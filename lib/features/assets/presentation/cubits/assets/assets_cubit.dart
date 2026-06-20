@@ -55,6 +55,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
           locations: locationsResult.data ?? [],
           areas: areasResult.data ?? [],
           categories: categoriesResult.data ?? [],
+          annulErrorMessage: true,
         ),
       );
     } else {

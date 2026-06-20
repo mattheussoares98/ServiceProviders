@@ -11,11 +11,11 @@ class AssetsState extends BaseState {
   });
 
   const AssetsState.initial()
-      : assets = const [],
-        locations = const [],
-        areas = const [],
-        categories = const [],
-        super(status: StateStatus.initial, errorMessage: '');
+    : assets = const [],
+      locations = const [],
+      areas = const [],
+      categories = const [],
+      super(status: StateStatus.initial, errorMessage: '');
 
   final List<AssetEntity> assets;
   final List<LocationEntity> locations;
@@ -29,6 +29,7 @@ class AssetsState extends BaseState {
     List<CategoryEntity>? categories,
     StateStatus? status,
     String? errorMessage,
+    bool? annulErrorMessage,
   }) {
     return AssetsState(
       assets: assets ?? this.assets,
@@ -36,17 +37,19 @@ class AssetsState extends BaseState {
       areas: areas ?? this.areas,
       categories: categories ?? this.categories,
       status: status ?? this.status,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: annulErrorMessage == true
+          ? null
+          : errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        assets,
-        locations,
-        areas,
-        categories,
-        status,
-        errorMessage,
-      ];
+    assets,
+    locations,
+    areas,
+    categories,
+    status,
+    errorMessage,
+  ];
 }

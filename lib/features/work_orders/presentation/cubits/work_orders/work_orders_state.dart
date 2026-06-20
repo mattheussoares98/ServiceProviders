@@ -25,13 +25,16 @@ class WorkOrdersState extends BaseState {
     Map<String, List<WorkOrderHistoryEntity>>? historyByWorkOrder,
     StateStatus? status,
     String? errorMessage,
+    bool? annulErrorMessage,
   }) {
     return WorkOrdersState(
       workOrders: workOrders ?? this.workOrders,
       changeRequests: changeRequests ?? this.changeRequests,
       historyByWorkOrder: historyByWorkOrder ?? this.historyByWorkOrder,
       status: status ?? this.status,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: annulErrorMessage == true
+          ? null
+          : errorMessage ?? this.errorMessage,
     );
   }
 

@@ -123,6 +123,7 @@ void main() {
           ),
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.errorMessage, 'errorMessage', isNull)
               .having((s) => s.locations, 'locations', isNotEmpty),
         ],
         verify: (_) {

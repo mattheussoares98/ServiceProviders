@@ -141,7 +141,8 @@ void main() {
           isA<WorkOrdersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.workOrders, 'workOrders', isNotEmpty)
-              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty),
+              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
           verify(

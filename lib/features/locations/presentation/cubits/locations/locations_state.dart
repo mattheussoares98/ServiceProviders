@@ -21,12 +21,15 @@ class LocationsState extends BaseState {
     Map<String, List<AreaEntity>>? areasByLocation,
     StateStatus? status,
     String? errorMessage,
+    bool? annulErrorMessage,
   }) {
     return LocationsState(
       locations: locations ?? this.locations,
       areasByLocation: areasByLocation ?? this.areasByLocation,
       status: status ?? this.status,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: annulErrorMessage == true
+          ? null
+          : errorMessage ?? this.errorMessage,
     );
   }
 
