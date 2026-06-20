@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_location.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/location_card.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/location_card/location_card.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
