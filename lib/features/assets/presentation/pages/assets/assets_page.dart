@@ -14,80 +14,77 @@ import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 @RoutePage()
-class AssetsPage extends StatelessWidget {
+class AssetsPage extends HookWidget {
   const AssetsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     //TODO read all this page code to check possible improvements
-    return BlocProvider(
-      create: (context) => GetIt.I<AssetsCubit>()..loadAssets(),
-      child: Builder(
-        builder: (context) {
-          return BaseScaffold(
-            isScrollable: false,
-            onRefresh: context.read<AssetsCubit>().loadAssets,
-            appBar: BaseAppBar(
-              title: 'Equipamentos'.hardcoded,
-              leading: BaseIconButton(
-                onPressed: Scaffold.of(context).openDrawer,
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.menu,
-                  cupertinoIcon: CupertinoIcons.bars,
-                ),
-              ),
-              actions: [
-                BaseIconButton(
-                  onPressed: () {
-                    final state = context.read<AssetsCubit>().state;
-                    showModalPage<void>(
-                      BlocProvider.value(
-                        value: context.read<AssetsCubit>(),
-                        child: CreateAssetDialog(
-                          locations: state.locations,
-                          areas: state.areas,
-                          categories: state.categories,
-                          allAssets: state.assets,
-                        ),
-                      ),
-                      context,
-                    );
-                  },
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.add,
-                    cupertinoIcon: CupertinoIcons.add,
+
+    useEffect(() {
+      context.read<AssetsCubit>().loadAssets();
+      return null;
+    }, []);
+
+    return BaseScaffold(
+      isScrollable: false,
+      onRefresh: context.read<AssetsCubit>().loadAssets,
+      appBar: BaseAppBar(
+        title: 'Equipamentos'.hardcoded,
+        leading: BaseIconButton(
+          onPressed: Scaffold.of(context).openDrawer,
+          platformIcon: const PlatformIcon(
+            materialIcon: Icons.menu,
+            cupertinoIcon: CupertinoIcons.bars,
+          ),
+        ),
+        actions: [
+          BaseIconButton(
+            onPressed: () {
+              final state = context.read<AssetsCubit>().state;
+              showModalPage<void>(
+                BlocProvider.value(
+                  value: context.read<AssetsCubit>(),
+                  child: CreateAssetDialog(
+                    locations: state.locations,
+                    areas: state.areas,
+                    categories: state.categories,
+                    allAssets: state.assets,
                   ),
                 ),
-              ],
+                context,
+              );
+            },
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.add,
+              cupertinoIcon: CupertinoIcons.add,
             ),
-            body: BaseStateView<AssetsCubit, AssetsState, List<AssetEntity>>(
-              dataSelector: (state) => state.assets,
-              onRetry: context.read<AssetsCubit>().loadAssets,
-              builder: (context, assets) {
-                final state = context.watch<AssetsCubit>().state;
-                if (assets.isEmpty) {
-                  return BaseText.error(
-                    'Nenhum equipamento cadastrado'.hardcoded,
-                  );
-                }
-                return ListView.builder(
-                  itemCount: assets.length,
-                  itemBuilder: (context, index) {
-                    final asset = assets[index];
-                    return AssetCard(
-                      asset: asset,
-                      locations: state.locations,
-                      areas: state.areas,
-                      categories: state.categories,
-                      allAssets: assets,
-                    );
-                  },
-                );
-              },
-            ),
+          ),
+        ],
+      ),
+      body: BaseStateView<AssetsCubit, AssetsState, List<AssetEntity>>(
+        dataSelector: (state) => state.assets,
+        onRetry: context.read<AssetsCubit>().loadAssets,
+        builder: (context, assets) {
+          final state = context.watch<AssetsCubit>().state;
+          if (assets.isEmpty) {
+            return BaseText.error('Nenhum equipamento cadastrado'.hardcoded);
+          }
+          return ListView.builder(
+            itemCount: assets.length,
+            itemBuilder: (context, index) {
+              final asset = assets[index];
+              return AssetCard(
+                asset: asset,
+                locations: state.locations,
+                areas: state.areas,
+                categories: state.categories,
+                allAssets: assets,
+              );
+            },
           );
         },
       ),

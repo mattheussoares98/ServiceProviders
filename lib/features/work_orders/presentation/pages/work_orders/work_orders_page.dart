@@ -11,7 +11,6 @@ import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 @RoutePage()
 class WorkOrdersPage extends StatelessWidget {
@@ -19,47 +18,39 @@ class WorkOrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          GetIt.I<WorkOrdersCubit>()..loadWorkOrdersAndChangeRequests(),
-      child: Builder(
-        builder: (context) {
-          return BaseScaffold(
-            isScrollable: false,
-            onRefresh: context
-                .read<WorkOrdersCubit>()
-                .loadWorkOrdersAndChangeRequests,
-            appBar: BaseAppBar(
-              title: 'Ordens de Serviço'.hardcoded,
-              leading: BaseIconButton(
-                onPressed: () => Scaffold.of(context).openDrawer(),
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.menu,
-                  cupertinoIcon: CupertinoIcons.bars,
+    return BaseScaffold(
+      isScrollable: false,
+      onRefresh: context
+          .read<WorkOrdersCubit>()
+          .loadWorkOrdersAndChangeRequests,
+      appBar: BaseAppBar(
+        title: 'Ordens de Serviço'.hardcoded,
+        leading: BaseIconButton(
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          platformIcon: const PlatformIcon(
+            materialIcon: Icons.menu,
+            cupertinoIcon: CupertinoIcons.bars,
+          ),
+        ),
+        actions: [
+          BaseIconButton(
+            onPressed: () {
+              showModalPage<void>(
+                BlocProvider.value(
+                  value: context.read<WorkOrdersCubit>(),
+                  child: const CreateWorkOrderForm(),
                 ),
-              ),
-              actions: [
-                BaseIconButton(
-                  onPressed: () {
-                    showModalPage<void>(
-                      BlocProvider.value(
-                        value: context.read<WorkOrdersCubit>(),
-                        child: const CreateWorkOrderForm(),
-                      ),
-                      context,
-                    );
-                  },
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.add,
-                    cupertinoIcon: CupertinoIcons.add,
-                  ),
-                ),
-              ],
+                context,
+              );
+            },
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.add,
+              cupertinoIcon: CupertinoIcons.add,
             ),
-            body: const OrdersItems(),
-          );
-        },
+          ),
+        ],
       ),
+      body: const OrdersItems(),
     );
   }
 }

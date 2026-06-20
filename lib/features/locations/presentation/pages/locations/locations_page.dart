@@ -14,7 +14,6 @@ import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 @RoutePage()
 class LocationsPage extends StatelessWidget {
@@ -22,66 +21,52 @@ class LocationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<LocationsCubit>()..loadLocationsAndAreas(),
-      child: Builder(
-        builder: (context) {
-          return BaseScaffold(
-            onRefresh: context.read<LocationsCubit>().loadLocationsAndAreas,
-            isScrollable: false,
-            appBar: BaseAppBar(
-              title: 'Locais'.hardcoded,
-              leading: BaseIconButton(
-                onPressed: Scaffold.of(context).openDrawer,
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.menu,
-                  cupertinoIcon: CupertinoIcons.bars,
-                ),
+    return BaseScaffold(
+      onRefresh: context.read<LocationsCubit>().loadLocationsAndAreas,
+      isScrollable: false,
+      appBar: BaseAppBar(
+        title: 'Locais'.hardcoded,
+        leading: BaseIconButton(
+          onPressed: Scaffold.of(context).openDrawer,
+          platformIcon: const PlatformIcon(
+            materialIcon: Icons.menu,
+            cupertinoIcon: CupertinoIcons.bars,
+          ),
+        ),
+        actions: [
+          BaseIconButton(
+            onPressed: () => showModalPage<void>(
+              BlocProvider.value(
+                value: context.read<LocationsCubit>(),
+                child: const CreateLocation(),
               ),
-              actions: [
-                BaseIconButton(
-                  onPressed: () => showModalPage<void>(
-                    BlocProvider.value(
-                      value: context.read<LocationsCubit>(),
-                      child: const CreateLocation(),
-                    ),
-                    context,
-                  ),
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.add,
-                    cupertinoIcon: CupertinoIcons.add,
-                  ),
-                ),
-              ],
+              context,
             ),
-            body:
-                BaseStateView<
-                  LocationsCubit,
-                  LocationsState,
-                  List<LocationEntity>
-                >(
-                  dataSelector: (state) => state.locations,
-                  onRetry: context.read<LocationsCubit>().loadLocationsAndAreas,
-                  builder: (context, locations) {
-                    final state = context.watch<LocationsCubit>().state;
-                    if (locations.isEmpty) {
-                      return BaseText.error(
-                        'Nenhum local cadastrado'.hardcoded,
-                      );
-                    }
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.add,
+              cupertinoIcon: CupertinoIcons.add,
+            ),
+          ),
+        ],
+      ),
+      body: BaseStateView<LocationsCubit, LocationsState, List<LocationEntity>>(
+        dataSelector: (state) => state.locations,
+        onRetry: context.read<LocationsCubit>().loadLocationsAndAreas,
+        builder: (context, locations) {
+          final state = context.watch<LocationsCubit>().state;
+          if (locations.isEmpty) {
+            return BaseText.error('Nenhum local cadastrado'.hardcoded);
+          }
 
-                    return ListView.builder(
-                      itemCount: locations.length,
-                      itemBuilder: (context, index) {
-                        final location = locations[index];
-                        return LocationCard(
-                          location: location,
-                          areas: state.areasByLocation[location.id] ?? const [],
-                        );
-                      },
-                    );
-                  },
-                ),
+          return ListView.builder(
+            itemCount: locations.length,
+            itemBuilder: (context, index) {
+              final location = locations[index];
+              return LocationCard(
+                location: location,
+                areas: state.areasByLocation[location.id] ?? const [],
+              );
+            },
           );
         },
       ),
