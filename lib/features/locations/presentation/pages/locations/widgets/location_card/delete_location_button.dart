@@ -15,6 +15,9 @@ class DeleteLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseIconButton(
+      isLoading: context.select<LocationsCubit, bool>(
+        (cubit) => cubit.state.deletingIds.contains(location.id),
+      ),
       onPressed: () {
         showAlertDialog(
           context: context,
