@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -21,7 +23,7 @@ class SecondaryButton extends HookWidget {
     this.elevation,
     this.expandWidth = false,
   });
-  final Future<void> Function() onTap;
+  final FutureOr<void> Function()? onTap;
   final String text;
   final TextType textType;
   final FontWeight textFontWeight;
@@ -38,67 +40,64 @@ class SecondaryButton extends HookWidget {
     final activeColor = color ?? context.colorScheme.primary;
     final activeForegroundColor =
         foregroundColor ?? context.colorScheme.primary;
-    final loadingNotifier = useValueNotifier(false);
-    final onPressed = useCallback(() async {
-      /// If the button is loading, discard the task
-      if (loadingNotifier.value) {
-        return;
-      }
 
-      /// If the button is not loadable
-      if (!loadableButton) {
-        return onTap();
-      }
+    final isLoading = useState(false);
 
-      loadingNotifier.value = true;
-      await onTap();
+    final tapCallback = onTap == null
+        ? null
+        : () async {
+            final result = onTap!();
+            if (result is Future) {
+              isLoading.value = true;
+              try {
+                await result;
+              } finally {
+                if (context.mounted) {
+                  isLoading.value = false;
+                }
+              }
+            }
+          };
 
-      /// If the widget is disposed, don't update value
-      if (context.mounted) {
-        loadingNotifier.value = false;
-      }
-    });
+    final childWidget = isLoading.value
+        ? LoadingCircle.small(activeForegroundColor)
+        : BaseText(
+            text,
+            color: activeForegroundColor,
+            textType: textType,
+            fontWeight: textFontWeight,
+          );
+
+    if (context.isCupertino) {
+      return SizedBox(
+        height: height ?? 50,
+        width: expandWidth ? double.maxFinite : width,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            border: Border.all(color: activeColor, width: 1.5),
+            borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
+          ),
+          child: CupertinoButton(
+            onPressed: isLoading.value ? null : tapCallback,
+            padding: EdgeInsets.zero,
+            child: Center(child: childWidget),
+          ),
+        ),
+      );
+    }
 
     return SizedBox(
       height: height ?? 50,
       width: expandWidth ? double.maxFinite : width,
-      child: ValueListenableBuilder(
-        valueListenable: loadingNotifier,
-        builder: (builderContext, loading, setState) {
-          final childWidget = loading
-              ? LoadingCircle.small(activeForegroundColor)
-              : BaseText(
-                  text,
-                  color: activeForegroundColor,
-                  textType: textType,
-                  fontWeight: textFontWeight,
-                );
-
-          if (context.isCupertino) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(color: activeColor, width: 1.5),
-                borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
-              ),
-              child: CupertinoButton(
-                onPressed: loading ? null : onPressed.call,
-                padding: EdgeInsets.zero,
-                child: Center(child: childWidget),
-              ),
-            );
-          }
-
-          return OutlinedButton(
-            onPressed: loading ? null : onPressed.call,
-            style: OutlinedButton.styleFrom().copyWith(
-              side: WidgetStateProperty.all(
-                BorderSide(color: activeColor, width: 1.5),
-              ),
-            ),
-            child: childWidget,
-          );
-        },
+      child: OutlinedButton(
+        onPressed: isLoading.value ? null : tapCallback,
+        style: OutlinedButton.styleFrom(elevation: elevation).copyWith(
+          side: WidgetStateProperty.all(
+            BorderSide(color: activeColor, width: 1.5),
+          ),
+        ),
+        child: childWidget,
       ),
     );
   }

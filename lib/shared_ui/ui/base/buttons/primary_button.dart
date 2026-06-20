@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -6,8 +8,9 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class PrimaryButton extends StatelessWidget {
+class PrimaryButton extends HookWidget {
   const PrimaryButton({
     super.key,
     required this.onTap,
@@ -22,7 +25,7 @@ class PrimaryButton extends StatelessWidget {
     this.expandWidth = false,
     this.platformIcon,
   });
-  final VoidCallback? onTap;
+  final FutureOr<void> Function()? onTap;
   final String text;
   final TextType? textType;
   final FontWeight? textFontWeight;
@@ -36,8 +39,27 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localLoading = useState(false);
+    final effectiveLoading = isLoading || localLoading.value;
+
+    final tapCallback = onTap == null
+        ? null
+        : () async {
+            final result = onTap!();
+            if (result is Future) {
+              localLoading.value = true;
+              try {
+                await result;
+              } finally {
+                if (context.mounted) {
+                  localLoading.value = false;
+                }
+              }
+            }
+          };
+
     final effectiveForegroundColor = foregroundColor ?? AppColors.white;
-    Widget childWidget = isLoading
+    Widget childWidget = effectiveLoading
         ? LoadingCircle.small(effectiveForegroundColor)
         : BaseText(
             text,
@@ -46,9 +68,9 @@ class PrimaryButton extends StatelessWidget {
             fontWeight: textFontWeight ?? FontWeight.w500,
           );
 
-    if (platformIcon != null) {
+    if (platformIcon != null && !effectiveLoading) {
       childWidget = Row(
-        mainAxisSize: .min,
+        mainAxisSize: MainAxisSize.min,
         children: [platformIcon!, gapW8, childWidget],
       );
     }
@@ -58,7 +80,7 @@ class PrimaryButton extends StatelessWidget {
       width: expandWidth ? double.maxFinite : width,
       child: context.isCupertino
           ? CupertinoButton(
-              onPressed: isLoading ? null : onTap,
+              onPressed: effectiveLoading ? null : tapCallback,
               color: color ?? AppColors.primary,
               disabledColor: color ?? AppColors.primary,
               padding: EdgeInsets.zero,
@@ -66,7 +88,7 @@ class PrimaryButton extends StatelessWidget {
               child: Center(child: childWidget),
             )
           : ElevatedButton(
-              onPressed: isLoading ? null : onTap,
+              onPressed: effectiveLoading ? null : tapCallback,
               style: ElevatedButton.styleFrom(backgroundColor: color),
               child: childWidget,
             ),

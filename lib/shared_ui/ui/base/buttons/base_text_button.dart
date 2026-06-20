@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/constants/app_colors.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class BaseTextButton extends StatelessWidget {
+class BaseTextButton extends HookWidget {
   const BaseTextButton({
     super.key,
     required this.onPressed,
@@ -21,7 +25,7 @@ class BaseTextButton extends StatelessWidget {
     this.isLoading = false,
     this.platformIcon,
   });
-  final VoidCallback? onPressed;
+  final FutureOr<void> Function()? onPressed;
   final String text;
   final Color? textColor;
   final TextType? textType;
@@ -35,28 +39,51 @@ class BaseTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localLoading = useState(false);
+    final effectiveLoading = isLoading || localLoading.value;
+
+    final tapCallback = onPressed == null
+        ? null
+        : () async {
+            final result = onPressed!();
+            if (result is Future) {
+              localLoading.value = true;
+              try {
+                await result;
+              } finally {
+                if (context.mounted) {
+                  localLoading.value = false;
+                }
+              }
+            }
+          };
+
     final appliedTextType = textType ?? TextType.bodyLarge;
     final appliedFontWeight = textFontWeight ?? FontWeight.w400;
     final baseColor = textColor ?? color ?? AppColors.hightLight;
-    final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
+    final finalColor = effectiveLoading
+        ? baseColor.withValues(alpha: 0.5)
+        : baseColor;
 
-    Widget childWidget = BaseText(
-      text,
-      color: finalColor,
-      textType: appliedTextType,
-      fontWeight: appliedFontWeight,
-    );
+    Widget childWidget = effectiveLoading
+        ? LoadingCircle.small(baseColor)
+        : BaseText(
+            text,
+            color: finalColor,
+            textType: appliedTextType,
+            fontWeight: appliedFontWeight,
+          );
 
-    if (platformIcon != null) {
+    if (platformIcon != null && !effectiveLoading) {
       childWidget = Row(
-        mainAxisSize: .min,
+        mainAxisSize: MainAxisSize.min,
         children: [platformIcon!, gapW8, childWidget],
       );
     }
 
     if (context.isCupertino) {
       return CupertinoButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: effectiveLoading ? null : tapCallback,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
         child: childWidget,
@@ -64,7 +91,7 @@ class BaseTextButton extends StatelessWidget {
     }
 
     return TextButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: effectiveLoading ? null : tapCallback,
       style: TextButton.styleFrom(
         foregroundColor: color,
         padding: padding,
