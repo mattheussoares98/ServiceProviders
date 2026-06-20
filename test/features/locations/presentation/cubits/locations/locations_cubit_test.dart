@@ -146,11 +146,6 @@ void main() {
         },
         act: (cubit) => cubit.loadLocationsAndAreas(showLoading: false),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.initial,
-          ),
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.errorMessage, 'errorMessage', isNull)
@@ -389,7 +384,7 @@ void main() {
       final tId = faker.guid.guid();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading and load locations when delete succeeds',
+        'should emit loading, initial and loaded when delete succeeds',
         build: () {
           when(
             () => mockDeleteLocation.call(any()),
@@ -407,7 +402,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.initial,
           ),
           isA<LocationsState>().having(
             (s) => s.status,

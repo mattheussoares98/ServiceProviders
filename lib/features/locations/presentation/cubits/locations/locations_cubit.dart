@@ -116,12 +116,11 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<void> deleteLocation(String id) async {
-    emit(state.copyWith(status: StateStatus.loading));
     final dataState = await _useCases.deleteLocation(id);
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadLocationsAndAreas();
+      await loadLocationsAndAreas(showLoading: false);
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
