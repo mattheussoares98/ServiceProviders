@@ -34,6 +34,7 @@ class BaseTextFormField extends StatelessWidget {
     this.onEditingComplete,
     this.obscureText = false,
     this.autofocus = false,
+    this.autofillHints,
   });
   final bool? enabled;
   final TextEditingController? controller;
@@ -56,6 +57,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool? autofocus;
   final TextInputAction? textInputAction;
   final VoidCallback? onEditingComplete;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +86,7 @@ class BaseTextFormField extends StatelessWidget {
         onChanged: onChanged,
         onTap: onTap,
         autofocus: autofocus ?? false,
+        autofillHints: autofillHints,
         buildCounter:
             (
               context, {
