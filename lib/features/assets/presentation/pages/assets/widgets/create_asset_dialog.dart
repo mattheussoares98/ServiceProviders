@@ -150,13 +150,13 @@ class CreateAssetDialog extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                'Criar Novo Equipamento'.hardcoded,
+                'Criar novo equipamento'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,
               BaseTextFormField(
-                labelText: 'Nome do Equipamento *'.hardcoded,
-                hintText: 'Ex: Ar Condicionado'.hardcoded,
+                labelText: 'Nome do equipamento *'.hardcoded,
+                hintText: 'Ex: Ar condicionado'.hardcoded,
                 controller: nameController,
                 focusNode: nameFocusNode,
                 validator: FormValidators.compose([NonEmptyValidator()]),
@@ -176,6 +176,8 @@ class CreateAssetDialog extends HookWidget {
                   selectedLocationId.value = val;
                   selectedAreaId.value = null;
                 },
+                showLabelAtTopLeft:
+                    selectedLocationId.value?.isNotEmpty ?? false,
               ),
               gapH16,
               BaseDropDown<String>(
@@ -190,25 +192,28 @@ class CreateAssetDialog extends HookWidget {
                 validator: (val) =>
                     val == null ? 'Selecione uma área'.hardcoded : null,
                 items: areaDropdownItems,
-                onChanged: selectedLocationId.value == null
-                    ? null
-                    : (val) => selectedAreaId.value = val,
+                onChanged: (val) => selectedAreaId.value = val,
+                showLabelAtTopLeft: selectedAreaId.value?.isNotEmpty ?? false,
               ),
               gapH16,
               BaseDropDown<String>(
                 key: const ValueKey('Category'),
-                label: 'Categoria (Opcional)'.hardcoded,
+                label: 'Categoria (opcional)'.hardcoded,
                 selectedItem: selectedCategoryId.value,
                 items: categoryDropdownItems,
                 onChanged: (val) => selectedCategoryId.value = val,
+                showLabelAtTopLeft:
+                    selectedCategoryId.value?.isNotEmpty ?? false,
               ),
               gapH16,
               BaseDropDown<String>(
                 key: const ValueKey('ParentAsset'),
-                label: 'Equipamento Pai (Opcional)'.hardcoded,
+                label: 'Equipamento pai (opcional)'.hardcoded,
                 selectedItem: selectedParentAssetId.value,
                 items: parentDropdownItems,
                 onChanged: (val) => selectedParentAssetId.value = val,
+                showLabelAtTopLeft:
+                    selectedParentAssetId.value?.isNotEmpty ?? false,
               ),
               gapH16,
               Row(
@@ -253,7 +258,7 @@ class CreateAssetDialog extends HookWidget {
                 children: [
                   Expanded(
                     child: BaseTextFormField(
-                      labelText: 'Código (Opcional)'.hardcoded,
+                      labelText: 'Código (opcional)'.hardcoded,
                       hintText: 'Ex: AC-001'.hardcoded,
                       controller: codeController,
                       focusNode: codeFocusNode,
@@ -265,7 +270,7 @@ class CreateAssetDialog extends HookWidget {
                   gapW16,
                   Expanded(
                     child: BaseTextFormField(
-                      labelText: 'Fabricante (Opcional)'.hardcoded,
+                      labelText: 'Fabricante (opcional)'.hardcoded,
                       hintText: 'Ex: Carrier'.hardcoded,
                       controller: manufacturerController,
                       focusNode: manufacturerFocusNode,
@@ -280,7 +285,7 @@ class CreateAssetDialog extends HookWidget {
                 children: [
                   Expanded(
                     child: BaseTextFormField(
-                      labelText: 'Modelo (Opcional)'.hardcoded,
+                      labelText: 'Modelo (opcional)'.hardcoded,
                       hintText: 'Ex: Split 12k'.hardcoded,
                       controller: modelController,
                       focusNode: modelFocusNode,
@@ -292,7 +297,7 @@ class CreateAssetDialog extends HookWidget {
                   gapW16,
                   Expanded(
                     child: BaseTextFormField(
-                      labelText: 'Nº Série (Opcional)'.hardcoded,
+                      labelText: 'Nº série (opcional)'.hardcoded,
                       hintText: 'Ex: 12345678X'.hardcoded,
                       controller: serialNumberController,
                       focusNode: serialNumberFocusNode,
@@ -304,7 +309,7 @@ class CreateAssetDialog extends HookWidget {
               ),
               gapH16,
               BaseTextFormField(
-                labelText: 'Observações (Opcional)'.hardcoded,
+                labelText: 'Observações (opcional)'.hardcoded,
                 hintText: 'Ex: Aparelho com vazamento'.hardcoded,
                 controller: notesController,
                 focusNode: notesFocusNode,
@@ -329,7 +334,7 @@ class CreateAssetDialog extends HookWidget {
                     ),
                     gapH8,
                     BaseText.caption(
-                      'TODO: Tirar foto do equipamento (Câmera indisponível)'
+                      'TODO: Tirar foto do equipamento (câmera indisponível)'
                           .hardcoded,
                       color: AppColors.fade,
                     ),

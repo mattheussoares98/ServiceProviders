@@ -236,13 +236,13 @@ class CreateWorkOrderForm extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                'Criar Ordem de Serviço'.hardcoded,
+                'Criar ordem de serviço'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,
               BaseTextFormField(
                 labelText: 'Título *'.hardcoded,
-                hintText: 'Ex: Reparo no Ar Condicionado'.hardcoded,
+                hintText: 'Ex: Reparo no ar condicionado'.hardcoded,
                 controller: titleController,
                 focusNode: titleFocusNode,
                 validator: FormValidators.compose([NonEmptyValidator()]),
@@ -252,8 +252,8 @@ class CreateWorkOrderForm extends HookWidget {
               ),
               gapH16,
               BaseTextFormField(
-                labelText: 'Descrição (Opcional)'.hardcoded,
-                hintText: 'Ex: O equipamento do Bloco B não liga'.hardcoded,
+                labelText: 'Descrição (opcional)'.hardcoded,
+                hintText: 'Ex: O equipamento do bloco B não liga'.hardcoded,
                 controller: descController,
                 focusNode: descFocusNode,
                 maxLines: 3,
@@ -275,7 +275,7 @@ class CreateWorkOrderForm extends HookWidget {
               gapH16,
               BaseDropDown<String>(
                 key: const ValueKey('Asset'),
-                label: 'Equipamento (Opcional)'.hardcoded,
+                label: 'Equipamento (opcional)'.hardcoded,
                 selectedItem: selectedAssetId.value,
                 hint: selectedLocationId.value == null
                     ? BaseText('Selecione primeiro o local'.hardcoded)
@@ -292,7 +292,7 @@ class CreateWorkOrderForm extends HookWidget {
               gapH16,
               BaseDropDown<String>(
                 key: const ValueKey('AssignedTo'),
-                label: 'Responsável (Opcional)'.hardcoded,
+                label: 'Responsável (opcional)'.hardcoded,
                 selectedItem: selectedAssignedToId.value,
                 items: userDropdownItems,
                 onChanged: (val) => selectedAssignedToId.value = val,
@@ -349,7 +349,7 @@ class CreateWorkOrderForm extends HookWidget {
                 children: [
                   Expanded(
                     child: BaseTextFormField(
-                      labelText: 'Duração (Minutos, Opcional)'.hardcoded,
+                      labelText: 'Duração (minutos, opcional)'.hardcoded,
                       hintText: 'Ex: 60'.hardcoded,
                       controller: durationController,
                       focusNode: durationFocusNode,
@@ -363,7 +363,7 @@ class CreateWorkOrderForm extends HookWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        BaseText('Data Programada'.hardcoded),
+                        BaseText('Data programada'.hardcoded),
                         gapH4,
                         InkWell(
                           onTap: pickScheduledDate,
