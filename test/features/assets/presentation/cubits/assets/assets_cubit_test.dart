@@ -391,6 +391,15 @@ void main() {
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.deleteAsset(tId),
@@ -398,12 +407,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
+            StateStatus.deleting,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
@@ -430,7 +434,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.deleting,
           ),
           isA<AssetsState>().having(
             (s) => s.status,

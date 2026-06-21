@@ -107,14 +107,33 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   }
 
   Future<void> deleteAsset(String id) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(
+      state.copyWith(
+        status: StateStatus.deleting,
+        deletingIds: {...state.deletingIds, id},
+      ),
+    );
     final result = await _useCases.deleteAsset(id);
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadAssets();
+      await loadAssets(emitLoading: false);
+      if (isClosed) return;
+
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          deletingIds: {...state.deletingIds..remove(id)},
+        ),
+      );
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          deletingIds: {...state.deletingIds..remove(id)},
+        ),
+      );
       showDataStateToast(result);
     }
   }
