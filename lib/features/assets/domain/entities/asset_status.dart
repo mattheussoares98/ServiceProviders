@@ -1,10 +1,11 @@
 enum AssetStatus {
-  active('active'),
-  inactive('inactive'),
-  decommissioned('decommissioned');
+  active('active', 'Ativo'),
+  inactive('inactive', 'Inativo'),
+  decommissioned('decommissioned', 'Desativado');
 
-  const AssetStatus(this.code);
+  const AssetStatus(this.code, this.label);
   final String code;
+  final String label;
 
   static AssetStatus fromCode(String code) {
     for (final val in AssetStatus.values) {

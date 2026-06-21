@@ -4,21 +4,22 @@ import 'package:clean_architecture/features/assets/domain/entities/asset_critica
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/asset_card.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/area_dropdown.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/asset_name_field.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/category_dropdown.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/criticality_dropdown.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/location_dropdown.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/parent_asset_dropdown.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/status_dropdown.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,24 +27,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAssetDialog extends HookWidget {
-  const CreateAssetDialog({
-    super.key,
-    required this.locations,
-    required this.areas,
-    required this.categories,
-    required this.allAssets,
-    this.asset,
-  });
+  const CreateAssetDialog({super.key, this.asset});
 
-  final List<LocationEntity> locations;
-  final List<AreaEntity> areas;
-  final List<CategoryEntity> categories;
-  final List<AssetEntity> allAssets;
   final AssetEntity? asset;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    observeLoading([context.read<AssetsCubit>()]);
 
     final nameController = useTextEditingController(text: asset?.name);
     final codeController = useTextEditingController(text: asset?.code);
@@ -80,7 +71,7 @@ class CreateAssetDialog extends HookWidget {
       final now = DateTime.now();
 
       final newAsset = AssetEntity(
-        id: asset?.id ?? const Uuid().v4(),
+        id: asset?.id ?? const Uuid().v4(), //TODO move to the cubit
         companyId: companyId,
         areaId: selectedAreaId.value!,
         categoryId: selectedCategoryId.value == ''
@@ -122,38 +113,6 @@ class CreateAssetDialog extends HookWidget {
       }
     }
 
-    final locationDropdownItems = locations.map((loc) {
-      return DropdownMenuItem<String>(value: loc.id, child: BaseText(loc.name));
-    }).toList();
-
-    final filteredAreas = selectedLocationId.value != null
-        ? areas
-              .where((area) => area.locationId == selectedLocationId.value)
-              .toList()
-        : <AreaEntity>[];
-
-    final areaDropdownItems = filteredAreas.map((area) {
-      return DropdownMenuItem<String>(
-        value: area.id,
-        child: BaseText(area.name),
-      );
-    }).toList();
-
-    final categoryDropdownItems = [
-      DropdownMenuItem<String>(value: '', child: BaseText('Nenhuma'.hardcoded)),
-      ...categories.map((c) {
-        return DropdownMenuItem<String>(value: c.id, child: BaseText(c.name));
-      }),
-    ];
-
-    final parentDropdownItems = [
-      DropdownMenuItem<String>(value: '', child: BaseText('Nenhum'.hardcoded)),
-      ...allAssets.map((a) {
-        return DropdownMenuItem<String>(value: a.id, child: BaseText(a.name));
-      }),
-    ];
-    //TODO create separated files for these widgets
-
     return Padding(
       padding: const EdgeInsets.all(Sizes.p16),
       child: Form(
@@ -168,101 +127,48 @@ class CreateAssetDialog extends HookWidget {
                 textAlign: TextAlign.center,
               ),
               gapH16,
-              BaseTextFormField(
-                labelText: 'Nome do equipamento *'.hardcoded,
-                hintText: 'Ex: Ar condicionado'.hardcoded,
-                controller: nameController,
-                focusNode: nameFocusNode,
-                validator: FormValidators.compose([NonEmptyValidator()]),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => codeFocusNode.requestFocus(),
+              AssetNameField(
+                nameController: nameController,
+                nameFocusNode: nameFocusNode,
+                codeFocusNode: codeFocusNode,
               ),
               gapH16,
-              BaseDropDown<String>(
-                key: const ValueKey('Location'),
-                label: 'Local *'.hardcoded,
-                selectedItem: selectedLocationId.value,
-                validator: (val) =>
-                    val == null ? 'Selecione um local'.hardcoded : null,
-                items: locationDropdownItems,
-                onChanged: (val) {
-                  selectedLocationId.value = val;
-                  selectedAreaId.value = null;
-                },
-                showLabelAtTopLeft:
-                    selectedLocationId.value?.isNotEmpty ?? false,
+              LocationDropdown(
+                selectedLocationId: selectedLocationId.value,
+                onChangeArea: (val) => selectedAreaId.value = val,
+                onChangeLocation: (val) => selectedLocationId.value = val,
               ),
               gapH16,
-              BaseDropDown<String>(
-                key: const ValueKey('Area'),
-                label: 'Área *'.hardcoded,
-                selectedItem: selectedAreaId.value,
-                hint: selectedLocationId.value == null
-                    ? BaseText('Selecione primeiro o local'.hardcoded)
-                    : (filteredAreas.isEmpty
-                          ? BaseText('Sem áreas cadastradas'.hardcoded)
-                          : BaseText('Selecione a área'.hardcoded)),
-                validator: (val) =>
-                    val == null ? 'Selecione uma área'.hardcoded : null,
-                items: areaDropdownItems,
-                onChanged: (val) => selectedAreaId.value = val,
-                showLabelAtTopLeft: selectedAreaId.value?.isNotEmpty ?? false,
+              AreaDropdown(
+                selectedLocationId: selectedLocationId.value,
+                selectedAreaId: selectedAreaId.value,
+                onChanged: (value) => selectedAreaId.value = value,
               ),
               gapH16,
-              BaseDropDown<String>(
-                key: const ValueKey('Category'),
-                label: 'Categoria (opcional)'.hardcoded, //TODO implement it
-                selectedItem: selectedCategoryId.value,
-                items: categoryDropdownItems,
-                onChanged: (val) => selectedCategoryId.value = val,
-                showLabelAtTopLeft:
-                    selectedCategoryId.value?.isNotEmpty ?? false,
+              CategoryDropdown(
+                selectedCategoryId: selectedCategoryId.value,
+                onChanged: (value) => selectedCategoryId.value = value,
               ),
               gapH16,
-              BaseDropDown<String>(
-                key: const ValueKey('ParentAsset'),
-                label: 'Equipamento pai (opcional)'.hardcoded,
-                selectedItem: selectedParentAssetId.value,
-                items: parentDropdownItems,
-                onChanged: (val) => selectedParentAssetId.value = val,
-                showLabelAtTopLeft:
-                    selectedParentAssetId.value?.isNotEmpty ?? false,
+              ParentAssetDropdown(
+                onChanged: (value) => selectedParentAssetId.value = value,
+                selectedParentAssetId: selectedParentAssetId.value,
+                selectedAreaId: selectedAreaId.value,
               ),
               gapH16,
               Row(
                 children: [
                   Expanded(
-                    child: BaseDropDown<AssetStatus>(
-                      key: const ValueKey('Status'),
-                      label: 'Status *'.hardcoded,
-                      selectedItem: selectedStatus.value,
-                      items: AssetStatus.values.map((s) {
-                        return DropdownMenuItem<AssetStatus>(
-                          value: s,
-                          child: BaseText(s.label),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        selectedStatus.value = val;
-                      },
+                    child: StatusDropdown(
+                      selectedStatus: selectedStatus.value,
+                      onChanged: (val) => selectedStatus.value = val,
                     ),
                   ),
                   gapW16,
                   Expanded(
-                    child: BaseDropDown<AssetCriticality>(
-                      key: const ValueKey('Criticality'),
-                      label: 'Criticidade *'.hardcoded,
-                      selectedItem: selectedCriticality.value,
-                      items: AssetCriticality.values.map((c) {
-                        return DropdownMenuItem<AssetCriticality>(
-                          value: c,
-                          child: BaseText(c.label),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        selectedCriticality.value = val;
-                      },
+                    child: CriticalityDropdown(
+                      selectedCriticality: selectedCriticality.value,
+                      onChanged: (val) => selectedCriticality.value = val,
                     ),
                   ),
                 ],

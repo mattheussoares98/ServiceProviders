@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/asset_card.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_asset_dialog.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/create_update_asset_dialog.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
@@ -44,16 +44,10 @@ class AssetsPage extends HookWidget {
         actions: [
           BaseIconButton(
             onPressed: () {
-              final state = context.read<AssetsCubit>().state;
               showModalPage<void>(
                 BlocProvider.value(
                   value: context.read<AssetsCubit>(),
-                  child: CreateAssetDialog(
-                    locations: state.locations,
-                    areas: state.areas,
-                    categories: state.categories,
-                    allAssets: state.assets,
-                  ),
+                  child: const CreateAssetDialog(),
                 ),
                 context,
               );

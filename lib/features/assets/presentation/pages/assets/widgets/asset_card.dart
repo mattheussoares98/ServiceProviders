@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/extensions.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
@@ -74,12 +73,12 @@ class AssetCard extends StatelessWidget {
                 vertical: Sizes.p4,
               ),
               decoration: BoxDecoration(
-                color: asset.status.color(context).withValues(alpha: 0.1),
+                color: asset.status.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(Sizes.p8),
               ),
               child: BaseText.caption(
                 asset.status.label,
-                color: asset.status.color(context),
+                color: asset.status.color,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -90,12 +89,12 @@ class AssetCard extends StatelessWidget {
                 vertical: Sizes.p4,
               ),
               decoration: BoxDecoration(
-                color: asset.criticality.color(context).withValues(alpha: 0.1),
+                color: asset.criticality.color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(Sizes.p8),
               ),
               child: BaseText.caption(
                 asset.criticality.label,
-                color: asset.criticality.color(context),
+                color: asset.criticality.color,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -203,57 +202,5 @@ class _DetailRow extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-extension AssetStatusX on AssetStatus {
-  String get label {
-    switch (this) {
-      case AssetStatus.active:
-        return 'Ativo';
-      case AssetStatus.inactive:
-        return 'Inativo';
-      case AssetStatus.decommissioned:
-        return 'Desativado';
-    }
-  }
-
-  Color color(BuildContext context) {
-    switch (this) {
-      case AssetStatus.active:
-        return AppColors.success;
-      case AssetStatus.inactive:
-        return AppColors.warning;
-      case AssetStatus.decommissioned:
-        return AppColors.error;
-    }
-  }
-}
-
-extension AssetCriticalityX on AssetCriticality {
-  String get label {
-    switch (this) {
-      case AssetCriticality.low:
-        return 'Baixa';
-      case AssetCriticality.medium:
-        return 'Média';
-      case AssetCriticality.high:
-        return 'Alta';
-      case AssetCriticality.missionCritical:
-        return 'Crítica';
-    }
-  }
-
-  Color color(BuildContext context) {
-    switch (this) {
-      case AssetCriticality.low:
-        return AppColors.green500;
-      case AssetCriticality.medium:
-        return AppColors.warning;
-      case AssetCriticality.high:
-        return Colors.orange;
-      case AssetCriticality.missionCritical:
-        return AppColors.error;
-    }
   }
 }
