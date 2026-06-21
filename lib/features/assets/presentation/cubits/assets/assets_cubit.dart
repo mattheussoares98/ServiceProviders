@@ -90,16 +90,19 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     }
   }
 
-  Future<void> updateAsset(AssetEntity asset) async {
+  Future<bool> updateAsset(AssetEntity asset) async {
     emit(state.copyWith(status: StateStatus.loading));
     final result = await _useCases.updateAsset(asset);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadAssets();
+      await loadAssets(emitLoading: false);
+      return true;
     } else {
+      if (isClosed) return false;
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(result);
+      return false;
     }
   }
 
