@@ -6,6 +6,7 @@ class AssetsState extends BaseState {
     required this.locations,
     required this.areas,
     required this.categories,
+    required this.deletingIds,
     super.status = StateStatus.initial,
     super.errorMessage = '',
   });
@@ -15,12 +16,14 @@ class AssetsState extends BaseState {
       locations = const [],
       areas = const [],
       categories = const [],
+      deletingIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<AssetEntity> assets;
   final List<LocationEntity> locations;
   final List<AreaEntity> areas;
   final List<CategoryEntity> categories;
+  final Set<String> deletingIds;
 
   AssetsState copyWith({
     List<AssetEntity>? assets,
@@ -29,6 +32,7 @@ class AssetsState extends BaseState {
     List<CategoryEntity>? categories,
     StateStatus? status,
     String? errorMessage,
+    Set<String>? deletingIds,
     bool? annulErrorMessage,
   }) {
     return AssetsState(
@@ -40,6 +44,7 @@ class AssetsState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      deletingIds: deletingIds ?? this.deletingIds,
     );
   }
 
@@ -51,5 +56,6 @@ class AssetsState extends BaseState {
     categories,
     status,
     errorMessage,
+    deletingIds,
   ];
 }
