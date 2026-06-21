@@ -8,7 +8,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 void observeLoading(
   List<BaseCubit<BaseState>> cubits, {
   String message = 'Aguarde',
-  Set<StateStatus> statuses = const {StateStatus.loading},
 }) {
   final context = useContext();
   final overlayEntry = useRef<OverlayEntry?>(null);
@@ -58,10 +57,9 @@ void observeLoading(
   useEffect(() {
     final subscriptions = cubits.map((cubit) {
       return cubit.stream.listen((state) {
-        final anyLoading = cubits.any((c) {
-          final status = c.state.status;
-          return statuses.contains(status);
-        });
+        final anyLoading = cubits.any(
+          (c) => c.state.status == StateStatus.loading,
+        );
         if (anyLoading) {
           show();
         } else {
