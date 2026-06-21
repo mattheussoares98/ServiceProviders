@@ -28,7 +28,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       return;
     }
     if (emitLoading) {
-    emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: StateStatus.loading));
     }
     final results = await Future.wait([
       _useCases.getAssets(user.companyId),
@@ -74,16 +74,19 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     }
   }
 
-  Future<void> createAsset(AssetEntity asset) async {
+  Future<bool> createAsset(AssetEntity asset) async {
     emit(state.copyWith(status: StateStatus.loading));
     final result = await _useCases.createAsset(asset);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadAssets();
+      await loadAssets(emitLoading: false);
+      return true;
     } else {
+      if (isClosed) return false;
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(result);
+      return false;
     }
   }
 

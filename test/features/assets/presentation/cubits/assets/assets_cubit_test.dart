@@ -251,15 +251,19 @@ void main() {
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.createAsset(tAsset),
+        act: (cubit) async => expect(await cubit.createAsset(tAsset), isTrue),
         expect: () => [
-          isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
@@ -285,7 +289,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
-        act: (cubit) => cubit.createAsset(tAsset),
+        act: (cubit) async => expect(await cubit.createAsset(tAsset), isFalse),
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
