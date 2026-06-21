@@ -59,9 +59,7 @@ void observeLoading(
       return cubit.stream.listen((state) {
         final anyLoading = cubits.any((c) {
           final status = c.state.status;
-          return status == StateStatus.loading ||
-              status == StateStatus.updating ||
-              status == StateStatus.deleting;
+          return status == StateStatus.loading;
         });
         if (anyLoading) {
           show();
