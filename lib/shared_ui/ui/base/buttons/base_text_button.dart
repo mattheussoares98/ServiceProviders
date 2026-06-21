@@ -39,33 +39,12 @@ class BaseTextButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localLoading = useState(false);
-    final effectiveLoading = isLoading || localLoading.value;
-
-    final tapCallback = onPressed == null
-        ? null
-        : () async {
-            final result = onPressed!();
-            if (result is Future) {
-              localLoading.value = true;
-              try {
-                await result;
-              } finally {
-                if (context.mounted) {
-                  localLoading.value = false;
-                }
-              }
-            }
-          };
-
     final appliedTextType = textType ?? TextType.bodyLarge;
     final appliedFontWeight = textFontWeight ?? FontWeight.w400;
     final baseColor = textColor ?? color ?? AppColors.hightLight;
-    final finalColor = effectiveLoading
-        ? baseColor.withValues(alpha: 0.5)
-        : baseColor;
+    final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
 
-    Widget childWidget = effectiveLoading
+    Widget childWidget = isLoading
         ? LoadingCircle.small(baseColor)
         : BaseText(
             text,
@@ -74,7 +53,7 @@ class BaseTextButton extends HookWidget {
             fontWeight: appliedFontWeight,
           );
 
-    if (platformIcon != null && !effectiveLoading) {
+    if (platformIcon != null && !isLoading) {
       childWidget = Row(
         mainAxisSize: MainAxisSize.min,
         children: [platformIcon!, gapW8, childWidget],
@@ -83,7 +62,7 @@ class BaseTextButton extends HookWidget {
 
     if (context.isCupertino) {
       return CupertinoButton(
-        onPressed: effectiveLoading ? null : tapCallback,
+        onPressed: isLoading ? null : onPressed,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
         child: childWidget,
@@ -91,7 +70,7 @@ class BaseTextButton extends HookWidget {
     }
 
     return TextButton(
-      onPressed: effectiveLoading ? null : tapCallback,
+      onPressed: isLoading ? null : onPressed,
       style: TextButton.styleFrom(
         foregroundColor: color,
         padding: padding,
