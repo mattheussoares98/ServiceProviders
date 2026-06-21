@@ -139,6 +139,7 @@ class CreateAssetDialog extends HookWidget {
         return DropdownMenuItem<String>(value: a.id, child: BaseText(a.name));
       }),
     ];
+    //TODO create separated files for these widgets
 
     return Padding(
       padding: const EdgeInsets.all(Sizes.p16),
