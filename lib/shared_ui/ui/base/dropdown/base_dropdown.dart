@@ -77,6 +77,7 @@ class BaseDropDown<T> extends StatelessWidget {
                       onPressed: onChanged == null || (items?.length ?? 0) < 1
                           ? null
                           : () async {
+                              FocusManager.instance.primaryFocus?.unfocus();
                               if (adviceMessage != null) {
                                 final ok = await showAlertDialog(
                                   context: context,
