@@ -29,7 +29,7 @@ class BaseIconButton extends HookWidget {
     final localLoading = useState(false);
     final effectiveLoading = isLoading || localLoading.value;
 
-    Future<void> tapCallback() async {
+    FutureOr<void>? tapCallback() async {
       final result = onPressed?.call();
       if (result is Future) {
         localLoading.value = true;
@@ -45,7 +45,9 @@ class BaseIconButton extends HookWidget {
 
     final iconWidget = effectiveLoading
         ? LoadingCircle.small(platformIcon.color)
-        : platformIcon;
+        : platformIcon.copyWith(
+            color: onPressed == null ? context.theme.disabledColor : null,
+          );
 
     Widget child;
 
