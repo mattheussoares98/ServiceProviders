@@ -57,9 +57,12 @@ void observeLoading(
   useEffect(() {
     final subscriptions = cubits.map((cubit) {
       return cubit.stream.listen((state) {
-        final anyLoading = cubits.any(
-          (c) => c.state.status == StateStatus.loading,
-        );
+        final anyLoading = cubits.any((c) {
+          final status = c.state.status;
+          return status == StateStatus.loading ||
+              status == StateStatus.updating ||
+              status == StateStatus.deleting;
+        });
         if (anyLoading) {
           show();
         } else {
