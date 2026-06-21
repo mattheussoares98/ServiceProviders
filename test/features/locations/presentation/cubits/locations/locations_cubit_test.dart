@@ -339,15 +339,16 @@ void main() {
         act: (cubit) async =>
             expect(await cubit.updateLocation(tLocation), isTrue),
         expect: () => [
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.updating)
-              .having((s) => s.updatingIds, 'updatingIds', {tLocation.id}),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.updatingIds, 'updatingIds', {tLocation.id}),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.updatingIds, 'updatingIds', <String>{}),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockUpdateLocation.call(tLocation)).called(1);
@@ -369,7 +370,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.loading,
           ),
           isA<LocationsState>().having(
             (s) => s.status,

@@ -101,32 +101,17 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> updateLocation(LocationEntity location) async {
-    emit(
-      state.copyWith(
-        updatingIds: {...state.updatingIds, location.id},
-        status: StateStatus.updating,
-      ),
-    );
+    emit(state.copyWith(status: StateStatus.loading));
     final dataState = await _useCases.updateLocation(location);
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       await loadLocationsAndAreas(showLoading: false);
       if (isClosed) return false;
-      emit(
-        state.copyWith(
-          updatingIds: {...state.updatingIds}..remove(location.id),
-          status: StateStatus.loaded,
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.loaded));
       return true;
     } else {
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          updatingIds: {...state.updatingIds}..remove(location.id),
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
       return false;
     }

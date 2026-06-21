@@ -18,8 +18,7 @@ class AddAreaButton extends StatelessWidget {
     final isLoading = context.select<LocationsCubit, bool>(
       (cubit) =>
           cubit.state.status == StateStatus.loading ||
-          cubit.state.status == StateStatus.deleting ||
-          cubit.state.status == StateStatus.updating,
+          cubit.state.status == StateStatus.deleting,
     );
 
     return BaseTextButton(
