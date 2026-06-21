@@ -23,6 +23,13 @@ class AreaItem extends StatelessWidget {
       if (area.floor?.isNotEmpty ?? false) area.floor,
       if (area.description?.isNotEmpty ?? false) area.description,
     ].join(' - ');
+
+    final deletingLocation = context.select<LocationsCubit, bool>(
+      (cubit) => cubit.state.deletingIds.contains(location.id),
+      //* don't need to treat the updating too because it is updated in another page.
+      //* So, there is treating the loading
+    );
+
     return Row(
       children: [
         const PlatformIcon(
@@ -41,19 +48,21 @@ class AreaItem extends StatelessWidget {
           ),
         ),
         BaseIconButton(
-          onPressed: () {
-            showDialog<void>(
-              context: context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<LocationsCubit>(),
-                child: CreateAreaDialog(
-                  locationId: location.id,
-                  companyId: location.companyId,
-                  area: area,
-                ),
-              ),
-            );
-          },
+          onPressed: deletingLocation
+              ? null
+              : () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<LocationsCubit>(),
+                      child: CreateAreaDialog(
+                        locationId: location.id,
+                        companyId: location.companyId,
+                        area: area,
+                      ),
+                    ),
+                  );
+                },
           platformIcon: const PlatformIcon(
             materialIcon: Icons.edit,
             cupertinoIcon: CupertinoIcons.pencil,
@@ -61,19 +70,21 @@ class AreaItem extends StatelessWidget {
           ),
         ),
         BaseIconButton(
-          onPressed: () {
-            showAlertDialog(
-              context: context,
-              title: 'Excluir área'.hardcoded,
-              onOkPressed: () => context.read<LocationsCubit>().deleteArea(
-                area.id,
-                area.locationId,
-              ),
-              contentText: 'Tem certeza que deseja excluir a área?'.hardcoded,
-              defaultActionText: 'Sim'.hardcoded,
-              cancelActionText: 'Cancelar'.hardcoded,
-            );
-          },
+          onPressed: deletingLocation
+              ? null
+              : () {
+                  showAlertDialog(
+                    context: context,
+                    title: 'Excluir área'.hardcoded,
+                    onOkPressed: () => context
+                        .read<LocationsCubit>()
+                        .deleteArea(area.id, area.locationId),
+                    contentText:
+                        'Tem certeza que deseja excluir a área?'.hardcoded,
+                    defaultActionText: 'Sim'.hardcoded,
+                    cancelActionText: 'Cancelar'.hardcoded,
+                  );
+                },
           platformIcon: const PlatformIcon(
             materialIcon: Icons.delete_outline,
             cupertinoIcon: CupertinoIcons.trash,
