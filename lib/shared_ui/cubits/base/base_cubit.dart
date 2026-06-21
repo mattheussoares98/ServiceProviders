@@ -8,7 +8,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// * [loaded] - The state when data loads without any issue.
 /// * [error] - The state when there is an error while loading the data.
 /// * [noInternet] - The state when there is no internet connection.
-enum StateStatus { initial, loading, loaded, error, noInternet }
+enum StateStatus {
+  initial,
+  loading,
+  loaded,
+  error,
+  noInternet,
+  updating,
+  deleting,
+}
 
 abstract class BaseState extends Equatable {
   const BaseState({this.status = StateStatus.initial, this.errorMessage});
