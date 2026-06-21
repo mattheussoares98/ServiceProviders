@@ -1,9 +1,9 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/area_name_field.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/description_field.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_area/floor_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/area_name_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/description_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/floor_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
@@ -14,8 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:uuid/uuid.dart';
 
-class CreateAreaDialog extends HookWidget {
-  const CreateAreaDialog({
+class CreateUpdateAreaDialog extends HookWidget {
+  const CreateUpdateAreaDialog({
     super.key,
     required this.locationId,
     required this.companyId,
