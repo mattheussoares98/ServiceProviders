@@ -101,7 +101,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> updateLocation(LocationEntity location) async {
-    emit(state.copyWith(updatingIds: {...state.updatingIds, location.id}));
+    emit(
+      state.copyWith(
+        updatingIds: {...state.updatingIds, location.id},
+        status: StateStatus.updating,
+      ),
+    );
     final dataState = await _useCases.updateLocation(location);
     if (isClosed) return false;
 
@@ -111,6 +116,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(
           updatingIds: {...state.updatingIds}..remove(location.id),
+          status: StateStatus.loaded,
         ),
       );
       return true;
@@ -127,14 +133,31 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<void> deleteLocation(String id) async {
-    emit(state.copyWith(deletingIds: {...state.deletingIds, id}));
+    emit(
+      state.copyWith(
+        deletingIds: {...state.deletingIds, id},
+        status: StateStatus.deleting,
+      ),
+    );
     final dataState = await _useCases.deleteLocation(id);
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       await loadLocationsAndAreas(showLoading: false);
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          deletingIds: {...state.deletingIds}..remove(id),
+        ),
+      );
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          deletingIds: {...state.deletingIds}..remove(id),
+        ),
+      );
       showDataStateToast(dataState);
     }
     if (isClosed) return;

@@ -146,6 +146,11 @@ void main() {
         },
         act: (cubit) => cubit.loadLocationsAndAreas(showLoading: false),
         expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.initial,
+          ),
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.errorMessage, 'errorMessage', isNull)
@@ -335,7 +340,7 @@ void main() {
             expect(await cubit.updateLocation(tLocation), isTrue),
         expect: () => [
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.status, 'status', StateStatus.updating)
               .having((s) => s.updatingIds, 'updatingIds', {tLocation.id}),
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
@@ -364,7 +369,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.updating,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -399,7 +404,7 @@ void main() {
         act: (cubit) => cubit.deleteLocation(tId),
         expect: () => [
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.status, 'status', StateStatus.deleting)
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
@@ -427,7 +432,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.deleting,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
