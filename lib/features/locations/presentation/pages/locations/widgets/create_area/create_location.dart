@@ -21,7 +21,9 @@ class CreateLocation extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([context.read<LocationsCubit>()]);
+    observeLoading([
+      context.read<LocationsCubit>(),
+    ]); //TODO fix to listen correctly
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(
       text: existingLocation?.name,
