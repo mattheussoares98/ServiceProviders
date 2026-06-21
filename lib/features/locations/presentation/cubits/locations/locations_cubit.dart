@@ -199,16 +199,32 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<void> deleteArea(String id, String locationId) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(
+      state.copyWith(
+        status: StateStatus.deleting,
+        deletingIds: {...state.deletingIds, id},
+      ),
+    );
     final dataState = await _useCases.deleteArea(id);
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
       final user = _useCases.getSessionUser();
       await loadAreas(user.companyId);
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          deletingIds: {...state.deletingIds}..remove(id),
+        ),
+      );
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          deletingIds: {...state.deletingIds}..remove(id),
+        ),
+      );
       showDataStateToast(dataState);
     }
   }

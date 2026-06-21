@@ -574,7 +574,7 @@ void main() {
       final tLocationId = faker.guid.guid();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading, loaded, and load areas when delete succeeds',
+        'should emit deleting, loaded, and load areas when delete succeeds',
         build: () {
           when(
             () => mockDeleteArea.call(any()),
@@ -586,16 +586,12 @@ void main() {
         },
         act: (cubit) => cubit.deleteArea(tId, tLocationId),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingIds, 'deletingIds', contains(tId)),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);
@@ -613,16 +609,12 @@ void main() {
         },
         act: (cubit) => cubit.deleteArea(tId, tLocationId),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.error,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingIds, 'deletingIds', contains(tId)),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);
