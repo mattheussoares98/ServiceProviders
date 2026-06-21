@@ -143,6 +143,46 @@ void main() {
           ).called(1);
         },
       );
+      blocTest<AssetsCubit, AssetsState>(
+        'should not emit loading when pass false parameter',
+        build: () {
+          final tAssets = EntityFactory.makeAssetEntityList();
+          final tLocations = EntityFactory.makeLocationEntityList();
+          final tAreas = EntityFactory.makeAreaEntityList();
+          final tCategories = EntityFactory.makeCategoryEntityList();
+          when(
+            () => mockGetAssets.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAssets));
+          when(
+            () => mockGetLocations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCategories));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAssets(emitLoading: false),
+        expect: () => [
+          isA<AssetsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.assets, 'assets', isNotEmpty)
+              .having((s) => s.locations, 'locations', isNotEmpty)
+              .having((s) => s.areas, 'areas', isNotEmpty)
+              .having((s) => s.categories, 'categories', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
+        ],
+        verify: (_) {
+          verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
+          verify(
+            () => mockGetCategories.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
 
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading and error when assets load fails',
