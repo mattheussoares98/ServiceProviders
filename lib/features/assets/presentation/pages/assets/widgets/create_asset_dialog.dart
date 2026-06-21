@@ -32,23 +32,29 @@ class CreateAssetDialog extends HookWidget {
     required this.areas,
     required this.categories,
     required this.allAssets,
+    this.asset,
   });
 
   final List<LocationEntity> locations;
   final List<AreaEntity> areas;
   final List<CategoryEntity> categories;
   final List<AssetEntity> allAssets;
+  final AssetEntity? asset;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
-    final nameController = useTextEditingController();
-    final codeController = useTextEditingController();
-    final manufacturerController = useTextEditingController();
-    final modelController = useTextEditingController();
-    final serialNumberController = useTextEditingController();
-    final notesController = useTextEditingController();
+    final nameController = useTextEditingController(text: asset?.name);
+    final codeController = useTextEditingController(text: asset?.code);
+    final manufacturerController = useTextEditingController(
+      text: asset?.manufacturer,
+    );
+    final modelController = useTextEditingController(text: asset?.model);
+    final serialNumberController = useTextEditingController(
+      text: asset?.serialNumber,
+    );
+    final notesController = useTextEditingController(text: asset?.notes);
 
     final selectedLocationId = useState<String?>(null);
     final selectedAreaId = useState<String?>(null);
@@ -66,15 +72,15 @@ class CreateAssetDialog extends HookWidget {
     final serialNumberFocusNode = useFocusNode();
     final notesFocusNode = useFocusNode();
 
-    void submit() {
+    Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
       if (selectedAreaId.value == null) return;
 
       final companyId = context.read<SessionCubit>().state.user.companyId;
       final now = DateTime.now();
 
-      final asset = AssetEntity(
-        id: const Uuid().v4(),
+      final newAsset = AssetEntity(
+        id: asset?.id ?? const Uuid().v4(),
         companyId: companyId,
         areaId: selectedAreaId.value!,
         categoryId: selectedCategoryId.value == ''
@@ -105,8 +111,15 @@ class CreateAssetDialog extends HookWidget {
         updatedAt: now,
       );
 
-      Navigator.of(context).pop();
-      context.read<AssetsCubit>().createAsset(asset);
+      bool updated;
+      if (asset == null) {
+        updated = await context.read<AssetsCubit>().createAsset(newAsset);
+      } else {
+        updated = await context.read<AssetsCubit>().updateAsset(newAsset);
+      }
+      if (updated && context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
 
     final locationDropdownItems = locations.map((loc) {
