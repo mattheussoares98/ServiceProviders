@@ -108,7 +108,6 @@ class AssetCard extends StatelessWidget {
             : null,
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (category != null)
                 _DetailRow(label: 'Categoria:'.hardcoded, value: category.name),
@@ -149,28 +148,31 @@ class AssetCard extends StatelessWidget {
                   label: 'Observações:'.hardcoded,
                   value: asset.notes!,
                 ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: BaseTextButton(
-                  onPressed: () async {
-                    final confirmed = await showAlertDialog(
-                      context: context,
-                      title: 'Excluir equipamento'.hardcoded,
-                      contentText:
-                          'Tem certeza que deseja excluir este equipamento?'
-                              .hardcoded,
-                      cancelActionText: 'Cancelar'.hardcoded,
-                      defaultActionText: 'Excluir'.hardcoded,
-                    );
-                    if (confirmed == true && context.mounted) {
-                      unawaited(
-                        context.read<AssetsCubit>().deleteAsset(asset.id),
+              BlocSelector<AssetsCubit, AssetsState, bool>(
+                selector: (state) => state.deletingIds.contains(asset.id),
+                builder: (context, isLoading) {
+                  return BaseTextButton(
+                    isLoading: isLoading,
+                    onPressed: () async {
+                      final confirmed = await showAlertDialog(
+                        context: context,
+                        title: 'Excluir equipamento'.hardcoded,
+                        contentText:
+                            'Tem certeza que deseja excluir este equipamento?'
+                                .hardcoded,
+                        cancelActionText: 'Cancelar'.hardcoded,
+                        defaultActionText: 'Excluir'.hardcoded,
                       );
-                    }
-                  },
-                  text: 'Excluir equipamento'.hardcoded,
-                  textColor: AppColors.error,
-                ),
+                      if (confirmed == true && context.mounted) {
+                        unawaited(
+                          context.read<AssetsCubit>().deleteAsset(asset.id),
+                        );
+                      }
+                    },
+                    text: 'Excluir equipamento'.hardcoded,
+                    textColor: AppColors.error,
+                  );
+                },
               ),
             ],
           ),
