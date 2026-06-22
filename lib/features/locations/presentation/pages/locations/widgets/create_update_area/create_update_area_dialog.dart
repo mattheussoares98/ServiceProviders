@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/locations/presentation/cubits/locati
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/area_name_field.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/description_field.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/floor_field.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
@@ -34,7 +35,10 @@ class CreateUpdateAreaDialog extends HookWidget {
     final descController = useTextEditingController(text: area?.description);
     final floorFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
-    observeLoading([context.read<LocationsCubit>()]);
+    observeLoading(
+      [context.read<LocationsCubit>()],
+      statuses: {StateStatus.updating},
+    );
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
