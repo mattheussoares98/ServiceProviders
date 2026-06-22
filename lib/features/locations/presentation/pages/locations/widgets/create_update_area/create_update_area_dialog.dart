@@ -37,7 +37,7 @@ class CreateUpdateAreaDialog extends HookWidget {
     final descFocusNode = useFocusNode();
     observeLoading(
       [context.read<LocationsCubit>()],
-      statuses: {StateStatus.updating},
+      statuses: {StateStatus.saving},
     );
 
     Future<void> submit() async {

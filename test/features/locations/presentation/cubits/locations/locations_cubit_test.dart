@@ -275,7 +275,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -304,7 +304,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -342,7 +342,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -370,7 +370,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -467,7 +467,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -494,7 +494,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -528,7 +528,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
@@ -555,7 +555,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.updating,
+            StateStatus.saving,
           ),
           isA<LocationsState>().having(
             (s) => s.status,

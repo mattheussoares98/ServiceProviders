@@ -13553,10 +13553,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$PermissionGroupsTable, List<PermissionGroup>>
   _permissionGroupsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.permissionGroups,
-    aliasName: $_aliasNameGenerator(
-      db.companies.id,
-      db.permissionGroups.companyId,
-    ),
+    aliasName: 'companies__id__permission_groups__company_id',
   );
 
   $$PermissionGroupsTableProcessedTableManager get permissionGroupsRefs {
@@ -13576,7 +13573,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$UserProfilesTable, List<UserProfile>>
   _userProfilesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.userProfiles,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.userProfiles.companyId),
+    aliasName: 'companies__id__user_profiles__company_id',
   );
 
   $$UserProfilesTableProcessedTableManager get userProfilesRefs {
@@ -13594,7 +13591,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$LocationsTable, List<Location>>
   _locationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.locations,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.locations.companyId),
+    aliasName: 'companies__id__locations__company_id',
   );
 
   $$LocationsTableProcessedTableManager get locationsRefs {
@@ -13613,7 +13610,7 @@ final class $$CompaniesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.areas,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.areas.companyId),
+    aliasName: 'companies__id__areas__company_id',
   );
 
   $$AreasTableProcessedTableManager get areasRefs {
@@ -13631,7 +13628,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$CategoriesTable, List<Category>>
   _categoriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.categories,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.categories.companyId),
+    aliasName: 'companies__id__categories__company_id',
   );
 
   $$CategoriesTableProcessedTableManager get categoriesRefs {
@@ -13650,7 +13647,7 @@ final class $$CompaniesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.assets,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.assets.companyId),
+    aliasName: 'companies__id__assets__company_id',
   );
 
   $$AssetsTableProcessedTableManager get assetsRefs {
@@ -13669,10 +13666,7 @@ final class $$CompaniesTableReferences
   _checklistTemplatesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.checklistTemplates,
-        aliasName: $_aliasNameGenerator(
-          db.companies.id,
-          db.checklistTemplates.companyId,
-        ),
+        aliasName: 'companies__id__checklist_templates__company_id',
       );
 
   $$ChecklistTemplatesTableProcessedTableManager get checklistTemplatesRefs {
@@ -13692,10 +13686,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$ChecklistItemsTable, List<ChecklistItem>>
   _checklistItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.checklistItems,
-    aliasName: $_aliasNameGenerator(
-      db.companies.id,
-      db.checklistItems.companyId,
-    ),
+    aliasName: 'companies__id__checklist_items__company_id',
   );
 
   $$ChecklistItemsTableProcessedTableManager get checklistItemsRefs {
@@ -13713,10 +13704,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$MaintenancePlansTable, List<MaintenancePlan>>
   _maintenancePlansRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.maintenancePlans,
-    aliasName: $_aliasNameGenerator(
-      db.companies.id,
-      db.maintenancePlans.companyId,
-    ),
+    aliasName: 'companies__id__maintenance_plans__company_id',
   );
 
   $$MaintenancePlansTableProcessedTableManager get maintenancePlansRefs {
@@ -13736,7 +13724,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.workOrders.companyId),
+    aliasName: 'companies__id__work_orders__company_id',
   );
 
   $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
@@ -13755,7 +13743,7 @@ final class $$CompaniesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.tasks,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.tasks.companyId),
+    aliasName: 'companies__id__tasks__company_id',
   );
 
   $$TasksTableProcessedTableManager get tasksRefs {
@@ -13773,7 +13761,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$AttachmentsTable, List<Attachment>>
   _attachmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.attachments,
-    aliasName: $_aliasNameGenerator(db.companies.id, db.attachments.companyId),
+    aliasName: 'companies__id__attachments__company_id',
   );
 
   $$AttachmentsTableProcessedTableManager get attachmentsRefs {
@@ -13795,10 +13783,7 @@ final class $$CompaniesTableReferences
   _workOrderChangeRequestsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.workOrderChangeRequests,
-        aliasName: $_aliasNameGenerator(
-          db.companies.id,
-          db.workOrderChangeRequests.companyId,
-        ),
+        aliasName: 'companies__id__work_order_change_requests__company_id',
       );
 
   $$WorkOrderChangeRequestsTableProcessedTableManager
@@ -13820,10 +13805,7 @@ final class $$CompaniesTableReferences
   _companyParametersRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.companyParameters,
-        aliasName: $_aliasNameGenerator(
-          db.companies.id,
-          db.companyParameters.companyId,
-        ),
+        aliasName: 'companies__id__company_parameters__company_id',
       );
 
   $$CompanyParametersTableProcessedTableManager get companyParametersRefs {
@@ -13843,10 +13825,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$SyncAuditLogsTable, List<SyncAuditLog>>
   _syncAuditLogsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.syncAuditLogs,
-    aliasName: $_aliasNameGenerator(
-      db.companies.id,
-      db.syncAuditLogs.companyId,
-    ),
+    aliasName: 'companies__id__sync_audit_logs__company_id',
   );
 
   $$SyncAuditLogsTableProcessedTableManager get syncAuditLogsRefs {
@@ -13864,10 +13843,7 @@ final class $$CompaniesTableReferences
   static MultiTypedResultKey<$WorkOrderHistoryTable, List<WorkOrderHistoryData>>
   _workOrderHistoryRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrderHistory,
-    aliasName: $_aliasNameGenerator(
-      db.companies.id,
-      db.workOrderHistory.companyId,
-    ),
+    aliasName: 'companies__id__work_order_history__company_id',
   );
 
   $$WorkOrderHistoryTableProcessedTableManager get workOrderHistoryRefs {
@@ -15369,9 +15345,7 @@ final class $$PermissionGroupsTableReferences
   );
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.permissionGroups.companyId, db.companies.id),
-      );
+      db.companies.createAlias('permission_groups__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -15390,10 +15364,7 @@ final class $$PermissionGroupsTableReferences
   static MultiTypedResultKey<$UserProfilesTable, List<UserProfile>>
   _userProfilesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.userProfiles,
-    aliasName: $_aliasNameGenerator(
-      db.permissionGroups.id,
-      db.userProfiles.permissionGroupId,
-    ),
+    aliasName: 'permission_groups__id__user_profiles__permission_group_id',
   );
 
   $$UserProfilesTableProcessedTableManager get userProfilesRefs {
@@ -15838,9 +15809,7 @@ final class $$UserProfilesTableReferences
   $$UserProfilesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.userProfiles.companyId, db.companies.id),
-      );
+      db.companies.createAlias('user_profiles__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -15856,13 +15825,9 @@ final class $$UserProfilesTableReferences
     );
   }
 
-  static $PermissionGroupsTable _permissionGroupIdTable(_$AppDatabase db) =>
-      db.permissionGroups.createAlias(
-        $_aliasNameGenerator(
-          db.userProfiles.permissionGroupId,
-          db.permissionGroups.id,
-        ),
-      );
+  static $PermissionGroupsTable _permissionGroupIdTable(_$AppDatabase db) => db
+      .permissionGroups
+      .createAlias('user_profiles__permission_group_id__permission_groups__id');
 
   $$PermissionGroupsTableProcessedTableManager? get permissionGroupId {
     final $_column = $_itemColumn<String>('permission_group_id');
@@ -15881,10 +15846,7 @@ final class $$UserProfilesTableReferences
   static MultiTypedResultKey<$MaintenancePlansTable, List<MaintenancePlan>>
   _maintenancePlansRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.maintenancePlans,
-    aliasName: $_aliasNameGenerator(
-      db.userProfiles.id,
-      db.maintenancePlans.assignedToId,
-    ),
+    aliasName: 'user_profiles__id__maintenance_plans__assigned_to_id',
   );
 
   $$MaintenancePlansTableProcessedTableManager get maintenancePlansRefs {
@@ -15905,7 +15867,7 @@ final class $$UserProfilesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.tasks,
-    aliasName: $_aliasNameGenerator(db.userProfiles.id, db.tasks.completedById),
+    aliasName: 'user_profiles__id__tasks__completed_by_id',
   );
 
   $$TasksTableProcessedTableManager get tasksRefs {
@@ -15923,10 +15885,7 @@ final class $$UserProfilesTableReferences
   static MultiTypedResultKey<$AttachmentsTable, List<Attachment>>
   _attachmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.attachments,
-    aliasName: $_aliasNameGenerator(
-      db.userProfiles.id,
-      db.attachments.uploadedById,
-    ),
+    aliasName: 'user_profiles__id__attachments__uploaded_by_id',
   );
 
   $$AttachmentsTableProcessedTableManager get attachmentsRefs {
@@ -15944,10 +15903,7 @@ final class $$UserProfilesTableReferences
   static MultiTypedResultKey<$SyncAuditLogsTable, List<SyncAuditLog>>
   _syncAuditLogsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.syncAuditLogs,
-    aliasName: $_aliasNameGenerator(
-      db.userProfiles.id,
-      db.syncAuditLogs.userProfileId,
-    ),
+    aliasName: 'user_profiles__id__sync_audit_logs__user_profile_id',
   );
 
   $$SyncAuditLogsTableProcessedTableManager get syncAuditLogsRefs {
@@ -15965,10 +15921,7 @@ final class $$UserProfilesTableReferences
   static MultiTypedResultKey<$WorkOrderHistoryTable, List<WorkOrderHistoryData>>
   _workOrderHistoryRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrderHistory,
-    aliasName: $_aliasNameGenerator(
-      db.userProfiles.id,
-      db.workOrderHistory.userId,
-    ),
+    aliasName: 'user_profiles__id__work_order_history__user_id',
   );
 
   $$WorkOrderHistoryTableProcessedTableManager get workOrderHistoryRefs {
@@ -16883,9 +16836,7 @@ final class $$LocationsTableReferences
   $$LocationsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.locations.companyId, db.companies.id),
-      );
+      db.companies.createAlias('locations__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -16905,7 +16856,7 @@ final class $$LocationsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.areas,
-    aliasName: $_aliasNameGenerator(db.locations.id, db.areas.locationId),
+    aliasName: 'locations__id__areas__location_id',
   );
 
   $$AreasTableProcessedTableManager get areasRefs {
@@ -16923,10 +16874,7 @@ final class $$LocationsTableReferences
   static MultiTypedResultKey<$MaintenancePlansTable, List<MaintenancePlan>>
   _maintenancePlansRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.maintenancePlans,
-    aliasName: $_aliasNameGenerator(
-      db.locations.id,
-      db.maintenancePlans.locationId,
-    ),
+    aliasName: 'locations__id__maintenance_plans__location_id',
   );
 
   $$MaintenancePlansTableProcessedTableManager get maintenancePlansRefs {
@@ -16946,7 +16894,7 @@ final class $$LocationsTableReferences
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
-    aliasName: $_aliasNameGenerator(db.locations.id, db.workOrders.locationId),
+    aliasName: 'locations__id__work_orders__location_id',
   );
 
   $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
@@ -17662,8 +17610,8 @@ final class $$AreasTableReferences
     extends BaseReferences<_$AppDatabase, $AreasTable, Area> {
   $$AreasTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $LocationsTable _locationIdTable(_$AppDatabase db) => db.locations
-      .createAlias($_aliasNameGenerator(db.areas.locationId, db.locations.id));
+  static $LocationsTable _locationIdTable(_$AppDatabase db) =>
+      db.locations.createAlias('areas__location_id__locations__id');
 
   $$LocationsTableProcessedTableManager get locationId {
     final $_column = $_itemColumn<String>('location_id')!;
@@ -17679,8 +17627,8 @@ final class $$AreasTableReferences
     );
   }
 
-  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
-      .createAlias($_aliasNameGenerator(db.areas.companyId, db.companies.id));
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('areas__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -17700,7 +17648,7 @@ final class $$AreasTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.assets,
-    aliasName: $_aliasNameGenerator(db.areas.id, db.assets.areaId),
+    aliasName: 'areas__id__assets__area_id',
   );
 
   $$AssetsTableProcessedTableManager get assetsRefs {
@@ -18225,9 +18173,7 @@ final class $$CategoriesTableReferences
   $$CategoriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.categories.companyId, db.companies.id),
-      );
+      db.companies.createAlias('categories__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -18247,7 +18193,7 @@ final class $$CategoriesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.assets,
-    aliasName: $_aliasNameGenerator(db.categories.id, db.assets.categoryId),
+    aliasName: 'categories__id__assets__category_id',
   );
 
   $$AssetsTableProcessedTableManager get assetsRefs {
@@ -18266,10 +18212,7 @@ final class $$CategoriesTableReferences
   _checklistTemplatesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.checklistTemplates,
-        aliasName: $_aliasNameGenerator(
-          db.categories.id,
-          db.checklistTemplates.categoryId,
-        ),
+        aliasName: 'categories__id__checklist_templates__category_id',
       );
 
   $$ChecklistTemplatesTableProcessedTableManager get checklistTemplatesRefs {
@@ -18811,8 +18754,8 @@ final class $$AssetsTableReferences
     extends BaseReferences<_$AppDatabase, $AssetsTable, Asset> {
   $$AssetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
-      .createAlias($_aliasNameGenerator(db.assets.companyId, db.companies.id));
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('assets__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -18829,7 +18772,7 @@ final class $$AssetsTableReferences
   }
 
   static $AreasTable _areaIdTable(_$AppDatabase db) =>
-      db.areas.createAlias($_aliasNameGenerator(db.assets.areaId, db.areas.id));
+      db.areas.createAlias('assets__area_id__areas__id');
 
   $$AreasTableProcessedTableManager get areaId {
     final $_column = $_itemColumn<String>('area_id')!;
@@ -18846,9 +18789,7 @@ final class $$AssetsTableReferences
   }
 
   static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(db.assets.categoryId, db.categories.id),
-      );
+      db.categories.createAlias('assets__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -18864,8 +18805,8 @@ final class $$AssetsTableReferences
     );
   }
 
-  static $AssetsTable _parentAssetIdTable(_$AppDatabase db) => db.assets
-      .createAlias($_aliasNameGenerator(db.assets.parentAssetId, db.assets.id));
+  static $AssetsTable _parentAssetIdTable(_$AppDatabase db) =>
+      db.assets.createAlias('assets__parent_asset_id__assets__id');
 
   $$AssetsTableProcessedTableManager? get parentAssetId {
     final $_column = $_itemColumn<String>('parent_asset_id');
@@ -18884,7 +18825,7 @@ final class $$AssetsTableReferences
   static MultiTypedResultKey<$MaintenancePlansTable, List<MaintenancePlan>>
   _maintenancePlansRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.maintenancePlans,
-    aliasName: $_aliasNameGenerator(db.assets.id, db.maintenancePlans.assetId),
+    aliasName: 'assets__id__maintenance_plans__asset_id',
   );
 
   $$MaintenancePlansTableProcessedTableManager get maintenancePlansRefs {
@@ -18904,7 +18845,7 @@ final class $$AssetsTableReferences
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
-    aliasName: $_aliasNameGenerator(db.assets.id, db.workOrders.assetId),
+    aliasName: 'assets__id__work_orders__asset_id',
   );
 
   $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
@@ -19857,10 +19798,8 @@ final class $$ChecklistTemplatesTableReferences
     super.$_typedResult,
   );
 
-  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.checklistTemplates.companyId, db.companies.id),
-      );
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
+      .createAlias('checklist_templates__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -19876,13 +19815,8 @@ final class $$ChecklistTemplatesTableReferences
     );
   }
 
-  static $CategoriesTable _categoryIdTable(_$AppDatabase db) =>
-      db.categories.createAlias(
-        $_aliasNameGenerator(
-          db.checklistTemplates.categoryId,
-          db.categories.id,
-        ),
-      );
+  static $CategoriesTable _categoryIdTable(_$AppDatabase db) => db.categories
+      .createAlias('checklist_templates__category_id__categories__id');
 
   $$CategoriesTableProcessedTableManager? get categoryId {
     final $_column = $_itemColumn<String>('category_id');
@@ -19901,10 +19835,7 @@ final class $$ChecklistTemplatesTableReferences
   static MultiTypedResultKey<$ChecklistItemsTable, List<ChecklistItem>>
   _checklistItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.checklistItems,
-    aliasName: $_aliasNameGenerator(
-      db.checklistTemplates.id,
-      db.checklistItems.templateId,
-    ),
+    aliasName: 'checklist_templates__id__checklist_items__template_id',
   );
 
   $$ChecklistItemsTableProcessedTableManager get checklistItemsRefs {
@@ -19922,10 +19853,8 @@ final class $$ChecklistTemplatesTableReferences
   static MultiTypedResultKey<$MaintenancePlansTable, List<MaintenancePlan>>
   _maintenancePlansRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.maintenancePlans,
-    aliasName: $_aliasNameGenerator(
-      db.checklistTemplates.id,
-      db.maintenancePlans.checklistTemplateId,
-    ),
+    aliasName:
+        'checklist_templates__id__maintenance_plans__checklist_template_id',
   );
 
   $$MaintenancePlansTableProcessedTableManager get maintenancePlansRefs {
@@ -20550,13 +20479,9 @@ final class $$ChecklistItemsTableReferences
     super.$_typedResult,
   );
 
-  static $ChecklistTemplatesTable _templateIdTable(_$AppDatabase db) =>
-      db.checklistTemplates.createAlias(
-        $_aliasNameGenerator(
-          db.checklistItems.templateId,
-          db.checklistTemplates.id,
-        ),
-      );
+  static $ChecklistTemplatesTable _templateIdTable(_$AppDatabase db) => db
+      .checklistTemplates
+      .createAlias('checklist_items__template_id__checklist_templates__id');
 
   $$ChecklistTemplatesTableProcessedTableManager get templateId {
     final $_column = $_itemColumn<String>('template_id')!;
@@ -20573,9 +20498,7 @@ final class $$ChecklistItemsTableReferences
   }
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.checklistItems.companyId, db.companies.id),
-      );
+      db.companies.createAlias('checklist_items__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -21086,9 +21009,7 @@ final class $$MaintenancePlansTableReferences
   );
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.maintenancePlans.companyId, db.companies.id),
-      );
+      db.companies.createAlias('maintenance_plans__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -21104,9 +21025,8 @@ final class $$MaintenancePlansTableReferences
     );
   }
 
-  static $AssetsTable _assetIdTable(_$AppDatabase db) => db.assets.createAlias(
-    $_aliasNameGenerator(db.maintenancePlans.assetId, db.assets.id),
-  );
+  static $AssetsTable _assetIdTable(_$AppDatabase db) =>
+      db.assets.createAlias('maintenance_plans__asset_id__assets__id');
 
   $$AssetsTableProcessedTableManager? get assetId {
     final $_column = $_itemColumn<String>('asset_id');
@@ -21123,9 +21043,7 @@ final class $$MaintenancePlansTableReferences
   }
 
   static $LocationsTable _locationIdTable(_$AppDatabase db) =>
-      db.locations.createAlias(
-        $_aliasNameGenerator(db.maintenancePlans.locationId, db.locations.id),
-      );
+      db.locations.createAlias('maintenance_plans__location_id__locations__id');
 
   $$LocationsTableProcessedTableManager? get locationId {
     final $_column = $_itemColumn<String>('location_id');
@@ -21143,10 +21061,7 @@ final class $$MaintenancePlansTableReferences
 
   static $ChecklistTemplatesTable _checklistTemplateIdTable(_$AppDatabase db) =>
       db.checklistTemplates.createAlias(
-        $_aliasNameGenerator(
-          db.maintenancePlans.checklistTemplateId,
-          db.checklistTemplates.id,
-        ),
+        'maintenance_plans__checklist_template_id__checklist_templates__id',
       );
 
   $$ChecklistTemplatesTableProcessedTableManager? get checklistTemplateId {
@@ -21163,13 +21078,9 @@ final class $$MaintenancePlansTableReferences
     );
   }
 
-  static $UserProfilesTable _assignedToIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(
-          db.maintenancePlans.assignedToId,
-          db.userProfiles.id,
-        ),
-      );
+  static $UserProfilesTable _assignedToIdTable(_$AppDatabase db) => db
+      .userProfiles
+      .createAlias('maintenance_plans__assigned_to_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager? get assignedToId {
     final $_column = $_itemColumn<String>('assigned_to_id');
@@ -21188,10 +21099,7 @@ final class $$MaintenancePlansTableReferences
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
-    aliasName: $_aliasNameGenerator(
-      db.maintenancePlans.id,
-      db.workOrders.maintenancePlanId,
-    ),
+    aliasName: 'maintenance_plans__id__work_orders__maintenance_plan_id',
   );
 
   $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
@@ -22175,9 +22083,7 @@ final class $$WorkOrdersTableReferences
   $$WorkOrdersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.workOrders.companyId, db.companies.id),
-      );
+      db.companies.createAlias('work_orders__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -22193,9 +22099,8 @@ final class $$WorkOrdersTableReferences
     );
   }
 
-  static $AssetsTable _assetIdTable(_$AppDatabase db) => db.assets.createAlias(
-    $_aliasNameGenerator(db.workOrders.assetId, db.assets.id),
-  );
+  static $AssetsTable _assetIdTable(_$AppDatabase db) =>
+      db.assets.createAlias('work_orders__asset_id__assets__id');
 
   $$AssetsTableProcessedTableManager? get assetId {
     final $_column = $_itemColumn<String>('asset_id');
@@ -22212,9 +22117,7 @@ final class $$WorkOrdersTableReferences
   }
 
   static $LocationsTable _locationIdTable(_$AppDatabase db) =>
-      db.locations.createAlias(
-        $_aliasNameGenerator(db.workOrders.locationId, db.locations.id),
-      );
+      db.locations.createAlias('work_orders__location_id__locations__id');
 
   $$LocationsTableProcessedTableManager get locationId {
     final $_column = $_itemColumn<String>('location_id')!;
@@ -22230,10 +22133,9 @@ final class $$WorkOrdersTableReferences
     );
   }
 
-  static $UserProfilesTable _assignedToIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(db.workOrders.assignedToId, db.userProfiles.id),
-      );
+  static $UserProfilesTable _assignedToIdTable(_$AppDatabase db) => db
+      .userProfiles
+      .createAlias('work_orders__assigned_to_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager? get assignedToId {
     final $_column = $_itemColumn<String>('assigned_to_id');
@@ -22249,10 +22151,9 @@ final class $$WorkOrdersTableReferences
     );
   }
 
-  static $UserProfilesTable _createdByIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(db.workOrders.createdById, db.userProfiles.id),
-      );
+  static $UserProfilesTable _createdByIdTable(_$AppDatabase db) => db
+      .userProfiles
+      .createAlias('work_orders__created_by_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager get createdById {
     final $_column = $_itemColumn<String>('created_by_id')!;
@@ -22268,13 +22169,9 @@ final class $$WorkOrdersTableReferences
     );
   }
 
-  static $MaintenancePlansTable _maintenancePlanIdTable(_$AppDatabase db) =>
-      db.maintenancePlans.createAlias(
-        $_aliasNameGenerator(
-          db.workOrders.maintenancePlanId,
-          db.maintenancePlans.id,
-        ),
-      );
+  static $MaintenancePlansTable _maintenancePlanIdTable(_$AppDatabase db) => db
+      .maintenancePlans
+      .createAlias('work_orders__maintenance_plan_id__maintenance_plans__id');
 
   $$MaintenancePlansTableProcessedTableManager? get maintenancePlanId {
     final $_column = $_itemColumn<String>('maintenance_plan_id');
@@ -22294,7 +22191,7 @@ final class $$WorkOrdersTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.tasks,
-    aliasName: $_aliasNameGenerator(db.workOrders.id, db.tasks.workOrderId),
+    aliasName: 'work_orders__id__tasks__work_order_id',
   );
 
   $$TasksTableProcessedTableManager get tasksRefs {
@@ -22312,10 +22209,7 @@ final class $$WorkOrdersTableReferences
   static MultiTypedResultKey<$AttachmentsTable, List<Attachment>>
   _attachmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.attachments,
-    aliasName: $_aliasNameGenerator(
-      db.workOrders.id,
-      db.attachments.workOrderId,
-    ),
+    aliasName: 'work_orders__id__attachments__work_order_id',
   );
 
   $$AttachmentsTableProcessedTableManager get attachmentsRefs {
@@ -22337,10 +22231,7 @@ final class $$WorkOrdersTableReferences
   _workOrderChangeRequestsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.workOrderChangeRequests,
-        aliasName: $_aliasNameGenerator(
-          db.workOrders.id,
-          db.workOrderChangeRequests.workOrderId,
-        ),
+        aliasName: 'work_orders__id__work_order_change_requests__work_order_id',
       );
 
   $$WorkOrderChangeRequestsTableProcessedTableManager
@@ -22361,10 +22252,7 @@ final class $$WorkOrdersTableReferences
   static MultiTypedResultKey<$WorkOrderHistoryTable, List<WorkOrderHistoryData>>
   _workOrderHistoryRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrderHistory,
-    aliasName: $_aliasNameGenerator(
-      db.workOrders.id,
-      db.workOrderHistory.workOrderId,
-    ),
+    aliasName: 'work_orders__id__work_order_history__work_order_id',
   );
 
   $$WorkOrderHistoryTableProcessedTableManager get workOrderHistoryRefs {
@@ -23707,9 +23595,7 @@ final class $$TasksTableReferences
   $$TasksTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) =>
-      db.workOrders.createAlias(
-        $_aliasNameGenerator(db.tasks.workOrderId, db.workOrders.id),
-      );
+      db.workOrders.createAlias('tasks__work_order_id__work_orders__id');
 
   $$WorkOrdersTableProcessedTableManager get workOrderId {
     final $_column = $_itemColumn<String>('work_order_id')!;
@@ -23725,8 +23611,8 @@ final class $$TasksTableReferences
     );
   }
 
-  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
-      .createAlias($_aliasNameGenerator(db.tasks.companyId, db.companies.id));
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('tasks__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -23743,9 +23629,7 @@ final class $$TasksTableReferences
   }
 
   static $UserProfilesTable _completedByIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(db.tasks.completedById, db.userProfiles.id),
-      );
+      db.userProfiles.createAlias('tasks__completed_by_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager? get completedById {
     final $_column = $_itemColumn<String>('completed_by_id');
@@ -24351,9 +24235,7 @@ final class $$AttachmentsTableReferences
   $$AttachmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) =>
-      db.workOrders.createAlias(
-        $_aliasNameGenerator(db.attachments.workOrderId, db.workOrders.id),
-      );
+      db.workOrders.createAlias('attachments__work_order_id__work_orders__id');
 
   $$WorkOrdersTableProcessedTableManager get workOrderId {
     final $_column = $_itemColumn<String>('work_order_id')!;
@@ -24370,9 +24252,7 @@ final class $$AttachmentsTableReferences
   }
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.attachments.companyId, db.companies.id),
-      );
+      db.companies.createAlias('attachments__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -24388,10 +24268,9 @@ final class $$AttachmentsTableReferences
     );
   }
 
-  static $UserProfilesTable _uploadedByIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(db.attachments.uploadedById, db.userProfiles.id),
-      );
+  static $UserProfilesTable _uploadedByIdTable(_$AppDatabase db) => db
+      .userProfiles
+      .createAlias('attachments__uploaded_by_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager get uploadedById {
     final $_column = $_itemColumn<String>('uploaded_by_id')!;
@@ -25027,10 +24906,7 @@ final class $$WorkOrderChangeRequestsTableReferences
 
   static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) =>
       db.workOrders.createAlias(
-        $_aliasNameGenerator(
-          db.workOrderChangeRequests.workOrderId,
-          db.workOrders.id,
-        ),
+        'work_order_change_requests__work_order_id__work_orders__id',
       );
 
   $$WorkOrdersTableProcessedTableManager get workOrderId {
@@ -25047,13 +24923,8 @@ final class $$WorkOrderChangeRequestsTableReferences
     );
   }
 
-  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(
-          db.workOrderChangeRequests.companyId,
-          db.companies.id,
-        ),
-      );
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
+      .createAlias('work_order_change_requests__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -25071,10 +24942,7 @@ final class $$WorkOrderChangeRequestsTableReferences
 
   static $UserProfilesTable _requestedByIdTable(_$AppDatabase db) =>
       db.userProfiles.createAlias(
-        $_aliasNameGenerator(
-          db.workOrderChangeRequests.requestedById,
-          db.userProfiles.id,
-        ),
+        'work_order_change_requests__requested_by_id__user_profiles__id',
       );
 
   $$UserProfilesTableProcessedTableManager get requestedById {
@@ -25093,10 +24961,7 @@ final class $$WorkOrderChangeRequestsTableReferences
 
   static $UserProfilesTable _reviewedByIdTable(_$AppDatabase db) =>
       db.userProfiles.createAlias(
-        $_aliasNameGenerator(
-          db.workOrderChangeRequests.reviewedById,
-          db.userProfiles.id,
-        ),
+        'work_order_change_requests__reviewed_by_id__user_profiles__id',
       );
 
   $$UserProfilesTableProcessedTableManager? get reviewedById {
@@ -25794,9 +25659,7 @@ final class $$CompanyParametersTableReferences
   );
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.companyParameters.companyId, db.companies.id),
-      );
+      db.companies.createAlias('company_parameters__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -26166,9 +26029,7 @@ final class $$SyncAuditLogsTableReferences
   );
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.syncAuditLogs.companyId, db.companies.id),
-      );
+      db.companies.createAlias('sync_audit_logs__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -26184,13 +26045,9 @@ final class $$SyncAuditLogsTableReferences
     );
   }
 
-  static $UserProfilesTable _userProfileIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(
-          db.syncAuditLogs.userProfileId,
-          db.userProfiles.id,
-        ),
-      );
+  static $UserProfilesTable _userProfileIdTable(_$AppDatabase db) => db
+      .userProfiles
+      .createAlias('sync_audit_logs__user_profile_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager get userProfileId {
     final $_column = $_itemColumn<String>('user_profile_id')!;
@@ -26626,10 +26483,8 @@ final class $$WorkOrderHistoryTableReferences
     super.$_typedResult,
   );
 
-  static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) =>
-      db.workOrders.createAlias(
-        $_aliasNameGenerator(db.workOrderHistory.workOrderId, db.workOrders.id),
-      );
+  static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) => db.workOrders
+      .createAlias('work_order_history__work_order_id__work_orders__id');
 
   $$WorkOrdersTableProcessedTableManager get workOrderId {
     final $_column = $_itemColumn<String>('work_order_id')!;
@@ -26646,9 +26501,7 @@ final class $$WorkOrderHistoryTableReferences
   }
 
   static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
-      db.companies.createAlias(
-        $_aliasNameGenerator(db.workOrderHistory.companyId, db.companies.id),
-      );
+      db.companies.createAlias('work_order_history__company_id__companies__id');
 
   $$CompaniesTableProcessedTableManager get companyId {
     final $_column = $_itemColumn<String>('company_id')!;
@@ -26664,10 +26517,8 @@ final class $$WorkOrderHistoryTableReferences
     );
   }
 
-  static $UserProfilesTable _userIdTable(_$AppDatabase db) =>
-      db.userProfiles.createAlias(
-        $_aliasNameGenerator(db.workOrderHistory.userId, db.userProfiles.id),
-      );
+  static $UserProfilesTable _userIdTable(_$AppDatabase db) => db.userProfiles
+      .createAlias('work_order_history__user_id__user_profiles__id');
 
   $$UserProfilesTableProcessedTableManager get userId {
     final $_column = $_itemColumn<String>('user_id')!;
