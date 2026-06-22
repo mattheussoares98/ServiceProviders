@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
@@ -35,12 +37,14 @@ class LocationsPage extends StatelessWidget {
         ),
         actions: [
           BaseIconButton(
-            onPressed: () => showModalPage<void>(
-              BlocProvider.value(
-                value: context.read<LocationsCubit>(),
-                child: const CreateLocation(),
+            onPressed: () => unawaited(
+              showModalPage<void>(
+                BlocProvider.value(
+                  value: context.read<LocationsCubit>(),
+                  child: const CreateLocation(),
+                ),
+                context,
               ),
-              context,
             ),
             platformIcon: const PlatformIcon(
               materialIcon: Icons.add,
