@@ -121,8 +121,6 @@ void main() {
             body: PlatformIcon(
               materialIcon: Icons.add,
               cupertinoIcon: CupertinoIcons.add,
-              materialPadding: EdgeInsets.all(8),
-              cupertinoPadding: EdgeInsets.all(16),
             ),
           ),
         ),
