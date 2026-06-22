@@ -60,12 +60,20 @@ class ResetPassword extends HookWidget {
     final resetPasswordController = useTextEditingController();
 
     return BaseTextButton(
-      isLoading: context.select(
-        (LoginCubit cubit) =>
-            cubit.state.resetPasswordStatus == StateStatus.loading,
-      ),
-      onPressed: () =>
-          _showResetPasswordDialog(context, formKey, resetPasswordController),
+      onPressed:
+          context.select(
+                (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+              ) ||
+              context.select(
+                (LoginCubit cubit) =>
+                    cubit.state.resetPasswordStatus == StateStatus.loading,
+              )
+          ? null
+          : () => _showResetPasswordDialog(
+              context,
+              formKey,
+              resetPasswordController,
+            ),
       text: 'Esqueceu a senha?'.hardcoded,
     );
   }

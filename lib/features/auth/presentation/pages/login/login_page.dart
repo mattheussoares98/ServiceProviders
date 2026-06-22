@@ -74,8 +74,9 @@ class LoginPage extends HookWidget {
                   builder: (context, isLoading) {
                     return Flexible(
                       child: BaseTextButton(
-                        isLoading: isLoading,
-                        onPressed: loginCubit.navigateToSignUp,
+                        onPressed: isLoading
+                            ? null
+                            : loginCubit.navigateToSignUp,
                         text: 'Criar conta'.hardcoded,
                         color: context.theme.primaryColorLight,
                       ),
