@@ -89,12 +89,14 @@ class PlatformIcon extends StatelessWidget {
     IconData? cupertinoIcon,
     Color? color,
     double? size,
+    bool? isSmall,
   }) {
     return PlatformIcon(
       materialIcon: materialIcon ?? this.materialIcon,
       cupertinoIcon: cupertinoIcon ?? this.cupertinoIcon,
       color: color ?? this.color,
       size: size ?? this.size,
+      isSmall: isSmall ?? this.isSmall,
     );
   }
 
