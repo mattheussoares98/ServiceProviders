@@ -6,8 +6,8 @@ import 'package:drift/drift.dart';
 @TableIndex(name: 'idx_assets_company', columns: {#companyId})
 @TableIndex(name: 'idx_assets_area', columns: {#areaId})
 @TableIndex(name: 'idx_assets_revision', columns: {#companyId, #revisionForecast})
-@TableIndex.sql('CREATE UNIQUE INDEX assets_company_code_active_idx ON assets (company_id, code) WHERE deleted_at IS NULL;')
-@TableIndex.sql('CREATE UNIQUE INDEX assets_company_serial_active_idx ON assets (company_id, serial_number) WHERE deleted_at IS NULL;')
+@TableIndex.sql('CREATE UNIQUE INDEX assets_company_code_active_idx ON assets (company_id, code COLLATE NOCASE) WHERE deleted_at IS NULL;')
+@TableIndex.sql('CREATE UNIQUE INDEX assets_company_serial_active_idx ON assets (company_id, serial_number COLLATE NOCASE) WHERE deleted_at IS NULL;')
 class Assets extends Table {
   TextColumn get id => text()();
   TextColumn get companyId => text().references(Companies, #id, onDelete: KeyAction.cascade)();

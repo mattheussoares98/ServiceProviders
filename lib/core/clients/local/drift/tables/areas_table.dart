@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/clients/local/drift/tables/locations_tab
 import 'package:drift/drift.dart';
 
 @TableIndex(name: 'idx_areas_location', columns: {#locationId})
-@TableIndex.sql('CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name) WHERE deleted_at IS NULL;')
+@TableIndex.sql('CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name COLLATE NOCASE) WHERE deleted_at IS NULL;')
 class Areas extends Table {
   TextColumn get id => text()();
   TextColumn get locationId => text().references(Locations, #id, onDelete: KeyAction.cascade)();

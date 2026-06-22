@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -73,6 +73,23 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(locations, locations.postalCode);
       }
       if (from < 5) {
+        // Disable foreign keys temporarily during table recreation
+        await customStatement('PRAGMA foreign_keys = OFF;');
+
+        await m.deleteTable('assets');
+        await m.deleteTable('areas');
+        await m.deleteTable('categories');
+        await m.deleteTable('locations');
+
+        await m.createTable(locations);
+        await m.createTable(categories);
+        await m.createTable(areas);
+        await m.createTable(assets);
+
+        await customStatement('PRAGMA foreign_keys = ON;');
+      }
+      if (from < 6) {
+        // Recreate tables to apply the case-insensitive COLLATE NOCASE constraints.
         // Disable foreign keys temporarily during table recreation
         await customStatement('PRAGMA foreign_keys = OFF;');
 

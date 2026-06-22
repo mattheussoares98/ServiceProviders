@@ -12705,7 +12705,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final Index locationsCompanyNameActiveIdx = Index(
     'locations_company_name_active_idx',
-    'CREATE UNIQUE INDEX locations_company_name_active_idx ON locations (company_id, name) WHERE deleted_at IS NULL',
+    'CREATE UNIQUE INDEX locations_company_name_active_idx ON locations (company_id, name COLLATE NOCASE) WHERE deleted_at IS NULL',
   );
   late final Index idxAreasLocation = Index(
     'idx_areas_location',
@@ -12713,11 +12713,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final Index areasLocationNameActiveIdx = Index(
     'areas_location_name_active_idx',
-    'CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name) WHERE deleted_at IS NULL',
+    'CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name COLLATE NOCASE) WHERE deleted_at IS NULL',
   );
   late final Index categoriesCompanyNameActiveIdx = Index(
     'categories_company_name_active_idx',
-    'CREATE UNIQUE INDEX categories_company_name_active_idx ON categories (company_id, name) WHERE deleted_at IS NULL',
+    'CREATE UNIQUE INDEX categories_company_name_active_idx ON categories (company_id, name COLLATE NOCASE) WHERE deleted_at IS NULL',
   );
   late final Index idxAssetsCompany = Index(
     'idx_assets_company',
@@ -12733,11 +12733,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final Index assetsCompanyCodeActiveIdx = Index(
     'assets_company_code_active_idx',
-    'CREATE UNIQUE INDEX assets_company_code_active_idx ON assets (company_id, code) WHERE deleted_at IS NULL',
+    'CREATE UNIQUE INDEX assets_company_code_active_idx ON assets (company_id, code COLLATE NOCASE) WHERE deleted_at IS NULL',
   );
   late final Index assetsCompanySerialActiveIdx = Index(
     'assets_company_serial_active_idx',
-    'CREATE UNIQUE INDEX assets_company_serial_active_idx ON assets (company_id, serial_number) WHERE deleted_at IS NULL',
+    'CREATE UNIQUE INDEX assets_company_serial_active_idx ON assets (company_id, serial_number COLLATE NOCASE) WHERE deleted_at IS NULL',
   );
   late final Index idxMaintenancePlansCompany = Index(
     'idx_maintenance_plans_company',
