@@ -86,7 +86,7 @@ class AreaItem extends StatelessWidget {
                   );
                 },
           platformIcon: const PlatformIcon(
-            materialIcon: Icons.delete_outline,
+            materialIcon: Icons.delete,
             cupertinoIcon: CupertinoIcons.trash,
             color: Colors.red,
             isSmall: true,
