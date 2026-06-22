@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +14,6 @@ class PlatformIcon extends StatelessWidget {
     required this.cupertinoIcon,
     this.color,
     this.size,
-    this.materialPadding,
-    this.cupertinoPadding,
     this.isSmall = false,
   });
 
@@ -83,8 +82,6 @@ class PlatformIcon extends StatelessWidget {
   final IconData cupertinoIcon;
   final Color? color;
   final double? size;
-  final EdgeInsetsGeometry? materialPadding;
-  final EdgeInsetsGeometry? cupertinoPadding;
   final bool isSmall;
 
   PlatformIcon copyWith({
@@ -92,39 +89,21 @@ class PlatformIcon extends StatelessWidget {
     IconData? cupertinoIcon,
     Color? color,
     double? size,
-    EdgeInsetsGeometry? materialPadding,
-    EdgeInsetsGeometry? cupertinoPadding,
   }) {
     return PlatformIcon(
       materialIcon: materialIcon ?? this.materialIcon,
       cupertinoIcon: cupertinoIcon ?? this.cupertinoIcon,
       color: color ?? this.color,
       size: size ?? this.size,
-      materialPadding: materialPadding ?? this.materialPadding,
-      cupertinoPadding: cupertinoPadding ?? this.cupertinoPadding,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (context.isCupertino) {
-      final iconWidget = Icon(
-        cupertinoIcon,
-        color: color,
-        size: isSmall ? 16 : size,
-      );
-      return cupertinoPadding != null
-          ? Padding(padding: cupertinoPadding!, child: iconWidget)
-          : iconWidget;
-    } else {
-      final iconWidget = Icon(
-        materialIcon,
-        color: color,
-        size: isSmall ? 16 : size,
-      );
-      return materialPadding != null
-          ? Padding(padding: materialPadding!, child: iconWidget)
-          : iconWidget;
-    }
+    return Icon(
+      context.isCupertino ? cupertinoIcon : materialIcon,
+      color: color ?? AppColors.primaryLight,
+      size: isSmall ? 16 : size,
+    );
   }
 }
