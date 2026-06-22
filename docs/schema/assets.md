@@ -8,10 +8,10 @@ Equipment or physical property items requiring maintenance.
 | `category_id` | UUID | YES | - | FK → `categories.id` (Set Null) |
 | `parent_asset_id` | UUID | YES | - | Self FK for nested sub-assets (Set Null) |
 | `name` | VARCHAR(255) | NO | - | Equipment description |
-| `code` | VARCHAR(100) | YES | - | System code (Unique per company) |
+| `code` | VARCHAR(100) | YES | - | System code (Unique per company when active) |
 | `manufacturer` | VARCHAR(100) | YES | - | Brand |
 | `model` | VARCHAR(100) | YES | - | Model |
-| `serial_number` | VARCHAR(100) | YES | - | Serial (Unique per company) |
+| `serial_number` | VARCHAR(100) | YES | - | Serial (Unique per company when active) |
 | `install_date` | DATE | YES | - | Installation date |
 | `warranty_expiration` | DATE | YES | - | Warranty end date |
 | `revision_forecast` | DATE | YES | - | Predicted next revision |

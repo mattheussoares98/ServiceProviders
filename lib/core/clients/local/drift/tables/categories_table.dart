@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/clients/local/drift/tables/companies_table.dart';
 import 'package:drift/drift.dart';
 
+@TableIndex.sql('CREATE UNIQUE INDEX categories_company_name_active_idx ON categories (company_id, name) WHERE deleted_at IS NULL;')
 class Categories extends Table {
   TextColumn get id => text()();
   TextColumn get companyId => text().references(Companies, #id, onDelete: KeyAction.cascade)();
@@ -12,9 +13,4 @@ class Categories extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-        {companyId, name}
-      ];
 }

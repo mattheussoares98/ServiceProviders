@@ -53,7 +53,10 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'locations',
-            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+            filters: [
+              SupabaseFilter.eq('company_id', tCompanyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           ),
         ).called(1);
       });
@@ -151,7 +154,10 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'areas',
-            filters: [SupabaseFilter.eq('company_id', tCompanyId)],
+            filters: [
+              SupabaseFilter.eq('company_id', tCompanyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           ),
         ).called(1);
       });

@@ -2670,10 +2670,6 @@ class $LocationsTable extends Locations
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {companyId, name},
-  ];
-  @override
   Location map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Location(
@@ -3921,10 +3917,6 @@ class $CategoriesTable extends Categories
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {companyId, name},
-  ];
-  @override
   Category map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Category(
@@ -4633,11 +4625,6 @@ class $AssetsTable extends Assets with TableInfo<$AssetsTable, Asset> {
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {companyId, serialNumber},
-    {companyId, code},
-  ];
   @override
   Asset map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -12716,9 +12703,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_user_profiles_company',
     'CREATE INDEX idx_user_profiles_company ON user_profiles (company_id)',
   );
+  late final Index locationsCompanyNameActiveIdx = Index(
+    'locations_company_name_active_idx',
+    'CREATE UNIQUE INDEX locations_company_name_active_idx ON locations (company_id, name) WHERE deleted_at IS NULL',
+  );
   late final Index idxAreasLocation = Index(
     'idx_areas_location',
     'CREATE INDEX idx_areas_location ON areas (location_id)',
+  );
+  late final Index areasLocationNameActiveIdx = Index(
+    'areas_location_name_active_idx',
+    'CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name) WHERE deleted_at IS NULL',
+  );
+  late final Index categoriesCompanyNameActiveIdx = Index(
+    'categories_company_name_active_idx',
+    'CREATE UNIQUE INDEX categories_company_name_active_idx ON categories (company_id, name) WHERE deleted_at IS NULL',
   );
   late final Index idxAssetsCompany = Index(
     'idx_assets_company',
@@ -12731,6 +12730,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxAssetsRevision = Index(
     'idx_assets_revision',
     'CREATE INDEX idx_assets_revision ON assets (company_id, revision_forecast)',
+  );
+  late final Index assetsCompanyCodeActiveIdx = Index(
+    'assets_company_code_active_idx',
+    'CREATE UNIQUE INDEX assets_company_code_active_idx ON assets (company_id, code) WHERE deleted_at IS NULL',
+  );
+  late final Index assetsCompanySerialActiveIdx = Index(
+    'assets_company_serial_active_idx',
+    'CREATE UNIQUE INDEX assets_company_serial_active_idx ON assets (company_id, serial_number) WHERE deleted_at IS NULL',
   );
   late final Index idxMaintenancePlansCompany = Index(
     'idx_maintenance_plans_company',
@@ -12814,10 +12821,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     workOrderHistory,
     idxPermissionGroupsCompany,
     idxUserProfilesCompany,
+    locationsCompanyNameActiveIdx,
     idxAreasLocation,
+    areasLocationNameActiveIdx,
+    categoriesCompanyNameActiveIdx,
     idxAssetsCompany,
     idxAssetsArea,
     idxAssetsRevision,
+    assetsCompanyCodeActiveIdx,
+    assetsCompanySerialActiveIdx,
     idxMaintenancePlansCompany,
     idxWorkOrdersCompany,
     idxWorkOrdersStatus,

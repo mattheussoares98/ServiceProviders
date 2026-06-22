@@ -4,7 +4,7 @@ Facilities/sites managed by a company.
 
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
-| `name` | VARCHAR(255) | NO | - | Facility name (Unique per company) |
+| `name` | VARCHAR(255) | NO | - | Facility name (Unique per company when active) |
 | `address` | VARCHAR(500) | YES | - | Street name |
 | `number` | VARCHAR(20) | YES | - | Street/building number |
 | `complement` | VARCHAR(255) | YES | - | Address complement |
