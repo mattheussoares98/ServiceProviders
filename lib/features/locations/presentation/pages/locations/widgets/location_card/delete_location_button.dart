@@ -31,7 +31,7 @@ class DeleteLocationButton extends StatelessWidget {
       },
       platformIcon: const PlatformIcon(
         cupertinoIcon: CupertinoIcons.trash,
-        materialIcon: Icons.delete_outline,
+        materialIcon: Icons.delete,
         color: Colors.red,
       ),
     );
