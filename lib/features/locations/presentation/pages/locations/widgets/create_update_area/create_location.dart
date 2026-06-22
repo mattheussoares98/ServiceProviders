@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
@@ -21,9 +22,10 @@ class CreateLocation extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
-      context.read<LocationsCubit>(),
-    ]); //TODO fix to listen correctly
+    observeLoading(
+      [context.read<LocationsCubit>()],
+      statuses: {StateStatus.updating},
+    );
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(
       text: existingLocation?.name,

@@ -86,12 +86,14 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> createLocation(LocationEntity location) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: StateStatus.updating));
     final dataState = await _useCases.createLocation(location);
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadLocationsAndAreas();
+      await loadLocationsAndAreas(showLoading: false);
+      if (isClosed) return false;
+      emit(state.copyWith(status: StateStatus.loaded));
       return true;
     } else {
       emit(state.copyWith(status: StateStatus.error));
@@ -101,7 +103,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> updateLocation(LocationEntity location) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: StateStatus.updating));
     final dataState = await _useCases.updateLocation(location);
     if (isClosed) return false;
 
@@ -150,7 +152,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> createArea(AreaEntity area) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: StateStatus.updating));
     final dataState = await _useCases.createArea(area);
     if (isClosed) return false;
 
@@ -167,7 +169,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> updateArea(AreaEntity area) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: StateStatus.updating));
     final dataState = await _useCases.updateArea(area);
     if (isClosed) return false;
 
