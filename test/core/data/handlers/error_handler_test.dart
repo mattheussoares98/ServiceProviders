@@ -218,6 +218,41 @@ void main() {
         expect(result.statusCode, 400);
       },
     );
+
+    test(
+      'handles PostgrestException with unique_violation code as generic FailureState',
+      () async {
+        const exception = PostgrestException(
+          message:
+              'duplicate key value violates unique constraint "locations_company_name_active_idx"',
+          code: '23505',
+        );
+
+        final result = await ErrorHandler.execute<int>(() {
+          throw exception;
+        });
+
+        expect(result, isA<FailureState<int>>());
+        expect(result.message, 'Já existe um registro com esses dados.');
+        expect(result.statusCode, 23505);
+      },
+    );
+
+    test(
+      'handles SQLite UNIQUE constraint exception as generic FailureState',
+      () async {
+        final exception = Exception(
+          'SqliteException(2067): while executing statement, UNIQUE constraint failed: locations.company_id, locations.name, constraint failed (code 2067)',
+        );
+
+        final result = await ErrorHandler.execute<int>(() {
+          throw exception;
+        });
+
+        expect(result, isA<FailureState<int>>());
+        expect(result.message, 'Já existe um registro com esses dados.');
+      },
+    );
   });
 
   group('ErrorHandler.executeSafe', () {

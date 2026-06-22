@@ -80,17 +80,26 @@ abstract final class ErrorHandler {
     } on PostgrestException catch (exception, stackTrace) {
       _debugError(exception, stackTrace);
 
+      final message = exception.code == '23505'
+          ? 'Já existe um registro com esses dados.'.hardcoded
+          : exception.message;
+
       return FailureState<T>(
-        message: exception.message,
+        message: message,
         error: exception.toString(),
         statusCode: exception.code?.toInt(),
       );
     } catch (error, stackTrace) {
       _debugError(error, stackTrace);
-      return FailureState<T>(
-        message: error.toString(),
-        error: error.toString(),
-      );
+
+      final errorStr = error.toString();
+      final message =
+          (errorStr.toLowerCase().contains('unique constraint failed') ||
+              errorStr.contains('code 2067'))
+          ? 'Já existe um registro com esses dados.'.hardcoded
+          : errorStr;
+
+      return FailureState<T>(message: message, error: errorStr);
     }
   }
 
