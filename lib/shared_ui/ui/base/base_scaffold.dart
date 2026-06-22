@@ -102,7 +102,7 @@ class _BaseScaffold extends StatelessWidget {
           actions: [
             ...?finalAppBar.actions,
             refreshAction,
-          ].map((e) => Flexible(child: e)).toList(),
+          ].map((e) => FittedBox(child: e)).toList(),
         );
       }
     }
