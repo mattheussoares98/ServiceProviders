@@ -17,6 +17,7 @@ class SubTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //TODO should confirm what happens when there are no allAreas in LocationsCubit
     final AreaEntity? area = context.select<LocationsCubit, AreaEntity?>(
       (cubit) =>
           cubit.state.allAreas.firstWhereOrNull((e) => e.id == asset.areaId),
