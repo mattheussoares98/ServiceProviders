@@ -28,17 +28,20 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<LocationModel> getLocations(String companyId) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'locations',
-          filters: [
-            SupabaseFilter.eq('company_id', companyId),
-            SupabaseFilter.isFilter('deleted_at', null),
-          ],
-        );
-        return response.map(LocationModel.fromJson).toList();
-      });
+  FutureList<LocationModel> getLocations(
+    String companyId,
+  ) => SupabaseHandler.call(() async {
+    // throw Exception('here');
+    //TODO throw here and check how the app behaves in all other places that is using it
+    final response = await _database.selectList(
+      table: 'locations',
+      filters: [
+        SupabaseFilter.eq('company_id', companyId),
+        SupabaseFilter.isFilter('deleted_at', null),
+      ],
+    );
+    return response.map(LocationModel.fromJson).toList();
+  });
 
   @override
   FutureData<LocationModel> createLocation(LocationModel request) =>
