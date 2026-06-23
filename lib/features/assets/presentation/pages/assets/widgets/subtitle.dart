@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/extensions.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
+import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:collection/collection.dart';
@@ -16,9 +17,9 @@ class SubTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AreaEntity? area = context.select<AssetsCubit, AreaEntity?>(
+    final AreaEntity? area = context.select<LocationsCubit, AreaEntity?>(
       (cubit) =>
-          cubit.state.areas.firstWhereOrNull((e) => e.id == asset.areaId),
+          cubit.state.allAreas.firstWhereOrNull((e) => e.id == asset.areaId),
     );
     final LocationEntity? location = context
         .select<AssetsCubit, LocationEntity?>(
