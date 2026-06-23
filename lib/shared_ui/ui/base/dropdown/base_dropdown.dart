@@ -36,6 +36,17 @@ class BaseDropDown<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
 
+    final centeredItems = items?.map((item) {
+      return DropdownMenuItem<T>(
+        key: item.key,
+        value: item.value,
+        onTap: item.onTap,
+        enabled: item.enabled,
+        alignment: Alignment.center,
+        child: Center(child: item.child),
+      );
+    }).toList();
+
     final topLeftLabel =
         selectedItem != null &&
             showLabelAtTopLeft &&
@@ -56,7 +67,7 @@ class BaseDropDown<T> extends StatelessWidget {
 
     if (PlatformUtil.isCupertino && !isSimple) {
       final double screenWidth = MediaQuery.sizeOf(context).width;
-      final selectedMenuItem = items?.firstWhereOrNull(
+      final selectedMenuItem = centeredItems?.firstWhereOrNull(
         (item) => item.value == selectedItem,
       );
       return FormField<T>(
@@ -73,10 +84,13 @@ class BaseDropDown<T> extends StatelessWidget {
                   children: [
                     ?topLeftLabel,
                     CupertinoButton(
-                      disabledColor: theme.disabledColor.withValues(alpha: 100 / 255),
+                      disabledColor: theme.disabledColor.withValues(
+                        alpha: 100 / 255,
+                      ),
                       padding: const EdgeInsets.only(left: 15),
                       color: theme.disabledColor.withValues(alpha: 50 / 255),
-                      onPressed: onChanged == null || (items?.length ?? 0) < 1
+                      onPressed:
+                          onChanged == null || (centeredItems?.length ?? 0) < 1
                           ? null
                           : () async {
                               FocusManager.instance.primaryFocus?.unfocus();
@@ -97,7 +111,7 @@ class BaseDropDown<T> extends StatelessWidget {
                                       builder: (sheetContext) =>
                                           CupertinoActionSheet(
                                             title: Text('Selecionar'.hardcoded),
-                                            actions: items!.map((item) {
+                                            actions: centeredItems!.map((item) {
                                               return CupertinoActionSheetAction(
                                                 onPressed: () {
                                                   if (item.enabled) {
@@ -191,7 +205,7 @@ class BaseDropDown<T> extends StatelessWidget {
     }
 
     final bool isDropdownEnabled =
-        onChanged != null && (items?.length ?? 0) > 0;
+        onChanged != null && (centeredItems?.length ?? 0) > 0;
 
     return FormField<T>(
       key: key,
@@ -200,7 +214,6 @@ class BaseDropDown<T> extends StatelessWidget {
       initialValue: selectedItem,
       builder: (state) {
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
@@ -219,7 +232,8 @@ class BaseDropDown<T> extends StatelessWidget {
                     children: [
                       ?topLeftLabel,
                       DropdownButtonFormField<T>(
-                        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                        autovalidateMode:
+                            AutovalidateMode.onUserInteractionIfError,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           errorStyle: TextStyle(height: 0, fontSize: 0),
@@ -247,8 +261,10 @@ class BaseDropDown<T> extends StatelessWidget {
                           height: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        items: items,
-                        onChanged: onChanged == null || (items?.length ?? 0) < 1
+                        items: centeredItems,
+                        onChanged:
+                            onChanged == null ||
+                                (centeredItems?.length ?? 0) < 1
                             ? null
                             : (value) {
                                 if (value != null) {
