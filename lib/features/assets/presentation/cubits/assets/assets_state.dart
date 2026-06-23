@@ -3,7 +3,6 @@ part of 'assets_cubit.dart';
 class AssetsState extends BaseState {
   const AssetsState({
     required this.assets,
-    required this.locations,
     required this.areas,
     required this.categories,
     required this.deletingIds,
@@ -13,21 +12,18 @@ class AssetsState extends BaseState {
 
   const AssetsState.initial()
     : assets = const [],
-      locations = const [],
       areas = const [],
       categories = const [],
       deletingIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<AssetEntity> assets;
-  final List<LocationEntity> locations;
   final List<AreaEntity> areas;
   final List<CategoryEntity> categories;
   final Set<String> deletingIds;
 
   AssetsState copyWith({
     List<AssetEntity>? assets,
-    List<LocationEntity>? locations,
     List<AreaEntity>? areas,
     List<CategoryEntity>? categories,
     StateStatus? status,
@@ -37,7 +33,6 @@ class AssetsState extends BaseState {
   }) {
     return AssetsState(
       assets: assets ?? this.assets,
-      locations: locations ?? this.locations,
       areas: areas ?? this.areas,
       categories: categories ?? this.categories,
       status: status ?? this.status,
@@ -51,7 +46,6 @@ class AssetsState extends BaseState {
   @override
   List<Object?> get props => [
     assets,
-    locations,
     areas,
     categories,
     status,

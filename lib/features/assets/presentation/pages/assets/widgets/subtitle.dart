@@ -1,5 +1,4 @@
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/extensions.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
@@ -23,7 +22,7 @@ class SubTitle extends StatelessWidget {
           cubit.state.allAreas.firstWhereOrNull((e) => e.id == asset.areaId),
     );
     final LocationEntity? location = context
-        .select<AssetsCubit, LocationEntity?>(
+        .select<LocationsCubit, LocationEntity?>(
           (cubit) => cubit.state.locations.firstWhereOrNull(
             (e) => e.id == area?.locationId,
           ),
