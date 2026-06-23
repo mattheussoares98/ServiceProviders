@@ -19,6 +19,7 @@ class StatusDropdown extends StatelessWidget {
       key: const ValueKey('Status'),
       label: 'Status *'.hardcoded,
       selectedItem: selectedStatus,
+      showLabelAtTopLeft: true,
       items: AssetStatus.values.map((s) {
         return DropdownMenuItem<AssetStatus>(
           value: s,

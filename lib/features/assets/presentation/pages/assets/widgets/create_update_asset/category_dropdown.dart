@@ -26,7 +26,7 @@ class CategoryDropdown extends StatelessWidget {
         ),
       ],
       onChanged: onChanged,
-      showLabelAtTopLeft: selectedCategoryId?.isNotEmpty ?? false,
+      showLabelAtTopLeft: true,
     );
   }
 }

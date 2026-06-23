@@ -37,7 +37,7 @@ class ParentAssetDropdown extends StatelessWidget {
       selectedItem: selectedParentAssetId,
       items: items,
       onChanged: onChanged,
-      showLabelAtTopLeft: selectedParentAssetId?.isNotEmpty ?? false,
+      showLabelAtTopLeft: true,
     );
   }
 }

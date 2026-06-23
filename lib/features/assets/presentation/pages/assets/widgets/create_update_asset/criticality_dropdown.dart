@@ -18,6 +18,7 @@ class CriticalityDropdown extends StatelessWidget {
     return BaseDropDown<AssetCriticality>(
       key: const ValueKey('Criticality'),
       label: 'Criticidade *'.hardcoded,
+      showLabelAtTopLeft: true,
       selectedItem: selectedCriticality,
       items: AssetCriticality.values.map((c) {
         return DropdownMenuItem<AssetCriticality>(
