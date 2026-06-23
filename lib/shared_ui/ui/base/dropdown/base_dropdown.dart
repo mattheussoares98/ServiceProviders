@@ -48,6 +48,7 @@ class BaseDropDown<T> extends StatelessWidget {
                 fontSize: 8,
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w300,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           )
@@ -59,6 +60,7 @@ class BaseDropDown<T> extends StatelessWidget {
         (item) => item.value == selectedItem,
       );
       return FormField<T>(
+        key: key,
         autovalidateMode: AutovalidateMode.onUserInteractionIfError,
         validator: validator,
         initialValue: selectedItem,
@@ -71,9 +73,9 @@ class BaseDropDown<T> extends StatelessWidget {
                   children: [
                     ?topLeftLabel,
                     CupertinoButton(
-                      disabledColor: theme.disabledColor.withAlpha(100),
+                      disabledColor: theme.disabledColor.withValues(alpha: 100 / 255),
                       padding: const EdgeInsets.only(left: 15),
-                      color: theme.disabledColor.withAlpha(50),
+                      color: theme.disabledColor.withValues(alpha: 50 / 255),
                       onPressed: onChanged == null || (items?.length ?? 0) < 1
                           ? null
                           : () async {
@@ -191,61 +193,89 @@ class BaseDropDown<T> extends StatelessWidget {
     final bool isDropdownEnabled =
         onChanged != null && (items?.length ?? 0) > 0;
 
-    return SizedBox(
-      height: dropdownHeight,
-      child: Material(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
-        ),
-        color: theme.disabledColor.withAlpha(30),
-        child: InkWell(
-          onTap: isDropdownEnabled ? () {} : null,
-          customBorder: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
-          ),
-          child: Stack(
-            children: [
-              ?topLeftLabel,
-              DropdownButtonFormField<T>(
-                autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                decoration: const InputDecoration(border: InputBorder.none),
-                padding: const EdgeInsets.only(left: Sizes.p8),
-                dropdownColor: Colors.white,
-                validator: validator,
-                initialValue: selectedItem,
-                isExpanded: true,
-                alignment: Alignment.center,
-                iconSize: 17,
-                onTap: adviceMessage == null
-                    ? null
-                    : () {
-                        showAlertDialog(
-                          context: context,
-                          title: 'Atenção!'.hardcoded,
-                          contentText: adviceMessage,
-                        );
-                      },
-                hint: hint ?? (label != null ? Text(label!) : null),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: theme.textTheme.titleMedium?.fontSize,
-                  color: Colors.black,
-                  height: 1,
-                  overflow: TextOverflow.ellipsis,
+    return FormField<T>(
+      key: key,
+      autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+      validator: validator,
+      initialValue: selectedItem,
+      builder: (state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: dropdownHeight,
+              child: Material(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
                 ),
-                items: items,
-                onChanged: onChanged == null || (items?.length ?? 0) < 1
-                    ? null
-                    : (value) {
-                        if (value != null && onChanged != null) {
-                          onChanged!(value);
-                        }
-                      },
+                color: theme.disabledColor.withValues(alpha: 30 / 255),
+                child: InkWell(
+                  onTap: isDropdownEnabled ? () {} : null,
+                  customBorder: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(Sizes.p8)),
+                  ),
+                  child: Stack(
+                    children: [
+                      ?topLeftLabel,
+                      DropdownButtonFormField<T>(
+                        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          errorStyle: TextStyle(height: 0, fontSize: 0),
+                        ),
+                        padding: const EdgeInsets.only(left: Sizes.p8),
+                        dropdownColor: theme.colorScheme.surface,
+                        initialValue: selectedItem,
+                        isExpanded: true,
+                        alignment: Alignment.center,
+                        iconSize: 17,
+                        onTap: adviceMessage == null
+                            ? null
+                            : () {
+                                showAlertDialog(
+                                  context: context,
+                                  title: 'Atenção!'.hardcoded,
+                                  contentText: adviceMessage,
+                                );
+                              },
+                        hint: hint ?? (label != null ? Text(label!) : null),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: theme.textTheme.titleMedium?.fontSize,
+                          color: theme.colorScheme.onSurface,
+                          height: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        items: items,
+                        onChanged: onChanged == null || (items?.length ?? 0) < 1
+                            ? null
+                            : (value) {
+                                if (value != null) {
+                                  state.didChange(value);
+                                  onChanged?.call(value);
+                                }
+                              },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            if (state.hasError)
+              Padding(
+                padding: const EdgeInsets.only(top: 5, left: 15),
+                child: Text(
+                  state.errorText!,
+                  style: TextStyle(
+                    color: theme.colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
