@@ -54,7 +54,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
         state.copyWith(
           status: StateStatus.loaded,
           assets: assetsResult.data ?? [],
-          areas: areasResult.data ?? [],
           categories: categoriesResult.data ?? [],
           annulErrorMessage: true,
         ),

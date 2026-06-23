@@ -129,7 +129,6 @@ void main() {
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.areas, 'areas', isNotEmpty)
               .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -168,7 +167,6 @@ void main() {
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.areas, 'areas', isNotEmpty)
               .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
