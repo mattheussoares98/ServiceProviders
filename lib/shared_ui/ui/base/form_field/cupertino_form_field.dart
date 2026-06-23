@@ -89,7 +89,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
         (dtf.keyboardType == TextInputType.number ||
             dtf.keyboardType ==
                 const TextInputType.numberWithOptions(decimal: true))) {
-      debugPrint('iOS numeric keyboard without focus node');
+      throw Exception('iOS numeric keyboard without focus node');
     }
 
     return FormField<String>(
