@@ -36,20 +36,27 @@ class LocationsPage extends StatelessWidget {
           ),
         ),
         actions: [
-          BaseIconButton(
-            onPressed: () => unawaited(
-              showModalPage<void>(
-                BlocProvider.value(
-                  value: context.read<LocationsCubit>(),
-                  child: const CreateLocation(),
+          BlocSelector<LocationsCubit, LocationsState, bool>(
+            selector: (state) => state.errorMessage?.isNotEmpty ?? true,
+            builder: (context, hasError) {
+              return BaseIconButton(
+                onPressed: hasError
+                    ? null
+                    : () => unawaited(
+                        showModalPage<void>(
+                          BlocProvider.value(
+                            value: context.read<LocationsCubit>(),
+                            child: const CreateLocation(),
+                          ),
+                          context,
+                        ),
+                      ),
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.add,
+                  cupertinoIcon: CupertinoIcons.add,
                 ),
-                context,
-              ),
-            ),
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.add,
-              cupertinoIcon: CupertinoIcons.add,
-            ),
+              );
+            },
           ),
         ],
       ),
