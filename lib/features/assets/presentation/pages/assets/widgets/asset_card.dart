@@ -15,15 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AssetCard extends StatelessWidget {
-  const AssetCard({
-    super.key,
-    required this.asset,
-    required this.categories,
-    required this.allAssets,
-  });
+  const AssetCard({super.key, required this.asset, required this.allAssets});
 
   final AssetEntity asset;
-  final List<CategoryEntity> categories;
   final List<AssetEntity> allAssets;
 
   String _formatDate(DateTime? date) {
@@ -33,9 +27,10 @@ class AssetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CategoryEntity? category = categories.firstWhereOrNull(
+    //TODO use the CategoriesCubit instead
+    const CategoryEntity? category = null; /*  categories.firstWhereOrNull(
       (e) => e.id == asset.categoryId,
-    );
+    ); */
 
     final AssetEntity? parentAsset = allAssets.firstWhereOrNull(
       (e) => e.id == asset.parentAssetId,

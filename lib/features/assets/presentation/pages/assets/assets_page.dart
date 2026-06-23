@@ -63,7 +63,6 @@ class AssetsPage extends HookWidget {
         dataSelector: (state) => state.assets,
         onRetry: context.read<AssetsCubit>().loadAssets,
         builder: (context, assets) {
-          final state = context.watch<AssetsCubit>().state;
           if (assets.isEmpty) {
             return BaseText.error('Nenhum equipamento cadastrado'.hardcoded);
           }
@@ -71,11 +70,7 @@ class AssetsPage extends HookWidget {
             itemCount: assets.length,
             itemBuilder: (context, index) {
               final asset = assets[index];
-              return AssetCard(
-                asset: asset,
-                categories: state.categories,
-                allAssets: assets,
-              );
+              return AssetCard(asset: asset, allAssets: assets);
             },
           );
         },

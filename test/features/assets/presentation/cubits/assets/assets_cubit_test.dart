@@ -50,9 +50,6 @@ void main() {
   late MockCreateAssetUseCase mockCreateAsset;
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
-  late MockGetLocationsUseCase mockGetLocations;
-  late MockGetAreasUseCase mockGetAreas;
-  late MockGetCategoriesUseCase mockGetCategories;
   late MockNavigationClient mockNavigationClient;
 
   late AssetsCubit cubit;
@@ -69,9 +66,6 @@ void main() {
     mockCreateAsset = MockCreateAssetUseCase();
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
-    mockGetLocations = MockGetLocationsUseCase();
-    mockGetAreas = MockGetAreasUseCase();
-    mockGetCategories = MockGetCategoriesUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -86,9 +80,6 @@ void main() {
       createAsset: mockCreateAsset,
       updateAsset: mockUpdateAsset,
       deleteAsset: mockDeleteAsset,
-      getLocations: mockGetLocations,
-      getAreas: mockGetAreas,
-      getCategories: mockGetCategories,
     );
 
     cubit = AssetsCubit(useCases: useCases);
@@ -102,21 +93,9 @@ void main() {
         'should emit loading and loaded when assets load successfully',
         build: () {
           final tAssets = EntityFactory.makeAssetEntityList();
-          final tLocations = EntityFactory.makeLocationEntityList();
-          final tAreas = EntityFactory.makeAreaEntityList();
-          final tCategories = EntityFactory.makeCategoryEntityList();
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAssets));
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tLocations));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tAreas));
-          when(
-            () => mockGetCategories.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tCategories));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
@@ -129,37 +108,19 @@ void main() {
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
-          verify(
-            () => mockGetCategories.call(tUserProfile.companyId),
-          ).called(1);
         },
       );
       blocTest<AssetsCubit, AssetsState>(
         'should not emit loading when pass false parameter',
         build: () {
           final tAssets = EntityFactory.makeAssetEntityList();
-          final tLocations = EntityFactory.makeLocationEntityList();
-          final tAreas = EntityFactory.makeAreaEntityList();
-          final tCategories = EntityFactory.makeCategoryEntityList();
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAssets));
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tLocations));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tAreas));
-          when(
-            () => mockGetCategories.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tCategories));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(emitLoading: false),
@@ -167,16 +128,10 @@ void main() {
           isA<AssetsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
-          verify(
-            () => mockGetCategories.call(tUserProfile.companyId),
-          ).called(1);
         },
       );
 
@@ -187,15 +142,6 @@ void main() {
           when(() => mockGetAssets.call(any())).thenAnswer(
             (_) async => FailureState<List<AssetEntity>>(message: tMessage),
           );
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetCategories.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
@@ -246,15 +192,6 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
             () => mockGetAssets.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetCategories.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
@@ -317,15 +254,6 @@ void main() {
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetCategories.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) async => expect(await cubit.updateAsset(tAsset), isTrue),
@@ -386,15 +314,6 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
             () => mockGetAssets.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetLocations.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetAreas.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetCategories.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
