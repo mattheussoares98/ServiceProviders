@@ -73,8 +73,6 @@ class AssetsPage extends HookWidget {
               final asset = assets[index];
               return AssetCard(
                 asset: asset,
-                locations: state.locations,
-                areas: state.areas,
                 categories: state.categories,
                 allAssets: assets,
               );

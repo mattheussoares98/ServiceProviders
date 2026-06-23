@@ -4,10 +4,8 @@ import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/extensions.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/subtitle.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
@@ -20,15 +18,11 @@ class AssetCard extends StatelessWidget {
   const AssetCard({
     super.key,
     required this.asset,
-    required this.locations,
-    required this.areas,
     required this.categories,
     required this.allAssets,
   });
 
   final AssetEntity asset;
-  final List<LocationEntity> locations;
-  final List<AreaEntity> areas;
   final List<CategoryEntity> categories;
   final List<AssetEntity> allAssets;
 
@@ -39,14 +33,6 @@ class AssetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AreaEntity? area = areas.firstWhereOrNull(
-      (e) => e.id == asset.areaId,
-    );
-
-    final LocationEntity? location = locations.firstWhereOrNull(
-      (e) => e.id == area?.locationId,
-    );
-
     final CategoryEntity? category = categories.firstWhereOrNull(
       (e) => e.id == asset.categoryId,
     );
@@ -54,58 +40,12 @@ class AssetCard extends StatelessWidget {
     final AssetEntity? parentAsset = allAssets.firstWhereOrNull(
       (e) => e.id == asset.parentAssetId,
     );
-
-    final locationInfo = [area?.name, location?.name].join(' - ');
-
-    final subtitleParts = [
-      if (asset.code?.isNotEmpty ?? false) '[${asset.code}]',
-      if (locationInfo.isNotEmpty) locationInfo,
-    ].join(' ');
-
     return Card(
       child: ExpansionTile(
         title: Row(
-          children: [
-            Expanded(child: BaseText.titleMedium(asset.name)),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Sizes.p8,
-                vertical: Sizes.p4,
-              ),
-              decoration: BoxDecoration(
-                color: asset.status.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(Sizes.p8),
-              ),
-              child: BaseText.caption(
-                asset.status.label,
-                color: asset.status.color,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            gapW8,
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Sizes.p8,
-                vertical: Sizes.p4,
-              ),
-              decoration: BoxDecoration(
-                color: asset.criticality.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(Sizes.p8),
-              ),
-              child: BaseText.caption(
-                asset.criticality.label,
-                color: asset.criticality.color,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+          children: [Expanded(child: BaseText.titleMedium(asset.name))],
         ),
-        subtitle: subtitleParts.isNotEmpty
-            ? Padding(
-                padding: const EdgeInsets.only(top: Sizes.p4),
-                child: BaseText.bodySmall(subtitleParts),
-              )
-            : null,
+        subtitle: SubTitle(asset: asset),
         children: [
           Column(
             children: [
