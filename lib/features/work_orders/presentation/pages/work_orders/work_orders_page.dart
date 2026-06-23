@@ -1,5 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_work_order_form.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
@@ -33,20 +36,36 @@ class WorkOrdersPage extends StatelessWidget {
           ),
         ),
         actions: [
-          BaseIconButton(
-            onPressed: () {
-              showModalPage<void>(
-                BlocProvider.value(
-                  value: context.read<WorkOrdersCubit>(),
-                  child: const CreateWorkOrderForm(),
+          Builder(
+            builder: (context) {
+              final assetHasError = context.select<AssetsCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+              final locationsHasError = context.select<LocationsCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+              final categoriesHasError = context.select<CategoriesCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+              return BaseIconButton(
+                onPressed:
+                    assetHasError || locationsHasError || categoriesHasError
+                    ? null
+                    : () {
+                        showModalPage<void>(
+                          BlocProvider.value(
+                            value: context.read<WorkOrdersCubit>(),
+                            child: const CreateWorkOrderForm(),
+                          ),
+                          context,
+                        );
+                      },
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.add,
+                  cupertinoIcon: CupertinoIcons.add,
                 ),
-                context,
               );
             },
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.add,
-              cupertinoIcon: CupertinoIcons.add,
-            ),
           ),
         ],
       ),

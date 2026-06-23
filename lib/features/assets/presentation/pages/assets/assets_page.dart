@@ -44,24 +44,47 @@ class AssetsPage extends HookWidget {
           ),
         ),
         actions: [
-          BaseIconButton(
-            onPressed: () {
-              showModalPage<void>(
-                MultiBlocProvider(
-                  providers: [
-                    BlocProvider.value(value: context.read<AssetsCubit>()),
-                    BlocProvider.value(value: context.read<LocationsCubit>()),
-                    BlocProvider.value(value: context.read<CategoriesCubit>()),
-                  ],
-                  child: const CreateAssetDialog(),
+          Builder(
+            builder: (context) {
+              final assetHasError = context.select<AssetsCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+              final locationsHasError = context.select<LocationsCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+              final categoriesHasError = context.select<CategoriesCubit, bool>(
+                (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+              );
+
+              return BaseIconButton(
+                onPressed:
+                    assetHasError || locationsHasError || categoriesHasError
+                    ? null
+                    : () {
+                        showModalPage<void>(
+                          MultiBlocProvider(
+                            providers: [
+                              BlocProvider.value(
+                                value: context.read<AssetsCubit>(),
+                              ),
+                              BlocProvider.value(
+                                value: context.read<LocationsCubit>(),
+                              ),
+                              BlocProvider.value(
+                                value: context.read<CategoriesCubit>(),
+                              ),
+                            ],
+                            child: const CreateAssetDialog(),
+                          ),
+                          context,
+                        );
+                      },
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.add,
+                  cupertinoIcon: CupertinoIcons.add,
                 ),
-                context,
               );
             },
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.add,
-              cupertinoIcon: CupertinoIcons.add,
-            ),
           ),
         ],
       ),
