@@ -56,6 +56,9 @@ void main() {
   late MockDeleteAreaUseCase mockDeleteArea;
   late MockNavigationClient mockNavigationClient;
 
+  late List<LocationEntity> tLocations;
+  late List<AreaEntity> tAreas;
+
   late LocationsCubit cubit;
   late UserProfileEntity tUserProfile;
 
@@ -79,6 +82,8 @@ void main() {
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
+    tLocations = EntityFactory.makeLocationEntityList();
+    tAreas = EntityFactory.makeAreaEntityList();
 
     when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
 
@@ -104,8 +109,6 @@ void main() {
       blocTest<LocationsCubit, LocationsState>(
         'should emit loading and loaded when locations load successfully',
         build: () {
-          final tLocations = EntityFactory.makeLocationEntityList();
-          final tAreas = EntityFactory.makeAreaEntityList();
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tLocations));
@@ -124,7 +127,8 @@ void main() {
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.errorMessage, 'errorMessage', isNull)
-              .having((s) => s.locations, 'locations', isNotEmpty),
+              .having((s) => s.locations, 'locations', isNotEmpty)
+              .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
         verify: (_) {
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
@@ -134,8 +138,6 @@ void main() {
       blocTest<LocationsCubit, LocationsState>(
         'should not emit loading when pass a false value',
         build: () {
-          final tLocations = EntityFactory.makeLocationEntityList();
-          final tAreas = EntityFactory.makeAreaEntityList();
           when(
             () => mockGetLocations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tLocations));
@@ -216,7 +218,6 @@ void main() {
       blocTest<LocationsCubit, LocationsState>(
         'should emit updated areasByLocation map when areas load successfully',
         build: () {
-          final tAreas = EntityFactory.makeAreaEntityList();
           when(
             () => mockGetAreas.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAreas));
@@ -224,11 +225,9 @@ void main() {
         },
         act: (cubit) => cubit.loadAreas(tUserProfile.companyId),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.areasByLocation,
-            'areasByLocation',
-            isNotEmpty,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.areasByLocation, 'areasByLocation', isNotEmpty)
+              .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
         verify: (_) {
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);

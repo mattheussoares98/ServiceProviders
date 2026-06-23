@@ -50,6 +50,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           status: StateStatus.loaded,
           locations: locationsResult.data,
           areasByLocation: areasByLocation,
+          allAreas: areas,
           annulErrorMessage: true,
         ),
       );
@@ -79,7 +80,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       for (final area in areas) {
         areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
       }
-      emit(state.copyWith(areasByLocation: areasByLocation));
+      emit(state.copyWith(areasByLocation: areasByLocation, allAreas: areas));
     } else {
       showDataStateToast(dataState);
     }
