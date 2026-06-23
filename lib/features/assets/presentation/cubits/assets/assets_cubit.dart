@@ -30,6 +30,8 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
+
+    //TODO use the state inside the cubits instead
     final results = await Future.wait([
       _useCases.getAssets(user.companyId),
       _useCases.getLocations(user.companyId),
