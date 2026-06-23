@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -36,6 +37,9 @@ class HomePage extends HookWidget {
               GetIt.I<WorkOrdersCubit>()..loadWorkOrdersAndChangeRequests(),
         ),
         BlocProvider<UsersCubit>(create: (context) => GetIt.I<UsersCubit>()),
+        BlocProvider<CategoriesCubit>(
+          create: (context) => GetIt.I<CategoriesCubit>(),
+        ),
       ],
       child: HeroControllerScope(
         controller: controller,

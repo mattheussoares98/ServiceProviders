@@ -11,10 +11,14 @@ import 'package:clean_architecture/features/assets/presentation/pages/assets/wid
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/location_dropdown.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/parent_asset_dropdown.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/status_dropdown.dart';
+import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
@@ -35,6 +39,58 @@ class CreateAssetDialog extends HookWidget {
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     observeLoading([context.read<AssetsCubit>()]);
+
+    //* the same for locations and areas
+    final (loadingLocations, locationsError) = context
+        .select<LocationsCubit, (bool, String?)>((cubit) {
+          return (
+            cubit.state.status == StateStatus.loading,
+            cubit.state.errorMessage,
+          );
+        });
+    final (loadingCategories, categoriesError) = context
+        .select<CategoriesCubit, (bool, String?)>((cubit) {
+          return (
+            cubit.state.status == StateStatus.loading,
+            cubit.state.errorMessage,
+          );
+        });
+    final (loadingAssets, assetsError) = context
+        .select<AssetsCubit, (bool, String?)>((cubit) {
+          return (
+            cubit.state.status == StateStatus.loading,
+            cubit.state.errorMessage,
+          );
+        });
+
+    if (loadingCategories || loadingLocations || loadingAssets) {
+      return const Center(child: LoadingCircle());
+    } else if ((locationsError?.isNotEmpty ?? false) ||
+        (categoriesError?.isNotEmpty ?? false) ||
+        (assetsError?.isNotEmpty ?? false)) {
+      return Center(
+        child: Column(
+          children: [
+            BaseText.error(
+              '${locationsError ?? ''}\n${categoriesError ?? ''}\n${assetsError ?? ''}',
+            ),
+            gapH8,
+            PrimaryButton(
+              onTap: () {
+                if (locationsError?.isNotEmpty ?? false) {
+                  context.read<LocationsCubit>().loadLocationsAndAreas();
+                }
+                if (categoriesError?.isNotEmpty ?? false) {
+                  // context.read<CategoriesCubit>().;
+                  //TODO load they here
+                }
+              },
+              text: 'Tentar novamente'.hardcoded,
+            ),
+          ],
+        ),
+      );
+    }
 
     final nameController = useTextEditingController(text: asset?.name);
     final codeController = useTextEditingController(text: asset?.code);
