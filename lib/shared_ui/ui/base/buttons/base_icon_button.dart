@@ -53,13 +53,13 @@ class BaseIconButton extends HookWidget {
 
     if (context.isCupertino) {
       child = CupertinoButton(
-        onPressed: effectiveLoading ? null : tapCallback,
+        onPressed: effectiveLoading || onPressed == null ? null : tapCallback,
         padding: padding ?? EdgeInsets.zero,
         child: iconWidget,
       );
     } else {
       child = IconButton(
-        onPressed: effectiveLoading ? null : tapCallback,
+        onPressed: effectiveLoading || onPressed == null ? null : tapCallback,
         icon: iconWidget,
         padding: padding ?? EdgeInsets.zero,
       );
