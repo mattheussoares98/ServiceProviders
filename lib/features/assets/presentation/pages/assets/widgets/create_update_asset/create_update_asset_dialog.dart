@@ -28,7 +28,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:uuid/uuid.dart';
 
 class CreateAssetDialog extends HookWidget {
   const CreateAssetDialog({super.key, this.asset});
@@ -124,46 +123,24 @@ class CreateAssetDialog extends HookWidget {
       if (selectedAreaId.value == null) return;
 
       final companyId = context.read<SessionCubit>().state.user.companyId;
-      final now = DateTime.now();
 
-      final newAsset = AssetEntity(
-        id: asset?.id ?? const Uuid().v4(), //TODO move to the cubit
+      final updated = await context.read<AssetsCubit>().saveAsset(
+        id: asset?.id,
         companyId: companyId,
         areaId: selectedAreaId.value!,
-        categoryId: selectedCategoryId.value == ''
-            ? null
-            : selectedCategoryId.value,
-        parentAssetId: selectedParentAssetId.value == ''
-            ? null
-            : selectedParentAssetId.value,
-        name: nameController.text.trim(),
-        code: codeController.text.trim().isEmpty
-            ? null
-            : codeController.text.trim(),
-        manufacturer: manufacturerController.text.trim().isEmpty
-            ? null
-            : manufacturerController.text.trim(),
-        model: modelController.text.trim().isEmpty
-            ? null
-            : modelController.text.trim(),
-        serialNumber: serialNumberController.text.trim().isEmpty
-            ? null
-            : serialNumberController.text.trim(),
+        categoryId: selectedCategoryId.value,
+        parentAssetId: selectedParentAssetId.value,
+        name: nameController.text,
+        code: codeController.text,
+        manufacturer: manufacturerController.text,
+        model: modelController.text,
+        serialNumber: serialNumberController.text,
         status: selectedStatus.value,
         criticality: selectedCriticality.value,
-        notes: notesController.text.trim().isEmpty
-            ? null
-            : notesController.text.trim(),
-        createdAt: now,
-        updatedAt: now,
+        notes: notesController.text,
+        createdAt: asset?.createdAt,
       );
 
-      bool updated;
-      if (asset == null) {
-        updated = await context.read<AssetsCubit>().createAsset(newAsset);
-      } else {
-        updated = await context.read<AssetsCubit>().updateAsset(newAsset);
-      }
       if (updated && context.mounted) {
         Navigator.of(context).pop();
       }

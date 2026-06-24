@@ -181,11 +181,11 @@ void main() {
       );
     });
 
-    group('createAsset', () {
+    group('saveAsset', () {
       final tAsset = EntityFactory.makeAssetEntity();
 
       blocTest<AssetsCubit, AssetsState>(
-        'should emit loading, load assets, and show success toast when create succeeds',
+        'should call createAsset usecase, emit loading, and load assets when creation succeeds',
         build: () {
           when(
             () => mockCreateAsset.call(any()),
@@ -195,12 +195,34 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.createAsset(tAsset), isTrue),
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: null,
+              companyId: tAsset.companyId,
+              areaId: tAsset.areaId,
+              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
+              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              name: '${tAsset.name} ',
+              code: tAsset.code != null ? '${tAsset.code} ' : null,
+              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              model: tAsset.model != null ? '${tAsset.model} ' : null,
+              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              installDate: tAsset.installDate,
+              warrantyExpiration: tAsset.warrantyExpiration,
+              revisionForecast: tAsset.revisionForecast,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              notes: tAsset.notes != null ? '${tAsset.notes} ' : null,
+            ),
+            isTrue,
+          );
+        },
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.saving,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
@@ -209,25 +231,85 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateAsset.call(tAsset)).called(1);
+          verify(
+            () => mockCreateAsset.call(
+              any(
+                that: isA<AssetEntity>()
+                    .having((a) => a.companyId, 'companyId', tAsset.companyId)
+                    .having((a) => a.areaId, 'areaId', tAsset.areaId)
+                    .having((a) => a.name, 'name', tAsset.name.trim())
+                    .having(
+                      (a) => a.categoryId,
+                      'categoryId',
+                      tAsset.categoryId?.trim(),
+                    )
+                    .having(
+                      (a) => a.parentAssetId,
+                      'parentAssetId',
+                      tAsset.parentAssetId?.trim(),
+                    )
+                    .having((a) => a.code, 'code', tAsset.code?.trim())
+                    .having(
+                      (a) => a.manufacturer,
+                      'manufacturer',
+                      tAsset.manufacturer?.trim(),
+                    )
+                    .having((a) => a.model, 'model', tAsset.model?.trim())
+                    .having(
+                      (a) => a.serialNumber,
+                      'serialNumber',
+                      tAsset.serialNumber?.trim(),
+                    )
+                    .having((a) => a.status, 'status', tAsset.status)
+                    .having(
+                      (a) => a.criticality,
+                      'criticality',
+                      tAsset.criticality,
+                    )
+                    .having((a) => a.notes, 'notes', tAsset.notes?.trim()),
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<AssetsCubit, AssetsState>(
-        'should emit error and show failure toast when create fails',
+        'should call createAsset usecase and emit error when creation fails',
         build: () {
           when(
             () => mockCreateAsset.call(any()),
           ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.createAsset(tAsset), isFalse),
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: null,
+              companyId: tAsset.companyId,
+              areaId: tAsset.areaId,
+              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
+              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              name: '${tAsset.name} ',
+              code: tAsset.code != null ? '${tAsset.code} ' : null,
+              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              model: tAsset.model != null ? '${tAsset.model} ' : null,
+              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              installDate: tAsset.installDate,
+              warrantyExpiration: tAsset.warrantyExpiration,
+              revisionForecast: tAsset.revisionForecast,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              notes: tAsset.notes != null ? '${tAsset.notes} ' : null,
+            ),
+            isFalse,
+          );
+        },
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.saving,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
@@ -236,17 +318,13 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateAsset.call(tAsset)).called(1);
+          verify(() => mockCreateAsset.call(any())).called(1);
           verifyNever(() => mockGetAssets.call(any()));
         },
       );
-    });
-
-    group('updateAsset', () {
-      final tAsset = EntityFactory.makeAssetEntity();
 
       blocTest<AssetsCubit, AssetsState>(
-        'should emit loading, load assets, and show success toast when update succeeds',
+        'should call updateAsset usecase, emit saving, and load assets when update succeeds',
         build: () {
           when(
             () => mockUpdateAsset.call(any()),
@@ -256,12 +334,35 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.updateAsset(tAsset), isTrue),
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: tAsset.id,
+              companyId: tAsset.companyId,
+              areaId: tAsset.areaId,
+              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
+              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              name: '${tAsset.name} ',
+              code: tAsset.code != null ? '${tAsset.code} ' : null,
+              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              model: tAsset.model != null ? '${tAsset.model} ' : null,
+              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              installDate: tAsset.installDate,
+              warrantyExpiration: tAsset.warrantyExpiration,
+              revisionForecast: tAsset.revisionForecast,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              notes: tAsset.notes != null ? '${tAsset.notes} ' : null,
+              createdAt: tAsset.createdAt,
+            ),
+            isTrue,
+          );
+        },
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.saving,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
@@ -270,25 +371,88 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateAsset.call(tAsset)).called(1);
+          verify(
+            () => mockUpdateAsset.call(
+              any(
+                that: isA<AssetEntity>()
+                    .having(
+                      (a) => a.parentAssetId,
+                      'parentAssetId',
+                      tAsset.parentAssetId?.trim(),
+                    )
+                    .having(
+                      (a) => a.categoryId,
+                      'categoryId',
+                      tAsset.categoryId?.trim(),
+                    )
+                    .having((a) => a.id, 'id', tAsset.id)
+                    .having((a) => a.companyId, 'companyId', tAsset.companyId)
+                    .having((a) => a.areaId, 'areaId', tAsset.areaId)
+                    .having((a) => a.name, 'name', tAsset.name.trim())
+                    .having((a) => a.code, 'code', tAsset.code?.trim())
+                    .having(
+                      (a) => a.manufacturer,
+                      'manufacturer',
+                      tAsset.manufacturer?.trim(),
+                    )
+                    .having((a) => a.model, 'model', tAsset.model?.trim())
+                    .having(
+                      (a) => a.serialNumber,
+                      'serialNumber',
+                      tAsset.serialNumber?.trim(),
+                    )
+                    .having((a) => a.status, 'status', tAsset.status)
+                    .having(
+                      (a) => a.criticality,
+                      'criticality',
+                      tAsset.criticality,
+                    )
+                    .having((a) => a.notes, 'notes', tAsset.notes?.trim())
+                    .having((a) => a.createdAt, 'createdAt', tAsset.createdAt),
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<AssetsCubit, AssetsState>(
-        'should emit error and show failure toast when update fails',
+        'should call updateAsset usecase and emit error when update fails',
         build: () {
           when(
             () => mockUpdateAsset.call(any()),
           ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.updateAsset(tAsset), isFalse),
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: tAsset.id,
+              companyId: tAsset.companyId,
+              areaId: tAsset.areaId,
+              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
+              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              name: '${tAsset.name} ',
+              code: tAsset.code != null ? '${tAsset.code} ' : null,
+              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              model: tAsset.model != null ? '${tAsset.model} ' : null,
+              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              installDate: tAsset.installDate,
+              warrantyExpiration: tAsset.warrantyExpiration,
+              revisionForecast: tAsset.revisionForecast,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              notes: tAsset.notes != null ? '${tAsset.notes} ' : null,
+              createdAt: tAsset.createdAt,
+            ),
+            isFalse,
+          );
+        },
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            StateStatus.saving,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
@@ -297,7 +461,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateAsset.call(tAsset)).called(1);
+          verify(() => mockUpdateAsset.call(any())).called(1);
           verifyNever(() => mockGetAssets.call(any()));
         },
       );
