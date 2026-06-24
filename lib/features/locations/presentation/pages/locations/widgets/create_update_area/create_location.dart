@@ -14,7 +14,6 @@ import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validato
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:uuid/uuid.dart';
 
 class CreateLocation extends HookWidget {
   const CreateLocation({super.key, this.existingLocation});
@@ -63,53 +62,21 @@ class CreateLocation extends HookWidget {
       if (formKey.currentState?.validate() != true) return;
 
       final companyId = context.read<SessionCubit>().state.user.companyId;
-      final now = DateTime.now();
 
-      //TODO Add ViaCep methods to load the addresses
-      final location = LocationEntity(
-        id: existingLocation?.id ?? const Uuid().v4(), //TODO move it to cubit
-        companyId: companyId,
-        name: nameController.text.trim(),
-        postalCode:
-            cepController.text
-                .trim()
-                .isEmpty //TODO treat all of it in the Cubit
-            ? null
-            : cepController.text.trim(),
-        address: addressController.text.trim().isEmpty
-            ? null
-            : addressController.text.trim(),
-        number: numberController.text.trim().isEmpty
-            ? null
-            : numberController.text.trim(),
-        complement: complementController.text.trim().isEmpty
-            ? null
-            : complementController.text.trim(),
-        neighborhood: neighborhoodController.text.trim().isEmpty
-            ? null
-            : neighborhoodController.text.trim(),
-        city: cityController.text.trim().isEmpty
-            ? null
-            : cityController.text.trim(),
-        state: stateController.text.trim().isEmpty
-            ? null
-            : stateController.text.trim(),
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      );
+      final succeeds = await context.read<LocationsCubit>().saveLocation(
+            id: existingLocation?.id,
+            companyId: companyId,
+            name: nameController.text,
+            postalCode: cepController.text,
+            address: addressController.text,
+            number: numberController.text,
+            complement: complementController.text,
+            neighborhood: neighborhoodController.text,
+            city: cityController.text,
+            addressState: stateController.text,
+            createdAt: existingLocation?.createdAt,
+          );
 
-      bool succeeds;
-
-      if (existingLocation == null) {
-        succeeds = await context.read<LocationsCubit>().createLocation(
-          location,
-        );
-      } else {
-        succeeds = await context.read<LocationsCubit>().updateLocation(
-          location,
-        );
-      }
       if (succeeds && context.mounted) {
         Navigator.of(context).pop();
       }

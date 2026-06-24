@@ -250,11 +250,11 @@ void main() {
       );
     });
 
-    group('createLocation', () {
+    group('saveLocation', () {
       final tLocation = EntityFactory.makeLocationEntity();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading and load locations when creation succeeds',
+        'should call createLocation usecase, emit saving and load locations when creation succeeds',
         build: () {
           when(
             () => mockCreateLocation.call(any()),
@@ -268,7 +268,21 @@ void main() {
           return cubit;
         },
         act: (cubit) async {
-          expect(await cubit.createLocation(tLocation), isTrue);
+          expect(
+            await cubit.saveLocation(
+              id: null,
+              companyId: tLocation.companyId,
+              name: '${tLocation.name} ',
+              postalCode: '${tLocation.postalCode} ',
+              address: '${tLocation.address} ',
+              number: '${tLocation.number} ',
+              complement: '${tLocation.complement} ',
+              neighborhood: '${tLocation.neighborhood} ',
+              city: '${tLocation.city} ',
+              addressState: '${tLocation.state} ',
+            ),
+            isTrue,
+          );
         },
         expect: () => [
           isA<LocationsState>().having(
@@ -283,13 +297,49 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateLocation.call(tLocation)).called(1);
+          verify(
+            () => mockCreateLocation.call(
+              any(
+                that: isA<LocationEntity>()
+                    .having(
+                      (l) => l.companyId,
+                      'companyId',
+                      tLocation.companyId,
+                    )
+                    .having((l) => l.name, 'name', tLocation.name.trim())
+                    .having(
+                      (l) => l.postalCode,
+                      'postalCode',
+                      tLocation.postalCode?.trim(),
+                    )
+                    .having(
+                      (l) => l.address,
+                      'address',
+                      tLocation.address?.trim(),
+                    )
+                    .having((l) => l.number, 'number', tLocation.number?.trim())
+                    .having(
+                      (l) => l.complement,
+                      'complement',
+                      tLocation.complement?.trim(),
+                    )
+                    .having(
+                      (l) => l.neighborhood,
+                      'neighborhood',
+                      tLocation.neighborhood?.trim(),
+                    )
+                    .having((l) => l.city, 'city', tLocation.city?.trim())
+                    .having((l) => l.state, 'state', tLocation.state?.trim())
+                    .having((l) => l.isActive, 'isActive', true),
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit error when creation fails',
+        'should call createLocation usecase and emit error when creation fails',
         build: () {
           when(
             () => mockCreateLocation.call(any()),
@@ -297,7 +347,21 @@ void main() {
           return cubit;
         },
         act: (cubit) async {
-          expect(await cubit.createLocation(tLocation), isFalse);
+          expect(
+            await cubit.saveLocation(
+              id: null,
+              companyId: tLocation.companyId,
+              name: tLocation.name,
+              postalCode: tLocation.postalCode,
+              address: tLocation.address,
+              number: tLocation.number,
+              complement: tLocation.complement,
+              neighborhood: tLocation.neighborhood,
+              city: tLocation.city,
+              addressState: tLocation.state,
+            ),
+            isFalse,
+          );
         },
         expect: () => [
           isA<LocationsState>().having(
@@ -312,17 +376,13 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateLocation.call(tLocation)).called(1);
+          verify(() => mockCreateLocation.call(any())).called(1);
           verifyNever(() => mockGetLocations.call(any()));
         },
       );
-    });
-
-    group('updateLocation', () {
-      final tLocation = EntityFactory.makeLocationEntity();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading and load locations when update succeeds',
+        'should call updateLocation usecase and emit loading and load locations when update succeeds',
         build: () {
           when(
             () => mockUpdateLocation.call(any()),
@@ -335,8 +395,24 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async =>
-            expect(await cubit.updateLocation(tLocation), isTrue),
+        act: (cubit) async {
+          expect(
+            await cubit.saveLocation(
+              id: tLocation.id,
+              companyId: tLocation.companyId,
+              name: '${tLocation.name} ',
+              postalCode: '${tLocation.postalCode} ',
+              address: '${tLocation.address} ',
+              number: '${tLocation.number} ',
+              complement: '${tLocation.complement} ',
+              neighborhood: '${tLocation.neighborhood} ',
+              city: '${tLocation.city} ',
+              addressState: '${tLocation.state} ',
+              createdAt: tLocation.createdAt,
+            ),
+            isTrue,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -350,21 +426,79 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateLocation.call(tLocation)).called(1);
+          verify(
+            () => mockUpdateLocation.call(
+              any(
+                that: isA<LocationEntity>()
+                    .having((l) => l.id, 'id', tLocation.id)
+                    .having(
+                      (l) => l.companyId,
+                      'companyId',
+                      tLocation.companyId,
+                    )
+                    .having((l) => l.name, 'name', tLocation.name.trim())
+                    .having(
+                      (l) => l.postalCode,
+                      'postalCode',
+                      tLocation.postalCode?.trim(),
+                    )
+                    .having(
+                      (l) => l.address,
+                      'address',
+                      tLocation.address?.trim(),
+                    )
+                    .having((l) => l.number, 'number', tLocation.number?.trim())
+                    .having(
+                      (l) => l.complement,
+                      'complement',
+                      tLocation.complement?.trim(),
+                    )
+                    .having(
+                      (l) => l.neighborhood,
+                      'neighborhood',
+                      tLocation.neighborhood?.trim(),
+                    )
+                    .having((l) => l.city, 'city', tLocation.city?.trim())
+                    .having((l) => l.state, 'state', tLocation.state?.trim())
+                    .having((l) => l.isActive, 'isActive', true)
+                    .having(
+                      (l) => l.createdAt,
+                      'createdAt',
+                      tLocation.createdAt,
+                    ),
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit error when update fails',
+        'should call updateLocation usecase and emit error when update fails',
         build: () {
           when(
             () => mockUpdateLocation.call(any()),
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) async =>
-            expect(await cubit.updateLocation(tLocation), isFalse),
+        act: (cubit) async {
+          expect(
+            await cubit.saveLocation(
+              id: tLocation.id,
+              companyId: tLocation.companyId,
+              name: tLocation.name,
+              postalCode: tLocation.postalCode,
+              address: tLocation.address,
+              number: tLocation.number,
+              complement: tLocation.complement,
+              neighborhood: tLocation.neighborhood,
+              city: tLocation.city,
+              addressState: tLocation.state,
+              createdAt: tLocation.createdAt,
+            ),
+            isFalse,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -378,7 +512,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateLocation.call(tLocation)).called(1);
+          verify(() => mockUpdateLocation.call(any())).called(1);
           verifyNever(() => mockGetLocations.call(any()));
         },
       );

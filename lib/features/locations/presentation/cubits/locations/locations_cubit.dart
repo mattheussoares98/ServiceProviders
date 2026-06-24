@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/locations/domain/entities/location_e
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:uuid/uuid.dart';
 
 part 'locations_state.dart';
 
@@ -86,26 +87,50 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
-  Future<bool> createLocation(LocationEntity location) async {
+  Future<bool> saveLocation({
+    required String? id,
+    required String companyId,
+    required String name,
+    String? postalCode,
+    String? address,
+    String? number,
+    String? complement,
+    String? neighborhood,
+    String? city,
+    String? addressState,
+    DateTime? createdAt,
+  }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final dataState = await _useCases.createLocation(location);
-    if (isClosed) return false;
 
-    if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadLocationsAndAreas(showLoading: false);
-      if (isClosed) return false;
-      emit(state.copyWith(status: StateStatus.loaded));
-      return true;
-    } else {
-      emit(state.copyWith(status: StateStatus.error));
-      showDataStateToast(dataState);
-      return false;
-    }
-  }
+    final isUpdate = id != null;
+    final now = DateTime.now();
 
-  Future<bool> updateLocation(LocationEntity location) async {
-    emit(state.copyWith(status: StateStatus.saving));
-    final dataState = await _useCases.updateLocation(location);
+    final location = LocationEntity(
+      id: id ?? const Uuid().v4(),
+      companyId: companyId,
+      name: name.trim(),
+      postalCode: postalCode?.trim().isEmpty == true
+          ? null
+          : postalCode?.trim(),
+      address: address?.trim().isEmpty == true ? null : address?.trim(),
+      number: number?.trim().isEmpty == true ? null : number?.trim(),
+      complement: complement?.trim().isEmpty == true
+          ? null
+          : complement?.trim(),
+      neighborhood: neighborhood?.trim().isEmpty == true
+          ? null
+          : neighborhood?.trim(),
+      city: city?.trim().isEmpty == true ? null : city?.trim(),
+      state: addressState?.trim().isEmpty == true ? null : addressState?.trim(),
+      isActive: true,
+      createdAt: createdAt ?? now,
+      updatedAt: now,
+    );
+
+    final dataState = isUpdate
+        ? await _useCases.updateLocation(location)
+        : await _useCases.createLocation(location);
+
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
