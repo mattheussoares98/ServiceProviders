@@ -123,4 +123,9 @@ extension StringExtension on String {
       return this;
     }
   }
+
+  String? trimToNull() {
+    final trimmed = trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
 }
