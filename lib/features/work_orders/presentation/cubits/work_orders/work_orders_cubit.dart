@@ -18,7 +18,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   final WorkOrdersCubitUseCases _useCases;
 
-  Future<void> loadWorkOrdersAndChangeRequests() async {
+  Future<void> loadWorkOrdersAndChangeRequests({
+    bool showLoading = true,
+  }) async {
     final user = _useCases.getSessionUser();
     if (user.companyId.isEmpty) {
       showErrorToast(
@@ -34,7 +36,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return;
     }
 
-    emit(state.copyWith(status: StateStatus.loading));
+    if (showLoading) {
+      emit(state.copyWith(status: StateStatus.loading));
+    }
 
     final results = await Future.wait([
       _useCases.getWorkOrders(user.companyId),

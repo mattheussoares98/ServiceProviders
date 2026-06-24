@@ -153,6 +153,38 @@ void main() {
           ).called(1);
         },
       );
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should not emit loading when passing false value',
+        build: () {
+          final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+          final tChangeRequests =
+              EntityFactory.makeWorkOrderChangeRequestEntityList();
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
+          when(
+            () => mockGetChangeRequests.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tChangeRequests));
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.loadWorkOrdersAndChangeRequests(showLoading: false),
+        expect: () => [
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.workOrders, 'workOrders', isNotEmpty)
+              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGetWorkOrders.call(tUserProfile.companyId),
+          ).called(1);
+          verify(
+            () => mockGetChangeRequests.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should emit loading and error when data load fails',
