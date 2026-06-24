@@ -77,27 +77,19 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       id: id ?? const Uuid().v4(),
       companyId: companyId,
       areaId: areaId,
-      categoryId: categoryId?.trim().isEmpty == true
-          ? null
-          : categoryId?.trim(),
-      parentAssetId: parentAssetId?.trim().isEmpty == true
-          ? null
-          : parentAssetId?.trim(),
+      categoryId: categoryId?.trimToNull(),
+      parentAssetId: parentAssetId?.trimToNull(),
       name: name.trim(),
-      code: code?.trim().isEmpty == true ? null : code?.trim(),
-      manufacturer: manufacturer?.trim().isEmpty == true
-          ? null
-          : manufacturer?.trim(),
-      model: model?.trim().isEmpty == true ? null : model?.trim(),
-      serialNumber: serialNumber?.trim().isEmpty == true
-          ? null
-          : serialNumber?.trim(),
+      code: code?.trimToNull(),
+      manufacturer: manufacturer?.trimToNull(),
+      model: model?.trimToNull(),
+      serialNumber: serialNumber?.trimToNull(),
       installDate: installDate,
       warrantyExpiration: warrantyExpiration,
       revisionForecast: revisionForecast,
       status: status,
       criticality: criticality,
-      notes: notes?.trim().isEmpty == true ? null : notes?.trim(),
+      notes: notes?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
     );

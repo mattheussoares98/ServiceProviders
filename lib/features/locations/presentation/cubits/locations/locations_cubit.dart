@@ -109,19 +109,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       id: id ?? const Uuid().v4(),
       companyId: companyId,
       name: name.trim(),
-      postalCode: postalCode?.trim().isEmpty == true
-          ? null
-          : postalCode?.trim(),
-      address: address?.trim().isEmpty == true ? null : address?.trim(),
-      number: number?.trim().isEmpty == true ? null : number?.trim(),
-      complement: complement?.trim().isEmpty == true
-          ? null
-          : complement?.trim(),
-      neighborhood: neighborhood?.trim().isEmpty == true
-          ? null
-          : neighborhood?.trim(),
-      city: city?.trim().isEmpty == true ? null : city?.trim(),
-      state: addressState?.trim().isEmpty == true ? null : addressState?.trim(),
+      postalCode: postalCode?.trimToNull(),
+      address: address?.trimToNull(),
+      number: number?.trimToNull(),
+      complement: complement?.trimToNull(),
+      neighborhood: neighborhood?.trimToNull(),
+      city: city?.trimToNull(),
+      state: addressState?.trimToNull(),
       isActive: true,
       createdAt: createdAt ?? now,
       updatedAt: now,
@@ -196,8 +190,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       locationId: locationId,
       companyId: companyId,
       name: name.trim(),
-      floor: floor?.trim().isEmpty == true ? null : floor?.trim(),
-      description: description?.trim().isEmpty == true ? null : description?.trim(),
+      floor: floor?.trimToNull(),
+      description: description?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
     );
