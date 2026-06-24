@@ -13,7 +13,6 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:uuid/uuid.dart';
 
 class CreateUpdateAreaDialog extends HookWidget {
   const CreateUpdateAreaDialog({
@@ -43,27 +42,16 @@ class CreateUpdateAreaDialog extends HookWidget {
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
-      final newArea = AreaEntity(
-        id: area?.id ?? const Uuid().v4(),
-        locationId: locationId,
-        companyId: companyId,
-        name: nameController.text.trim(),
-        floor: floorController.text.trim().isEmpty
-            ? null
-            : floorController.text.trim(),
-        description: descController.text.trim().isEmpty
-            ? null
-            : descController.text.trim(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      final succeeds = await context.read<LocationsCubit>().saveArea(
+            id: area?.id,
+            locationId: locationId,
+            companyId: companyId,
+            name: nameController.text,
+            floor: floorController.text,
+            description: descController.text,
+            createdAt: area?.createdAt,
+          );
 
-      bool succeeds = false;
-      if (area == null) {
-        succeeds = await context.read<LocationsCubit>().createArea(newArea);
-      } else {
-        succeeds = await context.read<LocationsCubit>().updateArea(newArea);
-      }
       if (succeeds && context.mounted) {
         Navigator.of(context).pop();
       }

@@ -581,11 +581,11 @@ void main() {
       );
     });
 
-    group('createArea', () {
+    group('saveArea', () {
       final tArea = EntityFactory.makeAreaEntity();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading, loaded, and load areas when create succeeds',
+        'should call createArea usecase, emit saving, and load areas when creation succeeds',
         build: () {
           when(
             () => mockCreateArea.call(any()),
@@ -595,7 +595,19 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.createArea(tArea), isTrue),
+        act: (cubit) async {
+          expect(
+            await cubit.saveArea(
+              id: null,
+              locationId: tArea.locationId,
+              companyId: tArea.companyId,
+              name: '${tArea.name} ',
+              floor: '${tArea.floor} ',
+              description: '${tArea.description} ',
+            ),
+            isTrue,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -609,20 +621,39 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateArea.call(tArea)).called(1);
+          verify(() => mockCreateArea.call(any(
+                that: isA<AreaEntity>()
+                    .having((a) => a.locationId, 'locationId', tArea.locationId)
+                    .having((a) => a.companyId, 'companyId', tArea.companyId)
+                    .having((a) => a.name, 'name', tArea.name.trim())
+                    .having((a) => a.floor, 'floor', tArea.floor?.trim())
+                    .having((a) => a.description, 'description', tArea.description?.trim()),
+              ))).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit error when create fails',
+        'should call createArea usecase and emit error when creation fails',
         build: () {
           when(
             () => mockCreateArea.call(any()),
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.createArea(tArea), isFalse),
+        act: (cubit) async {
+          expect(
+            await cubit.saveArea(
+              id: null,
+              locationId: tArea.locationId,
+              companyId: tArea.companyId,
+              name: '${tArea.name} ',
+              floor: '${tArea.floor} ',
+              description: '${tArea.description} ',
+            ),
+            isFalse,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -636,17 +667,13 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateArea.call(tArea)).called(1);
+          verify(() => mockCreateArea.call(any())).called(1);
           verifyNever(() => mockGetAreas.call(any()));
         },
       );
-    });
-
-    group('updateArea', () {
-      final tArea = EntityFactory.makeAreaEntity();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading, loaded, and load areas when update succeeds',
+        'should call updateArea usecase, emit saving, and load areas when update succeeds',
         build: () {
           when(
             () => mockUpdateArea.call(any()),
@@ -656,7 +683,20 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.updateArea(tArea), isTrue),
+        act: (cubit) async {
+          expect(
+            await cubit.saveArea(
+              id: tArea.id,
+              locationId: tArea.locationId,
+              companyId: tArea.companyId,
+              name: '${tArea.name} ',
+              floor: '${tArea.floor} ',
+              description: '${tArea.description} ',
+              createdAt: tArea.createdAt,
+            ),
+            isTrue,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -670,20 +710,42 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateArea.call(tArea)).called(1);
+          verify(() => mockUpdateArea.call(any(
+                that: isA<AreaEntity>()
+                    .having((a) => a.id, 'id', tArea.id)
+                    .having((a) => a.locationId, 'locationId', tArea.locationId)
+                    .having((a) => a.companyId, 'companyId', tArea.companyId)
+                    .having((a) => a.name, 'name', tArea.name.trim())
+                    .having((a) => a.floor, 'floor', tArea.floor?.trim())
+                    .having((a) => a.description, 'description', tArea.description?.trim())
+                    .having((a) => a.createdAt, 'createdAt', tArea.createdAt),
+              ))).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit error when update fails',
+        'should call updateArea usecase and emit error when update fails',
         build: () {
           when(
             () => mockUpdateArea.call(any()),
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.updateArea(tArea), isFalse),
+        act: (cubit) async {
+          expect(
+            await cubit.saveArea(
+              id: tArea.id,
+              locationId: tArea.locationId,
+              companyId: tArea.companyId,
+              name: '${tArea.name} ',
+              floor: '${tArea.floor} ',
+              description: '${tArea.description} ',
+              createdAt: tArea.createdAt,
+            ),
+            isFalse,
+          );
+        },
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
@@ -697,7 +759,7 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateArea.call(tArea)).called(1);
+          verify(() => mockUpdateArea.call(any())).called(1);
           verifyNever(() => mockGetAreas.call(any()));
         },
       );

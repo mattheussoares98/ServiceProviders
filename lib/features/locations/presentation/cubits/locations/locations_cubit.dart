@@ -177,26 +177,35 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     emit(state.copyWith(deletingIds: {...state.deletingIds}..remove(id)));
   }
 
-  Future<bool> createArea(AreaEntity area) async {
+  Future<bool> saveArea({
+    required String? id,
+    required String locationId,
+    required String companyId,
+    required String name,
+    String? floor,
+    String? description,
+    DateTime? createdAt,
+  }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final dataState = await _useCases.createArea(area);
-    if (isClosed) return false;
 
-    if (dataState is SuccessState<bool> && dataState.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
-      final user = _useCases.getSessionUser();
-      await loadAreas(user.companyId);
-      return true;
-    } else {
-      emit(state.copyWith(status: StateStatus.error));
-      showDataStateToast(dataState);
-      return false;
-    }
-  }
+    final isUpdate = id != null;
+    final now = DateTime.now();
 
-  Future<bool> updateArea(AreaEntity area) async {
-    emit(state.copyWith(status: StateStatus.saving));
-    final dataState = await _useCases.updateArea(area);
+    final area = AreaEntity(
+      id: id ?? const Uuid().v4(),
+      locationId: locationId,
+      companyId: companyId,
+      name: name.trim(),
+      floor: floor?.trim().isEmpty == true ? null : floor?.trim(),
+      description: description?.trim().isEmpty == true ? null : description?.trim(),
+      createdAt: createdAt ?? now,
+      updatedAt: now,
+    );
+
+    final dataState = isUpdate
+        ? await _useCases.updateArea(area)
+        : await _useCases.createArea(area);
+
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
