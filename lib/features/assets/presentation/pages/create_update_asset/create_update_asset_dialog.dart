@@ -14,7 +14,6 @@ import 'package:clean_architecture/features/assets/presentation/pages/create_upd
 import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -134,11 +133,8 @@ class CreateAssetDialog extends HookWidget {
       if (formKey.currentState?.validate() != true) return;
       if (selectedAreaId.value == null) return;
 
-      final companyId = context.read<SessionCubit>().state.user.companyId;
-
       final updated = await context.read<AssetsCubit>().saveAsset(
         id: asset?.id,
-        companyId: companyId,
         areaId: selectedAreaId.value!,
         categoryId: selectedCategoryId.value,
         parentAssetId: selectedParentAssetId.value,

@@ -51,7 +51,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
   Future<bool> saveAsset({
     required String? id,
-    required String companyId,
     required String areaId,
     String? categoryId,
     String? parentAssetId,
@@ -72,6 +71,15 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
     final isUpdate = id != null;
     final now = DateTime.now();
+    final companyId = _useCases.getSessionUser().companyId;
+
+    if (companyId.isEmpty) {
+      emit(state.copyWith(status: StateStatus.error));
+      showErrorToast(
+        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
+      );
+      return false;
+    }
 
     final asset = AssetEntity(
       id: id ?? const Uuid().v4(),

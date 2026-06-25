@@ -199,15 +199,22 @@ void main() {
           expect(
             await cubit.saveAsset(
               id: null,
-              companyId: tAsset.companyId,
               areaId: tAsset.areaId,
-              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
-              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              categoryId: tAsset.categoryId != null
+                  ? '${tAsset.categoryId} '
+                  : null,
+              parentAssetId: tAsset.parentAssetId != null
+                  ? '${tAsset.parentAssetId} '
+                  : null,
               name: '${tAsset.name} ',
               code: tAsset.code != null ? '${tAsset.code} ' : null,
-              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              manufacturer: tAsset.manufacturer != null
+                  ? '${tAsset.manufacturer} '
+                  : null,
               model: tAsset.model != null ? '${tAsset.model} ' : null,
-              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              serialNumber: tAsset.serialNumber != null
+                  ? '${tAsset.serialNumber} '
+                  : null,
               installDate: tAsset.installDate,
               warrantyExpiration: tAsset.warrantyExpiration,
               revisionForecast: tAsset.revisionForecast,
@@ -235,7 +242,11 @@ void main() {
             () => mockCreateAsset.call(
               any(
                 that: isA<AssetEntity>()
-                    .having((a) => a.companyId, 'companyId', tAsset.companyId)
+                    .having(
+                      (a) => a.companyId,
+                      'companyId',
+                      tUserProfile.companyId,
+                    )
                     .having((a) => a.areaId, 'areaId', tAsset.areaId)
                     .having((a) => a.name, 'name', tAsset.name.trim())
                     .having(
@@ -286,15 +297,22 @@ void main() {
           expect(
             await cubit.saveAsset(
               id: null,
-              companyId: tAsset.companyId,
               areaId: tAsset.areaId,
-              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
-              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              categoryId: tAsset.categoryId != null
+                  ? '${tAsset.categoryId} '
+                  : null,
+              parentAssetId: tAsset.parentAssetId != null
+                  ? '${tAsset.parentAssetId} '
+                  : null,
               name: '${tAsset.name} ',
               code: tAsset.code != null ? '${tAsset.code} ' : null,
-              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              manufacturer: tAsset.manufacturer != null
+                  ? '${tAsset.manufacturer} '
+                  : null,
               model: tAsset.model != null ? '${tAsset.model} ' : null,
-              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              serialNumber: tAsset.serialNumber != null
+                  ? '${tAsset.serialNumber} '
+                  : null,
               installDate: tAsset.installDate,
               warrantyExpiration: tAsset.warrantyExpiration,
               revisionForecast: tAsset.revisionForecast,
@@ -338,15 +356,22 @@ void main() {
           expect(
             await cubit.saveAsset(
               id: tAsset.id,
-              companyId: tAsset.companyId,
               areaId: tAsset.areaId,
-              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
-              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              categoryId: tAsset.categoryId != null
+                  ? '${tAsset.categoryId} '
+                  : null,
+              parentAssetId: tAsset.parentAssetId != null
+                  ? '${tAsset.parentAssetId} '
+                  : null,
               name: '${tAsset.name} ',
               code: tAsset.code != null ? '${tAsset.code} ' : null,
-              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              manufacturer: tAsset.manufacturer != null
+                  ? '${tAsset.manufacturer} '
+                  : null,
               model: tAsset.model != null ? '${tAsset.model} ' : null,
-              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              serialNumber: tAsset.serialNumber != null
+                  ? '${tAsset.serialNumber} '
+                  : null,
               installDate: tAsset.installDate,
               warrantyExpiration: tAsset.warrantyExpiration,
               revisionForecast: tAsset.revisionForecast,
@@ -376,6 +401,11 @@ void main() {
               any(
                 that: isA<AssetEntity>()
                     .having(
+                      (a) => a.companyId,
+                      'companyId',
+                      tUserProfile.companyId,
+                    )
+                    .having(
                       (a) => a.parentAssetId,
                       'parentAssetId',
                       tAsset.parentAssetId?.trim(),
@@ -386,7 +416,6 @@ void main() {
                       tAsset.categoryId?.trim(),
                     )
                     .having((a) => a.id, 'id', tAsset.id)
-                    .having((a) => a.companyId, 'companyId', tAsset.companyId)
                     .having((a) => a.areaId, 'areaId', tAsset.areaId)
                     .having((a) => a.name, 'name', tAsset.name.trim())
                     .having((a) => a.code, 'code', tAsset.code?.trim())
@@ -428,15 +457,22 @@ void main() {
           expect(
             await cubit.saveAsset(
               id: tAsset.id,
-              companyId: tAsset.companyId,
               areaId: tAsset.areaId,
-              categoryId: tAsset.categoryId != null ? '${tAsset.categoryId} ' : null,
-              parentAssetId: tAsset.parentAssetId != null ? '${tAsset.parentAssetId} ' : null,
+              categoryId: tAsset.categoryId != null
+                  ? '${tAsset.categoryId} '
+                  : null,
+              parentAssetId: tAsset.parentAssetId != null
+                  ? '${tAsset.parentAssetId} '
+                  : null,
               name: '${tAsset.name} ',
               code: tAsset.code != null ? '${tAsset.code} ' : null,
-              manufacturer: tAsset.manufacturer != null ? '${tAsset.manufacturer} ' : null,
+              manufacturer: tAsset.manufacturer != null
+                  ? '${tAsset.manufacturer} '
+                  : null,
               model: tAsset.model != null ? '${tAsset.model} ' : null,
-              serialNumber: tAsset.serialNumber != null ? '${tAsset.serialNumber} ' : null,
+              serialNumber: tAsset.serialNumber != null
+                  ? '${tAsset.serialNumber} '
+                  : null,
               installDate: tAsset.installDate,
               warrantyExpiration: tAsset.warrantyExpiration,
               revisionForecast: tAsset.revisionForecast,
@@ -462,6 +498,44 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockUpdateAsset.call(any())).called(1);
+          verifyNever(() => mockGetAssets.call(any()));
+        },
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'should emit error and return false when companyId is empty on saveAsset',
+        build: () {
+          final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
+          when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: tAsset.id,
+              areaId: tAsset.areaId,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              name: tAsset.name,
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.error,
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateAsset.call(any()));
+          verifyNever(() => mockUpdateAsset.call(any()));
           verifyNever(() => mockGetAssets.call(any()));
         },
       );
