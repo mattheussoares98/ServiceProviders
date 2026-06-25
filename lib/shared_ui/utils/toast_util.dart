@@ -23,6 +23,7 @@ abstract interface class ToastUtil {
   );
 
   static void showSuccess(String message, {Duration? duration}) {
+    InteractiveToast.closeAllToast();
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
       title: BaseText(message, color: Colors.black),
@@ -42,6 +43,7 @@ abstract interface class ToastUtil {
   }
 
   static void showError(String message, {Duration? duration}) {
+    InteractiveToast.closeAllToast();
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
       title: BaseText(message, color: AppColors.red600),
@@ -62,6 +64,7 @@ abstract interface class ToastUtil {
 
   /// Shows success or error message based on success and failure state
   static void showMessage<T>(DataState<T> dataState, {String message = ''}) {
+    InteractiveToast.closeAllToast();
     if (dataState is! SuccessState) {
       showError(dataState.message!);
     } else if (message.isNotEmpty) {
