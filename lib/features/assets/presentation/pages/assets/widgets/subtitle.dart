@@ -1,5 +1,5 @@
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/extensions.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/create_update_asset/extensions.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';

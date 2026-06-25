@@ -3,7 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/asset_card.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/create_update_asset/create_update_asset_dialog.dart';
+import 'package:clean_architecture/features/assets/presentation/pages/create_update_asset/create_update_asset_dialog.dart';
 import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
