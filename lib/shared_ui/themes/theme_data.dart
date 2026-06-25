@@ -182,3 +182,9 @@ BottomNavigationBarThemeData get darkBottomNavigationBarTheme =>
 
 CardThemeData get cardTheme =>
     const CardThemeData(margin: EdgeInsets.symmetric(vertical: Sizes.p4));
+
+CardThemeData get darkCardTheme => const CardThemeData(
+  margin: EdgeInsets.symmetric(vertical: Sizes.p4),
+  color: AppColors.fadeLight,
+  elevation: 0,
+);

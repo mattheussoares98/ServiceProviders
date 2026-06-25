@@ -42,5 +42,5 @@ ThemeData darkTheme = ThemeData(
   listTileTheme: listTileThemeData,
   bottomNavigationBarTheme: darkBottomNavigationBarTheme,
   expansionTileTheme: darkExpansionTileThemeData,
-  cardTheme: cardTheme,
+  cardTheme: darkCardTheme,
 );
