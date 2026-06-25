@@ -17,16 +17,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class CleanArchitectureSample extends StatefulWidget {
-  const CleanArchitectureSample({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
 
   @override
-  State<CleanArchitectureSample> createState() =>
-      _CleanArchitectureSampleState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class _CleanArchitectureSampleState extends State<CleanArchitectureSample>
-    with WidgetsBindingObserver {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late final ScreenObserverCubit _screenObserverCubit;
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
   late final ConfigurationsCubit _configurationsCubit;
