@@ -37,7 +37,7 @@ class LocationsPage extends StatelessWidget {
         ),
         actions: [
           BlocSelector<LocationsCubit, LocationsState, bool>(
-            selector: (state) => state.errorMessage?.isNotEmpty ?? true,
+            selector: (state) => state.errorMessage?.isNotEmpty ?? false,
             builder: (context, hasError) {
               return BaseIconButton(
                 onPressed: hasError
