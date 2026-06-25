@@ -24,6 +24,7 @@ import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,10 @@ class CreateAssetDialog extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    observeLoading([context.read<AssetsCubit>()]);
+    observeLoading(
+      [context.read<AssetsCubit>()],
+      statuses: {StateStatus.saving},
+    );
 
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context
@@ -102,13 +106,21 @@ class CreateAssetDialog extends HookWidget {
     );
     final notesController = useTextEditingController(text: asset?.notes);
 
-    final selectedLocationId = useState<String?>(null);
-    final selectedAreaId = useState<String?>(null);
-    final selectedCategoryId = useState<String?>(null);
-    final selectedParentAssetId = useState<String?>(null);
-    final selectedStatus = useState<AssetStatus>(AssetStatus.active);
+    final locationId = context.select<LocationsCubit, String?>(
+      (cubit) => cubit.state.allAreas
+          .firstWhereOrNull((e) => e.id == asset?.areaId)
+          ?.locationId,
+    );
+
+    final selectedLocationId = useState<String?>(locationId);
+    final selectedAreaId = useState<String?>(asset?.areaId);
+    final selectedCategoryId = useState<String?>(asset?.categoryId);
+    final selectedParentAssetId = useState<String?>(asset?.parentAssetId);
+    final selectedStatus = useState<AssetStatus>(
+      asset?.status ?? AssetStatus.active,
+    );
     final selectedCriticality = useState<AssetCriticality>(
-      AssetCriticality.medium,
+      asset?.criticality ?? AssetCriticality.medium,
     );
 
     final nameFocusNode = useFocusNode();
@@ -306,7 +318,7 @@ class CreateAssetDialog extends HookWidget {
                   PrimaryButton(
                     onTap: submit,
                     width: Sizes.p120,
-                    text: 'Criar'.hardcoded,
+                    text: 'Salvar'.hardcoded,
                   ),
                 ],
               ),
