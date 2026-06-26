@@ -172,13 +172,16 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: [tCategory]));
           return cubit;
         },
-        act: (cubit) => cubit.saveCategory(
-          id: null,
-          name: tCategory.name,
-          description: tCategory.description,
-          color: tCategory.color,
-          createdAt: tCategory.createdAt,
-        ),
+        act: (cubit) async {
+          final result = await cubit.saveCategory(
+            id: null,
+            name: tCategory.name,
+            description: tCategory.description,
+            color: tCategory.color,
+            createdAt: tCategory.createdAt,
+          );
+          expect(result, isTrue);
+        },
         verify: (_) {
           final captured =
               verify(
@@ -215,13 +218,16 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: [tCategory]));
           return cubit;
         },
-        act: (cubit) => cubit.saveCategory(
-          id: tCategory.id,
-          name: tCategory.name,
-          description: tCategory.description,
-          color: tCategory.color,
-          createdAt: tCategory.createdAt,
-        ),
+        act: (cubit) async {
+          final result = await cubit.saveCategory(
+            id: tCategory.id,
+            name: tCategory.name,
+            description: tCategory.description,
+            color: tCategory.color,
+            createdAt: tCategory.createdAt,
+          );
+          expect(result, isTrue);
+        },
         verify: (_) {
           verify(
             () => mockUpdateCategory.call(
@@ -252,7 +258,13 @@ void main() {
           ).thenReturn(tUserProfile.copyWith(companyId: ''));
           return cubit;
         },
-        act: (cubit) => cubit.saveCategory(id: null, name: tCategory.name),
+        act: (cubit) async {
+          final result = await cubit.saveCategory(
+            id: null,
+            name: tCategory.name,
+          );
+          expect(result, isFalse);
+        },
         expect: () => [
           isA<CategoriesState>().having(
             (s) => s.status,
