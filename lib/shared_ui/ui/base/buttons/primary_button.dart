@@ -71,7 +71,11 @@ class PrimaryButton extends HookWidget {
     if (platformIcon != null && !effectiveLoading) {
       childWidget = Row(
         mainAxisSize: MainAxisSize.min,
-        children: [platformIcon!, gapW8, childWidget],
+        children: [
+          platformIcon!,
+          gapW8,
+          Flexible(child: childWidget),
+        ],
       );
     }
 
