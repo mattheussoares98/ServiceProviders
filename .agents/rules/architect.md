@@ -150,3 +150,4 @@ Never hardcode URLs. Always use `AppConfig.apiBaseUrl`.
 - ❌ Never run build_runner commands — watch mode is already active
 - ❌ Never implement UI — delegate to UI Expert Agent ([ui.md](file:/.agents/rules/ui.md))
 - ❌ Never implement business logic/data sources — delegate to Feature Agent ([feature.md](file:/.agents/rules/feature.md))
+- ❌ Never forget to register a new feature or domain resource in the `ResourceType` enum in `lib/features/users/domain/entities/permission.dart` if it requires role-based permission control.

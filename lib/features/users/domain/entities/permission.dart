@@ -6,7 +6,10 @@ enum ResourceType {
   locations('locations'),
   reports('reports'),
   attachments('attachments'),
-  checklists('checklists');
+  checklists('checklists'),
+  maintenancePlans('maintenance_plans'),
+  users('users'),
+  categories('categories');
 
   const ResourceType(this.code);
   final String code;
