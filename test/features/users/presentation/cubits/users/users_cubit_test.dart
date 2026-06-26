@@ -1,0 +1,488 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/create_permission_group_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/delete_permission_group_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/delete_user_profile_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/get_permission_groups_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
+import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:faker/faker.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
+
+class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
+
+class MockGetUsersUseCase extends Mock implements GetUsersUseCase {}
+
+class MockGetUserProfileByIdUseCase extends Mock
+    implements GetUserProfileByIdUseCase {}
+
+class MockUpdateUserProfileUseCase extends Mock
+    implements UpdateUserProfileUseCase {}
+
+class MockDeleteUserProfileUseCase extends Mock
+    implements DeleteUserProfileUseCase {}
+
+class MockGetPermissionGroupsUseCase extends Mock
+    implements GetPermissionGroupsUseCase {}
+
+class MockCreatePermissionGroupUseCase extends Mock
+    implements CreatePermissionGroupUseCase {}
+
+class MockUpdatePermissionGroupUseCase extends Mock
+    implements UpdatePermissionGroupUseCase {}
+
+class MockDeletePermissionGroupUseCase extends Mock
+    implements DeletePermissionGroupUseCase {}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetUsersUseCase mockGetUsers;
+  late MockGetUserProfileByIdUseCase mockGetUserProfileById;
+  late MockUpdateUserProfileUseCase mockUpdateUserProfile;
+  late MockDeleteUserProfileUseCase mockDeleteUserProfile;
+  late MockGetPermissionGroupsUseCase mockGetPermissionGroups;
+  late MockCreatePermissionGroupUseCase mockCreatePermissionGroup;
+  late MockUpdatePermissionGroupUseCase mockUpdatePermissionGroup;
+  late MockDeletePermissionGroupUseCase mockDeletePermissionGroup;
+  late MockNavigationClient mockNavigationClient;
+
+  late UsersCubit cubit;
+  late UserProfileEntity tSessionUser;
+  late UserProfileEntity tUserProfile;
+  late PermissionGroupEntity tPermissionGroup;
+
+  setUpAll(() {
+    registerFallbackValue(EntityFactory.makeUserProfileEntity());
+    registerFallbackValue(EntityFactory.makePermissionGroupEntity());
+  });
+
+  setUp(() {
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetUsers = MockGetUsersUseCase();
+    mockGetUserProfileById = MockGetUserProfileByIdUseCase();
+    mockUpdateUserProfile = MockUpdateUserProfileUseCase();
+    mockDeleteUserProfile = MockDeleteUserProfileUseCase();
+    mockGetPermissionGroups = MockGetPermissionGroupsUseCase();
+    mockCreatePermissionGroup = MockCreatePermissionGroupUseCase();
+    mockUpdatePermissionGroup = MockUpdatePermissionGroupUseCase();
+    mockDeletePermissionGroup = MockDeletePermissionGroupUseCase();
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    tSessionUser = EntityFactory.makeUserProfileEntity();
+    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tPermissionGroup = EntityFactory.makePermissionGroupEntity();
+
+    when(() => mockGetSessionUser.call()).thenReturn(tSessionUser);
+
+    final useCases = UsersCubitUseCases(
+      getSessionUser: mockGetSessionUser,
+      getUsers: mockGetUsers,
+      getUserProfileById: mockGetUserProfileById,
+      updateUserProfile: mockUpdateUserProfile,
+      deleteUserProfile: mockDeleteUserProfile,
+      getPermissionGroups: mockGetPermissionGroups,
+      createPermissionGroup: mockCreatePermissionGroup,
+      updatePermissionGroup: mockUpdatePermissionGroup,
+      deletePermissionGroup: mockDeletePermissionGroup,
+    );
+
+    cubit = UsersCubit(useCases: useCases);
+  });
+
+  tearDown(GetIt.I.reset);
+
+  group('UsersCubit Tests', () {
+    group('loadUsers', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit loading and loaded when users load successfully',
+        build: () {
+          final tUsers = EntityFactory.makeUserProfileEntityList();
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tUsers));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadUsers(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.users, 'users', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGetUsers.call(tSessionUser.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error status when companyId is empty',
+        build: () {
+          when(
+            () => mockGetSessionUser.call(),
+          ).thenReturn(tSessionUser.copyWith(companyId: ''));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadUsers(),
+        expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.users, 'users', isEmpty),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error and show error toast when loading fails',
+        build: () {
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error message'));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadUsers(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
+        ],
+      );
+    });
+
+    group('loadPermissionGroups', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit loading and loaded when permission groups load successfully',
+        build: () {
+          final tGroups = EntityFactory.makePermissionGroupEntityList();
+          when(
+            () => mockGetPermissionGroups.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tGroups));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadPermissionGroups(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.permissionGroups, 'permissionGroups', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGetPermissionGroups.call(tSessionUser.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error and show error toast when loading permission groups fails',
+        build: () {
+          when(
+            () => mockGetPermissionGroups.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Group load failed'));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadPermissionGroups(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.errorMessage, 'errorMessage', 'Group load failed'),
+        ],
+      );
+    });
+
+    group('loadAll', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit loading, load users, and load permission groups',
+        build: () {
+          final tUsers = EntityFactory.makeUserProfileEntityList();
+          final tGroups = EntityFactory.makePermissionGroupEntityList();
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tUsers));
+          when(
+            () => mockGetPermissionGroups.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tGroups));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAll(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.users, 'users', isNotEmpty),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.permissionGroups, 'permissionGroups', isNotEmpty),
+        ],
+      );
+    });
+
+    group('updateUserProfile', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit saving, call updateUserProfile and refresh users on success',
+        build: () {
+          when(
+            () => mockUpdateUserProfile.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer(
+            (_) async => SuccessState(data: [tUserProfile]),
+          );
+          return cubit;
+        },
+        act: (cubit) async {
+          final result = await cubit.updateUserProfile(tUserProfile);
+          expect(result, isTrue);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.users, 'users', [tUserProfile]),
+        ],
+        verify: (_) {
+          verify(() => mockUpdateUserProfile.call(tUserProfile)).called(1);
+          verify(() => mockGetUsers.call(tSessionUser.companyId)).called(1);
+        },
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error and show toast when updateUserProfile fails',
+        build: () {
+          when(
+            () => mockUpdateUserProfile.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Update failed'));
+          return cubit;
+        },
+        act: (cubit) async {
+          final result = await cubit.updateUserProfile(tUserProfile);
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
+        ],
+      );
+    });
+
+    group('deleteUserProfile', () {
+      final tId = faker.guid.guid();
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit deleting, call deleteUserProfile and refresh on success',
+        build: () {
+          when(
+            () => mockDeleteUserProfile.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteUserProfile(tId),
+        expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingUserIds, 'deletingUserIds', {tId})
+              .having((s) => s.users, 'users', isEmpty),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
+              .having((s) => s.users, 'users', isEmpty),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error and show toast when deletion fails',
+        build: () {
+          when(
+            () => mockDeleteUserProfile.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Delete failed'));
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteUserProfile(tId),
+        expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
+        ],
+      );
+    });
+
+    group('Permission Groups Operations', () {
+      group('savePermissionGroup', () {
+        blocTest<UsersCubit, UsersState>(
+          'should emit saving, call createPermissionGroup and refresh on success',
+          build: () {
+            when(
+              () => mockCreatePermissionGroup.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetPermissionGroups.call(any()),
+            ).thenAnswer(
+              (_) async => SuccessState(data: [tPermissionGroup]),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.savePermissionGroup(
+              tPermissionGroup,
+              isUpdate: false,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<UsersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<UsersState>()
+                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.permissionGroups, 'permissionGroups', [
+                  tPermissionGroup,
+                ]),
+          ],
+          verify: (_) {
+            verify(
+              () => mockCreatePermissionGroup.call(tPermissionGroup),
+            ).called(1);
+            verify(
+              () => mockGetPermissionGroups.call(tSessionUser.companyId),
+            ).called(1);
+          },
+        );
+
+        blocTest<UsersCubit, UsersState>(
+          'should emit saving, call updatePermissionGroup and refresh on success',
+          build: () {
+            when(
+              () => mockUpdatePermissionGroup.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetPermissionGroups.call(any()),
+            ).thenAnswer(
+              (_) async => SuccessState(data: [tPermissionGroup]),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.savePermissionGroup(
+              tPermissionGroup,
+              isUpdate: true,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<UsersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<UsersState>()
+                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.permissionGroups, 'permissionGroups', [
+                  tPermissionGroup,
+                ]),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdatePermissionGroup.call(tPermissionGroup),
+            ).called(1);
+          },
+        );
+      });
+
+      group('deletePermissionGroup', () {
+        final tId = faker.guid.guid();
+
+        blocTest<UsersCubit, UsersState>(
+          'should emit deleting, call deletePermissionGroup and refresh on success',
+          build: () {
+            when(
+              () => mockDeletePermissionGroup.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetPermissionGroups.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.deletePermissionGroup(tId),
+          expect: () => [
+            isA<UsersState>()
+                .having((s) => s.status, 'status', StateStatus.deleting)
+                .having((s) => s.deletingGroupIds, 'deletingGroupIds', {tId}),
+            isA<UsersState>()
+                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.deletingGroupIds, 'deletingGroupIds', {tId})
+                .having((s) => s.permissionGroups, 'permissionGroups', isEmpty),
+            isA<UsersState>()
+                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.deletingGroupIds, 'deletingGroupIds', isEmpty)
+                .having((s) => s.permissionGroups, 'permissionGroups', isEmpty),
+          ],
+        );
+      });
+    });
+  });
+}
