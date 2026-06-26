@@ -1,3 +1,7 @@
+// Splash
+const String kSplashRoute = 'SplashRoute';
+const String kSplashPath = '/';
+
 // Authentication
 const String kLoginRoute = 'LoginRoute';
 const String kLoginPath = '/login';

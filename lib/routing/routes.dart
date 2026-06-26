@@ -11,6 +11,7 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes => <AutoRoute>[
+    AutoRoute(page: SplashRoute.page, path: kSplashPath, initial: true),
     AutoRoute(page: LoginRoute.page, path: kLoginPath),
     AutoRoute(page: SignUpRoute.page, path: kSignUpPath),
     AutoRoute(page: EmailConfirmationRoute.page, path: kEmailConfirmationPath),
@@ -18,7 +19,6 @@ class AppRouter extends RootStackRouter {
     AutoRoute(
       path: kHomePath,
       page: HomeRoute.page,
-      initial: true,
       guards: const [AuthenticatedGuard()],
       children: [
         AutoRoute(
