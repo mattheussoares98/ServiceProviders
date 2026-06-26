@@ -15,6 +15,7 @@ abstract interface class UsersLocalDataSource {
   FutureList<UserProfileResponseModel> getUserProfiles(String companyId);
   FutureData<UserProfileResponseModel> getUserProfileById(String id);
   FutureBool saveUserProfile(UserProfileResponseModel user);
+  FutureBool saveUserProfiles(List<UserProfileResponseModel> users);
   FutureBool deleteUserProfile(String id);
 
   // Permission Groups
@@ -22,6 +23,7 @@ abstract interface class UsersLocalDataSource {
     String companyId,
   );
   FutureBool savePermissionGroup(PermissionGroupResponseModel group);
+  FutureBool savePermissionGroups(List<PermissionGroupResponseModel> groups);
   FutureBool deletePermissionGroup(String id);
 }
 
@@ -95,6 +97,34 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   }
 
   @override
+  FutureBool saveUserProfiles(List<UserProfileResponseModel> users) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.userProfiles,
+          users.map(
+            (user) => UserProfilesCompanion(
+              id: Value(user.id),
+              companyId: Value(user.companyId),
+              name: Value(user.name),
+              isAdmin: Value(user.isAdmin),
+              email: Value(user.email),
+              phone: Value(user.phone),
+              permissionGroupId: Value(user.permissionGroupId),
+              avatarUrl: Value(user.avatarUrl),
+              isActive: Value(user.isActive),
+              createdAt: Value(user.createdAt),
+              updatedAt: Value(user.updatedAt),
+              deletedAt: Value(user.deletedAt),
+            ),
+          ),
+        );
+      });
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
   FutureBool deleteUserProfile(String id) {
     return ErrorHandler.execute(() async {
       await (_database.update(_database.userProfiles)
@@ -141,6 +171,29 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               deletedAt: Value(group.deletedAt),
             ),
           );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool savePermissionGroups(List<PermissionGroupResponseModel> groups) {
+    return ErrorHandler.execute(() async {
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.permissionGroups,
+          groups.map(
+            (group) => PermissionGroupsCompanion(
+              id: Value(group.id),
+              companyId: Value(group.companyId),
+              name: Value(group.name),
+              permissions: Value(jsonEncode(group.toJson()['permissions'])),
+              isDefault: Value(group.isDefault),
+              createdAt: Value(group.createdAt),
+              deletedAt: Value(group.deletedAt),
+            ),
+          ),
+        );
+      });
       return const SuccessState(data: true);
     });
   }

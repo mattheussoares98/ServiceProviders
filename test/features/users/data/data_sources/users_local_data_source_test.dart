@@ -135,6 +135,38 @@ void main() {
         expect(getResult.data, equals(tUserProfileModel));
       });
 
+      test('should save multiple user profiles and successfully retrieve them', () async {
+        await insertTestCompany(tUserProfileModel.companyId);
+        final profile2 = UserProfileResponseModel.fromEntity(
+          EntityFactory.makeUserProfileEntity().copyWith(
+            companyId: tUserProfileModel.companyId,
+            annulPermissionGroupId: true,
+          ),
+        );
+
+        final saveResult = await dataSource.saveUserProfiles([tUserProfileModel, profile2]);
+
+        expect(saveResult, isA<SuccessState<bool>>());
+        expect(saveResult.data, isTrue);
+
+        final getResult = await dataSource.getUserProfiles(tUserProfileModel.companyId);
+
+        expect(getResult, isA<SuccessState<List<UserProfileResponseModel>>>());
+        expect(getResult.data, hasLength(2));
+        expect(getResult.data, containsAll([tUserProfileModel, profile2]));
+      });
+
+      test(
+        'should return FailureState when database throws an exception on saveUserProfiles',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.saveUserProfiles([tUserProfileModel]);
+
+          expect(result, isA<FailureState<bool>>());
+        },
+      );
+
       test(
         'should return FailureState when getting a non-existent user profile',
         () async {
@@ -226,6 +258,50 @@ void main() {
           );
           expect(getResult.data, hasLength(1));
           expect(getResult.data!.first, equals(tPermissionGroupModel));
+        },
+      );
+
+      test(
+        'should save multiple permission groups and successfully retrieve them',
+        () async {
+          await insertTestCompany(tPermissionGroupModel.companyId);
+          final group2 = PermissionGroupResponseModel.fromEntity(
+            EntityFactory.makePermissionGroupEntity().copyWith(
+              companyId: tPermissionGroupModel.companyId,
+            ),
+          );
+
+          final saveResult = await dataSource.savePermissionGroups([
+            tPermissionGroupModel,
+            group2,
+          ]);
+
+          expect(saveResult, isA<SuccessState<bool>>());
+          expect(saveResult.data, isTrue);
+
+          final getResult = await dataSource.getPermissionGroups(
+            tPermissionGroupModel.companyId,
+          );
+
+          expect(
+            getResult,
+            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+          );
+          expect(getResult.data, hasLength(2));
+          expect(getResult.data, containsAll([tPermissionGroupModel, group2]));
+        },
+      );
+
+      test(
+        'should return FailureState when database throws an exception on savePermissionGroups',
+        () async {
+          await openAndCloseDatabase();
+
+          final result = await dataSource.savePermissionGroups([
+            tPermissionGroupModel,
+          ]);
+
+          expect(result, isA<FailureState<bool>>());
         },
       );
 
