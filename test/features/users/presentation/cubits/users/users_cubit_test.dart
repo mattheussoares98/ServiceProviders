@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/create_permission_group_use_case.dart';
@@ -133,9 +134,7 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
-          verify(
-            () => mockGetUsers.call(tSessionUser.companyId),
-          ).called(1);
+          verify(() => mockGetUsers.call(tSessionUser.companyId)).called(1);
         },
       );
 
@@ -223,7 +222,11 @@ void main() {
           ),
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.error)
-              .having((s) => s.errorMessage, 'errorMessage', 'Group load failed'),
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Group load failed',
+              ),
         ],
       );
     });
@@ -254,7 +257,11 @@ void main() {
               .having((s) => s.users, 'users', isNotEmpty),
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.permissionGroups, 'permissionGroups', isNotEmpty),
+              .having(
+                (s) => s.permissionGroups,
+                'permissionGroups',
+                isNotEmpty,
+              ),
         ],
       );
     });
@@ -268,9 +275,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
             () => mockGetUsers.call(any()),
-          ).thenAnswer(
-            (_) async => SuccessState(data: [tUserProfile]),
-          );
+          ).thenAnswer((_) async => SuccessState(data: [tUserProfile]));
           return cubit;
         },
         act: (cubit) async {
@@ -379,9 +384,7 @@ void main() {
             ).thenAnswer((_) async => const SuccessState(data: true));
             when(
               () => mockGetPermissionGroups.call(any()),
-            ).thenAnswer(
-              (_) async => SuccessState(data: [tPermissionGroup]),
-            );
+            ).thenAnswer((_) async => SuccessState(data: [tPermissionGroup]));
             return cubit;
           },
           act: (cubit) async {
@@ -421,9 +424,7 @@ void main() {
             ).thenAnswer((_) async => const SuccessState(data: true));
             when(
               () => mockGetPermissionGroups.call(any()),
-            ).thenAnswer(
-              (_) async => SuccessState(data: [tPermissionGroup]),
-            );
+            ).thenAnswer((_) async => SuccessState(data: [tPermissionGroup]));
             return cubit;
           },
           act: (cubit) async {
@@ -483,6 +484,159 @@ void main() {
           ],
         );
       });
+    });
+
+    group('hasPermission', () {
+      final resource = ResourceType
+          .values[faker.randomGenerator.integer(ResourceType.values.length)];
+      final action =
+          PermissionAction.values[faker.randomGenerator.integer(
+            PermissionAction.values.length,
+          )];
+      test('should return true when user is admin', () {
+        final adminUser = tSessionUser.copyWith(isAdmin: true);
+        when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+        final hasPerm = cubit.hasPermission(resource, action);
+
+        expect(hasPerm, isTrue);
+      });
+
+      test(
+        'should return false when user is not admin and has no permissionGroupId',
+        () {
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            annulPermissionGroupId: true,
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final hasPerm = cubit.hasPermission(resource, action);
+
+          expect(hasPerm, isFalse);
+        },
+      );
+
+      test(
+        'should return false when user is not admin and permissionGroupId is empty',
+        () {
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: '',
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final hasPerm = cubit.hasPermission(resource, action);
+
+          expect(hasPerm, isFalse);
+        },
+      );
+
+      test('should return false when permission group is not in state', () {
+        final groupId = faker.guid.guid();
+        final regularUser = tSessionUser.copyWith(
+          isAdmin: false,
+          permissionGroupId: groupId,
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+        final hasPerm = cubit.hasPermission(resource, action);
+
+        expect(hasPerm, isFalse);
+      });
+
+      test(
+        'should return false when permission group exists but does not have the resource',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.attachments,
+                actions: {PermissionAction.read},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.read,
+          );
+
+          expect(hasPerm, isFalse);
+        },
+      );
+
+      test(
+        'should return false when permission group has the resource but not the action',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.workOrders,
+                actions: {PermissionAction.read},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.delete,
+          );
+
+          expect(hasPerm, isFalse);
+        },
+      );
+
+      test(
+        'should return true when permission group has both the resource and the action',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.workOrders,
+                actions: {PermissionAction.delete},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.delete,
+          );
+
+          expect(hasPerm, isTrue);
+        },
+      );
     });
   });
 }

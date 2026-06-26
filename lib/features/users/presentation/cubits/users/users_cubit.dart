@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
@@ -232,5 +233,29 @@ class UsersCubit extends BaseCubit<UsersState> {
       );
       showErrorToast(message);
     }
+  }
+
+  // ============================================
+  // Permission Helper
+  // ============================================
+
+  bool hasPermission(ResourceType resource, PermissionAction action) {
+    final sessionUser = _useCases.getSessionUser();
+    if (sessionUser.isAdmin) return true;
+
+    final groupId = sessionUser.permissionGroupId;
+    if (groupId == null || groupId.isEmpty) return false;
+
+    for (final group in state.permissionGroups) {
+      if (group.id == groupId) {
+        for (final permission in group.permissions) {
+          if (permission.resource == resource) {
+            return permission.actions.contains(action);
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
