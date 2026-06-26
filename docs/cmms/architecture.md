@@ -51,6 +51,27 @@ To maintain historical integrity and prevent tampering with finalized data, edit
    - **Reject**: Rejects the request with an optional reason, leaving the closed order intact.
 6. **No Data Loss**: Even though edits are blocked directly, the technician's input is saved in the database as a request, preventing work from being lost.
 
+## Work Order Stopwatch Workflow (Play / Pause / Stop)
+
+To ensure accurate labor time tracking and prevent manual input fabrication, the application implements a stopwatch-style tracking workflow:
+
+1. **Start Work (Play)**: 
+   - When a technician begins working on an active work order, they tap **"Start"**.
+   - The app records the timestamp `startedAt = DateTime.now()` and changes the status to `in_progress`.
+   - A new record is added to the `work_order_history` log: `"Trabalho iniciado"`.
+2. **Pause Work (Pause)**: 
+   - If the technician takes a break or waits for parts, they can tap **"Pause"**.
+   - The app records the pause interval.
+   - A record is added to the history: `"Trabalho pausado"`.
+3. **Stop/Complete Work (Stop)**: 
+   - Once the task is finished, the technician taps **"Complete"**.
+   - The app records `completedAt = DateTime.now()`.
+   - The system automatically calculates `actualDuration` as `(completedAt - startedAt) - totalPausedDuration`, converting it into minutes.
+   - The status is changed to `completed`, and a final record is added to the history: `"Trabalho concluído"`.
+4. **Historical Logging**: 
+   - All state transitions (Play, Pause, Resume, Stop) are logged as immutable audit events in the `work_order_history` table to guarantee full accountability and auditability.
+
+
 ## File Management Strategy
 
 Here is how photos/PDFs are handled step by step:

@@ -16,3 +16,5 @@
 | Q12 | Permission groups | 3 default groups (Admin, Gestor, Técnico) + custom per company |
 | Q13 | revisionForecast | Added to Asset entity for proactive notifications |
 | Q14 | Handling Closed Orders | Edits to completed/cancelled orders are saved as change requests in a queue rather than direct updates or requiring pre-approval reopening (to support offline-first). Intercepted automatically by database triggers. |
+| Q15 | Stopwatch Workflow | Added stopwatch-style (play/pause/stop) time tracking for technicians. `actualDuration` is calculated automatically from timestamps, and all transitions are logged as immutable audit events in `work_order_history` to ensure accountability. |
+
