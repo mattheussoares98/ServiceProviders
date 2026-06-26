@@ -83,8 +83,10 @@ class CreateAssetDialog extends HookWidget {
                   context.read<LocationsCubit>().loadLocationsAndAreas();
                 }
                 if (categoriesError?.isNotEmpty ?? false) {
-                  // context.read<CategoriesCubit>().;
-                  //TODO load they here
+                  context.read<CategoriesCubit>().loadCategories();
+                }
+                if (assetsError?.isNotEmpty ?? false) {
+                  context.read<AssetsCubit>().loadAssets();
                 }
               },
               text: 'Tentar novamente'.hardcoded,
