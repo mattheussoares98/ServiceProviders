@@ -5,6 +5,7 @@ import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/routing/helper/navigation_client.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
@@ -29,6 +30,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late final KeyboardVisibilityCubit _keyboardVisibilityCubit;
   late final ConfigurationsCubit _configurationsCubit;
   late final SessionCubit _sessionCubit;
+  late final UsersCubit _usersCubit;
   StreamSubscription<AuthState>? _authSubscription;
 
   @override
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
     _configurationsCubit = GetIt.I<ConfigurationsCubit>();
     _sessionCubit = GetIt.I<SessionCubit>();
+    _usersCubit = GetIt.I<UsersCubit>()..loadAll();
     WidgetsBinding.instance.addObserver(this);
 
     // Listen for Supabase Auth state changes (specifically for password recovery redirect)
@@ -62,6 +65,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _keyboardVisibilityCubit.close();
     _configurationsCubit.close();
     _sessionCubit.close();
+    _usersCubit.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -91,6 +95,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider.value(value: _keyboardVisibilityCubit),
         BlocProvider.value(value: _configurationsCubit),
         BlocProvider.value(value: _sessionCubit),
+        BlocProvider.value(value: _usersCubit),
       ],
       child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
         builder: (context, state) {
