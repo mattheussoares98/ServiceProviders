@@ -3,7 +3,6 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -26,7 +25,6 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:uuid/uuid.dart';
 
 class CreateWorkOrderForm extends HookWidget {
   const CreateWorkOrderForm({super.key});
@@ -105,11 +103,10 @@ class CreateWorkOrderForm extends HookWidget {
       if (formKey.currentState?.validate() != true) return;
 
       final sessionUser = context.read<SessionCubit>().state.user;
-      final now = DateTime.now();
 
-      final workOrder = WorkOrderEntity(
-        id: const Uuid().v4(),
-        companyId: sessionUser.companyId,
+      Navigator.of(context).pop();
+      context.read<WorkOrdersCubit>().saveWorkOrder(
+        id: null,
         locationId: selectedLocationId.value!,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
         assignedToId: selectedAssignedToId.value == ''
@@ -125,12 +122,7 @@ class CreateWorkOrderForm extends HookWidget {
         type: selectedType.value,
         scheduledDate: selectedScheduledDate.value,
         estimatedDuration: int.tryParse(durationController.text.trim()),
-        createdAt: now,
-        updatedAt: now,
       );
-
-      Navigator.of(context).pop();
-      context.read<WorkOrdersCubit>().createWorkOrder(workOrder);
     }
 
     return Padding(

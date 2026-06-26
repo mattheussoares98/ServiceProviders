@@ -1,12 +1,16 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:clean_architecture/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:uuid/uuid.dart';
 
 part 'work_orders_state.dart';
 
@@ -87,29 +91,81 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
-  Future<void> createWorkOrder(WorkOrderEntity workOrder) async {
-    emit(state.copyWith(status: StateStatus.loading));
-    final dataState = await _useCases.createWorkOrder(workOrder);
-    if (isClosed) return;
+  Future<bool> saveWorkOrder({
+    required String? id,
+    String? assetId,
+    required String locationId,
+    String? assignedToId,
+    required String createdById,
+    String? maintenancePlanId,
+    required String title,
+    String? description,
+    required Priority priority,
+    required WorkOrderStatus status,
+    required WorkOrderType type,
+    DateTime? scheduledDate,
+    DateTime? startedAt,
+    DateTime? completedAt,
+    int? estimatedDuration,
+    int? actualDuration,
+    double? laborCost,
+    double? partsCost,
+    double? totalCost,
+    String? notes,
+    DateTime? createdAt,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
 
-    if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadWorkOrdersAndChangeRequests();
-    } else {
+    final isUpdate = id != null;
+    final now = DateTime.now();
+    final companyId = _useCases.getSessionUser().companyId;
+
+    if (companyId.isEmpty) {
       emit(state.copyWith(status: StateStatus.error));
-      showDataStateToast(dataState);
+      showErrorToast(
+        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
+      );
+      return false;
     }
-  }
 
-  Future<void> updateWorkOrder(WorkOrderEntity workOrder) async {
-    emit(state.copyWith(status: StateStatus.loading));
-    final dataState = await _useCases.updateWorkOrder(workOrder);
-    if (isClosed) return;
+    final workOrder = WorkOrderEntity(
+      id: id ?? const Uuid().v4(),
+      companyId: companyId,
+      assetId: assetId?.trimToNull(),
+      locationId: locationId,
+      assignedToId: assignedToId?.trimToNull(),
+      createdById: createdById,
+      maintenancePlanId: maintenancePlanId?.trimToNull(),
+      title: title.trim(),
+      description: description?.trimToNull(),
+      priority: priority,
+      status: status,
+      type: type,
+      scheduledDate: scheduledDate,
+      startedAt: startedAt,
+      completedAt: completedAt,
+      estimatedDuration: estimatedDuration,
+      actualDuration: actualDuration,
+      laborCost: laborCost,
+      partsCost: partsCost,
+      totalCost: totalCost,
+      notes: notes?.trimToNull(),
+      createdAt: createdAt ?? now,
+      updatedAt: now,
+    );
+
+    final dataState = isUpdate
+        ? await _useCases.updateWorkOrder(workOrder)
+        : await _useCases.createWorkOrder(workOrder);
+    if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadWorkOrdersAndChangeRequests();
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      return true;
     } else {
       emit(state.copyWith(status: StateStatus.error));
       showDataStateToast(dataState);
+      return false;
     }
   }
 

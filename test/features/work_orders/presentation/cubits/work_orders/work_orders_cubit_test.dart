@@ -282,136 +282,292 @@ void main() {
       );
     });
 
-    group('createWorkOrder', () {
+    group('saveWorkOrder', () {
       final tWorkOrder = EntityFactory.makeWorkOrderEntity();
 
-      blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit loading and load data when creation succeeds',
-        build: () {
-          when(
-            () => mockCreateWorkOrder.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-          when(
-            () => mockGetWorkOrders.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetChangeRequests.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          return cubit;
-        },
-        act: (cubit) => cubit.createWorkOrder(tWorkOrder),
-        expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockCreateWorkOrder.call(tWorkOrder)).called(1);
-          verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
-          ).called(1);
-        },
-      );
+      group('create', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and load data when creation succeeds',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+            );
 
-      blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit error when creation fails',
-        build: () {
-          when(
-            () => mockCreateWorkOrder.call(any()),
-          ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
-          return cubit;
-        },
-        act: (cubit) => cubit.createWorkOrder(tWorkOrder),
-        expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.error,
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockCreateWorkOrder.call(tWorkOrder)).called(1);
-          verifyNever(() => mockGetWorkOrders.call(any()));
-        },
-      );
-    });
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockCreateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>((actual) {
+                    final expected = tWorkOrder.copyWith(
+                      id: actual.id,
+                      companyId: actual.companyId,
+                      createdAt: actual.createdAt,
+                      updatedAt: actual.updatedAt,
+                    );
+                    return actual == expected;
+                  }),
+                ),
+              ),
+            ).called(1);
+            verify(
+              () => mockGetWorkOrders.call(tUserProfile.companyId),
+            ).called(1);
+          },
+        );
 
-    group('updateWorkOrder', () {
-      final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit error when creation fails',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+            );
 
-      blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit loading and load data when update succeeds',
-        build: () {
-          when(
-            () => mockUpdateWorkOrder.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-          when(
-            () => mockGetWorkOrders.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          when(
-            () => mockGetChangeRequests.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
-          return cubit;
-        },
-        act: (cubit) => cubit.updateWorkOrder(tWorkOrder),
-        expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockUpdateWorkOrder.call(tWorkOrder)).called(1);
-          verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
-          ).called(1);
-        },
-      );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.error,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockCreateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>((actual) {
+                    final expected = tWorkOrder.copyWith(
+                      id: actual.id,
+                      companyId: actual.companyId,
+                      createdAt: actual.createdAt,
+                      updatedAt: actual.updatedAt,
+                    );
+                    return actual == expected;
+                  }),
+                ),
+              ),
+            ).called(1);
+            verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+      });
 
-      blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit error when update fails',
-        build: () {
-          when(
-            () => mockUpdateWorkOrder.call(any()),
-          ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
-          return cubit;
-        },
-        act: (cubit) => cubit.updateWorkOrder(tWorkOrder),
-        expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
+      group('update', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and load data when update succeeds',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [tWorkOrder],
           ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.error,
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.saveWorkOrder(
+            id: tWorkOrder.id,
+            assetId: tWorkOrder.assetId,
+            locationId: tWorkOrder.locationId,
+            assignedToId: tWorkOrder.assignedToId,
+            createdById: tWorkOrder.createdById,
+            maintenancePlanId: tWorkOrder.maintenancePlanId,
+            title: tWorkOrder.title,
+            description: tWorkOrder.description,
+            priority: tWorkOrder.priority,
+            status: tWorkOrder.status,
+            type: tWorkOrder.type,
+            scheduledDate: tWorkOrder.scheduledDate,
+            startedAt: tWorkOrder.startedAt,
+            completedAt: tWorkOrder.completedAt,
+            estimatedDuration: tWorkOrder.estimatedDuration,
+            actualDuration: tWorkOrder.actualDuration,
+            laborCost: tWorkOrder.laborCost,
+            partsCost: tWorkOrder.partsCost,
+            totalCost: tWorkOrder.totalCost,
+            notes: tWorkOrder.notes,
+            createdAt: tWorkOrder.createdAt,
           ),
-        ],
-        verify: (_) {
-          verify(() => mockUpdateWorkOrder.call(tWorkOrder)).called(1);
-          verifyNever(() => mockGetWorkOrders.call(any()));
-        },
-      );
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>((actual) {
+                    final expected = tWorkOrder.copyWith(
+                      companyId: actual.companyId,
+                      createdAt: actual.createdAt,
+                      updatedAt: actual.updatedAt,
+                    );
+                    return actual == expected;
+                  }),
+                ),
+              ),
+            ).called(1);
+            verify(
+              () => mockGetWorkOrders.call(tUserProfile.companyId),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit error when update fails',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [tWorkOrder],
+          ),
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
+            return cubit;
+          },
+          act: (cubit) => cubit.saveWorkOrder(
+            id: tWorkOrder.id,
+            assetId: tWorkOrder.assetId,
+            locationId: tWorkOrder.locationId,
+            assignedToId: tWorkOrder.assignedToId,
+            createdById: tWorkOrder.createdById,
+            maintenancePlanId: tWorkOrder.maintenancePlanId,
+            title: tWorkOrder.title,
+            description: tWorkOrder.description,
+            priority: tWorkOrder.priority,
+            status: tWorkOrder.status,
+            type: tWorkOrder.type,
+            scheduledDate: tWorkOrder.scheduledDate,
+            startedAt: tWorkOrder.startedAt,
+            completedAt: tWorkOrder.completedAt,
+            estimatedDuration: tWorkOrder.estimatedDuration,
+            actualDuration: tWorkOrder.actualDuration,
+            laborCost: tWorkOrder.laborCost,
+            partsCost: tWorkOrder.partsCost,
+            totalCost: tWorkOrder.totalCost,
+            notes: tWorkOrder.notes,
+            createdAt: tWorkOrder.createdAt,
+          ),
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.error,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>((actual) {
+                    final expected = tWorkOrder.copyWith(
+                      companyId: actual.companyId,
+                      createdAt: actual.createdAt,
+                      updatedAt: actual.updatedAt,
+                    );
+                    return actual == expected;
+                  }),
+                ),
+              ),
+            ).called(1);
+            verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+      });
     });
 
     group('deleteWorkOrder', () {
