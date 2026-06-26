@@ -44,6 +44,10 @@ class AppRouter extends RootStackRouter {
           page: ConfigurationsRoute.page,
           path: kConfigurationsPath,
         ),
+        AutoRoute(
+          page: PermissionsRoute.page,
+          path: kPermissionsPath,
+        ),
       ],
     ),
   ];

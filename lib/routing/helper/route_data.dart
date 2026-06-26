@@ -46,3 +46,8 @@ const String kCompanyPath = 'company';
 
 const String kCreateCompanyRoute = 'CreateCompanyRoute';
 const String kCreateCompanyPath = 'create-company';
+
+// Permissions
+const String kPermissionsRoute = 'PermissionsRoute';
+const String kPermissionsPath = 'permissions';
+

@@ -121,6 +121,7 @@ void main() {
     expect($('Olá, Usuário!'), findsOne);
     expect($(Drawer).$('Início'), findsOne);
     expect($('Perfil'), findsOne);
+    expect($('Permissões'), findsOne);
     expect($('Configurações'), findsOne);
     expect($('Sair'), findsOne);
 

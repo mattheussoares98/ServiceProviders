@@ -1,6 +1,7 @@
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/company_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/home_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
+import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/profile_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
 import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
@@ -28,6 +29,7 @@ class HomeDrawer extends StatelessWidget {
           CompanyDrawerItem(),
           HomeDrawerItem(),
           ProfileDrawerItem(),
+          PermissionsDrawerItem(),
           SettingsDrawerItem(),
           Spacer(),
           Divider(height: 1),

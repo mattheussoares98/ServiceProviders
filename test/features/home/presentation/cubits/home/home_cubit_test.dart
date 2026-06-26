@@ -62,5 +62,17 @@ void main() {
         ).called(1);
       },
     );
+
+    blocTest<HomeCubit, HomeState>(
+      'navigateToPermissions should push PermissionsRoute',
+      build: () => homeCubit,
+      act: (cubit) => cubit.navigateToPermissions(),
+      expect: () => <HomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const PermissionsRoute()),
+        ).called(1);
+      },
+    );
   });
 }
