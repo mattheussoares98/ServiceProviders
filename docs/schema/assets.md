@@ -5,7 +5,7 @@ Equipment or physical property items requiring maintenance.
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
 | `area_id` | UUID | NO | - | FK → `areas.id` (Cascade) |
-| `category_id` | UUID | YES | - | FK → `categories.id` (Set Null) |
+| `category_id` | UUID | YES | - | FK → `categories.id` (Set Null). Soft delete of the category is blocked if any active asset references it. |
 | `parent_asset_id` | UUID | YES | - | Self FK for nested sub-assets (Set Null) |
 | `name` | VARCHAR(255) | NO | - | Equipment description |
 | `code` | VARCHAR(100) | YES | - | System code (Unique per company and case-insensitive when active) |
