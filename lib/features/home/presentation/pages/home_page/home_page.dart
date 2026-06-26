@@ -38,7 +38,7 @@ class HomePage extends HookWidget {
         ),
         BlocProvider<UsersCubit>(create: (context) => GetIt.I<UsersCubit>()),
         BlocProvider<CategoriesCubit>(
-          create: (context) => GetIt.I<CategoriesCubit>(),
+          create: (context) => GetIt.I<CategoriesCubit>()..loadCategories(),
         ),
       ],
       child: HeroControllerScope(
