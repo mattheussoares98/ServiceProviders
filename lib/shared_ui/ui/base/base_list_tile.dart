@@ -17,6 +17,8 @@ class BaseListTile extends StatelessWidget {
     this.onTap,
     this.subtitle,
     this.padding,
+    this.tileColor,
+    this.borderRadius,
   });
 
   final String title;
@@ -24,6 +26,8 @@ class BaseListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final String? subtitle;
   final EdgeInsetsGeometry? padding;
+  final Color? tileColor;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +38,24 @@ class BaseListTile extends StatelessWidget {
     );
 
     if (PlatformUtil.isCupertino) {
-      return CupertinoListTile(
+      Widget tile = CupertinoListTile(
         padding: padding,
         title: BaseText(title),
         leading: leadingWidget,
         subtitle: subtitle != null ? BaseText(subtitle!) : null,
         onTap: onTap,
+        backgroundColor: Colors.transparent,
       );
+      if (tileColor != null || borderRadius != null) {
+        tile = Container(
+          decoration: BoxDecoration(
+            color: tileColor,
+            borderRadius: borderRadius,
+          ),
+          child: tile,
+        );
+      }
+      return tile;
     } else {
       return ListTile(
         contentPadding: padding,
@@ -48,6 +63,10 @@ class BaseListTile extends StatelessWidget {
         leading: leadingWidget,
         subtitle: subtitle != null ? BaseText(subtitle!) : null,
         onTap: onTap,
+        tileColor: tileColor,
+        shape: borderRadius != null
+            ? RoundedRectangleBorder(borderRadius: borderRadius!)
+            : null,
       );
     }
   }
