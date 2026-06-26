@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
+import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
@@ -24,51 +25,159 @@ final class UsersRepositoryImpl implements UsersRepository {
   final UsersRemoteDataSource _remoteDataSource;
   final UsersLocalDataSource _localDataSource;
 
+  // ============================================
+  // User Profiles
+  // ============================================
+
   @override
   FutureList<UserProfileEntity> getUserProfiles(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<
+      RepositoryHandler.fetchWithFallbackAndMapList<
         UserProfileResponseModel,
         UserProfileEntity
-      >(localCallback: () => _localDataSource.getUserProfiles(companyId));
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getUserProfiles(companyId),
+        localCallback: () => _localDataSource.getUserProfiles(companyId),
+        onRemoteSuccess: _localDataSource.saveUserProfiles,
+      );
 
   @override
   FutureData<UserProfileEntity> getUserProfileById(String id) =>
-      //TODO add remote loading here
-      RepositoryHandler.fetchFromLocalAndMap<
+      RepositoryHandler.fetchWithFallbackAndMap<
         UserProfileResponseModel,
         UserProfileEntity
-      >(localCallback: () => _localDataSource.getUserProfileById(id));
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getUserProfileById(id),
+        localCallback: () => _localDataSource.getUserProfileById(id),
+        onRemoteSuccess: _localDataSource.saveUserProfile,
+      );
 
   @override
   FutureBool updateUserProfile(UserProfileEntity userProfile) =>
-      _localDataSource.saveUserProfile(
-        UserProfileResponseModel.fromEntity(userProfile),
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.saveUserProfile(
+          UserProfileResponseModel.fromEntity(userProfile),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateUserProfile(
+            UserProfileResponseModel.fromEntity(userProfile),
+          );
+          if (result is SuccessState<UserProfileResponseModel>) {
+            await _localDataSource.saveUserProfile(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
       );
 
   @override
   FutureBool deleteUserProfile(String id) =>
-      _localDataSource.deleteUserProfile(id);
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.deleteUserProfile(id),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deleteUserProfile(id);
+          if (result is SuccessState<void>) {
+            await _localDataSource.deleteUserProfile(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
+
+  // ============================================
+  // Permission Groups
+  // ============================================
 
   @override
   FutureList<PermissionGroupEntity> getPermissionGroups(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMapList<
+      RepositoryHandler.fetchWithFallbackAndMapList<
         PermissionGroupResponseModel,
         PermissionGroupEntity
-      >(localCallback: () => _localDataSource.getPermissionGroups(companyId));
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getPermissionGroups(companyId),
+        localCallback: () => _localDataSource.getPermissionGroups(companyId),
+        onRemoteSuccess: _localDataSource.savePermissionGroups,
+      );
 
   @override
   FutureBool createPermissionGroup(PermissionGroupEntity group) =>
-      _localDataSource.savePermissionGroup(
-        PermissionGroupResponseModel.fromEntity(group),
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.savePermissionGroup(
+          PermissionGroupResponseModel.fromEntity(group),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.createPermissionGroup(
+            PermissionGroupResponseModel.fromEntity(group),
+          );
+          if (result is SuccessState<PermissionGroupResponseModel>) {
+            await _localDataSource.savePermissionGroup(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
       );
 
   @override
   FutureBool updatePermissionGroup(PermissionGroupEntity group) =>
-      _localDataSource.savePermissionGroup(
-        PermissionGroupResponseModel.fromEntity(group),
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.savePermissionGroup(
+          PermissionGroupResponseModel.fromEntity(group),
+        ),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updatePermissionGroup(
+            PermissionGroupResponseModel.fromEntity(group),
+          );
+          if (result is SuccessState<PermissionGroupResponseModel>) {
+            await _localDataSource.savePermissionGroup(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
       );
 
   @override
   FutureBool deletePermissionGroup(String id) =>
-      _localDataSource.deletePermissionGroup(id);
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.deletePermissionGroup(id),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deletePermissionGroup(id);
+          if (result is SuccessState<void>) {
+            await _localDataSource.deletePermissionGroup(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 }
