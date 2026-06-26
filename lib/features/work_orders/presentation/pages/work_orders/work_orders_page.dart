@@ -4,7 +4,7 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_work_order_form.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_update_work_order_form.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
@@ -55,7 +55,7 @@ class WorkOrdersPage extends StatelessWidget {
                         showModalPage<void>(
                           BlocProvider.value(
                             value: context.read<WorkOrdersCubit>(),
-                            child: const CreateWorkOrderForm(),
+                            child: const CreateUpdateWorkOrderForm(),
                           ),
                           context,
                         );

@@ -26,8 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CreateWorkOrderForm extends HookWidget {
-  const CreateWorkOrderForm({super.key});
+class CreateUpdateWorkOrderForm extends HookWidget {
+  const CreateUpdateWorkOrderForm({super.key});
 
   @override
   Widget build(BuildContext context) {
