@@ -110,13 +110,12 @@ class CreateUpdateWorkOrderForm extends HookWidget {
         ),
       );
     }
-    void onSubmit() {
+    Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
 
       final sessionUser = context.read<SessionCubit>().state.user;
 
-      Navigator.of(context).pop();
-      context.read<WorkOrdersCubit>().saveWorkOrder(
+      final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
         id: workOrder?.id,
         locationId: selectedLocationId.value!,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
@@ -134,8 +133,16 @@ class CreateUpdateWorkOrderForm extends HookWidget {
         scheduledDate: selectedScheduledDate.value,
         estimatedDuration: int.tryParse(durationController.text.trim()),
         createdAt: workOrder?.createdAt,
-        //TODO implement the missing properties here
+        actualDuration: workOrder?.actualDuration,
+        completedAt: workOrder?.completedAt,
+        laborCost: workOrder?.laborCost,
+        maintenancePlanId: workOrder?.maintenancePlanId,
+        notes: workOrder?.notes,
+        partsCost: workOrder?.partsCost,
+        startedAt: workOrder?.startedAt,
+        totalCost: workOrder?.totalCost,
       );
+      if (succeeds && context.mounted) Navigator.of(context).pop();
     }
 
     final isEdit = workOrder != null;
