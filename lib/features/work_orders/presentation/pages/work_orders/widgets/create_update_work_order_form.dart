@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -27,26 +28,36 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class CreateUpdateWorkOrderForm extends HookWidget {
-  const CreateUpdateWorkOrderForm({super.key});
+  const CreateUpdateWorkOrderForm({super.key, this.workOrder});
+
+  final WorkOrderEntity? workOrder;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
-    final titleController = useTextEditingController();
-    final descController = useTextEditingController();
-    final durationController = useTextEditingController();
+    final titleController = useTextEditingController(text: workOrder?.title);
+    final descController = useTextEditingController(
+      text: workOrder?.description,
+    );
+    final durationController = useTextEditingController(
+      text: workOrder?.estimatedDuration?.toString() ?? '',
+    );
 
     final titleFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
     final durationFocusNode = useFocusNode();
 
-    final selectedLocationId = useState<String?>(null);
-    final selectedAssetId = useState<String?>(null);
-    final selectedAssignedToId = useState<String?>(null);
-    final selectedPriority = useState<Priority>(Priority.medium);
-    final selectedType = useState<WorkOrderType>(WorkOrderType.corrective);
-    final selectedScheduledDate = useState<DateTime?>(null);
+    final selectedLocationId = useState<String?>(workOrder?.locationId);
+    final selectedAssetId = useState<String?>(workOrder?.assetId);
+    final selectedAssignedToId = useState<String?>(workOrder?.assignedToId);
+    final selectedPriority = useState<Priority>(
+      workOrder?.priority ?? Priority.medium,
+    );
+    final selectedType = useState<WorkOrderType>(
+      workOrder?.type ?? WorkOrderType.corrective,
+    );
+    final selectedScheduledDate = useState<DateTime?>(workOrder?.scheduledDate);
 
     final (assetsError, assetsLoading) = context.select(
       (AssetsCubit cubit) =>
@@ -106,24 +117,28 @@ class CreateUpdateWorkOrderForm extends HookWidget {
 
       Navigator.of(context).pop();
       context.read<WorkOrdersCubit>().saveWorkOrder(
-        id: null,
+        id: workOrder?.id,
         locationId: selectedLocationId.value!,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
         assignedToId: selectedAssignedToId.value == ''
             ? null
             : selectedAssignedToId.value,
-        createdById: sessionUser.id,
+        createdById: workOrder?.createdById ?? sessionUser.id,
         title: titleController.text.trim(),
         description: descController.text.trim().isEmpty
             ? null
             : descController.text.trim(),
         priority: selectedPriority.value,
-        status: WorkOrderStatus.open,
+        status: workOrder?.status ?? WorkOrderStatus.open,
         type: selectedType.value,
         scheduledDate: selectedScheduledDate.value,
         estimatedDuration: int.tryParse(durationController.text.trim()),
+        createdAt: workOrder?.createdAt,
+        //TODO implement the missing properties here
       );
     }
+
+    final isEdit = workOrder != null;
 
     return Padding(
       padding: const EdgeInsets.all(Sizes.p16),
@@ -135,7 +150,9 @@ class CreateUpdateWorkOrderForm extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                'Criar ordem de serviço'.hardcoded,
+                isEdit
+                    ? 'Editar ordem de serviço'.hardcoded
+                    : 'Criar ordem de serviço'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,
@@ -220,7 +237,7 @@ class CreateUpdateWorkOrderForm extends HookWidget {
                   PrimaryButton(
                     onTap: onSubmit,
                     width: Sizes.p120,
-                    text: 'Criar'.hardcoded,
+                    text: isEdit ? 'Salvar'.hardcoded : 'Criar'.hardcoded,
                   ),
                 ],
               ),
