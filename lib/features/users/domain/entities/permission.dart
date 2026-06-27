@@ -24,13 +24,14 @@ enum ResourceType {
 }
 
 enum PermissionAction {
-  create('create'),
-  read('read'),
-  update('update'),
-  delete('delete');
+  create('create', 'Criar'),
+  read('read', 'Ler'),
+  update('update', 'Atualizar'),
+  delete('delete', 'Excluir');
 
-  const PermissionAction(this.code);
+  const PermissionAction(this.code, this.label);
   final String code;
+  final String label;
 
   static PermissionAction? fromCode(String code) {
     for (final val in PermissionAction.values) {
