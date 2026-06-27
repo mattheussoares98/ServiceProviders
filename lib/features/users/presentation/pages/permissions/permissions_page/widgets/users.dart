@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/features/users/presentation/pages/permissions/widgets/permission_item.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/permissions_page/widgets/permission_item.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';

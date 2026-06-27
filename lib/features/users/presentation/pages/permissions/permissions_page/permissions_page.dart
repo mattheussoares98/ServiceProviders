@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/features/users/presentation/pages/permissions/widgets/groups.dart';
-import 'package:clean_architecture/features/users/presentation/pages/permissions/widgets/users.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/permissions_page/widgets/groups.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/permissions_page/widgets/users.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
