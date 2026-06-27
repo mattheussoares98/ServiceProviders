@@ -1,0 +1,50 @@
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class PermissionItem extends StatelessWidget {
+  const PermissionItem({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    required this.platformIcon,
+  });
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final PlatformIcon platformIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(Sizes.p8),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: Sizes.p8),
+                child: PlatformIcon(
+                  materialIcon: Icons.person,
+                  cupertinoIcon: CupertinoIcons.person,
+                ),
+              ),
+              gapW12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [BaseText.title(title), BaseText(subtitle)],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
