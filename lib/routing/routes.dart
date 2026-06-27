@@ -48,6 +48,14 @@ class AppRouter extends RootStackRouter {
           page: PermissionsRoute.page,
           path: kPermissionsPath,
         ),
+        AutoRoute(
+          page: EditGroupPermissionsRoute.page,
+          path: '$kPermissionsPath/$kEditGroupPermissionsPath',
+        ),
+        AutoRoute(
+          page: EditUserPermissionsRoute.page,
+          path: '$kPermissionsPath/$kEditUserPermissionsPath',
+        ),
       ],
     ),
   ];

@@ -51,3 +51,9 @@ const String kCreateCompanyPath = 'create-company';
 const String kPermissionsRoute = 'PermissionsRoute';
 const String kPermissionsPath = 'permissions';
 
+const String kEditGroupPermissionsRoute = 'EditGroupPermissionsRoute';
+const String kEditGroupPermissionsPath = 'edit-group';
+
+const String kEditUserPermissionsRoute = 'EditUserPermissionsRoute';
+const String kEditUserPermissionsPath = 'edit-user';
+

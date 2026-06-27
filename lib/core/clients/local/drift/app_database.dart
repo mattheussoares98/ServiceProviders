@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -104,6 +104,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(assets);
 
         await customStatement('PRAGMA foreign_keys = ON;');
+      }
+      if (from < 7) {
+        await m.addColumn(userProfiles, userProfiles.permissions);
       }
     },
   );

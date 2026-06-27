@@ -1817,6 +1817,17 @@ class $UserProfilesTable extends UserProfiles
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _permissionsMeta = const VerificationMeta(
+    'permissions',
+  );
+  @override
+  late final GeneratedColumn<String> permissions = GeneratedColumn<String>(
+    'permissions',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1831,6 +1842,7 @@ class $UserProfilesTable extends UserProfiles
     createdAt,
     updatedAt,
     deletedAt,
+    permissions,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1924,6 +1936,15 @@ class $UserProfilesTable extends UserProfiles
         deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
+    if (data.containsKey('permissions')) {
+      context.handle(
+        _permissionsMeta,
+        permissions.isAcceptableOrUnknown(
+          data['permissions']!,
+          _permissionsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1981,6 +2002,10 @@ class $UserProfilesTable extends UserProfiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}deleted_at'],
       ),
+      permissions: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}permissions'],
+      ),
     );
   }
 
@@ -2003,6 +2028,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final String? permissions;
   const UserProfile({
     required this.id,
     required this.companyId,
@@ -2016,6 +2042,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.permissions,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2039,6 +2066,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || permissions != null) {
+      map['permissions'] = Variable<String>(permissions);
     }
     return map;
   }
@@ -2065,6 +2095,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      permissions: permissions == null && nullToAbsent
+          ? const Value.absent()
+          : Value(permissions),
     );
   }
 
@@ -2088,6 +2121,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      permissions: serializer.fromJson<String?>(json['permissions']),
     );
   }
   @override
@@ -2106,6 +2140,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'permissions': serializer.toJson<String?>(permissions),
     };
   }
 
@@ -2122,6 +2157,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
+    Value<String?> permissions = const Value.absent(),
   }) => UserProfile(
     id: id ?? this.id,
     companyId: companyId ?? this.companyId,
@@ -2137,6 +2173,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    permissions: permissions.present ? permissions.value : this.permissions,
   );
   UserProfile copyWithCompanion(UserProfilesCompanion data) {
     return UserProfile(
@@ -2154,6 +2191,9 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      permissions: data.permissions.present
+          ? data.permissions.value
+          : this.permissions,
     );
   }
 
@@ -2171,7 +2211,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           ..write('isAdmin: $isAdmin, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('permissions: $permissions')
           ..write(')'))
         .toString();
   }
@@ -2190,6 +2231,7 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
     createdAt,
     updatedAt,
     deletedAt,
+    permissions,
   );
   @override
   bool operator ==(Object other) =>
@@ -2206,7 +2248,8 @@ class UserProfile extends DataClass implements Insertable<UserProfile> {
           other.isAdmin == this.isAdmin &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
+          other.deletedAt == this.deletedAt &&
+          other.permissions == this.permissions);
 }
 
 class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
@@ -2222,6 +2265,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
+  final Value<String?> permissions;
   final Value<int> rowid;
   const UserProfilesCompanion({
     this.id = const Value.absent(),
@@ -2236,6 +2280,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.permissions = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UserProfilesCompanion.insert({
@@ -2251,6 +2296,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.permissions = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        companyId = Value(companyId),
@@ -2269,6 +2315,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
+    Expression<String>? permissions,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2284,6 +2331,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (permissions != null) 'permissions': permissions,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2301,6 +2349,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
+    Value<String?>? permissions,
     Value<int>? rowid,
   }) {
     return UserProfilesCompanion(
@@ -2316,6 +2365,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      permissions: permissions ?? this.permissions,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2359,6 +2409,9 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
+    if (permissions.present) {
+      map['permissions'] = Variable<String>(permissions.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2380,6 +2433,7 @@ class UserProfilesCompanion extends UpdateCompanion<UserProfile> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('permissions: $permissions, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15797,6 +15851,7 @@ typedef $$UserProfilesTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> permissions,
       Value<int> rowid,
     });
 typedef $$UserProfilesTableUpdateCompanionBuilder =
@@ -15813,6 +15868,7 @@ typedef $$UserProfilesTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
+      Value<String?> permissions,
       Value<int> rowid,
     });
 
@@ -16007,6 +16063,11 @@ class $$UserProfilesTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
     column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get permissions => $composableBuilder(
+    column: $table.permissions,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16241,6 +16302,11 @@ class $$UserProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get permissions => $composableBuilder(
+    column: $table.permissions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CompaniesTableOrderingComposer get companyId {
     final $$CompaniesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -16326,6 +16392,11 @@ class $$UserProfilesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get permissions => $composableBuilder(
+    column: $table.permissions,
+    builder: (column) => column,
+  );
 
   $$CompaniesTableAnnotationComposer get companyId {
     final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
@@ -16547,6 +16618,7 @@ class $$UserProfilesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> permissions = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserProfilesCompanion(
                 id: id,
@@ -16561,6 +16633,7 @@ class $$UserProfilesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                permissions: permissions,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -16577,6 +16650,7 @@ class $$UserProfilesTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> permissions = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserProfilesCompanion.insert(
                 id: id,
@@ -16591,6 +16665,7 @@ class $$UserProfilesTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
+                permissions: permissions,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

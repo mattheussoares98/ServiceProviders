@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
 import 'package:clean_architecture/core/data/models/data_convertible.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
@@ -19,6 +21,7 @@ class UserProfileResponseModel extends UserProfileEntity
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
+    super.permissions,
   });
 
   factory UserProfileResponseModel.fromEntity(UserProfileEntity entity) =>
@@ -35,6 +38,7 @@ class UserProfileResponseModel extends UserProfileEntity
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
+        permissions: entity.permissions,
       );
 
   factory UserProfileResponseModel.fromDb(UserProfile db) =>
@@ -51,6 +55,9 @@ class UserProfileResponseModel extends UserProfileEntity
         createdAt: db.createdAt,
         updatedAt: db.updatedAt,
         deletedAt: db.deletedAt,
+        permissions: _parsePermissionsFromDb(
+          db.permissions,
+        ), //TODO convert correctly
       );
   factory UserProfileResponseModel.fromSupabase(AuthResponse response) {
     final now = DateTime.now();
@@ -87,6 +94,7 @@ class UserProfileResponseModel extends UserProfileEntity
         deletedAt: json['deleted_at'] != null
             ? DateTime.parse(json['deleted_at'] as String)
             : null,
+        permissions: _parsePermissionsFromJson(json['permissions']),
       );
 
   @override
@@ -103,6 +111,7 @@ class UserProfileResponseModel extends UserProfileEntity
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
     'deleted_at': deletedAt?.toIso8601String(),
+    'permissions': permissions,
   };
 
   @override
@@ -119,5 +128,36 @@ class UserProfileResponseModel extends UserProfileEntity
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
+    permissions: permissions,
   );
+
+  static Map<String, bool> _parsePermissionsFromDb(String? permissionsStr) {
+    if (permissionsStr == null || permissionsStr.isEmpty) return const {};
+    try {
+      final decoded = jsonDecode(permissionsStr) as Map<dynamic, dynamic>;
+      return decoded.map(
+        (key, value) => MapEntry(key.toString(), value as bool),
+      );
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  static Map<String, bool> _parsePermissionsFromJson(dynamic permissionsRaw) {
+    if (permissionsRaw == null) return const {};
+    if (permissionsRaw is Map) {
+      return permissionsRaw.map(
+        (key, value) => MapEntry(key.toString(), value as bool),
+      );
+    }
+    if (permissionsRaw is String) {
+      try {
+        final decoded = jsonDecode(permissionsRaw) as Map<dynamic, dynamic>;
+        return decoded.map(
+          (key, value) => MapEntry(key.toString(), value as bool),
+        );
+      } catch (_) {}
+    }
+    return const {};
+  }
 }

@@ -637,6 +637,108 @@ void main() {
           expect(hasPerm, isTrue);
         },
       );
+
+      test(
+        'should return true when user has explicit active override, even if group does not have it',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+            permissions: {
+              'work_orders.delete': true,
+            },
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.workOrders,
+                actions: {PermissionAction.read},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.delete,
+          );
+
+          expect(hasPerm, isTrue);
+        },
+      );
+
+      test(
+        'should return false when user has explicit inactive override, even if group has it',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+            permissions: {
+              'work_orders.delete': false,
+            },
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.workOrders,
+                actions: {PermissionAction.delete},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.delete,
+          );
+
+          expect(hasPerm, isFalse);
+        },
+      );
+
+      test(
+        'should fallback to group permission when user has no explicit override for action',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+            permissions: {
+              'work_orders.read': true,
+            },
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            permissions: [
+              const ResourcePermissionEntity(
+                resource: ResourceType.workOrders,
+                actions: {PermissionAction.delete},
+              ),
+            ],
+          );
+
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.delete,
+          );
+
+          expect(hasPerm, isTrue);
+        },
+      );
     });
   });
 }

@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:equatable/equatable.dart';
 
 class UserProfileEntity extends Equatable {
@@ -14,6 +15,7 @@ class UserProfileEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.permissions = const {},
   });
 
   UserProfileEntity.empty()
@@ -28,7 +30,8 @@ class UserProfileEntity extends Equatable {
       isAdmin = false,
       createdAt = DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt = DateTime.fromMillisecondsSinceEpoch(0),
-      deletedAt = null;
+      deletedAt = null,
+      permissions = const {};
 
   final String id;
   final String companyId;
@@ -42,6 +45,7 @@ class UserProfileEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final Map<String, bool> permissions;
 
   @override
   List<Object?> get props => [
@@ -57,6 +61,7 @@ class UserProfileEntity extends Equatable {
     createdAt,
     updatedAt,
     deletedAt,
+    permissions,
   ];
 
   UserProfileEntity copyWith({
@@ -72,6 +77,7 @@ class UserProfileEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    MapBool? permissions, //TODO convert correctly
     bool? annulPhone,
     bool? annulPermissionGroupId,
     bool? annulAvatarUrl,
@@ -94,6 +100,7 @@ class UserProfileEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      permissions: permissions ?? this.permissions,
     );
   }
 }

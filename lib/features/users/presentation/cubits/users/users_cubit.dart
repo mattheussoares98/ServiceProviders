@@ -48,12 +48,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       );
     } else {
       final message = result.message ?? 'Erro ao carregar usuários'.hardcoded;
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: message,
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
       showErrorToast(message);
     }
   }
@@ -86,12 +81,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message =
           result.message ?? 'Erro ao carregar grupos de permissão'.hardcoded;
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: message,
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
       showErrorToast(message);
     }
   }
@@ -122,12 +112,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       return true;
     } else {
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: message,
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
       showErrorToast(message);
       return false;
     }
@@ -189,12 +174,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message =
           result.message ?? 'Erro ao salvar grupo de permissão'.hardcoded;
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: message,
-        ),
-      );
+      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
       showErrorToast(message);
       return false;
     }
@@ -242,6 +222,11 @@ class UsersCubit extends BaseCubit<UsersState> {
   bool hasPermission(ResourceType resource, PermissionAction action) {
     final sessionUser = _useCases.getSessionUser();
     if (sessionUser.isAdmin) return true;
+
+    final permissionKey = '${resource.code}.${action.code}';
+    if (sessionUser.permissions.containsKey(permissionKey)) {
+      return sessionUser.permissions[permissionKey]!;
+    } //TODO convert correctly
 
     final groupId = sessionUser.permissionGroupId;
     if (groupId == null || groupId.isEmpty) return false;
