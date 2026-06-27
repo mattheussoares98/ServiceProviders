@@ -135,6 +135,7 @@ The following table maps standard widgets to their corresponding custom shared c
 | `ElevatedButton` / `MaterialButton` | `PrimaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart`. |
 | `TextButton` | `BaseTextButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart`. |
 | `IconButton` | `BaseIconButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart`. |
+| `Icon` (standalone) | `PlatformIcon` | **Never use raw `Icon(...)` in the UI.** Use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)` Import `package:clean_architecture/shared_ui/ui/base/platform_icon.dart`. |
 | `OutlinedButton` | `SecondaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart`. |
 | `AlertDialog` / `showDialog` | `showAlertDialog` | Import `package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart`. Call the asynchronous `showAlertDialog(...)` helper function. |
 | `BottomNavigationBar` | `BaseBottomNavigationBar` | Import `package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart` and use it with `BaseBottomNavigationBarItem`. |
@@ -148,6 +149,29 @@ The following table maps standard widgets to their corresponding custom shared c
 | `TextField` / `TextFormField` | `BaseTextFormField` | Import `package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart`. |
 | `Scaffold` | `BaseScaffold` | Import `package:clean_architecture/shared_ui/ui/base/base_scaffold.dart`. |
 | `Icon` (with platform variant) | `PlatformIcon` | Import `package:clean_architecture/shared_ui/ui/base/platform_icon.dart`. |
+
+---
+
+## Enum Labels — Ownership Rule
+
+Enum display labels **must live inside the enum itself** as a `label` field — never as a `switch` statement, helper method, or extension in a widget/page.
+
+```dart
+// ✅ Correct — label lives in the domain enum
+enum PermissionAction {
+  create('create', 'Criar'),
+  read('read', 'Ler');
+  const PermissionAction(this.code, this.label);
+  final String code;
+  final String label;
+}
+// Usage in UI: action.label
+
+// ❌ Wrong — label logic leaking into presentation layer
+extension PermissionActionExtension on PermissionAction {
+  String get label { switch (this) { ... } }
+}
+```
 
 ---
 
@@ -169,4 +193,5 @@ The following table maps standard widgets to their corresponding custom shared c
 - ❌ No English user-visible strings — all labels/messages/buttons/placeholders in **pt-BR**.
 - ❌ No standard Flutter/Material widgets when a custom equivalent exists in `lib/shared_ui/ui/base/` (see widget mapping table above).
 - ❌ No overflow-prone layouts — use `Flexible`, `Expanded`, `LayoutBuilder`, `SingleChildScrollView`.
-- ❌ No color/label mapping methods inside page/widget classes — declare as Dart extension methods on domain enums in the presentation layer.
+- ❌ No raw `Icon(...)` widget — always use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)`.
+- ❌ No enum label mapping in the UI (switch/extension/helper method) — add a `label` field directly to the enum.
