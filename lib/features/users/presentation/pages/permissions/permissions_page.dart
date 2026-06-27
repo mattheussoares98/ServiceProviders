@@ -10,51 +10,53 @@ import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 @RoutePage()
-class PermissionsPage extends StatefulWidget {
+class PermissionsPage extends HookWidget {
   const PermissionsPage({super.key});
 
   @override
-  State<PermissionsPage> createState() => _PermissionsPageState();
-}
-
-class _PermissionsPageState extends State<PermissionsPage> {
-  int _selectedIndex = 0;
-
-  @override
   Widget build(BuildContext context) {
-    final items = [
-      BaseBottomNavigationBarItem(
-        label: 'Grupos'.hardcoded,
-        platformIcon: const PlatformIcon(
-          materialIcon: Icons.group,
-          cupertinoIcon: CupertinoIcons.group,
-        ),
+    final selectedIndex = useState(0);
+    final pageController = useState(PageController()).value;
+    return BaseScaffold(
+      isScrollable: false,
+      usePadding: false,
+      onRefresh: () => context.read<UsersCubit>().loadAll(emitLoading: false),
+      appBar: BaseAppBar(title: 'Permissões'.hardcoded),
+      body: PageView(
+        controller: pageController,
+        onPageChanged: (value) => selectedIndex.value = value,
+        children: const [Groups(), Users()],
       ),
-      BaseBottomNavigationBarItem(
-        label: 'Usuários'.hardcoded,
-        platformIcon: const PlatformIcon(
-          materialIcon: Icons.person,
-          cupertinoIcon: CupertinoIcons.person,
+      bottomNavigationBar: BaseBottomNavigationBar(
+        currentIndex: selectedIndex.value,
+        onTap: (value) => pageController.animateToPage(
+          value,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
         ),
-      ),
-    ];
-    return DefaultTabController(
-      length: 2,
-      child: BaseScaffold(
-        observeScreenChanges: true,
-        isScrollable: false,
-        onRefresh: () => context.read<UsersCubit>().loadAll(emitLoading: false),
-        appBar: BaseAppBar(title: 'Permissões'.hardcoded),
-        body: const TabBarView(children: [Groups(), Users()]),
-        bottomNavigationBar: BaseBottomNavigationBar(
-          items: items,
-          currentIndex: _selectedIndex,
-          onTap: (value) => setState(() {
-            _selectedIndex = value;
-          }),
-        ),
+        items: [
+          BaseBottomNavigationBarItem(
+            label: 'Grupos'.hardcoded,
+            platformIcon: PlatformIcon(
+              materialIcon: Icons.group,
+              cupertinoIcon: selectedIndex.value == 0
+                  ? CupertinoIcons.group_solid
+                  : CupertinoIcons.group,
+            ),
+          ),
+          BaseBottomNavigationBarItem(
+            label: 'Usuários'.hardcoded,
+            platformIcon: PlatformIcon(
+              materialIcon: Icons.person,
+              cupertinoIcon: selectedIndex.value == 1
+                  ? CupertinoIcons.person_solid
+                  : CupertinoIcons.person,
+            ),
+          ),
+        ],
       ),
     );
   }
