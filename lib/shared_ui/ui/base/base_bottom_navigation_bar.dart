@@ -73,18 +73,9 @@ class BaseBottomNavigationBar extends StatelessWidget {
             children: [
               Flexible(child: icon),
               if (isSelected)
-                FittedBox(
-                  child: BaseText.title(
-                    e.label!,
-                    color: theme.selectedItemColor,
-                  ),
-                )
+                FittedBox(child: BaseText.title(e.label!))
               else
-                BaseText.bodySmall(
-                  e.label!,
-                  color: theme.unselectedItemColor ?? const Color(0xFF64748B),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                BaseText.bodySmall(e.label!, overflow: TextOverflow.ellipsis),
             ],
           ),
         );
