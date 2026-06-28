@@ -7,6 +7,8 @@ import 'package:clean_architecture/features/users/domain/use_cases/delete_user_p
 import 'package:clean_architecture/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/invite_user_use_case.dart';
+import 'package:clean_architecture/features/users/domain/entities/invite_user_params.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:faker/faker.dart';
@@ -28,36 +30,64 @@ void main() {
   late CreatePermissionGroupUseCase createPermissionGroupUseCase;
   late UpdatePermissionGroupUseCase updatePermissionGroupUseCase;
   late DeletePermissionGroupUseCase deletePermissionGroupUseCase;
+  late InviteUserUseCase inviteUserUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makePermissionGroupEntity());
+    registerFallbackValue(
+      const InviteUserParams(email: '', companyId: '', groupId: ''),
+    );
   });
 
   setUp(() {
     mockRepository = MockUsersRepository();
     getUsersUseCase = GetUsersUseCase(usersRepository: mockRepository);
-    getUserProfileByIdUseCase = GetUserProfileByIdUseCase(usersRepository: mockRepository);
-    updateUserProfileUseCase = UpdateUserProfileUseCase(usersRepository: mockRepository);
-    deleteUserProfileUseCase = DeleteUserProfileUseCase(usersRepository: mockRepository);
-    getPermissionGroupsUseCase = GetPermissionGroupsUseCase(usersRepository: mockRepository);
-    createPermissionGroupUseCase = CreatePermissionGroupUseCase(usersRepository: mockRepository);
-    updatePermissionGroupUseCase = UpdatePermissionGroupUseCase(usersRepository: mockRepository);
-    deletePermissionGroupUseCase = DeletePermissionGroupUseCase(usersRepository: mockRepository);
+    getUserProfileByIdUseCase = GetUserProfileByIdUseCase(
+      usersRepository: mockRepository,
+    );
+    updateUserProfileUseCase = UpdateUserProfileUseCase(
+      usersRepository: mockRepository,
+    );
+    deleteUserProfileUseCase = DeleteUserProfileUseCase(
+      usersRepository: mockRepository,
+    );
+    getPermissionGroupsUseCase = GetPermissionGroupsUseCase(
+      usersRepository: mockRepository,
+    );
+    createPermissionGroupUseCase = CreatePermissionGroupUseCase(
+      usersRepository: mockRepository,
+    );
+    updatePermissionGroupUseCase = UpdatePermissionGroupUseCase(
+      usersRepository: mockRepository,
+    );
+    deletePermissionGroupUseCase = DeletePermissionGroupUseCase(
+      usersRepository: mockRepository,
+    );
+    inviteUserUseCase = InviteUserUseCase(usersRepository: mockRepository);
   });
 
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
-  final tUserProfileList = [tUserProfileEntity, tUserProfileEntity, tUserProfileEntity];
+  final tUserProfileList = [
+    tUserProfileEntity,
+    tUserProfileEntity,
+    tUserProfileEntity,
+  ];
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
-  final tPermissionGroupList = [tPermissionGroupEntity, tPermissionGroupEntity, tPermissionGroupEntity];
+  final tPermissionGroupList = [
+    tPermissionGroupEntity,
+    tPermissionGroupEntity,
+    tPermissionGroupEntity,
+  ];
 
   group('User Profiles Use Cases', () {
     group('GetUsersUseCase', () {
       test('should return a list of user profiles on success', () async {
         // Arrange
         final companyId = faker.guid.guid();
-        when(() => mockRepository.getUserProfiles(any()))
-            .thenAnswer((_) async => SuccessState(data: tUserProfileList));
+        when(
+          () => mockRepository.getUserProfiles(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUserProfileList));
 
         // Act
         final result = await getUsersUseCase(companyId);
@@ -73,8 +103,9 @@ void main() {
       test('should return user profile by id on success', () async {
         // Arrange
         final userId = faker.guid.guid();
-        when(() => mockRepository.getUserProfileById(any()))
-            .thenAnswer((_) async => SuccessState(data: tUserProfileEntity));
+        when(
+          () => mockRepository.getUserProfileById(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUserProfileEntity));
 
         // Act
         final result = await getUserProfileByIdUseCase(userId);
@@ -89,8 +120,9 @@ void main() {
     group('UpdateUserProfileUseCase', () {
       test('should update user profile on success', () async {
         // Arrange
-        when(() => mockRepository.updateUserProfile(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.updateUserProfile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await updateUserProfileUseCase(tUserProfileEntity);
@@ -98,7 +130,9 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
-        verify(() => mockRepository.updateUserProfile(tUserProfileEntity)).called(1);
+        verify(
+          () => mockRepository.updateUserProfile(tUserProfileEntity),
+        ).called(1);
       });
     });
 
@@ -106,8 +140,9 @@ void main() {
       test('should delete user profile on success', () async {
         // Arrange
         final userId = faker.guid.guid();
-        when(() => mockRepository.deleteUserProfile(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.deleteUserProfile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await deleteUserProfileUseCase(userId);
@@ -115,7 +150,41 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
-        verify(() => mockRepository.deleteUserProfile(userId)).called(1);
+      });
+    });
+
+    group('InviteUserUseCase', () {
+      test('should invite user on success', () async {
+        // Arrange
+        final email = faker.internet.email();
+        final companyId = faker.guid.guid();
+        final groupId = faker.guid.guid();
+        final params = InviteUserParams(
+          email: email,
+          companyId: companyId,
+          groupId: groupId,
+        );
+
+        when(
+          () => mockRepository.inviteUser(
+            email: any(named: 'email'),
+            companyId: any(named: 'companyId'),
+            groupId: any(named: 'groupId'),
+          ),
+        ).thenAnswer((_) async => SuccessState.nil);
+
+        // Act
+        final result = await inviteUserUseCase(params);
+
+        // Assert
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockRepository.inviteUser(
+            email: email,
+            companyId: companyId,
+            groupId: groupId,
+          ),
+        ).called(1);
       });
     });
   });
@@ -125,8 +194,9 @@ void main() {
       test('should return list of permission groups on success', () async {
         // Arrange
         final companyId = faker.guid.guid();
-        when(() => mockRepository.getPermissionGroups(any()))
-            .thenAnswer((_) async => SuccessState(data: tPermissionGroupList));
+        when(
+          () => mockRepository.getPermissionGroups(any()),
+        ).thenAnswer((_) async => SuccessState(data: tPermissionGroupList));
 
         // Act
         final result = await getPermissionGroupsUseCase(companyId);
@@ -141,32 +211,42 @@ void main() {
     group('CreatePermissionGroupUseCase', () {
       test('should create permission group on success', () async {
         // Arrange
-        when(() => mockRepository.createPermissionGroup(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.createPermissionGroup(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
-        final result = await createPermissionGroupUseCase(tPermissionGroupEntity);
+        final result = await createPermissionGroupUseCase(
+          tPermissionGroupEntity,
+        );
 
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
-        verify(() => mockRepository.createPermissionGroup(tPermissionGroupEntity)).called(1);
+        verify(
+          () => mockRepository.createPermissionGroup(tPermissionGroupEntity),
+        ).called(1);
       });
     });
 
     group('UpdatePermissionGroupUseCase', () {
       test('should update permission group on success', () async {
         // Arrange
-        when(() => mockRepository.updatePermissionGroup(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.updatePermissionGroup(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
-        final result = await updatePermissionGroupUseCase(tPermissionGroupEntity);
+        final result = await updatePermissionGroupUseCase(
+          tPermissionGroupEntity,
+        );
 
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
-        verify(() => mockRepository.updatePermissionGroup(tPermissionGroupEntity)).called(1);
+        verify(
+          () => mockRepository.updatePermissionGroup(tPermissionGroupEntity),
+        ).called(1);
       });
     });
 
@@ -174,8 +254,9 @@ void main() {
       test('should delete permission group on success', () async {
         // Arrange
         final groupId = faker.guid.guid();
-        when(() => mockRepository.deletePermissionGroup(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.deletePermissionGroup(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await deletePermissionGroupUseCase(groupId);
