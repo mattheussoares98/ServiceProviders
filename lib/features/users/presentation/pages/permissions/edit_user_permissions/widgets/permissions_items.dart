@@ -1,4 +1,3 @@
-import 'package:clean_architecture/core/domain/entities/selectable_item.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
@@ -49,34 +48,36 @@ class PermissionsItems extends StatelessWidget {
                         children: [
                           BaseText(action.label),
                           gapH8,
-                          BaseSegmentedButtons<_ThreeStateValue>(
-                            items: <SelectableItem<_ThreeStateValue>>[
-                              SelectableItemImpl<_ThreeStateValue>(
-                                name: 'Herdar'.hardcoded,
-                                value: _ThreeStateValue.inherit,
-                                color: context.theme.primaryColor,
-                              ),
-                              SelectableItemImpl<_ThreeStateValue>(
-                                name: 'Ativo'.hardcoded,
-                                value: _ThreeStateValue.active,
-                                color: Colors.green.shade600,
-                              ),
-                              SelectableItemImpl<_ThreeStateValue>(
-                                name: 'Inativo'.hardcoded,
-                                value: _ThreeStateValue.inactive,
-                                color: Colors.red.shade600,
-                              ),
-                            ],
-                            selectedValue: _ThreeStateValue.fromBool(
-                              currentValue,
-                            ),
+                          BaseSegmentedButtons<bool?>(
+                            items: const [null, true, false],
+                            selectedValue: currentValue,
                             onChanged: isAdmin
                                 ? null
                                 : (value) => cubit.setUserPermissionOverride(
                                     resource,
                                     action,
-                                    value.toBool(),
+                                    value,
                                   ),
+                            itemLabelBuilder: (value) {
+                              switch (value) {
+                                case null:
+                                  return 'Herdar'.hardcoded;
+                                case true:
+                                  return 'Ativo'.hardcoded;
+                                case false:
+                                  return 'Inativo'.hardcoded;
+                              }
+                            },
+                            itemColorBuilder: (value) {
+                              switch (value) {
+                                case null:
+                                  return context.theme.primaryColor;
+                                case true:
+                                  return Colors.green.shade600;
+                                case false:
+                                  return Colors.red.shade600;
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -89,27 +90,5 @@ class PermissionsItems extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-enum _ThreeStateValue {
-  inherit,
-  active,
-  inactive;
-
-  bool? toBool() {
-    switch (this) {
-      case _ThreeStateValue.inherit:
-        return null;
-      case _ThreeStateValue.active:
-        return true;
-      case _ThreeStateValue.inactive:
-        return false;
-    }
-  }
-
-  static _ThreeStateValue fromBool(bool? value) {
-    if (value == null) return _ThreeStateValue.inherit;
-    return value ? _ThreeStateValue.active : _ThreeStateValue.inactive;
   }
 }
