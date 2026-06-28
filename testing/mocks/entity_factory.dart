@@ -317,21 +317,15 @@ abstract final class EntityFactory {
       id: _makeId(),
       companyId: _makeId(),
       name: _makeWord(),
-      permissions: const [
-        ResourcePermissionEntity(
-          resource: ResourceType.workOrders,
-          actions: {PermissionAction.create, PermissionAction.update},
-        ),
-        ResourcePermissionEntity(
-          resource: ResourceType.attachments,
-          actions: {
-            PermissionAction.create,
-            PermissionAction.read,
-            PermissionAction.update,
-            PermissionAction.delete,
-          },
-        ),
-      ],
+      permissions: const {
+        ResourceType.workOrders: {PermissionAction.create, PermissionAction.update},
+        ResourceType.attachments: {
+          PermissionAction.create,
+          PermissionAction.read,
+          PermissionAction.update,
+          PermissionAction.delete,
+        },
+      },
       isDefault: false,
       createdAt: _makeDateTime(),
     );

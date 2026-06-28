@@ -44,11 +44,10 @@ void main() {
       expect(result.name, 'Admin Group');
       expect(result.permissions, hasLength(1));
 
-      final firstPerm = result.permissions.first;
-      expect(firstPerm.resource, ResourceType.workOrders);
-      expect(firstPerm.canCreate, isTrue);
-      expect(firstPerm.canRead, isTrue);
-      expect(firstPerm.canUpdate, isFalse);
+      final actions = result.permissions[ResourceType.workOrders]!;
+      expect(actions, contains(PermissionAction.create));
+      expect(actions, contains(PermissionAction.read));
+      expect(actions, isNot(contains(PermissionAction.update)));
     });
 
     test('should expand resource wildcard .* correctly on fromJson', () {
@@ -62,12 +61,11 @@ void main() {
       final result = PermissionGroupResponseModel.fromJson(json);
       expect(result.permissions, hasLength(1));
 
-      final firstPerm = result.permissions.first;
-      expect(firstPerm.resource, ResourceType.workOrders);
-      expect(firstPerm.canCreate, isTrue);
-      expect(firstPerm.canRead, isTrue);
-      expect(firstPerm.canUpdate, isTrue);
-      expect(firstPerm.canDelete, isTrue);
+      final actions = result.permissions[ResourceType.workOrders]!;
+      expect(actions, contains(PermissionAction.create));
+      expect(actions, contains(PermissionAction.read));
+      expect(actions, contains(PermissionAction.update));
+      expect(actions, contains(PermissionAction.delete));
     });
 
     test('should expand global wildcard * correctly on fromJson', () {
@@ -82,11 +80,11 @@ void main() {
       expect(result.permissions, hasLength(ResourceType.values.length));
 
       for (final res in ResourceType.values) {
-        final perm = result.permissions.firstWhere((p) => p.resource == res);
-        expect(perm.canCreate, isTrue);
-        expect(perm.canRead, isTrue);
-        expect(perm.canUpdate, isTrue);
-        expect(perm.canDelete, isTrue);
+        final actions = result.permissions[res]!;
+        expect(actions, contains(PermissionAction.create));
+        expect(actions, contains(PermissionAction.read));
+        expect(actions, contains(PermissionAction.update));
+        expect(actions, contains(PermissionAction.delete));
       }
     });
   });

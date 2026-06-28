@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:equatable/equatable.dart';
 
 class UserProfileEntity extends Equatable {
@@ -45,7 +45,7 @@ class UserProfileEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-  final Map<String, bool> permissions;
+  final Map<ResourceType, Map<PermissionAction, bool?>> permissions;
 
   @override
   List<Object?> get props => [
@@ -77,7 +77,7 @@ class UserProfileEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    MapBool? permissions, //TODO convert correctly
+    Map<ResourceType, Map<PermissionAction, bool?>>? permissions,
     bool? annulPhone,
     bool? annulPermissionGroupId,
     bool? annulAvatarUrl,

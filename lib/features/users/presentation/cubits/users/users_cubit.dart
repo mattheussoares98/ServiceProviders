@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/users/domain/entities/permission_gro
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 
 part 'users_state.dart';
@@ -223,22 +224,19 @@ class UsersCubit extends BaseCubit<UsersState> {
     final sessionUser = _useCases.getSessionUser();
     if (sessionUser.isAdmin) return true;
 
-    final permissionKey = '${resource.code}.${action.code}';
-    if (sessionUser.permissions.containsKey(permissionKey)) {
-      return sessionUser.permissions[permissionKey]!;
-    } //TODO convert correctly
+    final userOverride = sessionUser.permissions[resource]?[action];
+    if (userOverride != null) {
+      return userOverride; //TODO check if there is a test for it
+    }
 
     final groupId = sessionUser.permissionGroupId;
     if (groupId == null || groupId.isEmpty) return false;
 
-    for (final group in state.permissionGroups) {
-      if (group.id == groupId) {
-        for (final permission in group.permissions) {
-          if (permission.resource == resource) {
-            return permission.actions.contains(action);
-          }
-        }
-      }
+    final group = state.permissionGroups.firstWhereOrNull(
+      (g) => g.id == groupId,
+    );
+    if (group != null) {
+      return group.permissions[resource]?.contains(action) ?? false;
     }
 
     return false;

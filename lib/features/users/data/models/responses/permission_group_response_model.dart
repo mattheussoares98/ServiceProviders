@@ -58,7 +58,9 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
     );
   }
 
-  static List<ResourcePermissionEntity> _parsePermissions(dynamic permissionsRaw) {
+  static Map<ResourceType, Set<PermissionAction>> _parsePermissions(
+    dynamic permissionsRaw,
+  ) {
     final Map<ResourceType, Set<PermissionAction>> grouped = {};
 
     void addAllActionsForResource(ResourceType resource) {
@@ -74,6 +76,7 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
       } else if (permissionsRaw is List) {
         list = permissionsRaw;
       }
+      //TODO change to use the same pattern of Map<ResourceType, Set<PermissionAction>>
       for (final p in list) {
         final code = p.toString();
         if (code == '*') {
@@ -111,9 +114,7 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
       }
     }
 
-    return grouped.entries
-        .map((e) => ResourcePermissionEntity(resource: e.key, actions: e.value))
-        .toList();
+    return grouped;
   }
 
   @override
@@ -121,8 +122,8 @@ class PermissionGroupResponseModel extends PermissionGroupEntity
     'id': id,
     'company_id': companyId,
     'name': name,
-    'permissions': permissions.expand((rp) {
-      return rp.actions.map((action) => '${rp.resource.code}.${action.code}');
+    'permissions': permissions.entries.expand((e) {
+      return e.value.map((action) => '${e.key.code}.${action.code}');
     }).toList(),
     'is_default': isDefault,
     'created_at': createdAt.toIso8601String(),

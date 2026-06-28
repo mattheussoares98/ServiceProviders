@@ -557,12 +557,9 @@ void main() {
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.attachments,
-                actions: {PermissionAction.read},
-              ),
-            ],
+            permissions: {
+              ResourceType.attachments: {PermissionAction.read},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
@@ -588,12 +585,9 @@ void main() {
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.workOrders,
-                actions: {PermissionAction.read},
-              ),
-            ],
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.read},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
@@ -619,12 +613,9 @@ void main() {
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.workOrders,
-                actions: {PermissionAction.delete},
-              ),
-            ],
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.delete},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
@@ -645,20 +636,17 @@ void main() {
           final regularUser = tSessionUser.copyWith(
             isAdmin: false,
             permissionGroupId: groupId,
-            permissions: {
-              'work_orders.delete': true,
+            permissions: const {
+              ResourceType.workOrders: {PermissionAction.delete: true},
             },
           );
           when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.workOrders,
-                actions: {PermissionAction.read},
-              ),
-            ],
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.read},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
@@ -679,20 +667,17 @@ void main() {
           final regularUser = tSessionUser.copyWith(
             isAdmin: false,
             permissionGroupId: groupId,
-            permissions: {
-              'work_orders.delete': false,
+            permissions: const {
+              ResourceType.workOrders: {PermissionAction.delete: false},
             },
           );
           when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.workOrders,
-                actions: {PermissionAction.delete},
-              ),
-            ],
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.delete},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
@@ -713,20 +698,17 @@ void main() {
           final regularUser = tSessionUser.copyWith(
             isAdmin: false,
             permissionGroupId: groupId,
-            permissions: {
-              'work_orders.read': true,
+            permissions: const {
+              ResourceType.workOrders: {PermissionAction.read: true},
             },
           );
           when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
           final group = tPermissionGroup.copyWith(
             id: groupId,
-            permissions: [
-              const ResourcePermissionEntity(
-                resource: ResourceType.workOrders,
-                actions: {PermissionAction.delete},
-              ),
-            ],
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.delete},
+            },
           );
 
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));

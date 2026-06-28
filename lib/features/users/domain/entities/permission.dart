@@ -1,15 +1,15 @@
 import 'package:equatable/equatable.dart';
 
 enum ResourceType {
-  workOrders('work_orders', 'Ordens de Serviço'),
-  assets('assets', 'Ativos'),
-  locations('locations', 'Locais'),
-  reports('reports', 'Relatórios'),
   attachments('attachments', 'Anexos'),
+  assets('assets', 'Ativos'),
+  categories('categories', 'Categorias'),
   checklists('checklists', 'Checklists'),
+  locations('locations', 'Locais'),
+  workOrders('work_orders', 'Ordens de Serviço'),
   maintenancePlans('maintenance_plans', 'Planos de Manutenção'),
-  users('users', 'Usuários'),
-  categories('categories', 'Categorias');
+  reports('reports', 'Relatórios'),
+  users('users', 'Usuários');
 
   const ResourceType(this.code, this.label);
   final String code;

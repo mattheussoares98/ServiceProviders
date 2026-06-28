@@ -1,26 +1,25 @@
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_switch.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ResourcePermissionCard extends HookWidget {
+class ResourcePermissionCard extends StatelessWidget {
   const ResourcePermissionCard({
     super.key,
     required this.resource,
-    required this.notifier,
+    required this.allowedPermissions,
     required this.isAdminGroup,
   });
 
   final ResourceType resource;
-  final ValueNotifier<Set<PermissionAction>> notifier;
+  final Set<PermissionAction> allowedPermissions;
   final bool isAdminGroup;
 
   @override
   Widget build(BuildContext context) {
-    final actions = useValueListenable(notifier);
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
@@ -29,36 +28,50 @@ class ResourcePermissionCard extends HookWidget {
           children: [
             BaseText(resource.label),
             const Divider(height: Sizes.p20),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              childAspectRatio: 3,
-              children: PermissionAction.values.map((action) {
-                final hasPermission = actions.contains(action);
-
-                return DefaultSwitch(
-                  title: action.label,
-                  value: hasPermission,
-                  onChanged: isAdminGroup
-                      ? null
-                      : (value) {
-                          final current = Set<PermissionAction>.from(
-                            notifier.value,
-                          );
-                          if (value) {
-                            current.add(action);
-                          } else {
-                            current.remove(action);
-                          }
-                          notifier.value = current;
-                        },
-                );
-              }).toList(),
-            ),
+            ...PermissionAction.values.map((action) {
+              return _Item(
+                key: ValueKey('${resource.code}.$action'),
+                action: action,
+                isAdminGroup: isAdminGroup,
+                resource: resource,
+                allowedPermissions: allowedPermissions,
+              );
+            }),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Item extends StatelessWidget {
+  const _Item({
+    super.key,
+    required this.action,
+    required this.isAdminGroup,
+    required this.resource,
+    required this.allowedPermissions,
+  });
+
+  final PermissionAction action;
+  final bool isAdminGroup;
+  final ResourceType resource;
+  final Set<PermissionAction> allowedPermissions;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasPermission = allowedPermissions.contains(action);
+
+    return DefaultSwitch(
+      title: action.label,
+      value: hasPermission,
+      onChanged: isAdminGroup
+          ? null
+          : (value) => context.read<PermissionsCubit>().toggleGroupPermission(
+              resource,
+              action,
+              value,
+            ),
     );
   }
 }

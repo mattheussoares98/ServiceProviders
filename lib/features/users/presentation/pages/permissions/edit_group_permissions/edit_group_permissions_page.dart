@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_group_permissions/widgets/group_permissions_header.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_group_permissions/widgets/resource_permission_card.dart';
@@ -9,113 +10,96 @@ import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get_it/get_it.dart';
 
 @RoutePage()
-class EditGroupPermissionsPage extends HookWidget {
+class EditGroupPermissionsPage extends StatelessWidget {
   const EditGroupPermissionsPage({super.key, required this.group});
   final PermissionGroupEntity group;
 
   @override
   Widget build(BuildContext context) {
-    final isAdminGroup = useMemoized(
-      () => group.name.toLowerCase() == 'administrador',
-      [group],
-    );
+    Future<void> onSave() async {
+      final cubit = context.read<PermissionsCubit>();
 
-    final localPermissions = useMemoized(() {
-      final map = <ResourceType, ValueNotifier<Set<PermissionAction>>>{};
-      for (final resource in ResourceType.values) {
-        final initialActions = <PermissionAction>{};
-        if (isAdminGroup) {
-          initialActions.addAll(PermissionAction.values);
-        } else {
-          final perm = group.permissions.firstWhereOrNull(
-            (p) => p.resource == resource,
-          );
-          if (perm != null) {
-            initialActions.addAll(perm.actions);
-          }
-        }
-        map[resource] = ValueNotifier<Set<PermissionAction>>(initialActions);
-      }
-      return map;
-    }, [group, isAdminGroup]);
-
-    useEffect(() {
-      return () {
-        for (final notifier in localPermissions.values) {
-          notifier.dispose();
-        }
-      };
-    }, [localPermissions]);
-
-    final onSave = useCallback(() async {
-      final updatedPermissions = localPermissions.entries
-          .where((e) => e.value.value.isNotEmpty)
-          .map(
-            (e) => ResourcePermissionEntity(
-              resource: e.key,
-              actions: e.value.value,
-            ),
-          )
-          .toList();
-
-      final updatedGroup = group.copyWith(permissions: updatedPermissions);
-
-      final success = await context.read<UsersCubit>().savePermissionGroup(
-        updatedGroup,
-        isUpdate: true,
+      final success = await cubit.saveGroupPermissions(
+        context.read<UsersCubit>(),
       );
-
       if (success && context.mounted) {
         context.router.pop();
       }
-    }, [localPermissions, group]);
+    }
 
-    return BaseScaffold(
-      appBar: BaseAppBar(
-        title: 'Editar Grupo'.hardcoded,
-        actions: [
-          if (!isAdminGroup)
-            BlocSelector<UsersCubit, UsersState, bool>(
-              selector: (state) => state.status == StateStatus.saving,
-              builder: (context, isSaving) {
-                return BaseTextButton(
-                  onPressed: isSaving ? null : onSave,
-                  text: 'Salvar'.hardcoded,
-                  isLoading: isSaving,
-                );
-              },
-            ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(Sizes.p16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GroupPermissionsHeader(group: group, isAdminGroup: isAdminGroup),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: ResourceType.values.length,
-              itemBuilder: (context, index) {
-                final resource = ResourceType.values[index];
-                return ResourcePermissionCard(
-                  resource: resource,
-                  notifier: localPermissions[resource]!,
-                  isAdminGroup: isAdminGroup,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+    return BlocProvider(
+      create: (context) => GetIt.I<PermissionsCubit>()..initGroup(group),
+      child:
+          BlocSelector<PermissionsCubit, PermissionsState, (bool, StateStatus)>(
+            selector: (state) => (state.isAdmin, state.status),
+            builder: (context, state) {
+              final isAdmin = state.$1;
+              final status = state.$2;
+
+              return BaseScaffold(
+                isScrollable: false,
+                appBar: BaseAppBar(
+                  title: 'Editar Grupo'.hardcoded,
+                  actionsPadding: const EdgeInsets.only(right: Sizes.p12),
+                  actions: [
+                    if (!isAdmin)
+                      BaseTextButton(
+                        platformIcon: const PlatformIcon(
+                          materialIcon: Icons.save,
+                          cupertinoIcon: CupertinoIcons.check_mark,
+                        ),
+                        onPressed: status == StateStatus.saving ? null : onSave,
+                        text: 'Salvar'.hardcoded,
+                        isLoading: status == StateStatus.saving,
+                      ),
+                  ],
+                ),
+                body: CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: GroupPermissionsHeader(
+                        group: group,
+                        isAdminGroup: isAdmin,
+                      ),
+                    ),
+                    BlocSelector<
+                      PermissionsCubit,
+                      PermissionsState,
+                      Map<ResourceType, Set<PermissionAction>>
+                    >(
+                      selector: (state) => state.draftGroupPermissions,
+                      builder: (context, draftGroupPermissions) {
+                        return ResponsiveListFlow(
+                          isSliver: true,
+                          maxItemWidth: 200,
+                          itemCount: ResourceType.values.length,
+                          itemBuilder: (context, index) {
+                            final resource = ResourceType.values[index];
+                            final allowedPermissions =
+                                draftGroupPermissions[resource] ?? {};
+                            return ResourcePermissionCard(
+                              resource: resource,
+                              allowedPermissions: allowedPermissions,
+                              isAdminGroup: isAdmin,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
     );
   }
 }

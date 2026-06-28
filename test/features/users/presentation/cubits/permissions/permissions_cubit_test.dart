@@ -1,0 +1,189 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:clean_architecture/routing/helper/navigation_client.dart';
+import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
+
+class MockUsersCubit extends Mock implements UsersCubit {}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late PermissionsCubit cubit;
+  late MockUsersCubit mockUsersCubit;
+  late PermissionGroupEntity tGroup;
+  late UserProfileEntity tUser;
+  late MockNavigationClient mockNavigationClient;
+
+  setUpAll(() {
+    registerFallbackValue(EntityFactory.makePermissionGroupEntity());
+    registerFallbackValue(EntityFactory.makeUserProfileEntity());
+  });
+
+  setUp(() {
+    mockNavigationClient = MockNavigationClient();
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    cubit = PermissionsCubit();
+    mockUsersCubit = MockUsersCubit();
+    tGroup = EntityFactory.makePermissionGroupEntity();
+    tUser = EntityFactory.makeUserProfileEntity();
+  });
+
+  tearDown(GetIt.I.reset);
+  group('PermissionsCubit Group Logic', () {
+    test('initial state should be PermissionsState', () {
+      expect(cubit.state, const PermissionsState());
+    });
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'initGroup initializes permissions correctly',
+      build: () => cubit,
+      act: (c) => c.initGroup(tGroup),
+      expect: () => [
+        isA<PermissionsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.group, 'group', tGroup)
+            .having((s) => s.isAdmin, 'isAdmin', false)
+            .having(
+              (s) =>
+                  s.draftGroupPermissions.containsKey(ResourceType.workOrders),
+              'has workOrders',
+              true,
+            ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'toggleGroupPermission updates localGroupPermissions',
+      build: () => cubit..initGroup(tGroup),
+      act: (c) => c.toggleGroupPermission(
+        ResourceType.workOrders,
+        PermissionAction.delete,
+        true,
+      ),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.draftGroupPermissions[ResourceType.workOrders],
+          'actions list',
+          {
+            PermissionAction.create,
+            PermissionAction.update,
+            PermissionAction.delete,
+          },
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'saveGroupPermissions calls UsersCubit.savePermissionGroup and emits loaded on success',
+      build: () {
+        when(
+          () => mockUsersCubit.savePermissionGroup(any(), isUpdate: true),
+        ).thenAnswer((_) async => true);
+        return cubit..initGroup(tGroup);
+      },
+      act: (c) => c.saveGroupPermissions(mockUsersCubit),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'saveGroupPermissions emits error on failure',
+      build: () {
+        when(
+          () => mockUsersCubit.savePermissionGroup(any(), isUpdate: true),
+        ).thenAnswer((_) async => false);
+        return cubit..initGroup(tGroup);
+      },
+      act: (c) => c.saveGroupPermissions(mockUsersCubit),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.error,
+        ),
+      ],
+    );
+  });
+
+  group('PermissionsCubit User Logic', () {
+    blocTest<PermissionsCubit, PermissionsState>(
+      'initUser initializes overrides correctly',
+      build: () => cubit,
+      act: (c) => c.initUser(tUser),
+      expect: () => [
+        isA<PermissionsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.user, 'user', tUser)
+            .having((s) => s.isAdmin, 'isAdmin', false),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'setUserPermissionOverride updates state overrides',
+      build: () => cubit..initUser(tUser),
+      act: (c) => c.setUserPermissionOverride(
+        ResourceType.workOrders,
+        PermissionAction.create,
+        true,
+      ),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) =>
+              s.draftUserPermissions[ResourceType.workOrders]?[PermissionAction
+                  .create],
+          'override status',
+          true,
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'saveUserPermissions calls UsersCubit.updateUserProfile and emits loaded on success',
+      build: () {
+        when(
+          () => mockUsersCubit.updateUserProfile(any()),
+        ).thenAnswer((_) async => true);
+        return cubit..initUser(tUser);
+      },
+      act: (c) => c.saveUserPermissions(mockUsersCubit),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<PermissionsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
+    );
+  });
+}
