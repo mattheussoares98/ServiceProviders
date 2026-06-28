@@ -89,7 +89,9 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       emit(state.copyWith(group: updatedGroup, status: StateStatus.loaded));
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      //not emiting error because it is already handling in the users cubit
+      //this cubit here just validate and call the service
+      emit(state.copyWith(status: StateStatus.loaded));
       return false;
     }
   }

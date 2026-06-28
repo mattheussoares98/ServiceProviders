@@ -25,17 +25,6 @@ class EditGroupPermissionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> onSave() async {
-      final cubit = context.read<PermissionsCubit>();
-
-      final success = await cubit.saveGroupPermissions(
-        context.read<UsersCubit>(),
-      );
-      if (success && context.mounted) {
-        context.router.pop();
-      }
-    }
-
     return BlocProvider(
       create: (context) => GetIt.I<PermissionsCubit>()..initGroup(group),
       child:
@@ -44,6 +33,17 @@ class EditGroupPermissionsPage extends StatelessWidget {
             builder: (context, state) {
               final isAdmin = state.$1;
               final status = state.$2;
+
+              Future<void> onSave() async {
+                final cubit = context.read<PermissionsCubit>();
+
+                final success = await cubit.saveGroupPermissions(
+                  context.read<UsersCubit>(),
+                );
+                if (success && context.mounted) {
+                  context.router.pop();
+                }
+              }
 
               return BaseScaffold(
                 isScrollable: false,

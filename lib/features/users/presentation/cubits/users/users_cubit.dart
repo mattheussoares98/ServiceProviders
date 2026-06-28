@@ -175,7 +175,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message =
           result.message ?? 'Erro ao salvar grupo de permissão'.hardcoded;
-      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
+      emit(state.copyWith(errorMessage: message));
       showErrorToast(message);
       return false;
     }

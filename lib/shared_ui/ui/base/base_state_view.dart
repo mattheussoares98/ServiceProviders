@@ -29,7 +29,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
           return const LoadingCircle();
         }
 
-        if (state.errorMessage?.isNotEmpty == true) {
+        if (state.status == StateStatus.error) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(Sizes.p16),
@@ -37,7 +37,11 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  BaseText(state.errorMessage!),
+                  BaseText(
+                    state.errorMessage ??
+                        'Ocorreu um erro não esperado. Tente novamente'
+                            .hardcoded,
+                  ),
                   if (onRetry != null) ...[
                     gapH16,
                     PrimaryButton(

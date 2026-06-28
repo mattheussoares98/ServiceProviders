@@ -125,7 +125,7 @@ void main() {
         isA<PermissionsState>().having(
           (s) => s.status,
           'status',
-          StateStatus.error,
+          StateStatus.loaded,
         ),
       ],
     );
