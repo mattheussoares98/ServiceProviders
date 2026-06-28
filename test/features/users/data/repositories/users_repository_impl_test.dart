@@ -20,7 +20,9 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      UserProfileResponseModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+      UserProfileResponseModel.fromEntity(
+        EntityFactory.makeUserProfileEntity(),
+      ),
     );
     registerFallbackValue(
       PermissionGroupResponseModel.fromEntity(
@@ -78,9 +80,9 @@ void main() {
           'should fetch profiles from remote, cache them locally, and return list on success when online',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(true);
-            when(
-              () => mockRemoteDataSource.getUserProfiles(any()),
-            ).thenAnswer((_) async => SuccessState(data: tUserProfileModelList));
+            when(() => mockRemoteDataSource.getUserProfiles(any())).thenAnswer(
+              (_) async => SuccessState(data: tUserProfileModelList),
+            );
             when(
               () => mockLocalDataSource.saveUserProfiles(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -105,9 +107,9 @@ void main() {
           'should return list of UserProfileEntity from local when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
-            when(
-              () => mockLocalDataSource.getUserProfiles(any()),
-            ).thenAnswer((_) async => SuccessState(data: tUserProfileModelList));
+            when(() => mockLocalDataSource.getUserProfiles(any())).thenAnswer(
+              (_) async => SuccessState(data: tUserProfileModelList),
+            );
 
             final result = await repository.getUserProfiles(tCompanyId);
 
@@ -141,9 +143,9 @@ void main() {
             expect(result, isA<SuccessState<UserProfileEntity>>());
             expect(result.data, equals(tUserProfileEntity));
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockRemoteDataSource.getUserProfileById(tId)).called(
-              1,
-            );
+            verify(
+              () => mockRemoteDataSource.getUserProfileById(tId),
+            ).called(1);
             verify(
               () => mockLocalDataSource.saveUserProfile(tUserProfileModel),
             ).called(1);
@@ -173,7 +175,7 @@ void main() {
 
       group('updateUserProfile', () {
         test(
-          'should save profile locally and return true when offline',
+          'should not save profile locally and return true when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
             when(
@@ -184,12 +186,11 @@ void main() {
               tUserProfileEntity,
             );
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
+            expect(result, isA<FailureState<bool>>());
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(
+            verifyNever(
               () => mockLocalDataSource.saveUserProfile(tUserProfileModel),
-            ).called(1);
+            );
             verifyNever(() => mockRemoteDataSource.updateUserProfile(any()));
           },
         );
@@ -212,9 +213,9 @@ void main() {
             expect(result, isA<SuccessState<bool>>());
             expect(result.data, isTrue);
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockRemoteDataSource.updateUserProfile(any())).called(
-              1,
-            );
+            verify(
+              () => mockRemoteDataSource.updateUserProfile(any()),
+            ).called(1);
             verify(
               () => mockLocalDataSource.saveUserProfile(tUserProfileModel),
             ).called(1);
@@ -224,7 +225,7 @@ void main() {
 
       group('deleteUserProfile', () {
         test(
-          'should delete profile locally and return true when offline',
+          'should not delete profile locally and return true when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
             when(
@@ -233,10 +234,9 @@ void main() {
 
             final result = await repository.deleteUserProfile(tId);
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
+            expect(result, isA<FailureState<bool>>());
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockLocalDataSource.deleteUserProfile(tId)).called(1);
+            verifyNever(() => mockLocalDataSource.deleteUserProfile(tId));
             verifyNever(() => mockRemoteDataSource.deleteUserProfile(any()));
           },
         );
@@ -324,7 +324,7 @@ void main() {
 
       group('createPermissionGroup', () {
         test(
-          'should save group locally and return true when offline',
+          'should not save group locally and return true when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
             when(
@@ -335,15 +335,16 @@ void main() {
               tPermissionGroupEntity,
             );
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
+            expect(result, isA<FailureState<bool>>());
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(
+            verifyNever(
               () => mockLocalDataSource.savePermissionGroup(
                 tPermissionGroupModel,
               ),
-            ).called(1);
-            verifyNever(() => mockRemoteDataSource.createPermissionGroup(any()));
+            );
+            verifyNever(
+              () => mockRemoteDataSource.createPermissionGroup(any()),
+            );
           },
         );
 
@@ -353,7 +354,9 @@ void main() {
             when(() => mockInternetClient.isConnected).thenReturn(true);
             when(
               () => mockRemoteDataSource.createPermissionGroup(any()),
-            ).thenAnswer((_) async => SuccessState(data: tPermissionGroupModel));
+            ).thenAnswer(
+              (_) async => SuccessState(data: tPermissionGroupModel),
+            );
             when(
               () => mockLocalDataSource.savePermissionGroup(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -379,7 +382,7 @@ void main() {
 
       group('updatePermissionGroup', () {
         test(
-          'should save group locally and return true when offline',
+          'should not save group locally and return true when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
             when(
@@ -390,15 +393,16 @@ void main() {
               tPermissionGroupEntity,
             );
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
+            expect(result, isA<FailureState<bool>>());
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(
+            verifyNever(
               () => mockLocalDataSource.savePermissionGroup(
                 tPermissionGroupModel,
               ),
-            ).called(1);
-            verifyNever(() => mockRemoteDataSource.updatePermissionGroup(any()));
+            );
+            verifyNever(
+              () => mockRemoteDataSource.updatePermissionGroup(any()),
+            );
           },
         );
 
@@ -408,7 +412,9 @@ void main() {
             when(() => mockInternetClient.isConnected).thenReturn(true);
             when(
               () => mockRemoteDataSource.updatePermissionGroup(any()),
-            ).thenAnswer((_) async => SuccessState(data: tPermissionGroupModel));
+            ).thenAnswer(
+              (_) async => SuccessState(data: tPermissionGroupModel),
+            );
             when(
               () => mockLocalDataSource.savePermissionGroup(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -434,7 +440,7 @@ void main() {
 
       group('deletePermissionGroup', () {
         test(
-          'should delete group locally and return true when offline',
+          'should not delete group locally and return true when offline',
           () async {
             when(() => mockInternetClient.isConnected).thenReturn(false);
             when(
@@ -443,13 +449,12 @@ void main() {
 
             final result = await repository.deletePermissionGroup(tId);
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
+            expect(result, isA<FailureState<bool>>());
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockLocalDataSource.deletePermissionGroup(tId)).called(
-              1,
+            verifyNever(() => mockLocalDataSource.deletePermissionGroup(tId));
+            verifyNever(
+              () => mockRemoteDataSource.deletePermissionGroup(any()),
             );
-            verifyNever(() => mockRemoteDataSource.deletePermissionGroup(any()));
           },
         );
 
@@ -472,9 +477,9 @@ void main() {
             verify(
               () => mockRemoteDataSource.deletePermissionGroup(tId),
             ).called(1);
-            verify(() => mockLocalDataSource.deletePermissionGroup(tId)).called(
-              1,
-            );
+            verify(
+              () => mockLocalDataSource.deletePermissionGroup(tId),
+            ).called(1);
           },
         );
       });

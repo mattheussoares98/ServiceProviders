@@ -57,9 +57,6 @@ final class UsersRepositoryImpl implements UsersRepository {
   FutureBool updateUserProfile(UserProfileEntity userProfile) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveUserProfile(
-          UserProfileResponseModel.fromEntity(userProfile),
-        ),
         remoteCallback: () async {
           final result = await _remoteDataSource.updateUserProfile(
             UserProfileResponseModel.fromEntity(userProfile),
@@ -81,7 +78,6 @@ final class UsersRepositoryImpl implements UsersRepository {
   FutureBool deleteUserProfile(String id) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.deleteUserProfile(id),
         remoteCallback: () async {
           final result = await _remoteDataSource.deleteUserProfile(id);
           if (result is SuccessState<void>) {
@@ -117,9 +113,6 @@ final class UsersRepositoryImpl implements UsersRepository {
   FutureBool createPermissionGroup(PermissionGroupEntity group) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.savePermissionGroup(
-          PermissionGroupResponseModel.fromEntity(group),
-        ),
         remoteCallback: () async {
           final result = await _remoteDataSource.createPermissionGroup(
             PermissionGroupResponseModel.fromEntity(group),
@@ -141,9 +134,6 @@ final class UsersRepositoryImpl implements UsersRepository {
   FutureBool updatePermissionGroup(PermissionGroupEntity group) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.savePermissionGroup(
-          PermissionGroupResponseModel.fromEntity(group),
-        ),
         remoteCallback: () async {
           final result = await _remoteDataSource.updatePermissionGroup(
             PermissionGroupResponseModel.fromEntity(group),
@@ -165,7 +155,6 @@ final class UsersRepositoryImpl implements UsersRepository {
   FutureBool deletePermissionGroup(String id) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.deletePermissionGroup(id),
         remoteCallback: () async {
           final result = await _remoteDataSource.deletePermissionGroup(id);
           if (result is SuccessState<void>) {
