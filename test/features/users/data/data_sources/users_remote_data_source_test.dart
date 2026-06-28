@@ -6,9 +6,12 @@ import 'package:clean_architecture/features/users/data/models/responses/user_pro
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+
+class MockFunctionResponse extends Mock implements FunctionResponse {}
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -25,6 +28,7 @@ void main() {
         EntityFactory.makePermissionGroupEntity(),
       ),
     );
+    registerFallbackValue(HttpMethod.post);
   });
 
   setUp(() {
@@ -172,6 +176,41 @@ void main() {
             table: 'user_profiles',
             values: any(named: 'values'),
             filters: [SupabaseFilter.eq('id', tId)],
+          ),
+        ).called(1);
+      });
+    });
+
+    group('inviteUser', () {
+      test('should call invokeFunction with correct parameters on success', () async {
+        final email = faker.internet.email();
+        final mockResponse = MockFunctionResponse();
+        when(() => mockResponse.status).thenReturn(200);
+
+        when(
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
+
+        final result = await dataSource.inviteUser(
+          email: email,
+          companyId: tCompanyId,
+          groupId: tId,
+        );
+
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockDatabase.invokeFunction(
+            'invite-user',
+            method: HttpMethod.post,
+            body: {
+              'email': email,
+              'company_id': tCompanyId,
+              'permission_group_id': tId,
+            },
           ),
         ).called(1);
       });

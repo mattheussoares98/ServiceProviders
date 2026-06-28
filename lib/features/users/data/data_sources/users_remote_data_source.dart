@@ -6,6 +6,7 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class UsersRemoteDataSource {
   // User Profiles
@@ -15,6 +16,11 @@ abstract interface class UsersRemoteDataSource {
     UserProfileResponseModel request,
   );
   FutureVoid deleteUserProfile(String id);
+  FutureVoid inviteUser({
+    required String email,
+    required String companyId,
+    required String groupId,
+  });
 
   // Permission Groups
   FutureList<PermissionGroupResponseModel> getPermissionGroups(
@@ -89,6 +95,23 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       table: 'user_profiles',
       values: {'deleted_at': DateTime.now().toIso8601String()},
       filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
+
+  @override
+  FutureVoid inviteUser({
+    required String email,
+    required String companyId,
+    required String groupId,
+  }) => SupabaseHandler.voidCall(() async {
+    await _database.invokeFunction(
+      'invite-user',
+      method: HttpMethod.post,
+      body: {
+        'email': email,
+        'company_id': companyId,
+        'permission_group_id': groupId,
+      },
     );
   });
 
