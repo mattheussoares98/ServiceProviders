@@ -57,7 +57,7 @@ abstract final class AppInitializer {
   static Future<void> _initSupabase() async {
     await Supabase.initialize(
       url: dotenv.get('SUPABASE_URL'),
-      anonKey: dotenv.get('SUPABASE_ANON_KEY'),
+      publishableKey: dotenv.get('SUPABASE_ANON_KEY'),
     );
   }
 }

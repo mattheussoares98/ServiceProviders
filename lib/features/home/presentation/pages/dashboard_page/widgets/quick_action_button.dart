@@ -15,10 +15,6 @@ class QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SecondaryButton(
-      onTap: () async => onTap(),
-      text: label,
-      expandWidth: true,
-    );
+    return SecondaryButton(onTap: onTap, text: label, expandWidth: true);
   }
 }
