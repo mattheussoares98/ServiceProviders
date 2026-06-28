@@ -52,6 +52,13 @@ abstract interface class SupabaseDatabaseClient {
     MapDynamic? params,
     bool get = false,
   });
+
+  Future<FunctionResponse> invokeFunction(
+    String functionName, {
+    required HttpMethod method,
+    MapString? headers,
+    Object? body,
+  });
 }
 
 @LazySingleton(as: SupabaseDatabaseClient)
@@ -150,6 +157,21 @@ final class SupabaseDatabaseClientImpl implements SupabaseDatabaseClient {
     bool get = false,
   }) {
     return _client.rpc(functionName, params: params, get: get);
+  }
+
+  @override
+  Future<FunctionResponse> invokeFunction(
+    String functionName, {
+    MapString? headers,
+    Object? body,
+    required HttpMethod method,
+  }) {
+    return _client.functions.invoke(
+      functionName,
+      headers: headers,
+      body: body,
+      method: method,
+    );
   }
 
   PostgrestFilterBuilder<T> _applyFilters<T>(
