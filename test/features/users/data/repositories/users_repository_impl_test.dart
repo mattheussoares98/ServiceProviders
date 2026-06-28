@@ -262,6 +262,58 @@ void main() {
           },
         );
       });
+
+      group('inviteUser', () {
+        test(
+          'should not call remote when offline',
+          () async {
+            when(() => mockInternetClient.isConnected).thenReturn(false);
+
+            final result = await repository.inviteUser(
+              email: faker.internet.email(),
+              companyId: tCompanyId,
+              groupId: tId,
+            );
+
+            expect(result, isA<FailureState<void>>());
+            verify(() => mockInternetClient.isConnected).called(1);
+            verifyNever(() => mockRemoteDataSource.inviteUser(
+              email: any(named: 'email'),
+              companyId: any(named: 'companyId'),
+              groupId: any(named: 'groupId'),
+            ));
+          },
+        );
+
+        test(
+          'should call remote and return success when online',
+          () async {
+            final email = faker.internet.email();
+            when(() => mockInternetClient.isConnected).thenReturn(true);
+            when(
+              () => mockRemoteDataSource.inviteUser(
+                email: any(named: 'email'),
+                companyId: any(named: 'companyId'),
+                groupId: any(named: 'groupId'),
+              ),
+            ).thenAnswer((_) async => SuccessState.nil);
+
+            final result = await repository.inviteUser(
+              email: email,
+              companyId: tCompanyId,
+              groupId: tId,
+            );
+
+            expect(result, isA<SuccessState<void>>());
+            verify(() => mockInternetClient.isConnected).called(1);
+            verify(() => mockRemoteDataSource.inviteUser(
+              email: email,
+              companyId: tCompanyId,
+              groupId: tId,
+            )).called(1);
+          },
+        );
+      });
     });
 
     group('Permission Groups', () {

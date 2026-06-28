@@ -8,6 +8,7 @@ abstract interface class UsersRepository {
   FutureData<UserProfileEntity> getUserProfileById(String id);
   FutureBool updateUserProfile(UserProfileEntity userProfile);
   FutureBool deleteUserProfile(String id);
+  FutureVoid inviteUser({required String email, required String companyId, required String groupId});
 
   // Permission Groups
   FutureList<PermissionGroupEntity> getPermissionGroups(String companyId);

@@ -93,6 +93,20 @@ final class UsersRepositoryImpl implements UsersRepository {
         },
       );
 
+  @override
+  FutureVoid inviteUser({
+    required String email,
+    required String companyId,
+    required String groupId,
+  }) => RepositoryHandler.fetchWithFallback(
+    isInternetConnected: _internet.isConnected,
+    remoteCallback: () => _remoteDataSource.inviteUser(
+      email: email,
+      companyId: companyId,
+      groupId: groupId,
+    ),
+  );
+
   // ============================================
   // Permission Groups
   // ============================================
