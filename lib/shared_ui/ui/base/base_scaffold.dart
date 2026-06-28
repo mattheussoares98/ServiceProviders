@@ -4,6 +4,7 @@ import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,6 +33,8 @@ class BaseScaffold extends StatelessWidget {
     this.bottomNavigationIndex,
     this.onBottomNavigationTap,
     this.drawer,
+    this.floatingActionButton,
+    this.floatingActionButtonLocation,
   });
 
   final bool showAnnotatedRegion;
@@ -51,6 +54,8 @@ class BaseScaffold extends StatelessWidget {
   final int? bottomNavigationIndex;
   final ValueChanged<int>? onBottomNavigationTap;
   final Widget? drawer;
+  final Widget? floatingActionButton;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +212,49 @@ class _BaseScaffold extends StatelessWidget {
         );
       }
 
+      if (params.floatingActionButton != null) {
+        final hasBottomBar = bottomNavigationWidget != null;
+        final double bottomPadding = MediaQuery.paddingOf(context).bottom;
+        final double bottomOffset =
+            16.0 + (hasBottomBar ? 49.0 + bottomPadding : bottomPadding);
+
+        double? left;
+        double? right;
+        final location = params.floatingActionButtonLocation;
+
+        if (location == FloatingActionButtonLocation.centerFloat ||
+            location == FloatingActionButtonLocation.centerDocked) {
+          left = 0;
+          right = 0;
+        } else if (location == FloatingActionButtonLocation.startFloat ||
+            location == FloatingActionButtonLocation.startDocked ||
+            location == FloatingActionButtonLocation.startTop) {
+          left = Sizes.p16;
+        } else {
+          right = Sizes.p16;
+        }
+
+        Widget fab = params.floatingActionButton!;
+        if (left == 0 && right == 0) {
+          fab = Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomOffset),
+              child: fab,
+            ),
+          );
+        } else {
+          fab = Positioned(
+            left: left,
+            right: right,
+            bottom: bottomOffset,
+            child: fab,
+          );
+        }
+
+        scaffold = Stack(children: [scaffold, fab]);
+      }
+
       scaffold = Material(color: Colors.transparent, child: scaffold);
     } else {
       scaffold = Scaffold(
@@ -215,6 +263,8 @@ class _BaseScaffold extends StatelessWidget {
         body: SafeArea(child: newChild),
         bottomNavigationBar: bottomNavigationWidget,
         drawer: params.drawer,
+        floatingActionButton: params.floatingActionButton,
+        floatingActionButtonLocation: params.floatingActionButtonLocation,
       );
     }
 
