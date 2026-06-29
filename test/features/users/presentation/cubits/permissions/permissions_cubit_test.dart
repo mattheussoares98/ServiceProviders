@@ -164,10 +164,10 @@ void main() {
     );
 
     blocTest<PermissionsCubit, PermissionsState>(
-      'saveUserPermissions calls UsersCubit.updateUserProfile and emits loaded on success',
+      'saveUserPermissions calls UsersCubit.updateUserPermissions and emits loaded on success',
       build: () {
         when(
-          () => mockUsersCubit.updateUserProfile(any()),
+          () => mockUsersCubit.updateUserPermissions(any(), any()),
         ).thenAnswer((_) async => true);
         return cubit..initUser(tUser);
       },
@@ -184,6 +184,9 @@ void main() {
           StateStatus.loaded,
         ),
       ],
+      verify: (_) {
+        verify(() => mockUsersCubit.updateUserPermissions(tUser.id, any())).called(1);
+      },
     );
   });
 }

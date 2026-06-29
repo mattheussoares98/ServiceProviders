@@ -266,9 +266,11 @@ void main() {
       );
     });
 
-    group('updateUserProfile', () {
+    group('updateUserPermissions', () {
       blocTest<UsersCubit, UsersState>(
         'should emit saving, call updateUserProfile and refresh users on success',
+        seed: () =>
+            UsersState(users: [tUserProfile], permissionGroups: const []),
         build: () {
           when(
             () => mockUpdateUserProfile.call(any()),
@@ -279,7 +281,10 @@ void main() {
           return cubit;
         },
         act: (cubit) async {
-          final result = await cubit.updateUserProfile(tUserProfile);
+          final result = await cubit.updateUserPermissions(
+            tUserProfile.id,
+            tUserProfile.permissions,
+          );
           expect(result, isTrue);
         },
         expect: () => [
@@ -300,6 +305,8 @@ void main() {
 
       blocTest<UsersCubit, UsersState>(
         'should emit error and show toast when updateUserProfile fails',
+        seed: () =>
+            UsersState(users: [tUserProfile], permissionGroups: const []),
         build: () {
           when(
             () => mockUpdateUserProfile.call(any()),
@@ -307,7 +314,10 @@ void main() {
           return cubit;
         },
         act: (cubit) async {
-          final result = await cubit.updateUserProfile(tUserProfile);
+          final result = await cubit.updateUserPermissions(
+            tUserProfile.id,
+            tUserProfile.permissions,
+          );
           expect(result, isFalse);
         },
         expect: () => [
@@ -319,6 +329,32 @@ void main() {
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.savingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit savingError when user is not found in state.users',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.updateUserPermissions(
+            'non-existent-id',
+            const {},
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Usuário não encontrado',
+              ),
         ],
       );
     });

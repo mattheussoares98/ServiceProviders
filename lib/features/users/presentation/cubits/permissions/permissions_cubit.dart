@@ -166,7 +166,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
 
     final updatedUser = user.copyWith(permissions: finalPermissions);
 
-    final success = await usersCubit.updateUserProfile(updatedUser);
+    final success = await usersCubit.updateUserPermissions(user.id, finalPermissions);
 
     if (success) {
       emit(state.copyWith(user: updatedUser, status: StateStatus.loaded));

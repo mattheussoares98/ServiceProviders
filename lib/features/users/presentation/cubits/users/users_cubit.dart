@@ -108,10 +108,27 @@ class UsersCubit extends BaseCubit<UsersState> {
   // User Profile Operations
   // ============================================
 
-  Future<bool> updateUserProfile(UserProfileEntity userProfile) async {
+  Future<bool> updateUserPermissions(
+    String userId,
+    Map<ResourceType, Map<PermissionAction, bool?>> permissions,
+  ) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final result = await _useCases.updateUserProfile(userProfile);
+    final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
+    if (currentUser == null) {
+      const message = 'Usuário não encontrado';
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: message.hardcoded,
+        ),
+      );
+      showErrorToast(message.hardcoded);
+      return false;
+    }
+
+    final updatedUser = currentUser.copyWith(permissions: permissions);
+    final result = await _useCases.updateUserProfile(updatedUser);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
