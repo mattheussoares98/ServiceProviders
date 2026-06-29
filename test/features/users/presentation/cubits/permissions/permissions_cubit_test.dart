@@ -146,7 +146,7 @@ void main() {
     );
 
     blocTest<PermissionsCubit, PermissionsState>(
-      'changeUserGroup updates selectedGroupId and retains overrides for non-admin group',
+      'changeUserGroup updates selectedGroupId, sets isAdmin to false, and retains overrides for non-admin group',
       build: () => cubit..initUser(tUser),
       act: (c) {
         final normalGroup = EntityFactory.makePermissionGroupEntity().copyWith(
@@ -159,16 +159,14 @@ void main() {
         c.changeUserGroup('new-group-id', mockUsersCubit);
       },
       expect: () => [
-        isA<PermissionsState>().having(
-          (s) => s.selectedGroupId,
-          'selectedGroupId',
-          'new-group-id',
-        ),
+        isA<PermissionsState>()
+            .having((s) => s.selectedGroupId, 'selectedGroupId', 'new-group-id')
+            .having((s) => s.isAdmin, 'isAdmin', false),
       ],
     );
 
     blocTest<PermissionsCubit, PermissionsState>(
-      'changeUserGroup updates selectedGroupId and clears overrides for admin group',
+      'changeUserGroup updates selectedGroupId, sets isAdmin to true, and clears overrides for admin group',
       build: () => cubit
         ..initUser(tUser)
         ..setUserPermissionOverride(ResourceType.workOrders, PermissionAction.create, true),
@@ -185,9 +183,41 @@ void main() {
       expect: () => [
         isA<PermissionsState>()
             .having((s) => s.selectedGroupId, 'selectedGroupId', 'admin-group-id')
+            .having((s) => s.isAdmin, 'isAdmin', true)
             .having((s) => s.draftUserPermissions, 'draftUserPermissions', const <ResourceType, Map<PermissionAction, bool?>>{}),
       ],
     );
+
+    group('isGroupAdmin', () {
+      test('returns true when group name is "Administrador" (case-insensitive)', () {
+        final groups = [
+          EntityFactory.makePermissionGroupEntity().copyWith(
+            id: 'admin-id',
+            name: 'Administrador',
+          ),
+          EntityFactory.makePermissionGroupEntity().copyWith(
+            id: 'admin-id-lowercase',
+            name: 'administrador',
+          ),
+        ];
+
+        expect(cubit.isGroupAdmin('admin-id', groups), isTrue);
+        expect(cubit.isGroupAdmin('admin-id-lowercase', groups), isTrue);
+      });
+
+      test('returns false when group name is not "Administrador" or group is not found/null', () {
+        final groups = [
+          EntityFactory.makePermissionGroupEntity().copyWith(
+            id: 'normal-id',
+            name: 'Normal Group',
+          ),
+        ];
+
+        expect(cubit.isGroupAdmin('normal-id', groups), isFalse);
+        expect(cubit.isGroupAdmin('unknown-id', groups), isFalse);
+        expect(cubit.isGroupAdmin(null, groups), isFalse);
+      });
+    });
 
     blocTest<PermissionsCubit, PermissionsState>(
       'setUserPermissionOverride updates state overrides',

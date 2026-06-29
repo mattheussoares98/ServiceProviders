@@ -50,17 +50,16 @@ class EditUserPermissionsPage extends StatelessWidget {
             appBar: BaseAppBar(
               title: 'Permissões do Usuário'.hardcoded,
               actions: [
-                if (!isAdmin)
-                  BaseTextButton(
-                    platformIcon: const PlatformIcon(
-                      materialIcon: Icons.save,
-                      cupertinoIcon: CupertinoIcons.check_mark,
-                    ),
-                    padding: const EdgeInsets.only(right: Sizes.p12),
-                    onPressed: isSaving ? null : onSave,
-                    isLoading: isSaving,
-                    text: 'Salvar'.hardcoded,
+                BaseTextButton(
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.save,
+                    cupertinoIcon: CupertinoIcons.check_mark,
                   ),
+                  padding: const EdgeInsets.only(right: Sizes.p12),
+                  onPressed: isSaving ? null : onSave,
+                  isLoading: isSaving,
+                  text: 'Salvar'.hardcoded,
+                ),
               ],
             ),
             body: CustomScrollView(

@@ -123,21 +123,26 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
   }
 
-  void changeUserGroup(
-    String groupId,
-    UsersCubit usersCubit,
-  ) {
-    final groups = usersCubit.state.permissionGroups;
+  bool isGroupAdmin(String? groupId, List<PermissionGroupEntity> groups) {
+    if (groupId == null) return false;
     final group = groups.firstWhereOrNull((g) => g.id == groupId);
-    final isAdminGroup = group?.name.toLowerCase() == 'administrador';
+    return group?.name.toLowerCase() == 'administrador';
+  }
+
+  void changeUserGroup(String groupId, UsersCubit usersCubit) {
+    final groups = usersCubit.state.permissionGroups;
+    final isAdminGroup = isGroupAdmin(groupId, groups);
 
     if (isAdminGroup) {
-      emit(state.copyWith(
-        selectedGroupId: groupId,
-        draftUserPermissions: const {},
-      ));
+      emit(
+        state.copyWith(
+          selectedGroupId: groupId,
+          isAdmin: true,
+          draftUserPermissions: const {},
+        ),
+      );
     } else {
-      emit(state.copyWith(selectedGroupId: groupId));
+      emit(state.copyWith(selectedGroupId: groupId, isAdmin: false));
     }
   }
 

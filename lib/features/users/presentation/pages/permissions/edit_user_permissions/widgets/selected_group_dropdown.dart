@@ -11,13 +11,11 @@ class SelectedGroupDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<PermissionsCubit, PermissionsState, (String?, bool)>(
-      selector: (state) => (state.selectedGroupId, state.isAdmin),
-      builder: (context, data) {
+    return BlocSelector<PermissionsCubit, PermissionsState, String?>(
+      selector: (state) => state.selectedGroupId,
+      builder: (context, selectedGroupId) {
         final usersCubit = context.read<UsersCubit>();
         final groups = usersCubit.state.permissionGroups;
-        final selectedGroupId = data.$1;
-        final isAdmin = data.$2;
 
         return BaseDropDown<String>(
           label: 'Grupo de permissões'.hardcoded,
@@ -33,14 +31,12 @@ class SelectedGroupDropdown extends StatelessWidget {
               child: BaseText(g.name),
             );
           }).toList(),
-          onChanged: isAdmin
-              ? null
-              : (groupId) {
-                  context.read<PermissionsCubit>().changeUserGroup(
-                    groupId,
-                    usersCubit,
-                  );
-                },
+          onChanged: (groupId) {
+            context.read<PermissionsCubit>().changeUserGroup(
+              groupId,
+              usersCubit,
+            );
+          },
         );
       },
     );
