@@ -18,4 +18,9 @@ CREATE POLICY "Users update own profile"
   TO authenticated
   USING (id = auth.uid());
   //TODO respect the permission group from the user
+
+CREATE POLICY "Users update own company user profiles"
+  ON public.user_profiles FOR UPDATE
+  TO authenticated
+  USING (company_id = public.get_user_company_id());
 ```
