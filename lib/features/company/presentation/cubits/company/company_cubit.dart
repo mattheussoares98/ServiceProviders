@@ -34,7 +34,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (dataState is SuccessState<CompanyEntity>) {
       emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       showDataStateToast(dataState);
     }
   }

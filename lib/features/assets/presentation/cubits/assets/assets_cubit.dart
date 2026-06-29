@@ -24,7 +24,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error, assets: []));
+      emit(state.copyWith(status: StateStatus.loadingError, assets: []));
       return;
     }
     if (emitLoading) {
@@ -44,7 +44,10 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       );
     } else {
       emit(
-        state.copyWith(status: StateStatus.error, errorMessage: result.message),
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: result.message,
+        ),
       );
     }
   }
@@ -74,7 +77,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     final companyId = _useCases.getSessionUser().companyId;
 
     if (companyId.isEmpty) {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
@@ -113,7 +116,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       return true;
     } else {
       if (isClosed) return false;
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       showDataStateToast(result);
       return false;
     }
@@ -143,7 +146,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       if (isClosed) return;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           deletingIds: {...state.deletingIds..remove(id)},
         ),
       );

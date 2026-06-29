@@ -22,7 +22,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error, categories: []));
+      emit(state.copyWith(status: StateStatus.loadingError, categories: []));
       return;
     }
 
@@ -45,7 +45,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       final message = result.message ?? 'Erro ao carregar categorias'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: message,
         ),
       );
@@ -70,7 +70,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       return false;
     }
 
@@ -96,7 +96,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       final message = result.message ?? 'Erro ao salvar categoria'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: message,
         ),
       );
@@ -130,7 +130,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       final message = result.message ?? 'Erro ao excluir categoria'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: message,
           deletingIds: {...state.deletingIds}..remove(id),
         ),

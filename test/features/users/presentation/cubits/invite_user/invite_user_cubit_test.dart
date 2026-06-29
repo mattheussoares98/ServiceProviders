@@ -152,7 +152,7 @@ void main() {
         isA<InviteUserState>().having(
           (s) => s.status,
           'status',
-          StateStatus.error,
+          StateStatus.loadingError,
         ),
       ],
     );

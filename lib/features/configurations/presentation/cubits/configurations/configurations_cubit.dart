@@ -41,7 +41,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
       );
     } else if (result is FailureState<ConfigurationsEntity>) {
       emit(
-        state.copyWith(status: StateStatus.error, errorMessage: result.message),
+        state.copyWith(status: StateStatus.loadingError, errorMessage: result.message),
       );
     }
   }
@@ -59,7 +59,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         ),
       );
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
     }
   }
 

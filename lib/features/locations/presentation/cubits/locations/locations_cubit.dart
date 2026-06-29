@@ -23,7 +23,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error, locations: []));
+      emit(state.copyWith(status: StateStatus.loadingError, locations: []));
       return;
     }
 
@@ -60,7 +60,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           ? locationsResult.message
           : areasResult.message;
       emit(
-        state.copyWith(status: StateStatus.error, errorMessage: errorMessage),
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: errorMessage,
+        ),
       );
       //* Already showing the error direct in the UI
       // if (locationsResult is FailureState) {

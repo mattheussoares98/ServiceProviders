@@ -149,7 +149,7 @@ void main() {
         act: (cubit) => cubit.loadUsers(),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.users, 'users', isEmpty),
         ],
       );
@@ -170,7 +170,7 @@ void main() {
             StateStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
         ],
       );
@@ -221,7 +221,7 @@ void main() {
             StateStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -317,7 +317,7 @@ void main() {
             StateStatus.saving,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
         ],
       );
@@ -367,7 +367,7 @@ void main() {
               .having((s) => s.status, 'status', StateStatus.deleting)
               .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],

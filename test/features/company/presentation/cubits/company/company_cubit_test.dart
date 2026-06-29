@@ -199,7 +199,7 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.error,
+          StateStatus.loadingError,
         ),
       ],
     );

@@ -52,7 +52,7 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
       _refreshState();
       await replaceAllRoute(const LoginRoute());
     } else {
-      _refreshState(StateStatus.error);
+      _refreshState(StateStatus.loadingError);
     }
   }
 }

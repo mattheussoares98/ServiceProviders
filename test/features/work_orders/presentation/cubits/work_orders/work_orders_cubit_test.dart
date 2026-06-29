@@ -206,7 +206,7 @@ void main() {
             StateStatus.loading,
           ),
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
         ],
         verify: (_) {
@@ -231,7 +231,7 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -405,7 +405,7 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.status,
               'status',
-              StateStatus.error,
+              StateStatus.loadingError,
             ),
           ],
           verify: (_) {
@@ -546,7 +546,7 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.status,
               'status',
-              StateStatus.error,
+              StateStatus.loadingError,
             ),
           ],
           verify: (_) {
@@ -626,7 +626,7 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -692,7 +692,7 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -762,7 +762,7 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
         verify: (_) {

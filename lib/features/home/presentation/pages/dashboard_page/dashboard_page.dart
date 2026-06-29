@@ -61,7 +61,7 @@ class DashboardView extends HookWidget {
           body = const LoadingCircle();
         }
 
-        if (state.status == StateStatus.error) {
+        if (state.status == StateStatus.loadingError) {
           body = Center(
             child: Padding(
               padding: const EdgeInsets.all(Sizes.p16),

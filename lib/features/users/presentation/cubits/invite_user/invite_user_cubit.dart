@@ -21,7 +21,7 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       //TODO instead of treat it inside a lot of different methods, centralize it
       return false;
     }

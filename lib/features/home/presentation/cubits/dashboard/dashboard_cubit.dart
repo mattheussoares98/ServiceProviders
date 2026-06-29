@@ -26,7 +26,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     if (user.id.isEmpty || user.companyId.isEmpty) {
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: 'Usuário não autenticado'.hardcoded,
         ),
       );
@@ -47,7 +47,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     if (workOrdersResult is FailureState) {
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage:
               (workOrdersResult as FailureState).message ??
               'Erro ao carregar ordens de serviço'.hardcoded,
@@ -59,7 +59,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     if (assetsResult is FailureState) {
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage:
               (assetsResult as FailureState).message ??
               'Erro ao carregar equipamentos'.hardcoded,

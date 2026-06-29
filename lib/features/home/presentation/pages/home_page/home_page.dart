@@ -45,7 +45,7 @@ class HomePage extends HookWidget {
       child: BlocSelector<UsersCubit, UsersState, StateStatus>(
         selector: (state) => state.status,
         builder: (context, status) {
-          if (status == StateStatus.error) {
+          if (status == StateStatus.loadingError) {
             return const ErrorPage();
           }
 

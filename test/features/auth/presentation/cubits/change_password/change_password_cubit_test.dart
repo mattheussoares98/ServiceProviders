@@ -116,7 +116,7 @@ void main() {
       isA<ChangePasswordState>().having(
         (s) => s.status,
         'status',
-        StateStatus.error,
+        StateStatus.loadingError,
       ),
     ],
     verify: (_) {

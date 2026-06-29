@@ -132,7 +132,7 @@ void main() {
         act: (cubit) => cubit.loadCategories(),
         expect: () => [
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.categories, 'categories', isEmpty),
         ],
       );
@@ -153,7 +153,7 @@ void main() {
             StateStatus.loading,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
         ],
       );
@@ -274,7 +274,7 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
       );
@@ -295,7 +295,7 @@ void main() {
             StateStatus.saving,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
         ],
       );
@@ -346,7 +346,7 @@ void main() {
               .having((s) => s.status, 'status', StateStatus.deleting)
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.deletingIds, 'deletingIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],

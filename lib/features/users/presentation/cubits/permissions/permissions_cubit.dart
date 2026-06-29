@@ -172,7 +172,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       emit(state.copyWith(user: updatedUser, status: StateStatus.loaded));
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.loadingError));
       return false;
     }
   }

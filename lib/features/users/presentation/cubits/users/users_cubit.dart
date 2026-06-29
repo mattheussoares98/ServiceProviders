@@ -28,7 +28,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error, users: []));
+      emit(state.copyWith(status: StateStatus.loadingError, users: []));
       return;
     }
 
@@ -49,7 +49,9 @@ class UsersCubit extends BaseCubit<UsersState> {
       );
     } else {
       final message = result.message ?? 'Erro ao carregar usuários'.hardcoded;
-      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+      );
       showErrorToast(message);
     }
   }
@@ -60,7 +62,9 @@ class UsersCubit extends BaseCubit<UsersState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.error, permissionGroups: []));
+      emit(
+        state.copyWith(status: StateStatus.loadingError, permissionGroups: []),
+      );
       return;
     }
 
@@ -82,7 +86,9 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message =
           result.message ?? 'Erro ao carregar grupos de permissão'.hardcoded;
-      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+      );
       showErrorToast(message);
     }
   }
@@ -93,7 +99,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
 
     await loadUsers(emitLoading: false);
-    if (state.status == StateStatus.error) return;
+    if (state.status == StateStatus.loadingError) return;
 
     await loadPermissionGroups(emitLoading: false);
   }
@@ -113,7 +119,9 @@ class UsersCubit extends BaseCubit<UsersState> {
       return true;
     } else {
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
-      emit(state.copyWith(status: StateStatus.error, errorMessage: message));
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+      );
       showErrorToast(message);
       return false;
     }
@@ -144,7 +152,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       final message = result.message ?? 'Erro ao excluir usuário'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: message,
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
@@ -207,7 +215,7 @@ class UsersCubit extends BaseCubit<UsersState> {
           result.message ?? 'Erro ao excluir grupo de permissão'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.loadingError,
           errorMessage: message,
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),

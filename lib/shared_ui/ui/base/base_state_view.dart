@@ -29,7 +29,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
           return const LoadingCircle();
         }
 
-        if (state.status == StateStatus.error) {
+        if (state.status == StateStatus.loadingError) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(Sizes.p16),

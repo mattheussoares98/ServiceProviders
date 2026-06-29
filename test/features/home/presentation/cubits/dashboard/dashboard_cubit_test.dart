@@ -74,7 +74,7 @@ void main() {
           StateStatus.loading,
         ),
         isA<DashboardState>()
-            .having((s) => s.status, 'status', StateStatus.error)
+            .having((s) => s.status, 'status', StateStatus.loadingError)
             .having(
               (s) => s.errorMessage,
               'errorMessage',
@@ -100,7 +100,7 @@ void main() {
           StateStatus.loading,
         ),
         isA<DashboardState>()
-            .having((s) => s.status, 'status', StateStatus.error)
+            .having((s) => s.status, 'status', StateStatus.loadingError)
             .having(
               (s) => s.errorMessage,
               'errorMessage',
@@ -130,7 +130,7 @@ void main() {
           StateStatus.loading,
         ),
         isA<DashboardState>()
-            .having((s) => s.status, 'status', StateStatus.error)
+            .having((s) => s.status, 'status', StateStatus.loadingError)
             .having((s) => s.errorMessage, 'errorMessage', 'Error work orders'),
       ],
     );
@@ -156,7 +156,7 @@ void main() {
           StateStatus.loading,
         ),
         isA<DashboardState>()
-            .having((s) => s.status, 'status', StateStatus.error)
+            .having((s) => s.status, 'status', StateStatus.loadingError)
             .having((s) => s.errorMessage, 'errorMessage', 'Error assets'),
       ],
     );

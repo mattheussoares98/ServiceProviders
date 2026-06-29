@@ -184,7 +184,7 @@ void main() {
             StateStatus.loading,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
         ],
         verify: (_) {
@@ -205,7 +205,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -621,14 +621,22 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateArea.call(any(
+          verify(
+            () => mockCreateArea.call(
+              any(
                 that: isA<AreaEntity>()
                     .having((a) => a.locationId, 'locationId', tArea.locationId)
                     .having((a) => a.companyId, 'companyId', tArea.companyId)
                     .having((a) => a.name, 'name', tArea.name.trim())
                     .having((a) => a.floor, 'floor', tArea.floor?.trim())
-                    .having((a) => a.description, 'description', tArea.description?.trim()),
-              ))).called(1);
+                    .having(
+                      (a) => a.description,
+                      'description',
+                      tArea.description?.trim(),
+                    ),
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );
@@ -710,16 +718,24 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockUpdateArea.call(any(
+          verify(
+            () => mockUpdateArea.call(
+              any(
                 that: isA<AreaEntity>()
                     .having((a) => a.id, 'id', tArea.id)
                     .having((a) => a.locationId, 'locationId', tArea.locationId)
                     .having((a) => a.companyId, 'companyId', tArea.companyId)
                     .having((a) => a.name, 'name', tArea.name.trim())
                     .having((a) => a.floor, 'floor', tArea.floor?.trim())
-                    .having((a) => a.description, 'description', tArea.description?.trim())
+                    .having(
+                      (a) => a.description,
+                      'description',
+                      tArea.description?.trim(),
+                    )
                     .having((a) => a.createdAt, 'createdAt', tArea.createdAt),
-              ))).called(1);
+              ),
+            ),
+          ).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
         },
       );

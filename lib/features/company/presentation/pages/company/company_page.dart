@@ -64,7 +64,7 @@ class _CompanyBody extends StatelessWidget {
               switch (state.status) {
                 case StateStatus.loading:
                   return const Center(child: LoadingCircle());
-                case StateStatus.error:
+                case StateStatus.loadingError:
                   return Center(
                     child: BaseText.bodyLarge(
                       'Erro ao carregar dados da empresa'.hardcoded,
