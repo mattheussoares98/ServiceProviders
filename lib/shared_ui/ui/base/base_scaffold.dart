@@ -169,6 +169,7 @@ class _BaseScaffold extends StatelessWidget {
     Widget scaffold;
 
     if (context.isCupertino && params.drawer == null) {
+      //* cupertino doesn't support drawer
       const cupertinoTabBarHeight = 49.0;
       var cupertinoBody = bottomNavigationWidget != null
           ? Padding(
@@ -216,7 +217,8 @@ class _BaseScaffold extends StatelessWidget {
         final hasBottomBar = bottomNavigationWidget != null;
         final double bottomPadding = MediaQuery.paddingOf(context).bottom;
         final double bottomOffset =
-            16.0 + (hasBottomBar ? 49.0 + bottomPadding : bottomPadding);
+            Sizes.p32 +
+            (hasBottomBar ? Sizes.p48 + bottomPadding : bottomPadding);
 
         double? left;
         double? right;
