@@ -8,14 +8,13 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 class PermissionsItems extends StatelessWidget {
   const PermissionsItems({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cubit = GetIt.I.get<PermissionsCubit>();
+    final cubit = context.read<PermissionsCubit>();
     final isAdmin = context.select<PermissionsCubit, bool>(
       (cubit) => cubit.state.isAdmin,
     );
@@ -38,49 +37,57 @@ class PermissionsItems extends StatelessWidget {
                 const Divider(height: Sizes.p20),
                 Column(
                   children: PermissionAction.values.map((action) {
-                    final currentValue =
-                        cubit.state.draftUserPermissions[resource]?[action];
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: Sizes.p12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          BaseText(action.label),
-                          gapH8,
-                          BaseSegmentedButtons<bool?>(
-                            items: const [null, true, false],
-                            selectedValue: currentValue,
-                            onChanged: isAdmin
-                                ? null
-                                : (value) => cubit.setUserPermissionOverride(
-                                    resource,
-                                    action,
-                                    value,
-                                  ),
-                            itemLabelBuilder: (value) {
-                              switch (value) {
-                                case null:
-                                  return 'Herdar'.hardcoded;
-                                case true:
-                                  return 'Ativo'.hardcoded;
-                                case false:
-                                  return 'Inativo'.hardcoded;
-                              }
-                            },
-                            itemColorBuilder: (value) {
-                              switch (value) {
-                                case null:
-                                  return context.theme.primaryColor;
-                                case true:
-                                  return Colors.green.shade600;
-                                case false:
-                                  return Colors.red.shade600;
-                              }
-                            },
+                    return BlocSelector<
+                      PermissionsCubit,
+                      PermissionsState,
+                      bool?
+                    >(
+                      selector: (state) =>
+                          state.draftUserPermissions[resource]?[action],
+                      builder: (context, currentValue) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: Sizes.p12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              BaseText(action.label),
+                              gapH8,
+                              BaseSegmentedButtons<bool?>(
+                                items: const [null, true, false],
+                                selectedValue: currentValue,
+                                onChanged: isAdmin
+                                    ? null
+                                    : (value) =>
+                                          cubit.setUserPermissionOverride(
+                                            resource,
+                                            action,
+                                            value,
+                                          ),
+                                itemLabelBuilder: (value) {
+                                  switch (value) {
+                                    case null:
+                                      return 'Herdar'.hardcoded;
+                                    case true:
+                                      return 'Ativo'.hardcoded;
+                                    case false:
+                                      return 'Inativo'.hardcoded;
+                                  }
+                                },
+                                itemColorBuilder: (value) {
+                                  switch (value) {
+                                    case null:
+                                      return context.theme.primaryColor;
+                                    case true:
+                                      return Colors.green.shade600;
+                                    case false:
+                                      return Colors.red.shade600;
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   }).toList(),
                 ),
