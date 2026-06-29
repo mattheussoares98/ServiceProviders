@@ -32,7 +32,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       return;
     }
 
-    if (emitLoading) {
+    if (emitLoading && !isClosed) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
@@ -116,7 +116,7 @@ class UsersCubit extends BaseCubit<UsersState> {
 
     final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
     if (currentUser == null) {
-      const message = 'Usuário não encontrado';
+      final message = 'Usuário não encontrado'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.savingError,
@@ -135,6 +135,39 @@ class UsersCubit extends BaseCubit<UsersState> {
       await loadUsers(emitLoading: false);
       return true;
     } else {
+      final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
+  Future<bool> updateUserPermissionGroup(String userId, String groupId) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
+    if (currentUser == null) {
+      final message = 'Usuário não encontrado'.hardcoded;
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: message.hardcoded,
+        ),
+      );
+      showErrorToast(message.hardcoded);
+      return false;
+    }
+
+    final updatedUser = currentUser.copyWith(permissionGroupId: groupId);
+    final result = await _useCases.updateUserProfile(updatedUser);
+
+    if (result is SuccessState<bool> && result.data == true) {
+      await loadUsers(emitLoading: false);
+      return true;
+    } else {
+      if (isClosed) return false;
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),

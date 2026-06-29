@@ -359,6 +359,102 @@ void main() {
       );
     });
 
+    group('updateUserPermissionGroup', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit saving, call updateUserProfile and refresh users on success',
+        seed: () =>
+            UsersState(users: [tUserProfile], permissionGroups: const []),
+        build: () {
+          when(
+            () => mockUpdateUserProfile.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tUserProfile]));
+          return cubit;
+        },
+        act: (cubit) async {
+          final result = await cubit.updateUserPermissionGroup(
+            tUserProfile.id,
+            tPermissionGroup.id,
+          );
+          expect(result, isTrue);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.users, 'users', [tUserProfile]),
+        ],
+        verify: (_) {
+          final expectedUpdatedUser = tUserProfile.copyWith(
+            permissionGroupId: tPermissionGroup.id,
+          );
+          verify(() => mockUpdateUserProfile.call(expectedUpdatedUser)).called(1);
+          verify(() => mockGetUsers.call(tSessionUser.companyId)).called(1);
+        },
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error and show toast when updateUserProfile fails',
+        seed: () =>
+            UsersState(users: [tUserProfile], permissionGroups: const []),
+        build: () {
+          when(
+            () => mockUpdateUserProfile.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Update failed'));
+          return cubit;
+        },
+        act: (cubit) async {
+          final result = await cubit.updateUserPermissionGroup(
+            tUserProfile.id,
+            tPermissionGroup.id,
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit savingError when user is not found in state.users',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.updateUserPermissionGroup(
+            'non-existent-id',
+            tPermissionGroup.id,
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Usuário não encontrado',
+              ),
+        ],
+      );
+    });
+
     group('deleteUserProfile', () {
       final tId = faker.guid.guid();
 
