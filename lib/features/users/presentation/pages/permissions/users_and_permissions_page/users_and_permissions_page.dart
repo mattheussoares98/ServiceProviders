@@ -37,7 +37,7 @@ class UsersAndPermissionsPage extends HookWidget {
                 context.read<UsersCubit>().loadAll(emitLoading: false),
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
             body: [const Users(), const Groups()][selectedIndex.value],
-            floatingActionButton: selectedIndex.value == 1
+            floatingActionButton: selectedIndex.value == 0
                 ? FloatingActionButton(
                     onPressed: () => showModalPage<void>(
                       BlocProvider.value(
