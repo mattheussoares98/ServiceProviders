@@ -124,7 +124,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final companyId = _useCases.getSessionUser().companyId;
 
     if (companyId.isEmpty) {
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
@@ -166,7 +171,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       await loadWorkOrdersAndChangeRequests(showLoading: false);
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showDataStateToast(dataState);
       return false;
     }
@@ -178,9 +188,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadWorkOrdersAndChangeRequests();
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
     } else {
-      emit(state.copyWith(status: StateStatus.deletingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.deletingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showDataStateToast(dataState);
     }
   }
@@ -194,9 +209,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showSuccessToast(
         'Solicitação de alteração enviada com sucesso'.hardcoded,
       );
-      await loadWorkOrdersAndChangeRequests();
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
     } else {
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showDataStateToast(dataState);
     }
   }
@@ -210,9 +230,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showSuccessToast(
         'Solicitação de alteração avaliada com sucesso'.hardcoded,
       );
-      await loadWorkOrdersAndChangeRequests();
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
     } else {
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showDataStateToast(dataState);
     }
   }

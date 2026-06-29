@@ -77,7 +77,12 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     final companyId = _useCases.getSessionUser().companyId;
 
     if (companyId.isEmpty) {
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
@@ -116,7 +121,12 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       return true;
     } else {
       if (isClosed) return false;
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: state.errorMessage,
+        ),
+      );
       showDataStateToast(result);
       return false;
     }
@@ -147,6 +157,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       emit(
         state.copyWith(
           status: StateStatus.deletingError,
+          errorMessage: state.errorMessage,
           deletingIds: {...state.deletingIds..remove(id)},
         ),
       );
