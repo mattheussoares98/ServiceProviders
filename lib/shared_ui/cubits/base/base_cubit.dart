@@ -15,7 +15,9 @@ enum StateStatus {
   error,
   noInternet,
   deleting,
+  deletingError,
   saving,
+  savingError,
 }
 
 abstract class BaseState extends Equatable {

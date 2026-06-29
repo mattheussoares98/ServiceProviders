@@ -372,7 +372,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -508,7 +508,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -571,7 +571,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.deletingError,
           ),
         ],
         verify: (_) {
@@ -663,7 +663,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -755,7 +755,7 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.error,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -809,7 +809,7 @@ void main() {
               .having((s) => s.status, 'status', StateStatus.deleting)
               .having((s) => s.deletingIds, 'deletingIds', contains(tId)),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.error)
+              .having((s) => s.status, 'status', StateStatus.deletingError)
               .having((s) => s.deletingIds, 'deletingIds', <String>{}),
         ],
         verify: (_) {

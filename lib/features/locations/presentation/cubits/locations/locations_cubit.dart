@@ -133,7 +133,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(state.copyWith(status: StateStatus.loaded));
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.savingError));
       showDataStateToast(dataState);
       return false;
     }
@@ -161,7 +161,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.deletingError,
           deletingIds: {...state.deletingIds}..remove(id),
         ),
       );
@@ -208,7 +208,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       await loadAreas(user.companyId);
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.error));
+      emit(state.copyWith(status: StateStatus.savingError));
       showDataStateToast(dataState);
       return false;
     }
@@ -237,7 +237,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.error,
+          status: StateStatus.deletingError,
           deletingIds: {...state.deletingIds}..remove(id),
         ),
       );
