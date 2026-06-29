@@ -26,21 +26,21 @@ class EditUserPermissionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> onSave() async {
-      final success = await context
-          .read<PermissionsCubit>()
-          .saveUserPermissions(context.read<UsersCubit>());
-      if (success && context.mounted) {
-        context.router.pop();
-      }
-    }
-
     return BlocProvider(
       create: (context) => GetIt.I<PermissionsCubit>()..initUser(user),
       child: BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
         selector: (state) =>
             (state.isAdmin, state.status == StateStatus.saving),
         builder: (context, value) {
+          Future<void> onSave() async {
+            final success = await context
+                .read<PermissionsCubit>()
+                .saveUserPermissions(context.read<UsersCubit>());
+            if (success && context.mounted) {
+              context.router.pop();
+            }
+          }
+
           final isAdmin = value.$1;
           final isSaving = value.$2;
 
