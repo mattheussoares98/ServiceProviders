@@ -23,20 +23,8 @@ class PermissionsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
-    final pageController = usePageController();
 
-    void onPageChanged(int index) {
-      selectedIndex.value = index;
-    }
-
-    void onTap(int index) {
-      selectedIndex.value = index;
-      pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
+    void onPageChanged(int index) => selectedIndex.value = index;
 
     return BlocProvider<InviteUserCubit>(
       create: (context) => GetIt.I<InviteUserCubit>(),
@@ -48,11 +36,7 @@ class PermissionsPage extends HookWidget {
             onRefresh: () =>
                 context.read<UsersCubit>().loadAll(emitLoading: false),
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
-            body: PageView(
-              controller: pageController,
-              onPageChanged: onPageChanged,
-              children: const [Groups(), Users()],
-            ),
+            body: [const Groups(), const Users()][selectedIndex.value],
             floatingActionButton: selectedIndex.value == 1
                 ? FloatingActionButton(
                     onPressed: () => showModalPage<void>(
@@ -70,7 +54,7 @@ class PermissionsPage extends HookWidget {
                 : null,
             bottomNavigationBar: BaseBottomNavigationBar(
               currentIndex: selectedIndex.value,
-              onTap: onTap,
+              onTap: onPageChanged,
               items: [
                 BaseBottomNavigationBarItem(
                   label: 'Grupos'.hardcoded,
