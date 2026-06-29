@@ -36,7 +36,12 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
       ),
     );
 
-    showDataStateToast(dataState);
+    showDataStateToast(
+      dataState,
+      message:
+          'Convite enviado com sucesso. Cheque o e-mail para aceitar o convite'
+              .hardcoded,
+    );
     emit(state.copyWith(status: StateStatus.loaded));
     if (dataState is SuccessState<void>) {
       return true;
