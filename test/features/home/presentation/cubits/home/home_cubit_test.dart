@@ -70,7 +70,8 @@ void main() {
       expect: () => <HomeState>[],
       verify: (cubit) {
         verify(
-          () => mockNavigationClient.pushRoute(const PermissionsRoute()),
+          () =>
+              mockNavigationClient.pushRoute(const UsersAndPermissionsRoute()),
         ).called(1);
       },
     );

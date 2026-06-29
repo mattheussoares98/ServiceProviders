@@ -3,8 +3,8 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/invite_user/invite_user_page.dart';
-import 'package:clean_architecture/features/users/presentation/pages/permissions/permissions_page/widgets/groups.dart';
-import 'package:clean_architecture/features/users/presentation/pages/permissions/permissions_page/widgets/users.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/users_and_permissions_page/widgets/groups.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/users_and_permissions_page/widgets/users.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
@@ -17,8 +17,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 
 @RoutePage()
-class PermissionsPage extends HookWidget {
-  const PermissionsPage({super.key});
+class UsersAndPermissionsPage extends HookWidget {
+  const UsersAndPermissionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

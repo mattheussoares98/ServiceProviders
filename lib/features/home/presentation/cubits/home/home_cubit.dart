@@ -29,7 +29,6 @@ class HomeCubit extends BaseCubit<HomeState> {
   }
 
   Future<void> navigateToPermissions() async {
-    await pushRoute(const PermissionsRoute());
+    await pushRoute(const UsersAndPermissionsRoute());
   }
 }
-
