@@ -5,6 +5,7 @@ class PermissionsState extends BaseState {
     this.group,
     this.user,
     this.isAdmin = false,
+    this.selectedGroupId,
     this.draftGroupPermissions = const {},
     this.draftUserPermissions = const {},
     super.status = StateStatus.initial,
@@ -14,6 +15,7 @@ class PermissionsState extends BaseState {
   final PermissionGroupEntity? group;
   final UserProfileEntity? user;
   final bool isAdmin;
+  final String? selectedGroupId;
   
   // For group permissions: ResourceType -> Set of actions
   final Map<ResourceType, Set<PermissionAction>> draftGroupPermissions;
@@ -25,15 +27,20 @@ class PermissionsState extends BaseState {
     PermissionGroupEntity? group,
     UserProfileEntity? user,
     bool? isAdmin,
+    String? selectedGroupId,
     Map<ResourceType, Set<PermissionAction>>? draftGroupPermissions,
     Map<ResourceType, Map<PermissionAction, bool?>>? draftUserPermissions,
     StateStatus? status,
     String? errorMessage,
+    bool? annulSelectedGroupId,
   }) {
     return PermissionsState(
       group: group ?? this.group,
       user: user ?? this.user,
       isAdmin: isAdmin ?? this.isAdmin,
+      selectedGroupId: annulSelectedGroupId == true
+          ? null
+          : selectedGroupId ?? this.selectedGroupId,
       draftGroupPermissions:
           draftGroupPermissions ?? this.draftGroupPermissions,
       draftUserPermissions: draftUserPermissions ?? this.draftUserPermissions,
@@ -47,6 +54,7 @@ class PermissionsState extends BaseState {
         group,
         user,
         isAdmin,
+        selectedGroupId,
         draftGroupPermissions,
         draftUserPermissions,
         status,

@@ -133,14 +133,59 @@ void main() {
 
   group('PermissionsCubit User Logic', () {
     blocTest<PermissionsCubit, PermissionsState>(
-      'initUser initializes overrides correctly',
+      'initUser initializes overrides and selectedGroupId correctly',
       build: () => cubit,
       act: (c) => c.initUser(tUser),
       expect: () => [
         isA<PermissionsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.user, 'user', tUser)
-            .having((s) => s.isAdmin, 'isAdmin', false),
+            .having((s) => s.isAdmin, 'isAdmin', false)
+            .having((s) => s.selectedGroupId, 'selectedGroupId', tUser.permissionGroupId),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'changeUserGroup updates selectedGroupId and retains overrides for non-admin group',
+      build: () => cubit..initUser(tUser),
+      act: (c) {
+        final normalGroup = EntityFactory.makePermissionGroupEntity().copyWith(
+          id: 'new-group-id',
+          name: 'Normal Group',
+        );
+        when(() => mockUsersCubit.state).thenReturn(
+          UsersState(users: const [], permissionGroups: [normalGroup]),
+        );
+        c.changeUserGroup('new-group-id', mockUsersCubit);
+      },
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.selectedGroupId,
+          'selectedGroupId',
+          'new-group-id',
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'changeUserGroup updates selectedGroupId and clears overrides for admin group',
+      build: () => cubit
+        ..initUser(tUser)
+        ..setUserPermissionOverride(ResourceType.workOrders, PermissionAction.create, true),
+      act: (c) {
+        final adminGroup = EntityFactory.makePermissionGroupEntity().copyWith(
+          id: 'admin-group-id',
+          name: 'Administrador',
+        );
+        when(() => mockUsersCubit.state).thenReturn(
+          UsersState(users: const [], permissionGroups: [adminGroup]),
+        );
+        c.changeUserGroup('admin-group-id', mockUsersCubit);
+      },
+      expect: () => [
+        isA<PermissionsState>()
+            .having((s) => s.selectedGroupId, 'selectedGroupId', 'admin-group-id')
+            .having((s) => s.draftUserPermissions, 'draftUserPermissions', const <ResourceType, Map<PermissionAction, bool?>>{}),
       ],
     );
 
@@ -167,7 +212,7 @@ void main() {
       'saveUserPermissions calls UsersCubit.updateUserPermissions and emits loaded on success',
       build: () {
         when(
-          () => mockUsersCubit.updateUserPermissions(any(), any()),
+          () => mockUsersCubit.updateUserPermissions(any(), any(), groupId: any(named: 'groupId')),
         ).thenAnswer((_) async => true);
         return cubit..initUser(tUser);
       },
@@ -185,7 +230,7 @@ void main() {
         ),
       ],
       verify: (_) {
-        verify(() => mockUsersCubit.updateUserPermissions(tUser.id, any())).called(1);
+        verify(() => mockUsersCubit.updateUserPermissions(tUser.id, any(), groupId: tUser.permissionGroupId)).called(1);
       },
     );
   });

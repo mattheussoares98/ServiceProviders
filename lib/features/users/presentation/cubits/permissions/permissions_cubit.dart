@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/users/domain/entities/permission_gro
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 
 part 'permissions_state.dart';
@@ -115,10 +116,29 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       PermissionsState(
         user: user,
         isAdmin: user.isAdmin,
+        selectedGroupId: user.permissionGroupId,
         draftUserPermissions: localOverrides,
         status: StateStatus.loaded,
       ),
     );
+  }
+
+  void changeUserGroup(
+    String groupId,
+    UsersCubit usersCubit,
+  ) {
+    final groups = usersCubit.state.permissionGroups;
+    final group = groups.firstWhereOrNull((g) => g.id == groupId);
+    final isAdminGroup = group?.name.toLowerCase() == 'administrador';
+
+    if (isAdminGroup) {
+      emit(state.copyWith(
+        selectedGroupId: groupId,
+        draftUserPermissions: const {},
+      ));
+    } else {
+      emit(state.copyWith(selectedGroupId: groupId));
+    }
   }
 
   void setUserPermissionOverride(
@@ -164,9 +184,16 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       }
     });
 
-    final updatedUser = user.copyWith(permissions: finalPermissions);
+    final updatedUser = user.copyWith(
+      permissions: finalPermissions,
+      permissionGroupId: state.selectedGroupId,
+    );
 
-    final success = await usersCubit.updateUserPermissions(user.id, finalPermissions);
+    final success = await usersCubit.updateUserPermissions(
+      user.id,
+      finalPermissions,
+      groupId: state.selectedGroupId,
+    );
 
     if (success) {
       emit(state.copyWith(user: updatedUser, status: StateStatus.loaded));

@@ -110,8 +110,9 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   Future<bool> updateUserPermissions(
     String userId,
-    Map<ResourceType, Map<PermissionAction, bool?>> permissions,
-  ) async {
+    Map<ResourceType, Map<PermissionAction, bool?>> permissions, {
+    String? groupId,
+  }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
     final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
@@ -127,7 +128,10 @@ class UsersCubit extends BaseCubit<UsersState> {
       return false;
     }
 
-    final updatedUser = currentUser.copyWith(permissions: permissions);
+    final updatedUser = currentUser.copyWith(
+      permissions: permissions,
+      permissionGroupId: groupId,
+    );
     final result = await _useCases.updateUserProfile(updatedUser);
     if (isClosed) return false;
 

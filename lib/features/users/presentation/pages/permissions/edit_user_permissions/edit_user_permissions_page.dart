@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/users/presentation/cubits/permission
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/admin_advice.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/permissions_items.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/selected_group_dropdown.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
@@ -69,6 +70,8 @@ class EditUserPermissionsPage extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: BaseText(user.email, color: context.theme.hintColor),
                 ),
+                gapSliverH16,
+                const SliverToBoxAdapter(child: SelectedGroupDropdown()),
                 gapSliverH16,
                 if (isAdmin) ...[
                   const SliverToBoxAdapter(child: AdminAdvice()),

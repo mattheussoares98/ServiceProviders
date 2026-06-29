@@ -1,11 +1,13 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_segmented_buttons.dart';
 import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,9 +17,16 @@ class PermissionsItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PermissionsCubit>();
-    final isAdmin = context.select<PermissionsCubit, bool>(
-      (cubit) => cubit.state.isAdmin,
-    );
+    final usersCubit = context.read<UsersCubit>();
+    final isAdmin = context.select<PermissionsCubit, bool>((cubit) {
+      final state = cubit.state;
+      if (state.isAdmin) return true;
+
+      final selectedGroup = usersCubit.state.permissionGroups.firstWhereOrNull(
+        (g) => g.id == state.selectedGroupId,
+      );
+      return selectedGroup?.name.toLowerCase() == 'administrador';
+    });
     return ResponsiveListFlow(
       maxItemWidth: 250,
       isSliver: true,
