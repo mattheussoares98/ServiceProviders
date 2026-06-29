@@ -332,7 +332,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -493,7 +493,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -530,7 +530,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            StateStatus.savingError,
           ),
         ],
         verify: (_) {
@@ -592,7 +592,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            StateStatus.deletingError,
           ),
         ],
         verify: (_) {
