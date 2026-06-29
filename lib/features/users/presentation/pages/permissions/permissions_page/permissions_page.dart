@@ -23,8 +23,13 @@ class PermissionsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = useState(0);
-    final pageController = useState(PageController()).value;
-    void onChangePage(int index) {
+    final pageController = usePageController();
+
+    void onPageChanged(int index) {
+      selectedIndex.value = index;
+    }
+
+    void onTap(int index) {
       selectedIndex.value = index;
       pageController.animateToPage(
         index,
@@ -45,7 +50,7 @@ class PermissionsPage extends HookWidget {
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
             body: PageView(
               controller: pageController,
-              onPageChanged: onChangePage,
+              onPageChanged: onPageChanged,
               children: const [Groups(), Users()],
             ),
             floatingActionButton: selectedIndex.value == 1
@@ -65,7 +70,7 @@ class PermissionsPage extends HookWidget {
                 : null,
             bottomNavigationBar: BaseBottomNavigationBar(
               currentIndex: selectedIndex.value,
-              onTap: onChangePage,
+              onTap: onTap,
               items: [
                 BaseBottomNavigationBarItem(
                   label: 'Grupos'.hardcoded,
