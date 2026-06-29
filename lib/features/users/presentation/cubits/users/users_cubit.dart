@@ -120,7 +120,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
@@ -152,7 +152,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       final message = result.message ?? 'Erro ao excluir usuário'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: StateStatus.deletingError,
           errorMessage: message,
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
@@ -183,7 +183,9 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message =
           result.message ?? 'Erro ao salvar grupo de permissão'.hardcoded;
-      emit(state.copyWith(errorMessage: message));
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
       showErrorToast(message);
       return false;
     }
@@ -215,7 +217,7 @@ class UsersCubit extends BaseCubit<UsersState> {
           result.message ?? 'Erro ao excluir grupo de permissão'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: StateStatus.deletingError,
           errorMessage: message,
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),

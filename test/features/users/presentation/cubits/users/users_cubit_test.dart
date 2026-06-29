@@ -317,7 +317,7 @@ void main() {
             StateStatus.saving,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', StateStatus.savingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
         ],
       );
@@ -367,7 +367,7 @@ void main() {
               .having((s) => s.status, 'status', StateStatus.deleting)
               .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', StateStatus.deletingError)
               .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],
