@@ -57,7 +57,10 @@ class PermissionsPage extends HookWidget {
                       ),
                       context,
                     ),
-                    child: const Icon(Icons.person_add),
+                    child: const PlatformIcon(
+                      materialIcon: Icons.person_add,
+                      cupertinoIcon: CupertinoIcons.person_add,
+                    ),
                   )
                 : null,
             bottomNavigationBar: BaseBottomNavigationBar(
