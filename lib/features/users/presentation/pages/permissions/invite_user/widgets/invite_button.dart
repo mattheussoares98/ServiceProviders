@@ -37,10 +37,13 @@ class InviteButton extends StatelessWidget {
                     return;
                   }
 
-                  await context.read<InviteUserCubit>().invite(
+                  final succeeds = await context.read<InviteUserCubit>().invite(
                     email: emailController.text.trim(),
                     groupId: selectedGroup.value!.id,
                   );
+                  if (succeeds && context.mounted) {
+                    Navigator.pop(context);
+                  }
                 },
         );
       },
