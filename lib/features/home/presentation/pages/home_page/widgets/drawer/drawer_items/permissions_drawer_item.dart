@@ -13,7 +13,7 @@ class PermissionsDrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseDrawerItem(
-      title: 'Permissões'.hardcoded,
+      title: 'Usuários e permissões'.hardcoded,
       platformIcon: const PlatformIcon(
         materialIcon: Icons.vpn_key_outlined,
         cupertinoIcon: CupertinoIcons.lock,

@@ -36,7 +36,7 @@ class PermissionsPage extends HookWidget {
             onRefresh: () =>
                 context.read<UsersCubit>().loadAll(emitLoading: false),
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
-            body: [const Groups(), const Users()][selectedIndex.value],
+            body: [const Users(), const Groups()][selectedIndex.value],
             floatingActionButton: selectedIndex.value == 1
                 ? FloatingActionButton(
                     onPressed: () => showModalPage<void>(
@@ -57,21 +57,21 @@ class PermissionsPage extends HookWidget {
               onTap: onPageChanged,
               items: [
                 BaseBottomNavigationBarItem(
-                  label: 'Grupos'.hardcoded,
-                  platformIcon: PlatformIcon(
-                    materialIcon: Icons.group,
-                    cupertinoIcon: selectedIndex.value == 0
-                        ? CupertinoIcons.group_solid
-                        : CupertinoIcons.group,
-                  ),
-                ),
-                BaseBottomNavigationBarItem(
                   label: 'Usuários'.hardcoded,
                   platformIcon: PlatformIcon(
                     materialIcon: Icons.person,
                     cupertinoIcon: selectedIndex.value == 1
                         ? CupertinoIcons.person_solid
                         : CupertinoIcons.person,
+                  ),
+                ),
+                BaseBottomNavigationBarItem(
+                  label: 'Grupos'.hardcoded,
+                  platformIcon: PlatformIcon(
+                    materialIcon: Icons.group,
+                    cupertinoIcon: selectedIndex.value == 0
+                        ? CupertinoIcons.group_solid
+                        : CupertinoIcons.group,
                   ),
                 ),
               ],
