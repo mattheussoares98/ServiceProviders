@@ -13,7 +13,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get pending invitations for a specific company
+-- Function to get pending invitations for a specific company with permissions check
 CREATE OR REPLACE FUNCTION public.get_pending_invitations(target_company_id UUID)
 RETURNS TABLE (
   id UUID,
@@ -31,6 +31,11 @@ BEGIN
   -- Validate that the caller has access to the target company
   IF target_company_id <> public.get_user_company_id() THEN
     RAISE EXCEPTION 'Acesso negado para esta empresa.';
+  END IF;
+
+  -- Validate that the caller has users.read permission
+  IF NOT public.has_permission('users.read') THEN
+    RAISE EXCEPTION 'Sem permissão para visualizar convites.';
   END IF;
 
   RETURN QUERY
@@ -51,7 +56,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.get_pending_invitations(UUID) TO authenticated;
 
--- Function to revoke (delete) a pending invitation
+-- Function to revoke (delete) a pending invitation with permissions check
 CREATE OR REPLACE FUNCTION public.revoke_invitation(invitation_id UUID)
 RETURNS VOID
 LANGUAGE plpgsql
@@ -63,6 +68,11 @@ DECLARE
 BEGIN
   caller_company_id := public.get_user_company_id();
   
+  -- Validate that the caller has users.delete permission
+  IF NOT public.has_permission('users.delete') THEN
+    RAISE EXCEPTION 'Sem permissão para revogar convites.';
+  END IF;
+
   -- Delete the user from auth.users (cascades to public.user_profiles)
   -- only if they belong to the caller's company and are not confirmed yet.
   DELETE FROM auth.users
