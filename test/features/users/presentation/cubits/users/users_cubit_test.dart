@@ -3,13 +3,16 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/create_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/delete_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/delete_user_profile_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/get_pending_invitations_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
@@ -49,6 +52,12 @@ class MockUpdatePermissionGroupUseCase extends Mock
 class MockDeletePermissionGroupUseCase extends Mock
     implements DeletePermissionGroupUseCase {}
 
+class MockGetPendingInvitationsUseCase extends Mock
+    implements GetPendingInvitationsUseCase {}
+
+class MockRevokeInvitationUseCase extends Mock
+    implements RevokeInvitationUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -61,16 +70,20 @@ void main() {
   late MockCreatePermissionGroupUseCase mockCreatePermissionGroup;
   late MockUpdatePermissionGroupUseCase mockUpdatePermissionGroup;
   late MockDeletePermissionGroupUseCase mockDeletePermissionGroup;
+  late MockGetPendingInvitationsUseCase mockGetPendingInvitations;
+  late MockRevokeInvitationUseCase mockRevokeInvitation;
   late MockNavigationClient mockNavigationClient;
 
   late UsersCubit cubit;
   late UserProfileEntity tSessionUser;
   late UserProfileEntity tUserProfile;
   late PermissionGroupEntity tPermissionGroup;
+  late UserInvitationEntity tUserInvitation;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makePermissionGroupEntity());
+    registerFallbackValue(EntityFactory.makeUserInvitationEntity());
   });
 
   setUp(() {
@@ -83,6 +96,8 @@ void main() {
     mockCreatePermissionGroup = MockCreatePermissionGroupUseCase();
     mockUpdatePermissionGroup = MockUpdatePermissionGroupUseCase();
     mockDeletePermissionGroup = MockDeletePermissionGroupUseCase();
+    mockGetPendingInvitations = MockGetPendingInvitationsUseCase();
+    mockRevokeInvitation = MockRevokeInvitationUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -90,6 +105,7 @@ void main() {
     tSessionUser = EntityFactory.makeUserProfileEntity();
     tUserProfile = EntityFactory.makeUserProfileEntity();
     tPermissionGroup = EntityFactory.makePermissionGroupEntity();
+    tUserInvitation = EntityFactory.makeUserInvitationEntity();
 
     when(() => mockGetSessionUser.call()).thenReturn(tSessionUser);
 
@@ -103,6 +119,8 @@ void main() {
       createPermissionGroup: mockCreatePermissionGroup,
       updatePermissionGroup: mockUpdatePermissionGroup,
       deletePermissionGroup: mockDeletePermissionGroup,
+      getPendingInvitations: mockGetPendingInvitations,
+      revokeInvitation: mockRevokeInvitation,
     );
 
     cubit = UsersCubit(useCases: useCases);
@@ -233,16 +251,20 @@ void main() {
 
     group('loadAll', () {
       blocTest<UsersCubit, UsersState>(
-        'should emit loading, load users, and load permission groups',
+        'should emit loading, load users, load permission groups, and load invitations',
         build: () {
           final tUsers = EntityFactory.makeUserProfileEntityList();
           final tGroups = EntityFactory.makePermissionGroupEntityList();
+          final tInvitations = EntityFactory.makeUserInvitationEntityList();
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tUsers));
           when(
             () => mockGetPermissionGroups.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tGroups));
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tInvitations));
           return cubit;
         },
         act: (cubit) => cubit.loadAll(),
@@ -261,6 +283,125 @@ void main() {
                 (s) => s.permissionGroups,
                 'permissionGroups',
                 isNotEmpty,
+              ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.invitations, 'invitations', isNotEmpty),
+        ],
+      );
+    });
+
+    group('loadInvitations', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit loaded status and invitations on success',
+        build: () {
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tUserInvitation]));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadInvitations(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.invitations, 'invitations', [tUserInvitation]),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit loadingError status on failure',
+        build: () {
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error loading'));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadInvitations(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error loading'),
+        ],
+      );
+    });
+
+    group('revokeInvitation', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit deleting status, call revokeInvitation and refresh invitations on success',
+        seed: () => UsersState(
+          users: const [],
+          permissionGroups: const [],
+          invitations: [tUserInvitation],
+        ),
+        build: () {
+          when(
+            () => mockRevokeInvitation.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.revokeInvitation(tUserInvitation.id),
+        expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
+                tUserInvitation.id,
+              }),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
+                tUserInvitation.id,
+              }),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.invitations, 'invitations', isEmpty)
+              .having(
+                (s) => s.deletingInvitationIds,
+                'deletingInvitationIds',
+                isEmpty,
+              ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit deletingError on failure',
+        seed: () => UsersState(
+          users: const [],
+          permissionGroups: const [],
+          invitations: [tUserInvitation],
+        ),
+        build: () {
+          when(
+            () => mockRevokeInvitation.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error revoking'));
+          return cubit;
+        },
+        act: (cubit) => cubit.revokeInvitation(tUserInvitation.id),
+        expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
+                tUserInvitation.id,
+              }),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.deletingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error revoking')
+              .having(
+                (s) => s.deletingInvitationIds,
+                'deletingInvitationIds',
+                isEmpty,
               ),
         ],
       );

@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -93,6 +94,40 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
   }
 
+  Future<void> loadInvitations({bool emitLoading = true}) async {
+    final sessionUser = _useCases.getSessionUser();
+    if (sessionUser.companyId.isEmpty) {
+      showErrorToast(
+        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
+      );
+      emit(state.copyWith(status: StateStatus.loadingError, invitations: []));
+      return;
+    }
+
+    if (emitLoading && !isClosed) {
+      emit(state.copyWith(status: StateStatus.loading));
+    }
+
+    final result = await _useCases.getPendingInvitations(sessionUser.companyId);
+    if (isClosed) return;
+
+    if (result is SuccessState<List<UserInvitationEntity>>) {
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          invitations: result.data ?? [],
+          annulErrorMessage: true,
+        ),
+      );
+    } else {
+      final message = result.message ?? 'Erro ao carregar convites'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+      );
+      showErrorToast(message);
+    }
+  }
+
   Future<void> loadAll({bool emitLoading = true}) async {
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -102,6 +137,45 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (state.status == StateStatus.loadingError) return;
 
     await loadPermissionGroups(emitLoading: false);
+    if (state.status == StateStatus.loadingError) return;
+
+    await loadInvitations(emitLoading: false);
+  }
+
+  Future<bool> revokeInvitation(String id) async {
+    emit(
+      state.copyWith(
+        status: StateStatus.deleting,
+        deletingInvitationIds: {...state.deletingInvitationIds, id},
+      ),
+    );
+
+    final result = await _useCases.revokeInvitation(id);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      await loadInvitations(emitLoading: false);
+      if (isClosed) return false;
+
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          deletingInvitationIds: {...state.deletingInvitationIds}..remove(id),
+        ),
+      );
+      return true;
+    } else {
+      final message = result.message ?? 'Erro ao revogar convite'.hardcoded;
+      emit(
+        state.copyWith(
+          status: StateStatus.deletingError,
+          errorMessage: message,
+          deletingInvitationIds: {...state.deletingInvitationIds}..remove(id),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
   }
 
   // ============================================
