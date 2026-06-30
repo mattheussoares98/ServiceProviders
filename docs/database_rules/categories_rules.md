@@ -1,20 +1,29 @@
 # Categories Table Policies
 
 ```sql
-CREATE POLICY "Users read own company categories"
+CREATE POLICY "Users read own company categories with permission"
   ON public.categories FOR SELECT
   TO authenticated
-  USING (company_id = public.get_user_company_id());
+  USING (
+    company_id = public.get_user_company_id()
+    AND public.has_permission('categories.read')
+  );
 
-CREATE POLICY "Users insert own company categories"
+CREATE POLICY "Users insert own company categories with permission"
   ON public.categories FOR INSERT
   TO authenticated
-  WITH CHECK (company_id = public.get_user_company_id());
+  WITH CHECK (
+    company_id = public.get_user_company_id()
+    AND public.has_permission('categories.create')
+  );
 
-CREATE POLICY "Users update own company categories"
+CREATE POLICY "Users update own company categories with permission"
   ON public.categories FOR UPDATE
   TO authenticated
-  USING (company_id = public.get_user_company_id());
+  USING (
+    company_id = public.get_user_company_id()
+    AND public.has_permission('categories.update')
+  );
 ```
 
 ## Deletion Rules
