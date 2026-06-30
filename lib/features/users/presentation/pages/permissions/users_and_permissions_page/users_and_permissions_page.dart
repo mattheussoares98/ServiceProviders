@@ -61,8 +61,8 @@ class UsersAndPermissionsPage extends HookWidget {
                   platformIcon: PlatformIcon(
                     materialIcon: Icons.person,
                     cupertinoIcon: selectedIndex.value == 1
-                        ? CupertinoIcons.person_solid
-                        : CupertinoIcons.person,
+                        ? CupertinoIcons.person
+                        : CupertinoIcons.person_solid,
                   ),
                 ),
                 BaseBottomNavigationBarItem(
@@ -70,8 +70,8 @@ class UsersAndPermissionsPage extends HookWidget {
                   platformIcon: PlatformIcon(
                     materialIcon: Icons.group,
                     cupertinoIcon: selectedIndex.value == 0
-                        ? CupertinoIcons.group_solid
-                        : CupertinoIcons.group,
+                        ? CupertinoIcons.group
+                        : CupertinoIcons.group_solid,
                   ),
                 ),
               ],
