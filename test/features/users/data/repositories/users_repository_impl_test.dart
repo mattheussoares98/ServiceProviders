@@ -1,8 +1,10 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:clean_architecture/features/users/data/repositories/users_repository_impl.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,8 +31,14 @@ void main() {
         EntityFactory.makePermissionGroupEntity(),
       ),
     );
+    registerFallbackValue(
+      UserInvitationResponseModel.fromEntity(
+        EntityFactory.makeUserInvitationEntity(),
+      ),
+    );
     registerFallbackValue(<UserProfileResponseModel>[]);
     registerFallbackValue(<PermissionGroupResponseModel>[]);
+    registerFallbackValue(<UserInvitationResponseModel>[]);
   });
 
   setUp(() {
@@ -311,6 +319,74 @@ void main() {
               companyId: tCompanyId,
               groupId: tId,
             )).called(1);
+          },
+        );
+      });
+
+      group('getPendingInvitations', () {
+        test(
+          'should not call remote when offline',
+          () async {
+            when(() => mockInternetClient.isConnected).thenReturn(false);
+
+            final result = await repository.getPendingInvitations(tCompanyId);
+
+            expect(result, isA<FailureState<List<UserInvitationEntity>>>());
+            verify(() => mockInternetClient.isConnected).called(1);
+            verifyNever(() => mockRemoteDataSource.getPendingInvitations(any()));
+          },
+        );
+
+        test(
+          'should call remote and map to entities on success when online',
+          () async {
+            final tInvitationModel = UserInvitationResponseModel.fromEntity(
+              EntityFactory.makeUserInvitationEntity(),
+            );
+            when(() => mockInternetClient.isConnected).thenReturn(true);
+            when(
+              () => mockRemoteDataSource.getPendingInvitations(any()),
+            ).thenAnswer((_) async => SuccessState(data: [tInvitationModel]));
+
+            final result = await repository.getPendingInvitations(tCompanyId);
+
+            expect(result, isA<SuccessState<List<UserInvitationEntity>>>());
+            expect(result.data, hasLength(1));
+            expect(result.data!.first.id, tInvitationModel.id);
+            verify(() => mockInternetClient.isConnected).called(1);
+            verify(() => mockRemoteDataSource.getPendingInvitations(tCompanyId)).called(1);
+          },
+        );
+      });
+
+      group('revokeInvitation', () {
+        test(
+          'should not call remote when offline',
+          () async {
+            when(() => mockInternetClient.isConnected).thenReturn(false);
+
+            final result = await repository.revokeInvitation(tId);
+
+            expect(result, isA<FailureState<bool>>());
+            verify(() => mockInternetClient.isConnected).called(1);
+            verifyNever(() => mockRemoteDataSource.revokeInvitation(any()));
+          },
+        );
+
+        test(
+          'should call remote and return success when online',
+          () async {
+            when(() => mockInternetClient.isConnected).thenReturn(true);
+            when(
+              () => mockRemoteDataSource.revokeInvitation(any()),
+            ).thenAnswer((_) async => SuccessState.nil);
+
+            final result = await repository.revokeInvitation(tId);
+
+            expect(result, isA<SuccessState<bool>>());
+            expect(result.data, isTrue);
+            verify(() => mockInternetClient.isConnected).called(1);
+            verify(() => mockRemoteDataSource.revokeInvitation(tId)).called(1);
           },
         );
       });

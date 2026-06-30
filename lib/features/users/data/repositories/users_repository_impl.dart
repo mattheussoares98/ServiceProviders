@@ -5,8 +5,10 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -106,6 +108,34 @@ final class UsersRepositoryImpl implements UsersRepository {
       groupId: groupId,
     ),
   );
+
+  @override
+  FutureList<UserInvitationEntity> getPendingInvitations(String companyId) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        UserInvitationResponseModel,
+        UserInvitationEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getPendingInvitations(companyId),
+      );
+
+  @override
+  FutureBool revokeInvitation(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () async {
+          final result = await _remoteDataSource.revokeInvitation(id);
+          if (result is SuccessState<void>) {
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 
   // ============================================
   // Permission Groups
