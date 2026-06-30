@@ -21,6 +21,7 @@ import 'package:clean_architecture/features/maintenance_plans/domain/entities/fr
 import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
@@ -318,7 +319,10 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       name: _makeWord(),
       permissions: const {
-        ResourceType.workOrders: {PermissionAction.create, PermissionAction.update},
+        ResourceType.workOrders: {
+          PermissionAction.create,
+          PermissionAction.update,
+        },
         ResourceType.attachments: {
           PermissionAction.create,
           PermissionAction.read,
@@ -436,5 +440,25 @@ abstract final class EntityFactory {
       themeMode: faker.randomGenerator.element(['light', 'dark', 'system']),
       systemNotificationsEnabled: _makeBool(),
     );
+  }
+
+  // UserInvitation
+  static UserInvitationEntity makeUserInvitationEntity() {
+    return UserInvitationEntity(
+      id: _makeId(),
+      email: _makeEmail(),
+      invitedAt: _makeDateTime(),
+      companyId: _makeId(),
+      permissionGroupId: _makeId(),
+      name: _makePersonName(),
+    );
+  }
+
+  static List<UserInvitationEntity> makeUserInvitationEntityList() {
+    return [
+      makeUserInvitationEntity(),
+      makeUserInvitationEntity(),
+      makeUserInvitationEntity(),
+    ];
   }
 }
