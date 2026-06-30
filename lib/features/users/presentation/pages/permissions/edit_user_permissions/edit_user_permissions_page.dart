@@ -4,12 +4,14 @@ import 'package:clean_architecture/features/users/domain/entities/user_profile_e
 import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/admin_advice.dart';
+import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/delete_user_button.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/permissions_items.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/edit_user_permissions/widgets/selected_group_dropdown.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -17,71 +19,91 @@ import 'package:clean_architecture/shared_ui/utils/extensions/build_context_exte
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 
 @RoutePage()
-class EditUserPermissionsPage extends StatelessWidget {
+class EditUserPermissionsPage extends HookWidget {
   const EditUserPermissionsPage({super.key, required this.user});
 
   final UserProfileEntity user;
 
   @override
   Widget build(BuildContext context) {
+    observeLoading(
+      [context.read<UsersCubit>()],
+      statuses: {StateStatus.saving, StateStatus.deleting, StateStatus.loading},
+    );
     return BlocProvider(
       create: (context) => GetIt.I<PermissionsCubit>()..initUser(user),
-      child: BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
-        selector: (state) =>
-            (state.isAdmin, state.status == StateStatus.saving),
-        builder: (context, value) {
-          Future<void> onSave() async {
-            final success = await context
-                .read<PermissionsCubit>()
-                .saveUserPermissions(context.read<UsersCubit>());
-            if (success && context.mounted) {
-              context.router.pop();
-            }
+      child: _Body(user: user),
+    );
+  }
+}
+
+class _Body extends HookWidget {
+  const _Body({required this.user});
+  final UserProfileEntity user;
+
+  @override
+  Widget build(BuildContext context) {
+    observeLoading(
+      [context.read<PermissionsCubit>()],
+      statuses: {StateStatus.saving, StateStatus.deleting, StateStatus.loading},
+    );
+    return BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
+      selector: (state) => (state.isAdmin, state.status == StateStatus.saving),
+      builder: (context, value) {
+        Future<void> onSave() async {
+          final success = await context
+              .read<PermissionsCubit>()
+              .saveUserPermissions(context.read<UsersCubit>());
+          if (success && context.mounted) {
+            context.router.pop();
           }
+        }
 
-          final isAdmin = value.$1;
-          final isSaving = value.$2;
+        final isAdmin = value.$1;
+        final isSaving = value.$2;
 
-          return BaseScaffold(
-            isScrollable: false,
-            appBar: BaseAppBar(
-              title: 'Permissões do Usuário'.hardcoded,
-              actions: [
-                BaseTextButton(
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.save,
-                    cupertinoIcon: CupertinoIcons.check_mark,
-                  ),
-                  padding: const EdgeInsets.only(right: Sizes.p12),
-                  onPressed: isSaving ? null : onSave,
-                  isLoading: isSaving,
-                  text: 'Salvar'.hardcoded,
+        return BaseScaffold(
+          isScrollable: false,
+          appBar: BaseAppBar(
+            title: 'Alterando usuário'.hardcoded,
+            actions: [
+              BaseIconButton(
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.save,
+                  cupertinoIcon: CupertinoIcons.check_mark,
                 ),
-              ],
-            ),
-            body: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: BaseText.titleMedium(user.name)),
-                gapSliverH4,
-                SliverToBoxAdapter(
-                  child: BaseText(user.email, color: context.theme.hintColor),
-                ),
+                padding: const EdgeInsets.only(right: Sizes.p12),
+                onPressed: isSaving ? null : onSave,
+                isLoading: isSaving,
+              ),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: BaseText.titleMedium(user.name)),
+              gapSliverH4,
+              SliverToBoxAdapter(
+                child: BaseText(user.email, color: context.theme.hintColor),
+              ),
+              gapSliverH16,
+              const SliverToBoxAdapter(child: SelectedGroupDropdown()),
+              gapSliverH16,
+              if (isAdmin) ...[
+                const SliverToBoxAdapter(child: AdminAdvice()),
                 gapSliverH16,
-                const SliverToBoxAdapter(child: SelectedGroupDropdown()),
-                gapSliverH16,
-                if (isAdmin) ...[
-                  const SliverToBoxAdapter(child: AdminAdvice()),
-                  gapSliverH16,
-                ],
-                const PermissionsItems(),
               ],
-            ),
-          );
-        },
-      ),
+              const PermissionsItems(),
+              gapSliverH16,
+              SliverToBoxAdapter(child: DeleteUserButton(user: user)),
+              gapSliverH16,
+            ],
+          ),
+        );
+      },
     );
   }
 }
