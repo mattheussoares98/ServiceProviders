@@ -25,8 +25,8 @@ enum ResourceType {
 
 enum PermissionAction {
   create('create', 'Criar'),
-  read('read', 'Ler'),
-  update('update', 'Atualizar'),
+  read('read', 'Pesquisar'),
+  update('update', 'Alterar'),
   delete('delete', 'Excluir');
 
   const PermissionAction(this.code, this.label);
