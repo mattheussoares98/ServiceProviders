@@ -133,13 +133,11 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    await loadUsers(emitLoading: false);
-    if (state.status == StateStatus.loadingError) return;
-
-    await loadPermissionGroups(emitLoading: false);
-    if (state.status == StateStatus.loadingError) return;
-
-    await loadInvitations(emitLoading: false);
+    await Future.wait([
+      loadUsers(emitLoading: false),
+      loadPermissionGroups(emitLoading: false),
+      loadInvitations(emitLoading: false),
+    ]);
   }
 
   Future<bool> revokeInvitation(String id) async {
