@@ -11,7 +11,6 @@ part 'permissions_state.dart';
 @injectable
 class PermissionsCubit extends BaseCubit<PermissionsState> {
   PermissionsCubit() : super(const PermissionsState());
-  //TODO check if we can change this code to be easier to understand
   // ============================================
   // Group Permissions Logic
   // ============================================
