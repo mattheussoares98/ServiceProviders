@@ -13,8 +13,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to get pending invitations for the current user's company
-CREATE OR REPLACE FUNCTION public.get_pending_invitations()
+-- Function to get pending invitations for a specific company
+CREATE OR REPLACE FUNCTION public.get_pending_invitations(target_company_id UUID)
 RETURNS TABLE (
   id UUID,
   email TEXT,
@@ -28,6 +28,11 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
+  -- Validate that the caller has access to the target company
+  IF target_company_id <> public.get_user_company_id() THEN
+    RAISE EXCEPTION 'Acesso negado para esta empresa.';
+  END IF;
+
   RETURN QUERY
   SELECT 
     u.id,
@@ -38,13 +43,13 @@ BEGIN
     (u.raw_user_meta_data->>'name')::TEXT
   FROM auth.users u
   WHERE 
-    (u.raw_user_meta_data->>'company_id')::UUID = public.get_user_company_id()
+    (u.raw_user_meta_data->>'company_id')::UUID = target_company_id
     AND u.invited_at IS NOT NULL 
     AND u.confirmed_at IS NULL;
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.get_pending_invitations() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pending_invitations(UUID) TO authenticated;
 
 -- Function to revoke (delete) a pending invitation
 CREATE OR REPLACE FUNCTION public.revoke_invitation(invitation_id UUID)

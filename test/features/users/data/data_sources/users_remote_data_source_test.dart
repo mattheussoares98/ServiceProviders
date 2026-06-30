@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/clients/remote/supabase/database/supabas
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -211,6 +212,62 @@ void main() {
               'company_id': tCompanyId,
               'permission_group_id': tId,
             },
+          ),
+        ).called(1);
+      });
+    });
+
+    group('getPendingInvitations', () {
+      test(
+        'should return SuccessState<List<UserInvitationResponseModel>> on success',
+        () async {
+          final tInvitationModel = UserInvitationResponseModel.fromEntity(
+            EntityFactory.makeUserInvitationEntity(),
+          );
+
+          when(
+            () => mockDatabase.rpc(
+              functionName: any(named: 'functionName'),
+              params: any(named: 'params'),
+              get: any(named: 'get'),
+            ),
+          ).thenAnswer((_) async => [tInvitationModel.toJson()]);
+
+          final result = await dataSource.getPendingInvitations(tCompanyId);
+
+          expect(
+            result,
+            isA<SuccessState<List<UserInvitationResponseModel>>>(),
+          );
+          expect(result.data, hasLength(1));
+          expect(result.data!.first.id, tInvitationModel.id);
+          verify(
+            () => mockDatabase.rpc(
+              functionName: 'get_pending_invitations',
+              params: {'target_company_id': tCompanyId},
+            ),
+          ).called(1);
+        },
+      );
+    });
+
+    group('revokeInvitation', () {
+      test('should return SuccessState<void> on success', () async {
+        when(
+          () => mockDatabase.rpc(
+            functionName: any(named: 'functionName'),
+            params: any(named: 'params'),
+            get: any(named: 'get'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        final result = await dataSource.revokeInvitation(tId);
+
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockDatabase.rpc(
+            functionName: 'revoke_invitation',
+            params: {'invitation_id': tId},
           ),
         ).called(1);
       });

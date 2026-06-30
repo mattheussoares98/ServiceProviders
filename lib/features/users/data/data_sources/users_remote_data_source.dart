@@ -4,6 +4,7 @@ import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,6 +22,10 @@ abstract interface class UsersRemoteDataSource {
     required String companyId,
     required String groupId,
   });
+  FutureList<UserInvitationResponseModel> getPendingInvitations(
+    String companyId,
+  );
+  FutureVoid revokeInvitation(String id);
 
   // Permission Groups
   FutureList<PermissionGroupResponseModel> getPermissionGroups(
@@ -114,6 +119,27 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       },
     );
   });
+
+  @override
+  FutureList<UserInvitationResponseModel> getPendingInvitations(
+    String companyId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.rpc(
+      functionName: 'get_pending_invitations',
+      params: {'target_company_id': companyId},
+    );
+    return (response as List<dynamic>)
+        .map((e) => UserInvitationResponseModel.fromJson(e as MapDynamic))
+        .toList();
+  });
+
+  @override
+  FutureVoid revokeInvitation(String id) => SupabaseHandler.voidCall(() async {
+        await _database.rpc(
+          functionName: 'revoke_invitation',
+          params: {'invitation_id': id},
+        );
+      });
 
   // ============================================
   // Permission Groups
