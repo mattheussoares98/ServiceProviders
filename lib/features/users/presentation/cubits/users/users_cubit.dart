@@ -181,7 +181,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
   }
 
-  Future<void> deleteUserProfile(String id) async {
+  Future<bool> deleteUserProfile(String id) async {
     emit(
       state.copyWith(
         status: StateStatus.deleting,
@@ -190,11 +190,11 @@ class UsersCubit extends BaseCubit<UsersState> {
     );
 
     final result = await _useCases.deleteUserProfile(id);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
       await loadUsers(emitLoading: false);
-      if (isClosed) return;
+      if (isClosed) return false;
 
       emit(
         state.copyWith(
@@ -202,6 +202,7 @@ class UsersCubit extends BaseCubit<UsersState> {
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
       );
+      return true;
     } else {
       final message = result.message ?? 'Erro ao excluir usuário'.hardcoded;
       emit(
@@ -212,6 +213,7 @@ class UsersCubit extends BaseCubit<UsersState> {
         ),
       );
       showErrorToast(message);
+      return false;
     }
   }
 

@@ -394,7 +394,9 @@ void main() {
           final expectedUpdatedUser = tUserProfile.copyWith(
             permissionGroupId: tPermissionGroup.id,
           );
-          verify(() => mockUpdateUserProfile.call(expectedUpdatedUser)).called(1);
+          verify(
+            () => mockUpdateUserProfile.call(expectedUpdatedUser),
+          ).called(1);
           verify(() => mockGetUsers.call(tSessionUser.companyId)).called(1);
         },
       );
@@ -469,7 +471,8 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteUserProfile(tId),
+        act: (cubit) async =>
+            expect(await cubit.deleteUserProfile(tId), isTrue),
         expect: () => [
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.deleting)
@@ -493,7 +496,8 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Delete failed'));
           return cubit;
         },
-        act: (cubit) => cubit.deleteUserProfile(tId),
+        act: (cubit) async =>
+            expect(await cubit.deleteUserProfile(tId), isFalse),
         expect: () => [
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.deleting)
