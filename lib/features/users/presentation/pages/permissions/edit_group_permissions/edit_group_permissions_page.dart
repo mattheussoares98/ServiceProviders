@@ -10,12 +10,14 @@ import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 
 @RoutePage()
@@ -27,79 +29,96 @@ class EditGroupPermissionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => GetIt.I<PermissionsCubit>()..initGroup(group),
-      child:
-          BlocSelector<PermissionsCubit, PermissionsState, (bool, StateStatus)>(
-            selector: (state) => (state.isAdmin, state.status),
-            builder: (context, state) {
-              final isAdmin = state.$1;
-              final status = state.$2;
+      child: _Body(group: group),
+    );
+  }
+}
 
-              Future<void> onSave() async {
-                final cubit = context.read<PermissionsCubit>();
+class _Body extends HookWidget {
+  const _Body({required this.group});
+  final PermissionGroupEntity group;
 
-                final success = await cubit.saveGroupPermissions(
-                  context.read<UsersCubit>(),
-                );
-                if (success && context.mounted) {
-                  context.router.pop();
-                }
-              }
+  @override
+  Widget build(BuildContext context) {
+    observeLoading(
+      [context.read<PermissionsCubit>()],
+      statuses: {StateStatus.saving, StateStatus.loading, StateStatus.deleting},
+    );
+    return BlocSelector<
+      PermissionsCubit,
+      PermissionsState,
+      (bool, StateStatus)
+    >(
+      selector: (state) => (state.isAdmin, state.status),
+      builder: (context, state) {
+        final isAdmin = state.$1;
+        final status = state.$2;
 
-              return BaseScaffold(
-                isScrollable: false,
-                appBar: BaseAppBar(
-                  title: 'Editar Grupo'.hardcoded,
-                  actionsPadding: const EdgeInsets.only(right: Sizes.p12),
-                  actions: [
-                    if (!isAdmin)
-                      BaseTextButton(
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.save,
-                          cupertinoIcon: CupertinoIcons.check_mark,
-                        ),
-                        onPressed: status == StateStatus.saving ? null : onSave,
-                        text: 'Salvar'.hardcoded,
-                        isLoading: status == StateStatus.saving,
-                      ),
-                  ],
+        Future<void> onSave() async {
+          final cubit = context.read<PermissionsCubit>();
+
+          final success = await cubit.saveGroupPermissions(
+            context.read<UsersCubit>(),
+          );
+          if (success && context.mounted) {
+            context.router.pop();
+          }
+        }
+
+        return BaseScaffold(
+          isScrollable: false,
+          appBar: BaseAppBar(
+            title: 'Editar Grupo'.hardcoded,
+            actionsPadding: const EdgeInsets.only(right: Sizes.p12),
+            actions: [
+              if (!isAdmin)
+                BaseTextButton(
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.save,
+                    cupertinoIcon: CupertinoIcons.check_mark,
+                  ),
+                  onPressed: status == StateStatus.saving ? null : onSave,
+                  text: 'Salvar'.hardcoded,
+                  isLoading: status == StateStatus.saving,
                 ),
-                body: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: GroupPermissionsHeader(
-                        group: group,
-                        isAdminGroup: isAdmin,
-                      ),
-                    ),
-                    BlocSelector<
-                      PermissionsCubit,
-                      PermissionsState,
-                      Map<ResourceType, Set<PermissionAction>>
-                    >(
-                      selector: (state) => state.draftGroupPermissions,
-                      builder: (context, draftGroupPermissions) {
-                        return ResponsiveListFlow(
-                          isSliver: true,
-                          maxItemWidth: 200,
-                          itemCount: ResourceType.values.length,
-                          itemBuilder: (context, index) {
-                            final resource = ResourceType.values[index];
-                            final allowedPermissions =
-                                draftGroupPermissions[resource] ?? {};
-                            return ResourcePermissionCard(
-                              resource: resource,
-                              allowedPermissions: allowedPermissions,
-                              isAdminGroup: isAdmin,
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
+            ],
           ),
+          body: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: GroupPermissionsHeader(
+                  group: group,
+                  isAdminGroup: isAdmin,
+                ),
+              ),
+              BlocSelector<
+                PermissionsCubit,
+                PermissionsState,
+                Map<ResourceType, Set<PermissionAction>>
+              >(
+                selector: (state) => state.draftGroupPermissions,
+                builder: (context, draftGroupPermissions) {
+                  return ResponsiveListFlow(
+                    isSliver: true,
+                    maxItemWidth: 200,
+                    itemCount: ResourceType.values.length,
+                    itemBuilder: (context, index) {
+                      final resource = ResourceType.values[index];
+                      final allowedPermissions =
+                          draftGroupPermissions[resource] ?? {};
+                      return ResourcePermissionCard(
+                        resource: resource,
+                        allowedPermissions: allowedPermissions,
+                        isAdminGroup: isAdmin,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
