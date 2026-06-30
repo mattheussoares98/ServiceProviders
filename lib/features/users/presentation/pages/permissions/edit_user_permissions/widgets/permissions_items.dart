@@ -26,83 +26,106 @@ class PermissionsItems extends StatelessWidget {
         final resource = ResourceType.values[index];
 
         return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(Sizes.p8),
-            child: Column(
-              children: [
-                BaseText.bodyMedium(
-                  resource.label,
-                  fontWeight: FontWeight.bold,
-                ),
-                const Divider(height: Sizes.p20),
-                Column(
-                  children: PermissionAction.values.map((action) {
-                    return BlocSelector<
-                      PermissionsCubit,
-                      PermissionsState,
-                      bool?
-                    >(
-                      selector: (state) =>
-                          state.draftUserPermissions[resource]?[action],
-                      builder: (context, currentValue) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: Sizes.p12),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: BaseText(
-                                  action.label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              gapW8,
-                              Expanded(
-                                flex: 8,
-                                child: BaseSegmentedButtons<bool?>(
-                                  items: const [null, true, false],
-                                  selectedValue: currentValue,
-                                  onChanged: isAdmin
-                                      ? null
-                                      : (value) =>
-                                            cubit.setUserPermissionOverride(
-                                              resource,
-                                              action,
-                                              value,
-                                            ),
-                                  itemLabelBuilder: (value) {
-                                    switch (value) {
-                                      case null:
-                                        return 'Herdar'.hardcoded;
-                                      case true:
-                                        return 'Ativo'.hardcoded;
-                                      case false:
-                                        return 'Inativo'.hardcoded;
-                                    }
-                                  },
-                                  itemColorBuilder: (value) {
-                                    switch (value) {
-                                      case null:
-                                        return context.theme.primaryColor;
-                                      case true:
-                                        return Colors.green.shade600;
-                                      case false:
-                                        return Colors.red.shade600;
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
+          child: ExpansionTile(
+            title: BaseText.titleMedium(resource.label),
+            subtitle: _Subtitle(resource: resource),
+            children: PermissionAction.values.map((action) {
+              return BlocSelector<PermissionsCubit, PermissionsState, bool?>(
+                selector: (state) =>
+                    state.draftUserPermissions[resource]?[action],
+                builder: (context, currentValue) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: Sizes.p12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: BaseText(
+                            action.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        );
-                      },
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
+                        ),
+                        gapW8,
+                        Expanded(
+                          flex: 8,
+                          child: BaseSegmentedButtons<bool?>(
+                            items: const [null, true, false],
+                            selectedValue: currentValue,
+                            onChanged: isAdmin
+                                ? null
+                                : (value) => cubit.setUserPermissionOverride(
+                                    resource,
+                                    action,
+                                    value,
+                                  ),
+                            itemLabelBuilder: (value) {
+                              switch (value) {
+                                case null:
+                                  return 'Herdar'.hardcoded;
+                                case true:
+                                  return 'Ativo'.hardcoded;
+                                case false:
+                                  return 'Inativo'.hardcoded;
+                              }
+                            },
+                            itemColorBuilder: (value) {
+                              switch (value) {
+                                case null:
+                                  return context.theme.primaryColor;
+                                case true:
+                                  return Colors.green.shade600;
+                                case false:
+                                  return Colors.red.shade600;
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }).toList(),
           ),
+        );
+      },
+    );
+  }
+}
+
+class _Subtitle extends StatelessWidget {
+  const _Subtitle({required this.resource});
+  final ResourceType resource;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<
+      PermissionsCubit,
+      PermissionsState,
+      Map<PermissionAction, bool?>?
+    >(
+      selector: (state) => state.draftUserPermissions[resource],
+      builder: (context, permissions) {
+        if (permissions == null) {
+          return const SizedBox.shrink();
+        }
+        return Row(
+          children: permissions.entries.map((entry) {
+            final value = entry.value;
+            final Color color;
+            if (value == null) {
+              color = Colors.lightBlue;
+            } else if (!value) {
+              color = Colors.red;
+            } else {
+              color = Colors.green;
+            }
+            return Padding(
+              padding: const EdgeInsets.only(right: Sizes.p8),
+              child: BaseText.bodySmall(entry.key.label, color: color),
+            );
+          }).toList(),
         );
       },
     );
