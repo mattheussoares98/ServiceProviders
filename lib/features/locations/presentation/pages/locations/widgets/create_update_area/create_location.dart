@@ -64,18 +64,18 @@ class CreateLocation extends HookWidget {
       final companyId = context.read<SessionCubit>().state.user.companyId;
 
       final succeeds = await context.read<LocationsCubit>().saveLocation(
-            id: existingLocation?.id,
-            companyId: companyId,
-            name: nameController.text,
-            postalCode: cepController.text,
-            address: addressController.text,
-            number: numberController.text,
-            complement: complementController.text,
-            neighborhood: neighborhoodController.text,
-            city: cityController.text,
-            addressState: stateController.text,
-            createdAt: existingLocation?.createdAt,
-          );
+        id: existingLocation?.id,
+        companyId: companyId,
+        name: nameController.text,
+        postalCode: cepController.text,
+        address: addressController.text,
+        number: numberController.text,
+        complement: complementController.text,
+        neighborhood: neighborhoodController.text,
+        city: cityController.text,
+        addressState: stateController.text,
+        createdAt: existingLocation?.createdAt,
+      );
 
       if (succeeds && context.mounted) {
         Navigator.of(context).pop();
@@ -92,7 +92,9 @@ class CreateLocation extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                'Criar Novo Local'.hardcoded,
+                existingLocation == null
+                    ? 'Criando novo local'.hardcoded
+                    : 'Editando local'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,

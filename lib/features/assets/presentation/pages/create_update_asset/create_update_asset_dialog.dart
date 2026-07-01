@@ -166,7 +166,9 @@ class CreateAssetDialog extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                'Criar novo equipamento'.hardcoded,
+                asset == null
+                    ? 'Criando novo equipamento'.hardcoded
+                    : 'Editando equipamento'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,

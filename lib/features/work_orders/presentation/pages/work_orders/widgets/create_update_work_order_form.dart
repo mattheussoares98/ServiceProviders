@@ -145,8 +145,6 @@ class CreateUpdateWorkOrderForm extends HookWidget {
       if (succeeds && context.mounted) Navigator.of(context).pop();
     }
 
-    final isEdit = workOrder != null;
-
     return Padding(
       padding: const EdgeInsets.all(Sizes.p16),
       child: Form(
@@ -157,9 +155,9 @@ class CreateUpdateWorkOrderForm extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
-                isEdit
-                    ? 'Editar ordem de serviço'.hardcoded
-                    : 'Criar ordem de serviço'.hardcoded,
+                workOrder == null
+                    ? 'Criando ordem de serviço'.hardcoded
+                    : 'Editando ordem de serviço'.hardcoded,
                 textAlign: TextAlign.center,
               ),
               gapH16,
@@ -234,17 +232,23 @@ class CreateUpdateWorkOrderForm extends HookWidget {
               ),
               gapH24,
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: .spaceBetween,
                 children: [
-                  BaseTextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    text: 'Cancelar'.hardcoded,
+                  Flexible(
+                    child: BaseTextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      text: 'Cancelar'.hardcoded,
+                    ),
                   ),
                   gapW64,
-                  PrimaryButton(
-                    onTap: onSubmit,
-                    width: Sizes.p120,
-                    text: isEdit ? 'Salvar'.hardcoded : 'Criar'.hardcoded,
+                  Flexible(
+                    child: PrimaryButton(
+                      onTap: onSubmit,
+                      width: Sizes.p120,
+                      text: workOrder != null
+                          ? 'Salvar'.hardcoded
+                          : 'Criar'.hardcoded,
+                    ),
                   ),
                 ],
               ),

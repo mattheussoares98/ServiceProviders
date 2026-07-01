@@ -43,14 +43,14 @@ class CreateUpdateAreaDialog extends HookWidget {
       if (formKey.currentState?.validate() != true) return;
 
       final succeeds = await context.read<LocationsCubit>().saveArea(
-            id: area?.id,
-            locationId: locationId,
-            companyId: companyId,
-            name: nameController.text,
-            floor: floorController.text,
-            description: descController.text,
-            createdAt: area?.createdAt,
-          );
+        id: area?.id,
+        locationId: locationId,
+        companyId: companyId,
+        name: nameController.text,
+        floor: floorController.text,
+        description: descController.text,
+        createdAt: area?.createdAt,
+      );
 
       if (succeeds && context.mounted) {
         Navigator.of(context).pop();
@@ -68,7 +68,9 @@ class CreateUpdateAreaDialog extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 BaseText.titleMedium(
-                  'Criar Nova Área'.hardcoded,
+                  area == null
+                      ? 'Criando nova área'.hardcoded
+                      : 'Editando área'.hardcoded,
                   textAlign: TextAlign.center,
                 ),
                 gapH16,
