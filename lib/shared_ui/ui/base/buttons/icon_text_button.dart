@@ -29,6 +29,7 @@ class IconTextButton extends HookWidget {
     final tapCallback = onPressed == null
         ? null
         : () async {
+            FocusManager.instance.primaryFocus?.unfocus();
             final result = onPressed!();
             if (result is Future) {
               isLoading.value = true;

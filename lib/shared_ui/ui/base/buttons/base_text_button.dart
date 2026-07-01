@@ -60,9 +60,14 @@ class BaseTextButton extends HookWidget {
       );
     }
 
+    void appliedOnTap() {
+      FocusManager.instance.primaryFocus?.unfocus();
+      onPressed?.call();
+    }
+
     if (context.isCupertino) {
       return CupertinoButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading ? null : appliedOnTap,
         padding: padding ?? EdgeInsets.zero,
         minimumSize: Size.zero,
         child: childWidget,
@@ -70,7 +75,7 @@ class BaseTextButton extends HookWidget {
     }
 
     return TextButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: isLoading ? null : appliedOnTap,
       style: TextButton.styleFrom(
         foregroundColor: color,
         padding: padding,

@@ -45,6 +45,7 @@ class PrimaryButton extends HookWidget {
     final tapCallback = onTap == null
         ? null
         : () async {
+            FocusManager.instance.primaryFocus?.unfocus();
             final result = onTap!();
             if (result is Future) {
               localLoading.value = true;
