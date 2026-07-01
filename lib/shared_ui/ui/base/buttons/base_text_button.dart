@@ -46,13 +46,11 @@ class BaseTextButton extends HookWidget {
 
     Widget childWidget = isLoading
         ? LoadingCircle.small(baseColor)
-        : Flexible(
-            child: BaseText(
-              text,
-              color: finalColor,
-              textType: appliedTextType,
-              fontWeight: appliedFontWeight,
-            ),
+        : BaseText(
+            text,
+            color: finalColor,
+            textType: appliedTextType,
+            fontWeight: appliedFontWeight,
           );
 
     if (platformIcon != null && !isLoading) {
