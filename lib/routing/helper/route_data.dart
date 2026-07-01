@@ -40,6 +40,10 @@ const String kConfigurationsPath = 'configurations';
 // E-mail confirmation
 const String kEmailConfirmationPath = '/email-confirmation';
 
+// Accept invite
+const String kAcceptInviteRoute = 'AcceptInviteRoute';
+const String kAcceptInvitePath = '/accept-invite';
+
 // Company
 const String kCompanyRoute = 'CompanyRoute';
 const String kCompanyPath = 'company';

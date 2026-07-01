@@ -46,9 +46,9 @@ class InvitationsPage extends StatelessWidget {
                 .reversed
                 .join('/');
 
-            final isDeleting = context.select<UsersCubit, bool>(
-              (cubit) => cubit.state.deletingInvitationIds.contains(invite.id),
-            );
+            // final isDeleting = context.select<UsersCubit, bool>(
+            //   (cubit) => cubit.state.deletingInvitationIds.contains(invite.id),
+            // );
 
             return Card(
               clipBehavior: Clip.hardEdge,
@@ -81,42 +81,48 @@ class InvitationsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (isDeleting)
-                      const Padding(
-                        padding: EdgeInsets.all(Sizes.p8),
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator.adaptive(
-                            strokeWidth: 2,
-                          ),
-                        ),
-                      )
-                    else
-                      IconButton(
-                        onPressed: () async {
-                          final confirmed = await showAlertDialog(
-                            context: context,
-                            title: 'Revogar Convite'.hardcoded,
-                            contentText:
-                                'Tem certeza que deseja revogar o convite para ${invite.email}?'
-                                    .hardcoded,
-                            cancelActionText: 'Cancelar'.hardcoded,
-                            defaultActionText: 'Revogar'.hardcoded,
+                    BlocSelector<UsersCubit, UsersState, bool>(
+                      selector: (state) =>
+                          state.deletingInvitationIds.contains(invite.id),
+                      builder: (context, deleting) {
+                        if (deleting) {
+                          return const Padding(
+                            padding: EdgeInsets.all(Sizes.p8),
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 2,
+                              ),
+                            ),
                           );
-
-                          if (confirmed == true && context.mounted) {
-                            await context.read<UsersCubit>().revokeInvitation(
-                              invite.id,
+                        }
+                        return IconButton(
+                          onPressed: () async {
+                            final confirmed = await showAlertDialog(
+                              context: context,
+                              title: 'Cancelar convite'.hardcoded,
+                              contentText:
+                                  'Tem certeza que deseja cancelar o convite para ${invite.email}?'
+                                      .hardcoded,
+                              cancelActionText: 'Não'.hardcoded,
+                              defaultActionText: 'Sim'.hardcoded,
                             );
-                          }
-                        },
-                        icon: const PlatformIcon(
-                          materialIcon: Icons.delete_outline,
-                          cupertinoIcon: CupertinoIcons.delete,
-                        ),
-                        color: Colors.red,
-                      ),
+
+                            if (confirmed == true && context.mounted) {
+                              await context.read<UsersCubit>().revokeInvitation(
+                                invite.id,
+                              );
+                            }
+                          },
+                          icon: const PlatformIcon(
+                            materialIcon: Icons.delete_outline,
+                            cupertinoIcon: CupertinoIcons.delete,
+                            color: Colors.red,
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

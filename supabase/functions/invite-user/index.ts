@@ -16,7 +16,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { email, company_id, permission_group_id, name } = await req.json()
+    const { email, company_id, permission_group_id, name, redirect_url } = await req.json()
 
     if (!email || !company_id || !permission_group_id) {
       return new Response(
@@ -46,8 +46,8 @@ serve(async (req) => {
     // 2. Invite the user
     // We attach company_id, permission_group_id, and name to user_metadata
     // This metadata will be read by our PostgreSQL handle_new_user trigger when they accept the invite.
-    const redirectUrl = `${req.headers.get('origin') ?? 'http://localhost:3000'}/change-password`
-    
+    const redirectUrl = redirect_url ?? `${req.headers.get('origin') ?? 'http://localhost:3000'}/change-password`
+
     const { data, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(
       email,
       {
