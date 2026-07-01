@@ -1,11 +1,14 @@
+import 'package:clean_architecture/config/app_config.dart';
 import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -33,9 +36,12 @@ void main() {
   });
 
   setUp(() {
+    GetIt.I.registerLazySingleton<AppConfig>(() => const TestAppConfig());
     mockDatabase = MockSupabaseDatabaseClient();
     dataSource = UsersRemoteDataSourceImpl(database: mockDatabase);
   });
+
+  tearDown(() => GetIt.I.reset());
 
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
   final tUserProfileModel = UserProfileResponseModel.fromEntity(
@@ -211,6 +217,7 @@ void main() {
               'email': email,
               'company_id': tCompanyId,
               'permission_group_id': tId,
+              'redirect_url': '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
             },
           ),
         ).called(1);
