@@ -24,11 +24,12 @@ class InviteButton extends StatelessWidget {
     final permissionGroups = context.select(
       (UsersCubit cubit) => cubit.state.permissionGroups,
     );
-    return BlocBuilder<InviteUserCubit, InviteUserState>(
-      builder: (context, state) {
+    return BlocSelector<InviteUserCubit, InviteUserState, bool>(
+      selector: (state) => state.status == StateStatus.loading,
+      builder: (context, loading) {
         return PrimaryButton(
           text: 'Convidar'.hardcoded,
-          isLoading: state.status == StateStatus.loading,
+          isLoading: loading,
           onTap: permissionGroups.isEmpty
               ? null
               : () async {
