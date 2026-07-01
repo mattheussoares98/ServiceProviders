@@ -102,12 +102,10 @@ class PlatformIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: Icon(
-        context.isCupertino ? cupertinoIcon : materialIcon,
-        color: color ?? AppColors.primaryLight,
-        size: isSmall ? 16 : size,
-      ),
+    return Icon(
+      context.isCupertino ? cupertinoIcon : materialIcon,
+      color: color ?? AppColors.primaryLight,
+      size: isSmall ? 16 : size,
     );
   }
 }
