@@ -42,7 +42,8 @@ class UsersAndPermissionsPage extends HookWidget {
               const Groups(),
               const InvitationsPage(),
             ][selectedIndex.value],
-            floatingActionButton: selectedIndex.value == 0
+            floatingActionButton:
+                selectedIndex.value == 0 || selectedIndex.value == 2
                 ? FloatingActionButton(
                     onPressed: () => showModalPage<void>(
                       BlocProvider.value(
