@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
@@ -10,6 +12,7 @@ import 'package:clean_architecture/features/users/domain/use_cases/get_user_prof
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'accept_invite_state.dart';
 
@@ -41,6 +44,30 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
 
   final AcceptInviteCubitUseCases _useCases;
   final SupabaseAuthClient _authClient;
+  StreamSubscription<AuthState>? _authSubscription;
+
+  void initialize() {
+    final userId = _authClient.currentSession?.user.id;
+    if (userId != null) {
+      loadProfile(userId);
+    } else {
+      emit(state.copyWith(status: StateStatus.loading));
+      _authSubscription = _authClient.onAuthStateChange.listen((data) {
+        final newUserId = data.session?.user.id;
+        if (newUserId != null) {
+          loadProfile(newUserId);
+          _authSubscription?.cancel();
+          _authSubscription = null;
+        }
+      });
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _authSubscription?.cancel();
+    return super.close();
+  }
 
   void togglePasswordVisibility() {
     emit(state.copyWith(passwordVisibility: !state.passwordVisibility));

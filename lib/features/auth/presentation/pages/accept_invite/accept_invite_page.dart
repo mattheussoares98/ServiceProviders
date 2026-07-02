@@ -36,14 +36,7 @@ class AcceptInvitePage extends HookWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     //TODO organize better this page
     return BlocProvider(
-      create: (context) {
-        final cubit = GetIt.I<AcceptInviteCubit>();
-        final userId = GetIt.I<SupabaseAuthClient>().currentSession?.user.id;
-        if (userId != null) {
-          cubit.loadProfile(userId);
-        }
-        return cubit;
-      },
+      create: (context) => GetIt.I<AcceptInviteCubit>()..initialize(),
       child: BlocConsumer<AcceptInviteCubit, AcceptInviteState>(
         listener: (context, state) {
           if (state.userProfile != null && nameController.text.isEmpty) {

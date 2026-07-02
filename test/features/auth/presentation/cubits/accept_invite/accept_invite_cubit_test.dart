@@ -1,3 +1,7 @@
+// ignore_for_file: inference_failure_on_instance_creation
+
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
@@ -55,6 +59,78 @@ void main() {
   group('AcceptInviteCubit', () {
     test('initial state should be empty', () {
       expect(cubit.state, const AcceptInviteState.empty());
+    });
+
+    group('initialize', () {
+      test('loads profile immediately if session exists', () {
+        final userId = faker.guid.guid();
+        final profile = EntityFactory.makeUserProfileEntity();
+        when(() => mockAuthClient.currentSession).thenReturn(
+          Session(
+            accessToken: faker.jwt.valid(),
+            tokenType: 'bearer',
+            user: User(
+              id: userId,
+              appMetadata: const {},
+              userMetadata: const {},
+              aud: 'authenticated',
+              createdAt: DateTime.now().toIso8601String(),
+            ),
+          ),
+        );
+        when(
+          () => mockGetUserProfileById.call(userId),
+        ).thenAnswer((_) async => SuccessState(data: profile));
+
+        cubit.initialize();
+
+        verify(() => mockGetUserProfileById.call(userId)).called(1);
+      });
+
+      test(
+        'listens to onAuthStateChange and loads profile on event with session',
+        () async {
+          final userId = faker.guid.guid();
+          final profile = EntityFactory.makeUserProfileEntity();
+          final controller = StreamController<AuthState>();
+
+          when(() => mockAuthClient.currentSession).thenReturn(null);
+          when(
+            () => mockAuthClient.onAuthStateChange,
+          ).thenAnswer((_) => controller.stream);
+          when(
+            () => mockGetUserProfileById.call(userId),
+          ).thenAnswer((_) async => SuccessState(data: profile));
+
+          cubit.initialize();
+
+          expect(cubit.state.status, StateStatus.loading);
+
+          verifyNever(() => mockGetUserProfileById.call(any()));
+
+          controller.add(
+            AuthState(
+              AuthChangeEvent.signedIn,
+              Session(
+                accessToken: faker.jwt.valid(),
+                tokenType: 'bearer',
+                user: User(
+                  id: userId,
+                  appMetadata: const {},
+                  userMetadata: const {},
+                  aud: 'authenticated',
+                  createdAt: DateTime.now().toIso8601String(),
+                ),
+              ),
+            ),
+          );
+
+          await Future.delayed(Duration.zero);
+
+          verify(() => mockGetUserProfileById.call(userId)).called(1);
+          await controller.close();
+        },
+      );
     });
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
@@ -138,7 +214,7 @@ void main() {
         );
         expect(result, isFalse);
       },
-      expect: () => [],
+      expect: () => <dynamic>[],
     );
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
