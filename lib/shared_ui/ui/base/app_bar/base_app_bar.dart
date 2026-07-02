@@ -122,14 +122,12 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             if (showLeading)
               SizedBox(width: leadingWidth, child: leadingWidget),
-            Expanded(child: Center(child: appBarTitleWidget)),
+            Expanded(flex: 2, child: Center(child: appBarTitleWidget)),
             if (actions != null)
-              Padding(
-                padding: actionsPadding ?? EdgeInsets.zero,
+              Flexible(
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: actions!,
+                  children: [...?actions?.map((e) => Flexible(child: e))],
                 ),
               )
             else if (showLeading)
