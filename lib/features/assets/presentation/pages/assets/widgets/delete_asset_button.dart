@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:flutter/widgets.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DeleteAssetButton extends StatelessWidget {
@@ -17,8 +18,13 @@ class DeleteAssetButton extends StatelessWidget {
     return BlocSelector<AssetsCubit, AssetsState, bool>(
       selector: (state) => state.deletingIds.contains(assetId),
       builder: (context, isLoading) {
-        return BaseTextButton(
+        return BaseIconButton(
           isLoading: isLoading,
+          platformIcon: const PlatformIcon(
+            materialIcon: Icons.delete,
+            cupertinoIcon: CupertinoIcons.trash,
+            color: Colors.red,
+          ),
           onPressed: () async {
             final confirmed = await showAlertDialog(
               context: context,
@@ -32,8 +38,6 @@ class DeleteAssetButton extends StatelessWidget {
               unawaited(context.read<AssetsCubit>().deleteAsset(assetId));
             }
           },
-          text: 'Excluir'.hardcoded,
-          textColor: AppColors.error,
         );
       },
     );
