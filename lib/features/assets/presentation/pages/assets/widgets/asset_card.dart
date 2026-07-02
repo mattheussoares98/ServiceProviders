@@ -80,7 +80,7 @@ class AssetCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FittedBox(child: DeleteAssetButton(assetId: asset.id)),
-                FittedBox(child: EditAssetButton(asset: asset)),
+                Flexible(child: EditAssetButton(asset: asset)),
               ],
             ),
           ],

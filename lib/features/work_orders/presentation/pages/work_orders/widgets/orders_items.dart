@@ -53,28 +53,26 @@ class OrdersItems extends StatelessWidget {
                     Row(
                       mainAxisAlignment: .spaceBetween,
                       children: [
-                        FittedBox(
-                          child: BaseIconButton(
-                            isLoading: isDeleting,
-                            onPressed: () {
-                              showAlertDialog(
-                                context: context,
-                                title: 'Atenção!'.hardcoded,
-                                contentText:
-                                    'Deseja realmente excluir a ordem de serviço?'
-                                        .hardcoded,
-                                defaultActionText: 'Sim'.hardcoded,
-                                cancelActionText: 'Não'.hardcoded,
-                                onOkPressed: () => context
-                                    .read<WorkOrdersCubit>()
-                                    .deleteWorkOrder(workOrder.id),
-                              );
-                            },
-                            platformIcon: const PlatformIcon(
-                              materialIcon: Icons.delete,
-                              cupertinoIcon: CupertinoIcons.delete,
-                              color: Colors.red,
-                            ),
+                        BaseIconButton(
+                          isLoading: isDeleting,
+                          onPressed: () {
+                            showAlertDialog(
+                              context: context,
+                              title: 'Atenção!'.hardcoded,
+                              contentText:
+                                  'Deseja realmente excluir a ordem de serviço?'
+                                      .hardcoded,
+                              defaultActionText: 'Sim'.hardcoded,
+                              cancelActionText: 'Não'.hardcoded,
+                              onOkPressed: () => context
+                                  .read<WorkOrdersCubit>()
+                                  .deleteWorkOrder(workOrder.id),
+                            );
+                          },
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.delete,
+                            cupertinoIcon: CupertinoIcons.delete,
+                            color: Colors.red,
                           ),
                         ),
                         Flexible(
