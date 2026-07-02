@@ -49,7 +49,19 @@ class AcceptInvitePage extends HookWidget {
 
           return BaseScaffold(
             observeScreenChanges: true,
-            appBar: BaseAppBar(title: 'Aceitar Convite'.hardcoded),
+            appBar: BaseAppBar(
+              title: 'Aceitar Convite'.hardcoded,
+              leading: BaseIconButton(
+                onPressed: () {
+                  context.router.replaceAll([const HomeRoute()]);
+                },
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.arrow_back,
+                  cupertinoIcon: CupertinoIcons.arrow_left,
+                  color: Colors.white,
+                ),
+              ),
+            ),
             body:
                 BaseStateView<
                   AcceptInviteCubit,
