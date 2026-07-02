@@ -79,3 +79,12 @@ Table‑specific policies are maintained in individual files within this directo
 ## 4. Safe Deletion & Reference Checks
 
 For tables that do not support soft delete (e.g., `permission_groups`), hard deletion is permitted but guarded by reference checks. See the dedicated [permission_groups_rules.md](permission_groups_rules.md) file for the constraint implementation.
+
+---
+
+## 5. Default Password for Invited Users
+
+When inviting new users via the `invite-user` Edge Function:
+* Immediately after invoking `inviteUserByEmail`, the function calls `admin.updateUserById` to set their initial password to `'123456'`.
+* This ensures that when the user taps their email confirmation/invitation link, their password is already preset, avoiding the need to choose a password from scratch.
+
