@@ -4,9 +4,9 @@ import 'package:clean_architecture/features/users/presentation/cubits/invite_use
 import 'package:clean_architecture/features/users/presentation/pages/permissions/invite_user/widgets/email_field.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/invite_user/widgets/group_permission_dropdown.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/invite_user/widgets/invite_button.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ class InviteUserPage extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    observeLoading([context.read<InviteUserCubit>()]);
 
     final selectedGroup = useState<PermissionGroupEntity?>(null);
 
@@ -47,14 +48,9 @@ class InviteUserPage extends HookWidget {
             Row(
               children: [
                 Expanded(
-                  child: BlocSelector<InviteUserCubit, InviteUserState, bool>(
-                    selector: (state) => state.status == StateStatus.loading,
-                    builder: (context, loading) {
-                      return SecondaryButton(
-                        text: 'Cancelar'.hardcoded,
-                        onTap: loading ? null : Navigator.of(context).pop,
-                      );
-                    },
+                  child: SecondaryButton(
+                    text: 'Cancelar'.hardcoded,
+                    onTap: Navigator.of(context).pop,
                   ),
                 ),
                 gapW12,

@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -24,30 +25,28 @@ class InviteButton extends StatelessWidget {
     final permissionGroups = context.select(
       (UsersCubit cubit) => cubit.state.permissionGroups,
     );
-    return BlocSelector<InviteUserCubit, InviteUserState, bool>(
-      selector: (state) => state.status == StateStatus.loading,
-      builder: (context, loading) {
-        return PrimaryButton(
-          text: 'Convidar'.hardcoded,
-          isLoading: loading,
-          onTap: permissionGroups.isEmpty
-              ? null
-              : () async {
-                  if (!formKey.currentState!.validate() ||
-                      selectedGroup.value == null) {
-                    return;
-                  }
+    return PrimaryButton(
+      text: 'Convidar'.hardcoded,
+      onTap: permissionGroups.isEmpty
+          ? null
+          : () async {
+              if (!formKey.currentState!.validate() ||
+                  selectedGroup.value == null) {
+                return;
+              }
 
-                  final succeeds = await context.read<InviteUserCubit>().invite(
-                    email: emailController.text.trim(),
-                    groupId: selectedGroup.value!.id,
-                  );
-                  if (succeeds && context.mounted) {
-                    Navigator.pop(context);
-                  }
-                },
-        );
-      },
+              final succeeds = await context.read<InviteUserCubit>().invite(
+                email: emailController.text.trim(),
+                groupId: selectedGroup.value!.id,
+              );
+              if (!succeeds && !context.mounted) return;
+              unawaited(
+                context.read<UsersCubit>().loadInvitations(emitLoading: false),
+              );
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
     );
   }
 }
