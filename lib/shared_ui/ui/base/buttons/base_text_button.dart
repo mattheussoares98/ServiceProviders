@@ -24,6 +24,7 @@ class BaseTextButton extends HookWidget {
     this.elevation,
     this.isLoading = false,
     this.platformIcon,
+    this.minWidthToShowIcon = 110.0,
   });
   final FutureOr<void> Function()? onPressed;
   final String text;
@@ -36,6 +37,7 @@ class BaseTextButton extends HookWidget {
   final double? elevation;
   final bool isLoading;
   final PlatformIcon? platformIcon;
+  final double minWidthToShowIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -44,45 +46,55 @@ class BaseTextButton extends HookWidget {
     final baseColor = textColor ?? color ?? AppColors.hightLight;
     final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
 
-    Widget childWidget = isLoading
-        ? LoadingCircle.small(baseColor)
-        : BaseText(
-            text,
-            color: finalColor,
-            textType: appliedTextType,
-            fontWeight: appliedFontWeight,
-          );
-
-    if (platformIcon != null && !isLoading) {
-      childWidget = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [platformIcon!, gapW8, childWidget],
-      );
-    }
-
     void appliedOnTap() {
       FocusManager.instance.primaryFocus?.unfocus();
       onPressed?.call();
     }
 
-    if (context.isCupertino) {
-      return CupertinoButton(
-        onPressed: isLoading ? null : appliedOnTap,
-        padding: padding ?? EdgeInsets.zero,
-        minimumSize: Size.zero,
-        child: childWidget,
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showIcon =
+            platformIcon != null &&
+            !isLoading &&
+            (constraints.maxWidth > minWidthToShowIcon ||
+                constraints.maxWidth == double.infinity);
 
-    return TextButton(
-      onPressed: isLoading ? null : appliedOnTap,
-      style: TextButton.styleFrom(
-        foregroundColor: color,
-        padding: padding,
-        visualDensity: visualDensity,
-        elevation: elevation,
-      ),
-      child: childWidget,
+        Widget childWidget = isLoading
+            ? LoadingCircle.small(baseColor)
+            : BaseText(
+                text,
+                color: finalColor,
+                textType: appliedTextType,
+                fontWeight: appliedFontWeight,
+              );
+
+        if (showIcon) {
+          childWidget = Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [platformIcon!, gapW8, childWidget],
+          );
+        }
+
+        if (context.isCupertino) {
+          return CupertinoButton(
+            onPressed: isLoading ? null : appliedOnTap,
+            padding: padding ?? EdgeInsets.zero,
+            minimumSize: Size.zero,
+            child: childWidget,
+          );
+        }
+
+        return TextButton(
+          onPressed: isLoading ? null : appliedOnTap,
+          style: TextButton.styleFrom(
+            foregroundColor: color,
+            padding: padding,
+            visualDensity: visualDensity,
+            elevation: elevation,
+          ),
+          child: childWidget,
+        );
+      },
     );
   }
 }
