@@ -55,9 +55,16 @@ abstract final class AppInitializer {
   }
 
   static Future<void> _initSupabase() async {
-    await Supabase.initialize(
-      url: dotenv.get('SUPABASE_URL'),
-      publishableKey: dotenv.get('SUPABASE_ANON_KEY'),
-    );
+    try {
+      await Supabase.initialize(
+        url: dotenv.get('SUPABASE_URL'),
+        publishableKey: dotenv.get('SUPABASE_ANON_KEY'),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('Supabase initialization warning/error: $e');
+      if (kDebugMode) {
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    }
   }
 }
