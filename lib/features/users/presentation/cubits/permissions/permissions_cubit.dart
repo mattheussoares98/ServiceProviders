@@ -170,7 +170,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
 
   Future<bool> saveUserPermissions(UsersCubit usersCubit) async {
     final user = state.user;
-    if (user == null || state.isAdmin) return false;
+    if (user == null) return false;
 
     emit(state.copyWith(status: StateStatus.saving));
 
