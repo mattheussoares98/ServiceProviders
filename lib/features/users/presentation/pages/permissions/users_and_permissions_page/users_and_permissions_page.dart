@@ -39,8 +39,8 @@ class UsersAndPermissionsPage extends HookWidget {
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
             body: [
               const Users(),
-              const Groups(),
               const InvitationsPage(),
+              const Groups(),
             ][selectedIndex.value],
             floatingActionButton:
                 selectedIndex.value == 0 || selectedIndex.value == 2
@@ -72,21 +72,21 @@ class UsersAndPermissionsPage extends HookWidget {
                   ),
                 ),
                 BaseBottomNavigationBarItem(
-                  label: 'Grupos'.hardcoded,
-                  platformIcon: PlatformIcon(
-                    materialIcon: Icons.group,
-                    cupertinoIcon: selectedIndex.value == 1
-                        ? CupertinoIcons.group_solid
-                        : CupertinoIcons.group,
-                  ),
-                ),
-                BaseBottomNavigationBarItem(
                   label: 'Convites'.hardcoded,
                   platformIcon: PlatformIcon(
                     materialIcon: Icons.mail,
-                    cupertinoIcon: selectedIndex.value == 2
+                    cupertinoIcon: selectedIndex.value == 1
                         ? CupertinoIcons.mail_solid
                         : CupertinoIcons.mail,
+                  ),
+                ),
+                BaseBottomNavigationBarItem(
+                  label: 'Grupos'.hardcoded,
+                  platformIcon: PlatformIcon(
+                    materialIcon: Icons.group,
+                    cupertinoIcon: selectedIndex.value == 2
+                        ? CupertinoIcons.group_solid
+                        : CupertinoIcons.group,
                   ),
                 ),
               ],
