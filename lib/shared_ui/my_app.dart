@@ -40,7 +40,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
     _configurationsCubit = GetIt.I<ConfigurationsCubit>();
     _sessionCubit = GetIt.I<SessionCubit>();
-    _usersCubit = GetIt.I<UsersCubit>()..loadAll();
+    _usersCubit = GetIt.I<UsersCubit>();
+    if (_sessionCubit.state.isLoggedIn) {
+      _usersCubit.loadAll();
+    }
     WidgetsBinding.instance.addObserver(this);
 
     // Listen for Supabase Auth state changes (specifically for password recovery redirect)
@@ -97,18 +100,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         BlocProvider.value(value: _sessionCubit),
         BlocProvider.value(value: _usersCubit),
       ],
-      child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
-        builder: (context, state) {
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: AppConfigUtil.I.appTitle,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: state.themeMode,
-            routerDelegate: NavigationUtil.I.routerDelegate,
-            routeInformationParser: NavigationUtil.I.routeInformationParser,
-          );
+      child: BlocListener<SessionCubit, SessionState>(
+        listenWhen: (previous, current) =>
+            !previous.isLoggedIn && current.isLoggedIn,
+        listener: (context, state) {
+          _usersCubit.loadAll();
         },
+        child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
+          builder: (context, state) {
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              title: AppConfigUtil.I.appTitle,
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              themeMode: state.themeMode,
+              routerDelegate: NavigationUtil.I.routerDelegate,
+              routeInformationParser: NavigationUtil.I.routeInformationParser,
+            );
+          },
+        ),
       ),
     );
   }
