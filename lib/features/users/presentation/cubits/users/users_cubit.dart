@@ -360,14 +360,18 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   bool hasPermission(ResourceType resource, PermissionAction action) {
     final sessionUser = _useCases.getSessionUser();
-    if (sessionUser.isAdmin) return true;
+    final currentUser =
+        state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
+        sessionUser;
 
-    final userOverride = sessionUser.permissions[resource]?[action];
+    if (currentUser.isAdmin) return true;
+
+    final userOverride = currentUser.permissions[resource]?[action];
     if (userOverride != null) {
       return userOverride; //TODO check if there is a test for it
     }
 
-    final groupId = sessionUser.permissionGroupId;
+    final groupId = currentUser.permissionGroupId;
     if (groupId == null || groupId.isEmpty) return false;
 
     final group = state.permissionGroups.firstWhereOrNull(

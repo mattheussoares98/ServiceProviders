@@ -998,6 +998,34 @@ void main() {
           expect(hasPerm, isTrue);
         },
       );
+
+      test(
+        'should use user profile from state.users instead of sessionUser when available',
+        () {
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.create: false},
+            },
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final updatedUser = regularUser.copyWith(
+            permissions: {
+              ResourceType.workOrders: {PermissionAction.create: true},
+            },
+          );
+
+          cubit.emit(cubit.state.copyWith(users: [updatedUser]));
+
+          final hasPerm = cubit.hasPermission(
+            ResourceType.workOrders,
+            PermissionAction.create,
+          );
+
+          expect(hasPerm, isTrue);
+        },
+      );
     });
   });
 }
