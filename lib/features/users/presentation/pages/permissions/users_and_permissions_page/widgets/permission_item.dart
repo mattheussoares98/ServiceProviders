@@ -1,11 +1,10 @@
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PermissionItem extends StatelessWidget {
   const PermissionItem({
@@ -22,9 +21,11 @@ class PermissionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canEditUsers = context.select<UsersCubit, bool>(
-      (cubit) =>
-          cubit.hasPermission(ResourceType.users, PermissionAction.update),
+    final canEditUsers = context.hasPermission(
+      const ActionPermission(
+        resource: ResourceType.users,
+        action: PermissionAction.update,
+      ),
     );
 
     return Card(

@@ -12,6 +12,7 @@ import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
+import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,10 +33,10 @@ class UsersAndPermissionsPage extends HookWidget {
       create: (context) => GetIt.I<InviteUserCubit>(),
       child: Builder(
         builder: (context) {
-          final canInviteUsers = context.select<UsersCubit, bool>(
-            (cubit) => cubit.hasPermission(
-              ResourceType.users,
-              PermissionAction.create,
+          final canInviteUsers = context.hasPermission(
+            const ActionPermission(
+              resource: ResourceType.users,
+              action: PermissionAction.create,
             ),
           );
           return BaseScaffold(

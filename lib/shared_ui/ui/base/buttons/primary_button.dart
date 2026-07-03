@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:clean_architecture/core/constants/app_colors.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
@@ -10,7 +9,6 @@ import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class PrimaryButton extends HookWidget {
@@ -45,10 +43,7 @@ class PrimaryButton extends HookWidget {
   @override
   Widget build(BuildContext context) {
     if (permission != null) {
-      final hasPermission = context.select<UsersCubit, bool>(
-        (cubit) => cubit.hasPermission(permission!.resource, permission!.action),
-      );
-      if (!hasPermission) {
+      if (!context.hasPermission(permission!)) {
         return const SizedBox.shrink();
       }
     }

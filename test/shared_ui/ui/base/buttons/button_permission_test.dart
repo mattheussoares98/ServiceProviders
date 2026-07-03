@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
@@ -14,6 +15,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
+
+class MockSessionCubit extends MockCubit<SessionState>
+    implements SessionCubit {}
 
 class ButtonTestCase {
   const ButtonTestCase({
@@ -28,15 +32,22 @@ class ButtonTestCase {
 
 void main() {
   late MockUsersCubit mockUsersCubit;
-
+  late MockSessionCubit mockSessionCubit;
   setUp(() {
     mockUsersCubit = MockUsersCubit();
+    mockSessionCubit = MockSessionCubit();
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
+    when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockSessionCubit.state).thenReturn(SessionState.initial());
+    when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
   });
 
   Widget buildTestWidget(Widget button) {
-    return BlocProvider<UsersCubit>.value(
-      value: mockUsersCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UsersCubit>.value(value: mockUsersCubit),
+        BlocProvider<SessionCubit>.value(value: mockSessionCubit),
+      ],
       child: MaterialApp(home: Scaffold(body: button)),
     );
   }
