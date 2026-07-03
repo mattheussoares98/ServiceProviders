@@ -1,8 +1,10 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -97,7 +99,11 @@ class InvitationsPage extends StatelessWidget {
                             ),
                           );
                         }
-                        return IconButton(
+                        return BaseIconButton(
+                          permission: const ActionPermission(
+                            resource: ResourceType.users,
+                            action: PermissionAction.delete,
+                          ),
                           onPressed: () async {
                             final confirmed = await showAlertDialog(
                               context: context,
@@ -115,7 +121,7 @@ class InvitationsPage extends StatelessWidget {
                               );
                             }
                           },
-                          icon: const PlatformIcon(
+                          platformIcon: const PlatformIcon(
                             materialIcon: Icons.delete_outline,
                             cupertinoIcon: CupertinoIcons.delete,
                             color: Colors.red,

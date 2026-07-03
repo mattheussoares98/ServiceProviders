@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/create_update_area_dialog.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -22,6 +23,10 @@ class AddAreaButton extends StatelessWidget {
     );
 
     return BaseTextButton(
+      permission: const ActionPermission(
+        resource: ResourceType.locations,
+        action: PermissionAction.create,
+      ),
       onPressed: isLoading
           ? null
           : () {

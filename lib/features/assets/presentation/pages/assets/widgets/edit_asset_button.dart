@@ -4,6 +4,7 @@ import 'package:clean_architecture/features/assets/presentation/cubits/assets/as
 import 'package:clean_architecture/features/assets/presentation/pages/create_update_asset/create_update_asset_dialog.dart';
 import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
@@ -18,6 +19,10 @@ class EditAssetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseTextButton(
+      permission: const ActionPermission(
+        resource: ResourceType.locations,
+        action: PermissionAction.update,
+      ),
       onPressed: () {
         showModalPage<void>(
           MultiBlocProvider(

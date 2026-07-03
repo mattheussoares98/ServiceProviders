@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_update_work_order_form.dart';
@@ -54,6 +55,10 @@ class OrdersItems extends StatelessWidget {
                       mainAxisAlignment: .spaceBetween,
                       children: [
                         BaseIconButton(
+                          permission: const ActionPermission(
+                            resource: ResourceType.workOrders,
+                            action: PermissionAction.delete,
+                          ),
                           isLoading: isDeleting,
                           onPressed: () {
                             showAlertDialog(
@@ -77,6 +82,10 @@ class OrdersItems extends StatelessWidget {
                         ),
                         Flexible(
                           child: BaseTextButton(
+                            permission: const ActionPermission(
+                              resource: ResourceType.workOrders,
+                              action: PermissionAction.update,
+                            ),
                             text: 'Editar'.hardcoded,
                             onPressed: isDeleting
                                 ? null

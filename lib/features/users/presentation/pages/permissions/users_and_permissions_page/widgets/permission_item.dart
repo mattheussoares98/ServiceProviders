@@ -1,8 +1,11 @@
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PermissionItem extends StatelessWidget {
   const PermissionItem({
@@ -14,15 +17,20 @@ class PermissionItem extends StatelessWidget {
   });
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final PlatformIcon platformIcon;
 
   @override
   Widget build(BuildContext context) {
+    final canEditUsers = context.select<UsersCubit, bool>(
+      (cubit) =>
+          cubit.hasPermission(ResourceType.users, PermissionAction.update),
+    );
+
     return Card(
       clipBehavior: Clip.hardEdge,
       child: InkWell(
-        onTap: onTap,
+        onTap: canEditUsers ? onTap : null,
         child: Padding(
           padding: const EdgeInsets.all(Sizes.p8),
           child: Row(

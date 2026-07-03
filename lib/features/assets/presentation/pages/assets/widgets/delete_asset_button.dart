@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -24,6 +25,10 @@ class DeleteAssetButton extends StatelessWidget {
             materialIcon: Icons.delete,
             cupertinoIcon: CupertinoIcons.trash,
             color: Colors.red,
+          ),
+          permission: const ActionPermission(
+            resource: ResourceType.assets,
+            action: PermissionAction.delete,
           ),
           onPressed: () async {
             final confirmed = await showAlertDialog(

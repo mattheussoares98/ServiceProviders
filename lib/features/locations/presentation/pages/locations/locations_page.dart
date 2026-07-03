@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/locations/domain/entities/location_e
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/create_location.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/location_card/location_card.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
@@ -40,6 +41,10 @@ class LocationsPage extends StatelessWidget {
             selector: (state) => state.errorMessage?.isNotEmpty ?? false,
             builder: (context, hasError) {
               return BaseIconButton(
+                permission: const ActionPermission(
+                  resource: ResourceType.locations,
+                  action: PermissionAction.create,
+                ),
                 onPressed: hasError
                     ? null
                     : () => unawaited(

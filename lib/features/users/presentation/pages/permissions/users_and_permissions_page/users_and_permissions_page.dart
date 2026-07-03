@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/users/presentation/pages/permissions/invitations/invitations_page.dart';
@@ -31,6 +32,12 @@ class UsersAndPermissionsPage extends HookWidget {
       create: (context) => GetIt.I<InviteUserCubit>(),
       child: Builder(
         builder: (context) {
+          final canInviteUsers = context.select<UsersCubit, bool>(
+            (cubit) => cubit.hasPermission(
+              ResourceType.users,
+              PermissionAction.create,
+            ),
+          );
           return BaseScaffold(
             isScrollable: false,
             usePadding: false,
@@ -43,7 +50,8 @@ class UsersAndPermissionsPage extends HookWidget {
               const Groups(),
             ][selectedIndex.value],
             floatingActionButton:
-                selectedIndex.value == 0 || selectedIndex.value == 2
+                canInviteUsers &&
+                    (selectedIndex.value == 0 || selectedIndex.value == 1)
                 ? FloatingActionButton(
                     onPressed: () => showModalPage<void>(
                       BlocProvider.value(

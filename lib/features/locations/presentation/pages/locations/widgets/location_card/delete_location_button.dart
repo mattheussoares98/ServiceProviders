@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -15,6 +16,10 @@ class DeleteLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseIconButton(
+      permission: const ActionPermission(
+        resource: ResourceType.locations,
+        action: PermissionAction.delete,
+      ),
       isLoading: context.select<LocationsCubit, bool>(
         (cubit) => cubit.state.deletingIds.contains(location.id),
       ),

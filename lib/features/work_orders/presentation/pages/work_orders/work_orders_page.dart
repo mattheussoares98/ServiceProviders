@@ -3,6 +3,7 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_update_work_order_form.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
@@ -48,6 +49,10 @@ class WorkOrdersPage extends StatelessWidget {
                 (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
               );
               return BaseIconButton(
+                permission: const ActionPermission(
+                  resource: ResourceType.workOrders,
+                  action: PermissionAction.create,
+                ),
                 onPressed:
                     assetHasError || locationsHasError || categoriesHasError
                     ? null
