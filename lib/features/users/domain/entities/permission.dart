@@ -58,3 +58,16 @@ class ResourcePermissionEntity extends Equatable {
   @override
   List<Object?> get props => [resource, actions];
 }
+
+class ActionPermission extends Equatable {
+  const ActionPermission({
+    required this.resource,
+    required this.action,
+  });
+
+  final ResourceType resource;
+  final PermissionAction action;
+
+  @override
+  List<Object?> get props => [resource, action];
+}

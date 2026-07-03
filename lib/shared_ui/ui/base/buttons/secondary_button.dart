@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class SecondaryButton extends HookWidget {
@@ -22,6 +25,7 @@ class SecondaryButton extends HookWidget {
     this.loadableButton = false,
     this.elevation,
     this.expandWidth = false,
+    this.permission,
   });
   final FutureOr<void> Function()? onTap;
   final String text;
@@ -34,9 +38,19 @@ class SecondaryButton extends HookWidget {
   final Color? color;
   final double? elevation;
   final bool expandWidth;
+  final ActionPermission? permission;
 
   @override
   Widget build(BuildContext context) {
+    if (permission != null) {
+      final hasPermission = context.select<UsersCubit, bool>(
+        (cubit) => cubit.hasPermission(permission!.resource, permission!.action),
+      );
+      if (!hasPermission) {
+        return const SizedBox.shrink();
+      }
+    }
+
     final activeColor = color ?? context.colorScheme.primary;
     final activeForegroundColor =
         foregroundColor ?? context.colorScheme.primary;
