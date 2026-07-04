@@ -176,7 +176,10 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(left: Sizes.p8, top: Sizes.p4),
-                child: BaseText.error(state.errorText!),
+                child: BaseText.caption(
+                  state.errorText!,
+                  color: CupertinoColors.destructiveRed,
+                ),
               ),
           ],
         );
