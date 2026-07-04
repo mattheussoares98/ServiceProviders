@@ -1,9 +1,9 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/area_name_field.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/description_field.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/floor_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/area_name_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/description_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/floor_field.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';

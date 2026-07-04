@@ -1,7 +1,7 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_update_area/create_update_area_dialog.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update/create_update_page.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
