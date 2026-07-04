@@ -1,15 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/login/widgets/reset_password.dart';
 import 'package:clean_architecture/features/auth/presentation/widgets/welcome_logo.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -44,6 +40,7 @@ class LoginPage extends HookWidget {
         observeScreenChanges: true,
         showAnnotatedRegion: true,
         body: Column(
+          crossAxisAlignment: .end,
           children: [
             gapH24,
             const WelcomeLogo(),
@@ -66,29 +63,30 @@ class LoginPage extends HookWidget {
               passwordController: passwordController,
             ),
             gapH32,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BlocSelector<LoginCubit, LoginState, bool>(
-                  selector: (state) => state.status == StateStatus.loading,
-                  builder: (context, isLoading) {
-                    return Flexible(
-                      child: BaseTextButton(
-                        onPressed: isLoading
-                            ? null
-                            : loginCubit.navigateToSignUp,
-                        text: 'Criar conta'.hardcoded,
-                        color: context.theme.primaryColorLight,
-                      ),
-                    );
-                  },
-                ),
-                gapH8,
-                Flexible(
-                  child: ResetPassword(emailController: emailController),
-                ),
-              ],
-            ),
+            ResetPassword(emailController: emailController),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     BlocSelector<LoginCubit, LoginState, bool>(
+            //       selector: (state) => state.status == StateStatus.loading,
+            //       builder: (context, isLoading) {
+            //         return Flexible(
+            //           child: BaseTextButton(
+            //             onPressed: isLoading
+            //                 ? null
+            //                 : loginCubit.navigateToSignUp,
+            //             text: 'Criar conta'.hardcoded,
+            //             color: context.theme.primaryColorLight,
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //     gapH8,
+            //     Flexible(
+            //       child: ResetPassword(emailController: emailController),
+            //     ),
+            //   ],
+            // ),
           ],
         ),
       ),
