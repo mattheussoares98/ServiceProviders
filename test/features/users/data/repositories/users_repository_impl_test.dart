@@ -272,70 +272,65 @@ void main() {
       });
 
       group('inviteUser', () {
-        test(
-          'should not call remote when offline',
-          () async {
-            when(() => mockInternetClient.isConnected).thenReturn(false);
+        test('should not call remote when offline', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
 
-            final result = await repository.inviteUser(
-              email: faker.internet.email(),
-              companyId: tCompanyId,
-              groupId: tId,
-            );
+          final result = await repository.inviteUser(
+            email: faker.internet.email(),
+            companyId: tCompanyId,
+            groupId: tId,
+          );
 
-            expect(result, isA<FailureState<void>>());
-            verify(() => mockInternetClient.isConnected).called(1);
-            verifyNever(() => mockRemoteDataSource.inviteUser(
+          expect(result, isA<FailureState<void>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verifyNever(
+            () => mockRemoteDataSource.inviteUser(
               email: any(named: 'email'),
               companyId: any(named: 'companyId'),
               groupId: any(named: 'groupId'),
-            ));
-          },
-        );
+            ),
+          );
+        });
 
-        test(
-          'should call remote and return success when online',
-          () async {
-            final email = faker.internet.email();
-            when(() => mockInternetClient.isConnected).thenReturn(true);
-            when(
-              () => mockRemoteDataSource.inviteUser(
-                email: any(named: 'email'),
-                companyId: any(named: 'companyId'),
-                groupId: any(named: 'groupId'),
-              ),
-            ).thenAnswer((_) async => SuccessState.nil);
+        test('should call remote and return success when online', () async {
+          final email = faker.internet.email();
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.inviteUser(
+              email: any(named: 'email'),
+              companyId: any(named: 'companyId'),
+              groupId: any(named: 'groupId'),
+            ),
+          ).thenAnswer((_) async => SuccessState.nil);
 
-            final result = await repository.inviteUser(
+          final result = await repository.inviteUser(
+            email: email,
+            companyId: tCompanyId,
+            groupId: tId,
+          );
+
+          expect(result, isA<SuccessState<void>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.inviteUser(
               email: email,
               companyId: tCompanyId,
               groupId: tId,
-            );
-
-            expect(result, isA<SuccessState<void>>());
-            verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockRemoteDataSource.inviteUser(
-              email: email,
-              companyId: tCompanyId,
-              groupId: tId,
-            )).called(1);
-          },
-        );
+            ),
+          ).called(1);
+        });
       });
 
       group('getPendingInvitations', () {
-        test(
-          'should not call remote when offline',
-          () async {
-            when(() => mockInternetClient.isConnected).thenReturn(false);
+        test('should not call remote when offline', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
 
-            final result = await repository.getPendingInvitations(tCompanyId);
+          final result = await repository.getPendingInvitations(tCompanyId);
 
-            expect(result, isA<FailureState<List<UserInvitationEntity>>>());
-            verify(() => mockInternetClient.isConnected).called(1);
-            verifyNever(() => mockRemoteDataSource.getPendingInvitations(any()));
-          },
-        );
+          expect(result, isA<FailureState<List<UserInvitationEntity>>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verifyNever(() => mockRemoteDataSource.getPendingInvitations(any()));
+        });
 
         test(
           'should call remote and map to entities on success when online',
@@ -354,41 +349,66 @@ void main() {
             expect(result.data, hasLength(1));
             expect(result.data!.first.id, tInvitationModel.id);
             verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockRemoteDataSource.getPendingInvitations(tCompanyId)).called(1);
+            verify(
+              () => mockRemoteDataSource.getPendingInvitations(tCompanyId),
+            ).called(1);
           },
         );
       });
 
       group('revokeInvitation', () {
-        test(
-          'should not call remote when offline',
-          () async {
-            when(() => mockInternetClient.isConnected).thenReturn(false);
+        test('should not call remote when offline', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
 
-            final result = await repository.revokeInvitation(tId);
+          final result = await repository.revokeInvitation(tId);
 
-            expect(result, isA<FailureState<bool>>());
-            verify(() => mockInternetClient.isConnected).called(1);
-            verifyNever(() => mockRemoteDataSource.revokeInvitation(any()));
-          },
-        );
+          expect(result, isA<FailureState<bool>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verifyNever(() => mockRemoteDataSource.revokeInvitation(any()));
+        });
 
-        test(
-          'should call remote and return success when online',
-          () async {
-            when(() => mockInternetClient.isConnected).thenReturn(true);
-            when(
-              () => mockRemoteDataSource.revokeInvitation(any()),
-            ).thenAnswer((_) async => SuccessState.nil);
+        test('should call remote and return success when online', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.revokeInvitation(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
 
-            final result = await repository.revokeInvitation(tId);
+          final result = await repository.revokeInvitation(tId);
 
-            expect(result, isA<SuccessState<bool>>());
-            expect(result.data, isTrue);
-            verify(() => mockInternetClient.isConnected).called(1);
-            verify(() => mockRemoteDataSource.revokeInvitation(tId)).called(1);
-          },
-        );
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(() => mockRemoteDataSource.revokeInvitation(tId)).called(1);
+        });
+      });
+
+      group('resendInvitation', () {
+        final tInvitation = EntityFactory.makeUserInvitationEntity();
+
+        test('should not call remote when offline', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+
+          final result = await repository.resendInvitation(tInvitation);
+
+          expect(result, isA<FailureState<void>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verifyNever(() => mockRemoteDataSource.resendInvitation(any()));
+        });
+
+        test('should call remote and return success when online', () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.resendInvitation(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+
+          final result = await repository.resendInvitation(tInvitation);
+
+          expect(result, isA<SuccessState<void>>());
+          verify(() => mockInternetClient.isConnected).called(1);
+          verify(
+            () => mockRemoteDataSource.resendInvitation(tInvitation),
+          ).called(1);
+        });
       });
     });
 

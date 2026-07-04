@@ -8,6 +8,7 @@ class UsersState extends BaseState {
     this.deletingUserIds = const {},
     this.deletingGroupIds = const {},
     this.deletingInvitationIds = const {},
+    this.resendingInvitationIds = const {},
     super.status = StateStatus.initial,
     super.errorMessage = '',
   });
@@ -19,6 +20,7 @@ class UsersState extends BaseState {
       deletingUserIds = const {},
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
+      resendingInvitationIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   const UsersState.empty()
@@ -28,6 +30,7 @@ class UsersState extends BaseState {
       deletingUserIds = const {},
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
+      resendingInvitationIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<UserProfileEntity> users;
@@ -36,6 +39,7 @@ class UsersState extends BaseState {
   final Set<String> deletingUserIds;
   final Set<String> deletingGroupIds;
   final Set<String> deletingInvitationIds;
+  final Set<String> resendingInvitationIds;
 
   UsersState copyWith({
     List<UserProfileEntity>? users,
@@ -44,6 +48,7 @@ class UsersState extends BaseState {
     Set<String>? deletingUserIds,
     Set<String>? deletingGroupIds,
     Set<String>? deletingInvitationIds,
+    Set<String>? resendingInvitationIds,
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
@@ -56,6 +61,8 @@ class UsersState extends BaseState {
       deletingGroupIds: deletingGroupIds ?? this.deletingGroupIds,
       deletingInvitationIds:
           deletingInvitationIds ?? this.deletingInvitationIds,
+      resendingInvitationIds:
+          resendingInvitationIds ?? this.resendingInvitationIds,
       status: status ?? this.status,
       errorMessage: annulErrorMessage == true
           ? null
@@ -71,6 +78,7 @@ class UsersState extends BaseState {
     deletingUserIds,
     deletingGroupIds,
     deletingInvitationIds,
+    resendingInvitationIds,
     status,
     errorMessage,
   ];

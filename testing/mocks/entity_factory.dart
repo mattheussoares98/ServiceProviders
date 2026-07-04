@@ -451,6 +451,7 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       permissionGroupId: _makeId(),
       name: _makePersonName(),
+      confirmationSentAt: _makeDateTime(),
     );
   }
 

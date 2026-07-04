@@ -49,38 +49,74 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
   StreamSubscription<AuthState>? _authSubscription;
 
   void initialize() {
+    // ── Sync fragment check (must be first, before any await/microtask) ──────
+    // The URL fragment is readable synchronously. Supabase only clears it
+    // after its own async processing runs. We capture error info here, before
+    // it is gone, so we can show a meaningful message instead of a spinner.
+    if (kIsWeb) {
+      final fragment = Uri.base.fragment;
+      if (fragment.contains('error=')) {
+        final params = Uri.splitQueryString(fragment);
+        final errorCode = params['error_code'] ?? '';
+        final errorDescription = Uri.decodeComponent(
+          params['error_description'] ?? '',
+        ).replaceAll('+', ' ');
+
+        final message = switch (errorCode) {
+          'otp_expired' =>
+            'Este convite expirou. Solicite um novo convite ao administrador.'
+                .hardcoded,
+          'access_denied' =>
+            'Acesso negado. O convite pode ter expirado ou já foi utilizado.'
+                .hardcoded,
+          _ =>
+            errorDescription.isNotEmpty
+                ? errorDescription
+                : 'Link de convite inválido.'.hardcoded,
+        };
+
+        emit(
+          state.copyWith(
+            status: StateStatus.loadingError,
+            errorMessage: message,
+          ),
+        );
+        return;
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     final userId = _authClient.currentSession?.user.id;
     if (userId != null) {
       loadProfile(userId);
       return;
     }
 
-    if (kIsWeb) {
-      final fragment = Uri.base.fragment;
-      final hasAuthParams =
-          fragment.contains('access_token') || fragment.contains('error');
-
-      if (!hasAuthParams) {
-        _authSubscription?.cancel();
-        _authSubscription = null;
-
-        Future.microtask(() {
-          _useCases.setSession.call(UserDataEntity.empty());
-          _useCases.saveUserData.call(UserDataEntity.empty());
-          replaceAllRoute(const LoginRoute());
-        });
-        return;
-      }
-    }
-
+    // On web, Supabase processes the invite token from the URL fragment
+    // automatically and fires an onAuthStateChange event. By the time
+    // any async code runs, the fragment is already cleared from the URL.
+    // Instead, always listen to the auth stream and wait for the session.
+    //
+    // If no session arrives within the timeout, the user most likely navigated
+    // to this URL directly (no invite token), so we redirect them to login.
     emit(state.copyWith(status: StateStatus.loading));
+    bool sessionReceived = false;
+
     _authSubscription = _authClient.onAuthStateChange.listen((data) {
       final newUserId = data.session?.user.id;
       if (newUserId != null) {
+        sessionReceived = true;
         loadProfile(newUserId);
         _authSubscription?.cancel();
         _authSubscription = null;
       }
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (isClosed || sessionReceived) return;
+      _authSubscription?.cancel();
+      _authSubscription = null;
+      replaceAllRoute(const LoginRoute());
     });
   }
 

@@ -48,10 +48,6 @@ class InvitationsPage extends StatelessWidget {
                 .reversed
                 .join('/');
 
-            // final isDeleting = context.select<UsersCubit, bool>(
-            //   (cubit) => cubit.state.deletingInvitationIds.contains(invite.id),
-            // );
-
             return Card(
               clipBehavior: Clip.hardEdge,
               child: Padding(
@@ -70,8 +66,30 @@ class InvitationsPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          BaseText.title(
-                            invite.name.isEmpty ? invite.email : invite.name,
+                          Row(
+                            children: [
+                              Flexible(
+                                child: BaseText.title(
+                                  invite.name.isEmpty
+                                      ? invite.email
+                                      : invite.name,
+                                ),
+                              ),
+                              if (invite.isExpired) ...[
+                                gapW8,
+                                Chip(
+                                  label: BaseText.caption(
+                                    'Expirado'.hardcoded,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor: Colors.orange.shade700,
+                                  padding: EdgeInsets.zero,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ],
+                            ],
                           ),
                           gapH4,
                           BaseText(invite.email),
@@ -83,6 +101,54 @@ class InvitationsPage extends StatelessWidget {
                         ],
                       ),
                     ),
+                    // Resend button (only for expired invites)
+                    if (invite.isExpired)
+                      BlocSelector<UsersCubit, UsersState, bool>(
+                        selector: (state) =>
+                            state.resendingInvitationIds.contains(invite.id),
+                        builder: (context, resending) {
+                          if (resending) {
+                            return const Padding(
+                              padding: EdgeInsets.all(Sizes.p8),
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            );
+                          }
+                          return BaseIconButton(
+                            permission: const ActionPermission(
+                              resource: ResourceType.users,
+                              action: PermissionAction.create,
+                            ),
+                            onPressed: () async {
+                              final confirmed = await showAlertDialog(
+                                context: context,
+                                title: 'Reenviar convite'.hardcoded,
+                                contentText:
+                                    'Deseja reenviar o convite para ${invite.email}?'
+                                        .hardcoded,
+                                cancelActionText: 'Não'.hardcoded,
+                                defaultActionText: 'Reenviar'.hardcoded,
+                              );
+                              if (confirmed == true && context.mounted) {
+                                await context
+                                    .read<UsersCubit>()
+                                    .resendInvitation(invite);
+                              }
+                            },
+                            platformIcon: const PlatformIcon(
+                              materialIcon: Icons.refresh,
+                              cupertinoIcon: CupertinoIcons.arrow_clockwise,
+                              color: Colors.orange,
+                            ),
+                          );
+                        },
+                      ),
+                    // Delete button
                     BlocSelector<UsersCubit, UsersState, bool>(
                       selector: (state) =>
                           state.deletingInvitationIds.contains(invite.id),

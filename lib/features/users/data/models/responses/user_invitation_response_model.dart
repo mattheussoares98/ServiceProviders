@@ -11,6 +11,7 @@ class UserInvitationResponseModel extends UserInvitationEntity
     required super.companyId,
     required super.permissionGroupId,
     required super.name,
+    super.confirmationSentAt,
   });
   //TODO remove the response from the name
   factory UserInvitationResponseModel.fromEntity(UserInvitationEntity entity) =>
@@ -21,6 +22,7 @@ class UserInvitationResponseModel extends UserInvitationEntity
         companyId: entity.companyId,
         permissionGroupId: entity.permissionGroupId,
         name: entity.name,
+        confirmationSentAt: entity.confirmationSentAt,
       );
 
   factory UserInvitationResponseModel.fromJson(MapDynamic json) {
@@ -33,6 +35,9 @@ class UserInvitationResponseModel extends UserInvitationEntity
       companyId: json['company_id'] as String? ?? '',
       permissionGroupId: json['permission_group_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
+      confirmationSentAt: json['confirmation_sent_at'] != null
+          ? DateTime.parse(json['confirmation_sent_at'] as String)
+          : null,
     );
   }
 
@@ -44,6 +49,7 @@ class UserInvitationResponseModel extends UserInvitationEntity
     'company_id': companyId,
     'permission_group_id': permissionGroupId,
     'name': name,
+    'confirmation_sent_at': confirmationSentAt?.toIso8601String(),
   };
 
   @override
@@ -54,5 +60,6 @@ class UserInvitationResponseModel extends UserInvitationEntity
     companyId: companyId,
     permissionGroupId: permissionGroupId,
     name: name,
+    confirmationSentAt: confirmationSentAt,
   );
 }

@@ -8,6 +8,7 @@ class UserInvitationEntity extends Equatable {
     required this.companyId,
     required this.permissionGroupId,
     required this.name,
+    this.confirmationSentAt,
   });
 
   final String id;
@@ -17,6 +18,21 @@ class UserInvitationEntity extends Equatable {
   final String permissionGroupId;
   final String name;
 
+  /// When the invite email was last dispatched by Supabase Auth.
+  /// Null when the token has not been sent yet (rare edge case).
+  final DateTime? confirmationSentAt;
+
+  /// Returns true when the invite link is older than 24 hours (Supabase default).
+  /// Update this constant if the OTP expiry is changed in the Supabase dashboard.
+  static const int _inviteExpiryHours = 24;
+
+  bool get isExpired {
+    final sentAt = confirmationSentAt;
+    if (sentAt == null) return false;
+    return DateTime.now().toUtc().difference(sentAt.toUtc()).inHours >=
+        _inviteExpiryHours;
+  }
+
   UserInvitationEntity copyWith({
     String? id,
     String? email,
@@ -24,6 +40,8 @@ class UserInvitationEntity extends Equatable {
     String? companyId,
     String? permissionGroupId,
     String? name,
+    DateTime? confirmationSentAt,
+    bool? annulConfirmationSentAt,
   }) {
     return UserInvitationEntity(
       id: id ?? this.id,
@@ -32,16 +50,20 @@ class UserInvitationEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       permissionGroupId: permissionGroupId ?? this.permissionGroupId,
       name: name ?? this.name,
+      confirmationSentAt: annulConfirmationSentAt == true
+          ? null
+          : confirmationSentAt ?? this.confirmationSentAt,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        invitedAt,
-        companyId,
-        permissionGroupId,
-        name,
-      ];
+    id,
+    email,
+    invitedAt,
+    companyId,
+    permissionGroupId,
+    name,
+    confirmationSentAt,
+  ];
 }

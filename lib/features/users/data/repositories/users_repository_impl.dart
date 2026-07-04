@@ -116,7 +116,8 @@ final class UsersRepositoryImpl implements UsersRepository {
         UserInvitationEntity
       >(
         isInternetConnected: _internet.isConnected,
-        remoteCallback: () => _remoteDataSource.getPendingInvitations(companyId),
+        remoteCallback: () =>
+            _remoteDataSource.getPendingInvitations(companyId),
       );
 
   @override
@@ -135,6 +136,13 @@ final class UsersRepositoryImpl implements UsersRepository {
             response: result.response,
           );
         },
+      );
+
+  @override
+  FutureVoid resendInvitation(UserInvitationEntity invitation) =>
+      RepositoryHandler.fetchWithFallback(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.resendInvitation(invitation),
       );
 
   // ============================================

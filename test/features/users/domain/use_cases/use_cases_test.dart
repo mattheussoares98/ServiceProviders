@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/data/states/data_state.dart';
+import 'package:clean_architecture/features/users/domain/entities/invite_user_params.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/create_permission_group_use_case.dart';
@@ -8,7 +9,7 @@ import 'package:clean_architecture/features/users/domain/use_cases/get_permissio
 import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/invite_user_use_case.dart';
-import 'package:clean_architecture/features/users/domain/entities/invite_user_params.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:faker/faker.dart';
@@ -31,10 +32,12 @@ void main() {
   late UpdatePermissionGroupUseCase updatePermissionGroupUseCase;
   late DeletePermissionGroupUseCase deletePermissionGroupUseCase;
   late InviteUserUseCase inviteUserUseCase;
+  late ResendInvitationUseCase resendInvitationUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makePermissionGroupEntity());
+    registerFallbackValue(EntityFactory.makeUserInvitationEntity());
     registerFallbackValue(
       const InviteUserParams(email: '', companyId: '', groupId: ''),
     );
@@ -65,6 +68,9 @@ void main() {
       usersRepository: mockRepository,
     );
     inviteUserUseCase = InviteUserUseCase(usersRepository: mockRepository);
+    resendInvitationUseCase = ResendInvitationUseCase(
+      usersRepository: mockRepository,
+    );
   });
 
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
@@ -185,6 +191,23 @@ void main() {
             groupId: groupId,
           ),
         ).called(1);
+      });
+    });
+
+    group('ResendInvitationUseCase', () {
+      test('should resend invitation on success', () async {
+        // Arrange
+        final invitation = EntityFactory.makeUserInvitationEntity();
+        when(
+          () => mockRepository.resendInvitation(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+
+        // Act
+        final result = await resendInvitationUseCase(invitation);
+
+        // Assert
+        expect(result, isA<SuccessState<void>>());
+        verify(() => mockRepository.resendInvitation(invitation)).called(1);
       });
     });
   });

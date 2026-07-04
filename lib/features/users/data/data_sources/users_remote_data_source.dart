@@ -7,6 +7,7 @@ import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,6 +29,7 @@ abstract interface class UsersRemoteDataSource {
     String companyId,
   );
   FutureVoid revokeInvitation(String id);
+  FutureVoid resendInvitation(UserInvitationEntity invitation);
 
   // Permission Groups
   FutureList<PermissionGroupResponseModel> getPermissionGroups(
@@ -144,6 +146,22 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       params: {'invitation_id': id},
     );
   });
+
+  @override
+  FutureVoid resendInvitation(UserInvitationEntity invitation) =>
+      SupabaseHandler.voidCall(() async {
+        final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kAcceptInvitePath';
+        await _database.invokeFunction(
+          'invite-user',
+          method: HttpMethod.post,
+          body: {
+            'email': invitation.email,
+            'company_id': invitation.companyId,
+            'permission_group_id': invitation.permissionGroupId,
+            'redirect_url': redirectUrl,
+          },
+        );
+      });
 
   // ============================================
   // Permission Groups

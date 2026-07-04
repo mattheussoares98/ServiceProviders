@@ -280,6 +280,38 @@ void main() {
       });
     });
 
+    group('resendInvitation', () {
+      test('should call invokeFunction with correct parameters on success', () async {
+        final tInvitation = EntityFactory.makeUserInvitationEntity();
+        final mockResponse = MockFunctionResponse();
+        when(() => mockResponse.status).thenReturn(200);
+
+        when(
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
+
+        final result = await dataSource.resendInvitation(tInvitation);
+
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockDatabase.invokeFunction(
+            'invite-user',
+            method: HttpMethod.post,
+            body: {
+              'email': tInvitation.email,
+              'company_id': tInvitation.companyId,
+              'permission_group_id': tInvitation.permissionGroupId,
+              'redirect_url': '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
+            },
+          ),
+        ).called(1);
+      });
+    });
+
     // ============================================
     // Permission Groups
     // ============================================

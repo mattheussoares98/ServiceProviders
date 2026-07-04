@@ -176,6 +176,42 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
   }
 
+  Future<bool> resendInvitation(UserInvitationEntity invitation) async {
+    emit(
+      state.copyWith(
+        resendingInvitationIds: {
+          ...state.resendingInvitationIds,
+          invitation.id,
+        },
+      ),
+    );
+
+    final result = await _useCases.resendInvitation(invitation);
+    if (isClosed) return false;
+
+    final updatedResending = {...state.resendingInvitationIds}
+      ..remove(invitation.id);
+
+    if (result is SuccessState) {
+      await loadInvitations(emitLoading: false);
+      if (isClosed) return false;
+
+      emit(state.copyWith(resendingInvitationIds: updatedResending));
+      showSuccessToast('Convite reenviado com sucesso!'.hardcoded);
+      return true;
+    } else {
+      final message = result.message ?? 'Erro ao reenviar convite'.hardcoded;
+      emit(
+        state.copyWith(
+          resendingInvitationIds: updatedResending,
+          errorMessage: message,
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
   // ============================================
   // User Profile Operations
   // ============================================

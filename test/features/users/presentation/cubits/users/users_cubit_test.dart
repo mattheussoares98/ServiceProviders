@@ -12,6 +12,7 @@ import 'package:clean_architecture/features/users/domain/use_cases/get_pending_i
 import 'package:clean_architecture/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
@@ -58,6 +59,9 @@ class MockGetPendingInvitationsUseCase extends Mock
 class MockRevokeInvitationUseCase extends Mock
     implements RevokeInvitationUseCase {}
 
+class MockResendInvitationUseCase extends Mock
+    implements ResendInvitationUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -72,6 +76,7 @@ void main() {
   late MockDeletePermissionGroupUseCase mockDeletePermissionGroup;
   late MockGetPendingInvitationsUseCase mockGetPendingInvitations;
   late MockRevokeInvitationUseCase mockRevokeInvitation;
+  late MockResendInvitationUseCase mockResendInvitation;
   late MockNavigationClient mockNavigationClient;
 
   late UsersCubit cubit;
@@ -98,6 +103,7 @@ void main() {
     mockDeletePermissionGroup = MockDeletePermissionGroupUseCase();
     mockGetPendingInvitations = MockGetPendingInvitationsUseCase();
     mockRevokeInvitation = MockRevokeInvitationUseCase();
+    mockResendInvitation = MockResendInvitationUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -121,6 +127,7 @@ void main() {
       deletePermissionGroup: mockDeletePermissionGroup,
       getPendingInvitations: mockGetPendingInvitations,
       revokeInvitation: mockRevokeInvitation,
+      resendInvitation: mockResendInvitation,
     );
 
     cubit = UsersCubit(useCases: useCases);
@@ -401,6 +408,69 @@ void main() {
               .having(
                 (s) => s.deletingInvitationIds,
                 'deletingInvitationIds',
+                isEmpty,
+              ),
+        ],
+      );
+    });
+
+    group('resendInvitation', () {
+      blocTest<UsersCubit, UsersState>(
+        'should emit resending status, call resendInvitation and refresh invitations on success',
+        seed: () => UsersState(
+          users: const [],
+          permissionGroups: const [],
+          invitations: [tUserInvitation],
+        ),
+        build: () {
+          when(
+            () => mockResendInvitation.call(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tUserInvitation]));
+          return cubit;
+        },
+        act: (cubit) => cubit.resendInvitation(tUserInvitation),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.resendingInvitationIds,
+            'resendingInvitationIds',
+            {tUserInvitation.id},
+          ),
+          isA<UsersState>().having(
+            (s) => s.resendingInvitationIds,
+            'resendingInvitationIds',
+            isEmpty,
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit error message on failure',
+        seed: () => UsersState(
+          users: const [],
+          permissionGroups: const [],
+          invitations: [tUserInvitation],
+        ),
+        build: () {
+          when(
+            () => mockResendInvitation.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error resending'));
+          return cubit;
+        },
+        act: (cubit) => cubit.resendInvitation(tUserInvitation),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.resendingInvitationIds,
+            'resendingInvitationIds',
+            {tUserInvitation.id},
+          ),
+          isA<UsersState>()
+              .having((s) => s.errorMessage, 'errorMessage', 'Error resending')
+              .having(
+                (s) => s.resendingInvitationIds,
+                'resendingInvitationIds',
                 isEmpty,
               ),
         ],

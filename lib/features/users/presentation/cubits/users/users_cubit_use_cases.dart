@@ -6,6 +6,7 @@ import 'package:clean_architecture/features/users/domain/use_cases/get_pending_i
 import 'package:clean_architecture/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:clean_architecture/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
@@ -25,6 +26,7 @@ class UsersCubitUseCases {
     required this.deletePermissionGroup,
     required this.getPendingInvitations,
     required this.revokeInvitation,
+    required this.resendInvitation,
   });
 
   final GetSessionUserUseCase getSessionUser;
@@ -38,4 +40,5 @@ class UsersCubitUseCases {
   final DeletePermissionGroupUseCase deletePermissionGroup;
   final GetPendingInvitationsUseCase getPendingInvitations;
   final RevokeInvitationUseCase revokeInvitation;
+  final ResendInvitationUseCase resendInvitation;
 }
