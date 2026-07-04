@@ -10,6 +10,7 @@ import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:collection/collection.dart';
@@ -37,6 +38,15 @@ class WorkOrderItem extends StatelessWidget {
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
+            gapH8,
+            BaseRichText(
+              texts: [
+                const BaseText('Criado em: ', fontWeight: FontWeight.bold),
+                BaseText(
+                  workOrder.createdAt.formatDate(DateFormatType.ddMMyyyyHHmm),
+                ),
+              ],
+            ),
             gapH8,
             RichText(
               text: TextSpan(
