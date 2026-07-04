@@ -15,8 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CreateLocation extends HookWidget {
-  const CreateLocation({super.key, this.existingLocation});
+class CreateUpdateLocationpage extends HookWidget {
+  const CreateUpdateLocationpage({super.key, this.existingLocation});
   final LocationEntity? existingLocation;
 
   @override

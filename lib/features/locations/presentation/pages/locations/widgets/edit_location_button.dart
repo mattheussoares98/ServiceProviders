@@ -1,6 +1,6 @@
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_location.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update_location/create_update_location_page.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -29,7 +29,7 @@ class EditLocationButton extends StatelessWidget {
               showModalPage<void>(
                 BlocProvider.value(
                   value: context.read<LocationsCubit>(),
-                  child: CreateLocation(existingLocation: location),
+                  child: CreateUpdateLocationpage(existingLocation: location),
                 ),
                 context,
               );

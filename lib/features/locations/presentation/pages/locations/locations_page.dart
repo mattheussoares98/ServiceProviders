@@ -4,7 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/create_location.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update_location/create_update_location_page.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/location_card.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
@@ -51,7 +51,7 @@ class LocationsPage extends StatelessWidget {
                         showModalPage<void>(
                           BlocProvider.value(
                             value: context.read<LocationsCubit>(),
-                            child: const CreateLocation(),
+                            child: const CreateUpdateLocationpage(),
                           ),
                           context,
                         ),
