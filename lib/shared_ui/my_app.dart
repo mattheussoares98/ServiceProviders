@@ -15,6 +15,7 @@ import 'package:clean_architecture/shared_ui/themes/theme.dart';
 import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -109,6 +110,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
           builder: (context, state) {
             return MaterialApp.router(
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('pt', 'BR')],
+              locale: const Locale('pt', 'BR'), // Forces PT/BR as default
               debugShowCheckedModeBanner: false,
               title: AppConfigUtil.I.appTitle,
               theme: lightTheme,

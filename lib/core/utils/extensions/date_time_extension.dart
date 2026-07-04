@@ -1,5 +1,11 @@
+// ignore_for_file: constant_identifier_names
+
+import 'package:intl/intl.dart';
+
 extension DateTimeExtension on DateTime {
-  String formattedBrazilianDate({bool includeTime = false}) {
-    return '${day.toString().padLeft(2, '0')}/${month.toString().padLeft(2, '0')}/$year${includeTime ? ' ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}' : ''}';
+  String formatDate([DateFormatType type = DateFormatType.yMMMd]) {
+    return DateFormat(type.name).format(this);
   }
 }
+
+enum DateFormatType { yMd, yMMMMd, yMMMd, yMMMEd, yMMMMEEEEd, yMdHm, Hm, Hms }

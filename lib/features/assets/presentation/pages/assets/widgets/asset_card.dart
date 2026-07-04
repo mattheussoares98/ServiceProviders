@@ -57,20 +57,18 @@ class AssetCard extends StatelessWidget {
             if (asset.installDate != null)
               _DetailRow(
                 label: 'Data de instalação:'.hardcoded,
-                value: asset.installDate!.formattedBrazilianDate(
-                  includeTime: true,
-                ),
+                value: asset.installDate!.formatDate(DateFormatType.yMMMMd),
               ),
             if (asset.warrantyExpiration != null)
               _DetailRow(
                 label: 'Vencimento da garantia:'.hardcoded,
-                value: asset.warrantyExpiration!.formattedBrazilianDate(),
+                value: asset.warrantyExpiration!.formatDate(),
               ),
             if (asset.revisionForecast != null)
               _DetailRow(
                 label: 'Previsão de revisão:'.hardcoded,
-                value: asset.revisionForecast!.formattedBrazilianDate(
-                  includeTime: true,
+                value: asset.revisionForecast!.formatDate(
+                  DateFormatType.yMMMMd,
                 ),
               ),
             if (asset.notes != null && asset.notes!.isNotEmpty)

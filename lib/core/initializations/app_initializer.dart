@@ -8,12 +8,17 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class AppInitializer {
   static Future<void> initializeApp({required String environment}) async {
     await ErrorHandler.executeSafe(() async {
       await dotenv.load();
+
+      Intl.defaultLocale = 'pt_BR';
+      await initializeDateFormatting('pt_BR', null);
 
       await Future.wait([_initFirebase(), _initSupabase()]);
       await configureDependencies(environment: environment);

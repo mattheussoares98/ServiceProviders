@@ -49,8 +49,8 @@ class ProgrammedData extends StatelessWidget {
                     child: BaseText(
                       selectedScheduledDate == null
                           ? 'Selecionar'.hardcoded
-                          : selectedScheduledDate!.formattedBrazilianDate(
-                              includeTime: true,
+                          : selectedScheduledDate!.formatDate(
+                              DateFormatType.yMMMMd,
                             ),
                     ),
                   ),

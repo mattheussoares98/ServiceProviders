@@ -1,3 +1,4 @@
+import 'package:clean_architecture/core/utils/extensions/date_time_extension.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
@@ -19,7 +20,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 class OrdersItems extends StatelessWidget {
   const OrdersItems({super.key});
@@ -93,8 +93,8 @@ class OrdersItems extends StatelessWidget {
                             const WidgetSpan(child: gapW4),
                             WidgetSpan(
                               child: BaseIndicationItem(
-                                label: DateFormat.yMMMMd().format(
-                                  workOrder.scheduledDate!,
+                                label: workOrder.scheduledDate!.formatDate(
+                                  DateFormatType.yMMMMd,
                                 ),
                                 color: workOrder.status.color,
                               ),

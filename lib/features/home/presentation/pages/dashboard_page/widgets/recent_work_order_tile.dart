@@ -101,9 +101,7 @@ class RecentWorkOrderTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    workOrder.createdAt.formattedBrazilianDate(
-                      includeTime: true,
-                    ),
+                    workOrder.createdAt.formatDate(DateFormatType.yMMMMd),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
