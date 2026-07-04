@@ -4,7 +4,6 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_update_work_order_form.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
@@ -35,15 +34,11 @@ class OrdersItems extends StatelessWidget {
         if (workOrders.isEmpty) {
           return BaseText.error('Nenhuma ordem foi encontrada'.hardcoded);
         }
-        final isDeleting = context.select((WorkOrdersCubit cubit) {
-          //TODO add the deletingIds to treat it by each one
-          return cubit.state.status == StateStatus.deleting;
-        });
-
         return ListView.builder(
           itemCount: workOrders.length,
           itemBuilder: (context, index) {
             final workOrder = workOrders[index];
+
             return Card(
               child: Padding(
                 padding: const EdgeInsets.all(Sizes.p8),
@@ -105,62 +100,69 @@ class OrdersItems extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: .spaceBetween,
-                      children: [
-                        BaseIconButton(
-                          permission: const ActionPermission(
-                            resource: ResourceType.workOrders,
-                            action: PermissionAction.delete,
-                          ),
-                          isLoading: isDeleting,
-                          onPressed: () {
-                            showAlertDialog(
-                              context: context,
-                              title: 'Atenção!'.hardcoded,
-                              contentText:
-                                  'Deseja realmente excluir a ordem de serviço?'
-                                      .hardcoded,
-                              defaultActionText: 'Sim'.hardcoded,
-                              cancelActionText: 'Não'.hardcoded,
-                              onOkPressed: () => context
-                                  .read<WorkOrdersCubit>()
-                                  .deleteWorkOrder(workOrder.id),
-                            );
-                          },
-                          platformIcon: const PlatformIcon(
-                            materialIcon: Icons.delete,
-                            cupertinoIcon: CupertinoIcons.delete,
-                            color: Colors.red,
-                          ),
-                        ),
-                        Flexible(
-                          child: BaseTextButton(
-                            permission: const ActionPermission(
-                              resource: ResourceType.workOrders,
-                              action: PermissionAction.update,
+                    BlocSelector<WorkOrdersCubit, WorkOrdersState, bool>(
+                      selector: (state) =>
+                          state.deletingIds.contains(workOrder.id),
+                      builder: (context, isDeleting) {
+                        return Row(
+                          mainAxisAlignment: .spaceBetween,
+                          children: [
+                            BaseIconButton(
+                              permission: const ActionPermission(
+                                resource: ResourceType.workOrders,
+                                action: PermissionAction.delete,
+                              ),
+                              isLoading: isDeleting,
+                              onPressed: () {
+                                showAlertDialog(
+                                  context: context,
+                                  title: 'Atenção!'.hardcoded,
+                                  contentText:
+                                      'Deseja realmente excluir a ordem de serviço?'
+                                          .hardcoded,
+                                  defaultActionText: 'Sim'.hardcoded,
+                                  cancelActionText: 'Não'.hardcoded,
+                                  onOkPressed: () => context
+                                      .read<WorkOrdersCubit>()
+                                      .deleteWorkOrder(workOrder.id),
+                                );
+                              },
+                              platformIcon: const PlatformIcon(
+                                materialIcon: Icons.delete,
+                                cupertinoIcon: CupertinoIcons.delete,
+                                color: Colors.red,
+                              ),
                             ),
-                            text: 'Editar'.hardcoded,
-                            onPressed: isDeleting
-                                ? null
-                                : () {
-                                    showModalPage<void>(
-                                      BlocProvider.value(
-                                        value: context.read<WorkOrdersCubit>(),
-                                        child: CreateUpdateWorkOrderForm(
-                                          workOrder: workOrder,
-                                        ),
-                                      ),
-                                      context,
-                                    );
-                                  },
-                            platformIcon: const PlatformIcon(
-                              materialIcon: Icons.edit,
-                              cupertinoIcon: CupertinoIcons.pencil,
+                            Flexible(
+                              child: BaseTextButton(
+                                permission: const ActionPermission(
+                                  resource: ResourceType.workOrders,
+                                  action: PermissionAction.update,
+                                ),
+                                text: 'Editar'.hardcoded,
+                                onPressed: isDeleting
+                                    ? null
+                                    : () {
+                                        showModalPage<void>(
+                                          BlocProvider.value(
+                                            value: context
+                                                .read<WorkOrdersCubit>(),
+                                            child: CreateUpdateWorkOrderForm(
+                                              workOrder: workOrder,
+                                            ),
+                                          ),
+                                          context,
+                                        );
+                                      },
+                                platformIcon: const PlatformIcon(
+                                  materialIcon: Icons.edit,
+                                  cupertinoIcon: CupertinoIcons.pencil,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),

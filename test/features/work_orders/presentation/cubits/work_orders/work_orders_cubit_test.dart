@@ -589,16 +589,15 @@ void main() {
         },
         act: (cubit) => cubit.deleteWorkOrder(tId),
         expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
-          ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingIds, 'deletingIds', {tId}),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingIds, 'deletingIds', isEmpty),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.deletingIds, 'deletingIds', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
@@ -618,16 +617,12 @@ void main() {
         },
         act: (cubit) => cubit.deleteWorkOrder(tId),
         expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
-          ),
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deletingError,
-          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having((s) => s.deletingIds, 'deletingIds', {tId}),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.deletingError)
+              .having((s) => s.deletingIds, 'deletingIds', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
