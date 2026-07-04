@@ -9,6 +9,7 @@ class BaseRichText extends StatelessWidget {
     this.overflow,
     this.maxLines,
     this.softWrap,
+    this.color,
   });
 
   final List<BaseText> texts;
@@ -16,6 +17,7 @@ class BaseRichText extends StatelessWidget {
   final TextOverflow? overflow;
   final int? maxLines;
   final bool? softWrap;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class BaseRichText extends StatelessWidget {
           return TextSpan(
             text: baseText.text,
             style: TextStyle(
-              color: baseText.color,
+              color: baseText.color ?? color,
               fontSize: baseText.textType.size,
               fontWeight: baseText.fontWeight,
               decoration: baseText.decoration,

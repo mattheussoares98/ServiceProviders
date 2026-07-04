@@ -8,7 +8,6 @@ import 'package:clean_architecture/features/users/domain/entities/user_profile_e
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 
 part 'dashboard_state.dart';
@@ -99,10 +98,11 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     final recentWorkOrders = sortedWorkOrders.take(5).toList();
 
     // 3. Active Work Orders (technician has running orders, sorted by updatedAt desc)
-    final activeWorkOrders = workOrders
-        .where((wo) => wo.status == WorkOrderStatus.inProgress)
-        .toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final activeWorkOrders =
+        workOrders
+            .where((wo) => wo.status == WorkOrderStatus.inProgress)
+            .toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     emit(
       state.copyWith(

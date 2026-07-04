@@ -99,16 +99,32 @@ class DashboardView extends HookWidget {
                         : 'Técnico de Manutenção'.hardcoded,
                   ),
                 ],
-                gapH20,
-                if (state.activeWorkOrder != null)
-                  ActiveStopwatchCard(
-                    workOrder: state.activeWorkOrder!,
-                    onTap: () => context.router.push(
-                      CreateUpdateWorkOrderRoute(
-                        workOrder: state.activeWorkOrder,
-                      ),
+                if (state.activeWorkOrders.isNotEmpty) ...[
+                  gapH8,
+                  BaseText.title('TRABALHOS EM ANDAMENTO'.hardcoded),
+                  gapH4,
+                  SizedBox(
+                    height: 105,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: state.activeWorkOrders.length,
+                      itemBuilder: (context, index) {
+                        final workOrder = state.activeWorkOrders[index];
+                        return Container(
+                          width: 300,
+                          padding: const EdgeInsets.only(right: Sizes.p8),
+                          child: ActiveStopwatchCard(
+                            workOrder: workOrder,
+                            onTap: () => context.router.push(
+                              CreateUpdateWorkOrderRoute(workOrder: workOrder),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
+                  gapH20,
+                ],
                 Row(
                   children: [
                     Flexible(

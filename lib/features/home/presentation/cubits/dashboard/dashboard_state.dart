@@ -28,8 +28,6 @@ class DashboardState extends BaseState {
   final UserProfileEntity? userProfile;
   final List<WorkOrderEntity> activeWorkOrders;
 
-  WorkOrderEntity? get activeWorkOrder => activeWorkOrders.firstOrNull;
-
   DashboardState copyWith({
     StateStatus? status,
     int? openWorkOrdersCount,
@@ -38,7 +36,6 @@ class DashboardState extends BaseState {
     List<WorkOrderEntity>? recentWorkOrders,
     UserProfileEntity? userProfile,
     List<WorkOrderEntity>? activeWorkOrders,
-    WorkOrderEntity? activeWorkOrder,
     String? errorMessage,
     bool? annulErrorMessage,
     bool? annulUserProfile,

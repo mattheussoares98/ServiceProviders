@@ -222,15 +222,6 @@ void main() {
               isA<List<WorkOrderEntity>>(),
             )
             .having(
-              (s) => s.activeWorkOrder,
-              'activeWorkOrder',
-              isA<WorkOrderEntity>().having(
-                (wo) => wo.status,
-                'status',
-                WorkOrderStatus.inProgress,
-              ),
-            )
-            .having(
               (s) => s.activeWorkOrders,
               'activeWorkOrders',
               contains(isA<WorkOrderEntity>()),
@@ -292,12 +283,12 @@ void main() {
     );
 
     blocTest<DashboardCubit, DashboardState>(
-      'emits [loading, loaded] with activeWorkOrder as null and empty activeWorkOrders when no in-progress work order exists, clearing the previous active work order',
+      'emits [loading, loaded] with empty activeWorkOrders when no in-progress work order exists, clearing the previous active work orders',
       seed: () {
         final previousActiveWorkOrder = EntityFactory.makeWorkOrderEntity()
             .copyWith(status: WorkOrderStatus.inProgress);
         return const DashboardState.initial().copyWith(
-          activeWorkOrder: previousActiveWorkOrder,
+          activeWorkOrders: [previousActiveWorkOrder],
         );
       },
       build: () {
@@ -330,7 +321,6 @@ void main() {
         ),
         isA<DashboardState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
-            .having((s) => s.activeWorkOrder, 'activeWorkOrder', null)
             .having((s) => s.activeWorkOrders, 'activeWorkOrders', isEmpty),
       ],
     );

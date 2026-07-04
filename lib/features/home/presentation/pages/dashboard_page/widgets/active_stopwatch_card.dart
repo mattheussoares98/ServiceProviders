@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/features/work_orders/presentation/extensions/work_order_extensions.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -24,8 +24,6 @@ class ActiveStopwatchCard extends HookWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final isDark = theme.brightness == Brightness.dark;
-    final pageWidth = MediaQuery.sizeOf(context).width;
-
     // Local state to force rebuild every second and display current duration
     final elapsedSeconds = useState<int>(0);
 
@@ -87,69 +85,32 @@ class ActiveStopwatchCard extends HookWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(Sizes.p16),
           child: Padding(
-            padding: const EdgeInsets.all(Sizes.p16),
+            padding: const EdgeInsets.all(Sizes.p8),
             child: Column(
+              mainAxisAlignment: .spaceEvenly,
               children: [
-                BaseText.title(
-                  'TRABALHO EM ANDAMENTO'.hardcoded,
-                  color: Colors.amber.shade800,
-                  textAlign: .center,
+                Flexible(
+                  child: BaseText.title(
+                    workOrder.title,
+                    maxLines: 2,
+                    textAlign: .center,
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: .spaceBetween,
                   children: [
-                    Flexible(
-                      child: Row(
-                        children: [
-                          if (pageWidth > 200) ...[
-                            FittedBox(
-                              child: Container(
-                                padding: const EdgeInsets.all(Sizes.p12),
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.withValues(alpha: 0.15),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const PlatformIcon(
-                                  materialIcon: Icons.play_circle_filled,
-                                  cupertinoIcon: CupertinoIcons.play_circle,
-                                  color: Colors.amber,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                            gapW16,
-                          ],
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                gapH4,
-                                BaseText.title(workOrder.title),
-                                gapH4,
-                                BaseText(
-                                  'Prioridade: ${workOrder.priority.label}'
-                                      .hardcoded,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    BaseRichText(
+                      color: workOrder.priority.color,
+                      texts: [
+                        BaseText('Prioridade '.hardcoded),
+                        BaseText(workOrder.priority.label.toLowerCase()),
+                      ],
                     ),
-                    SizedBox(
-                      width: pageWidth * 0.2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          FittedBox(
-                            child: BaseText.title(
-                              durationText,
-                              color: Colors.amber.shade800,
-                            ),
-                          ),
-                          gapH4,
-                          FittedBox(child: BaseText('Visualizar'.hardcoded)),
-                        ],
+                    gapW12,
+                    FittedBox(
+                      child: BaseText.title(
+                        durationText,
+                        color: Colors.amber.shade800,
                       ),
                     ),
                   ],
