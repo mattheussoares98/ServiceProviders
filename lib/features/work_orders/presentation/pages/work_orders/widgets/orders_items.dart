@@ -1,5 +1,7 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:clean_architecture/features/work_orders/presentation/extensions/work_order_extensions.dart';
@@ -13,6 +15,7 @@ import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,6 +102,23 @@ class OrdersItems extends StatelessWidget {
                           ],
                         ],
                       ),
+                    ),
+                    BlocSelector<UsersCubit, UsersState, UserProfileEntity?>(
+                      selector: (state) => state.users.firstWhereOrNull(
+                        (e) => e.id == workOrder.assignedToId,
+                      ),
+                      builder: (context, user) {
+                        if (user == null) {
+                          return const SizedBox.shrink();
+                        }
+                        return Align(
+                          alignment: Alignment.centerRight,
+                          child: BaseText(
+                            user.name,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
                     BlocSelector<WorkOrdersCubit, WorkOrdersState, bool>(
                       selector: (state) =>
