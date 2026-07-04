@@ -12,16 +12,18 @@ class ParentAssetDropdown extends StatelessWidget {
     required this.onChanged,
     required this.selectedParentAssetId,
     required this.selectedAreaId,
+    required this.currentAssetId,
   });
   final String? selectedParentAssetId;
   final ValueChanged<String?> onChanged;
   final String? selectedAreaId;
+  final String? currentAssetId;
 
   @override
   Widget build(BuildContext context) {
     final allAssets = context.select<AssetsCubit, List<AssetEntity>>((cubit) {
       return cubit.state.assets
-          .where((e) => e.areaId == selectedAreaId)
+          .where((e) => e.areaId == selectedAreaId && e.id != currentAssetId)
           .toList();
     });
     final items = <DropdownMenuItem<String>>[

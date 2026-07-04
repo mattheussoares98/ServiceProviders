@@ -202,6 +202,7 @@ class CreateUpdateAssetPage extends HookWidget {
                 onChanged: (value) => selectedParentAssetId.value = value,
                 selectedParentAssetId: selectedParentAssetId.value,
                 selectedAreaId: selectedAreaId.value,
+                currentAssetId: asset?.id,
               ),
               gapH16,
               Row(
