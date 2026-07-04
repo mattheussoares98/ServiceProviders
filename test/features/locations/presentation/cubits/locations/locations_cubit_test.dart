@@ -796,7 +796,8 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteArea(tId, tLocationId),
+        act: (cubit) async =>
+            expect(await cubit.deleteArea(tId, tLocationId), isTrue),
         expect: () => [
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.deleting)
@@ -819,7 +820,8 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.deleteArea(tId, tLocationId),
+        act: (cubit) async =>
+            expect(await cubit.deleteArea(tId, tLocationId), isFalse),
         expect: () => [
           isA<LocationsState>()
               .having((s) => s.status, 'status', StateStatus.deleting)
