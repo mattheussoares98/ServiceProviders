@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
-import 'package:clean_architecture/features/home/presentation/pages/dashboard_page/widgets/active_stopwatch_card.dart';
+import 'package:clean_architecture/features/home/presentation/pages/dashboard_page/widgets/active_work_items.dart';
 import 'package:clean_architecture/features/home/presentation/pages/dashboard_page/widgets/quick_action_button.dart';
 import 'package:clean_architecture/features/home/presentation/pages/dashboard_page/widgets/stats_card.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -15,7 +15,6 @@ import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -100,57 +99,7 @@ class DashboardView extends HookWidget {
                         : 'Técnico de Manutenção'.hardcoded,
                   ),
                 ],
-                if (state.activeWorkOrders.isNotEmpty) ...[
-                  gapH8,
-                  BaseText.title('TRABALHOS EM ANDAMENTO'.hardcoded),
-                  gapH4,
-                  if (ScreenUtil.I.type == ScreenType.compact ||
-                      ScreenUtil.I.type == ScreenType.phone)
-                    SizedBox(
-                      height: 105,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: state.activeWorkOrders.length,
-                        itemBuilder: (context, index) {
-                          final workOrder = state.activeWorkOrders[index];
-                          return Container(
-                            width: 300,
-                            padding: const EdgeInsets.only(right: Sizes.p8),
-                            child: ActiveStopwatchCard(
-                              workOrder: workOrder,
-                              onTap: () => context.router.push(
-                                CreateUpdateWorkOrderRoute(
-                                  workOrder: workOrder,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                  else
-                    Center(
-                      child: Wrap(
-                        spacing: Sizes.p8,
-                        runSpacing: Sizes.p8,
-                        children: state.activeWorkOrders.map((workOrder) {
-                          return SizedBox(
-                            width: 300,
-                            height: 105,
-                            child: ActiveStopwatchCard(
-                              workOrder: workOrder,
-                              onTap: () => context.router.push(
-                                CreateUpdateWorkOrderRoute(
-                                  workOrder: workOrder,
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  gapH20,
-                ],
+                const ActiveWorkItems(),
                 Row(
                   children: [
                     Flexible(
