@@ -3,17 +3,14 @@ import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/area_name_field.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/delete_icon_button.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/description_field.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/create_update/widgets/floor_field.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -69,9 +66,6 @@ class _Body extends HookWidget {
       (cubit) => cubit.state.status,
     );
 
-    final isSubmitting =
-        status == StateStatus.saving || status == StateStatus.deleting;
-
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
@@ -95,40 +89,7 @@ class _Body extends HookWidget {
         title: area == null
             ? 'Criando nova área'.hardcoded
             : 'Editando área'.hardcoded,
-        actions: [
-          if (area != null)
-            BaseIconButton(
-              permission: const ActionPermission(
-                resource: ResourceType.locations,
-                action: PermissionAction.delete,
-              ),
-              onPressed: isSubmitting
-                  ? null
-                  : () {
-                      showAlertDialog(
-                        context: context,
-                        title: 'Excluir área'.hardcoded,
-                        onOkPressed: () async {
-                          final cubit = context.read<LocationsCubit>();
-                          await cubit.deleteArea(area!.id, area!.locationId);
-                          if (cubit.state.status != StateStatus.deletingError &&
-                              context.mounted) {
-                            context.router.pop();
-                          }
-                        },
-                        contentText:
-                            'Tem certeza que deseja excluir a área?'.hardcoded,
-                        defaultActionText: 'Sim'.hardcoded,
-                        cancelActionText: 'Cancelar'.hardcoded,
-                      );
-                    },
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.delete,
-                cupertinoIcon: CupertinoIcons.trash,
-                color: Colors.red,
-              ),
-            ),
-        ],
+        actions: [DeleteIconButton(area: area)],
       ),
       body: Form(
         key: formKey,
