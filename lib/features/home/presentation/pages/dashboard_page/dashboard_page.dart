@@ -94,7 +94,7 @@ class DashboardView extends HookWidget {
 
           return BaseScaffold(
             isScrollable: false,
-            padding: const EdgeInsets.all(Sizes.p12),
+            padding: const EdgeInsets.all(Sizes.p8),
             appBar: BaseAppBar(
               title: 'Painel'.hardcoded,
               leading: drawerButton,
