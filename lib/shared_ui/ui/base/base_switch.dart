@@ -1,3 +1,4 @@
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +24,9 @@ class DefaultSwitch extends StatelessWidget {
       return Switch.adaptive(value: value, onChanged: onChanged);
     }
 
-    final textStyle = context.theme.textTheme.titleSmall;
-
     if (context.isCupertino) {
       return CupertinoListTile(
-        title: Text(title!, style: textStyle, maxLines: 3),
+        title: BaseText.title(title!, maxLines: 3),
         padding: EdgeInsets.zero,
         trailing: CupertinoSwitch(value: value, onChanged: onChanged),
       );
@@ -35,7 +34,7 @@ class DefaultSwitch extends StatelessWidget {
       return SwitchListTile.adaptive(
         dense: true,
         contentPadding: EdgeInsets.zero,
-        title: Text(title!, style: textStyle, maxLines: 3),
+        title: BaseText.title(title!, maxLines: 3),
         value: value,
         onChanged: onChanged,
       );

@@ -116,14 +116,11 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
           children: [
             if (dtf.labelText != null) ...[
               gapH8,
-              Text(
+              BaseText(
                 dtf.labelText!,
-                style: TextStyle(
-                  color: isEnabled
-                      ? colorScheme.onSurface.withAlpha(200)
-                      : colorScheme.onSurface.withAlpha(100),
-                  fontSize: 12,
-                ),
+                color: isEnabled
+                    ? colorScheme.onSurface.withAlpha(200)
+                    : colorScheme.onSurface.withAlpha(100),
               ),
               gapH4,
             ],
@@ -179,13 +176,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(left: Sizes.p8, top: Sizes.p4),
-                child: Text(
-                  state.errorText!,
-                  style: const TextStyle(
-                    color: CupertinoColors.destructiveRed,
-                    fontSize: 12,
-                  ),
-                ),
+                child: BaseText.error(state.errorText!),
               ),
           ],
         );

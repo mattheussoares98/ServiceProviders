@@ -5,8 +5,8 @@ import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
 import 'package:flutter/material.dart';
@@ -103,10 +103,9 @@ class _ResetPasswordDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              BaseText(
                 'Insira o seu e-mail para receber o link de redefinição de senha.'
                     .hardcoded,
-                style: context.theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: Sizes.p16),
               BaseTextFormField(

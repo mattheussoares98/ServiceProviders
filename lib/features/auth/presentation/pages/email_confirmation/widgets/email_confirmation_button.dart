@@ -1,3 +1,4 @@
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -31,13 +32,10 @@ class EmailConfirmationButton extends StatelessWidget {
           onTap: onPressed,
           borderRadius: BorderRadius.circular(14),
           child: const Center(
-            child: Text(
+            child: BaseText(
               kIsWeb ? 'Ir para o Login' : 'Voltar ao Aplicativo',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

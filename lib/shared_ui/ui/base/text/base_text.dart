@@ -14,6 +14,7 @@ class BaseText extends StatelessWidget {
     this.fontWeight = FontWeight.normal,
     this.decoration,
     this.decorationColor,
+    this.fontStyle,
   });
 
   factory BaseText.caption(
@@ -61,22 +62,29 @@ class BaseText extends StatelessWidget {
     TextAlign? textAlign,
     Color? color,
     FontWeight? fontWeight,
+    TextOverflow? overflow,
   }) => BaseText(
     text,
+    overflow: overflow,
     textAlign: textAlign,
     color: color,
     textType: TextType.bodyLarge,
     fontWeight: fontWeight ?? FontWeight.w400,
   );
 
-  factory BaseText.title(String text, {TextAlign? textAlign, Color? color}) =>
-      BaseText(
-        text,
-        textAlign: textAlign,
-        color: color,
-        textType: TextType.titleSmall,
-        fontWeight: FontWeight.w600,
-      );
+  factory BaseText.title(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    int? maxLines,
+  }) => BaseText(
+    text,
+    textAlign: textAlign,
+    color: color,
+    maxLines: maxLines,
+    textType: TextType.titleSmall,
+    fontWeight: FontWeight.w600,
+  );
 
   factory BaseText.titleMedium(
     String text, {
@@ -145,6 +153,7 @@ class BaseText extends StatelessWidget {
   final FontWeight fontWeight;
   final TextDecoration? decoration;
   final Color? decorationColor;
+  final FontStyle? fontStyle;
 
   @override
   Widget build(BuildContext context) {

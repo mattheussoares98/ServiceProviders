@@ -17,15 +17,8 @@ class ConnectionFailed extends StatelessWidget {
           gapH12,
           const NetworkTower(),
           gapH24,
-          const Text(
-            'Whoops!',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
-          ),
-          BaseText.title(
-            'Connection Failure 🛰️',
-            textAlign: TextAlign.center,
-          ),
+          BaseText.headlineLarge('Whoops!'),
+          BaseText.title('Connection Failure 🛰️', textAlign: TextAlign.center),
           const Spacer(),
           PrimaryButton(
             expandWidth: true,

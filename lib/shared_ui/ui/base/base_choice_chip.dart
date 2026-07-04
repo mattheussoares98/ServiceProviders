@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/domain/entities/selectable_item.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class DefaultChoiceChip<T extends SelectableItem<T>> extends StatelessWidget {
           final isSelected = item.value == selectedValue;
           return ChoiceChip(
             key: ValueKey(item),
-            label: Text(item.name),
+            label: BaseText(item.name),
             selected: isSelected,
             onSelected: (selected) {
               if (allowNullSelection) {
@@ -44,9 +45,7 @@ class DefaultChoiceChip<T extends SelectableItem<T>> extends StatelessWidget {
             },
             selectedColor: item.color ?? theme.colorScheme.primary,
             labelStyle: TextStyle(
-              color: isSelected
-                  ? Colors.white
-                  : theme.colorScheme.onSurface,
+              color: isSelected ? Colors.white : theme.colorScheme.onSurface,
             ),
           );
         }).toList(),

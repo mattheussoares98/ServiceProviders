@@ -4,8 +4,8 @@ import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -50,13 +50,7 @@ class CreateCategorySheet extends HookWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Nova Categoria'.hardcoded,
-                style: context.theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
+              BaseText.headline('Nova categoria'.hardcoded),
               gapH16,
               BaseTextFormField(
                 labelText: 'Nome da categoria'.hardcoded,

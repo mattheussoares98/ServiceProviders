@@ -1,5 +1,6 @@
 import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_button.dart';
 import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
 
 class EmailConfirmationCard extends StatelessWidget {
@@ -48,25 +49,19 @@ class EmailConfirmationCard extends StatelessWidget {
             const SizedBox(height: 32),
             FadeTransition(
               opacity: opacityAnimation,
-              child: Column(
+              child: const Column(
                 children: [
-                  Text(
-                    'E-mail Verificado',
+                  BaseText(
+                    'E-mail verificado',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
-                    ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
+                  SizedBox(height: 12),
+                  BaseText(
                     'Seu e-mail foi verificado com sucesso. Agora você pode retornar ao aplicativo e entrar para explorar seu painel.',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: const Color(0xFF9CA3AF),
-                      height: 1.5,
-                    ),
+                    color: Color(0xFF9CA3AF),
                   ),
                 ],
               ),
@@ -77,13 +72,10 @@ class EmailConfirmationCard extends StatelessWidget {
               child: EmailConfirmationButton(onPressed: onPressed),
             ),
             const SizedBox(height: 24),
-            Text(
+            BaseText(
               'ServiceProviders',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.3),
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.bold,
-              ),
+              color: Colors.white.withValues(alpha: 0.3),
+              fontWeight: FontWeight.bold,
             ),
           ],
         ),

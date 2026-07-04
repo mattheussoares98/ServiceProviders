@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
 
 /// PERFORMANCE: This manager uses the Overlay API to create an accessory bar
@@ -65,13 +66,10 @@ class OverlayManager {
                         key: const ValueKey('done_btn_'),
                         onPressed: onDone,
                         // PERFORMANCE: Blue SF Pro style font for iOS consistency
-                        child: Text(
+                        child: BaseText(
                           'OK'.hardcoded,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF007AFF),
-                          ),
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF007AFF),
                         ),
                       ),
                     ],

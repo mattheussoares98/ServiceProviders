@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:clean_architecture/shared_ui/utils/toast_util.dart';
@@ -136,13 +137,10 @@ class GetNewDate {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(Sizes.p8),
-                      child: Text(
+                      child: BaseText.headline(
                         mode == CupertinoDatePickerMode.date
                             ? 'Data'.hardcoded
                             : 'Horário'.hardcoded,
-                        style: context.theme.textTheme.titleMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
                       ),
                     ),
                     SizedBox(
@@ -159,7 +157,7 @@ class GetNewDate {
                       ),
                     ),
                     CupertinoButton(
-                      child: Text('OK'.hardcoded),
+                      child: BaseText('OK'.hardcoded),
                       onPressed: () => context.pop<DateTime?>(tempPickedDate),
                     ),
                   ],

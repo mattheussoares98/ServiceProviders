@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ Future<bool?> showAlertDialog({
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(child: Text(title)),
+          Expanded(child: BaseText(title)),
           if (kDebugMode && (contentText?.isNotEmpty ?? false))
             IconButton(
               onPressed: () =>
@@ -42,7 +43,7 @@ Future<bool?> showAlertDialog({
       content:
           contentWidget ??
           (contentText != null
-              ? SingleChildScrollView(child: Text(contentText))
+              ? SingleChildScrollView(child: BaseText(contentText))
               : null),
       actions:
           actions ??
@@ -50,11 +51,11 @@ Future<bool?> showAlertDialog({
               ? <Widget>[
                   if (cancelActionText != null)
                     CupertinoDialogAction(
-                      child: Text(cancelActionText),
+                      child: BaseText(cancelActionText),
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
                   CupertinoDialogAction(
-                    child: Text(defaultActionText),
+                    child: BaseText(defaultActionText),
                     onPressed: () {
                       Navigator.of(context).pop(true);
                       onOkPressed?.call();
@@ -64,11 +65,11 @@ Future<bool?> showAlertDialog({
               : <Widget>[
                   if (cancelActionText != null)
                     TextButton(
-                      child: Text(cancelActionText),
+                      child: BaseText(cancelActionText),
                       onPressed: () => Navigator.of(context).pop(false),
                     ),
                   TextButton(
-                    child: Text(defaultActionText),
+                    child: BaseText(defaultActionText),
                     onPressed: () {
                       Navigator.of(context).pop(true);
                       onOkPressed?.call();

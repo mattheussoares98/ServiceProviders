@@ -1,3 +1,4 @@
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,14 +50,12 @@ class BaseSegmentedButtons<T> extends StatelessWidget {
             i: Padding(
               padding: const EdgeInsets.all(Sizes.p8),
               child: FittedBox(
-                child: Text(
+                child: BaseText(
                   itemLabelBuilder(items[i]),
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: activeIndex == i
-                        ? Colors.white
-                        : context.theme.colorScheme.onSurface,
-                  ),
+                  color: activeIndex == i
+                      ? Colors.white
+                      : context.theme.colorScheme.onSurface,
                 ),
               ),
             ),

@@ -1,4 +1,4 @@
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedEllipsis extends StatefulWidget {
@@ -44,7 +44,7 @@ class _AnimatedEllipsisState extends State<AnimatedEllipsis>
           // PERFORMANCE: Using a fixed width prevents the text from shifting
           // adjacent widgets when the dot count changes (Layout Jitters).
           width: 24,
-          child: Text(dots, style: context.theme.textTheme.titleMedium),
+          child: BaseText.title(dots),
         );
       },
     );

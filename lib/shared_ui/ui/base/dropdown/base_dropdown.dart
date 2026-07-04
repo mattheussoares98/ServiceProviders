@@ -1,6 +1,7 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/core/utils/platform_util.dart';
 import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:collection/collection.dart';
@@ -53,14 +54,11 @@ class BaseDropDown<T> extends StatelessWidget {
             (label?.isNotEmpty ?? false)
         ? Positioned(
             left: Sizes.p4,
-            child: Text(
+            child: BaseText(
               label!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 8,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w300,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w300,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           )
         : null;
@@ -110,7 +108,9 @@ class BaseDropDown<T> extends StatelessWidget {
                                       context: context,
                                       builder: (sheetContext) =>
                                           CupertinoActionSheet(
-                                            title: Text('Selecionar'.hardcoded),
+                                            title: BaseText(
+                                              'Selecionar'.hardcoded,
+                                            ),
                                             actions: centeredItems!.map((item) {
                                               return CupertinoActionSheetAction(
                                                 onPressed: () {
@@ -129,15 +129,10 @@ class BaseDropDown<T> extends StatelessWidget {
                                                   onPressed: () => Navigator.of(
                                                     sheetContext,
                                                   ).pop(),
-                                                  child: Text(
+                                                  child: BaseText.headline(
                                                     'Cancelar'.hardcoded,
-                                                    style: theme
-                                                        .textTheme
-                                                        .titleMedium
-                                                        ?.copyWith(
-                                                          color: CupertinoColors
-                                                              .destructiveRed,
-                                                        ),
+                                                    color: CupertinoColors
+                                                        .destructiveRed,
                                                   ),
                                                 ),
                                           ),
@@ -165,10 +160,8 @@ class BaseDropDown<T> extends StatelessWidget {
                                 : Center(
                                     child:
                                         hint ??
-                                        Text(
+                                        BaseText.bodyLarge(
                                           label ?? 'Selecionar'.hardcoded,
-                                          maxLines: 1,
-                                          style: theme.textTheme.bodyLarge,
                                           textAlign: TextAlign.center,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -190,12 +183,10 @@ class BaseDropDown<T> extends StatelessWidget {
               if (state.hasError)
                 Padding(
                   padding: const EdgeInsets.only(top: 5, left: 15),
-                  child: Text(
+                  child: BaseText(
                     state.errorText!,
-                    style: const TextStyle(
-                      color: CupertinoColors.systemRed,
-                      fontSize: 12,
-                    ),
+                    color: CupertinoColors.systemRed,
+                    textType: TextType.bodySmall,
                   ),
                 ),
             ],
@@ -253,7 +244,7 @@ class BaseDropDown<T> extends StatelessWidget {
                                   contentText: adviceMessage,
                                 );
                               },
-                        hint: hint ?? (label != null ? Text(label!) : null),
+                        hint: hint ?? (label != null ? BaseText(label!) : null),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: theme.textTheme.titleMedium?.fontSize,
@@ -281,12 +272,10 @@ class BaseDropDown<T> extends StatelessWidget {
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 5, left: 15),
-                child: Text(
+                child: BaseText(
                   state.errorText!,
-                  style: TextStyle(
-                    color: theme.colorScheme.error,
-                    fontSize: 12,
-                  ),
+                  color: theme.colorScheme.error,
+                  textType: TextType.bodySmall,
                 ),
               ),
           ],
