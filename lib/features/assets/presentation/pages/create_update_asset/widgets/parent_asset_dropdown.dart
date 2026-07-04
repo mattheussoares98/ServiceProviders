@@ -32,6 +32,7 @@ class ParentAssetDropdown extends StatelessWidget {
     ];
 
     return BaseDropDown<String>(
+      //TODO fix it. Is not showing father options
       key: const ValueKey('ParentAsset'),
       label: 'Equipamento pai (opcional)'.hardcoded,
       selectedItem: selectedParentAssetId,
