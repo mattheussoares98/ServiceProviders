@@ -555,7 +555,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteAsset(tId),
+        act: (cubit) async => expect(await cubit.deleteAsset(tId), isTrue),
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
@@ -582,7 +582,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
           return cubit;
         },
-        act: (cubit) => cubit.deleteAsset(tId),
+        act: (cubit) async => expect(await cubit.deleteAsset(tId), isFalse),
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
