@@ -120,6 +120,7 @@ class OrdersItems extends StatelessWidget {
                         );
                       },
                     ),
+                    //TODO create separated files for these widgets
                     BlocSelector<WorkOrdersCubit, WorkOrdersState, bool>(
                       selector: (state) =>
                           state.deletingIds.contains(workOrder.id),
