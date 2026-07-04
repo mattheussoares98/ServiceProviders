@@ -587,7 +587,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteWorkOrder(tId),
+        act: (cubit) async => expect(await cubit.deleteWorkOrder(tId), isTrue),
         expect: () => [
           isA<WorkOrdersState>().having(
             (s) => s.status,
@@ -616,7 +616,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) => cubit.deleteWorkOrder(tId),
+        act: (cubit) async => expect(await cubit.deleteWorkOrder(tId), isFalse),
         expect: () => [
           isA<WorkOrdersState>().having(
             (s) => s.status,

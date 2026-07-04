@@ -22,16 +22,22 @@ class DeleteWorkOrderIconButton extends StatelessWidget {
         resource: ResourceType.workOrders,
         action: PermissionAction.delete,
       ),
-      onPressed: () {
-        showAlertDialog(
+      onPressed: () async {
+        final confirmed = await showAlertDialog(
           context: context,
           title: 'Atenção!'.hardcoded,
           contentText: 'Deseja realmente excluir a ordem de serviço?'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Não'.hardcoded,
-          onOkPressed: () =>
-              context.read<WorkOrdersCubit>().deleteWorkOrder(id!),
         );
+        if (confirmed == true && context.mounted) {
+          final deleted = await context.read<WorkOrdersCubit>().deleteWorkOrder(
+            id!,
+          );
+          if (deleted && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        }
       },
       platformIcon: const PlatformIcon(
         materialIcon: Icons.delete,

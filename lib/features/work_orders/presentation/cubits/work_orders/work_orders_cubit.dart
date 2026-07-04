@@ -182,13 +182,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
-  Future<void> deleteWorkOrder(String id) async {
+  Future<bool> deleteWorkOrder(String id) async {
     emit(state.copyWith(status: StateStatus.deleting));
     final dataState = await _useCases.deleteWorkOrder(id);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       await loadWorkOrdersAndChangeRequests(showLoading: false);
+      return true;
     } else {
       emit(
         state.copyWith(
@@ -197,6 +198,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         ),
       );
       showDataStateToast(dataState);
+      return false;
     }
   }
 
