@@ -243,16 +243,14 @@ class CreateUpdateWorkOrderForm extends HookWidget {
                     child: BaseTextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       text: 'Cancelar'.hardcoded,
+                      color: Colors.red,
                     ),
                   ),
-                  gapW64,
-                  Flexible(
+                  Expanded(
                     child: PrimaryButton(
                       onTap: onSubmit,
                       width: Sizes.p120,
-                      text: workOrder != null
-                          ? 'Salvar'.hardcoded
-                          : 'Criar'.hardcoded,
+                      text: 'Salvar'.hardcoded,
                     ),
                   ),
                 ],

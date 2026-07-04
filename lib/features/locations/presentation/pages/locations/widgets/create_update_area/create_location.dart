@@ -192,19 +192,21 @@ class CreateLocation extends HookWidget {
               ),
               gapH24,
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  BaseTextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    text: 'Cancelar'.hardcoded,
+                  Flexible(
+                    child: BaseTextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      text: 'Cancelar'.hardcoded,
+                      color: Colors.red,
+                    ),
                   ),
-                  gapW64,
-                  PrimaryButton(
-                    onTap: submit,
-                    width: Sizes.p120,
-                    text: existingLocation == null
-                        ? 'Criar'.hardcoded
-                        : 'Alterar'.hardcoded,
+                  Expanded(
+                    child: PrimaryButton(
+                      onTap: submit,
+                      width: Sizes.p120,
+                      text: 'Salvar'.hardcoded,
+                    ),
                   ),
                 ],
               ),
