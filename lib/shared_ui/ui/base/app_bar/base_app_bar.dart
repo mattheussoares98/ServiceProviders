@@ -1,4 +1,5 @@
 import 'package:clean_architecture/core/utils/platform_util.dart';
+import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -75,12 +76,12 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (showLeading) {
       leadingWidget =
           leading ??
-          IconButton(
+          BaseIconButton(
             onPressed: () => Navigator.maybePop(
               context,
             ), //!only method that queries the widget tree for active
             //!PopScopes (to check if canPop is false) before actually popping
-            icon: PlatformIcon(
+            platformIcon: PlatformIcon(
               materialIcon: Icons.arrow_back,
               cupertinoIcon: CupertinoIcons.back,
               size: 20,
