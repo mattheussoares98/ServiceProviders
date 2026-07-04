@@ -17,6 +17,7 @@ import 'package:clean_architecture/features/work_orders/presentation/pages/creat
 import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/programmed_data.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_status_dropdown.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_type_dropdown.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
@@ -66,6 +67,9 @@ class CreateUpdateWorkOrderPage extends HookWidget {
     );
     final selectedType = useState<WorkOrderType>(
       workOrder?.type ?? WorkOrderType.corrective,
+    );
+    final selectedStatus = useState<WorkOrderStatus>(
+      workOrder?.status ?? WorkOrderStatus.open,
     );
     final selectedScheduledDate = useState<DateTime?>(workOrder?.scheduledDate);
 
@@ -138,7 +142,7 @@ class CreateUpdateWorkOrderPage extends HookWidget {
             ? null
             : descController.text.trim(),
         priority: selectedPriority.value,
-        status: workOrder?.status ?? WorkOrderStatus.open,
+        status: selectedStatus.value,
         type: selectedType.value,
         scheduledDate: selectedScheduledDate.value,
         estimatedDuration: int.tryParse(durationController.text.trim()),
@@ -180,6 +184,13 @@ class CreateUpdateWorkOrderPage extends HookWidget {
                 descFocusNode: descFocusNode,
               ),
               gapH16,
+              if (workOrder != null) ...[
+                WorkOrderStatusDropdown(
+                  onChanged: (v) => selectedStatus.value = v,
+                  selectedStatus: selectedStatus.value,
+                ),
+                gapH16,
+              ],
               LocationDropdown(
                 selectedId: selectedLocationId.value,
                 onChanged: (val) {
