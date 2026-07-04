@@ -1,7 +1,6 @@
 import 'package:clean_architecture/core/utils/extensions/date_time_extension.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/delete_asset_button.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/edit_asset_button.dart';
 import 'package:clean_architecture/features/assets/presentation/pages/assets/widgets/subtitle.dart';
 import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
@@ -74,12 +73,9 @@ class AssetCard extends StatelessWidget {
             if (asset.notes != null && asset.notes!.isNotEmpty)
               _DetailRow(label: 'Observações:'.hardcoded, value: asset.notes!),
             gapH16,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FittedBox(child: DeleteAssetButton(assetId: asset.id)),
-                Flexible(child: EditAssetButton(asset: asset)),
-              ],
+            Align(
+              alignment: .centerEnd,
+              child: EditAssetButton(asset: asset),
             ),
           ],
         ),

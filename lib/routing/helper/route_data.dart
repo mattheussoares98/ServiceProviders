@@ -24,14 +24,27 @@ const String kHomePath = '/home';
 const String kDashboardSubRoute = 'DashboardRoute';
 const String kDashboardSubPath = 'dashboard';
 
+// Work orders
 const String kWorkOrdersRoute = 'WorkOrdersRoute';
 const String kWorkOrdersPath = 'work-orders';
 
+// Assets
 const String kAssetsRoute = 'AssetsRoute';
 const String kAssetsPath = 'assets';
 
+const String kCreateUpdateAssetRoute = 'CreateUpdateAssetRoute';
+const String kCreateUpdateAssetPath = 'create-update-asset';
+
+// Locations
+const String kCreateUpdateLocationRoute = 'CreateUpdateLocationRoute';
+const String kCreateUpdateLocationPath = 'create-update-location';
+
 const String kLocationsRoute = 'LocationsRoute';
 const String kLocationsPath = 'locations';
+
+// Areas
+const String kCreateUpdateAreaRoute = 'CreateUpdateAreaRoute';
+const String kCreateUpdateAreaPath = 'create-update-area';
 
 // Configurations
 const String kConfigurationsRoute = 'ConfigurationsRoute';
@@ -60,10 +73,3 @@ const String kEditGroupPermissionsPath = 'edit-group';
 
 const String kEditUserPermissionsRoute = 'EditUserPermissionsRoute';
 const String kEditUserPermissionsPath = 'edit-user';
-
-// Locations
-const String kCreateUpdateLocationRoute = 'CreateUpdateLocationRoute';
-const String kCreateUpdateLocationPath = 'create-update-location';
-
-const String kCreateUpdateAreaRoute = 'CreateUpdateAreaRoute';
-const String kCreateUpdateAreaPath = 'create-update-area';
