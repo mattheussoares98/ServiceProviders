@@ -18,7 +18,7 @@ class ResponsibleDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = context.select<UsersCubit, List<UserProfileEntity>>(
-      (value) => [], //TODO fix it
+      (cubit) => cubit.state.users,
     );
     final userDropdownItems = items
         .map(
