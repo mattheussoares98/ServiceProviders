@@ -57,7 +57,8 @@ class DashboardView extends HookWidget {
 
     return BlocListener<WorkOrdersCubit, WorkOrdersState>(
       listenWhen: (previous, current) =>
-          previous.status == StateStatus.saving &&
+          (previous.status == StateStatus.saving ||
+              previous.status == StateStatus.deleting) &&
           current.status == StateStatus.loaded,
       listener: (context, state) {
         cubit.loadDashboardData();
