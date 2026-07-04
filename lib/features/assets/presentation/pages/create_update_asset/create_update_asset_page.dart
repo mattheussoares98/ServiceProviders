@@ -168,171 +168,168 @@ class CreateUpdateAssetPage extends HookWidget {
             : 'Editando equipamento'.hardcoded,
         actions: [DeleteAssetButton(assetId: asset?.id)],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(Sizes.p16),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AssetNameField(
-                  nameController: nameController,
-                  nameFocusNode: nameFocusNode,
-                  codeFocusNode: codeFocusNode,
-                ),
-                gapH16,
-                LocationDropdown(
-                  selectedLocationId: selectedLocationId.value,
-                  onChangeArea: (val) => selectedAreaId.value = val,
-                  onChangeLocation: (val) => selectedLocationId.value = val,
-                ),
-                gapH16,
-                AreaDropdown(
-                  selectedLocationId: selectedLocationId.value,
-                  selectedAreaId: selectedAreaId.value,
-                  onChanged: (value) => selectedAreaId.value = value,
-                ),
-                gapH16,
-                CategoryDropdown(
-                  selectedCategoryId: selectedCategoryId.value,
-                  onChanged: (value) => selectedCategoryId.value = value,
-                ),
-                gapH16,
-                ParentAssetDropdown(
-                  onChanged: (value) => selectedParentAssetId.value = value,
-                  selectedParentAssetId: selectedParentAssetId.value,
-                  selectedAreaId: selectedAreaId.value,
-                ),
-                gapH16,
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatusDropdown(
-                        selectedStatus: selectedStatus.value,
-                        onChanged: (val) => selectedStatus.value = val,
-                      ),
+      body: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AssetNameField(
+                nameController: nameController,
+                nameFocusNode: nameFocusNode,
+                codeFocusNode: codeFocusNode,
+              ),
+              gapH16,
+              LocationDropdown(
+                selectedLocationId: selectedLocationId.value,
+                onChangeArea: (val) => selectedAreaId.value = val,
+                onChangeLocation: (val) => selectedLocationId.value = val,
+              ),
+              gapH16,
+              AreaDropdown(
+                selectedLocationId: selectedLocationId.value,
+                selectedAreaId: selectedAreaId.value,
+                onChanged: (value) => selectedAreaId.value = value,
+              ),
+              gapH16,
+              CategoryDropdown(
+                selectedCategoryId: selectedCategoryId.value,
+                onChanged: (value) => selectedCategoryId.value = value,
+              ),
+              gapH16,
+              ParentAssetDropdown(
+                onChanged: (value) => selectedParentAssetId.value = value,
+                selectedParentAssetId: selectedParentAssetId.value,
+                selectedAreaId: selectedAreaId.value,
+              ),
+              gapH16,
+              Row(
+                children: [
+                  Expanded(
+                    child: StatusDropdown(
+                      selectedStatus: selectedStatus.value,
+                      onChanged: (val) => selectedStatus.value = val,
                     ),
-                    gapW16,
-                    Expanded(
-                      child: CriticalityDropdown(
-                        selectedCriticality: selectedCriticality.value,
-                        onChanged: (val) => selectedCriticality.value = val,
-                      ),
-                    ),
-                  ],
-                ),
-                gapH16,
-                Row(
-                  children: [
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Código (opcional)'.hardcoded,
-                        hintText: 'Ex: AC-001'.hardcoded,
-                        controller: codeController,
-                        focusNode: codeFocusNode,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) =>
-                            manufacturerFocusNode.requestFocus(),
-                      ),
-                    ),
-                    gapW16,
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Fabricante (opcional)'.hardcoded,
-                        hintText: 'Ex: Carrier'.hardcoded,
-                        controller: manufacturerController,
-                        focusNode: manufacturerFocusNode,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) => modelFocusNode.requestFocus(),
-                      ),
-                    ),
-                  ],
-                ),
-                gapH16,
-                Row(
-                  children: [
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Modelo (opcional)'.hardcoded,
-                        hintText: 'Ex: Split 12k'.hardcoded,
-                        controller: modelController,
-                        focusNode: modelFocusNode,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) =>
-                            serialNumberFocusNode.requestFocus(),
-                      ),
-                    ),
-                    gapW16,
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Nº série (opcional)'.hardcoded,
-                        hintText: 'Ex: 12345678X'.hardcoded,
-                        controller: serialNumberController,
-                        focusNode: serialNumberFocusNode,
-                        textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (_) => notesFocusNode.requestFocus(),
-                      ),
-                    ),
-                  ],
-                ),
-                gapH16,
-                BaseTextFormField(
-                  labelText: 'Observações (opcional)'.hardcoded,
-                  hintText: 'Ex: Aparelho com vazamento'.hardcoded,
-                  controller: notesController,
-                  focusNode: notesFocusNode,
-                  maxLines: 3,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => submit(),
-                ),
-                gapH16,
-                Container(
-                  padding: const EdgeInsets.all(Sizes.p16),
-                  decoration: BoxDecoration(
-                    color: context.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(Sizes.p8),
-                    border: Border.all(color: AppColors.dashedBorder),
                   ),
-                  child: Column(
-                    children: [
-                      const PlatformIcon(
-                        materialIcon: Icons.camera_alt,
-                        cupertinoIcon: CupertinoIcons.camera,
-                        color: AppColors.fade,
-                      ),
-                      gapH8,
-                      BaseText.caption(
-                        'TODO: Tirar foto do equipamento (câmera indisponível)'
-                            .hardcoded,
-                        color: AppColors.fade,
-                      ),
-                    ],
-                  ),
-                ),
-                gapH24,
-                Row(
-                  mainAxisAlignment: .spaceBetween,
-                  children: [
-                    Flexible(
-                      child: BaseTextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        text: 'Cancelar'.hardcoded,
-                        color: Colors.red,
-                      ),
+                  gapW16,
+                  Expanded(
+                    child: CriticalityDropdown(
+                      selectedCriticality: selectedCriticality.value,
+                      onChanged: (val) => selectedCriticality.value = val,
                     ),
-                    Expanded(
-                      child: PrimaryButton(
-                        onTap: submit,
-                        width: Sizes.p120,
-                        text: 'Salvar'.hardcoded,
-                      ),
+                  ),
+                ],
+              ),
+              gapH16,
+              Row(
+                children: [
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Código (opcional)'.hardcoded,
+                      hintText: 'Ex: AC-001'.hardcoded,
+                      controller: codeController,
+                      focusNode: codeFocusNode,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) =>
+                          manufacturerFocusNode.requestFocus(),
+                    ),
+                  ),
+                  gapW16,
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Fabricante (opcional)'.hardcoded,
+                      hintText: 'Ex: Carrier'.hardcoded,
+                      controller: manufacturerController,
+                      focusNode: manufacturerFocusNode,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) => modelFocusNode.requestFocus(),
+                    ),
+                  ),
+                ],
+              ),
+              gapH16,
+              Row(
+                children: [
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Modelo (opcional)'.hardcoded,
+                      hintText: 'Ex: Split 12k'.hardcoded,
+                      controller: modelController,
+                      focusNode: modelFocusNode,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) =>
+                          serialNumberFocusNode.requestFocus(),
+                    ),
+                  ),
+                  gapW16,
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Nº série (opcional)'.hardcoded,
+                      hintText: 'Ex: 12345678X'.hardcoded,
+                      controller: serialNumberController,
+                      focusNode: serialNumberFocusNode,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) => notesFocusNode.requestFocus(),
+                    ),
+                  ),
+                ],
+              ),
+              gapH16,
+              BaseTextFormField(
+                labelText: 'Observações (opcional)'.hardcoded,
+                hintText: 'Ex: Aparelho com vazamento'.hardcoded,
+                controller: notesController,
+                focusNode: notesFocusNode,
+                maxLines: 3,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => submit(),
+              ),
+              gapH16,
+              Container(
+                padding: const EdgeInsets.all(Sizes.p16),
+                decoration: BoxDecoration(
+                  color: context.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(Sizes.p8),
+                  border: Border.all(color: AppColors.dashedBorder),
+                ),
+                child: Column(
+                  children: [
+                    const PlatformIcon(
+                      materialIcon: Icons.camera_alt,
+                      cupertinoIcon: CupertinoIcons.camera,
+                      color: AppColors.fade,
+                    ),
+                    gapH8,
+                    BaseText.caption(
+                      'TODO: Tirar foto do equipamento (câmera indisponível)'
+                          .hardcoded,
+                      color: AppColors.fade,
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              gapH24,
+              Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  Flexible(
+                    child: BaseTextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      text: 'Cancelar'.hardcoded,
+                      color: Colors.red,
+                    ),
+                  ),
+                  Expanded(
+                    child: PrimaryButton(
+                      onTap: submit,
+                      width: Sizes.p120,
+                      text: 'Salvar'.hardcoded,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
