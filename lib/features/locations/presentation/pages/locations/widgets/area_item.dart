@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
@@ -10,7 +9,6 @@ import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AreaItem extends StatelessWidget {
   const AreaItem({super.key, required this.area, required this.location});
@@ -23,12 +21,6 @@ class AreaItem extends StatelessWidget {
       if (area.floor?.isNotEmpty ?? false) area.floor,
       if (area.description?.isNotEmpty ?? false) area.description,
     ].join(' - ');
-
-    final deletingLocation = context.select<LocationsCubit, bool>(
-      (cubit) => cubit.state.deletingIds.contains(location.id),
-      //* don't need to treat the updating too because it is updated in another page.
-      //* So, there is treating the loading
-    );
 
     return Row(
       children: [
@@ -52,17 +44,15 @@ class AreaItem extends StatelessWidget {
             resource: ResourceType.locations,
             action: PermissionAction.update,
           ),
-          onPressed: deletingLocation
-              ? null
-              : () {
-                  context.router.push(
-                    CreateUpdateAreaRoute(
-                      locationId: location.id,
-                      companyId: location.companyId,
-                      area: area,
-                    ),
-                  );
-                },
+          onPressed: () {
+            context.router.push(
+              CreateUpdateAreaRoute(
+                locationId: location.id,
+                companyId: location.companyId,
+                area: area,
+              ),
+            );
+          },
           platformIcon: const PlatformIcon(
             materialIcon: Icons.edit,
             cupertinoIcon: CupertinoIcons.pencil,

@@ -5,7 +5,6 @@ class LocationsState extends BaseState {
     required this.locations,
     required this.allAreas,
     required this.areasByLocation,
-    this.deletingIds = const {},
     super.status = StateStatus.initial,
     super.errorMessage = '',
   });
@@ -14,19 +13,16 @@ class LocationsState extends BaseState {
     : locations = const [],
       areasByLocation = const <String, List<AreaEntity>>{},
       allAreas = const [],
-      deletingIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<LocationEntity> locations;
   final Map<String, List<AreaEntity>> areasByLocation;
-  final Set<String> deletingIds;
   final List<AreaEntity> allAreas;
 
   LocationsState copyWith({
     List<LocationEntity>? locations,
     List<AreaEntity>? allAreas,
     Map<String, List<AreaEntity>>? areasByLocation,
-    Set<String>? deletingIds,
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
@@ -35,7 +31,6 @@ class LocationsState extends BaseState {
       locations: locations ?? this.locations,
       allAreas: allAreas ?? this.allAreas,
       areasByLocation: areasByLocation ?? this.areasByLocation,
-      deletingIds: deletingIds ?? this.deletingIds,
       status: status ?? this.status,
       errorMessage: annulErrorMessage == true
           ? null
@@ -48,7 +43,6 @@ class LocationsState extends BaseState {
     locations,
     areasByLocation,
     allAreas,
-    deletingIds,
     status,
     errorMessage,
   ];

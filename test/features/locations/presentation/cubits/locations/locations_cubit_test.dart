@@ -537,15 +537,21 @@ void main() {
         },
         act: (cubit) => cubit.deleteLocation(tId),
         expect: () => [
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
-              .having((s) => s.deletingIds, 'deletingIds', {tId}),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingIds, 'deletingIds', {tId}),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.deleting,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteLocation.call(tId)).called(1);
@@ -799,12 +805,16 @@ void main() {
         act: (cubit) async =>
             expect(await cubit.deleteArea(tId, tLocationId), isTrue),
         expect: () => [
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
-              .having((s) => s.deletingIds, 'deletingIds', contains(tId)),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.deleting,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);
@@ -823,12 +833,16 @@ void main() {
         act: (cubit) async =>
             expect(await cubit.deleteArea(tId, tLocationId), isFalse),
         expect: () => [
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
-              .having((s) => s.deletingIds, 'deletingIds', contains(tId)),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.deletingError)
-              .having((s) => s.deletingIds, 'deletingIds', <String>{}),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.deleting,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.deletingError,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteArea.call(tId)).called(1);

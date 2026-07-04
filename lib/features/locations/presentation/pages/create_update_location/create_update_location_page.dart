@@ -2,20 +2,18 @@ import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/features/locations/presentation/pages/create_update_location/delete_location_button.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
 import 'package:clean_architecture/shared_ui/utils/validators/non_empty_validator.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -93,21 +91,7 @@ class CreateUpdateLocationPage extends HookWidget {
         title: existingLocation == null
             ? 'Criando'.hardcoded
             : 'Editando'.hardcoded,
-        actions: [
-          if (existingLocation != null)
-            BaseIconButton(
-              onPressed: () {
-                context.read<LocationsCubit>().deleteLocation(
-                  existingLocation!.id,
-                );
-              },
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.delete,
-                cupertinoIcon: CupertinoIcons.delete,
-                color: Colors.red,
-              ),
-            ),
-        ],
+        actions: [DeleteLocationButton(location: existingLocation)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
