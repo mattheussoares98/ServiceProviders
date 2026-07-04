@@ -63,6 +63,7 @@ class LocationsPage extends StatelessWidget {
             return BaseText.error('Nenhum local cadastrado'.hardcoded);
           }
 
+          locations.sort((a, b) => a.name.compareTo(b.name));
           return ListView.builder(
             itemCount: locations.length,
             itemBuilder: (context, index) {

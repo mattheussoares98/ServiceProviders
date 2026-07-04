@@ -24,6 +24,7 @@ class LocationCard extends StatelessWidget {
       if (location.state?.isNotEmpty ?? false) location.state,
     ].join(', ');
 
+    areas.sort((a, b) => a.name.compareTo(b.name));
     return Card(
       child: ExpansionTile(
         initiallyExpanded: true,
