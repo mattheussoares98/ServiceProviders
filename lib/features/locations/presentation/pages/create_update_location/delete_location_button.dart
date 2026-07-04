@@ -1,5 +1,4 @@
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
@@ -11,12 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DeleteLocationButton extends StatelessWidget {
-  const DeleteLocationButton({super.key, required this.location});
-  final LocationEntity? location;
+  const DeleteLocationButton({super.key, required this.locationId});
+  final String? locationId;
 
   @override
   Widget build(BuildContext context) {
-    if (location == null) return const SizedBox.shrink();
+    if (locationId == null) return const SizedBox.shrink();
 
     return BaseIconButton(
       permission: const ActionPermission(
@@ -31,7 +30,7 @@ class DeleteLocationButton extends StatelessWidget {
           context: context,
           title: 'Excluir local?'.hardcoded,
           onOkPressed: () =>
-              context.read<LocationsCubit>().deleteLocation(location!.id),
+              context.read<LocationsCubit>().deleteLocation(locationId!),
           contentText: 'Tem certeza que deseja excluir o local?'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Cancelar'.hardcoded,

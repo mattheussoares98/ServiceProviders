@@ -91,7 +91,7 @@ class CreateUpdateLocationPage extends HookWidget {
         title: existingLocation == null
             ? 'Criando'.hardcoded
             : 'Editando'.hardcoded,
-        actions: [DeleteLocationButton(location: existingLocation)],
+        actions: [DeleteLocationButton(locationId: existingLocation?.id)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
