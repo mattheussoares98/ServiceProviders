@@ -24,6 +24,7 @@ class OrdersItems extends StatelessWidget {
         if (workOrders.isEmpty) {
           return BaseText.error('Nenhuma ordem foi encontrada'.hardcoded);
         }
+        workOrders.sort((a, b) => a.createdAt.isBefore(b.createdAt) ? 1 : -1);
         return ListView.builder(
           itemCount: workOrders.length,
           itemBuilder: (context, index) {
