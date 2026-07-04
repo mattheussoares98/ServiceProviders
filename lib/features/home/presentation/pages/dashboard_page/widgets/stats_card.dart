@@ -1,4 +1,5 @@
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
@@ -10,50 +11,89 @@ class StatsCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   final String title;
   final String value;
   final PlatformIcon icon;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(Sizes.p16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(Sizes.p16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: context.theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+        child: Container(
+          padding: const EdgeInsets.all(Sizes.p8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                color.withValues(alpha: isDark ? 0.15 : 0.08),
+                color.withValues(alpha: isDark ? 0.05 : 0.02),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(Sizes.p16),
+            border: Border.all(
+              color: color.withValues(alpha: isDark ? 0.25 : 0.15),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
               ),
-              icon,
             ],
           ),
-          gapH12,
-          Text(
-            title,
-            style: context.theme.textTheme.bodyMedium?.copyWith(
-              color: context.theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Column(
+            crossAxisAlignment: .stretch,
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Align(
+                alignment: .centerLeft,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  padding: const EdgeInsets.all(Sizes.p8),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: FittedBox(
+                    child: icon.copyWith(color: color, size: 18),
+                  ),
+                ),
+              ),
+              gapH8,
+              Column(
+                crossAxisAlignment: .start,
+                children: [
+                  BaseText.headline(
+                    value,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  gapH4,
+                  BaseText(
+                    title,
+                    color: context.theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/material.dart';
 
 class QuickActionButton extends StatelessWidget {
@@ -10,11 +11,16 @@ class QuickActionButton extends StatelessWidget {
   });
 
   final String label;
-  final Widget icon;
+  final PlatformIcon icon;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return SecondaryButton(onTap: onTap, text: label, expandWidth: true);
+    return SecondaryButton(
+      onTap: onTap,
+      text: label,
+      expandWidth: true,
+      platformIcon: icon,
+    );
   }
 }

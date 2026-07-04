@@ -4,9 +4,11 @@ import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
+import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 
 part 'dashboard_state.dart';
@@ -96,6 +98,11 @@ class DashboardCubit extends BaseCubit<DashboardState> {
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final recentWorkOrders = sortedWorkOrders.take(5).toList();
 
+    // 3. Active Work Order (technician has a running order)
+    final activeWorkOrder = workOrders.firstWhereOrNull(
+      (wo) => wo.status == WorkOrderStatus.inProgress,
+    );
+
     emit(
       state.copyWith(
         status: StateStatus.loaded,
@@ -103,6 +110,8 @@ class DashboardCubit extends BaseCubit<DashboardState> {
         inProgressWorkOrdersCount: inProgressCount,
         pendingRevisionsCount: pendingRevisionsCount,
         recentWorkOrders: recentWorkOrders,
+        userProfile: user,
+        activeWorkOrder: activeWorkOrder,
       ),
     );
   }

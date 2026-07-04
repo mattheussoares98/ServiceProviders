@@ -7,6 +7,8 @@ class DashboardState extends BaseState {
     required this.inProgressWorkOrdersCount,
     required this.pendingRevisionsCount,
     required this.recentWorkOrders,
+    this.userProfile,
+    this.activeWorkOrder,
     super.errorMessage,
   });
 
@@ -15,12 +17,16 @@ class DashboardState extends BaseState {
       inProgressWorkOrdersCount = 0,
       pendingRevisionsCount = 0,
       recentWorkOrders = const [],
+      userProfile = null,
+      activeWorkOrder = null,
       super(status: StateStatus.initial);
 
   final int openWorkOrdersCount;
   final int inProgressWorkOrdersCount;
   final int pendingRevisionsCount;
   final List<WorkOrderEntity> recentWorkOrders;
+  final UserProfileEntity? userProfile;
+  final WorkOrderEntity? activeWorkOrder;
 
   DashboardState copyWith({
     StateStatus? status,
@@ -28,8 +34,12 @@ class DashboardState extends BaseState {
     int? inProgressWorkOrdersCount,
     int? pendingRevisionsCount,
     List<WorkOrderEntity>? recentWorkOrders,
+    UserProfileEntity? userProfile,
+    WorkOrderEntity? activeWorkOrder,
     String? errorMessage,
     bool? annulErrorMessage,
+    bool? annulUserProfile,
+    bool? annulActiveWorkOrder,
   }) {
     return DashboardState(
       status: status ?? this.status,
@@ -39,6 +49,12 @@ class DashboardState extends BaseState {
       pendingRevisionsCount:
           pendingRevisionsCount ?? this.pendingRevisionsCount,
       recentWorkOrders: recentWorkOrders ?? this.recentWorkOrders,
+      userProfile: annulUserProfile == true
+          ? null
+          : userProfile ?? this.userProfile,
+      activeWorkOrder: annulActiveWorkOrder == true
+          ? null
+          : activeWorkOrder ?? this.activeWorkOrder,
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
@@ -52,6 +68,10 @@ class DashboardState extends BaseState {
     inProgressWorkOrdersCount,
     pendingRevisionsCount,
     recentWorkOrders,
+    userProfile,
+    activeWorkOrder,
     errorMessage,
   ];
 }
+
+

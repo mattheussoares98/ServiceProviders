@@ -107,11 +107,15 @@ class BaseText extends StatelessWidget {
     String text, {
     Color? color,
     FontWeight? fontWeight,
+    TextOverflow? overflow,
+    int? maxLines,
   }) => BaseText(
     text,
     color: color,
     textType: TextType.headline,
     fontWeight: fontWeight ?? FontWeight.w600,
+    overflow: overflow,
+    maxLines: maxLines,
   );
 
   factory BaseText.headlineLarge(String text, {Color? color}) => BaseText(
