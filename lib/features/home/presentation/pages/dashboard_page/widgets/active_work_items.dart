@@ -73,6 +73,7 @@ class ActiveWorkItems extends StatelessWidget {
         BaseText.title('TRABALHOS EM ANDAMENTO'.hardcoded),
         gapH4,
         child,
+        gapH12,
       ],
     );
   }
