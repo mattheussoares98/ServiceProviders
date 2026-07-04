@@ -21,6 +21,7 @@ import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
+import 'package:clean_architecture/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,10 @@ class CreateUpdateWorkOrderForm extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    observeLoading(
+      [context.read<WorkOrdersCubit>()],
+      statuses: {StateStatus.saving},
+    );
 
     final titleController = useTextEditingController(text: workOrder?.title);
     final descController = useTextEditingController(
