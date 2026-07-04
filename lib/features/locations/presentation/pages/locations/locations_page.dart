@@ -1,18 +1,15 @@
-import 'dart:async';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/create_update_location/create_update_location_page.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/location_card.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,15 +44,7 @@ class LocationsPage extends StatelessWidget {
                 ),
                 onPressed: hasError
                     ? null
-                    : () => unawaited(
-                        showModalPage<void>(
-                          BlocProvider.value(
-                            value: context.read<LocationsCubit>(),
-                            child: const CreateUpdateLocationpage(),
-                          ),
-                          context,
-                        ),
-                      ),
+                    : () => context.router.push(CreateUpdateLocationRoute()),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.add,
                   cupertinoIcon: CupertinoIcons.add,

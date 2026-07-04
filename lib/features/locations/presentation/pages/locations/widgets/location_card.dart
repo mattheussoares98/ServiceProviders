@@ -3,7 +3,6 @@ import 'package:clean_architecture/features/locations/domain/entities/area_entit
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/add_area_button.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/area_item.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/delete_location_button.dart';
 import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/edit_location_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
@@ -33,10 +32,7 @@ class LocationCard extends StatelessWidget {
         trailing: FittedBox(
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(child: EditLocationButton(location: location)),
-              Flexible(child: DeleteLocationButton(location: location)),
-            ],
+            children: [EditLocationButton(location: location)],
           ),
         ),
 

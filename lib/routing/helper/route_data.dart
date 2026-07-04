@@ -62,7 +62,8 @@ const String kEditUserPermissionsRoute = 'EditUserPermissionsRoute';
 const String kEditUserPermissionsPath = 'edit-user';
 
 // Locations
+const String kCreateUpdateLocationRoute = 'CreateUpdateLocationRoute';
+const String kCreateUpdateLocationPath = 'create-update-location';
+
 const String kCreateUpdateAreaRoute = 'CreateUpdateAreaRoute';
 const String kCreateUpdateAreaPath = 'create-update-area';
-
-

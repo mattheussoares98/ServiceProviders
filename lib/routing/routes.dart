@@ -52,6 +52,10 @@ class AppRouter extends RootStackRouter {
           page: CreateUpdateAreaRoute.page,
           path: '$kLocationsPath/$kCreateUpdateAreaPath',
         ),
+        AutoRoute(
+          page: CreateUpdateLocationRoute.page,
+          path: '$kLocationsPath/$kCreateUpdateLocationPath',
+        ),
       ],
     ),
   ];
