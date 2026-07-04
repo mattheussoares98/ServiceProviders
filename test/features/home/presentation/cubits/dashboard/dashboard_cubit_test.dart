@@ -162,7 +162,7 @@ void main() {
     );
 
     blocTest<DashboardCubit, DashboardState>(
-      'emits [loading, loaded] with correct stats and sorted recent work orders',
+      'emits [loading, loaded] with correct stats, sorted recent work orders, and active work order when an in-progress work order exists',
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
 
@@ -220,7 +220,59 @@ void main() {
               (s) => s.recentWorkOrders,
               'recentWorkOrders',
               isA<List<WorkOrderEntity>>(),
+            )
+            .having(
+              (s) => s.activeWorkOrder,
+              'activeWorkOrder',
+              isA<WorkOrderEntity>().having(
+                (wo) => wo.status,
+                'status',
+                WorkOrderStatus.inProgress,
+              ),
             ),
+      ],
+    );
+
+    blocTest<DashboardCubit, DashboardState>(
+      'emits [loading, loaded] with activeWorkOrder as null when no in-progress work order exists, clearing the previous active work order',
+      seed: () {
+        final previousActiveWorkOrder = EntityFactory.makeWorkOrderEntity()
+            .copyWith(status: WorkOrderStatus.inProgress);
+        return const DashboardState.initial().copyWith(
+          activeWorkOrder: previousActiveWorkOrder,
+        );
+      },
+      build: () {
+        final userData = EntityFactory.makeUserDataEntity();
+
+        final workOrder1 = EntityFactory.makeWorkOrderEntity().copyWith(
+          status: WorkOrderStatus.open,
+          updatedAt: DateTime(2026, 6, 7, 10),
+        );
+        final workOrder3 = EntityFactory.makeWorkOrderEntity().copyWith(
+          status: WorkOrderStatus.completed,
+          updatedAt: DateTime(2026, 6, 7, 9),
+        );
+
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
+        when(
+          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+        ).thenAnswer((_) async => SuccessState(data: [workOrder1, workOrder3]));
+        when(
+          () => mockGetAssetsUseCase.call(userData.user.companyId),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return cubit;
+      },
+      act: (cubit) => cubit.loadDashboardData(),
+      expect: () => [
+        isA<DashboardState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<DashboardState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.activeWorkOrder, 'activeWorkOrder', null),
       ],
     );
   });

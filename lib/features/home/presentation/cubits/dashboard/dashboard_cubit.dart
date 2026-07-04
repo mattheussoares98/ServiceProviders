@@ -112,6 +112,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
         recentWorkOrders: recentWorkOrders,
         userProfile: user,
         activeWorkOrder: activeWorkOrder,
+        annulActiveWorkOrder: activeWorkOrder == null,
       ),
     );
   }
