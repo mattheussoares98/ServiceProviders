@@ -1,7 +1,7 @@
 enum WorkOrderStatus {
   open('open', 'Aberta'),
-  inProgress('in_progress', 'Em Andamento'),
-  onHold('on_hold', 'Em Espera'),
+  inProgress('in_progress', 'Em andamento'),
+  onHold('on_hold', 'Em espera'),
   completed('completed', 'Concluída'),
   cancelled('cancelled', 'Cancelada');
 
