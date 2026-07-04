@@ -19,8 +19,9 @@ class DescriptionField extends StatelessWidget {
       hintText: 'Ex: O equipamento do bloco B não liga'.hardcoded,
       controller: descController,
       focusNode: descFocusNode,
+      maxLength: 500,
       maxLines: 3,
-      textInputAction: TextInputAction.next,
+      textInputAction: TextInputAction.newline,
     );
   }
 }

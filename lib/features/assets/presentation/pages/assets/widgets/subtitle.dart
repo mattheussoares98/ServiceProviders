@@ -3,6 +3,7 @@ import 'package:clean_architecture/features/assets/presentation/pages/create_upd
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:collection/collection.dart';
@@ -49,8 +50,11 @@ class SubTitle extends StatelessWidget {
               runSpacing: Sizes.p4,
               spacing: Sizes.p8,
               children: [
-                _Item(color: asset.status.color, label: asset.status.label),
-                _Item(
+                BaseIndicationItem(
+                  color: asset.status.color,
+                  label: asset.status.label,
+                ),
+                BaseIndicationItem(
                   color: asset.criticality.color,
                   label: asset.criticality.label,
                 ),
@@ -59,28 +63,6 @@ class SubTitle extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Item extends StatelessWidget {
-  const _Item({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Sizes.p8,
-        vertical: Sizes.p4,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(Sizes.p8),
-      ),
-      child: BaseText.caption(label, color: color, fontWeight: FontWeight.bold),
     );
   }
 }
