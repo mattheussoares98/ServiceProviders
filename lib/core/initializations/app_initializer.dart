@@ -18,7 +18,7 @@ abstract final class AppInitializer {
       await dotenv.load();
 
       Intl.defaultLocale = 'pt_BR';
-      await initializeDateFormatting('pt_BR', null);
+      await initializeDateFormatting('pt_BR');
 
       await Future.wait([_initFirebase(), _initSupabase()]);
       await configureDependencies(environment: environment);
