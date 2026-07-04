@@ -8,7 +8,7 @@ class DashboardState extends BaseState {
     required this.pendingRevisionsCount,
     required this.recentWorkOrders,
     this.userProfile,
-    this.activeWorkOrder,
+    this.activeWorkOrders = const [],
     super.errorMessage,
   });
 
@@ -18,7 +18,7 @@ class DashboardState extends BaseState {
       pendingRevisionsCount = 0,
       recentWorkOrders = const [],
       userProfile = null,
-      activeWorkOrder = null,
+      activeWorkOrders = const [],
       super(status: StateStatus.initial);
 
   final int openWorkOrdersCount;
@@ -26,7 +26,9 @@ class DashboardState extends BaseState {
   final int pendingRevisionsCount;
   final List<WorkOrderEntity> recentWorkOrders;
   final UserProfileEntity? userProfile;
-  final WorkOrderEntity? activeWorkOrder;
+  final List<WorkOrderEntity> activeWorkOrders;
+
+  WorkOrderEntity? get activeWorkOrder => activeWorkOrders.firstOrNull;
 
   DashboardState copyWith({
     StateStatus? status,
@@ -35,11 +37,12 @@ class DashboardState extends BaseState {
     int? pendingRevisionsCount,
     List<WorkOrderEntity>? recentWorkOrders,
     UserProfileEntity? userProfile,
+    List<WorkOrderEntity>? activeWorkOrders,
     WorkOrderEntity? activeWorkOrder,
     String? errorMessage,
     bool? annulErrorMessage,
     bool? annulUserProfile,
-    bool? annulActiveWorkOrder,
+    bool? annulActiveWorkOrders,
   }) {
     return DashboardState(
       status: status ?? this.status,
@@ -52,9 +55,9 @@ class DashboardState extends BaseState {
       userProfile: annulUserProfile == true
           ? null
           : userProfile ?? this.userProfile,
-      activeWorkOrder: annulActiveWorkOrder == true
-          ? null
-          : activeWorkOrder ?? this.activeWorkOrder,
+      activeWorkOrders: annulActiveWorkOrders == true
+          ? const []
+          : activeWorkOrders ?? this.activeWorkOrders,
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
@@ -69,9 +72,7 @@ class DashboardState extends BaseState {
     pendingRevisionsCount,
     recentWorkOrders,
     userProfile,
-    activeWorkOrder,
+    activeWorkOrders,
     errorMessage,
   ];
 }
-
-

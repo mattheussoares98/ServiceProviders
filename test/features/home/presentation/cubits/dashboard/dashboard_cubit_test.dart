@@ -229,12 +229,70 @@ void main() {
                 'status',
                 WorkOrderStatus.inProgress,
               ),
+            )
+            .having(
+              (s) => s.activeWorkOrders,
+              'activeWorkOrders',
+              contains(isA<WorkOrderEntity>()),
             ),
       ],
     );
 
     blocTest<DashboardCubit, DashboardState>(
-      'emits [loading, loaded] with activeWorkOrder as null when no in-progress work order exists, clearing the previous active work order',
+      'emits [loading, loaded] with activeWorkOrders containing all in-progress work orders sorted by updatedAt desc',
+      build: () {
+        final userData = EntityFactory.makeUserDataEntity();
+
+        final workOrder1 = EntityFactory.makeWorkOrderEntity().copyWith(
+          id: 'wo-1',
+          status: WorkOrderStatus.inProgress,
+          updatedAt: DateTime(2026, 6, 7, 10),
+        );
+        final workOrder2 = EntityFactory.makeWorkOrderEntity().copyWith(
+          id: 'wo-2',
+          status: WorkOrderStatus.inProgress,
+          updatedAt: DateTime(2026, 6, 7, 12),
+        );
+        final workOrder3 = EntityFactory.makeWorkOrderEntity().copyWith(
+          id: 'wo-3',
+          status: WorkOrderStatus.inProgress,
+          updatedAt: DateTime(2026, 6, 7, 11),
+        );
+
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
+        when(
+          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+        ).thenAnswer(
+          (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
+        );
+        when(
+          () => mockGetAssetsUseCase.call(userData.user.companyId),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return cubit;
+      },
+      act: (cubit) => cubit.loadDashboardData(),
+      expect: () => [
+        isA<DashboardState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<DashboardState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.activeWorkOrders,
+              'activeWorkOrders',
+              isA<List<WorkOrderEntity>>()
+                  .having((list) => list.length, 'length', 3)
+                  .having((list) => list[0].id, 'first id (most recent 12h)', 'wo-2')
+                  .having((list) => list[1].id, 'second id (11h)', 'wo-3')
+                  .having((list) => list[2].id, 'third id (10h)', 'wo-1'),
+            ),
+      ],
+    );
+
+    blocTest<DashboardCubit, DashboardState>(
+      'emits [loading, loaded] with activeWorkOrder as null and empty activeWorkOrders when no in-progress work order exists, clearing the previous active work order',
       seed: () {
         final previousActiveWorkOrder = EntityFactory.makeWorkOrderEntity()
             .copyWith(status: WorkOrderStatus.inProgress);
@@ -272,7 +330,8 @@ void main() {
         ),
         isA<DashboardState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
-            .having((s) => s.activeWorkOrder, 'activeWorkOrder', null),
+            .having((s) => s.activeWorkOrder, 'activeWorkOrder', null)
+            .having((s) => s.activeWorkOrders, 'activeWorkOrders', isEmpty),
       ],
     );
   });

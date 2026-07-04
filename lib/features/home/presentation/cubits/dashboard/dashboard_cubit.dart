@@ -98,10 +98,11 @@ class DashboardCubit extends BaseCubit<DashboardState> {
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final recentWorkOrders = sortedWorkOrders.take(5).toList();
 
-    // 3. Active Work Order (technician has a running order)
-    final activeWorkOrder = workOrders.firstWhereOrNull(
-      (wo) => wo.status == WorkOrderStatus.inProgress,
-    );
+    // 3. Active Work Orders (technician has running orders, sorted by updatedAt desc)
+    final activeWorkOrders = workOrders
+        .where((wo) => wo.status == WorkOrderStatus.inProgress)
+        .toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     emit(
       state.copyWith(
@@ -111,8 +112,8 @@ class DashboardCubit extends BaseCubit<DashboardState> {
         pendingRevisionsCount: pendingRevisionsCount,
         recentWorkOrders: recentWorkOrders,
         userProfile: user,
-        activeWorkOrder: activeWorkOrder,
-        annulActiveWorkOrder: activeWorkOrder == null,
+        activeWorkOrders: activeWorkOrders,
+        annulActiveWorkOrders: activeWorkOrders.isEmpty,
       ),
     );
   }
