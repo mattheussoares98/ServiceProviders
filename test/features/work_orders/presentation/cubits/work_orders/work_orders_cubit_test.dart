@@ -5,6 +5,7 @@ import 'package:clean_architecture/features/users/domain/entities/user_profile_e
 import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:clean_architecture/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -565,6 +566,123 @@ void main() {
               ),
             ).called(1);
             verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should set startedAt to current time when state changes to inProgress and startedAt is null',
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.saveWorkOrder(
+            id: tWorkOrder.id,
+            locationId: tWorkOrder.locationId,
+            createdById: tWorkOrder.createdById,
+            title: tWorkOrder.title,
+            priority: tWorkOrder.priority,
+            status: WorkOrderStatus.inProgress,
+            type: tWorkOrder.type,
+          ),
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.startedAt != null,
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should set completedAt to current time when state changes to completed and completedAt is null',
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.saveWorkOrder(
+            id: tWorkOrder.id,
+            locationId: tWorkOrder.locationId,
+            createdById: tWorkOrder.createdById,
+            title: tWorkOrder.title,
+            priority: tWorkOrder.priority,
+            status: WorkOrderStatus.completed,
+            type: tWorkOrder.type,
+          ),
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.completedAt != null,
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should clear completedAt (set to null) when state changes to open, inProgress, or onHold',
+          seed: () => WorkOrdersState(
+            workOrders: [
+              tWorkOrder.copyWith(status: WorkOrderStatus.completed),
+            ],
+            changeRequests: const [],
+            status: StateStatus.loaded,
+            historyByWorkOrder: const {},
+          ),
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.saveWorkOrder(
+            id: tWorkOrder.id,
+            locationId: tWorkOrder.locationId,
+            createdById: tWorkOrder.createdById,
+            title: tWorkOrder.title,
+            priority: tWorkOrder.priority,
+            status: WorkOrderStatus.open,
+            type: tWorkOrder.type,
+            completedAt: DateTime.now(),
+          ),
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.completedAt == null,
+                  ),
+                ),
+              ),
+            ).called(1);
           },
         );
       });

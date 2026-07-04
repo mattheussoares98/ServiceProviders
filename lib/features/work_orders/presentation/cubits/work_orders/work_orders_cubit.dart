@@ -136,6 +136,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return false;
     }
 
+    final computedStartedAt = startedAt ??
+        (status == WorkOrderStatus.inProgress ? now : null);
+
+    DateTime? computedCompletedAt = completedAt;
+    if (status == WorkOrderStatus.completed) {
+      computedCompletedAt ??= now;
+    } else if (status == WorkOrderStatus.open ||
+        status == WorkOrderStatus.inProgress ||
+        status == WorkOrderStatus.onHold) {
+      computedCompletedAt = null;
+    }
+
     final workOrder = WorkOrderEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
@@ -150,8 +162,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       status: status,
       type: type,
       scheduledDate: scheduledDate,
-      startedAt: startedAt,
-      completedAt: completedAt,
+      startedAt: computedStartedAt,
+      completedAt: computedCompletedAt,
       estimatedDuration: estimatedDuration,
       actualDuration: actualDuration,
       laborCost: laborCost,
