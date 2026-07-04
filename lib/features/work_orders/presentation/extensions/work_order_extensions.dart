@@ -1,5 +1,6 @@
 import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:flutter/material.dart';
 
 extension PriorityUiExtension on Priority {
@@ -15,6 +16,14 @@ extension PriorityUiExtension on Priority {
         return Colors.red;
     }
   }
+}
+
+extension WorkOrderTypeExtension on WorkOrderType {
+  Color get color => switch (this) {
+    WorkOrderType.preventive => Colors.blue,
+    WorkOrderType.corrective => Colors.green,
+    WorkOrderType.inspection => Colors.orange,
+  };
 }
 
 extension WorkOrderStatusUiExtension on WorkOrderStatus {
