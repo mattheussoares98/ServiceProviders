@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
@@ -38,7 +36,12 @@ class DeleteAssetButton extends StatelessWidget {
           defaultActionText: 'Excluir'.hardcoded,
         );
         if (confirmed == true && context.mounted) {
-          unawaited(context.read<AssetsCubit>().deleteAsset(assetId!));
+          final succeeds = await context.read<AssetsCubit>().deleteAsset(
+            assetId!,
+          );
+          if (succeeds && context.mounted) {
+            Navigator.of(context).pop();
+          }
         }
       },
     );
