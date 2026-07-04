@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
+import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
@@ -24,6 +25,7 @@ class SecondaryButton extends HookWidget {
     this.elevation,
     this.expandWidth = false,
     this.permission,
+    this.platformIcon,
   });
   final FutureOr<void> Function()? onTap;
   final String text;
@@ -37,6 +39,7 @@ class SecondaryButton extends HookWidget {
   final double? elevation;
   final bool expandWidth;
   final ActionPermission? permission;
+  final PlatformIcon? platformIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +74,22 @@ class SecondaryButton extends HookWidget {
 
     final childWidget = isLoading.value
         ? LoadingCircle.small(activeForegroundColor)
-        : BaseText(
-            text,
-            color: activeForegroundColor,
-            textType: textType,
-            fontWeight: textFontWeight,
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (platformIcon != null) ...[
+                FittedBox(child: platformIcon),
+                gapW8,
+              ],
+              Flexible(
+                child: BaseText(
+                  text,
+                  color: activeForegroundColor,
+                  textType: textType,
+                  fontWeight: textFontWeight,
+                ),
+              ),
+            ],
           );
 
     if (context.isCupertino) {
