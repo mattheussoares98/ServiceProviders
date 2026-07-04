@@ -25,6 +25,7 @@ class LocationCard extends StatelessWidget {
     ].join(', ');
 
     areas.sort((a, b) => a.name.compareTo(b.name));
+
     return Card(
       child: ExpansionTile(
         initiallyExpanded: true,

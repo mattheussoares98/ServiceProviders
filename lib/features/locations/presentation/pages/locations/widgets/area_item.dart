@@ -7,6 +7,7 @@ import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.da
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
+import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,11 +25,13 @@ class AreaItem extends StatelessWidget {
 
     return Row(
       children: [
-        const PlatformIcon(
-          materialIcon: Icons.room,
-          cupertinoIcon: CupertinoIcons.location,
-        ),
-        gapW12,
+        if (ScreenUtil.I.width > 200) ...[
+          const PlatformIcon(
+            materialIcon: Icons.room,
+            cupertinoIcon: CupertinoIcons.location,
+          ),
+          gapW12,
+        ],
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,24 +42,26 @@ class AreaItem extends StatelessWidget {
             ],
           ),
         ),
-        BaseIconButton(
-          permission: const ActionPermission(
-            resource: ResourceType.locations,
-            action: PermissionAction.update,
-          ),
-          onPressed: () {
-            context.router.push(
-              CreateUpdateAreaRoute(
-                locationId: location.id,
-                companyId: location.companyId,
-                area: area,
-              ),
-            );
-          },
-          platformIcon: const PlatformIcon(
-            materialIcon: Icons.edit,
-            cupertinoIcon: CupertinoIcons.pencil,
-            isSmall: true,
+        FittedBox(
+          child: BaseIconButton(
+            permission: const ActionPermission(
+              resource: ResourceType.locations,
+              action: PermissionAction.update,
+            ),
+            onPressed: () {
+              context.router.push(
+                CreateUpdateAreaRoute(
+                  locationId: location.id,
+                  companyId: location.companyId,
+                  area: area,
+                ),
+              );
+            },
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.edit,
+              cupertinoIcon: CupertinoIcons.pencil,
+              isSmall: true,
+            ),
           ),
         ),
       ],
