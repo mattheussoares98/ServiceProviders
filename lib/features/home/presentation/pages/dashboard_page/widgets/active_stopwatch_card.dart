@@ -99,18 +99,22 @@ class ActiveStopwatchCard extends HookWidget {
                 Row(
                   mainAxisAlignment: .spaceBetween,
                   children: [
-                    BaseRichText(
-                      color: workOrder.priority.color,
-                      texts: [
-                        BaseText('Prioridade '.hardcoded),
-                        BaseText(workOrder.priority.label.toLowerCase()),
-                      ],
+                    Expanded(
+                      child: BaseRichText(
+                        color: workOrder.priority.color,
+                        maxLines: 2,
+                        texts: [
+                          BaseText('Prioridade '.hardcoded),
+                          BaseText(workOrder.priority.label.toLowerCase()),
+                        ],
+                      ),
                     ),
                     gapW12,
-                    FittedBox(
+                    Flexible(
                       child: BaseText.title(
                         durationText,
                         color: Colors.amber.shade800,
+                        maxLines: 2,
                       ),
                     ),
                   ],
