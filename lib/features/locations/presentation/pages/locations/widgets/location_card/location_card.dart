@@ -27,6 +27,7 @@ class LocationCard extends StatelessWidget {
 
     return Card(
       child: ExpansionTile(
+        initiallyExpanded: true,
         title: Center(child: BaseText.titleMedium(location.name)),
         subtitle: addressText.isNotEmpty ? BaseText(addressText) : null,
         trailing: FittedBox(
