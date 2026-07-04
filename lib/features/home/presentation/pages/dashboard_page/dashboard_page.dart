@@ -81,26 +81,25 @@ class DashboardView extends HookWidget {
               ),
             );
           } else {
-            body = const Column(
-              crossAxisAlignment: .start,
-              children: [
-                HelloUser(),
-                ActiveWorkItems(),
-                NotClosedWorkOrders(),
-                FastActions(),
+            body = const CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: HelloUser()),
+                SliverToBoxAdapter(child: ActiveWorkItems()),
+                SliverToBoxAdapter(child: NotClosedWorkOrders()),
+                SliverToBoxAdapter(child: FastActions()),
                 RecentWorkOrders(),
               ],
             );
           }
 
           return BaseScaffold(
+            isScrollable: false,
             padding: const EdgeInsets.all(Sizes.p12),
             appBar: BaseAppBar(
               title: 'Painel'.hardcoded,
               leading: drawerButton,
             ),
             onRefresh: cubit.loadDashboardData,
-            scrollPhysics: const AlwaysScrollableScrollPhysics(),
             body: body,
           );
         },
