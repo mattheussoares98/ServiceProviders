@@ -49,6 +49,8 @@ class AssetsPage extends HookWidget {
           if (assets.isEmpty) {
             return BaseText.error('Nenhum equipamento cadastrado'.hardcoded);
           }
+
+          assets.sort((a, b) => a.name.compareTo(b.name));
           return ListView.builder(
             itemCount: assets.length,
             itemBuilder: (context, index) {
