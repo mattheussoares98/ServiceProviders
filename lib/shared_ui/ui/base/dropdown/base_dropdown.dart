@@ -54,7 +54,7 @@ class BaseDropDown<T> extends StatelessWidget {
             (label?.isNotEmpty ?? false)
         ? Positioned(
             left: Sizes.p4,
-            child: BaseText(
+            child: BaseText.caption(
               label!,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.w300,
