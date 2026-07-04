@@ -78,10 +78,11 @@ class SecondaryButton extends HookWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (platformIcon != null) ...[
-                FittedBox(child: platformIcon),
+                Flexible(flex: (text.length / 3).ceil(), child: platformIcon!),
                 gapW8,
               ],
               Flexible(
+                flex: text.length,
                 child: BaseText(
                   text,
                   color: activeForegroundColor,
