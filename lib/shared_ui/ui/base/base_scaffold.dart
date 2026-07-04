@@ -35,6 +35,7 @@ class BaseScaffold extends StatelessWidget {
     this.drawer,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
+    this.safeAreaTop,
   });
 
   final bool showAnnotatedRegion;
@@ -56,6 +57,7 @@ class BaseScaffold extends StatelessWidget {
   final Widget? drawer;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
+  final bool? safeAreaTop;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +118,9 @@ class _BaseScaffold extends StatelessWidget {
         ? params.padding ??
               (params.observeScreenChanges
                   ? _getHorizontalPadding()
-                  : ScreenUtil.I.pagePadding())
+                  : ScreenUtil.I.pagePadding().copyWith(
+                      bottom: params.bottomNavigationBar == null ? null : 0,
+                    ))
         : EdgeInsets.zero;
 
     if (params.isScrollable) {
@@ -134,17 +138,30 @@ class _BaseScaffold extends StatelessWidget {
         onRefresh: params.onRefresh!,
         backgroundColor: context.theme.colorScheme.surface,
         strokeWidth: 2,
-        edgeOffset: 100,
         child: newChild,
       );
     }
 
-    PreferredSize? appBarWidget;
+    PreferredSizeWidget? appBarWidget;
     if (finalAppBar != null) {
-      appBarWidget = PreferredSize(
-        preferredSize: const Size(double.maxFinite, 50),
-        child: finalAppBar,
-      );
+      if (finalAppBar is PreferredSizeWidget) {
+        if (context.isCupertino) {
+          appBarWidget = PreferredSize(
+            preferredSize: Size.fromHeight(
+              finalAppBar.preferredSize.height +
+                  MediaQuery.paddingOf(context).top,
+            ),
+            child: finalAppBar,
+          );
+        } else {
+          appBarWidget = finalAppBar;
+        }
+      } else {
+        appBarWidget = PreferredSize(
+          preferredSize: const Size(double.maxFinite, 50),
+          child: finalAppBar,
+        );
+      }
     }
 
     Widget? bottomNavigationWidget = params.bottomNavigationBar;
@@ -159,28 +176,24 @@ class _BaseScaffold extends StatelessWidget {
       );
     }
 
-    if (bottomNavigationWidget != null && params.useBottomNavigationPadding) {
-      bottomNavigationWidget = Padding(
-        padding: effectivePadding.copyWith(top: 0),
-        child: bottomNavigationWidget,
-      );
-    }
-
     Widget scaffold;
 
     if (context.isCupertino && params.drawer == null) {
-      //* cupertino doesn't support drawer
       const cupertinoTabBarHeight = 49.0;
       var cupertinoBody = bottomNavigationWidget != null
           ? Padding(
-              padding: EdgeInsets.only(
-                bottom:
-                    cupertinoTabBarHeight +
-                    MediaQuery.paddingOf(context).bottom,
+              padding: const EdgeInsets.only(
+                bottom: cupertinoTabBarHeight + Sizes.p8,
               ),
               child: newChild,
             )
           : newChild;
+
+      cupertinoBody = SafeArea(
+        top: params.safeAreaTop ?? finalAppBar == null,
+        bottom: bottomNavigationWidget != null,
+        child: cupertinoBody,
+      );
 
       if (finalAppBar != null) {
         cupertinoBody = Column(
@@ -193,10 +206,7 @@ class _BaseScaffold extends StatelessWidget {
 
       scaffold = CupertinoPageScaffold(
         resizeToAvoidBottomInset: params.resizeToAvoidBottomInset ?? true,
-        child: SafeArea(
-          bottom: bottomNavigationWidget == null,
-          child: cupertinoBody,
-        ),
+        child: cupertinoBody,
       );
 
       if (bottomNavigationWidget != null) {
@@ -214,50 +224,30 @@ class _BaseScaffold extends StatelessWidget {
       }
 
       if (params.floatingActionButton != null) {
-        final hasBottomBar = bottomNavigationWidget != null;
-        final double bottomPadding = MediaQuery.paddingOf(context).bottom;
-        final double bottomOffset =
-            Sizes.p32 +
-            (hasBottomBar ? Sizes.p48 + bottomPadding : bottomPadding);
-
-        double? left;
-        double? right;
-        final location = params.floatingActionButtonLocation;
-
-        if (location == FloatingActionButtonLocation.centerFloat ||
-            location == FloatingActionButtonLocation.centerDocked) {
-          left = 0;
-          right = 0;
-        } else if (location == FloatingActionButtonLocation.startFloat ||
-            location == FloatingActionButtonLocation.startDocked ||
-            location == FloatingActionButtonLocation.startTop) {
-          left = Sizes.p16;
-        } else {
-          right = Sizes.p16;
-        }
-
-        Widget fab = params.floatingActionButton!;
-        if (left == 0 && right == 0) {
-          fab = Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: bottomOffset),
-              child: fab,
+        scaffold = Stack(
+          children: [
+            scaffold,
+            Positioned(
+              right: 16,
+              bottom: bottomNavigationWidget != null
+                  ? 49.0 + 16.0 + MediaQuery.paddingOf(context).bottom
+                  : 16.0 + MediaQuery.paddingOf(context).bottom,
+              child: params.floatingActionButton!,
             ),
-          );
-        } else {
-          fab = Positioned(
-            left: left,
-            right: right,
-            bottom: bottomOffset,
-            child: fab,
-          );
-        }
-
-        scaffold = Stack(children: [scaffold, fab]);
+          ],
+        );
       }
 
       scaffold = Material(color: Colors.transparent, child: scaffold);
+
+      // Wrap in a transparent Material Scaffold so that ScaffoldMessenger
+      // can find an anchor to render SnackBars on iOS (CupertinoPageScaffold
+      // has no Material Scaffold, so showSnackBar is otherwise silently ignored).
+      scaffold = Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+        body: scaffold,
+      );
     } else {
       scaffold = Scaffold(
         resizeToAvoidBottomInset: params.resizeToAvoidBottomInset,
