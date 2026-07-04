@@ -18,31 +18,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 @RoutePage()
-class CreateUpdateAreaPage extends StatelessWidget {
+class CreateUpdateAreaPage extends HookWidget {
   const CreateUpdateAreaPage({
     super.key,
-    required this.locationsCubit,
     required this.locationId,
     required this.companyId,
     this.area,
   });
-
-  final LocationsCubit locationsCubit;
-  final String locationId;
-  final String companyId;
-  final AreaEntity? area;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: locationsCubit,
-      child: _Body(locationId: locationId, companyId: companyId, area: area),
-    );
-  }
-}
-
-class _Body extends HookWidget {
-  const _Body({required this.locationId, required this.companyId, this.area});
 
   final String locationId;
   final String companyId;
@@ -60,10 +42,6 @@ class _Body extends HookWidget {
     observeLoading(
       [context.read<LocationsCubit>()],
       statuses: {StateStatus.saving, StateStatus.deleting},
-    );
-
-    final status = context.select<LocationsCubit, StateStatus>(
-      (cubit) => cubit.state.status,
     );
 
     Future<void> submit() async {
@@ -115,10 +93,15 @@ class _Body extends HookWidget {
                 submit: submit,
               ),
               gapH32,
-              PrimaryButton(
-                onTap: submit,
-                text: area == null ? 'Criar'.hardcoded : 'Salvar'.hardcoded,
-                isLoading: status == StateStatus.saving,
+              BlocSelector<LocationsCubit, LocationsState, bool>(
+                selector: (state) => state.status == StateStatus.saving,
+                builder: (_, loading) {
+                  return PrimaryButton(
+                    onTap: submit,
+                    text: area == null ? 'Criar'.hardcoded : 'Salvar'.hardcoded,
+                    isLoading: loading,
+                  );
+                },
               ),
             ],
           ),

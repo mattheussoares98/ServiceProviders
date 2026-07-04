@@ -33,7 +33,6 @@ class AddAreaButton extends StatelessWidget {
           : () {
               context.router.push(
                 CreateUpdateAreaRoute(
-                  locationsCubit: context.read<LocationsCubit>(),
                   locationId: location.id,
                   companyId: location.companyId,
                 ),
