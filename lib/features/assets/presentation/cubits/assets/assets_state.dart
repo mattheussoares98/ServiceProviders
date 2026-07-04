@@ -3,24 +3,20 @@ part of 'assets_cubit.dart';
 class AssetsState extends BaseState {
   const AssetsState({
     required this.assets,
-    required this.deletingIds,
     super.status = StateStatus.initial,
     super.errorMessage = '',
   });
 
   const AssetsState.initial()
     : assets = const [],
-      deletingIds = const {},
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<AssetEntity> assets;
-  final Set<String> deletingIds;
 
   AssetsState copyWith({
     List<AssetEntity>? assets,
     StateStatus? status,
     String? errorMessage,
-    Set<String>? deletingIds,
     bool? annulErrorMessage,
   }) {
     return AssetsState(
@@ -29,10 +25,9 @@ class AssetsState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
-      deletingIds: deletingIds ?? this.deletingIds,
     );
   }
 
   @override
-  List<Object?> get props => [assets, status, errorMessage, deletingIds];
+  List<Object?> get props => [assets, status, errorMessage];
 }
