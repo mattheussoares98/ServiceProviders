@@ -5,13 +5,12 @@ import 'package:clean_architecture/features/categories/presentation/cubits/categ
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/create_update_work_order_form.dart';
 import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,15 +55,7 @@ class WorkOrdersPage extends StatelessWidget {
                 onPressed:
                     assetHasError || locationsHasError || categoriesHasError
                     ? null
-                    : () {
-                        showModalPage<void>(
-                          BlocProvider.value(
-                            value: context.read<WorkOrdersCubit>(),
-                            child: const CreateUpdateWorkOrderForm(),
-                          ),
-                          context,
-                        );
-                      },
+                    : () => context.router.push(CreateUpdateWorkOrderRoute()),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.add,
                   cupertinoIcon: CupertinoIcons.add,

@@ -28,6 +28,9 @@ const String kDashboardSubPath = 'dashboard';
 const String kWorkOrdersRoute = 'WorkOrdersRoute';
 const String kWorkOrdersPath = 'work-orders';
 
+const String kCreateUpdateWorkOrderRoute = 'CreateUpdateWorkOrderRoute';
+const String kCreateUpdateWorkOrderPath = 'create-update-work-order';
+
 // Assets
 const String kAssetsRoute = 'AssetsRoute';
 const String kAssetsPath = 'assets';

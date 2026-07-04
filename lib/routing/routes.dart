@@ -60,6 +60,10 @@ class AppRouter extends RootStackRouter {
           page: CreateUpdateAssetRoute.page,
           path: '$kCreateUpdateAssetRoute/$kCreateUpdateAssetPath',
         ),
+        AutoRoute(
+          page: CreateUpdateWorkOrderRoute.page,
+          path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
+        ),
       ],
     ),
   ];

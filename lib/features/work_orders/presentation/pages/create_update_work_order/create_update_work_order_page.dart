@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -7,17 +8,20 @@ import 'package:clean_architecture/features/work_orders/domain/entities/work_ord
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/assets_dropdown.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/description_field.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/duration_field.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/location_dropdown.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/priority_dropdown.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/programmed_data.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/responsible_dropdown.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/title_field.dart';
-import 'package:clean_architecture/features/work_orders/presentation/pages/work_orders/widgets/work_order_type_dropdown.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/delete_work_order_icon_button.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/priority_dropdown.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/programmed_data.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
+import 'package:clean_architecture/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_type_dropdown.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
+import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/loading/loading_circle.dart';
@@ -28,8 +32,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class CreateUpdateWorkOrderForm extends HookWidget {
-  const CreateUpdateWorkOrderForm({super.key, this.workOrder});
+@RoutePage()
+class CreateUpdateWorkOrderPage extends HookWidget {
+  const CreateUpdateWorkOrderPage({super.key, this.workOrder});
 
   final WorkOrderEntity? workOrder;
 
@@ -38,7 +43,7 @@ class CreateUpdateWorkOrderForm extends HookWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     observeLoading(
       [context.read<WorkOrdersCubit>()],
-      statuses: {StateStatus.saving},
+      statuses: {StateStatus.saving, StateStatus.deleting},
     );
 
     final titleController = useTextEditingController(text: workOrder?.title);
@@ -150,22 +155,20 @@ class CreateUpdateWorkOrderForm extends HookWidget {
       if (succeeds && context.mounted) Navigator.of(context).pop();
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(Sizes.p16),
-      child: Form(
+    return BaseScaffold(
+      appBar: BaseAppBar(
+        title: workOrder == null
+            ? 'Criando ordem de serviço'.hardcoded
+            : 'Editando ordem de serviço'.hardcoded,
+        actions: [DeleteWorkOrderIconButton(id: workOrder?.id)],
+      ),
+      body: Form(
         key: formKey,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              BaseText.titleMedium(
-                workOrder == null
-                    ? 'Criando ordem de serviço'.hardcoded
-                    : 'Editando ordem de serviço'.hardcoded,
-                textAlign: TextAlign.center,
-              ),
-              gapH16,
               TitleField(
                 titleController: titleController,
                 titleFocusNode: titleFocusNode,
