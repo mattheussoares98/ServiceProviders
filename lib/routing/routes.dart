@@ -48,6 +48,10 @@ class AppRouter extends RootStackRouter {
           page: EditUserPermissionsRoute.page,
           path: '$kPermissionsPath/$kEditUserPermissionsPath',
         ),
+        AutoRoute(
+          page: CreateUpdateAreaRoute.page,
+          path: '$kLocationsPath/$kCreateUpdateAreaPath',
+        ),
       ],
     ),
   ];

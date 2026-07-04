@@ -1,8 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/create_update/create_update_page.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
@@ -30,14 +31,11 @@ class AddAreaButton extends StatelessWidget {
       onPressed: isLoading
           ? null
           : () {
-              showDialog<void>(
-                context: context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<LocationsCubit>(),
-                  child: CreateUpdateAreaDialog(
-                    locationId: location.id,
-                    companyId: location.companyId,
-                  ),
+              context.router.push(
+                CreateUpdateAreaRoute(
+                  locationsCubit: context.read<LocationsCubit>(),
+                  locationId: location.id,
+                  companyId: location.companyId,
                 ),
               );
             },

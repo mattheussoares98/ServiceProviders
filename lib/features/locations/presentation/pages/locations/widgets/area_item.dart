@@ -1,10 +1,9 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
 import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
 import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/create_update/create_update_page.dart';
 import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
@@ -40,7 +39,7 @@ class AreaItem extends StatelessWidget {
         gapW12,
         Expanded(
           child: Column(
-            crossAxisAlignment: .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BaseText.titleMedium(area.name),
               gapH4,
@@ -56,48 +55,18 @@ class AreaItem extends StatelessWidget {
           onPressed: deletingLocation
               ? null
               : () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (_) => BlocProvider.value(
-                      value: context.read<LocationsCubit>(),
-                      child: CreateUpdateAreaDialog(
-                        locationId: location.id,
-                        companyId: location.companyId,
-                        area: area,
-                      ),
+                  context.router.push(
+                    CreateUpdateAreaRoute(
+                      locationsCubit: context.read<LocationsCubit>(),
+                      locationId: location.id,
+                      companyId: location.companyId,
+                      area: area,
                     ),
                   );
                 },
           platformIcon: const PlatformIcon(
             materialIcon: Icons.edit,
             cupertinoIcon: CupertinoIcons.pencil,
-            isSmall: true,
-          ),
-        ),
-        BaseIconButton(
-          permission: const ActionPermission(
-            resource: ResourceType.locations,
-            action: PermissionAction.delete,
-          ),
-          onPressed: deletingLocation
-              ? null
-              : () {
-                  showAlertDialog(
-                    context: context,
-                    title: 'Excluir área'.hardcoded,
-                    onOkPressed: () => context
-                        .read<LocationsCubit>()
-                        .deleteArea(area.id, area.locationId),
-                    contentText:
-                        'Tem certeza que deseja excluir a área?'.hardcoded,
-                    defaultActionText: 'Sim'.hardcoded,
-                    cancelActionText: 'Cancelar'.hardcoded,
-                  );
-                },
-          platformIcon: const PlatformIcon(
-            materialIcon: Icons.delete,
-            cupertinoIcon: CupertinoIcons.trash,
-            color: Colors.red,
             isSmall: true,
           ),
         ),
