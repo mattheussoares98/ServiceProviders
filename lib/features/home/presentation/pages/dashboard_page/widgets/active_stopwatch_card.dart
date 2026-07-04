@@ -24,6 +24,7 @@ class ActiveStopwatchCard extends HookWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final isDark = theme.brightness == Brightness.dark;
+    final pageWidth = MediaQuery.sizeOf(context).width;
 
     // Local state to force rebuild every second and display current duration
     final elapsedSeconds = useState<int>(0);
@@ -87,49 +88,70 @@ class ActiveStopwatchCard extends HookWidget {
           borderRadius: BorderRadius.circular(Sizes.p16),
           child: Padding(
             padding: const EdgeInsets.all(Sizes.p16),
-            child: Row(
+            child: Column(
               children: [
-                // Pulsing play icon
-                Container(
-                  padding: const EdgeInsets.all(Sizes.p12),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const PlatformIcon(
-                    materialIcon: Icons.play_circle_filled,
-                    cupertinoIcon: CupertinoIcons.play_circle,
-                    color: Colors.amber,
-                    size: 32,
-                  ),
+                BaseText.title(
+                  'TRABALHO EM ANDAMENTO'.hardcoded,
+                  color: Colors.amber.shade800,
+                  textAlign: .center,
                 ),
-                gapW16,
-                // Work order info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BaseText.headline(
-                        'TRABALHO EM ANDAMENTO'.hardcoded,
-                        color: Colors.amber.shade800,
-                      ),
-                      gapH4,
-                      BaseText.title(workOrder.title),
-                      gapH4,
-                      BaseText(
-                        'Prioridade: ${workOrder.priority.label}'.hardcoded,
-                      ),
-                    ],
-                  ),
-                ),
-                gapW12,
-                // Time counter
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
+                  mainAxisAlignment: .spaceBetween,
                   children: [
-                    BaseText.title(durationText, color: Colors.amber.shade800),
-                    gapH4,
-                    BaseText('Visualizar'.hardcoded),
+                    Flexible(
+                      child: Row(
+                        children: [
+                          if (pageWidth > 200) ...[
+                            FittedBox(
+                              child: Container(
+                                padding: const EdgeInsets.all(Sizes.p12),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const PlatformIcon(
+                                  materialIcon: Icons.play_circle_filled,
+                                  cupertinoIcon: CupertinoIcons.play_circle,
+                                  color: Colors.amber,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                            gapW16,
+                          ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                gapH4,
+                                BaseText.title(workOrder.title),
+                                gapH4,
+                                BaseText(
+                                  'Prioridade: ${workOrder.priority.label}'
+                                      .hardcoded,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: pageWidth * 0.2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          FittedBox(
+                            child: BaseText.title(
+                              durationText,
+                              color: Colors.amber.shade800,
+                            ),
+                          ),
+                          gapH4,
+                          FittedBox(child: BaseText('Visualizar'.hardcoded)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ],
