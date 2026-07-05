@@ -29,7 +29,7 @@ sealed class AppConfig {
 final class AppConfigProd extends AppConfig {
   AppConfigProd()
     : super(
-        appTitle: 'Clean Architecture App',
+        appTitle: 'O jogo da obra',
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.production,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
@@ -40,7 +40,7 @@ final class AppConfigProd extends AppConfig {
 final class AppConfigStg extends AppConfig {
   AppConfigStg()
     : super(
-        appTitle: 'Clean Architecture App Staging',
+        appTitle: 'O jogo da obra Staging',
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.staging,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
@@ -51,7 +51,7 @@ final class AppConfigStg extends AppConfig {
 final class AppConfigDev extends AppConfig {
   AppConfigDev()
     : super(
-        appTitle: 'Clean Architecture App Development',
+        appTitle: 'O jogo da obra Development',
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.development,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
@@ -74,6 +74,6 @@ final class TestAppConfig extends AppConfig {
   });
 
   /// The default base URL used in tests — exposed so tests can build expected URLs.
-  static const String defaultWebBaseUrl = 'https://serviceproviders-733e7.web.app';
+  static const String defaultWebBaseUrl =
+      'https://serviceproviders-733e7.web.app';
 }
-
