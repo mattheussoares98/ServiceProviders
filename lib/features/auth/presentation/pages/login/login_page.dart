@@ -39,55 +39,62 @@ class LoginPage extends HookWidget {
       child: BaseScaffold(
         observeScreenChanges: true,
         showAnnotatedRegion: true,
-        body: Column(
-          crossAxisAlignment: .end,
-          children: [
-            gapH24,
-            const WelcomeLogo(),
-            gapH12,
-            Form(
-              key: formKey,
-              child: AutofillGroup(
-                child: LoginForm(
+        safeAreaTop: false,
+        isScrollable: false,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: .end,
+              mainAxisAlignment: .center,
+              children: [
+                gapH24,
+                const WelcomeLogo(),
+                gapH12,
+                Form(
+                  key: formKey,
+                  child: AutofillGroup(
+                    child: LoginForm(
+                      formKey: formKey,
+                      emailController: emailController,
+                      passwordController: passwordController,
+                      passwordFocusNode: passwordFocusNode,
+                    ),
+                  ),
+                ),
+                gapH32,
+                LoginButton(
                   formKey: formKey,
                   emailController: emailController,
                   passwordController: passwordController,
-                  passwordFocusNode: passwordFocusNode,
                 ),
-              ),
+                gapH32,
+                ResetPassword(emailController: emailController),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     BlocSelector<LoginCubit, LoginState, bool>(
+                //       selector: (state) => state.status == StateStatus.loading,
+                //       builder: (context, isLoading) {
+                //         return Flexible(
+                //           child: BaseTextButton(
+                //             onPressed: isLoading
+                //                 ? null
+                //                 : loginCubit.navigateToSignUp,
+                //             text: 'Criar conta'.hardcoded,
+                //             color: context.theme.primaryColorLight,
+                //           ),
+                //         );
+                //       },
+                //     ),
+                //     gapH8,
+                //     Flexible(
+                //       child: ResetPassword(emailController: emailController),
+                //     ),
+                //   ],
+                // ),
+              ],
             ),
-            gapH32,
-            LoginButton(
-              formKey: formKey,
-              emailController: emailController,
-              passwordController: passwordController,
-            ),
-            gapH32,
-            ResetPassword(emailController: emailController),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     BlocSelector<LoginCubit, LoginState, bool>(
-            //       selector: (state) => state.status == StateStatus.loading,
-            //       builder: (context, isLoading) {
-            //         return Flexible(
-            //           child: BaseTextButton(
-            //             onPressed: isLoading
-            //                 ? null
-            //                 : loginCubit.navigateToSignUp,
-            //             text: 'Criar conta'.hardcoded,
-            //             color: context.theme.primaryColorLight,
-            //           ),
-            //         );
-            //       },
-            //     ),
-            //     gapH8,
-            //     Flexible(
-            //       child: ResetPassword(emailController: emailController),
-            //     ),
-            //   ],
-            // ),
-          ],
+          ),
         ),
       ),
     );
