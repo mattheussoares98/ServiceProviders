@@ -57,6 +57,7 @@ dev_dependencies:
   build_runner: ^2.10.4
   drift_dev: ^2.22.0
   faker: ^2.2.0
+  flutter_launcher_icons: ^0.14.3
   flutter_test:
     sdk: flutter
   http: ^1.6.0
@@ -91,3 +92,18 @@ patrol:
     package_name: com.servicepro.connect
   ios:
     bundle_id: com.servicepro.connect
+
+flutter_launcher_icons:
+  image_path: "lib/core/utils/assets/kephas logo.png"
+  android: true
+  ios: true
+  macos:
+    generate: true
+    image_path: "lib/core/utils/assets/kephas logo.png"
+  web:
+    generate: true
+    image_path: "lib/core/utils/assets/kephas logo.png"
+  windows:
+    generate: true
+    image_path: "lib/core/utils/assets/kephas logo.png"
+    icon_size: 48
