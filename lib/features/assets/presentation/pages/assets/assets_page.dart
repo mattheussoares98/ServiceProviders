@@ -9,6 +9,7 @@ import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
 import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
 import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
+import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class AssetsPage extends HookWidget {
           }
 
           assets.sort((a, b) => a.name.compareTo(b.name));
-          return ListView.builder(
+          return ResponsiveListFlow(
             itemCount: assets.length,
             itemBuilder: (context, index) {
               final asset = assets[index];
