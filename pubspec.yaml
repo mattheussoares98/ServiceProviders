@@ -57,7 +57,7 @@ dev_dependencies:
   build_runner: ^2.10.4
   drift_dev: ^2.22.0
   faker: ^2.2.0
-  flutter_launcher_icons: ^0.14.3
+  flutter_launcher_icons: ^0.14.3 #dart run flutter_launcher_icons
   flutter_test:
     sdk: flutter
   http: ^1.6.0
@@ -83,7 +83,7 @@ flutter:
 
     - family: AppIcon
       fonts:
-        - asset: assets/icons/AppIcon.ttf
+        - asset: assets/icons/app_icon.jpeg
 
 patrol:
   app_name: cleanArchitecture
@@ -94,16 +94,16 @@ patrol:
     bundle_id: com.ojogodaobra
 
 flutter_launcher_icons:
-  image_path: "lib/core/utils/assets/kephas logo.png"
+  image_path: "assets/icons/app_icon.jpeg"
   android: true
   ios: true
   macos:
     generate: true
-    image_path: "lib/core/utils/assets/kephas logo.png"
+    image_path: "assets/icons/app_icon.jpeg"
   web:
     generate: true
-    image_path: "lib/core/utils/assets/kephas logo.png"
+    image_path: "assets/icons/app_icon.jpeg"
   windows:
     generate: true
-    image_path: "lib/core/utils/assets/kephas logo.png"
+    image_path: "assets/icons/app_icon.jpeg"
     icon_size: 48
