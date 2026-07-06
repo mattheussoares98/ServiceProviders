@@ -433,12 +433,13 @@ class AttachmentsCubitUseCases {
 
 #### `AttachmentSourceSheet` (bottom sheet)
 
-Displayed when user taps "Adicionar Anexo". Three options:
+Displayed when user taps "Adicionar Anexo". Four options:
 
 | Option | Icon | Label |
 |---|---|---|
-| Camera | `Icons.camera_alt_outlined` | Tirar foto (1 foto por vez — limitação do SO) |
-| Gallery | `Icons.photo_library_outlined` | Escolher da galeria (multi-seleção) |
+| Camera photo | `Icons.camera_alt_outlined` | Tirar foto (1 foto por vez) |
+| Camera video | `Icons.videocam_outlined` | Gravar vídeo (máx. 5 min) |
+| Gallery | `Icons.photo_library_outlined` | Galeria — fotos e vídeos (multi-seleção) |
 | Document | `Icons.attach_file_outlined` | Selecionar arquivo (multi-seleção) |
 
 #### `Attachments` widget (main)

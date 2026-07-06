@@ -1,0 +1,58 @@
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+
+/// Abstract service for device file I/O operations.
+///
+/// Lives in `core/services/` because it is a shared infrastructure concern
+/// (camera, gallery, documents), potentially reused by any future feature.
+/// It is NOT a repository — it does not persist data to a local/remote source.
+abstract interface class FileService {
+  /// Opens the device camera and takes a single photo.
+  ///
+  /// Returns the temporary file path, or `null` if the user cancelled.
+  Future<String?> takePhoto();
+
+  /// Opens the device camera to record a video.
+  ///
+  /// Returns the temporary file path, or `null` if the user cancelled.
+  Future<String?> recordVideo();
+
+  /// Opens the gallery for multi-selection of both images and videos.
+  ///
+  /// Returns a list of selected file paths, or `null` if the user cancelled.
+  Future<List<String>?> pickMediaFromGallery();
+
+  /// Opens the file picker for multi-document selection (PDF, DOCX, XLSX).
+  ///
+  /// Returns a list of selected file paths, or `null` if the user cancelled.
+  Future<List<String>?> pickDocuments();
+
+  /// Compresses an image at [sourcePath] and copies the result into the
+  /// app's secure sandbox directory.
+  ///
+  /// Applies progressive quality reduction until the output is ≤ 1 MB.
+  /// Returns the absolute path of the saved compressed file.
+  FutureString compressAndSaveImage(String sourcePath);
+
+  /// Compresses a video at [sourcePath] to H.264 MP4, max 720p, ≤ 50 MB,
+  /// and saves it to the app's secure sandbox directory.
+  ///
+  /// Returns the absolute path of the compressed file.
+  FutureString compressAndSaveVideo(String sourcePath);
+
+  /// Copies any file at [sourcePath] into the app's secure sandbox directory
+  /// using [fileName] as the destination file name.
+  ///
+  /// Returns the absolute path of the copied file.
+  FutureString copyFileToSandbox(String sourcePath, String fileName);
+
+  /// Returns the size in bytes of the file at [path].
+  Future<int> getFileSizeBytes(String path);
+
+  /// Returns the MIME type string for the given file [path] based on extension.
+  ///
+  /// Example: `'image/webp'`, `'application/pdf'`.
+  String getMimeType(String path);
+
+  /// Deletes the file at [path] from the local filesystem.
+  FutureBool deleteLocalFile(String path);
+}
