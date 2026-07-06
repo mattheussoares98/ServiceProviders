@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
 class AttachmentEntity extends Equatable {
   const AttachmentEntity({
@@ -35,20 +35,20 @@ class AttachmentEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        workOrderId,
-        companyId,
-        uploadedById,
-        fileName,
-        fileType,
-        localPath,
-        remoteUrl,
-        fileSizeBytes,
-        isCompressed,
-        uploadStatus,
-        createdAt,
-        deletedAt,
-      ];
+    id,
+    workOrderId,
+    companyId,
+    uploadedById,
+    fileName,
+    fileType,
+    localPath,
+    remoteUrl,
+    fileSizeBytes,
+    isCompressed,
+    uploadStatus,
+    createdAt,
+    deletedAt,
+  ];
 
   AttachmentEntity copyWith({
     String? id,
@@ -78,7 +78,9 @@ class AttachmentEntity extends Equatable {
       fileType: fileType ?? this.fileType,
       localPath: annulLocalPath == true ? null : localPath ?? this.localPath,
       remoteUrl: annulRemoteUrl == true ? null : remoteUrl ?? this.remoteUrl,
-      fileSizeBytes: annulFileSizeBytes == true ? null : fileSizeBytes ?? this.fileSizeBytes,
+      fileSizeBytes: annulFileSizeBytes == true
+          ? null
+          : fileSizeBytes ?? this.fileSizeBytes,
       isCompressed: isCompressed ?? this.isCompressed,
       uploadStatus: uploadStatus ?? this.uploadStatus,
       createdAt: createdAt ?? this.createdAt,

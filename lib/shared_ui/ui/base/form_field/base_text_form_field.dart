@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
-import 'package:clean_architecture/shared_ui/themes/app_decorations.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/overlay_manager.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/themes/app_decorations.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/overlay_manager.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 part 'cupertino_form_field.dart';
 

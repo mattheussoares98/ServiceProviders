@@ -1,14 +1,13 @@
-import 'package:clean_architecture/core/domain/use_cases/use_case.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
 
 @LazySingleton()
-class GetUsersUseCase
-    implements UseCase<List<UserProfileEntity>, String> {
+class GetUsersUseCase implements UseCase<List<UserProfileEntity>, String> {
   GetUsersUseCase({required UsersRepository usersRepository})
-      : _usersRepository = usersRepository;
+    : _usersRepository = usersRepository;
 
   final UsersRepository _usersRepository;
 

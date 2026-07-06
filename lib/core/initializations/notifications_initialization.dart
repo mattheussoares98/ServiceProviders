@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:clean_architecture/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:o_jogo_da_obra/firebase_options.dart';
 
 /// PERFORMANCE: Using a dedicated service for notifications ensures
 /// that Firebase listeners are registered exactly once and do not

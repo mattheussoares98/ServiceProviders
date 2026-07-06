@@ -1,5 +1,5 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Interface for Supabase Auth client to allow mocking in tests.

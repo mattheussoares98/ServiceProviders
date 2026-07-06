@@ -1,15 +1,15 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class AreaItem extends StatelessWidget {
   const AreaItem({super.key, required this.area, required this.location});

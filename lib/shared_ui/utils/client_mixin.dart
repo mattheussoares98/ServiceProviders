@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/shared_ui/utils/toast_util.dart';
 import 'package:flutter/foundation.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 mixin ClientMixin {
   final _navigationClient = NavigationUtil.I;

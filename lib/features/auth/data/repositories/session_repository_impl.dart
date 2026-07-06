@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/features/auth/data/data_sources/session_local_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/data/data_sources/session_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 
 /// A class that stores user data
 @LazySingleton(as: SessionRepository)

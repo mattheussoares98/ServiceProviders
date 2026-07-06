@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
-import 'package:clean_architecture/features/home/presentation/pages/dashboard_page/widgets/stats_card.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/stats_card.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class NotClosedWorkOrders extends StatelessWidget {
   const NotClosedWorkOrders({super.key});

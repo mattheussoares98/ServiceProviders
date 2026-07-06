@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/categories/data/data_sources/categories_remote_data_source.dart';
-import 'package:clean_architecture/features/categories/data/models/requests/category_request_model.dart';
-import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';

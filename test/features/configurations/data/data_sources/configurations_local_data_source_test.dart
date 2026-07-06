@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/configurations/data/data_sources/configurations_local_data_source.dart';
-import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 

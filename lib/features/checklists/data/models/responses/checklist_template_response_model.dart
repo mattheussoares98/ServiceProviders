@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 
 class ChecklistTemplateResponseModel extends ChecklistTemplateEntity
     implements DataConvertible<ChecklistTemplateEntity> {
@@ -15,17 +15,18 @@ class ChecklistTemplateResponseModel extends ChecklistTemplateEntity
     super.deletedAt,
   });
 
-  factory ChecklistTemplateResponseModel.fromEntity(ChecklistTemplateEntity entity) =>
-      ChecklistTemplateResponseModel(
-        id: entity.id,
-        companyId: entity.companyId,
-        name: entity.name,
-        description: entity.description,
-        categoryId: entity.categoryId,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-        deletedAt: entity.deletedAt,
-      );
+  factory ChecklistTemplateResponseModel.fromEntity(
+    ChecklistTemplateEntity entity,
+  ) => ChecklistTemplateResponseModel(
+    id: entity.id,
+    companyId: entity.companyId,
+    name: entity.name,
+    description: entity.description,
+    categoryId: entity.categoryId,
+    createdAt: entity.createdAt,
+    updatedAt: entity.updatedAt,
+    deletedAt: entity.deletedAt,
+  );
 
   factory ChecklistTemplateResponseModel.fromJson(MapDynamic json) =>
       ChecklistTemplateResponseModel(
@@ -47,25 +48,25 @@ class ChecklistTemplateResponseModel extends ChecklistTemplateEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'company_id': companyId,
-        'name': name,
-        'description': description,
-        'category_id': categoryId,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'company_id': companyId,
+    'name': name,
+    'description': description,
+    'category_id': categoryId,
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   ChecklistTemplateEntity toEntity() => ChecklistTemplateEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        description: description,
-        categoryId: categoryId,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    companyId: companyId,
+    name: name,
+    description: description,
+    categoryId: categoryId,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  );
 }

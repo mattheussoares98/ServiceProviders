@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
 abstract interface class MaintenancePlansLocalDataSource {
   FutureList<MaintenancePlanResponseModel> getPlans(String companyId);
@@ -17,19 +17,21 @@ abstract interface class MaintenancePlansLocalDataSource {
 }
 
 @LazySingleton(as: MaintenancePlansLocalDataSource)
-final class MaintenancePlansLocalDataSourceImpl implements MaintenancePlansLocalDataSource {
-  MaintenancePlansLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+final class MaintenancePlansLocalDataSourceImpl
+    implements MaintenancePlansLocalDataSource {
+  MaintenancePlansLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
   @override
   FutureList<MaintenancePlanResponseModel> getPlans(String companyId) {
     return ErrorHandler.execute(() async {
-      final list = await (_database.select(_database.maintenancePlans)
-            ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull()))
-          .get();
+      final list =
+          await (_database.select(_database.maintenancePlans)..where(
+                (t) => t.companyId.equals(companyId) & t.deletedAt.isNull(),
+              ))
+              .get();
 
       return SuccessState(
         data: list
@@ -64,9 +66,10 @@ final class MaintenancePlansLocalDataSourceImpl implements MaintenancePlansLocal
   @override
   FutureData<MaintenancePlanResponseModel> getPlanById(String id) {
     return ErrorHandler.execute(() async {
-      final t = await (_database.select(_database.maintenancePlans)
-            ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
-          .getSingleOrNull();
+      final t =
+          await (_database.select(_database.maintenancePlans)
+                ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
+              .getSingleOrNull();
 
       if (t != null) {
         return SuccessState(
@@ -103,7 +106,9 @@ final class MaintenancePlansLocalDataSourceImpl implements MaintenancePlansLocal
   @override
   FutureBool savePlan(MaintenancePlanResponseModel plan) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.maintenancePlans).insertOnConflictUpdate(
+      await _database
+          .into(_database.maintenancePlans)
+          .insertOnConflictUpdate(
             MaintenancePlansCompanion(
               id: Value(plan.id),
               companyId: Value(plan.companyId),

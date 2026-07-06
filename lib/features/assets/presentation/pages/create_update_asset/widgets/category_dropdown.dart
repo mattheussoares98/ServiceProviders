@@ -1,16 +1,16 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
-import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit.dart';
-import 'package:clean_architecture/features/categories/presentation/pages/categories/widgets/create_category_sheet.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/show_modal_page.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/features/categories/presentation/pages/categories/widgets/create_category_sheet.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class CategoryDropdown extends StatelessWidget {
   const CategoryDropdown({

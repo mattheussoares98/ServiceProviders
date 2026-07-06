@@ -1,18 +1,18 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 

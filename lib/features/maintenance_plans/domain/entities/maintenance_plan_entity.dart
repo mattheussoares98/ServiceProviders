@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
 class MaintenancePlanEntity extends Equatable {
   const MaintenancePlanEntity({

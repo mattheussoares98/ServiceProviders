@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 
 abstract interface class AssetsLocalDataSource {
   FutureList<AssetModel> getAssets(String companyId);
@@ -27,49 +27,48 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   @override
   FutureList<AssetModel> getAssets(String companyId) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.assets).join([
-        innerJoin(
-          _database.areas,
-          _database.areas.id.equalsExp(_database.assets.areaId),
-        ),
-        innerJoin(
-          _database.locations,
-          _database.locations.id.equalsExp(_database.areas.locationId),
-        ),
-      ])..where(
-        _database.assets.companyId.equals(companyId) &
-            _database.assets.deletedAt.isNull() &
-            _database.areas.deletedAt.isNull() &
-            _database.locations.deletedAt.isNull(),
-      );
+      final query =
+          _database.select(_database.assets).join([
+            innerJoin(
+              _database.areas,
+              _database.areas.id.equalsExp(_database.assets.areaId),
+            ),
+            innerJoin(
+              _database.locations,
+              _database.locations.id.equalsExp(_database.areas.locationId),
+            ),
+          ])..where(
+            _database.assets.companyId.equals(companyId) &
+                _database.assets.deletedAt.isNull() &
+                _database.areas.deletedAt.isNull() &
+                _database.locations.deletedAt.isNull(),
+          );
       final rows = await query.get();
 
-      final list = rows
-          .map((row) {
-            final asset = row.readTable(_database.assets);
-            return AssetModel(
-              id: asset.id,
-              companyId: asset.companyId,
-              areaId: asset.areaId,
-              categoryId: asset.categoryId,
-              parentAssetId: asset.parentAssetId,
-              name: asset.name,
-              code: asset.code,
-              manufacturer: asset.manufacturer,
-              model: asset.model,
-              serialNumber: asset.serialNumber,
-              installDate: asset.installDate,
-              warrantyExpiration: asset.warrantyExpiration,
-              revisionForecast: asset.revisionForecast,
-              status: AssetStatus.fromCode(asset.status),
-              criticality: AssetCriticality.fromCode(asset.criticality),
-              notes: asset.notes,
-              createdAt: asset.createdAt,
-              updatedAt: asset.updatedAt,
-              deletedAt: asset.deletedAt,
-            );
-          })
-          .toList();
+      final list = rows.map((row) {
+        final asset = row.readTable(_database.assets);
+        return AssetModel(
+          id: asset.id,
+          companyId: asset.companyId,
+          areaId: asset.areaId,
+          categoryId: asset.categoryId,
+          parentAssetId: asset.parentAssetId,
+          name: asset.name,
+          code: asset.code,
+          manufacturer: asset.manufacturer,
+          model: asset.model,
+          serialNumber: asset.serialNumber,
+          installDate: asset.installDate,
+          warrantyExpiration: asset.warrantyExpiration,
+          revisionForecast: asset.revisionForecast,
+          status: AssetStatus.fromCode(asset.status),
+          criticality: AssetCriticality.fromCode(asset.criticality),
+          notes: asset.notes,
+          createdAt: asset.createdAt,
+          updatedAt: asset.updatedAt,
+          deletedAt: asset.deletedAt,
+        );
+      }).toList();
 
       return SuccessState(data: list);
     });
@@ -78,21 +77,22 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
   @override
   FutureData<AssetModel> getAssetById(String id) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.assets).join([
-        innerJoin(
-          _database.areas,
-          _database.areas.id.equalsExp(_database.assets.areaId),
-        ),
-        innerJoin(
-          _database.locations,
-          _database.locations.id.equalsExp(_database.areas.locationId),
-        ),
-      ])..where(
-        _database.assets.id.equals(id) &
-            _database.assets.deletedAt.isNull() &
-            _database.areas.deletedAt.isNull() &
-            _database.locations.deletedAt.isNull(),
-      );
+      final query =
+          _database.select(_database.assets).join([
+            innerJoin(
+              _database.areas,
+              _database.areas.id.equalsExp(_database.assets.areaId),
+            ),
+            innerJoin(
+              _database.locations,
+              _database.locations.id.equalsExp(_database.areas.locationId),
+            ),
+          ])..where(
+            _database.assets.id.equals(id) &
+                _database.assets.deletedAt.isNull() &
+                _database.areas.deletedAt.isNull() &
+                _database.locations.deletedAt.isNull(),
+          );
       final row = await query.getSingleOrNull();
 
       if (row == null) {

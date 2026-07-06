@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 
 class AuthenticationRequestModel extends AuthenticationEntity
     implements DataConvertible<AuthenticationEntity> {
@@ -25,5 +25,6 @@ class AuthenticationRequestModel extends AuthenticationEntity
   MapDynamic toJson() => {'username': email, 'password': password};
 
   @override
-  AuthenticationEntity toEntity() => AuthenticationEntity(email: email, password: password);
+  AuthenticationEntity toEntity() =>
+      AuthenticationEntity(email: email, password: password);
 }

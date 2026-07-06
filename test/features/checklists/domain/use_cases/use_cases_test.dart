@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_template_entity.dart';
-import 'package:clean_architecture/features/checklists/domain/use_cases/get_checklists_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklists_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';

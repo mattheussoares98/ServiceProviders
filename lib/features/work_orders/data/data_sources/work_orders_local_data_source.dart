@@ -1,18 +1,18 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_response_model.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_type.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 abstract interface class WorkOrdersLocalDataSource {
   // Work Orders
@@ -27,7 +27,9 @@ abstract interface class WorkOrdersLocalDataSource {
   FutureBool deleteTask(String id);
 
   // Change Requests
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(String companyId);
+  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
+    String companyId,
+  );
   FutureBool saveChangeRequest(WorkOrderChangeRequestResponseModel request);
   FutureBool reviewChangeRequest({
     required String id,
@@ -37,15 +39,16 @@ abstract interface class WorkOrdersLocalDataSource {
   });
 
   // History
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(String workOrderId);
+  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
+    String workOrderId,
+  );
   FutureBool saveWorkOrderHistory(WorkOrderHistoryResponseModel history);
 }
 
 @LazySingleton(as: WorkOrdersLocalDataSource)
 final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
-  WorkOrdersLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+  WorkOrdersLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
@@ -56,49 +59,48 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureList<WorkOrderResponseModel> getWorkOrders(String companyId) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.workOrders).join([
-        innerJoin(
-          _database.locations,
-          _database.locations.id.equalsExp(_database.workOrders.locationId),
-        ),
-      ])..where(
-        _database.workOrders.companyId.equals(companyId) &
-            _database.workOrders.deletedAt.isNull() &
-            _database.locations.deletedAt.isNull(),
-      );
+      final query =
+          _database.select(_database.workOrders).join([
+            innerJoin(
+              _database.locations,
+              _database.locations.id.equalsExp(_database.workOrders.locationId),
+            ),
+          ])..where(
+            _database.workOrders.companyId.equals(companyId) &
+                _database.workOrders.deletedAt.isNull() &
+                _database.locations.deletedAt.isNull(),
+          );
       final rows = await query.get();
 
-      final list = rows
-          .map((row) {
-            final order = row.readTable(_database.workOrders);
-            return WorkOrderResponseModel(
-              id: order.id,
-              companyId: order.companyId,
-              assetId: order.assetId,
-              locationId: order.locationId,
-              assignedToId: order.assignedToId,
-              createdById: order.createdById,
-              maintenancePlanId: order.maintenancePlanId,
-              title: order.title,
-              description: order.description,
-              priority: Priority.fromCode(order.priority),
-              status: WorkOrderStatus.fromCode(order.status),
-              type: WorkOrderType.fromCode(order.type),
-              scheduledDate: order.scheduledDate,
-              startedAt: order.startedAt,
-              completedAt: order.completedAt,
-              estimatedDuration: order.estimatedDuration,
-              actualDuration: order.actualDuration,
-              laborCost: order.laborCost,
-              partsCost: order.partsCost,
-              totalCost: order.totalCost,
-              notes: order.notes,
-              createdAt: order.createdAt,
-              updatedAt: order.updatedAt,
-              deletedAt: order.deletedAt,
-            );
-          })
-          .toList();
+      final list = rows.map((row) {
+        final order = row.readTable(_database.workOrders);
+        return WorkOrderResponseModel(
+          id: order.id,
+          companyId: order.companyId,
+          assetId: order.assetId,
+          locationId: order.locationId,
+          assignedToId: order.assignedToId,
+          createdById: order.createdById,
+          maintenancePlanId: order.maintenancePlanId,
+          title: order.title,
+          description: order.description,
+          priority: Priority.fromCode(order.priority),
+          status: WorkOrderStatus.fromCode(order.status),
+          type: WorkOrderType.fromCode(order.type),
+          scheduledDate: order.scheduledDate,
+          startedAt: order.startedAt,
+          completedAt: order.completedAt,
+          estimatedDuration: order.estimatedDuration,
+          actualDuration: order.actualDuration,
+          laborCost: order.laborCost,
+          partsCost: order.partsCost,
+          totalCost: order.totalCost,
+          notes: order.notes,
+          createdAt: order.createdAt,
+          updatedAt: order.updatedAt,
+          deletedAt: order.deletedAt,
+        );
+      }).toList();
 
       return SuccessState(data: list);
     });
@@ -107,16 +109,17 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.workOrders).join([
-        innerJoin(
-          _database.locations,
-          _database.locations.id.equalsExp(_database.workOrders.locationId),
-        ),
-      ])..where(
-        _database.workOrders.id.equals(id) &
-            _database.workOrders.deletedAt.isNull() &
-            _database.locations.deletedAt.isNull(),
-      );
+      final query =
+          _database.select(_database.workOrders).join([
+            innerJoin(
+              _database.locations,
+              _database.locations.id.equalsExp(_database.workOrders.locationId),
+            ),
+          ])..where(
+            _database.workOrders.id.equals(id) &
+                _database.workOrders.deletedAt.isNull() &
+                _database.locations.deletedAt.isNull(),
+          );
       final row = await query.getSingleOrNull();
 
       if (row == null) {
@@ -158,7 +161,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureBool saveWorkOrder(WorkOrderResponseModel workOrder) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.workOrders).insertOnConflictUpdate(
+      await _database
+          .into(_database.workOrders)
+          .insertOnConflictUpdate(
             WorkOrdersCompanion(
               id: Value(workOrder.id),
               companyId: Value(workOrder.companyId),
@@ -195,11 +200,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.workOrders)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        WorkOrdersCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(WorkOrdersCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
@@ -211,25 +212,28 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) {
     return ErrorHandler.execute(() async {
-      final query = _database.select(_database.tasks)
-        ..where((t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull());
+      final query = _database.select(
+        _database.tasks,
+      )..where((t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull());
       final rows = await query.get();
 
       final list = rows
-          .map((row) => TaskResponseModel(
-                id: row.id,
-                workOrderId: row.workOrderId,
-                companyId: row.companyId,
-                title: row.title,
-                description: row.description,
-                isCompleted: row.isCompleted,
-                completedAt: row.completedAt,
-                completedById: row.completedById,
-                sortOrder: row.sortOrder,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => TaskResponseModel(
+              id: row.id,
+              workOrderId: row.workOrderId,
+              companyId: row.companyId,
+              title: row.title,
+              description: row.description,
+              isCompleted: row.isCompleted,
+              completedAt: row.completedAt,
+              completedById: row.completedById,
+              sortOrder: row.sortOrder,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -239,7 +243,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureBool saveTask(TaskResponseModel task) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.tasks).insertOnConflictUpdate(
+      await _database
+          .into(_database.tasks)
+          .insertOnConflictUpdate(
             TasksCompanion(
               id: Value(task.id),
               workOrderId: Value(task.workOrderId),
@@ -264,11 +270,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.tasks)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        TasksCompanion(
-          deletedAt: Value(DateTime.now()),
-        ),
-      );
+      await query.write(TasksCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
@@ -278,27 +280,31 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(String companyId) {
+  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
+    String companyId,
+  ) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrderChangeRequests)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
       final rows = await query.get();
 
       final list = rows
-          .map((row) => WorkOrderChangeRequestResponseModel(
-                id: row.id,
-                workOrderId: row.workOrderId,
-                companyId: row.companyId,
-                requestedById: row.requestedById,
-                changeType: WorkOrderChangeType.fromCode(row.changeType),
-                changeData: row.changeData,
-                status: ChangeRequestStatus.fromCode(row.status),
-                reviewedById: row.reviewedById,
-                rejectionReason: row.rejectionReason,
-                createdAt: row.createdAt,
-                updatedAt: row.updatedAt,
-                deletedAt: row.deletedAt,
-              ))
+          .map(
+            (row) => WorkOrderChangeRequestResponseModel(
+              id: row.id,
+              workOrderId: row.workOrderId,
+              companyId: row.companyId,
+              requestedById: row.requestedById,
+              changeType: WorkOrderChangeType.fromCode(row.changeType),
+              changeData: row.changeData,
+              status: ChangeRequestStatus.fromCode(row.status),
+              reviewedById: row.reviewedById,
+              rejectionReason: row.rejectionReason,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+              deletedAt: row.deletedAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -308,7 +314,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureBool saveChangeRequest(WorkOrderChangeRequestResponseModel request) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.workOrderChangeRequests).insertOnConflictUpdate(
+      await _database
+          .into(_database.workOrderChangeRequests)
+          .insertOnConflictUpdate(
             WorkOrderChangeRequestsCompanion(
               id: Value(request.id),
               workOrderId: Value(request.workOrderId),
@@ -350,29 +358,32 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     });
   }
 
-
   // ============================================
   // History
   // ============================================
 
   @override
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(String workOrderId) {
+  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
+    String workOrderId,
+  ) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrderHistory)
         ..where((t) => t.workOrderId.equals(workOrderId));
       final rows = await query.get();
 
       final list = rows
-          .map((row) => WorkOrderHistoryResponseModel(
-                id: row.id,
-                workOrderId: row.workOrderId,
-                companyId: row.companyId,
-                userId: row.userId,
-                action: row.action,
-                oldValue: row.oldValue,
-                newValue: row.newValue,
-                createdAt: row.createdAt,
-              ))
+          .map(
+            (row) => WorkOrderHistoryResponseModel(
+              id: row.id,
+              workOrderId: row.workOrderId,
+              companyId: row.companyId,
+              userId: row.userId,
+              action: row.action,
+              oldValue: row.oldValue,
+              newValue: row.newValue,
+              createdAt: row.createdAt,
+            ),
+          )
           .toList();
 
       return SuccessState(data: list);
@@ -382,7 +393,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureBool saveWorkOrderHistory(WorkOrderHistoryResponseModel history) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.workOrderHistory).insertOnConflictUpdate(
+      await _database
+          .into(_database.workOrderHistory)
+          .insertOnConflictUpdate(
             WorkOrderHistoryCompanion(
               id: Value(history.id),
               workOrderId: Value(history.workOrderId),

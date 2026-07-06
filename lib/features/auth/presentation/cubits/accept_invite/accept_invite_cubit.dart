@@ -1,19 +1,19 @@
 import 'dart:async';
 
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'accept_invite_state.dart';

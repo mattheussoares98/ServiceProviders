@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
-import 'package:clean_architecture/features/configurations/presentation/pages/configurations/widgets/configuration_item.dart';
-import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
+import 'package:o_jogo_da_obra/features/configurations/presentation/pages/configurations/widgets/configuration_item.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class DangerZoneCard extends StatelessWidget {
   const DangerZoneCard({super.key});

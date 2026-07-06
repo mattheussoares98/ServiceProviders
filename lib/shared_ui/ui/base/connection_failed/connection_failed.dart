@@ -1,8 +1,8 @@
-import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/connection_failed/network_tower.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/connection_failed/network_tower.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class ConnectionFailed extends StatelessWidget {
   const ConnectionFailed({super.key, required this.callBack});

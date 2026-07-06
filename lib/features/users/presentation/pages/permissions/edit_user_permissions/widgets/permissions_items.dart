@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_segmented_buttons.dart';
-import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_segmented_buttons.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class PermissionsItems extends StatelessWidget {
   const PermissionsItems({super.key});

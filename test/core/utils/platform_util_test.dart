@@ -1,12 +1,16 @@
 import 'dart:io' show Platform;
-import 'package:clean_architecture/core/utils/platform_util.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 
 void main() {
   group('PlatformUtil Unit Tests', () {
-    test('isWeb should be false in a standard Flutter unit test environment', () {
-      expect(PlatformUtil.isWeb, isFalse);
-    });
+    test(
+      'isWeb should be false in a standard Flutter unit test environment',
+      () {
+        expect(PlatformUtil.isWeb, isFalse);
+      },
+    );
 
     test('isAndroid should match Platform.isAndroid', () {
       expect(PlatformUtil.isAndroid, Platform.isAndroid);
@@ -37,7 +41,10 @@ void main() {
     });
 
     test('isDesktop should match (isMacOS || isWindows || isLinux)', () {
-      expect(PlatformUtil.isDesktop, Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+      expect(
+        PlatformUtil.isDesktop,
+        Platform.isMacOS || Platform.isWindows || Platform.isLinux,
+      );
     });
   });
 }

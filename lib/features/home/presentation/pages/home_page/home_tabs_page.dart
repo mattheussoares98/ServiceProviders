@@ -1,10 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/home_drawer.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/home_drawer.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 @RoutePage()
 class HomeTabsPage extends StatelessWidget {

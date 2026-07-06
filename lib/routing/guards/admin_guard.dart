@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/features/auth/domain/repositories/session_repository.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
 final class AdminGuard extends AutoRouteGuard {
   const AdminGuard();

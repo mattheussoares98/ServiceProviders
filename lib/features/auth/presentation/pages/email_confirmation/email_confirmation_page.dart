@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_background.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_card.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_background.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_card.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 @RoutePage()

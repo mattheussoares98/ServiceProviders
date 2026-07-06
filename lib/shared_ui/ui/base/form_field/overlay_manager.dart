@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 /// PERFORMANCE: This manager uses the Overlay API to create an accessory bar
 /// that floats above the keyboard. It is isolated from the main widget tree

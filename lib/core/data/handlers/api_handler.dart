@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 /// A dedicated executor for API operations, providing safe execution of
 /// HTTP requests, standard response normalization, and error mapping.

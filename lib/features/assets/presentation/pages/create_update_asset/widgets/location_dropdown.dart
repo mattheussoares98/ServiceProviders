@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class LocationDropdown extends StatelessWidget {
   const LocationDropdown({

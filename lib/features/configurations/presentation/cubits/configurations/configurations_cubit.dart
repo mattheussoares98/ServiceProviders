@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
-import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit_use_cases.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'configurations_state.dart';
 
@@ -41,7 +41,10 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
       );
     } else if (result is FailureState<ConfigurationsEntity>) {
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: result.message),
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: result.message,
+        ),
       );
     }
   }

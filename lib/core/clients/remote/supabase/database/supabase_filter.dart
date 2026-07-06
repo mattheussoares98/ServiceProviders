@@ -1,5 +1,5 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter_operator.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter_operator.dart';
 
 final class SupabaseFilter extends Equatable {
   const SupabaseFilter._({

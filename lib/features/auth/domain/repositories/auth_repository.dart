@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
-import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 
 abstract interface class AuthRepository {
   FutureData<UserDataEntity> login(AuthenticationEntity authentication);

@@ -1,17 +1,17 @@
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_bottom_navigation_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class BaseScaffold extends StatelessWidget {
   const BaseScaffold({

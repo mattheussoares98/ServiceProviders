@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';

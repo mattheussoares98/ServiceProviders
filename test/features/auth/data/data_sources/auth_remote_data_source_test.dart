@@ -1,14 +1,14 @@
-import 'package:clean_architecture/config/app_config.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/config/app_config.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';

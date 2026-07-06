@@ -1,15 +1,15 @@
-import 'package:clean_architecture/config/app_config.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
-import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/config/app_config.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDataSource {

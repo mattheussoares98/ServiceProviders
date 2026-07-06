@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/routing/routes.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/routing/routes.dart';
 
 class MockAppRouter extends Mock implements AppRouter {}
 

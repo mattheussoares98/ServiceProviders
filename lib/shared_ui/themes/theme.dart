@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/constants/app_colors.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 part 'theme_data.dart';
 

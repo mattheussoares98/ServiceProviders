@@ -1,18 +1,18 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:clean_architecture/features/assets/domain/use_cases/get_assets_use_case.dart';
-import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
-import 'package:clean_architecture/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -275,7 +275,11 @@ void main() {
               'activeWorkOrders',
               isA<List<WorkOrderEntity>>()
                   .having((list) => list.length, 'length', 3)
-                  .having((list) => list[0].id, 'first id (most recent 12h)', 'wo-2')
+                  .having(
+                    (list) => list[0].id,
+                    'first id (most recent 12h)',
+                    'wo-2',
+                  )
                   .having((list) => list[1].id, 'second id (11h)', 'wo-3')
                   .having((list) => list[2].id, 'third id (10h)', 'wo-1'),
             ),

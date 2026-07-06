@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class ResponsiveListFlow extends StatelessWidget {
   const ResponsiveListFlow({

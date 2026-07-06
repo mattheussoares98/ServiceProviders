@@ -1,5 +1,5 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 class ApiResponse<T extends Object?> {
   ApiResponse({

@@ -1,5 +1,5 @@
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 
 class PermissionGroupEntity extends Equatable {
   const PermissionGroupEntity({
@@ -22,14 +22,14 @@ class PermissionGroupEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        permissions,
-        isDefault,
-        createdAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    permissions,
+    isDefault,
+    createdAt,
+    deletedAt,
+  ];
 
   PermissionGroupEntity copyWith({
     String? id,

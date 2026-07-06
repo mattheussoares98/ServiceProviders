@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/configurations/data/data_sources/configurations_local_data_source.dart';
-import 'package:clean_architecture/features/configurations/data/data_sources/configurations_remote_data_source.dart';
-import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
-import 'package:clean_architecture/features/configurations/domain/repositories/configurations_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/repositories/configurations_repository.dart';
 
 @LazySingleton(as: ConfigurationsRepository)
 final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {

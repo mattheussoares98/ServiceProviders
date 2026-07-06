@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/routing/guards/admin_guard.dart';
-import 'package:clean_architecture/routing/guards/authenticated_guard.dart';
-import 'package:clean_architecture/routing/helper/route_data.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/routing/guards/admin_guard.dart';
+import 'package:o_jogo_da_obra/routing/guards/authenticated_guard.dart';
+import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Page,Route')
 class AppRouter extends RootStackRouter {

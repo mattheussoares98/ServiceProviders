@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class DeleteUserButton extends StatelessWidget {
   const DeleteUserButton({super.key, required this.user});

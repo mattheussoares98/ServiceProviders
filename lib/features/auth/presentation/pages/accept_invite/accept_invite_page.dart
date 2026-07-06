@@ -1,26 +1,26 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_state_view.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 
 @RoutePage()
 class AcceptInvitePage extends HookWidget {

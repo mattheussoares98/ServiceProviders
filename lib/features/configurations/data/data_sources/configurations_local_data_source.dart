@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
 
 abstract interface class ConfigurationsLocalDataSource {
   FutureData<ConfigurationsEntity> getConfigurations();

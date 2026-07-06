@@ -1,6 +1,6 @@
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 part 'screen_details.dart';
 part 'screen_type.dart';

@@ -1,22 +1,22 @@
 import 'dart:async';
 
-import 'package:clean_architecture/config/app_config.dart';
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
-import 'package:clean_architecture/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
-import 'package:clean_architecture/shared_ui/themes/theme.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/config/app_config.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MyApp extends StatefulWidget {

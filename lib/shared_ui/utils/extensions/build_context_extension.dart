@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 
 extension BuildContextExtension on BuildContext {
   double get statusHeight => MediaQuery.of(this).viewPadding.top;

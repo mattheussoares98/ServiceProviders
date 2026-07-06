@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 
 class DescriptionField extends StatelessWidget {
   const DescriptionField({

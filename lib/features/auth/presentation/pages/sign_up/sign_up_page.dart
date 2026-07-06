@@ -1,15 +1,15 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/sign_up/widgets/sign_up_button.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/sign_up/widgets/sign_up_form.dart';
-import 'package:clean_architecture/shared_ui/ui/base/app_bar/base_app_bar.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_scaffold.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/sign_up/widgets/sign_up_button.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/sign_up/widgets/sign_up_form.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
 class SignUpPage extends HookWidget {

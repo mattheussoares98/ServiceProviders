@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/string_validator.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/string_validator.dart';
 
 class CpfCnpjValidator implements StringValidator {
   CpfCnpjValidator({

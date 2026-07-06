@@ -1,14 +1,14 @@
-import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/presentation/pages/create_update_asset/widgets/extensions.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_indication_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_asset/widgets/extensions.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_indication_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class SubTitle extends StatelessWidget {
   const SubTitle({super.key, required this.asset});

@@ -1,9 +1,9 @@
 import 'dart:developer' as console;
 
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 part 'screen_observer_state.dart';
 

@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/locations/data/data_sources/locations_local_data_source.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -155,9 +155,7 @@ void main() {
         expect(saveResult.data, isTrue);
 
         // Act: Get Areas
-        final getResult = await dataSource.getAreas(
-          tLocationModel.companyId,
-        );
+        final getResult = await dataSource.getAreas(tLocationModel.companyId);
 
         // Assert Get
         expect(getResult, isA<SuccessState<List<AreaModel>>>());
@@ -181,9 +179,7 @@ void main() {
           expect(deleteResult.data, isTrue);
 
           // Act: Get
-          final getResult = await dataSource.getAreas(
-            tLocationModel.companyId,
-          );
+          final getResult = await dataSource.getAreas(tLocationModel.companyId);
 
           // Assert Get: Should be empty
           expect(getResult, isA<SuccessState<List<AreaModel>>>());
@@ -223,9 +219,7 @@ void main() {
           expect(saveResult, isA<SuccessState<bool>>());
           expect(saveResult.data, isTrue);
 
-          final getResult = await dataSource.getAreas(
-            tLocationModel.companyId,
-          );
+          final getResult = await dataSource.getAreas(tLocationModel.companyId);
 
           expect(getResult, isA<SuccessState<List<AreaModel>>>());
           expect(getResult.data, hasLength(areas.length));

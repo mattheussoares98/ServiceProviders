@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
-import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -135,26 +135,37 @@ void main() {
         expect(getResult.data, equals(tUserProfileModel));
       });
 
-      test('should save multiple user profiles and successfully retrieve them', () async {
-        await insertTestCompany(tUserProfileModel.companyId);
-        final profile2 = UserProfileResponseModel.fromEntity(
-          EntityFactory.makeUserProfileEntity().copyWith(
-            companyId: tUserProfileModel.companyId,
-            annulPermissionGroupId: true,
-          ),
-        );
+      test(
+        'should save multiple user profiles and successfully retrieve them',
+        () async {
+          await insertTestCompany(tUserProfileModel.companyId);
+          final profile2 = UserProfileResponseModel.fromEntity(
+            EntityFactory.makeUserProfileEntity().copyWith(
+              companyId: tUserProfileModel.companyId,
+              annulPermissionGroupId: true,
+            ),
+          );
 
-        final saveResult = await dataSource.saveUserProfiles([tUserProfileModel, profile2]);
+          final saveResult = await dataSource.saveUserProfiles([
+            tUserProfileModel,
+            profile2,
+          ]);
 
-        expect(saveResult, isA<SuccessState<bool>>());
-        expect(saveResult.data, isTrue);
+          expect(saveResult, isA<SuccessState<bool>>());
+          expect(saveResult.data, isTrue);
 
-        final getResult = await dataSource.getUserProfiles(tUserProfileModel.companyId);
+          final getResult = await dataSource.getUserProfiles(
+            tUserProfileModel.companyId,
+          );
 
-        expect(getResult, isA<SuccessState<List<UserProfileResponseModel>>>());
-        expect(getResult.data, hasLength(2));
-        expect(getResult.data, containsAll([tUserProfileModel, profile2]));
-      });
+          expect(
+            getResult,
+            isA<SuccessState<List<UserProfileResponseModel>>>(),
+          );
+          expect(getResult.data, hasLength(2));
+          expect(getResult.data, containsAll([tUserProfileModel, profile2]));
+        },
+      );
 
       test(
         'should return FailureState when database throws an exception on saveUserProfiles',

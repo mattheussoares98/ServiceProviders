@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/configurations/domain/entities/configurations_entity.dart';
-import 'package:clean_architecture/features/configurations/domain/use_cases/get_configurations_use_case.dart';
-import 'package:clean_architecture/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -16,17 +16,20 @@ void main() {
 
   setUp(() {
     mockRepository = MockConfigurationsRepository();
-    getUseCase =
-        GetConfigurationsUseCase(configurationsRepository: mockRepository);
-    saveUseCase =
-        SaveConfigurationsUseCase(configurationsRepository: mockRepository);
+    getUseCase = GetConfigurationsUseCase(
+      configurationsRepository: mockRepository,
+    );
+    saveUseCase = SaveConfigurationsUseCase(
+      configurationsRepository: mockRepository,
+    );
   });
 
   group('GetConfigurationsUseCase', () {
     test('should return SuccessState when call is successful', () async {
       final tEntity = EntityFactory.makeConfigurationsEntity();
-      when(() => mockRepository.getConfigurations())
-          .thenAnswer((_) async => SuccessState(data: tEntity));
+      when(
+        () => mockRepository.getConfigurations(),
+      ).thenAnswer((_) async => SuccessState(data: tEntity));
 
       final result = await getUseCase();
 
@@ -36,8 +39,9 @@ void main() {
 
     test('should return FailureState when call fails', () async {
       final tMessage = faker.lorem.sentence();
-      when(() => mockRepository.getConfigurations())
-          .thenAnswer((_) async => FailureState(message: tMessage));
+      when(
+        () => mockRepository.getConfigurations(),
+      ).thenAnswer((_) async => FailureState(message: tMessage));
 
       final result = await getUseCase();
 
@@ -49,8 +53,9 @@ void main() {
   group('SaveConfigurationsUseCase', () {
     test('should return SuccessState when save is successful', () async {
       final tEnabled = faker.randomGenerator.boolean();
-      when(() => mockRepository.savePushNotifications(tEnabled))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockRepository.savePushNotifications(tEnabled),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await saveUseCase(tEnabled);
 
@@ -61,8 +66,9 @@ void main() {
     test('should return FailureState when save fails', () async {
       final tEnabled = faker.randomGenerator.boolean();
       final tMessage = faker.lorem.sentence();
-      when(() => mockRepository.savePushNotifications(tEnabled))
-          .thenAnswer((_) async => FailureState(message: tMessage));
+      when(
+        () => mockRepository.savePushNotifications(tEnabled),
+      ).thenAnswer((_) async => FailureState(message: tMessage));
 
       final result = await saveUseCase(tEnabled);
 

@@ -1,6 +1,6 @@
-import 'package:clean_architecture/shared_ui/utils/client_mixin.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/client_mixin.dart';
 
 enum StateStatus {
   initial,

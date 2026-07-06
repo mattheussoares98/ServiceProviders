@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
-import 'package:clean_architecture/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
 part 'categories_state.dart';
@@ -44,10 +44,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     } else {
       final message = result.message ?? 'Erro ao carregar categorias'.hardcoded;
       emit(
-        state.copyWith(
-          status: StateStatus.loadingError,
-          errorMessage: message,
-        ),
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
     }
@@ -95,10 +92,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     } else {
       final message = result.message ?? 'Erro ao salvar categoria'.hardcoded;
       emit(
-        state.copyWith(
-          status: StateStatus.loadingError,
-          errorMessage: message,
-        ),
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;

@@ -1,7 +1,7 @@
-import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_button.dart';
-import 'package:clean_architecture/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_icon.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_button.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/email_confirmation/widgets/email_confirmation_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class EmailConfirmationCard extends StatelessWidget {
   const EmailConfirmationCard({

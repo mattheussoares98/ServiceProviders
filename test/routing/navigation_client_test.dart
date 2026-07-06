@@ -1,8 +1,8 @@
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
 import '../../testing/mocks/external/router_mocks.dart';
 

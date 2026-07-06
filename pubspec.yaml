@@ -1,4 +1,4 @@
-name: clean_architecture
+name: o_jogo_da_obra
 description: A comprehensive guide to building scalable and maintainable Flutter applications using Architecture patterns and design Principles.
 publish_to: "none"
 
@@ -89,9 +89,9 @@ patrol:
   app_name: cleanArchitecture
   flavor: development
   android:
-    package_name: com.servicepro.connect
+    package_name: com.ojogodaobra
   ios:
-    bundle_id: com.servicepro.connect
+    bundle_id: com.ojogodaobra
 
 flutter_launcher_icons:
   image_path: "lib/core/utils/assets/kephas logo.png"

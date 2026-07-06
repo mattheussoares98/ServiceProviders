@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/locations/data/models/requests/area_request_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/area_model.dart';
-import 'package:clean_architecture/features/locations/data/models/responses/location_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 
 abstract interface class LocationsRemoteDataSource {
   FutureList<LocationModel> getLocations(String companyId);

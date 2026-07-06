@@ -1,15 +1,15 @@
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/company_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/home_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/profile_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
-import 'package:clean_architecture/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/company_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/home_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/profile_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 /// A premium, responsive navigation Drawer for the HomePage dashboard.
 ///

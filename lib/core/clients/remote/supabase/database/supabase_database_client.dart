@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter_operator.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_order.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter_operator.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class SupabaseDatabaseClient {

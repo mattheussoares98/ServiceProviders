@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/routing/routes.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/routing/routes.dart';
 
 abstract interface class NavigationClient {
   AutoRouterDelegate get routerDelegate;

@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 class UserDataResponseModel extends UserDataEntity

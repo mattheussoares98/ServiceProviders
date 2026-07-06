@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 class WorkOrderResponseModel extends WorkOrderEntity
     implements DataConvertible<WorkOrderEntity> {
@@ -104,57 +104,57 @@ class WorkOrderResponseModel extends WorkOrderEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'company_id': companyId,
-        'asset_id': assetId,
-        'location_id': locationId,
-        'assigned_to_id': assignedToId,
-        'created_by_id': createdById,
-        'maintenance_plan_id': maintenancePlanId,
-        'title': title,
-        'description': description,
-        'priority': priority.code,
-        'status': status.code,
-        'type': type.code,
-        'scheduled_date': scheduledDate?.toUtc().toIso8601String(),
-        'started_at': startedAt?.toUtc().toIso8601String(),
-        'completed_at': completedAt?.toUtc().toIso8601String(),
-        'estimated_duration': estimatedDuration,
-        'actual_duration': actualDuration,
-        'labor_cost': laborCost,
-        'parts_cost': partsCost,
-        'total_cost': totalCost,
-        'notes': notes,
-        'created_at': createdAt.toUtc().toIso8601String(),
-        'updated_at': updatedAt.toUtc().toIso8601String(),
-        'deleted_at': deletedAt?.toUtc().toIso8601String(),
-      };
+    'id': id,
+    'company_id': companyId,
+    'asset_id': assetId,
+    'location_id': locationId,
+    'assigned_to_id': assignedToId,
+    'created_by_id': createdById,
+    'maintenance_plan_id': maintenancePlanId,
+    'title': title,
+    'description': description,
+    'priority': priority.code,
+    'status': status.code,
+    'type': type.code,
+    'scheduled_date': scheduledDate?.toUtc().toIso8601String(),
+    'started_at': startedAt?.toUtc().toIso8601String(),
+    'completed_at': completedAt?.toUtc().toIso8601String(),
+    'estimated_duration': estimatedDuration,
+    'actual_duration': actualDuration,
+    'labor_cost': laborCost,
+    'parts_cost': partsCost,
+    'total_cost': totalCost,
+    'notes': notes,
+    'created_at': createdAt.toUtc().toIso8601String(),
+    'updated_at': updatedAt.toUtc().toIso8601String(),
+    'deleted_at': deletedAt?.toUtc().toIso8601String(),
+  };
 
   @override
   WorkOrderEntity toEntity() => WorkOrderEntity(
-        id: id,
-        companyId: companyId,
-        assetId: assetId,
-        locationId: locationId,
-        assignedToId: assignedToId,
-        createdById: createdById,
-        maintenancePlanId: maintenancePlanId,
-        title: title,
-        description: description,
-        priority: priority,
-        status: status,
-        type: type,
-        scheduledDate: scheduledDate,
-        startedAt: startedAt,
-        completedAt: completedAt,
-        estimatedDuration: estimatedDuration,
-        actualDuration: actualDuration,
-        laborCost: laborCost,
-        partsCost: partsCost,
-        totalCost: totalCost,
-        notes: notes,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    companyId: companyId,
+    assetId: assetId,
+    locationId: locationId,
+    assignedToId: assignedToId,
+    createdById: createdById,
+    maintenancePlanId: maintenancePlanId,
+    title: title,
+    description: description,
+    priority: priority,
+    status: status,
+    type: type,
+    scheduledDate: scheduledDate,
+    startedAt: startedAt,
+    completedAt: completedAt,
+    estimatedDuration: estimatedDuration,
+    actualDuration: actualDuration,
+    laborCost: laborCost,
+    partsCost: partsCost,
+    totalCost: totalCost,
+    notes: notes,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  );
 }

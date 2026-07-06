@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 
 class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   const AssetModel({

@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/{{feature.snakeCase()}}/data/data_sources/{{feature.snakeCase()}}_local_data_source.dart';
-import 'package:clean_architecture/features/{{feature.snakeCase()}}/data/data_sources/{{feature.snakeCase()}}_remote_data_source.dart';
-import 'package:clean_architecture/features/{{feature.snakeCase()}}/domain/repositories/{{feature.snakeCase()}}_repository.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/{{feature.snakeCase()}}/data/data_sources/{{feature.snakeCase()}}_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/{{feature.snakeCase()}}/data/data_sources/{{feature.snakeCase()}}_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/{{feature.snakeCase()}}/domain/repositories/{{feature.snakeCase()}}_repository.dart';
 import 'package:injectable/injectable.dart';
 
 

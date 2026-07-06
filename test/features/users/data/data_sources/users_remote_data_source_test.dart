@@ -1,15 +1,15 @@
-import 'package:clean_architecture/config/app_config.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
-import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/routing/helper/route_data.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/config/app_config.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -189,39 +189,43 @@ void main() {
     });
 
     group('inviteUser', () {
-      test('should call invokeFunction with correct parameters on success', () async {
-        final email = faker.internet.email();
-        final mockResponse = MockFunctionResponse();
-        when(() => mockResponse.status).thenReturn(200);
+      test(
+        'should call invokeFunction with correct parameters on success',
+        () async {
+          final email = faker.internet.email();
+          final mockResponse = MockFunctionResponse();
+          when(() => mockResponse.status).thenReturn(200);
 
-        when(
-          () => mockDatabase.invokeFunction(
-            any(),
-            method: any(named: 'method'),
-            body: any(named: 'body'),
-          ),
-        ).thenAnswer((_) async => mockResponse);
+          when(
+            () => mockDatabase.invokeFunction(
+              any(),
+              method: any(named: 'method'),
+              body: any(named: 'body'),
+            ),
+          ).thenAnswer((_) async => mockResponse);
 
-        final result = await dataSource.inviteUser(
-          email: email,
-          companyId: tCompanyId,
-          groupId: tId,
-        );
+          final result = await dataSource.inviteUser(
+            email: email,
+            companyId: tCompanyId,
+            groupId: tId,
+          );
 
-        expect(result, isA<SuccessState<void>>());
-        verify(
-          () => mockDatabase.invokeFunction(
-            'invite-user',
-            method: HttpMethod.post,
-            body: {
-              'email': email,
-              'company_id': tCompanyId,
-              'permission_group_id': tId,
-              'redirect_url': '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
-            },
-          ),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<void>>());
+          verify(
+            () => mockDatabase.invokeFunction(
+              'invite-user',
+              method: HttpMethod.post,
+              body: {
+                'email': email,
+                'company_id': tCompanyId,
+                'permission_group_id': tId,
+                'redirect_url':
+                    '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
+              },
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('getPendingInvitations', () {
@@ -281,35 +285,39 @@ void main() {
     });
 
     group('resendInvitation', () {
-      test('should call invokeFunction with correct parameters on success', () async {
-        final tInvitation = EntityFactory.makeUserInvitationEntity();
-        final mockResponse = MockFunctionResponse();
-        when(() => mockResponse.status).thenReturn(200);
+      test(
+        'should call invokeFunction with correct parameters on success',
+        () async {
+          final tInvitation = EntityFactory.makeUserInvitationEntity();
+          final mockResponse = MockFunctionResponse();
+          when(() => mockResponse.status).thenReturn(200);
 
-        when(
-          () => mockDatabase.invokeFunction(
-            any(),
-            method: any(named: 'method'),
-            body: any(named: 'body'),
-          ),
-        ).thenAnswer((_) async => mockResponse);
+          when(
+            () => mockDatabase.invokeFunction(
+              any(),
+              method: any(named: 'method'),
+              body: any(named: 'body'),
+            ),
+          ).thenAnswer((_) async => mockResponse);
 
-        final result = await dataSource.resendInvitation(tInvitation);
+          final result = await dataSource.resendInvitation(tInvitation);
 
-        expect(result, isA<SuccessState<void>>());
-        verify(
-          () => mockDatabase.invokeFunction(
-            'invite-user',
-            method: HttpMethod.post,
-            body: {
-              'email': tInvitation.email,
-              'company_id': tInvitation.companyId,
-              'permission_group_id': tInvitation.permissionGroupId,
-              'redirect_url': '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
-            },
-          ),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<void>>());
+          verify(
+            () => mockDatabase.invokeFunction(
+              'invite-user',
+              method: HttpMethod.post,
+              body: {
+                'email': tInvitation.email,
+                'company_id': tInvitation.companyId,
+                'permission_group_id': tInvitation.permissionGroupId,
+                'redirect_url':
+                    '${TestAppConfig.defaultWebBaseUrl}$kAcceptInvitePath',
+              },
+            ),
+          ).called(1);
+        },
+      );
     });
 
     // ============================================

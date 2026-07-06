@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
 part 'locations_state.dart';

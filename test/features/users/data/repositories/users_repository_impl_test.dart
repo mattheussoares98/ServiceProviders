@@ -1,14 +1,14 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/features/users/data/repositories/users_repository_impl.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/repositories/users_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';

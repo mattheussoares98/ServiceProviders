@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_drawer_item.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_drawer_item.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 /// Navigation item for the home drawer to go to the dashboard / main screen.
 class HomeDrawerItem extends StatelessWidget {

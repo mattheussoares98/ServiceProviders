@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/utils/platform_util.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_list_tile.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 void main() {
   group('BaseListTile Widget Tests', () {

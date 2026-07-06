@@ -1,19 +1,19 @@
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:clean_architecture/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/authentication_request_model.dart';
-import 'package:clean_architecture/features/auth/data/models/requests/sign_up_request_model.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:clean_architecture/features/auth/domain/entities/authentication_entity.dart';
-import 'package:clean_architecture/features/auth/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/features/auth/domain/repositories/auth_repository.dart';
-import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
+import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 
 @LazySingleton(as: AuthRepository)
 final class AuthRepositoryImpl implements AuthRepository {

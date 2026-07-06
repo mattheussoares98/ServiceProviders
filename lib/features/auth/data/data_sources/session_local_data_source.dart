@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/features/auth/data/models/responses/user_data_response_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
 
 abstract interface class SessionLocalDataSource {
   Future<UserDataResponseModel?> getUserData();

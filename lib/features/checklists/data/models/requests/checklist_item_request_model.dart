@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_entity.dart';
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 
 class ChecklistItemRequestModel extends ChecklistItemEntity
     implements DataConvertible<ChecklistItemEntity> {
@@ -42,8 +42,8 @@ class ChecklistItemRequestModel extends ChecklistItemEntity
         isRequired: json['is_required'] as bool? ?? false,
         options: json['options'] != null
             ? (json['options'] is List
-                ? (json['options'] as List).map((e) => e.toString()).toList()
-                : null)
+                  ? (json['options'] as List).map((e) => e.toString()).toList()
+                  : null)
             : null,
         sortOrder: json['sort_order'] as int? ?? 0,
         createdAt: json['created_at'] != null
@@ -56,29 +56,29 @@ class ChecklistItemRequestModel extends ChecklistItemEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'template_id': templateId,
-        'company_id': companyId,
-        'label': label,
-        'type': type.code,
-        'is_required': isRequired,
-        'options': options,
-        'sort_order': sortOrder,
-        'created_at': createdAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'template_id': templateId,
+    'company_id': companyId,
+    'label': label,
+    'type': type.code,
+    'is_required': isRequired,
+    'options': options,
+    'sort_order': sortOrder,
+    'created_at': createdAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   ChecklistItemEntity toEntity() => ChecklistItemEntity(
-        id: id,
-        templateId: templateId,
-        companyId: companyId,
-        label: label,
-        type: type,
-        isRequired: isRequired,
-        options: options,
-        sortOrder: sortOrder,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    templateId: templateId,
+    companyId: companyId,
+    label: label,
+    type: type,
+    isRequired: isRequired,
+    options: options,
+    sortOrder: sortOrder,
+    createdAt: createdAt,
+    deletedAt: deletedAt,
+  );
 }

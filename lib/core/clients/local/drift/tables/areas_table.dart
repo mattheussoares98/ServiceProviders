@@ -1,13 +1,17 @@
-import 'package:clean_architecture/core/clients/local/drift/tables/companies_table.dart';
-import 'package:clean_architecture/core/clients/local/drift/tables/locations_table.dart';
 import 'package:drift/drift.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 
 @TableIndex(name: 'idx_areas_location', columns: {#locationId})
-@TableIndex.sql('CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name COLLATE NOCASE) WHERE deleted_at IS NULL;')
+@TableIndex.sql(
+  'CREATE UNIQUE INDEX areas_location_name_active_idx ON areas (location_id, name COLLATE NOCASE) WHERE deleted_at IS NULL;',
+)
 class Areas extends Table {
   TextColumn get id => text()();
-  TextColumn get locationId => text().references(Locations, #id, onDelete: KeyAction.cascade)();
-  TextColumn get companyId => text().references(Companies, #id, onDelete: KeyAction.cascade)();
+  TextColumn get locationId =>
+      text().references(Locations, #id, onDelete: KeyAction.cascade)();
+  TextColumn get companyId =>
+      text().references(Companies, #id, onDelete: KeyAction.cascade)();
   TextColumn get name => text()();
   TextColumn get floor => text().nullable()();
   TextColumn get description => text().nullable()();

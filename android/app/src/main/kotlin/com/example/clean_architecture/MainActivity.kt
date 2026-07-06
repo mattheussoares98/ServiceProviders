@@ -1,4 +1,4 @@
-package com.servicepro.connect
+package com.ojogodaobra
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/repositories/work_orders_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
 
 /// Parameter object for reviewing a change request.
 class ReviewChangeRequestParams extends Equatable {
@@ -25,9 +25,9 @@ class ReviewChangeRequestParams extends Equatable {
 /// Approves or rejects a change request for a closed work order.
 @LazySingleton()
 class ReviewWorkOrderChangeRequestUseCase {
-  ReviewWorkOrderChangeRequestUseCase(
-      {required WorkOrdersRepository workOrdersRepository})
-      : _workOrdersRepository = workOrdersRepository;
+  ReviewWorkOrderChangeRequestUseCase({
+    required WorkOrdersRepository workOrdersRepository,
+  }) : _workOrdersRepository = workOrdersRepository;
 
   final WorkOrdersRepository _workOrdersRepository;
 

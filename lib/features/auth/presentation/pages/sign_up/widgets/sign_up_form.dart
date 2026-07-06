@@ -1,16 +1,16 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/email_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 
 class SignUpForm extends StatelessWidget {
   const SignUpForm({
@@ -78,9 +78,7 @@ class SignUpForm extends StatelessWidget {
               autovalidateMode: AutovalidateMode.onUserInteraction,
               obscureText: !passwordVisibility,
               suffixIcon: BaseIconButton(
-                onPressed: context
-                    .read<SignUpCubit>()
-                    .togglePasswordVisibility,
+                onPressed: context.read<SignUpCubit>().togglePasswordVisibility,
                 platformIcon: PlatformIcon(
                   materialIcon: passwordVisibility
                       ? Icons.visibility_outlined
@@ -104,8 +102,7 @@ class SignUpForm extends StatelessWidget {
               hintText: 'Digite sua senha'.hardcoded,
               controller: passwordConfirmationController,
               validator: (value) =>
-                  passwordConfirmationController.text ==
-                      passwordController.text
+                  passwordConfirmationController.text == passwordController.text
                   ? null
                   : 'Senhas não conferem'.hardcoded,
               autovalidateMode: AutovalidateMode.onUserInteraction,

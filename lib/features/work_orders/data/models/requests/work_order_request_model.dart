@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 class WorkOrderRequestModel extends WorkOrderEntity
     implements DataConvertible<WorkOrderEntity> {

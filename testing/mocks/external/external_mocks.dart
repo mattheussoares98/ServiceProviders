@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:dio/dio.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 
 class MockDio extends Mock implements Dio {}
 

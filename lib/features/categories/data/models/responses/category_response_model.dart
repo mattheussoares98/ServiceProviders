@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
 class CategoryResponseModel extends CategoryEntity
     implements DataConvertible<CategoryEntity> {
@@ -42,23 +42,23 @@ class CategoryResponseModel extends CategoryEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'company_id': companyId,
-        'name': name,
-        'description': description,
-        'color': color,
-        'created_at': createdAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'company_id': companyId,
+    'name': name,
+    'description': description,
+    'color': color,
+    'created_at': createdAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   CategoryEntity toEntity() => CategoryEntity(
-        id: id,
-        companyId: companyId,
-        name: name,
-        description: description,
-        color: color,
-        createdAt: createdAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    companyId: companyId,
+    name: name,
+    description: description,
+    color: color,
+    createdAt: createdAt,
+    deletedAt: deletedAt,
+  );
 }

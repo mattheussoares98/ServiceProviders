@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
-import 'package:clean_architecture/features/attachments/domain/use_cases/create_attachment_use_case.dart';
-import 'package:clean_architecture/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
-import 'package:clean_architecture/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -24,9 +24,15 @@ void main() {
 
   setUp(() {
     mockRepository = MockAttachmentsRepository();
-    createAttachmentUseCase = CreateAttachmentUseCase(attachmentsRepository: mockRepository);
-    deleteAttachmentUseCase = DeleteAttachmentUseCase(attachmentsRepository: mockRepository);
-    getAttachmentsUseCase = GetAttachmentsUseCase(attachmentsRepository: mockRepository);
+    createAttachmentUseCase = CreateAttachmentUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    deleteAttachmentUseCase = DeleteAttachmentUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    getAttachmentsUseCase = GetAttachmentsUseCase(
+      attachmentsRepository: mockRepository,
+    );
   });
 
   final tAttachment = EntityFactory.makeAttachmentEntity();
@@ -39,24 +45,29 @@ void main() {
 
   group('Attachments Use Cases', () {
     group('CreateAttachmentUseCase', () {
-      test('should call repository.createAttachment and return true on success', () async {
-        // Arrange
-        when(() => mockRepository.createAttachment(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should call repository.createAttachment and return true on success',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.createAttachment(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
-        final result = await createAttachmentUseCase(tAttachment);
+          // Act
+          final result = await createAttachmentUseCase(tAttachment);
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, true);
-        verify(() => mockRepository.createAttachment(tAttachment)).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, true);
+          verify(() => mockRepository.createAttachment(tAttachment)).called(1);
+        },
+      );
 
       test('should return FailureState when repository fails', () async {
         // Arrange
-        when(() => mockRepository.createAttachment(any()))
-            .thenAnswer((_) async => FailureState<bool>(message: 'Create failed'));
+        when(
+          () => mockRepository.createAttachment(any()),
+        ).thenAnswer((_) async => FailureState<bool>(message: 'Create failed'));
 
         // Act
         final result = await createAttachmentUseCase(tAttachment);
@@ -69,24 +80,31 @@ void main() {
     });
 
     group('DeleteAttachmentUseCase', () {
-      test('should call repository.deleteAttachment and return true on success', () async {
-        // Arrange
-        when(() => mockRepository.deleteAttachment(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should call repository.deleteAttachment and return true on success',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.deleteAttachment(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Act
-        final result = await deleteAttachmentUseCase(tAttachment.id);
+          // Act
+          final result = await deleteAttachmentUseCase(tAttachment.id);
 
-        // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, true);
-        verify(() => mockRepository.deleteAttachment(tAttachment.id)).called(1);
-      });
+          // Assert
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, true);
+          verify(
+            () => mockRepository.deleteAttachment(tAttachment.id),
+          ).called(1);
+        },
+      );
 
       test('should return FailureState when repository fails', () async {
         // Arrange
-        when(() => mockRepository.deleteAttachment(any()))
-            .thenAnswer((_) async => FailureState<bool>(message: 'Delete failed'));
+        when(
+          () => mockRepository.deleteAttachment(any()),
+        ).thenAnswer((_) async => FailureState<bool>(message: 'Delete failed'));
 
         // Act
         final result = await deleteAttachmentUseCase(tAttachment.id);
@@ -99,24 +117,32 @@ void main() {
     });
 
     group('GetAttachmentsUseCase', () {
-      test('should call repository.getAttachments and return list of attachments on success', () async {
-        // Arrange
-        when(() => mockRepository.getAttachmentsByWorkOrder(any()))
-            .thenAnswer((_) async => SuccessState(data: tAttachments));
+      test(
+        'should call repository.getAttachments and return list of attachments on success',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.getAttachmentsByWorkOrder(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAttachments));
 
-        // Act
-        final result = await getAttachmentsUseCase(tWorkOrderId);
+          // Act
+          final result = await getAttachmentsUseCase(tWorkOrderId);
 
-        // Assert
-        expect(result.data, tAttachments);
-        expect(result, SuccessState(data: tAttachments));
-        verify(() => mockRepository.getAttachmentsByWorkOrder(tWorkOrderId)).called(1);
-      });
+          // Assert
+          expect(result.data, tAttachments);
+          expect(result, SuccessState(data: tAttachments));
+          verify(
+            () => mockRepository.getAttachmentsByWorkOrder(tWorkOrderId),
+          ).called(1);
+        },
+      );
 
       test('should return FailureState when repository fails', () async {
         // Arrange
-        when(() => mockRepository.getAttachmentsByWorkOrder(any()))
-            .thenAnswer((_) async => FailureState<List<AttachmentEntity>>(message: 'Load failed'));
+        when(() => mockRepository.getAttachmentsByWorkOrder(any())).thenAnswer(
+          (_) async =>
+              FailureState<List<AttachmentEntity>>(message: 'Load failed'),
+        );
 
         // Act
         final result = await getAttachmentsUseCase(tWorkOrderId);
@@ -124,7 +150,9 @@ void main() {
         // Assert
         expect(result, isA<FailureState<List<AttachmentEntity>>>());
         expect(result.message, 'Load failed');
-        verify(() => mockRepository.getAttachmentsByWorkOrder(tWorkOrderId)).called(1);
+        verify(
+          () => mockRepository.getAttachmentsByWorkOrder(tWorkOrderId),
+        ).called(1);
       });
     });
   });

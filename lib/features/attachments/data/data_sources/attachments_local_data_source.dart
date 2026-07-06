@@ -1,33 +1,39 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/attachments/data/models/responses/attachment_response_model.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/file_type.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/upload_status.dart';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
 abstract interface class AttachmentsLocalDataSource {
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(String workOrderId);
+  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
+    String workOrderId,
+  );
   FutureBool saveAttachment(AttachmentResponseModel attachment);
   FutureBool deleteAttachment(String id);
 }
 
 @LazySingleton(as: AttachmentsLocalDataSource)
-final class AttachmentsLocalDataSourceImpl implements AttachmentsLocalDataSource {
-  AttachmentsLocalDataSourceImpl({
-    required AppDatabase database,
-  }) : _database = database;
+final class AttachmentsLocalDataSourceImpl
+    implements AttachmentsLocalDataSource {
+  AttachmentsLocalDataSourceImpl({required AppDatabase database})
+    : _database = database;
 
   final AppDatabase _database;
 
   @override
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(String workOrderId) {
+  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
+    String workOrderId,
+  ) {
     return ErrorHandler.execute(() async {
-      final list = await (_database.select(_database.attachments)
-            ..where((t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull()))
-          .get();
+      final list =
+          await (_database.select(_database.attachments)..where(
+                (t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull(),
+              ))
+              .get();
 
       return SuccessState(
         data: list
@@ -56,7 +62,9 @@ final class AttachmentsLocalDataSourceImpl implements AttachmentsLocalDataSource
   @override
   FutureBool saveAttachment(AttachmentResponseModel attachment) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.attachments).insertOnConflictUpdate(
+      await _database
+          .into(_database.attachments)
+          .insertOnConflictUpdate(
             AttachmentsCompanion(
               id: Value(attachment.id),
               workOrderId: Value(attachment.workOrderId),

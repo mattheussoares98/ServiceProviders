@@ -1,6 +1,6 @@
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class EmailConfirmationButton extends StatelessWidget {
   const EmailConfirmationButton({super.key, required this.onPressed});

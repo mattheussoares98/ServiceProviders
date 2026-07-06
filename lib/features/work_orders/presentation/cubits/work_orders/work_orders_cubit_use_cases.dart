@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 
 @LazySingleton()
 class WorkOrdersCubitUseCases {

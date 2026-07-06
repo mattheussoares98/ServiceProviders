@@ -1,4 +1,4 @@
-package com.servicepro.connect;
+package com.ojogodaobra;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;

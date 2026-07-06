@@ -1,10 +1,10 @@
 import 'dart:developer' show log;
 
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract final class ErrorHandler {

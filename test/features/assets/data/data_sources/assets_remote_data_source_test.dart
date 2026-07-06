@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/assets/data/data_sources/assets_remote_data_source.dart';
-import 'package:clean_architecture/features/assets/data/models/requests/asset_request_model.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -70,36 +70,33 @@ void main() {
       },
     );
 
-    test(
-      'should return SuccessState<AssetModel> on selectOne success',
-      () async {
-        when(
-          () => mockSupabaseDatabaseClient.selectOne(
-            table: any(named: 'table'),
-            columns: any(named: 'columns'),
-            filters: any(named: 'filters'),
-          ),
-        ).thenAnswer((_) async => tAssetModel.toJson());
+    test('should return SuccessState<AssetModel> on selectOne success', () async {
+      when(
+        () => mockSupabaseDatabaseClient.selectOne(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => tAssetModel.toJson());
 
-        final result = await dataSource.getAssetById(tId);
+      final result = await dataSource.getAssetById(tId);
 
-        expect(result, isA<SuccessState<AssetModel>>());
-        expect(result.data!.id, tAssetModel.id);
-        verify(
-          () => mockSupabaseDatabaseClient.selectOne(
-            table: 'assets',
-            columns:
-                '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
-            filters: [
-              SupabaseFilter.eq('id', tId),
-              SupabaseFilter.isFilter('deleted_at', null),
-              SupabaseFilter.isFilter('areas.deleted_at', null),
-              SupabaseFilter.isFilter('areas.locations.deleted_at', null),
-            ],
-          ),
-        ).called(1);
-      },
-    );
+      expect(result, isA<SuccessState<AssetModel>>());
+      expect(result.data!.id, tAssetModel.id);
+      verify(
+        () => mockSupabaseDatabaseClient.selectOne(
+          table: 'assets',
+          columns:
+              '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
+          filters: [
+            SupabaseFilter.eq('id', tId),
+            SupabaseFilter.isFilter('deleted_at', null),
+            SupabaseFilter.isFilter('areas.deleted_at', null),
+            SupabaseFilter.isFilter('areas.locations.deleted_at', null),
+          ],
+        ),
+      ).called(1);
+    });
 
     test('should return FailureState when selectOne returns null', () async {
       when(

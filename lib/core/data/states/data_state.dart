@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 
 part 'failure_state.dart';
 part 'loading_state.dart';

@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/configurations/domain/use_cases/get_configurations_use_case.dart';
-import 'package:clean_architecture/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 
 @LazySingleton()
 class ConfigurationsCubitUseCases {

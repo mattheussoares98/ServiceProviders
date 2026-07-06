@@ -1,15 +1,15 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_request_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
-import 'package:clean_architecture/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
 part 'work_orders_state.dart';
@@ -136,8 +136,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return false;
     }
 
-    final computedStartedAt = startedAt ??
-        (status == WorkOrderStatus.inProgress ? now : null);
+    final computedStartedAt =
+        startedAt ?? (status == WorkOrderStatus.inProgress ? now : null);
 
     DateTime? computedCompletedAt = completedAt;
     if (status == WorkOrderStatus.completed) {

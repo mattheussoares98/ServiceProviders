@@ -1,5 +1,5 @@
-import 'package:clean_architecture/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 
 class ChecklistItemEntity extends Equatable {
   const ChecklistItemEntity({
@@ -28,17 +28,17 @@ class ChecklistItemEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        templateId,
-        companyId,
-        label,
-        type,
-        isRequired,
-        options,
-        sortOrder,
-        createdAt,
-        deletedAt,
-      ];
+    id,
+    templateId,
+    companyId,
+    label,
+    type,
+    isRequired,
+    options,
+    sortOrder,
+    createdAt,
+    deletedAt,
+  ];
 
   ChecklistItemEntity copyWith({
     String? id,

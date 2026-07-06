@@ -1,16 +1,16 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/auth/presentation/cubits/login/login_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/email_validator.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/form_validators.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/email_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({

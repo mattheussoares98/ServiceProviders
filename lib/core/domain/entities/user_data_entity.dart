@@ -1,5 +1,5 @@
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 class UserDataEntity extends Equatable {
   const UserDataEntity({

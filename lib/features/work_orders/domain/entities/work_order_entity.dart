@@ -1,7 +1,7 @@
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 class WorkOrderEntity extends Equatable {
   const WorkOrderEntity({
@@ -58,31 +58,31 @@ class WorkOrderEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        assetId,
-        locationId,
-        assignedToId,
-        createdById,
-        maintenancePlanId,
-        title,
-        description,
-        priority,
-        status,
-        type,
-        scheduledDate,
-        startedAt,
-        completedAt,
-        estimatedDuration,
-        actualDuration,
-        laborCost,
-        partsCost,
-        totalCost,
-        notes,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    assetId,
+    locationId,
+    assignedToId,
+    createdById,
+    maintenancePlanId,
+    title,
+    description,
+    priority,
+    status,
+    type,
+    scheduledDate,
+    startedAt,
+    completedAt,
+    estimatedDuration,
+    actualDuration,
+    laborCost,
+    partsCost,
+    totalCost,
+    notes,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   WorkOrderEntity copyWith({
     String? id,
@@ -128,19 +128,31 @@ class WorkOrderEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       assetId: annulAssetId == true ? null : assetId ?? this.assetId,
       locationId: locationId ?? this.locationId,
-      assignedToId: annulAssignedToId == true ? null : assignedToId ?? this.assignedToId,
+      assignedToId: annulAssignedToId == true
+          ? null
+          : assignedToId ?? this.assignedToId,
       createdById: createdById ?? this.createdById,
-      maintenancePlanId: annulMaintenancePlanId == true ? null : maintenancePlanId ?? this.maintenancePlanId,
+      maintenancePlanId: annulMaintenancePlanId == true
+          ? null
+          : maintenancePlanId ?? this.maintenancePlanId,
       title: title ?? this.title,
       description: description ?? this.description,
       priority: priority ?? this.priority,
       status: status ?? this.status,
       type: type ?? this.type,
-      scheduledDate: annulScheduledDate == true ? null : scheduledDate ?? this.scheduledDate,
+      scheduledDate: annulScheduledDate == true
+          ? null
+          : scheduledDate ?? this.scheduledDate,
       startedAt: annulStartedAt == true ? null : startedAt ?? this.startedAt,
-      completedAt: annulCompletedAt == true ? null : completedAt ?? this.completedAt,
-      estimatedDuration: annulEstimatedDuration == true ? null : estimatedDuration ?? this.estimatedDuration,
-      actualDuration: annulActualDuration == true ? null : actualDuration ?? this.actualDuration,
+      completedAt: annulCompletedAt == true
+          ? null
+          : completedAt ?? this.completedAt,
+      estimatedDuration: annulEstimatedDuration == true
+          ? null
+          : estimatedDuration ?? this.estimatedDuration,
+      actualDuration: annulActualDuration == true
+          ? null
+          : actualDuration ?? this.actualDuration,
       laborCost: annulLaborCost == true ? null : laborCost ?? this.laborCost,
       partsCost: annulPartsCost == true ? null : partsCost ?? this.partsCost,
       totalCost: annulTotalCost == true ? null : totalCost ?? this.totalCost,

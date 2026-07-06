@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 
 class WorkOrderChangeRequestEntity extends Equatable {
   const WorkOrderChangeRequestEntity({
@@ -33,19 +33,19 @@ class WorkOrderChangeRequestEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        workOrderId,
-        companyId,
-        requestedById,
-        changeType,
-        changeData,
-        status,
-        reviewedById,
-        rejectionReason,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    workOrderId,
+    companyId,
+    requestedById,
+    changeType,
+    changeData,
+    status,
+    reviewedById,
+    rejectionReason,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   WorkOrderChangeRequestEntity copyWith({
     String? id,
@@ -72,8 +72,12 @@ class WorkOrderChangeRequestEntity extends Equatable {
       changeType: changeType ?? this.changeType,
       changeData: changeData ?? this.changeData,
       status: status ?? this.status,
-      reviewedById: annulReviewedById == true ? null : reviewedById ?? this.reviewedById,
-      rejectionReason: annulRejectionReason == true ? null : rejectionReason ?? this.rejectionReason,
+      reviewedById: annulReviewedById == true
+          ? null
+          : reviewedById ?? this.reviewedById,
+      rejectionReason: annulRejectionReason == true
+          ? null
+          : rejectionReason ?? this.rejectionReason,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

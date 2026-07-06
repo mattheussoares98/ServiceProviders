@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 
 class UserInvitationResponseModel extends UserInvitationEntity
     implements DataConvertible<UserInvitationEntity> {

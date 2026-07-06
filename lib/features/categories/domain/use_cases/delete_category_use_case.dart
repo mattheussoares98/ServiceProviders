@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/domain/use_cases/use_case.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/categories/domain/repositories/categories_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/repositories/categories_repository.dart';
 
 @LazySingleton()
 class DeleteCategoryUseCase implements UseCase<bool, String> {
   DeleteCategoryUseCase({required CategoriesRepository categoriesRepository})
-      : _categoriesRepository = categoriesRepository;
+    : _categoriesRepository = categoriesRepository;
 
   final CategoriesRepository _categoriesRepository;
 

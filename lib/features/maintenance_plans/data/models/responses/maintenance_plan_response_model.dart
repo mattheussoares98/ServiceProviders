@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/frequency.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
 class MaintenancePlanResponseModel extends MaintenancePlanEntity
     implements DataConvertible<MaintenancePlanEntity> {
@@ -28,28 +28,29 @@ class MaintenancePlanResponseModel extends MaintenancePlanEntity
     super.deletedAt,
   });
 
-  factory MaintenancePlanResponseModel.fromEntity(MaintenancePlanEntity entity) =>
-      MaintenancePlanResponseModel(
-        id: entity.id,
-        companyId: entity.companyId,
-        assetId: entity.assetId,
-        locationId: entity.locationId,
-        title: entity.title,
-        description: entity.description,
-        frequency: entity.frequency,
-        dayOfWeek: entity.dayOfWeek,
-        dayOfMonth: entity.dayOfMonth,
-        monthOfYear: entity.monthOfYear,
-        checklistTemplateId: entity.checklistTemplateId,
-        assignedToId: entity.assignedToId,
-        priority: entity.priority,
-        isActive: entity.isActive,
-        lastGeneratedAt: entity.lastGeneratedAt,
-        nextDueDate: entity.nextDueDate,
-        createdAt: entity.createdAt,
-        updatedAt: entity.updatedAt,
-        deletedAt: entity.deletedAt,
-      );
+  factory MaintenancePlanResponseModel.fromEntity(
+    MaintenancePlanEntity entity,
+  ) => MaintenancePlanResponseModel(
+    id: entity.id,
+    companyId: entity.companyId,
+    assetId: entity.assetId,
+    locationId: entity.locationId,
+    title: entity.title,
+    description: entity.description,
+    frequency: entity.frequency,
+    dayOfWeek: entity.dayOfWeek,
+    dayOfMonth: entity.dayOfMonth,
+    monthOfYear: entity.monthOfYear,
+    checklistTemplateId: entity.checklistTemplateId,
+    assignedToId: entity.assignedToId,
+    priority: entity.priority,
+    isActive: entity.isActive,
+    lastGeneratedAt: entity.lastGeneratedAt,
+    nextDueDate: entity.nextDueDate,
+    createdAt: entity.createdAt,
+    updatedAt: entity.updatedAt,
+    deletedAt: entity.deletedAt,
+  );
 
   factory MaintenancePlanResponseModel.fromJson(MapDynamic json) =>
       MaintenancePlanResponseModel(
@@ -59,7 +60,9 @@ class MaintenancePlanResponseModel extends MaintenancePlanEntity
         locationId: json['location_id'] as String?,
         title: json['title'] as String? ?? '',
         description: json['description'] as String?,
-        frequency: Frequency.fromCode(json['frequency'] as String? ?? 'monthly'),
+        frequency: Frequency.fromCode(
+          json['frequency'] as String? ?? 'monthly',
+        ),
         dayOfWeek: json['day_of_week'] as int?,
         dayOfMonth: json['day_of_month'] as int?,
         monthOfYear: json['month_of_year'] as int?,
@@ -86,47 +89,47 @@ class MaintenancePlanResponseModel extends MaintenancePlanEntity
 
   @override
   MapDynamic toJson() => {
-        'id': id,
-        'company_id': companyId,
-        'asset_id': assetId,
-        'location_id': locationId,
-        'title': title,
-        'description': description,
-        'frequency': frequency.code,
-        'day_of_week': dayOfWeek,
-        'day_of_month': dayOfMonth,
-        'month_of_year': monthOfYear,
-        'checklist_template_id': checklistTemplateId,
-        'assigned_to_id': assignedToId,
-        'priority': priority.code,
-        'is_active': isActive,
-        'last_generated_at': lastGeneratedAt?.toIso8601String(),
-        'next_due_date': nextDueDate?.toIso8601String(),
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
-      };
+    'id': id,
+    'company_id': companyId,
+    'asset_id': assetId,
+    'location_id': locationId,
+    'title': title,
+    'description': description,
+    'frequency': frequency.code,
+    'day_of_week': dayOfWeek,
+    'day_of_month': dayOfMonth,
+    'month_of_year': monthOfYear,
+    'checklist_template_id': checklistTemplateId,
+    'assigned_to_id': assignedToId,
+    'priority': priority.code,
+    'is_active': isActive,
+    'last_generated_at': lastGeneratedAt?.toIso8601String(),
+    'next_due_date': nextDueDate?.toIso8601String(),
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
+    'deleted_at': deletedAt?.toIso8601String(),
+  };
 
   @override
   MaintenancePlanEntity toEntity() => MaintenancePlanEntity(
-        id: id,
-        companyId: companyId,
-        assetId: assetId,
-        locationId: locationId,
-        title: title,
-        description: description,
-        frequency: frequency,
-        dayOfWeek: dayOfWeek,
-        dayOfMonth: dayOfMonth,
-        monthOfYear: monthOfYear,
-        checklistTemplateId: checklistTemplateId,
-        assignedToId: assignedToId,
-        priority: priority,
-        isActive: isActive,
-        lastGeneratedAt: lastGeneratedAt,
-        nextDueDate: nextDueDate,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        deletedAt: deletedAt,
-      );
+    id: id,
+    companyId: companyId,
+    assetId: assetId,
+    locationId: locationId,
+    title: title,
+    description: description,
+    frequency: frequency,
+    dayOfWeek: dayOfWeek,
+    dayOfMonth: dayOfMonth,
+    monthOfYear: monthOfYear,
+    checklistTemplateId: checklistTemplateId,
+    assignedToId: assignedToId,
+    priority: priority,
+    isActive: isActive,
+    lastGeneratedAt: lastGeneratedAt,
+    nextDueDate: nextDueDate,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  );
 }

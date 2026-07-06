@@ -3,14 +3,14 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/update_user_profile_use_case.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../../testing/mocks/entity_factory.dart';

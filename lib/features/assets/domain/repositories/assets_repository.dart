@@ -1,5 +1,5 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 
 abstract interface class AssetsRepository {
   FutureList<AssetEntity> getAssets(String companyId);

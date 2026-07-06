@@ -88,7 +88,7 @@ It provides:
 - Standardized padding and safe areas.
 
 ### 3. App Sizes & Spacing (CRITICAL)
-**Never use hardcoded `SizedBox`, raw padding values (e.g. `16.0`), or raw spacing values directly in the UI.** Always import and use the pre-defined constants and helper classes from `package:clean_architecture/shared_ui/utils/app_sizes.dart`.
+**Never use hardcoded `SizedBox`, raw padding values (e.g. `16.0`), or raw spacing values directly in the UI.** Always import and use the pre-defined constants and helper classes from `package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart`.
 
 - **Vertical space:** Use `gapH+size` constants, e.g., `gapH4`, `gapH8`, `gapH12`, `gapH16`, `gapH20`, `gapH24`, `gapH32` (never use `SizedBox(height: 16)`).
 - **Horizontal space:** Use `gapW+size` constants, e.g., `gapW4`, `gapW8`, `gapW12`, `gapW16`, `gapW20`, `gapW24`, `gapW32` (never use `SizedBox(width: 16)`).
@@ -125,30 +125,30 @@ EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
 
 ## Shared UI Widgets Mapping (CRITICAL)
 
-To ensure visual consistency and correct platform adaptation, you MUST always use the custom widgets defined in `package:clean_architecture/shared_ui/` instead of raw Flutter/Material/Cupertino components.
+To ensure visual consistency and correct platform adaptation, you MUST always use the custom widgets defined in `package:o_jogo_da_obra/shared_ui/` instead of raw Flutter/Material/Cupertino components.
 
 The following table maps standard widgets to their corresponding custom shared counterparts:
 
 | Standard Component | Required Custom Widget | Import & Construction Guidelines |
 | :--- | :--- | :--- |
-| `Text` | `BaseText` | Import `package:clean_architecture/shared_ui/ui/base/text/base_text.dart`. Use style-specific constructors (e.g., `BaseText.bodyMedium(...)`, `BaseText.titleMedium(...)`, `BaseText.caption(...)`). |
-| `ElevatedButton` / `MaterialButton` | `PrimaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/primary_button.dart`. |
-| `TextButton` | `BaseTextButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_text_button.dart`. |
-| `IconButton` | `BaseIconButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart`. |
-| `Icon` (standalone) | `PlatformIcon` | **Never use raw `Icon(...)` in the UI.** Use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)` Import `package:clean_architecture/shared_ui/ui/base/platform_icon.dart`. |
-| `OutlinedButton` | `SecondaryButton` | Import `package:clean_architecture/shared_ui/ui/base/buttons/secondary_button.dart`. |
-| `AlertDialog` / `showDialog` | `showAlertDialog` | Import `package:clean_architecture/shared_ui/ui/base/alert_dialogs.dart`. Call the asynchronous `showAlertDialog(...)` helper function. |
-| `BottomNavigationBar` | `BaseBottomNavigationBar` | Import `package:clean_architecture/shared_ui/ui/base/base_bottom_navigation_bar.dart` and use it with `BaseBottomNavigationBarItem`. |
-| `ListTile` | `BaseListTile` | Import `package:clean_architecture/shared_ui/ui/base/base_list_tile.dart`. |
-| `Switch` | `BaseSwitch` | Import `package:clean_architecture/shared_ui/ui/base/base_switch.dart`. |
-| `Checkbox` | `BaseCheckbox` | Import `package:clean_architecture/shared_ui/ui/base/base_checkbox.dart`. |
-| `ChoiceChip` | `BaseChoiceChip` | Import `package:clean_architecture/shared_ui/ui/base/base_choice_chip.dart`. |
-| `SegmentedButton` | `BaseSegmentedButtons` | Import `package:clean_architecture/shared_ui/ui/base/base_segmented_buttons.dart`. |
-| `CircularProgressIndicator` | `LoadingCircle` | Import `package:clean_architecture/shared_ui/ui/base/loading_circle.dart`. |
-| `DropdownButton` / `DropdownButtonFormField` | `BaseDropdown` | Import `package:clean_architecture/shared_ui/ui/base/dropdown/base_dropdown.dart`. |
-| `TextField` / `TextFormField` | `BaseTextFormField` | Import `package:clean_architecture/shared_ui/ui/base/form_field/base_text_form_field.dart`. |
-| `Scaffold` | `BaseScaffold` | Import `package:clean_architecture/shared_ui/ui/base/base_scaffold.dart`. |
-| `Icon` (with platform variant) | `PlatformIcon` | Import `package:clean_architecture/shared_ui/ui/base/platform_icon.dart`. |
+| `Text` | `BaseText` | Import `package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart`. Use style-specific constructors (e.g., `BaseText.bodyMedium(...)`, `BaseText.titleMedium(...)`, `BaseText.caption(...)`). |
+| `ElevatedButton` / `MaterialButton` | `PrimaryButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart`. |
+| `TextButton` | `BaseTextButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart`. |
+| `IconButton` | `BaseIconButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart`. |
+| `Icon` (standalone) | `PlatformIcon` | **Never use raw `Icon(...)` in the UI.** Use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)` Import `package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart`. |
+| `OutlinedButton` | `SecondaryButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart`. |
+| `AlertDialog` / `showDialog` | `showAlertDialog` | Import `package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart`. Call the asynchronous `showAlertDialog(...)` helper function. |
+| `BottomNavigationBar` | `BaseBottomNavigationBar` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_bottom_navigation_bar.dart` and use it with `BaseBottomNavigationBarItem`. |
+| `ListTile` | `BaseListTile` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart`. |
+| `Switch` | `BaseSwitch` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart`. |
+| `Checkbox` | `BaseCheckbox` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart`. |
+| `ChoiceChip` | `BaseChoiceChip` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_choice_chip.dart`. |
+| `SegmentedButton` | `BaseSegmentedButtons` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_segmented_buttons.dart`. |
+| `CircularProgressIndicator` | `LoadingCircle` | Import `package:o_jogo_da_obra/shared_ui/ui/base/loading_circle.dart`. |
+| `DropdownButton` / `DropdownButtonFormField` | `BaseDropdown` | Import `package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart`. |
+| `TextField` / `TextFormField` | `BaseTextFormField` | Import `package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart`. |
+| `Scaffold` | `BaseScaffold` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart`. |
+| `Icon` (with platform variant) | `PlatformIcon` | Import `package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart`. |
 
 ---
 

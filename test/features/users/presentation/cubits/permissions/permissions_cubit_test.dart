@@ -1,14 +1,14 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/permissions/permissions_cubit.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -141,7 +141,11 @@ void main() {
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.user, 'user', tUser)
             .having((s) => s.isAdmin, 'isAdmin', false)
-            .having((s) => s.selectedGroupId, 'selectedGroupId', tUser.permissionGroupId),
+            .having(
+              (s) => s.selectedGroupId,
+              'selectedGroupId',
+              tUser.permissionGroupId,
+            ),
       ],
     );
 
@@ -169,7 +173,11 @@ void main() {
       'changeUserGroup updates selectedGroupId, sets isAdmin to true, and clears overrides for admin group',
       build: () => cubit
         ..initUser(tUser)
-        ..setUserPermissionOverride(ResourceType.workOrders, PermissionAction.create, true),
+        ..setUserPermissionOverride(
+          ResourceType.workOrders,
+          PermissionAction.create,
+          true,
+        ),
       act: (c) {
         final adminGroup = EntityFactory.makePermissionGroupEntity().copyWith(
           id: 'admin-group-id',
@@ -182,41 +190,55 @@ void main() {
       },
       expect: () => [
         isA<PermissionsState>()
-            .having((s) => s.selectedGroupId, 'selectedGroupId', 'admin-group-id')
+            .having(
+              (s) => s.selectedGroupId,
+              'selectedGroupId',
+              'admin-group-id',
+            )
             .having((s) => s.isAdmin, 'isAdmin', true)
-            .having((s) => s.draftUserPermissions, 'draftUserPermissions', const <ResourceType, Map<PermissionAction, bool?>>{}),
+            .having(
+              (s) => s.draftUserPermissions,
+              'draftUserPermissions',
+              const <ResourceType, Map<PermissionAction, bool?>>{},
+            ),
       ],
     );
 
     group('isGroupAdmin', () {
-      test('returns true when group name is "Administrador" (case-insensitive)', () {
-        final groups = [
-          EntityFactory.makePermissionGroupEntity().copyWith(
-            id: 'admin-id',
-            name: 'Administrador',
-          ),
-          EntityFactory.makePermissionGroupEntity().copyWith(
-            id: 'admin-id-lowercase',
-            name: 'administrador',
-          ),
-        ];
+      test(
+        'returns true when group name is "Administrador" (case-insensitive)',
+        () {
+          final groups = [
+            EntityFactory.makePermissionGroupEntity().copyWith(
+              id: 'admin-id',
+              name: 'Administrador',
+            ),
+            EntityFactory.makePermissionGroupEntity().copyWith(
+              id: 'admin-id-lowercase',
+              name: 'administrador',
+            ),
+          ];
 
-        expect(cubit.isGroupAdmin('admin-id', groups), isTrue);
-        expect(cubit.isGroupAdmin('admin-id-lowercase', groups), isTrue);
-      });
+          expect(cubit.isGroupAdmin('admin-id', groups), isTrue);
+          expect(cubit.isGroupAdmin('admin-id-lowercase', groups), isTrue);
+        },
+      );
 
-      test('returns false when group name is not "Administrador" or group is not found/null', () {
-        final groups = [
-          EntityFactory.makePermissionGroupEntity().copyWith(
-            id: 'normal-id',
-            name: 'Normal Group',
-          ),
-        ];
+      test(
+        'returns false when group name is not "Administrador" or group is not found/null',
+        () {
+          final groups = [
+            EntityFactory.makePermissionGroupEntity().copyWith(
+              id: 'normal-id',
+              name: 'Normal Group',
+            ),
+          ];
 
-        expect(cubit.isGroupAdmin('normal-id', groups), isFalse);
-        expect(cubit.isGroupAdmin('unknown-id', groups), isFalse);
-        expect(cubit.isGroupAdmin(null, groups), isFalse);
-      });
+          expect(cubit.isGroupAdmin('normal-id', groups), isFalse);
+          expect(cubit.isGroupAdmin('unknown-id', groups), isFalse);
+          expect(cubit.isGroupAdmin(null, groups), isFalse);
+        },
+      );
     });
 
     blocTest<PermissionsCubit, PermissionsState>(
@@ -242,7 +264,11 @@ void main() {
       'saveUserPermissions calls UsersCubit.updateUserPermissions and emits loaded on success',
       build: () {
         when(
-          () => mockUsersCubit.updateUserPermissions(any(), any(), groupId: any(named: 'groupId')),
+          () => mockUsersCubit.updateUserPermissions(
+            any(),
+            any(),
+            groupId: any(named: 'groupId'),
+          ),
         ).thenAnswer((_) async => true);
         return cubit..initUser(tUser);
       },
@@ -260,7 +286,13 @@ void main() {
         ),
       ],
       verify: (_) {
-        verify(() => mockUsersCubit.updateUserPermissions(tUser.id, any(), groupId: tUser.permissionGroupId)).called(1);
+        verify(
+          () => mockUsersCubit.updateUserPermissions(
+            tUser.id,
+            any(),
+            groupId: tUser.permissionGroupId,
+          ),
+        ).called(1);
       },
     );
   });

@@ -1,10 +1,10 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/clients/local/local_storage_client.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 
 import '../../../../testing/mocks/entity_factory.dart';
 

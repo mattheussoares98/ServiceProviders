@@ -1,10 +1,11 @@
-import 'package:clean_architecture/core/clients/local/drift/tables/companies_table.dart';
 import 'package:drift/drift.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 
 @TableIndex(name: 'idx_permission_groups_company', columns: {#companyId})
 class PermissionGroups extends Table {
   TextColumn get id => text()();
-  TextColumn get companyId => text().references(Companies, #id, onDelete: KeyAction.cascade)();
+  TextColumn get companyId =>
+      text().references(Companies, #id, onDelete: KeyAction.cascade)();
   TextColumn get name => text()();
   TextColumn get permissions => text().withDefault(const Constant('[]'))();
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();

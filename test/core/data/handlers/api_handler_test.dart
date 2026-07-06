@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/handlers/api_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/api_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 class MockResponse<T> extends Mock implements Response<T> {}
 

@@ -1,12 +1,12 @@
-import 'package:clean_architecture/features/company/presentation/cubits/company/company_cubit.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_image_widget.dart';
-import 'package:clean_architecture/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/platform_icon.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
-import 'package:clean_architecture/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 /// The premium header component of the HomeDrawer, styled with linear gradients.
 class HomeDrawerHeader extends StatelessWidget {

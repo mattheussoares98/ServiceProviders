@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/assets/data/models/requests/asset_request_model.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
-import 'package:clean_architecture/features/assets/data/repositories/assets_repository_impl.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
+import 'package:o_jogo_da_obra/features/assets/data/repositories/assets_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -62,9 +62,7 @@ void main() {
           expect(result.data!.first, equals(tAssetEntity));
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.getAssets(tCompanyId)).called(1);
-          verify(
-            () => mockLocalDataSource.saveAssets([tAssetModel]),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveAssets([tAssetModel])).called(1);
           verifyNever(() => mockLocalDataSource.getAssets(any()));
         },
       );
@@ -86,9 +84,7 @@ void main() {
           expect(result.message, 'Cache error');
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.getAssets(tCompanyId)).called(1);
-          verify(
-            () => mockLocalDataSource.saveAssets([tAssetModel]),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveAssets([tAssetModel])).called(1);
         },
       );
 
@@ -148,50 +144,48 @@ void main() {
           expect(result, isA<SuccessState<AssetEntity>>());
           expect(result.data!.id, equals(tAssetEntity.id));
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockRemoteDataSource.getAssetById(tAssetEntity.id)).called(1);
+          verify(
+            () => mockRemoteDataSource.getAssetById(tAssetEntity.id),
+          ).called(1);
           verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
           verifyNever(() => mockLocalDataSource.getAssetById(any()));
         },
       );
 
-      test(
-        'should return asset from local when offline',
-        () async {
-          when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.getAssetById(any()),
-          ).thenAnswer((_) async => SuccessState(data: tAssetModel));
+      test('should return asset from local when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.getAssetById(any()),
+        ).thenAnswer((_) async => SuccessState(data: tAssetModel));
 
-          final result = await repository.getAssetById(tAssetEntity.id);
+        final result = await repository.getAssetById(tAssetEntity.id);
 
-          expect(result, isA<SuccessState<AssetEntity>>());
-          expect(result.data!.id, equals(tAssetEntity.id));
-          verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockLocalDataSource.getAssetById(tAssetEntity.id)).called(1);
-          verifyNever(() => mockRemoteDataSource.getAssetById(any()));
-          verifyNever(() => mockLocalDataSource.saveAsset(any()));
-        },
-      );
+        expect(result, isA<SuccessState<AssetEntity>>());
+        expect(result.data!.id, equals(tAssetEntity.id));
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(
+          () => mockLocalDataSource.getAssetById(tAssetEntity.id),
+        ).called(1);
+        verifyNever(() => mockRemoteDataSource.getAssetById(any()));
+        verifyNever(() => mockLocalDataSource.saveAsset(any()));
+      });
     });
 
     group('createAsset', () {
-      test(
-        'should save asset locally and return true when offline',
-        () async {
-          when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.saveAsset(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+      test('should save asset locally and return true when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveAsset(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-          final result = await repository.createAsset(tAssetEntity);
+        final result = await repository.createAsset(tAssetEntity);
 
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
-          verifyNever(() => mockRemoteDataSource.createAsset(any()));
-        },
-      );
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.createAsset(any()));
+      });
 
       test(
         'should create asset remotely, save locally, and return true when online',
@@ -216,23 +210,20 @@ void main() {
     });
 
     group('updateAsset', () {
-      test(
-        'should save asset locally and return true when offline',
-        () async {
-          when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.saveAsset(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+      test('should save asset locally and return true when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveAsset(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-          final result = await repository.updateAsset(tAssetEntity);
+        final result = await repository.updateAsset(tAssetEntity);
 
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
-          verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
-          verifyNever(() => mockRemoteDataSource.updateAsset(any()));
-        },
-      );
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockInternetClient.isConnected).called(1);
+        verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
+        verifyNever(() => mockRemoteDataSource.updateAsset(any()));
+      });
 
       test(
         'should update asset remotely, save locally, and return true when online',
@@ -270,7 +261,9 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockLocalDataSource.deleteAsset(tAssetEntity.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteAsset(tAssetEntity.id),
+          ).called(1);
           verifyNever(() => mockRemoteDataSource.deleteAsset(any()));
         },
       );
@@ -291,8 +284,12 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockRemoteDataSource.deleteAsset(tAssetEntity.id)).called(1);
-          verify(() => mockLocalDataSource.deleteAsset(tAssetEntity.id)).called(1);
+          verify(
+            () => mockRemoteDataSource.deleteAsset(tAssetEntity.id),
+          ).called(1);
+          verify(
+            () => mockLocalDataSource.deleteAsset(tAssetEntity.id),
+          ).called(1);
         },
       );
     });

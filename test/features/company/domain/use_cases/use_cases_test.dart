@@ -1,8 +1,8 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
-import 'package:clean_architecture/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';

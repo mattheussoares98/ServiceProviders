@@ -1,5 +1,5 @@
-import 'package:clean_architecture/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 
 /// Scrollable widget that shows a responsive card with a given child widget.
 /// Useful for displaying forms and other widgets that need to be scrollable.

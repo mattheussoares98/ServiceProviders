@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 
 import '../../../../testing/mocks/external/external_mocks.dart'
     show MockInternetConnection;

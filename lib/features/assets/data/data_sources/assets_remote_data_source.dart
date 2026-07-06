@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/assets/data/models/requests/asset_request_model.dart';
-import 'package:clean_architecture/features/assets/data/models/responses/asset_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
+import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
 
 abstract interface class AssetsRemoteDataSource {
   FutureList<AssetModel> getAssets(String companyId);

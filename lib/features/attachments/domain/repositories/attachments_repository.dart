@@ -1,5 +1,5 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 
 abstract interface class AttachmentsRepository {
   FutureList<AttachmentEntity> getAttachmentsByWorkOrder(String workOrderId);

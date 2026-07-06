@@ -1,6 +1,6 @@
-import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
-import 'package:clean_architecture/core/data/handlers/api_handler.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/api_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:injectable/injectable.dart';
 
 abstract interface class {{feature.pascalCase()}}RemoteDataSource {}

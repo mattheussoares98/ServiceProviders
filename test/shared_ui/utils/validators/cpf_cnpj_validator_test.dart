@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/shared_ui/utils/validators/cpf_cnpj_validator.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/cpf_cnpj_validator.dart';
 
 void main() {
   late CpfCnpjValidator sut;

@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
 import '../../../../../../testing/mocks/entity_factory.dart';
 

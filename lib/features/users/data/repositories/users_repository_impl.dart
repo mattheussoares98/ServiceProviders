@@ -1,17 +1,17 @@
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/users/data/data_sources/users_local_data_source.dart';
-import 'package:clean_architecture/features/users/data/data_sources/users_remote_data_source.dart';
-import 'package:clean_architecture/features/users/data/models/responses/permission_group_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:clean_architecture/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
-import 'package:clean_architecture/features/users/domain/repositories/users_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
 
 @LazySingleton(as: UsersRepository)
 final class UsersRepositoryImpl implements UsersRepository {

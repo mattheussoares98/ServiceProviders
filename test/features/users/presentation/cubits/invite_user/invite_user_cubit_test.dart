@@ -1,15 +1,15 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/users/domain/entities/invite_user_params.dart';
-import 'package:clean_architecture/features/users/domain/use_cases/invite_user_use_case.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
-import 'package:clean_architecture/features/users/presentation/cubits/invite_user/invite_user_usecases.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/invite_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_usecases.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -68,10 +68,8 @@ void main() {
         ).thenAnswer((_) async => SuccessState.nil);
         return cubit;
       },
-      act: (c) async => expect(
-        await c.invite(email: email, groupId: groupId),
-        isTrue,
-      ),
+      act: (c) async =>
+          expect(await c.invite(email: email, groupId: groupId), isTrue),
       verify: (cubit) => verify(
         () => mockInviteUserUseCase(
           InviteUserParams(
@@ -108,10 +106,8 @@ void main() {
         );
         return cubit;
       },
-      act: (c) async => expect(
-        await c.invite(email: email, groupId: groupId),
-        isFalse,
-      ),
+      act: (c) async =>
+          expect(await c.invite(email: email, groupId: groupId), isFalse),
       verify: (cubit) => verify(
         () => mockInviteUserUseCase(
           InviteUserParams(
@@ -143,10 +139,8 @@ void main() {
         );
         return cubit;
       },
-      act: (c) async => expect(
-        await c.invite(email: email, groupId: groupId),
-        isFalse,
-      ),
+      act: (c) async =>
+          expect(await c.invite(email: email, groupId: groupId), isFalse),
       verify: (cubit) => verifyNever(() => mockInviteUserUseCase(any())),
       expect: () => [
         isA<InviteUserState>().having(

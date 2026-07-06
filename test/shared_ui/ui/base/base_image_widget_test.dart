@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:clean_architecture/shared_ui/ui/base/base_image_widget.dart';
 import 'package:faker/faker.dart' show faker;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 
 void main() {
   group('BaseImageWidget Tests', () {

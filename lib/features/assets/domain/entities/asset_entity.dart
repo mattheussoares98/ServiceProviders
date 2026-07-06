@@ -1,6 +1,6 @@
-import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 
 class AssetEntity extends Equatable {
   const AssetEntity({
@@ -111,15 +111,11 @@ class AssetEntity extends Equatable {
           ? null
           : parentAssetId ?? this.parentAssetId,
       name: name ?? this.name,
-      code: annulCode == true
-          ? null
-          : code ?? this.code,
+      code: annulCode == true ? null : code ?? this.code,
       manufacturer: annulManufacturer == true
           ? null
           : manufacturer ?? this.manufacturer,
-      model: annulModel == true
-          ? null
-          : model ?? this.model,
+      model: annulModel == true ? null : model ?? this.model,
       serialNumber: annulSerialNumber == true
           ? null
           : serialNumber ?? this.serialNumber,
@@ -134,14 +130,10 @@ class AssetEntity extends Equatable {
           : revisionForecast ?? this.revisionForecast,
       status: status ?? this.status,
       criticality: criticality ?? this.criticality,
-      notes: annulNotes == true
-          ? null
-          : notes ?? this.notes,
+      notes: annulNotes == true ? null : notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: annulDeletedAt == true
-          ? null
-          : deletedAt ?? this.deletedAt,
+      deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
     );
   }
 }

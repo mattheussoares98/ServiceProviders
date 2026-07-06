@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {

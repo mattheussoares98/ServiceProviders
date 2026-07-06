@@ -1,4 +1,4 @@
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 
 abstract interface class SessionRepository {
   bool get isLoggedIn;

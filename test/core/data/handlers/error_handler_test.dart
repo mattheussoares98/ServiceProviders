@@ -1,9 +1,9 @@
-import 'package:clean_architecture/core/data/handlers/error_handler.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
 import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../testing/mocks/external/external_mocks.dart';

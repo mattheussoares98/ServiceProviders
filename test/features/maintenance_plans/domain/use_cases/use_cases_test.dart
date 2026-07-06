@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/get_maintenance_plan_by_id_use_case.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/get_maintenance_plans_use_case.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/use_cases/update_maintenance_plan_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plan_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plans_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/update_maintenance_plan_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -26,11 +26,21 @@ void main() {
 
   setUp(() {
     mockRepository = MockMaintenancePlansRepository();
-    getPlansUseCase = GetMaintenancePlansUseCase(maintenancePlansRepository: mockRepository);
-    getPlanByIdUseCase = GetMaintenancePlanByIdUseCase(repository: mockRepository);
-    createPlanUseCase = CreateMaintenancePlanUseCase(repository: mockRepository);
-    updatePlanUseCase = UpdateMaintenancePlanUseCase(repository: mockRepository);
-    deletePlanUseCase = DeleteMaintenancePlanUseCase(repository: mockRepository);
+    getPlansUseCase = GetMaintenancePlansUseCase(
+      maintenancePlansRepository: mockRepository,
+    );
+    getPlanByIdUseCase = GetMaintenancePlanByIdUseCase(
+      repository: mockRepository,
+    );
+    createPlanUseCase = CreateMaintenancePlanUseCase(
+      repository: mockRepository,
+    );
+    updatePlanUseCase = UpdateMaintenancePlanUseCase(
+      repository: mockRepository,
+    );
+    deletePlanUseCase = DeleteMaintenancePlanUseCase(
+      repository: mockRepository,
+    );
   });
 
   final tCompanyId = EntityFactory.makeMaintenancePlanEntity().companyId;
@@ -41,8 +51,9 @@ void main() {
     group('GetMaintenancePlansUseCase', () {
       test('should return a list of maintenance plans on success', () async {
         // Arrange
-        when(() => mockRepository.getMaintenancePlans(any()))
-            .thenAnswer((_) async => SuccessState(data: tPlans));
+        when(
+          () => mockRepository.getMaintenancePlans(any()),
+        ).thenAnswer((_) async => SuccessState(data: tPlans));
 
         // Act
         final result = await getPlansUseCase(tCompanyId);
@@ -76,8 +87,9 @@ void main() {
       test('should return single maintenance plan on success', () async {
         // Arrange
         final id = faker.guid.guid();
-        when(() => mockRepository.getMaintenancePlanById(any()))
-            .thenAnswer((_) async => SuccessState(data: tPlan));
+        when(
+          () => mockRepository.getMaintenancePlanById(any()),
+        ).thenAnswer((_) async => SuccessState(data: tPlan));
 
         // Act
         final result = await getPlanByIdUseCase(id);
@@ -92,8 +104,9 @@ void main() {
     group('CreateMaintenancePlanUseCase', () {
       test('should return true when creation is successful', () async {
         // Arrange
-        when(() => mockRepository.createMaintenancePlan(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.createMaintenancePlan(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await createPlanUseCase(tPlan);
@@ -108,8 +121,9 @@ void main() {
     group('UpdateMaintenancePlanUseCase', () {
       test('should return true when update is successful', () async {
         // Arrange
-        when(() => mockRepository.updateMaintenancePlan(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.updateMaintenancePlan(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await updatePlanUseCase(tPlan);
@@ -125,8 +139,9 @@ void main() {
       test('should return true when delete is successful', () async {
         // Arrange
         final id = faker.guid.guid();
-        when(() => mockRepository.deleteMaintenancePlan(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockRepository.deleteMaintenancePlan(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await deletePlanUseCase(id);

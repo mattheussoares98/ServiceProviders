@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/categories/data/models/requests/category_request_model.dart';
-import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
-import 'package:clean_architecture/features/categories/data/repositories/categories_repository_impl.dart';
-import 'package:clean_architecture/features/categories/domain/entities/category_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/repositories/categories_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -61,10 +61,10 @@ void main() {
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tEntity));
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
           verify(
-            () => mockLocalDataSource.saveCategories([tModel]),
+            () => mockRemoteDataSource.getCategories(tCompanyId),
           ).called(1);
+          verify(() => mockLocalDataSource.saveCategories([tModel])).called(1);
           verifyNever(() => mockLocalDataSource.getCategories(any()));
         },
       );
@@ -85,10 +85,10 @@ void main() {
           expect(result, isA<FailureState<List<CategoryEntity>>>());
           expect(result.message, 'Cache error');
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
           verify(
-            () => mockLocalDataSource.saveCategories([tModel]),
+            () => mockRemoteDataSource.getCategories(tCompanyId),
           ).called(1);
+          verify(() => mockLocalDataSource.saveCategories([tModel])).called(1);
         },
       );
 
@@ -105,7 +105,9 @@ void main() {
           expect(result, isA<FailureState<List<CategoryEntity>>>());
           expect(result.message, 'Server error');
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(() => mockRemoteDataSource.getCategories(tCompanyId)).called(1);
+          verify(
+            () => mockRemoteDataSource.getCategories(tCompanyId),
+          ).called(1);
           verifyNever(() => mockLocalDataSource.saveCategories(any()));
         },
       );
@@ -163,9 +165,7 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.saveCategory(tModel),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
           verifyNever(() => mockRemoteDataSource.createCategory(any()));
         },
       );
@@ -187,9 +187,7 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.createCategory(any())).called(1);
-          verify(
-            () => mockLocalDataSource.saveCategory(tModel),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
         },
       );
 
@@ -226,9 +224,7 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.saveCategory(tModel),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
           verifyNever(() => mockRemoteDataSource.updateCategory(any()));
         },
       );
@@ -250,9 +246,7 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockInternetClient.isConnected).called(1);
           verify(() => mockRemoteDataSource.updateCategory(any())).called(1);
-          verify(
-            () => mockLocalDataSource.saveCategory(tModel),
-          ).called(1);
+          verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
         },
       );
 
@@ -343,4 +337,3 @@ void main() {
     });
   });
 }
-

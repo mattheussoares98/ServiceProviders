@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/company/data/models/requests/company_request_model.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_parameter_model.dart';
-import 'package:clean_architecture/features/company/data/repositories/company_repository_impl.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/requests/company_request_model.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
+import 'package:o_jogo_da_obra/features/company/data/repositories/company_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -257,7 +257,10 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
 
           final result1 = await repository.getCompany(tCompanyId);
-          final result2 = await repository.getCompany(tCompanyId, forceRefresh: true);
+          final result2 = await repository.getCompany(
+            tCompanyId,
+            forceRefresh: true,
+          );
 
           expect(result1, isA<SuccessState<CompanyEntity>>());
           expect(result2, isA<SuccessState<CompanyEntity>>());

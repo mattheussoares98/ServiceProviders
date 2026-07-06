@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/locations/domain/entities/area_entity.dart';
-import 'package:clean_architecture/features/locations/domain/entities/location_entity.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/add_area_button.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/area_item.dart';
-import 'package:clean_architecture/features/locations/presentation/pages/locations/widgets/edit_location_button.dart';
-import 'package:clean_architecture/shared_ui/ui/base/text/base_text.dart';
-import 'package:clean_architecture/shared_ui/utils/app_sizes.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/pages/locations/widgets/add_area_button.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/pages/locations/widgets/area_item.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/pages/locations/widgets/edit_location_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class LocationCard extends StatelessWidget {
   const LocationCard({super.key, required this.location, required this.areas});

@@ -1,9 +1,9 @@
-import 'package:clean_architecture/config/app_config.dart';
-import 'package:clean_architecture/core/clients/remote/http/http_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/config/app_config.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';

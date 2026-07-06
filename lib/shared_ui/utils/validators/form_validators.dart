@@ -1,4 +1,4 @@
-import 'package:clean_architecture/shared_ui/utils/validators/string_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/string_validator.dart';
 
 class FormValidators {
   /// A static method that takes a list of validators and returns a

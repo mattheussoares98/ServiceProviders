@@ -1,7 +1,7 @@
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/users/domain/entities/permission_group_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_invitation_entity.dart';
-import 'package:clean_architecture/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 abstract interface class UsersRepository {
   // User Profiles

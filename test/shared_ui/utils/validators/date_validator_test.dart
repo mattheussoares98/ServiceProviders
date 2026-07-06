@@ -1,5 +1,5 @@
-import 'package:clean_architecture/shared_ui/utils/validators/date_validator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/date_validator.dart';
 
 void main() {
   // Define a fixed period to use for all tests

@@ -1,16 +1,16 @@
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_database_client.dart';
-import 'package:clean_architecture/core/clients/remote/supabase/database/supabase_filter.dart';
-import 'package:clean_architecture/core/data/handlers/supabase_handler.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/work_orders/data/models/requests/task_request_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/requests/work_order_request_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:clean_architecture/features/work_orders/data/models/responses/work_order_response_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
 
 abstract interface class WorkOrdersRemoteDataSource {
   FutureList<WorkOrderResponseModel> getWorkOrders(String companyId);

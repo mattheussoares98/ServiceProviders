@@ -1,7 +1,7 @@
-import 'package:clean_architecture/features/company/data/models/requests/company_request_model.dart';
-import 'package:clean_architecture/features/company/data/models/responses/company_model.dart';
-import 'package:clean_architecture/features/company/domain/entities/company_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/requests/company_request_model.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 
 import '../../../../../../testing/mocks/entity_factory.dart';
 

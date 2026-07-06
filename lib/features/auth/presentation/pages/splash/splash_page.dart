@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:clean_architecture/routing/routes.gr.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
 @RoutePage()
 class SplashPage extends StatefulWidget {
@@ -27,10 +27,6 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

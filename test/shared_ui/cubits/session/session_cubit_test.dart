@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/routing/helper/navigation_client.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit.dart';
-import 'package:clean_architecture/shared_ui/cubits/session/session_cubit_use_cases.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit_use_cases.dart';
 
 import '../../../../testing/mocks/client_mocks.dart';
 import '../../../../testing/mocks/entity_factory.dart';

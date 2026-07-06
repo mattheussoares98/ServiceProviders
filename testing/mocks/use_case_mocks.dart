@@ -1,18 +1,18 @@
-import 'package:clean_architecture/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/get_user_data_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/log_out_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/reset_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/set_session_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/watch_session_use_case.dart';
-import 'package:clean_architecture/features/company/domain/use_cases/create_company_use_case.dart';
-import 'package:clean_architecture/features/company/domain/use_cases/get_company_use_case.dart';
-import 'package:clean_architecture/features/configurations/domain/use_cases/get_configurations_use_case.dart';
-import 'package:clean_architecture/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/reset_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 

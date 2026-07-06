@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/clients/local/drift/app_database.dart';
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/categories/data/data_sources/categories_local_data_source.dart';
-import 'package:clean_architecture/features/categories/data/models/responses/category_response_model.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -81,24 +81,27 @@ void main() {
       },
     );
 
-    test('should save a list of categories and successfully retrieve them', () async {
-      final companyId = faker.guid.guid();
-      await insertTestCompany(companyId);
-      final entities = EntityFactory.makeCategoryEntityList()
-          .map((e) => e.copyWith(companyId: companyId))
-          .toList();
-      final models = entities.map(CategoryResponseModel.fromEntity).toList();
+    test(
+      'should save a list of categories and successfully retrieve them',
+      () async {
+        final companyId = faker.guid.guid();
+        await insertTestCompany(companyId);
+        final entities = EntityFactory.makeCategoryEntityList()
+            .map((e) => e.copyWith(companyId: companyId))
+            .toList();
+        final models = entities.map(CategoryResponseModel.fromEntity).toList();
 
-      final saveResult = await dataSource.saveCategories(models);
+        final saveResult = await dataSource.saveCategories(models);
 
-      expect(saveResult, isA<SuccessState<bool>>());
-      expect(saveResult.data, isTrue);
+        expect(saveResult, isA<SuccessState<bool>>());
+        expect(saveResult.data, isTrue);
 
-      final getResult = await dataSource.getCategories(companyId);
+        final getResult = await dataSource.getCategories(companyId);
 
-      expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
-      expect(getResult.data, hasLength(models.length));
-      expect(getResult.data, containsAll(models));
-    });
+        expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
+        expect(getResult.data, hasLength(models.length));
+        expect(getResult.data, containsAll(models));
+      },
+    );
   });
 }

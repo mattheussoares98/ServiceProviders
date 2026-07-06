@@ -1,13 +1,13 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/domain/entities/user_data_entity.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/change_password_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/login_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/save_user_data_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/sign_up_use_case.dart';
-import 'package:clean_architecture/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -226,9 +226,9 @@ void main() {
     group('WatchSessionUseCase', () {
       test('should return session stream from sessionRepository', () {
         final stream = Stream<UserDataEntity>.value(tUserData);
-        when(() => mockSessionRepository.sessionStream).thenAnswer(
-          (_) => stream,
-        );
+        when(
+          () => mockSessionRepository.sessionStream,
+        ).thenAnswer((_) => stream);
 
         final result = watchSessionUseCase();
 

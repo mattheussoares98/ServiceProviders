@@ -1,19 +1,19 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_change_request_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/entities/work_order_history_entity.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
-import 'package:clean_architecture/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -70,8 +70,9 @@ void main() {
 
     test('should return true on success', () async {
       // Arrange
-      when(() => mockRepository.createChangeRequest(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockRepository.createChangeRequest(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       // Act
       final result = await createWorkOrderChangeRequestUseCase(tChangeRequest);
@@ -79,15 +80,17 @@ void main() {
       // Assert
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
-      verify(() => mockRepository.createChangeRequest(tChangeRequest)).called(1);
+      verify(
+        () => mockRepository.createChangeRequest(tChangeRequest),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(() => mockRepository.createChangeRequest(any())).thenAnswer(
-        (_) async => FailureState<bool>(message: 'Create failed'),
-      );
+      when(
+        () => mockRepository.createChangeRequest(any()),
+      ).thenAnswer((_) async => FailureState<bool>(message: 'Create failed'));
 
       // Act
       final result = await createWorkOrderChangeRequestUseCase(tChangeRequest);
@@ -95,7 +98,9 @@ void main() {
       // Assert
       expect(result, isA<FailureState<bool>>());
       expect(result.message, 'Create failed');
-      verify(() => mockRepository.createChangeRequest(tChangeRequest)).called(1);
+      verify(
+        () => mockRepository.createChangeRequest(tChangeRequest),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
   });
@@ -105,8 +110,9 @@ void main() {
 
     test('should return true on success', () async {
       // Arrange
-      when(() => mockRepository.createWorkOrder(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockRepository.createWorkOrder(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       // Act
       final result = await createWorkOrderUseCase(tWorkOrder);
@@ -120,9 +126,9 @@ void main() {
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(() => mockRepository.createWorkOrder(any())).thenAnswer(
-        (_) async => FailureState<bool>(message: 'Create failed'),
-      );
+      when(
+        () => mockRepository.createWorkOrder(any()),
+      ).thenAnswer((_) async => FailureState<bool>(message: 'Create failed'));
 
       // Act
       final result = await createWorkOrderUseCase(tWorkOrder);
@@ -140,8 +146,9 @@ void main() {
 
     test('should return true on success', () async {
       // Arrange
-      when(() => mockRepository.deleteWorkOrder(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockRepository.deleteWorkOrder(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       // Act
       final result = await deleteWorkOrderUseCase(tWorkOrderId);
@@ -155,9 +162,9 @@ void main() {
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(() => mockRepository.deleteWorkOrder(any())).thenAnswer(
-        (_) async => FailureState<bool>(message: 'Delete failed'),
-      );
+      when(
+        () => mockRepository.deleteWorkOrder(any()),
+      ).thenAnswer((_) async => FailureState<bool>(message: 'Delete failed'));
 
       // Act
       final result = await deleteWorkOrderUseCase(tWorkOrderId);
@@ -171,29 +178,35 @@ void main() {
   });
 
   group('GetWorkOrderChangeRequestsUseCase', () {
-    final tCompanyId = EntityFactory.makeWorkOrderChangeRequestEntity().companyId;
+    final tCompanyId =
+        EntityFactory.makeWorkOrderChangeRequestEntity().companyId;
     final tRequests = EntityFactory.makeWorkOrderChangeRequestEntityList();
 
-    test('should return a list of pending change requests on success', () async {
-      // Arrange
-      when(() => mockRepository.getChangeRequests(any()))
-          .thenAnswer((_) async => SuccessState(data: tRequests));
+    test(
+      'should return a list of pending change requests on success',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.getChangeRequests(any()),
+        ).thenAnswer((_) async => SuccessState(data: tRequests));
 
-      // Act
-      final result = await getWorkOrderChangeRequestsUseCase(tCompanyId);
+        // Act
+        final result = await getWorkOrderChangeRequestsUseCase(tCompanyId);
 
-      // Assert
-      expect(result, isA<SuccessState<List<WorkOrderChangeRequestEntity>>>());
-      expect(result.data, tRequests);
-      verify(() => mockRepository.getChangeRequests(tCompanyId)).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result, isA<SuccessState<List<WorkOrderChangeRequestEntity>>>());
+        expect(result.data, tRequests);
+        verify(() => mockRepository.getChangeRequests(tCompanyId)).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return FailureState when repository fails', () async {
       // Arrange
       when(() => mockRepository.getChangeRequests(any())).thenAnswer(
-        (_) async =>
-            FailureState<List<WorkOrderChangeRequestEntity>>(message: 'Load failed'),
+        (_) async => FailureState<List<WorkOrderChangeRequestEntity>>(
+          message: 'Load failed',
+        ),
       );
 
       // Act
@@ -213,8 +226,9 @@ void main() {
 
     test('should return a list of work order history on success', () async {
       // Arrange
-      when(() => mockRepository.getWorkOrderHistory(any()))
-          .thenAnswer((_) async => SuccessState(data: tHistory));
+      when(
+        () => mockRepository.getWorkOrderHistory(any()),
+      ).thenAnswer((_) async => SuccessState(data: tHistory));
 
       // Act
       final result = await getWorkOrderHistoryUseCase(tWorkOrderId);
@@ -250,8 +264,9 @@ void main() {
 
     test('should return a list of work orders on success', () async {
       // Arrange
-      when(() => mockRepository.getWorkOrders(any()))
-          .thenAnswer((_) async => SuccessState(data: tWorkOrders));
+      when(
+        () => mockRepository.getWorkOrders(any()),
+      ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
 
       // Act
       final result = await getWorkOrdersUseCase(tCompanyId);
@@ -351,8 +366,9 @@ void main() {
 
     test('should return true on success', () async {
       // Arrange
-      when(() => mockRepository.updateWorkOrder(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockRepository.updateWorkOrder(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       // Act
       final result = await updateWorkOrderUseCase(tWorkOrder);
@@ -366,9 +382,9 @@ void main() {
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(() => mockRepository.updateWorkOrder(any())).thenAnswer(
-        (_) async => FailureState<bool>(message: 'Update failed'),
-      );
+      when(
+        () => mockRepository.updateWorkOrder(any()),
+      ).thenAnswer((_) async => FailureState<bool>(message: 'Update failed'));
 
       // Act
       final result = await updateWorkOrderUseCase(tWorkOrder);

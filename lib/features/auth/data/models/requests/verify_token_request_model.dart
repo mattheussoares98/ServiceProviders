@@ -1,19 +1,13 @@
-import 'package:clean_architecture/core/data/models/data_convertible.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/auth/domain/entities/verify_token_entity.dart';
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/verify_token_entity.dart';
 
 class VerifyTokenRequestModel extends VerifyTokenEntity
     implements DataConvertible<VerifyTokenEntity> {
-  const VerifyTokenRequestModel({
-    required super.token,
-    required super.userId,
-  });
+  const VerifyTokenRequestModel({required super.token, required super.userId});
 
   factory VerifyTokenRequestModel.fromEntity(VerifyTokenEntity entity) =>
-      VerifyTokenRequestModel(
-        token: entity.token,
-        userId: entity.userId,
-      );
+      VerifyTokenRequestModel(token: entity.token, userId: entity.userId);
 
   factory VerifyTokenRequestModel.fromJson(MapDynamic json) =>
       VerifyTokenRequestModel(
@@ -25,5 +19,6 @@ class VerifyTokenRequestModel extends VerifyTokenEntity
   MapDynamic toJson() => {'token': token, 'user_id': userId};
 
   @override
-  VerifyTokenEntity toEntity() => VerifyTokenEntity(token: token, userId: userId);
+  VerifyTokenEntity toEntity() =>
+      VerifyTokenEntity(token: token, userId: userId);
 }

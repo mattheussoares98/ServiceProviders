@@ -1,12 +1,12 @@
-import 'package:clean_architecture/core/clients/remote/internet_client.dart';
-import 'package:clean_architecture/core/data/handlers/repository_handler.dart';
-import 'package:clean_architecture/core/utils/type_defs.dart';
-import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
-import 'package:clean_architecture/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
-import 'package:clean_architecture/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
-import 'package:clean_architecture/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
 
 @LazySingleton(as: MaintenancePlansRepository)
 final class MaintenancePlansRepositoryImpl
@@ -46,5 +46,6 @@ final class MaintenancePlansRepositoryImpl
       _localDataSource.savePlan(MaintenancePlanResponseModel.fromEntity(plan));
 
   @override
-  FutureBool deleteMaintenancePlan(String id) => _localDataSource.deletePlan(id);
+  FutureBool deleteMaintenancePlan(String id) =>
+      _localDataSource.deletePlan(id);
 }

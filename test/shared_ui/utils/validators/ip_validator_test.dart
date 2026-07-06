@@ -1,5 +1,5 @@
-import 'package:clean_architecture/shared_ui/utils/validators/ip_validator.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/ip_validator.dart';
 
 // Mock the StringHardcoded extension to return the base string.
 // This is necessary to get a predictable error message.

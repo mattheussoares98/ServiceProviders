@@ -1,11 +1,11 @@
-import 'package:clean_architecture/core/data/states/data_state.dart';
-import 'package:clean_architecture/core/utils/extensions/string_extension.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_criticality.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_entity.dart';
-import 'package:clean_architecture/features/assets/domain/entities/asset_status.dart';
-import 'package:clean_architecture/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
-import 'package:clean_architecture/shared_ui/cubits/base/base_cubit.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
 part 'assets_state.dart';
