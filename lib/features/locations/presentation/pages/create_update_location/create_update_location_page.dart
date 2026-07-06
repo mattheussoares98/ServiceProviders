@@ -89,133 +89,130 @@ class CreateUpdateLocationPage extends HookWidget {
     return BaseScaffold(
       appBar: BaseAppBar(
         title: existingLocation == null
-            ? 'Criando'.hardcoded
-            : 'Editando'.hardcoded,
+            ? 'Criando local'.hardcoded
+            : 'Editando local'.hardcoded,
         actions: [DeleteLocationButton(locationId: existingLocation?.id)],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(Sizes.p16),
-        child: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                BaseTextFormField(
-                  labelText: 'Nome do Local *'.hardcoded,
-                  hintText: 'Ex: Sede Central'.hardcoded,
-                  controller: nameController,
-                  validator: FormValidators.compose([NonEmptyValidator()]),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => cepFocusNode.requestFocus(),
-                ),
-                gapH16,
-                BaseTextFormField(
-                  labelText: 'CEP (Opcional)'.hardcoded,
-                  hintText: 'Ex: 01001-000'.hardcoded,
-                  controller: cepController,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.next,
-                  focusNode: cepFocusNode,
-                  onFieldSubmitted: (_) => addressFocusNode.requestFocus(),
-                ),
-                gapH16,
-                BaseTextFormField(
-                  labelText: 'Endereço (Opcional)'.hardcoded,
-                  hintText: 'Ex: Avenida Paulista'.hardcoded,
-                  controller: addressController,
-                  textInputAction: TextInputAction.next,
-                  focusNode: addressFocusNode,
-                  onFieldSubmitted: (_) => numberFocusNode.requestFocus(),
-                ),
-                gapH16,
-                Row(
-                  children: [
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Número (Opcional)'.hardcoded,
-                        hintText: 'Ex: 1000'.hardcoded,
-                        controller: numberController,
-                        textInputAction: TextInputAction.next,
-                        focusNode: numberFocusNode,
-                        onFieldSubmitted: (_) =>
-                            complementFocusNode.requestFocus(),
-                      ),
+      body: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              BaseTextFormField(
+                labelText: 'Nome do Local *'.hardcoded,
+                hintText: 'Ex: Sede Central'.hardcoded,
+                controller: nameController,
+                validator: FormValidators.compose([NonEmptyValidator()]),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (_) => cepFocusNode.requestFocus(),
+              ),
+              gapH16,
+              BaseTextFormField(
+                labelText: 'CEP (Opcional)'.hardcoded,
+                hintText: 'Ex: 01001-000'.hardcoded,
+                controller: cepController,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                focusNode: cepFocusNode,
+                onFieldSubmitted: (_) => addressFocusNode.requestFocus(),
+              ),
+              gapH16,
+              BaseTextFormField(
+                labelText: 'Endereço (Opcional)'.hardcoded,
+                hintText: 'Ex: Avenida Paulista'.hardcoded,
+                controller: addressController,
+                textInputAction: TextInputAction.next,
+                focusNode: addressFocusNode,
+                onFieldSubmitted: (_) => numberFocusNode.requestFocus(),
+              ),
+              gapH16,
+              Row(
+                children: [
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Número (Opcional)'.hardcoded,
+                      hintText: 'Ex: 1000'.hardcoded,
+                      controller: numberController,
+                      textInputAction: TextInputAction.next,
+                      focusNode: numberFocusNode,
+                      onFieldSubmitted: (_) =>
+                          complementFocusNode.requestFocus(),
                     ),
-                    gapW16,
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'Complemento (Opcional)'.hardcoded,
-                        hintText: 'Ex: Bloco A'.hardcoded,
-                        controller: complementController,
-                        textInputAction: TextInputAction.next,
-                        focusNode: complementFocusNode,
-                        onFieldSubmitted: (_) =>
-                            neighborhoodFocusNode.requestFocus(),
-                      ),
+                  ),
+                  gapW16,
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'Complemento (Opcional)'.hardcoded,
+                      hintText: 'Ex: Bloco A'.hardcoded,
+                      controller: complementController,
+                      textInputAction: TextInputAction.next,
+                      focusNode: complementFocusNode,
+                      onFieldSubmitted: (_) =>
+                          neighborhoodFocusNode.requestFocus(),
                     ),
-                  ],
-                ),
-                gapH16,
-                BaseTextFormField(
-                  labelText: 'Bairro (Opcional)'.hardcoded,
-                  hintText: 'Ex: Bela Vista'.hardcoded,
-                  controller: neighborhoodController,
-                  textInputAction: TextInputAction.next,
-                  focusNode: neighborhoodFocusNode,
-                  onFieldSubmitted: (_) => cityFocusNode.requestFocus(),
-                ),
-                gapH16,
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: BaseTextFormField(
-                        labelText: 'Cidade (Opcional)'.hardcoded,
-                        hintText: 'Ex: São Paulo'.hardcoded,
-                        controller: cityController,
-                        textInputAction: TextInputAction.next,
-                        focusNode: cityFocusNode,
-                        onFieldSubmitted: (_) => stateFocusNode.requestFocus(),
-                      ),
+                  ),
+                ],
+              ),
+              gapH16,
+              BaseTextFormField(
+                labelText: 'Bairro (Opcional)'.hardcoded,
+                hintText: 'Ex: Bela Vista'.hardcoded,
+                controller: neighborhoodController,
+                textInputAction: TextInputAction.next,
+                focusNode: neighborhoodFocusNode,
+                onFieldSubmitted: (_) => cityFocusNode.requestFocus(),
+              ),
+              gapH16,
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: BaseTextFormField(
+                      labelText: 'Cidade (Opcional)'.hardcoded,
+                      hintText: 'Ex: São Paulo'.hardcoded,
+                      controller: cityController,
+                      textInputAction: TextInputAction.next,
+                      focusNode: cityFocusNode,
+                      onFieldSubmitted: (_) => stateFocusNode.requestFocus(),
                     ),
-                    gapW16,
-                    Expanded(
-                      child: BaseTextFormField(
-                        labelText: 'UF (Opcional)'.hardcoded,
-                        hintText: 'Ex: SP'.hardcoded,
-                        controller: stateController,
-                        textInputAction: TextInputAction.done,
-                        focusNode: stateFocusNode,
-                        onFieldSubmitted: (_) => submit(),
-                      ),
+                  ),
+                  gapW16,
+                  Expanded(
+                    child: BaseTextFormField(
+                      labelText: 'UF (Opcional)'.hardcoded,
+                      hintText: 'Ex: SP'.hardcoded,
+                      controller: stateController,
+                      textInputAction: TextInputAction.done,
+                      focusNode: stateFocusNode,
+                      onFieldSubmitted: (_) => submit(),
                     ),
-                  ],
-                ),
-                gapH24,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: BaseTextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        text: 'Cancelar'.hardcoded,
-                        color: Colors.red,
-                      ),
+                  ),
+                ],
+              ),
+              gapH24,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: BaseTextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      text: 'Cancelar'.hardcoded,
+                      color: Colors.red,
                     ),
-                    Expanded(
-                      child: PrimaryButton(
-                        onTap: submit,
-                        width: Sizes.p120,
-                        text: 'Salvar'.hardcoded,
-                      ),
+                  ),
+                  Expanded(
+                    child: PrimaryButton(
+                      onTap: submit,
+                      width: Sizes.p120,
+                      text: 'Salvar'.hardcoded,
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

@@ -71,40 +71,37 @@ class CreateUpdateAreaPage extends HookWidget {
       ),
       body: Form(
         key: formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(Sizes.p16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AreaNameField(
-                nameController: nameController,
-                floorFocusNode: floorFocusNode,
-              ),
-              gapH16,
-              FloorField(
-                floorController: floorController,
-                floorFocusNode: floorFocusNode,
-                descFocusNode: descFocusNode,
-              ),
-              gapH16,
-              DescriptionField(
-                descController: descController,
-                descFocusNode: descFocusNode,
-                submit: submit,
-              ),
-              gapH32,
-              BlocSelector<LocationsCubit, LocationsState, bool>(
-                selector: (state) => state.status == StateStatus.saving,
-                builder: (_, loading) {
-                  return PrimaryButton(
-                    onTap: submit,
-                    text: area == null ? 'Criar'.hardcoded : 'Salvar'.hardcoded,
-                    isLoading: loading,
-                  );
-                },
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AreaNameField(
+              nameController: nameController,
+              floorFocusNode: floorFocusNode,
+            ),
+            gapH16,
+            FloorField(
+              floorController: floorController,
+              floorFocusNode: floorFocusNode,
+              descFocusNode: descFocusNode,
+            ),
+            gapH16,
+            DescriptionField(
+              descController: descController,
+              descFocusNode: descFocusNode,
+              submit: submit,
+            ),
+            gapH32,
+            BlocSelector<LocationsCubit, LocationsState, bool>(
+              selector: (state) => state.status == StateStatus.saving,
+              builder: (_, loading) {
+                return PrimaryButton(
+                  onTap: submit,
+                  text: area == null ? 'Criar'.hardcoded : 'Salvar'.hardcoded,
+                  isLoading: loading,
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
