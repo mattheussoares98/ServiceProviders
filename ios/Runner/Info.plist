@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Necessário para fotografar documentos e equipamentos nas ordens de serviço.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necessário para selecionar fotos da galeria para ordens de serviço.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Necessário para salvar fotos capturadas nas ordens de serviço.</string>
 </dict>
 </plist>
