@@ -72,15 +72,23 @@ This allows future RLS-style bucket policies per company without any database ch
 | Type | Extensions | MIME Types | Max Size | Compressible? |
 |---|---|---|---|---|
 | **Image** | `.jpg`, `.jpeg`, `.png`, `.webp`, `.heic` | `image/*` | 20 MB (original) | Yes — compressed to WebP ≤ 1 MB |
+| **Video** | `.mp4`, `.mov` | `video/*` | 100 MB (original) | Yes — compressed to MP4 ≤ 10 MB (max 30s) |
 | **PDF** | `.pdf` | `application/pdf` | **10 MB** | No |
 | **Word** | `.docx` | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | **5 MB** | No |
 | **Excel** | `.xlsx` | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | **5 MB** | No |
 
 > [!NOTE]
-> **Why these file types?** PDF, Word, and Excel cover 95%+ of real-world CMMS maintenance documents (reports, checklists, contracts, parts lists). Allowing arbitrary files (e.g. `.exe`, `.zip`) is a security risk. If more types are needed, they should be explicitly added here.
+> **Why these file types?** PDF, Word, Excel, images, and videos cover 95%+ of real-world CMMS maintenance documents (reports, checklists, visual evidence, parts lists). Allowing arbitrary files (e.g. `.exe`, `.zip`) is a security risk.
 
 > [!IMPORTANT]
-> Images are the only file type that can be compressed. Non-image files must be rejected at the source if they exceed the size limit. There is no fallback for oversized PDFs/DOCX/XLSX.
+> Images and videos are the only file types that are compressed locally. Other file types (PDF, Word, Excel) must be rejected if they exceed the size limits.
+
+### Web Compatibility Warning
+
+> [!WARNING]
+> The current `FileService` implementation relies on `dart:io` and native libraries (`ffmpeg_kit_flutter_min`, `flutter_image_compress`). As a result, it is **mobile-only** (iOS & Android) and will not compile/run on Web devices.
+>
+> For Web compatibility in future versions, picking must use HTML file inputs, and compression/handling must be adjusted to run in a web-compatible environment (or performed server-side).
 
 ---
 
@@ -438,7 +446,7 @@ Displayed when user taps "Adicionar Anexo". Four options:
 | Option | Icon | Label |
 |---|---|---|
 | Camera photo | `Icons.camera_alt_outlined` | Tirar foto (1 foto por vez) |
-| Camera video | `Icons.videocam_outlined` | Gravar vídeo (máx. 5 min) |
+| Camera video | `Icons.videocam_outlined` | Gravar vídeo (máx. 30s) |
 | Gallery | `Icons.photo_library_outlined` | Galeria — fotos e vídeos (multi-seleção) |
 | Document | `Icons.attach_file_outlined` | Selecionar arquivo (multi-seleção) |
 

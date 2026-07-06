@@ -5,6 +5,10 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// Lives in `core/services/` because it is a shared infrastructure concern
 /// (camera, gallery, documents), potentially reused by any future feature.
 /// It is NOT a repository — it does not persist data to a local/remote source.
+///
+/// **Note:** This service is only supported on mobile platforms (iOS & Android)
+/// and will not work on Web because it depends on `dart:io` and native libraries
+/// like `ffmpeg_kit`.
 abstract interface class FileService {
   /// Opens the device camera and takes a single photo.
   ///
@@ -33,7 +37,7 @@ abstract interface class FileService {
   /// Returns the absolute path of the saved compressed file.
   FutureString compressAndSaveImage(String sourcePath);
 
-  /// Compresses a video at [sourcePath] to H.264 MP4, max 720p, ≤ 50 MB,
+  /// Compresses a video at [sourcePath] to H.264 MP4, max 720p, ≤ 10 MB,
   /// and saves it to the app's secure sandbox directory.
   ///
   /// Returns the absolute path of the compressed file.

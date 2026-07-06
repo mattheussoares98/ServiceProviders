@@ -13,6 +13,11 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Implementation of [FileService] using native plugins.
+///
+/// **Note:** This implementation relies on `dart:io` and native library wrappers
+/// like `ffmpeg_kit` and `flutter_image_compress`, making it compatible only with
+/// mobile platforms (iOS and Android). It is not supported on Web.
 @LazySingleton(as: FileService)
 final class FileServiceImpl implements FileService {
   FileServiceImpl({
@@ -26,7 +31,7 @@ final class FileServiceImpl implements FileService {
 
   // Compression constants
   static const _maxCompressedImageBytes = 1 * 1024 * 1024; // 1 MB
-  static const _maxCompressedVideoBytes = 50 * 1024 * 1024; // 50 MB
+  static const _maxCompressedVideoBytes = 10 * 1024 * 1024; // 10 MB
   static const _maxDimensionHigh = 1920;
   static const _maxDimensionLow = 1280;
 
@@ -61,7 +66,7 @@ final class FileServiceImpl implements FileService {
   Future<String?> recordVideo() async {
     final xFile = await _imagePicker.pickVideo(
       source: ImageSource.camera,
-      maxDuration: const Duration(minutes: 5),
+      maxDuration: const Duration(seconds: 30),
     );
     return xFile?.path;
   }
