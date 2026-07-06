@@ -42,10 +42,14 @@ class ApiEndpoints {
 
   // Checklist Templates
   static const checklistTemplates = 'api/checklist-templates';
-  static String checklistTemplateById(String id) => 'api/checklist-templates/$id';
+  static String checklistTemplateById(String id) =>
+      'api/checklist-templates/$id';
 
   // Checklist Items
   static const checklistItems = 'api/checklist-items';
   static String checklistItemById(String id) => 'api/checklist-items/$id';
-}
 
+  // Storage — Supabase Edge Functions
+  //TODO check why is using it here
+  static const generatePresignedUrl = 'functions/v1/generate_presigned_url';
+}
