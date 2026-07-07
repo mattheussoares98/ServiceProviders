@@ -18,7 +18,6 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 @LazySingleton(as: StorageClient)
 final class R2StorageClient implements StorageClient {
   R2StorageClient() : _dio = Dio();
-  //TODO understand better this file
 
   @visibleForTesting
   R2StorageClient.withDio(Dio dio) : _dio = dio;
@@ -29,7 +28,7 @@ final class R2StorageClient implements StorageClient {
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey) {
     return ErrorHandler.execute(() async {
       final response = await _dio.post<MapDynamic>(
-        ApiEndpoints.generatePresignedUrl,
+        ApiEndpoints.presignedUploadUrl,
         data: {'object_key': objectKey},
       );
 

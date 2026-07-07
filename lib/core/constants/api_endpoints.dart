@@ -49,7 +49,9 @@ class ApiEndpoints {
   static const checklistItems = 'api/checklist-items';
   static String checklistItemById(String id) => 'api/checklist-items/$id';
 
+  // Attachments
+  static const attachments = 'api/attachments';
+
   // Storage — Supabase Edge Functions
-  //TODO check why is using it here
-  static const generatePresignedUrl = 'functions/v1/generate_presigned_url';
+  static const presignedUploadUrl = 'functions/v1/generate_presigned_url';
 }
