@@ -1,5 +1,6 @@
 enum UploadStatus {
   pending('pending'),
+  uploading('uploading'),
   uploaded('uploaded'),
   failed('failed');
 
