@@ -1,7 +1,9 @@
 enum FileType {
   image('image'),
+  video('video'),
   pdf('pdf'),
   document('document'),
+  spreadsheet('spreadsheet'),
   signature('signature');
 
   const FileType(this.code);
@@ -13,4 +15,13 @@ enum FileType {
     }
     return FileType.document;
   }
+
+  static FileType fromExtension(String ext) => switch (ext.toLowerCase()) {
+    'jpg' || 'jpeg' || 'png' || 'webp' || 'heic' => FileType.image,
+    'mp4' || 'mov' => FileType.video,
+    'pdf' => FileType.pdf,
+    'docx' => FileType.document,
+    'xlsx' => FileType.spreadsheet,
+    _ => FileType.document,
+  };
 }
