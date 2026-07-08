@@ -16,6 +16,7 @@ abstract interface class AttachmentsLocalDataSource {
   FutureBool deleteAttachment(String id);
 }
 
+//TODO create a way to delete automatically older files when they grow more than a limit(for space)
 @LazySingleton(as: AttachmentsLocalDataSource)
 final class AttachmentsLocalDataSourceImpl
     implements AttachmentsLocalDataSource {
