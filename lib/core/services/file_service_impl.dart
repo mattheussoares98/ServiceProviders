@@ -105,8 +105,7 @@ final class FileServiceImpl implements FileService {
 
       final ext = p.extension(sourcePath).toLowerCase().replaceFirst('.', '');
       final isAlreadySmall = sourceSize <= _maxCompressedImageBytes;
-      final isAlreadyOptimalFormat =
-          ext == 'webp' || ext == 'jpeg' || ext == 'jpg';
+      final isAlreadyOptimalFormat = ext == 'webp';
 
       // Skip compression only if both conditions are true
       if (isAlreadySmall && isAlreadyOptimalFormat) {
