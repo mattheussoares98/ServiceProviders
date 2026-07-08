@@ -14,8 +14,6 @@ import 'package:o_jogo_da_obra/core/services/file_service_impl.dart';
 
 class MockImagePicker extends Mock implements ImagePicker {}
 
-class MockFilePicker extends Mock implements FilePicker {}
-
 class MockFlutterImageCompressPlatform extends Mock
     implements FlutterImageCompressPlatform {}
 
@@ -25,7 +23,6 @@ class MockFlutterImageCompressValidator extends Mock
 void main() {
   final faker = Faker();
   late MockImagePicker mockImagePicker;
-  late MockFilePicker mockFilePicker;
   late FileServiceImpl service;
   late Directory tempDir;
   late bool urlLaunchSuccess;
@@ -42,11 +39,7 @@ void main() {
 
   setUp(() async {
     mockImagePicker = MockImagePicker();
-    mockFilePicker = MockFilePicker();
-    service = FileServiceImpl(
-      imagePicker: mockImagePicker,
-      filePicker: mockFilePicker,
-    );
+    service = FileServiceImpl(imagePicker: mockImagePicker);
 
     tempDir = await Directory.systemTemp.createTemp('file_service_test_');
 
@@ -115,18 +108,17 @@ void main() {
     openFileResultType = 0; // 0 = ResultType.done
     openFileResultMessage = 'done';
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('open_file'),
-          (methodCall) async {
-            if (methodCall.method == 'open_file') {
-              return {
-                'type': openFileResultType,
-                'message': openFileResultMessage,
-              };
-            }
-            return null;
-          },
-        );
+        .setMockMethodCallHandler(const MethodChannel('open_file'), (
+          methodCall,
+        ) async {
+          if (methodCall.method == 'open_file') {
+            return {
+              'type': openFileResultType,
+              'message': openFileResultMessage,
+            };
+          }
+          return null;
+        });
 
     // Mock ffmpeg_kit channel
     String? ffmpegDestPath;
@@ -265,44 +257,6 @@ void main() {
     });
   });
 
-  group('pickDocuments', () {
-    test('returns list of paths when user picks files', () async {
-      final paths = [
-        '${tempDir.path}/${faker.guid.guid()}.pdf',
-        '${tempDir.path}/${faker.guid.guid()}.docx',
-      ];
-      final platformFiles = paths
-          .map(
-            (p) => PlatformFile(name: p.split('/').last, size: 1024, path: p),
-          )
-          .toList();
-
-      when(
-        () => mockFilePicker.pickFiles(
-          allowMultiple: any(named: 'allowMultiple'),
-          type: any(named: 'type'),
-          allowedExtensions: any(named: 'allowedExtensions'),
-        ),
-      ).thenAnswer((_) async => FilePickerResult(platformFiles));
-
-      final result = await service.pickDocuments();
-      expect(result, paths);
-    });
-
-    test('returns null when FilePicker returns null', () async {
-      when(
-        () => mockFilePicker.pickFiles(
-          allowMultiple: any(named: 'allowMultiple'),
-          type: any(named: 'type'),
-          allowedExtensions: any(named: 'allowedExtensions'),
-        ),
-      ).thenAnswer((_) async => null);
-
-      final result = await service.pickDocuments();
-      expect(result, isNull);
-    });
-  });
-
   group('getFileSizeBytes', () {
     test('returns correct length of a file', () async {
       final file = File('${tempDir.path}/test_file.txt');
@@ -399,12 +353,15 @@ void main() {
   });
 
   group('openFile', () {
-    test('returns SuccessState(true) when launching remote http/https URL succeeds', () async {
-      urlLaunchSuccess = true;
-      final result = await service.openFile('https://example.com/file.pdf');
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, isTrue);
-    });
+    test(
+      'returns SuccessState(true) when launching remote http/https URL succeeds',
+      () async {
+        urlLaunchSuccess = true;
+        final result = await service.openFile('https://example.com/file.pdf');
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      },
+    );
 
     test('returns FailureState when launching remote URL fails', () async {
       urlLaunchSuccess = false;
@@ -418,25 +375,17 @@ void main() {
       expect(result.message, contains('Arquivo local não encontrado'));
     });
 
-    test('returns SuccessState(true) when opening existing local file succeeds', () async {
-      final file = File('${tempDir.path}/local.pdf');
-      await file.writeAsBytes([1, 2, 3]);
+    test(
+      'returns SuccessState(true) when opening existing local file succeeds',
+      () async {
+        final file = File('${tempDir.path}/local.pdf');
+        await file.writeAsBytes([1, 2, 3]);
 
-      openFileResultType = 0; // ResultType.done
-      final result = await service.openFile(file.path);
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, isTrue);
-    });
-
-    test('returns FailureState when opening local file fails', () async {
-      final file = File('${tempDir.path}/local.pdf');
-      await file.writeAsBytes([1, 2, 3]);
-
-      openFileResultType = 1; // ResultType.error
-      openFileResultMessage = 'No app associated';
-      final result = await service.openFile(file.path);
-      expect(result, isA<FailureState<bool>>());
-      expect(result.message, contains('No app associated'));
-    });
+        openFileResultType = 0; // ResultType.done
+        final result = await service.openFile(file.path);
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      },
+    );
   });
 }

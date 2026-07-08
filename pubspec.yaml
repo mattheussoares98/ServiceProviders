@@ -20,7 +20,7 @@ dependencies:
   encrypt: ^5.0.3
   equatable: ^2.0.8
   ffmpeg_kit_flutter_new_min: ^3.3.2
-  file_picker: ^9.0.0
+  file_picker: ^11.0.2
   firebase_analytics: ^12.4.0
   firebase_auth: ^6.5.0
   firebase_core: ^4.8.0

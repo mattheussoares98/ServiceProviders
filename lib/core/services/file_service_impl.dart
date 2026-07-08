@@ -22,14 +22,10 @@ import 'package:url_launcher/url_launcher.dart';
 /// mobile platforms (iOS and Android). It is not supported on Web.
 @LazySingleton(as: FileService)
 final class FileServiceImpl implements FileService {
-  FileServiceImpl({
-    required ImagePicker imagePicker,
-    required FilePicker filePicker,
-  }) : _imagePicker = imagePicker,
-       _filePicker = filePicker;
+  FileServiceImpl({required ImagePicker imagePicker})
+    : _imagePicker = imagePicker;
 
   final ImagePicker _imagePicker;
-  final FilePicker _filePicker;
 
   // Compression constants
   static const _maxCompressedImageBytes = 1 * 1024 * 1024; // 1 MB
@@ -83,7 +79,7 @@ final class FileServiceImpl implements FileService {
 
   @override
   Future<List<String>?> pickDocuments() async {
-    final result = await _filePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['pdf', 'docx', 'xlsx'],
@@ -252,7 +248,10 @@ final class FileServiceImpl implements FileService {
       if (isUri) {
         final uri = Uri.parse(path);
         if (await canLaunchUrl(uri)) {
-          final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          final success = await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
           if (success) {
             return const SuccessState(data: true);
           }
