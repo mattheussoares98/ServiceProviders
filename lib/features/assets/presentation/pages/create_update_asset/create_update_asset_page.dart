@@ -1,10 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
@@ -28,10 +26,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
 class CreateUpdateAssetPage extends HookWidget {
@@ -287,30 +283,6 @@ class CreateUpdateAssetPage extends HookWidget {
                 onFieldSubmitted: (_) => submit(),
               ),
               gapH16,
-              Container(
-                padding: const EdgeInsets.all(Sizes.p16),
-                decoration: BoxDecoration(
-                  color: context.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(Sizes.p8),
-                  border: Border.all(color: AppColors.dashedBorder),
-                ),
-                child: Column(
-                  children: [
-                    const PlatformIcon(
-                      materialIcon: Icons.camera_alt,
-                      cupertinoIcon: CupertinoIcons.camera,
-                      color: AppColors.fade,
-                    ),
-                    gapH8,
-                    BaseText.caption(
-                      'TODO: Tirar foto do equipamento (câmera indisponível)'
-                          .hardcoded,
-                      color: AppColors.fade,
-                    ),
-                  ],
-                ),
-              ),
-              gapH24,
               Row(
                 mainAxisAlignment: .spaceBetween,
                 children: [
