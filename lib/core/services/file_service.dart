@@ -59,4 +59,7 @@ abstract interface class FileService {
 
   /// Deletes the file at [path] from the local filesystem.
   FutureBool deleteLocalFile(String path);
+
+  /// Opens a file at [path] (either local path or remote URL).
+  FutureBool openFile(String path);
 }

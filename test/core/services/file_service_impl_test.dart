@@ -28,6 +28,9 @@ void main() {
   late MockFilePicker mockFilePicker;
   late FileServiceImpl service;
   late Directory tempDir;
+  late bool urlLaunchSuccess;
+  late int openFileResultType;
+  late String openFileResultMessage;
 
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +90,39 @@ void main() {
           (methodCall) async {
             if (methodCall.method == 'getApplicationDocumentsDirectory') {
               return tempDir.path;
+            }
+            return null;
+          },
+        );
+
+    // Mock url_launcher channel
+    urlLaunchSuccess = true;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/url_launcher'),
+          (methodCall) async {
+            if (methodCall.method == 'canLaunch') {
+              return true;
+            }
+            if (methodCall.method == 'launch') {
+              return urlLaunchSuccess;
+            }
+            return null;
+          },
+        );
+
+    // Mock open_file channel
+    openFileResultType = 0; // 0 = ResultType.done
+    openFileResultMessage = 'done';
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('open_file'),
+          (methodCall) async {
+            if (methodCall.method == 'open_file') {
+              return {
+                'type': openFileResultType,
+                'message': openFileResultMessage,
+              };
             }
             return null;
           },
@@ -359,6 +395,48 @@ void main() {
       expect(result.data, contains('/attachments/'));
       expect(result.data, endsWith('.mp4'));
       expect(File(result.data!).existsSync(), isTrue);
+    });
+  });
+
+  group('openFile', () {
+    test('returns SuccessState(true) when launching remote http/https URL succeeds', () async {
+      urlLaunchSuccess = true;
+      final result = await service.openFile('https://example.com/file.pdf');
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+    });
+
+    test('returns FailureState when launching remote URL fails', () async {
+      urlLaunchSuccess = false;
+      final result = await service.openFile('https://example.com/file.pdf');
+      expect(result, isA<FailureState<bool>>());
+    });
+
+    test('returns FailureState if local file does not exist', () async {
+      final result = await service.openFile('${tempDir.path}/nonexistent.pdf');
+      expect(result, isA<FailureState<bool>>());
+      expect(result.message, contains('Arquivo local não encontrado'));
+    });
+
+    test('returns SuccessState(true) when opening existing local file succeeds', () async {
+      final file = File('${tempDir.path}/local.pdf');
+      await file.writeAsBytes([1, 2, 3]);
+
+      openFileResultType = 0; // ResultType.done
+      final result = await service.openFile(file.path);
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+    });
+
+    test('returns FailureState when opening local file fails', () async {
+      final file = File('${tempDir.path}/local.pdf');
+      await file.writeAsBytes([1, 2, 3]);
+
+      openFileResultType = 1; // ResultType.error
+      openFileResultMessage = 'No app associated';
+      final result = await service.openFile(file.path);
+      expect(result, isA<FailureState<bool>>());
+      expect(result.message, contains('No app associated'));
     });
   });
 }

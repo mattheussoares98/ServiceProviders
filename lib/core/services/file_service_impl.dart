@@ -10,8 +10,10 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Implementation of [FileService] using native plugins.
 ///
@@ -238,6 +240,41 @@ final class FileServiceImpl implements FileService {
         await file.delete();
       }
       return const SuccessState(data: true);
+    } catch (error) {
+      return FailureState(message: error.toString());
+    }
+  }
+
+  @override
+  FutureBool openFile(String path) async {
+    try {
+      final isUri = path.startsWith('http://') || path.startsWith('https://');
+      if (isUri) {
+        final uri = Uri.parse(path);
+        if (await canLaunchUrl(uri)) {
+          final success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (success) {
+            return const SuccessState(data: true);
+          }
+        }
+        return FailureState(
+          message: 'Não foi possível abrir o link.'.hardcoded,
+        );
+      } else {
+        final file = File(path);
+        if (!file.existsSync()) {
+          return FailureState(
+            message: 'Arquivo local não encontrado.'.hardcoded,
+          );
+        }
+        final result = await OpenFilex.open(path);
+        if (result.type == ResultType.done) {
+          return const SuccessState(data: true);
+        }
+        return FailureState(
+          message: 'Falha ao abrir arquivo: ${result.message}'.hardcoded,
+        );
+      }
     } catch (error) {
       return FailureState(message: error.toString());
     }
