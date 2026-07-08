@@ -19,6 +19,7 @@ analyzer:
     document_ignores: ignore
     eol_at_end_of_file: ignore
     omit_obvious_local_variable_types: ignore
+    prefer_foreach: ignore
     unsafe_variance: ignore
   exclude:
     - bricks**
