@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  ffmpeg_kit_flutter_new_min
   file_selector_windows
   firebase_auth
   firebase_core
