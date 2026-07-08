@@ -22,6 +22,9 @@ abstract interface class AttachmentsRemoteDataSource {
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
     String workOrderId,
   );
+
+  /// Deletes an attachment by ID from the remote backend.
+  FutureBool deleteAttachment(String id);
 }
 
 @LazySingleton(as: AttachmentsRemoteDataSource)
@@ -66,5 +69,11 @@ final class AttachmentsRemoteDataSourceImpl
       queryParameters: {'work_order_id': workOrderId},
     ),
     fromJson: AttachmentResponseModel.fromJson,
+  );
+
+  @override
+  FutureBool deleteAttachment(String id) => ApiHandler.staticCall(
+    () => _httpClient.delete<void>('${ApiEndpoints.attachments}/$id'),
+    staticData: true,
   );
 }

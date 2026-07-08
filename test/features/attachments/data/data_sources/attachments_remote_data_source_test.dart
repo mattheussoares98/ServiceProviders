@@ -194,5 +194,46 @@ void main() {
       expect(result, isA<FailureState<List<AttachmentResponseModel>>>());
     });
   });
+
+  group('deleteAttachment', () {
+    final tAttachmentId = faker.guid.guid();
+
+    test(
+      'should return SuccessState<bool>(true) when API deletion is successful',
+      () async {
+        // Arrange
+        when(
+          () => mockHttpClient.delete<void>(
+            '${ApiEndpoints.attachments}/$tAttachmentId',
+          ),
+        ).thenAnswer((_) async => _mockResponse<void>(null));
+
+        // Act
+        final result = await dataSource.deleteAttachment(tAttachmentId);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      },
+    );
+
+    test('should return FailureState when API deletion fails', () async {
+      // Arrange
+      when(
+        () => mockHttpClient.delete<void>(any()),
+      ).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+
+      // Act
+      final result = await dataSource.deleteAttachment(tAttachmentId);
+
+      // Assert
+      expect(result, isA<FailureState<bool>>());
+    });
+  });
 }
 

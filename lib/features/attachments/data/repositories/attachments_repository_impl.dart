@@ -77,7 +77,12 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
   @override
   FutureBool deleteAttachment(String id) =>
-      _localDataSource.deleteAttachment(id);
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.deleteAttachment(id),
+        onRemoteSuccess: (_) => _localDataSource.deleteAttachment(id),
+        localCallback: () => _localDataSource.deleteAttachment(id),
+      );
 
   // ──────────────────────────────────────────
   // Pick and prepare

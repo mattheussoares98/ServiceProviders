@@ -138,10 +138,11 @@ void main() {
     );
 
     test(
-      'deleteAttachment should return true when local delete is successful',
+      'deleteAttachment should return true when offline and local delete is successful',
       () async {
         // Arrange
         final id = faker.guid.guid();
+        when(() => mockInternet.isConnected).thenReturn(false);
         when(
           () => mockLocalDataSource.deleteAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
@@ -153,6 +154,51 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockLocalDataSource.deleteAttachment(id)).called(1);
+        verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
+      },
+    );
+
+    test(
+      'deleteAttachment should return true when online and both remote and local delete are successful',
+      () async {
+        // Arrange
+        final id = faker.guid.guid();
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.deleteAttachment(id);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockRemoteDataSource.deleteAttachment(id)).called(1);
+        verify(() => mockLocalDataSource.deleteAttachment(id)).called(1);
+      },
+    );
+
+    test(
+      'deleteAttachment should return FailureState when online and remote delete fails',
+      () async {
+        // Arrange
+        final id = faker.guid.guid();
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Remote delete failed'));
+
+        // Act
+        final result = await repository.deleteAttachment(id);
+
+        // Assert
+        expect(result, isA<FailureState<bool>>());
+        verify(() => mockRemoteDataSource.deleteAttachment(id)).called(1);
+        verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
       },
     );
   });
