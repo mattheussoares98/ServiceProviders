@@ -113,8 +113,8 @@ class CreateUpdateWorkOrderPage extends HookWidget {
                       context.read<AssetsCubit>().loadAssets(),
                     if (locationsError?.isNotEmpty == true)
                       context.read<LocationsCubit>().loadLocationsAndAreas(),
-                    // if (usersError?.isNotEmpty == true)
-                    // context.read<UsersCubit>().loadUsers(),//TODO fix
+                    if (usersError?.isNotEmpty == true)
+                      context.read<UsersCubit>().loadUsers(),
                   ]);
                 },
                 text: 'Tentar novamente'.hardcoded,
