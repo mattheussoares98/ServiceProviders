@@ -1,0 +1,308 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:faker/faker.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/open_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+
+import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
+
+class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
+
+class MockPickAttachmentUseCase extends Mock implements PickAttachmentUseCase {}
+
+class MockUploadAttachmentUseCase extends Mock
+    implements UploadAttachmentUseCase {}
+
+class MockDeleteAttachmentUseCase extends Mock
+    implements DeleteAttachmentUseCase {}
+
+class MockOpenAttachmentUseCase extends Mock implements OpenAttachmentUseCase {}
+
+class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
+
+void main() {
+  final faker = Faker();
+  late MockGetAttachmentsUseCase mockGetAttachments;
+  late MockPickAttachmentUseCase mockPickAttachment;
+  late MockUploadAttachmentUseCase mockUploadAttachment;
+  late MockDeleteAttachmentUseCase mockDeleteAttachment;
+  late MockOpenAttachmentUseCase mockOpenAttachment;
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late AttachmentsCubitUseCases useCases;
+  late MockNavigationClient mockNavigationClient;
+
+  setUpAll(() {
+    registerFallbackValue(
+      const PickAttachmentParams(
+        source: AttachmentSource.cameraPhoto,
+        workOrderId: '123',
+        companyId: 'abc',
+        userId: 'xyz',
+      ),
+    );
+    registerFallbackValue(EntityFactory.makeAttachmentEntity());
+  });
+
+  setUp(() {
+    mockGetAttachments = MockGetAttachmentsUseCase();
+    mockPickAttachment = MockPickAttachmentUseCase();
+    mockUploadAttachment = MockUploadAttachmentUseCase();
+    mockDeleteAttachment = MockDeleteAttachmentUseCase();
+    mockOpenAttachment = MockOpenAttachmentUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    useCases = AttachmentsCubitUseCases(
+      getAttachments: mockGetAttachments,
+      pickAttachment: mockPickAttachment,
+      uploadAttachment: mockUploadAttachment,
+      deleteAttachment: mockDeleteAttachment,
+      openAttachment: mockOpenAttachment,
+      getSessionUser: mockGetSessionUser,
+    );
+  });
+
+  tearDown(GetIt.I.reset);
+
+  final tUser = EntityFactory.makeUserProfileEntity();
+  final tAttachmentList = EntityFactory.makeAttachmentEntityList();
+  final tWorkOrderId = faker.guid.guid();
+
+  group('AttachmentsCubit - init & refresh', () {
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'emits [loading, loaded] when init successfully fetches attachments',
+      build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tAttachmentList));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.init(tWorkOrderId),
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.attachments, 'attachments', tAttachmentList),
+      ],
+      verify: (_) {
+        verify(() => mockGetAttachments(tWorkOrderId)).called(1);
+      },
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'emits [loading, loadingError] when init fails to fetch attachments',
+      build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Error fetching'));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.init(tWorkOrderId),
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loadingError)
+            .having((s) => s.errorMessage, 'errorMessage', 'Error fetching'),
+      ],
+    );
+  });
+
+  group('AttachmentsCubit - pickAttachment & upload', () {
+    final tPickedFile = EntityFactory.makeAttachmentEntity().copyWith(
+      uploadStatus: UploadStatus.pending,
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'successfully picks and triggers upload for pending attachment',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        // Refresh call inside _uploadAttachment will fetch updated list, but first fetch should be empty
+        var getAttachmentsCallCount = 0;
+        when(() => mockGetAttachments(any())).thenAnswer((_) async {
+          getAttachmentsCallCount++;
+          if (getAttachmentsCallCount == 1) {
+            return const SuccessState(data: []);
+          }
+          return SuccessState(
+            data: [tPickedFile.copyWith(uploadStatus: UploadStatus.uploaded)],
+          );
+        });
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) async {
+        await cubit.init(tWorkOrderId);
+        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+      },
+      skip: 2, // Skip initial loading/loaded from init
+      expect: () => [
+        // 1. Adds picked attachment to state
+        isA<AttachmentsState>().having((s) => s.attachments, 'attachments', [
+          tPickedFile,
+        ]),
+        // 2. Starts uploading (adds ID to uploadingIds)
+        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
+          tPickedFile.id,
+        }),
+        // 3. Upload finishes (removes ID from uploadingIds)
+        isA<AttachmentsState>().having(
+          (s) => s.uploadingIds,
+          'uploadingIds',
+          isEmpty,
+        ),
+        // 4. Refreshes list after successful upload
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments[0].uploadStatus,
+              'status',
+              UploadStatus.uploaded,
+            ),
+      ],
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'filters out and cleans up duplicates during pickAttachment',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tAttachmentList));
+        // Returns the same attachment that is already in state
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAttachmentList.first]));
+        when(
+          () => mockDeleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) async {
+        await cubit.init(tWorkOrderId);
+        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+      },
+      skip: 2, // Skip initial loading/loaded from init
+      expect: () =>
+          <AttachmentsState>[], // No emissions because newAttachments is empty
+      verify: (_) {
+        verify(() => mockDeleteAttachment(tAttachmentList.first.id)).called(1);
+      },
+    );
+  });
+
+  group('AttachmentsCubit - deleteAttachment', () {
+    final tAttachment = tAttachmentList.first;
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'emits [deleting, loaded] when delete is successful',
+      build: () {
+        when(
+          () => mockDeleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      seed: () => AttachmentsState(
+        status: StateStatus.loaded,
+        attachments: tAttachmentList,
+      ),
+      act: (cubit) => cubit.deleteAttachment(tAttachment.id),
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.deleting,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tAttachmentList.skip(1).toList(),
+            ),
+      ],
+      verify: (_) {
+        verify(() => mockDeleteAttachment(tAttachment.id)).called(1);
+      },
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'emits [deleting, deletingError] when delete fails',
+      build: () {
+        when(
+          () => mockDeleteAttachment(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Error deleting'));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      seed: () => AttachmentsState(
+        status: StateStatus.loaded,
+        attachments: tAttachmentList,
+      ),
+      act: (cubit) => cubit.deleteAttachment(tAttachment.id),
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.deleting,
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.deletingError,
+        ),
+      ],
+    );
+  });
+
+  group('AttachmentsCubit - openAttachment', () {
+    final tAttachment = tAttachmentList.first;
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'does not emit new states when open is successful',
+      build: () {
+        when(
+          () => mockOpenAttachment(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.openAttachment(tAttachment),
+      expect: () => <AttachmentsState>[],
+      verify: (_) {
+        verify(() => mockOpenAttachment(tAttachment)).called(1);
+      },
+    );
+  });
+}

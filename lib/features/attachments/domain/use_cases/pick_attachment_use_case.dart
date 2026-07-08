@@ -10,22 +10,23 @@ class PickAttachmentParams extends Equatable {
     required this.source,
     required this.workOrderId,
     required this.companyId,
-    required this.uploadedById,
+    required this.userId,
   });
 
   final AttachmentSource source;
   final String workOrderId;
   final String companyId;
-  final String uploadedById;
+  final String userId;
 
   @override
-  List<Object?> get props => [source, workOrderId, companyId, uploadedById];
+  List<Object?> get props => [source, workOrderId, companyId, userId];
 }
 
 @LazySingleton()
-class PickAttachmentUseCase implements UseCase<List<AttachmentEntity>, PickAttachmentParams> {
+class PickAttachmentUseCase
+    implements UseCase<List<AttachmentEntity>, PickAttachmentParams> {
   PickAttachmentUseCase({required AttachmentsRepository attachmentsRepository})
-      : _attachmentsRepository = attachmentsRepository;
+    : _attachmentsRepository = attachmentsRepository;
 
   final AttachmentsRepository _attachmentsRepository;
 
@@ -35,6 +36,6 @@ class PickAttachmentUseCase implements UseCase<List<AttachmentEntity>, PickAttac
         source: request.source,
         workOrderId: request.workOrderId,
         companyId: request.companyId,
-        uploadedById: request.uploadedById,
+        uploadedById: request.userId,
       );
 }
