@@ -17,7 +17,9 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// self-authenticating and must not carry the backend JWT.
 @LazySingleton(as: StorageClient)
 final class R2StorageClient implements StorageClient {
-  R2StorageClient() : _dio = Dio();
+  R2StorageClient()
+    : _dio =
+          Dio(); //TODO is it using get it? Shouldn't we use the HttpClientModule?
 
   @visibleForTesting
   R2StorageClient.withDio(Dio dio) : _dio = dio;
