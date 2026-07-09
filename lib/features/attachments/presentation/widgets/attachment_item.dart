@@ -1,49 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class AttachmentItem extends StatelessWidget {
-  const AttachmentItem({
-    super.key,
-    required this.attachment,
-    required this.isUploading,
-    required this.onDelete,
-    required this.onTap,
-  });
+  const AttachmentItem({super.key, required this.attachment});
 
   final AttachmentEntity attachment;
-  final bool isUploading;
-  final VoidCallback onDelete;
-  final VoidCallback onTap;
 
   //TODO improve this widget
   @override
   Widget build(BuildContext context) {
-    final showUploadOverlay =
-        isUploading || attachment.uploadStatus == UploadStatus.pending;
-    final isFailed = attachment.uploadStatus == UploadStatus.failed;
-
     return Container(
       margin: const EdgeInsets.only(bottom: Sizes.p12),
       decoration: BoxDecoration(
         color: context.colorScheme.surface,
         borderRadius: BorderRadius.circular(Sizes.p12),
-        border: Border.all(
-          color: isFailed
-              ? AppColors.error.withValues(alpha: 0.5)
-              : context.colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: context.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -53,43 +34,11 @@ class AttachmentItem extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: IntrinsicHeight(
-          child: Row(
+      child: IntrinsicHeight(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Preview Thumbnail
-            SizedBox(
-              width: 80,
-              height: 80,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _Preview(attachment: attachment),
-                  //TODO move these overlays to the BaseImageWidget
-                  if (showUploadOverlay)
-                    Container(
-                      color: AppColors.black15,
-                      child: const Center(
-                        child: LoadingCircle(color: Colors.white),
-                      ),
-                    ),
-                  if (isFailed)
-                    Container(
-                      color: AppColors.error.withValues(alpha: 0.2),
-                      child: const Center(
-                        child: PlatformIcon(
-                          materialIcon: Icons.error_outline,
-                          cupertinoIcon: CupertinoIcons.exclamationmark_circle,
-                          color: AppColors.error,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            // Info Row
+            _Preview(attachment: attachment),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(Sizes.p12),
@@ -117,10 +66,6 @@ class AttachmentItem extends StatelessWidget {
                           ),
                           gapW8,
                         ],
-                        _StatusIndicator(
-                          isUploading: isUploading,
-                          uploadStatus: attachment.uploadStatus,
-                        ),
                       ],
                     ),
                   ],
@@ -133,12 +78,13 @@ class AttachmentItem extends StatelessWidget {
                 cupertinoIcon: CupertinoIcons.trash,
                 color: Colors.redAccent,
               ),
-              onPressed: onDelete,
+              onPressed: () => context
+                  .read<AttachmentsCubit>()
+                  .deleteAttachment(attachment.id),
             ),
           ],
         ),
       ),
-     ),
     );
   }
 
@@ -146,45 +92,6 @@ class AttachmentItem extends StatelessWidget {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-}
-
-class _StatusIndicator extends StatelessWidget {
-  const _StatusIndicator({
-    required this.isUploading,
-    required this.uploadStatus,
-  });
-  final bool isUploading;
-  final UploadStatus uploadStatus;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isUploading) {
-      return BaseText.caption(
-        'Enviando...'.hardcoded,
-        color: AppColors.primary,
-        fontWeight: FontWeight.w500,
-      );
-    }
-
-    return switch (uploadStatus) {
-      UploadStatus.pending => BaseText.caption(
-        'Pendente'.hardcoded,
-        color: AppColors.warning,
-      ),
-      UploadStatus.uploading => BaseText.caption(
-        'Enviando...'.hardcoded,
-        color: AppColors.primary,
-      ),
-      UploadStatus.uploaded => BaseText.caption(
-        'Enviado'.hardcoded,
-        color: AppColors.success,
-      ),
-      UploadStatus.failed => BaseText.caption(
-        'Falhou'.hardcoded,
-        color: AppColors.error,
-      ),
-    };
   }
 }
 
@@ -206,6 +113,8 @@ class _Preview extends StatelessWidget {
           source: source,
           enableFullScreenOnTap: true,
           heroTag: source.hashCode.toString(),
+          height: Sizes.p120,
+          width: Sizes.p120,
         );
       }
     }

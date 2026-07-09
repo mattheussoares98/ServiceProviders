@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_item.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_source_sheet.dart';
@@ -65,23 +64,8 @@ class Attachments extends StatelessWidget {
               itemCount: state.attachments.length,
               itemBuilder: (context, index) {
                 final attachment = state.attachments[index];
-                final isUploading = state.uploadingIds.contains(attachment.id);
 
-                return AttachmentItem(
-                  attachment: attachment,
-                  isUploading: isUploading,
-                  onDelete: () => cubit.deleteAttachment(attachment.id),
-                  onTap: () {
-                    if (isUploading) return;
-                    if (attachment.uploadStatus == UploadStatus.failed ||
-                        attachment.uploadStatus == UploadStatus.pending) {
-                      cubit.retryUpload(attachment);
-                    } else if (attachment.uploadStatus ==
-                        UploadStatus.uploaded) {
-                      cubit.openAttachment(attachment);
-                    }
-                  },
-                );
+                return AttachmentItem(attachment: attachment);
               },
             );
           },
