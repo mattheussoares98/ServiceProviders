@@ -1,5 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -21,6 +23,8 @@ class WorkOrdersCubitUseCases {
     required this.createChangeRequest,
     required this.reviewChangeRequest,
     required this.getWorkOrderHistory,
+    required this.getAttachments,
+    required this.uploadAttachment,
   });
 
   final GetSessionUserUseCase getSessionUser;
@@ -32,4 +36,6 @@ class WorkOrdersCubitUseCases {
   final CreateWorkOrderChangeRequestUseCase createChangeRequest;
   final ReviewWorkOrderChangeRequestUseCase reviewChangeRequest;
   final GetWorkOrderHistoryUseCase getWorkOrderHistory;
+  final GetAttachmentsUseCase getAttachments;
+  final UploadAttachmentUseCase uploadAttachment;
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -164,7 +166,13 @@ class _CreateUpdatePage extends HookWidget {
         startedAt: workOrder?.startedAt,
         totalCost: workOrder?.totalCost,
       );
-      if (succeeds && context.mounted) Navigator.of(context).pop();
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
+      } else {
+        if (context.mounted) {
+          unawaited(context.read<AttachmentsCubit>().init(workOrderId));
+        }
+      }
     }
 
     return BaseScaffold(

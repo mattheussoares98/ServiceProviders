@@ -1,6 +1,8 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -180,6 +182,23 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      final attachmentsResult = await _useCases.getAttachments(workOrder.id);
+      if (attachmentsResult is SuccessState<List<AttachmentEntity>>) {
+        final pending = attachmentsResult.data!
+            .where(
+              (e) =>
+                  e.uploadStatus == UploadStatus.pending ||
+                  e.uploadStatus == UploadStatus.failed,
+            )
+            .toList();
+        if (pending.isNotEmpty) {
+          await Future.wait([
+            for (final attachment in pending)
+              _useCases.uploadAttachment(attachment),
+          ]);
+        }
+      }
+
       await loadWorkOrdersAndChangeRequests(showLoading: false);
       return true;
     } else {
