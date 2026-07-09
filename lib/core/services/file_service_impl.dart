@@ -79,7 +79,7 @@ final class FileServiceImpl implements FileService {
 
   @override
   Future<List<String>?> pickDocuments() async {
-    final result = await FilePicker.pickFiles(
+    final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['pdf', 'docx', 'xlsx'],
