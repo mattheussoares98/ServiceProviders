@@ -188,9 +188,9 @@ void main() {
         // Arrange
         final id = faker.guid.guid();
         when(() => mockInternet.isConnected).thenReturn(true);
-        when(
-          () => mockRemoteDataSource.deleteAttachment(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Remote delete failed'));
+        when(() => mockRemoteDataSource.deleteAttachment(any())).thenAnswer(
+          (_) async => FailureState(message: 'Remote delete failed'),
+        );
 
         // Act
         final result = await repository.deleteAttachment(id);
@@ -364,10 +364,7 @@ void main() {
           (_) async => const SuccessState(data: 'http://remote/url'),
         );
         when(
-          () => mockRemoteDataSource.confirmUpload(
-            attachmentId: any(named: 'attachmentId'),
-            remoteUrl: any(named: 'remoteUrl'),
-          ),
+          () => mockRemoteDataSource.confirmUpload(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         when(
@@ -441,10 +438,7 @@ void main() {
         ).thenAnswer((_) async => const SuccessState(data: remoteUrl));
 
         when(
-          () => mockRemoteDataSource.confirmUpload(
-            attachmentId: mockEntity.id,
-            remoteUrl: remoteUrl,
-          ),
+          () => mockRemoteDataSource.confirmUpload(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         when(
@@ -466,12 +460,7 @@ void main() {
             mimeType: 'image/jpeg',
           ),
         ).called(1);
-        verify(
-          () => mockRemoteDataSource.confirmUpload(
-            attachmentId: mockEntity.id,
-            remoteUrl: remoteUrl,
-          ),
-        ).called(1);
+        verify(() => mockRemoteDataSource.confirmUpload(any())).called(1);
         verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
       },
     );
@@ -561,12 +550,8 @@ void main() {
           mimeType: 'image/jpeg',
         ),
       ).thenAnswer((_) async => const SuccessState(data: remoteUrl));
-
       when(
-        () => mockRemoteDataSource.confirmUpload(
-          attachmentId: mockEntity.id,
-          remoteUrl: remoteUrl,
-        ),
+        () => mockRemoteDataSource.confirmUpload(any()),
       ).thenAnswer((_) async => FailureState(message: 'Confirmation failed'));
 
       final result = await repository.uploadPendingAttachment(mockEntity);

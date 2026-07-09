@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/value_objects/attachment_file_validator.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
 @LazySingleton(as: AttachmentsRepository)
 final class AttachmentsRepositoryImpl implements AttachmentsRepository {
@@ -174,20 +175,21 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       }
       final remoteUrl = uploadResult.data!;
 
-      // 3. Confirm the upload — saves remoteUrl on Supabase.
-      final confirmResult = await _remoteDataSource.confirmUpload(
-        attachmentId: attachment.id,
+      // Update the entity with the remoteUrl and uploaded status first.
+      final updated = attachment.copyWith(
         remoteUrl: remoteUrl,
+        uploadStatus: UploadStatus.uploaded,
+      );
+
+      // 3. Confirm the upload — saves the entire record on Supabase.
+      final confirmResult = await _remoteDataSource.confirmUpload(
+        AttachmentResponseModel.fromEntity(updated),
       );
       if (confirmResult is! SuccessState<bool>) {
         return FailureState(message: (confirmResult as FailureState).message);
       }
 
       // 4. Update the local record with the final remoteUrl and uploaded status.
-      final updated = attachment.copyWith(
-        remoteUrl: remoteUrl,
-        uploadStatus: UploadStatus.uploaded,
-      );
       return _localDataSource.saveAttachment(
         AttachmentResponseModel.fromEntity(updated),
       );
@@ -283,5 +285,5 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     return SuccessState(data: entity);
   }
 
-  String _id() => DateTime.now().microsecondsSinceEpoch.toString();
+  String _id() => const Uuid().v4();
 }

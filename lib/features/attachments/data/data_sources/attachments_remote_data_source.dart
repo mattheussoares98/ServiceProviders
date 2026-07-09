@@ -13,11 +13,8 @@ abstract interface class AttachmentsRemoteDataSource {
   /// [objectKey] must follow the convention built by [StorageClient.buildObjectKey].
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey);
 
-  /// Saves [remoteUrl] on the attachment record after a successful R2 upload.
-  FutureBool confirmUpload({
-    required String attachmentId,
-    required String remoteUrl,
-  });
+  /// Saves the attachment record on the remote database after a successful R2 upload.
+  FutureBool confirmUpload(AttachmentResponseModel attachment);
 
   /// Fetches all non-deleted attachments for a given work order from the database.
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
@@ -53,17 +50,14 @@ final class AttachmentsRemoteDataSourceImpl
       });
 
   @override
-  FutureBool confirmUpload({
-    required String attachmentId,
-    required String remoteUrl,
-  }) => SupabaseHandler.call(() async {
-    await _database.update(
-      table: 'attachments',
-      values: {'remote_url': remoteUrl, 'upload_status': 'uploaded'},
-      filters: [SupabaseFilter.eq('id', attachmentId)],
-    );
-    return true;
-  });
+  FutureBool confirmUpload(AttachmentResponseModel attachment) =>
+      SupabaseHandler.call(() async {
+        await _database.upsert(
+          table: 'attachments',
+          values: attachment.toJson(),
+        );
+        return true;
+      });
 
   @override
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
@@ -83,7 +77,7 @@ final class AttachmentsRemoteDataSourceImpl
   FutureBool deleteAttachment(String id) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'attachments',
-      values: {'deleted_at': DateTime.now().toIso8601String()},
+      values: <String, dynamic>{'deleted_at': DateTime.now().toIso8601String()},
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;

@@ -82,6 +82,9 @@ void main() {
 
   final tUser = EntityFactory.makeUserProfileEntity();
   final tAttachmentList = EntityFactory.makeAttachmentEntityList();
+  final tUploadedAttachmentList = EntityFactory.makeAttachmentEntityList()
+      .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
+      .toList();
   final tWorkOrderId = faker.guid.guid();
 
   group('AttachmentsCubit - init & refresh', () {
@@ -90,7 +93,7 @@ void main() {
       build: () {
         when(
           () => mockGetAttachments(any()),
-        ).thenAnswer((_) async => SuccessState(data: tAttachmentList));
+        ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
         return AttachmentsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.init(tWorkOrderId),
@@ -102,7 +105,7 @@ void main() {
         ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
-            .having((s) => s.attachments, 'attachments', tAttachmentList),
+            .having((s) => s.attachments, 'attachments', tUploadedAttachmentList),
       ],
       verify: (_) {
         verify(() => mockGetAttachments(tWorkOrderId)).called(1);

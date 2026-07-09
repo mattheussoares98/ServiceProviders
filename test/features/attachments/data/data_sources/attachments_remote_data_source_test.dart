@@ -92,58 +92,46 @@ void main() {
   });
 
   group('confirmUpload', () {
-    final tAttachmentId = faker.guid.guid();
-    final tRemoteUrl = faker.internet.httpsUrl();
+    final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
+    final tModel = AttachmentResponseModel.fromEntity(tAttachmentEntity);
 
     test(
-      'should return SuccessState<bool>(true) when database update is successful',
+      'should return SuccessState<bool>(true) when database upsert is successful',
       () async {
         // Arrange
         when(
-          () => mockDatabase.update(
+          () => mockDatabase.upsert(
             table: any(named: 'table'),
             values: any(named: 'values'),
-            filters: any(named: 'filters'),
           ),
         ).thenAnswer((_) async => []);
 
         // Act
-        final result = await dataSource.confirmUpload(
-          attachmentId: tAttachmentId,
-          remoteUrl: tRemoteUrl,
-        );
+        final result = await dataSource.confirmUpload(tModel);
 
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, isTrue);
         verify(
-          () => mockDatabase.update(
+          () => mockDatabase.upsert(
             table: 'attachments',
-            values: {
-              'remote_url': tRemoteUrl,
-              'upload_status': 'uploaded',
-            },
-            filters: [SupabaseFilter.eq('id', tAttachmentId)],
+            values: tModel.toJson(),
           ),
         ).called(1);
       },
     );
 
-    test('should return FailureState when database update throws exception', () async {
+    test('should return FailureState when database upsert throws exception', () async {
       // Arrange
       when(
-        () => mockDatabase.update(
+        () => mockDatabase.upsert(
           table: any(named: 'table'),
           values: any(named: 'values'),
-          filters: any(named: 'filters'),
         ),
       ).thenThrow(const PostgrestException(message: 'Database error'));
 
       // Act
-      final result = await dataSource.confirmUpload(
-        attachmentId: tAttachmentId,
-        remoteUrl: tRemoteUrl,
-      );
+      final result = await dataSource.confirmUpload(tModel);
 
       // Assert
       expect(result, isA<FailureState<bool>>());

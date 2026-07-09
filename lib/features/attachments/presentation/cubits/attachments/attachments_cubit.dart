@@ -32,13 +32,21 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     if (isClosed) return;
 
     if (result is SuccessState<List<AttachmentEntity>>) {
+      final list = result.data ?? [];
       emit(
         state.copyWith(
           status: StateStatus.loaded,
-          attachments: result.data ?? [],
+          attachments: list,
           annulErrorMessage: true,
         ),
       );
+
+      // Auto-upload pending attachments on refresh/load
+      for (final attachment in list.where(
+        (e) => e.uploadStatus == UploadStatus.pending,
+      )) {
+        unawaited(_uploadAttachment(attachment));
+      }
     } else {
       emit(
         state.copyWith(
@@ -47,6 +55,18 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
         ),
       );
     }
+  }
+
+  Future<void> retryUpload(AttachmentEntity attachment) async {
+    final updatedList = state.attachments.map((item) {
+      if (item.id == attachment.id) {
+        return item.copyWith(uploadStatus: UploadStatus.pending);
+      }
+      return item;
+    }).toList();
+    emit(state.copyWith(attachments: updatedList));
+
+    await _uploadAttachment(attachment);
   }
 
   Future<void> pickAttachment(AttachmentSource source) async {

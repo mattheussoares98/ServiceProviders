@@ -19,11 +19,14 @@ class AttachmentItem extends StatelessWidget {
     required this.attachment,
     required this.isUploading,
     required this.onDelete,
+    required this.onTap,
   });
 
   final AttachmentEntity attachment;
   final bool isUploading;
   final VoidCallback onDelete;
+  final VoidCallback onTap;
+
   //TODO improve this widget
   @override
   Widget build(BuildContext context) {
@@ -50,8 +53,10 @@ class AttachmentItem extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: IntrinsicHeight(
-        child: Row(
+      child: InkWell(
+        onTap: onTap,
+        child: IntrinsicHeight(
+          child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Preview Thumbnail
@@ -133,6 +138,7 @@ class AttachmentItem extends StatelessWidget {
           ],
         ),
       ),
+     ),
     );
   }
 
