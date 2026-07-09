@@ -138,11 +138,26 @@ void main() {
     );
 
     test(
-      'deleteAttachment should return true when offline and local delete is successful',
+      'deleteAttachment should delete locally and skip remote call when attachment is not uploaded',
       () async {
         // Arrange
         final id = faker.guid.guid();
-        when(() => mockInternet.isConnected).thenReturn(false);
+        final Set<UploadStatus> statuses = UploadStatus.values
+            .where((e) => e != UploadStatus.uploaded)
+            .toSet();
+        final status = statuses.elementAt(
+          faker.randomGenerator.integer(statuses.length),
+        );
+        final localAttachment = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: id,
+            uploadStatus: status,
+          ),
+        );
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getAttachment(id),
+        ).thenAnswer((_) async => SuccessState(data: localAttachment));
         when(
           () => mockLocalDataSource.deleteAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
@@ -153,17 +168,27 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
+        verify(() => mockLocalDataSource.getAttachment(id)).called(1);
         verify(() => mockLocalDataSource.deleteAttachment(id)).called(1);
         verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
       },
     );
 
     test(
-      'deleteAttachment should return true when online and both remote and local delete are successful',
+      'deleteAttachment should delete remote and local when online and attachment is uploaded',
       () async {
         // Arrange
         final id = faker.guid.guid();
+        final localAttachment = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: id,
+            uploadStatus: UploadStatus.uploaded,
+          ),
+        );
         when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getAttachment(id),
+        ).thenAnswer((_) async => SuccessState(data: localAttachment));
         when(
           () => mockRemoteDataSource.deleteAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
@@ -177,17 +202,58 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
+        verify(() => mockLocalDataSource.getAttachment(id)).called(1);
         verify(() => mockRemoteDataSource.deleteAttachment(id)).called(1);
         verify(() => mockLocalDataSource.deleteAttachment(id)).called(1);
       },
     );
 
     test(
-      'deleteAttachment should return FailureState when online and remote delete fails',
+      'deleteAttachment should delete only locally when offline and attachment is uploaded',
       () async {
         // Arrange
         final id = faker.guid.guid();
+        final localAttachment = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: id,
+            uploadStatus: UploadStatus.uploaded,
+          ),
+        );
+        when(() => mockInternet.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.getAttachment(id),
+        ).thenAnswer((_) async => SuccessState(data: localAttachment));
+        when(
+          () => mockLocalDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Act
+        final result = await repository.deleteAttachment(id);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockLocalDataSource.getAttachment(id)).called(1);
+        verify(() => mockLocalDataSource.deleteAttachment(id)).called(1);
+        verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
+      },
+    );
+
+    test(
+      'deleteAttachment should return FailureState when online, attachment is uploaded, and remote delete fails',
+      () async {
+        // Arrange
+        final id = faker.guid.guid();
+        final localAttachment = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: id,
+            uploadStatus: UploadStatus.uploaded,
+          ),
+        );
         when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getAttachment(id),
+        ).thenAnswer((_) async => SuccessState(data: localAttachment));
         when(() => mockRemoteDataSource.deleteAttachment(any())).thenAnswer(
           (_) async => FailureState(message: 'Remote delete failed'),
         );
@@ -197,6 +263,7 @@ void main() {
 
         // Assert
         expect(result, isA<FailureState<bool>>());
+        verify(() => mockLocalDataSource.getAttachment(id)).called(1);
         verify(() => mockRemoteDataSource.deleteAttachment(id)).called(1);
         verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
       },
