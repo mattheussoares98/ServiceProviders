@@ -138,18 +138,23 @@ class BaseImageWidget extends StatelessWidget {
 
     final image = switch (source) {
       NetworkImageSource(:final url) =>
-        url?.isEmpty ?? true
+        (url == null ||
+                url.isEmpty ||
+                (!url.startsWith('http://') && !url.startsWith('https://')))
             ? fallbackWidget
             : CachedNetworkImage(
-                key: ValueKey(url),
                 cacheKey: url,
-                imageUrl: url!,
+                imageUrl: url,
                 width: width,
                 height: height,
                 fit: fit,
                 placeholder: (context, url) =>
                     placeholder ?? const LoadingCircle(),
                 errorWidget: (context, url, error) => fallbackWidget,
+                errorListener: (error) {
+                  // Evict from cache on failure to prevent getting stuck in a corrupted cache state
+                  CachedNetworkImage.evictFromCache(url);
+                },
                 memCacheWidth: resolvedCacheWidth,
                 memCacheHeight: resolvedCacheHeight,
                 maxWidthDiskCache: resolvedCacheWidth,
