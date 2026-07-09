@@ -2,8 +2,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
@@ -20,6 +23,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_up
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/programmed_data.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/try_again_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_status_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_type_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -30,8 +34,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:uuid/uuid.dart';
 
 @RoutePage()
 class CreateUpdateWorkOrderPage extends HookWidget {
@@ -41,11 +45,68 @@ class CreateUpdateWorkOrderPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workOrderId = useMemoized(() => workOrder?.id ?? const Uuid().v4());
     final formKey = useMemoized(GlobalKey<FormState>.new);
+
     observeLoading(
       [context.read<WorkOrdersCubit>()],
       statuses: {StateStatus.saving, StateStatus.deleting},
     );
+
+    return BlocProvider<AttachmentsCubit>(
+      create: (context) => GetIt.I<AttachmentsCubit>()..init(workOrderId),
+      child: _CreateUpdatePage(
+        workOrder: workOrder,
+        formKey: formKey,
+        workOrderId: workOrderId,
+      ),
+    );
+  }
+}
+
+class _CreateUpdatePage extends HookWidget {
+  const _CreateUpdatePage({
+    required this.workOrder,
+    required this.formKey,
+    required this.workOrderId,
+  });
+
+  final WorkOrderEntity? workOrder;
+  final GlobalKey<FormState> formKey;
+  final String workOrderId;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedScheduledDate = useState<DateTime?>(workOrder?.scheduledDate);
+
+    final (assetsError, assetsLoading) = context.select(
+      (AssetsCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+    final (locationsError, locationsLoading) = context.select(
+      (LocationsCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+    final (usersError, usersLoading) = context.select(
+      (UsersCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+
+    final isLoading = assetsLoading || locationsLoading || usersLoading;
+    final hasError =
+        assetsError?.isNotEmpty == true ||
+        locationsError?.isNotEmpty == true ||
+        usersError?.isNotEmpty == true;
+
+    if (isLoading) {
+      return const LoadingCircle();
+    } else if (hasError) {
+      return TryAgainButton(
+        assetsError: assetsError,
+        locationsError: locationsError,
+        usersError: usersError,
+      );
+    }
 
     final titleController = useTextEditingController(text: workOrder?.title);
     final descController = useTextEditingController(
@@ -71,66 +132,13 @@ class CreateUpdateWorkOrderPage extends HookWidget {
     final selectedStatus = useState<WorkOrderStatus>(
       workOrder?.status ?? WorkOrderStatus.open,
     );
-    final selectedScheduledDate = useState<DateTime?>(workOrder?.scheduledDate);
-
-    final (assetsError, assetsLoading) = context.select(
-      (AssetsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
-    );
-    final (locationsError, locationsLoading) = context.select(
-      (LocationsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
-    );
-    final (usersError, usersLoading) = context.select(
-      (UsersCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
-    );
-
-    final isLoading = assetsLoading || locationsLoading || usersLoading;
-    final hasError =
-        assetsError?.isNotEmpty == true ||
-        locationsError?.isNotEmpty == true ||
-        usersError?.isNotEmpty == true;
-
-    if (isLoading) {
-      return const LoadingCircle();
-    }
-
-    if (hasError) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(Sizes.p16),
-          child: Column(
-            children: [
-              BaseText.error(
-                '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}',
-              ),
-              gapH32,
-              PrimaryButton(
-                onTap: () async {
-                  await Future.wait([
-                    if (assetsError?.isNotEmpty == true)
-                      context.read<AssetsCubit>().loadAssets(),
-                    if (locationsError?.isNotEmpty == true)
-                      context.read<LocationsCubit>().loadLocationsAndAreas(),
-                    if (usersError?.isNotEmpty == true)
-                      context.read<UsersCubit>().loadUsers(),
-                  ]);
-                },
-                text: 'Tentar novamente'.hardcoded,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
 
       final sessionUser = context.read<SessionCubit>().state.user;
 
       final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
-        id: workOrder?.id,
+        id: workOrderId,
         locationId: selectedLocationId.value!,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
         assignedToId: selectedAssignedToId.value == ''
@@ -249,6 +257,8 @@ class CreateUpdateWorkOrderPage extends HookWidget {
                   ],
                 ),
               ),
+              gapH16,
+              const Attachments(),
               gapH24,
               Row(
                 mainAxisAlignment: .spaceBetween,
