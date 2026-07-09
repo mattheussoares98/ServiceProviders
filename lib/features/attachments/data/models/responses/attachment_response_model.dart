@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:path/path.dart' as p;
 
 class AttachmentResponseModel extends AttachmentEntity
     implements DataConvertible<AttachmentEntity> {
@@ -31,7 +32,9 @@ class AttachmentResponseModel extends AttachmentEntity
         uploadedById: entity.uploadedById,
         fileName: entity.fileName,
         fileType: entity.fileType,
-        localPath: entity.localPath,
+        localPath: entity.localPath != null
+            ? p.basename(entity.localPath!)
+            : null,
         remoteUrl: entity.remoteUrl,
         fileSizeBytes: entity.fileSizeBytes,
         isCompressed: entity.isCompressed,
@@ -49,8 +52,10 @@ class AttachmentResponseModel extends AttachmentEntity
         uploadedById: json['uploaded_by_id'] as String? ?? '',
         fileName: json['file_name'] as String? ?? '',
         fileType: FileType.fromCode(json['file_type'] as String? ?? 'document'),
-        localPath: json['local_path'] as String?,
-        remoteUrl: json['remote_url'] as String?,
+        localPath: json['local_path'] != null
+            ? p.basename(json['local_path'] as String)
+            : null,
+        remoteUrl: _sanitizeRemoteUrl(json['remote_url'] as String?),
         fileSizeBytes: json['file_size_bytes'] as int?,
         isCompressed: json['is_compressed'] as bool? ?? false,
         uploadStatus: UploadStatus.fromCode(
@@ -100,4 +105,18 @@ class AttachmentResponseModel extends AttachmentEntity
     deletedAt: deletedAt,
     originalPath: originalPath,
   );
+}
+
+String? _sanitizeRemoteUrl(String? url) {
+  if (url == null || url.isEmpty) return null;
+  final regex = RegExp(
+    r'https://([a-f0-9]+)\.r2\.cloudflarestorage\.com/([^/]+)/(.+)',
+  );
+  final match = regex.firstMatch(url);
+  if (match != null) {
+    final accountId = match.group(1);
+    final key = match.group(3);
+    return 'https://pub-$accountId.r2.dev/$key';
+  }
+  return url;
 }

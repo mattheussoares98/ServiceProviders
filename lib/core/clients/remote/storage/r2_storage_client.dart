@@ -43,6 +43,7 @@ final class R2StorageClient implements StorageClient {
         data: PresignedUrlResponse(
           uploadUrl: body['upload_url'] as String,
           fileKey: body['file_key'] as String,
+          publicUrl: body['public_url'] as String? ?? '',
         ),
       );
     });

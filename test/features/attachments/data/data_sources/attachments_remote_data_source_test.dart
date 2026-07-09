@@ -39,6 +39,7 @@ void main() {
       'should return SuccessState<PresignedUrlResponse> when Edge Function call is successful',
       () async {
         // Arrange
+        final tPublicUrl = 'https://cdn.example.com/$tObjectKey';
         when(
           () => mockDatabase.invokeFunction(
             any(),
@@ -50,6 +51,7 @@ void main() {
             data: {
               'upload_url': tUploadUrl,
               'file_key': tObjectKey,
+              'public_url': tPublicUrl,
             },
             status: 200,
           ),
@@ -63,6 +65,7 @@ void main() {
         final data = (result as SuccessState<PresignedUrlResponse>).data;
         expect(data!.uploadUrl, tUploadUrl);
         expect(data.fileKey, tObjectKey);
+        expect(data.publicUrl, tPublicUrl);
         verify(
           () => mockDatabase.invokeFunction(
             'generate_presigned_url',

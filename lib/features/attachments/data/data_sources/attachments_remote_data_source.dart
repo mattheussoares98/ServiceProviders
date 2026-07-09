@@ -46,6 +46,7 @@ final class AttachmentsRemoteDataSourceImpl
         return PresignedUrlResponse(
           uploadUrl: data['upload_url'] as String,
           fileKey: data['file_key'] as String,
+          publicUrl: data['public_url'] as String,
         );
       });
 

@@ -61,15 +61,39 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       }
     }
 
-    // Always return from local: includes pending (not uploaded yet) +
-    // uploaded (own device or synced from remote).
-    return RepositoryHandler.fetchFromLocalAndMapList<
-      AttachmentResponseModel,
-      AttachmentEntity
-    >(
-      localCallback: () =>
-          _localDataSource.getAttachmentsByWorkOrder(workOrderId),
+    final localResult = await _localDataSource.getAttachmentsByWorkOrder(
+      workOrderId,
     );
+    if (localResult is! SuccessState<List<AttachmentResponseModel>>) {
+      return FailureState(
+        message: (localResult as FailureState).message,
+        error: localResult.error,
+        statusCode: localResult.statusCode,
+        response: localResult.response,
+      );
+    }
+
+    final models = localResult.data ?? <AttachmentResponseModel>[];
+    final entities = await Future.wait(models.map(_toEntityWithResolvedPath));
+    return SuccessState(data: entities);
+  }
+
+  Future<AttachmentEntity> _toEntityWithResolvedPath(
+    AttachmentResponseModel model,
+  ) async {
+    final entity = model.toEntity();
+    final localPath = entity.localPath;
+    if (localPath == null || localPath.isEmpty) {
+      return entity;
+    }
+
+    final resolvedPath = await _fileService.resolveSandboxPath(localPath);
+    if (resolvedPath != null && File(resolvedPath).existsSync()) {
+      return entity.copyWith(localPath: resolvedPath);
+    }
+
+    // If file doesn't exist locally, clear localPath so UI uses remoteUrl
+    return entity.copyWith(annulLocalPath: true);
   }
 
   @override
@@ -179,7 +203,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       if (uploadResult is! SuccessState<String>) {
         return FailureState(message: (uploadResult as FailureState).message);
       }
-      final remoteUrl = uploadResult.data!;
+      final remoteUrl = presigned.publicUrl;
 
       // Update the entity with the remoteUrl and uploaded status first.
       final updated = attachment.copyWith(

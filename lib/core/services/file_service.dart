@@ -70,4 +70,11 @@ abstract interface class FileService {
 
   /// Opens a file at [path] (either local path or remote URL).
   FutureBool openFile(String path);
+
+  /// Resolves a local path (absolute, relative, or just filename) to an absolute
+  /// path in the secure sandbox directory.
+  ///
+  /// Returns null if [localPath] is null or empty.
+  Future<String?> resolveSandboxPath(String? localPath);
 }
+

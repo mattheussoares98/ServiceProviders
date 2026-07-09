@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
@@ -16,37 +17,41 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class Attachments extends StatelessWidget {
-  const Attachments({super.key});
+  const Attachments({super.key, required this.workOrderId});
+  final String workOrderId;
 
   @override
   Widget build(BuildContext context) {
-    return SliverMainAxisGroup(
-      slivers: [
-        const SliverToBoxAdapter(child: _AttachmentsAndAddRow()),
-        gapSliverH8,
-        BlocBuilder<AttachmentsCubit, AttachmentsState>(
-          builder: (context, state) {
-            if (state.status == StateStatus.loading &&
-                state.attachments.isEmpty) {
-              return const SliverToBoxAdapter(
-                child: Center(child: LoadingCircle()),
-              );
-            } else if (state.attachments.isEmpty) {
-              return const SliverToBoxAdapter(child: _EmptyAttachment());
-            }
+    return BlocProvider(
+      create: (context) => GetIt.I<AttachmentsCubit>()..init(workOrderId),
+      child: SliverMainAxisGroup(
+        slivers: [
+          const SliverToBoxAdapter(child: _AttachmentsAndAddRow()),
+          gapSliverH8,
+          BlocBuilder<AttachmentsCubit, AttachmentsState>(
+            builder: (context, state) {
+              if (state.status == StateStatus.loading &&
+                  state.attachments.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Center(child: LoadingCircle()),
+                );
+              } else if (state.attachments.isEmpty) {
+                return const SliverToBoxAdapter(child: _EmptyAttachment());
+              }
 
-            return ResponsiveListFlow(
-              isSliver: true,
-              padding: EdgeInsets.zero,
-              itemCount: state.attachments.length,
-              itemBuilder: (context, index) {
-                final attachment = state.attachments[index];
-                return AttachmentItem(attachment: attachment);
-              },
-            );
-          },
-        ),
-      ],
+              return ResponsiveListFlow(
+                isSliver: true,
+                padding: EdgeInsets.zero,
+                itemCount: state.attachments.length,
+                itemBuilder: (context, index) {
+                  final attachment = state.attachments[index];
+                  return AttachmentItem(attachment: attachment);
+                },
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

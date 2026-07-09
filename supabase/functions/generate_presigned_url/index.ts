@@ -110,7 +110,7 @@ serve(async (req: Request) => {
     // The presigned URL points to the R2 S3-compatible endpoint — not the CDN.
     // The public URL (served to app users) uses the R2 public domain or your custom domain.
     const fileKey = objectKey;
-    const publicUrl = `${r2PublicUrl}/${fileKey}`;
+    const publicUrl = `${Deno.env.get('R2_PUBLIC_DEVELOPMENT_URL') || r2PublicUrl}/${fileKey}`;
 
     return new Response(
       JSON.stringify({

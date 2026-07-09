@@ -46,6 +46,13 @@ void main() {
       fileService: fileService,
       storageClient: storageClient,
     );
+    when(() => fileService.resolveSandboxPath(any())).thenAnswer(
+      (inv) async {
+        final path = inv.positionalArguments[0] as String?;
+        if (path == null) return null;
+        return '/sandbox/$path';
+      },
+    );
   });
 
   final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
@@ -465,6 +472,7 @@ void main() {
         const presignedResponse = PresignedUrlResponse(
           uploadUrl: 'http://upload-url',
           fileKey: 'file-key',
+          publicUrl: 'http://r2/file.jpg',
         );
         when(
           () => mockRemoteDataSource.getPresignedUploadUrl(any()),
@@ -546,6 +554,7 @@ void main() {
       const presignedResponse = PresignedUrlResponse(
         uploadUrl: 'http://upload-url',
         fileKey: 'file-key',
+        publicUrl: 'http://public-url',
       );
       when(
         () => mockRemoteDataSource.getPresignedUploadUrl(any()),
@@ -579,6 +588,7 @@ void main() {
       const presignedResponse = PresignedUrlResponse(
         uploadUrl: 'http://upload-url',
         fileKey: 'file-key',
+        publicUrl: 'http://public-url',
       );
       when(
         () => mockRemoteDataSource.getPresignedUploadUrl(any()),

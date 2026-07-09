@@ -279,6 +279,14 @@ final class FileServiceImpl implements FileService {
     }
   }
 
+  @override
+  Future<String?> resolveSandboxPath(String? localPath) async {
+    if (localPath == null || localPath.isEmpty) return null;
+    final fileName = p.basename(localPath);
+    final dir = await getApplicationDocumentsDirectory();
+    return '${dir.path}/attachments/$fileName';
+  }
+
   // ──────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────

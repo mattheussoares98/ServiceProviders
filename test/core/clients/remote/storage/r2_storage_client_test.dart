@@ -99,6 +99,7 @@ void main() {
         final uploadUrl =
             'https://bucket.r2.dev/$objectKey?X-Amz-Signature=${faker.guid.guid()}';
         final fileKey = objectKey;
+        final publicUrl = 'https://cdn.example.com/$objectKey';
 
         when(
           () => mockDio.post<Map<String, dynamic>>(
@@ -112,7 +113,11 @@ void main() {
           ),
         ).thenAnswer(
           (_) async =>
-              _mockResponse({'upload_url': uploadUrl, 'file_key': fileKey}),
+              _mockResponse({
+                'upload_url': uploadUrl,
+                'file_key': fileKey,
+                'public_url': publicUrl,
+              }),
         );
 
         final result = await client.getPresignedUploadUrl(objectKey);
@@ -121,6 +126,7 @@ void main() {
         final data = (result as SuccessState<PresignedUrlResponse>).data;
         expect(data!.uploadUrl, uploadUrl);
         expect(data.fileKey, fileKey);
+        expect(data.publicUrl, publicUrl);
       },
     );
 

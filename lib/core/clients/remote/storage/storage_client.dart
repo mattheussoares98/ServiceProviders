@@ -6,10 +6,15 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// [fileKey]    — the object key stored in R2 (used to build the final public URL).
 ///                Format: `attachments/{companyId}/{workOrderId}/{uuid}.{ext}`
 class PresignedUrlResponse {
-  const PresignedUrlResponse({required this.uploadUrl, required this.fileKey});
+  const PresignedUrlResponse({
+    required this.uploadUrl,
+    required this.fileKey,
+    required this.publicUrl,
+  });
 
   final String uploadUrl;
   final String fileKey;
+  final String publicUrl;
 }
 
 /// Abstract client for cloud file storage operations.
