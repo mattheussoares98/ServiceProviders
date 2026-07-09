@@ -9857,6 +9857,17 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _originalPathMeta = const VerificationMeta(
+    'originalPath',
+  );
+  @override
+  late final GeneratedColumn<String> originalPath = GeneratedColumn<String>(
+    'original_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -9872,6 +9883,7 @@ class $AttachmentsTable extends Attachments
     uploadStatus,
     createdAt,
     deletedAt,
+    originalPath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9987,6 +9999,15 @@ class $AttachmentsTable extends Attachments
         deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
+    if (data.containsKey('original_path')) {
+      context.handle(
+        _originalPathMeta,
+        originalPath.isAcceptableOrUnknown(
+          data['original_path']!,
+          _originalPathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -10048,6 +10069,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.dateTime,
         data['${effectivePrefix}deleted_at'],
       ),
+      originalPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_path'],
+      ),
     );
   }
 
@@ -10071,6 +10096,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
   final String uploadStatus;
   final DateTime createdAt;
   final DateTime? deletedAt;
+  final String? originalPath;
   const Attachment({
     required this.id,
     required this.workOrderId,
@@ -10085,6 +10111,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     required this.uploadStatus,
     required this.createdAt,
     this.deletedAt,
+    this.originalPath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10109,6 +10136,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    if (!nullToAbsent || originalPath != null) {
+      map['original_path'] = Variable<String>(originalPath);
     }
     return map;
   }
@@ -10136,6 +10166,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
+      originalPath: originalPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalPath),
     );
   }
 
@@ -10158,6 +10191,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       uploadStatus: serializer.fromJson<String>(json['uploadStatus']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      originalPath: serializer.fromJson<String?>(json['originalPath']),
     );
   }
   @override
@@ -10177,6 +10211,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       'uploadStatus': serializer.toJson<String>(uploadStatus),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'originalPath': serializer.toJson<String?>(originalPath),
     };
   }
 
@@ -10194,6 +10229,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     String? uploadStatus,
     DateTime? createdAt,
     Value<DateTime?> deletedAt = const Value.absent(),
+    Value<String?> originalPath = const Value.absent(),
   }) => Attachment(
     id: id ?? this.id,
     workOrderId: workOrderId ?? this.workOrderId,
@@ -10210,6 +10246,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     uploadStatus: uploadStatus ?? this.uploadStatus,
     createdAt: createdAt ?? this.createdAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    originalPath: originalPath.present ? originalPath.value : this.originalPath,
   );
   Attachment copyWithCompanion(AttachmentsCompanion data) {
     return Attachment(
@@ -10236,6 +10273,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           : this.uploadStatus,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      originalPath: data.originalPath.present
+          ? data.originalPath.value
+          : this.originalPath,
     );
   }
 
@@ -10254,7 +10294,8 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           ..write('isCompressed: $isCompressed, ')
           ..write('uploadStatus: $uploadStatus, ')
           ..write('createdAt: $createdAt, ')
-          ..write('deletedAt: $deletedAt')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('originalPath: $originalPath')
           ..write(')'))
         .toString();
   }
@@ -10274,6 +10315,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     uploadStatus,
     createdAt,
     deletedAt,
+    originalPath,
   );
   @override
   bool operator ==(Object other) =>
@@ -10291,7 +10333,8 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           other.isCompressed == this.isCompressed &&
           other.uploadStatus == this.uploadStatus &&
           other.createdAt == this.createdAt &&
-          other.deletedAt == this.deletedAt);
+          other.deletedAt == this.deletedAt &&
+          other.originalPath == this.originalPath);
 }
 
 class AttachmentsCompanion extends UpdateCompanion<Attachment> {
@@ -10308,6 +10351,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
   final Value<String> uploadStatus;
   final Value<DateTime> createdAt;
   final Value<DateTime?> deletedAt;
+  final Value<String?> originalPath;
   final Value<int> rowid;
   const AttachmentsCompanion({
     this.id = const Value.absent(),
@@ -10323,6 +10367,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.uploadStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.originalPath = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AttachmentsCompanion.insert({
@@ -10339,6 +10384,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.uploadStatus = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
+    this.originalPath = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        workOrderId = Value(workOrderId),
@@ -10360,6 +10406,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Expression<String>? uploadStatus,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? deletedAt,
+    Expression<String>? originalPath,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10376,6 +10423,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       if (uploadStatus != null) 'upload_status': uploadStatus,
       if (createdAt != null) 'created_at': createdAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
+      if (originalPath != null) 'original_path': originalPath,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10394,6 +10442,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Value<String>? uploadStatus,
     Value<DateTime>? createdAt,
     Value<DateTime?>? deletedAt,
+    Value<String?>? originalPath,
     Value<int>? rowid,
   }) {
     return AttachmentsCompanion(
@@ -10410,6 +10459,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       uploadStatus: uploadStatus ?? this.uploadStatus,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      originalPath: originalPath ?? this.originalPath,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10456,6 +10506,9 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
+    if (originalPath.present) {
+      map['original_path'] = Variable<String>(originalPath.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -10478,6 +10531,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('uploadStatus: $uploadStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt, ')
+          ..write('originalPath: $originalPath, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -24297,6 +24351,7 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       Value<String> uploadStatus,
       Value<DateTime> createdAt,
       Value<DateTime?> deletedAt,
+      Value<String?> originalPath,
       Value<int> rowid,
     });
 typedef $$AttachmentsTableUpdateCompanionBuilder =
@@ -24314,6 +24369,7 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<String> uploadStatus,
       Value<DateTime> createdAt,
       Value<DateTime?> deletedAt,
+      Value<String?> originalPath,
       Value<int> rowid,
     });
 
@@ -24430,6 +24486,11 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<DateTime> get deletedAt => $composableBuilder(
     column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalPath => $composableBuilder(
+    column: $table.originalPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24562,6 +24623,11 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get originalPath => $composableBuilder(
+    column: $table.originalPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$WorkOrdersTableOrderingComposer get workOrderId {
     final $$WorkOrdersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -24676,6 +24742,11 @@ class $$AttachmentsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get originalPath => $composableBuilder(
+    column: $table.originalPath,
+    builder: (column) => column,
+  );
 
   $$WorkOrdersTableAnnotationComposer get workOrderId {
     final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
@@ -24792,6 +24863,7 @@ class $$AttachmentsTableTableManager
                 Value<String> uploadStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> originalPath = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion(
                 id: id,
@@ -24807,6 +24879,7 @@ class $$AttachmentsTableTableManager
                 uploadStatus: uploadStatus,
                 createdAt: createdAt,
                 deletedAt: deletedAt,
+                originalPath: originalPath,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -24824,6 +24897,7 @@ class $$AttachmentsTableTableManager
                 Value<String> uploadStatus = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String?> originalPath = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion.insert(
                 id: id,
@@ -24839,6 +24913,7 @@ class $$AttachmentsTableTableManager
                 uploadStatus: uploadStatus,
                 createdAt: createdAt,
                 deletedAt: deletedAt,
+                originalPath: originalPath,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

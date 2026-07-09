@@ -52,6 +52,7 @@ final class AttachmentsLocalDataSourceImpl
           uploadStatus: UploadStatus.fromCode(item.uploadStatus),
           createdAt: item.createdAt,
           deletedAt: item.deletedAt,
+          originalPath: item.originalPath,
         ),
       );
     });
@@ -85,6 +86,7 @@ final class AttachmentsLocalDataSourceImpl
                 uploadStatus: UploadStatus.fromCode(t.uploadStatus),
                 createdAt: t.createdAt,
                 deletedAt: t.deletedAt,
+                originalPath: t.originalPath,
               ),
             )
             .toList(),
@@ -112,6 +114,7 @@ final class AttachmentsLocalDataSourceImpl
               uploadStatus: Value(attachment.uploadStatus.code),
               createdAt: Value(attachment.createdAt),
               deletedAt: Value(attachment.deletedAt),
+              originalPath: Value(attachment.originalPath),
             ),
           );
       return const SuccessState(data: true);

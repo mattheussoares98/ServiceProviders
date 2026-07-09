@@ -20,6 +20,7 @@ class AttachmentResponseModel extends AttachmentEntity
     required super.uploadStatus,
     required super.createdAt,
     super.deletedAt,
+    super.originalPath,
   });
 
   factory AttachmentResponseModel.fromEntity(AttachmentEntity entity) =>
@@ -37,6 +38,7 @@ class AttachmentResponseModel extends AttachmentEntity
         uploadStatus: entity.uploadStatus,
         createdAt: entity.createdAt,
         deletedAt: entity.deletedAt,
+        originalPath: entity.originalPath,
       );
 
   factory AttachmentResponseModel.fromJson(MapDynamic json) =>
@@ -60,6 +62,7 @@ class AttachmentResponseModel extends AttachmentEntity
         deletedAt: json['deleted_at'] != null
             ? DateTime.parse(json['deleted_at'] as String)
             : null,
+        originalPath: json['original_path'] as String?,
       );
 
   @override
@@ -77,6 +80,7 @@ class AttachmentResponseModel extends AttachmentEntity
     'upload_status': uploadStatus.code,
     'created_at': createdAt.toIso8601String(),
     'deleted_at': deletedAt?.toIso8601String(),
+    'original_path': originalPath,
   };
 
   @override
@@ -94,5 +98,6 @@ class AttachmentResponseModel extends AttachmentEntity
     uploadStatus: uploadStatus,
     createdAt: createdAt,
     deletedAt: deletedAt,
+    originalPath: originalPath,
   );
 }

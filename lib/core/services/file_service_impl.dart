@@ -4,7 +4,7 @@ import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
@@ -70,15 +70,15 @@ final class FileServiceImpl implements FileService {
   }
 
   @override
-  Future<List<String>?> pickMediaFromGallery() async {
+  Future<List<PickedFile>?> pickMediaFromGallery() async {
     // pickMultipleMedia selects both images and videos from the gallery.
     final xFiles = await _imagePicker.pickMultipleMedia();
     if (xFiles.isEmpty) return null;
-    return xFiles.map((f) => f.path).toList();
+    return xFiles.map((f) => (path: f.path, name: f.name)).toList();
   }
 
   @override
-  Future<List<String>?> pickDocuments() async {
+  Future<List<PickedFile>?> pickDocuments() async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -87,7 +87,7 @@ final class FileServiceImpl implements FileService {
     if (result == null || result.files.isEmpty) return null;
     return result.files
         .where((f) => f.path != null)
-        .map((f) => f.path!)
+        .map((f) => (path: f.path!, name: f.name))
         .toList();
   }
 

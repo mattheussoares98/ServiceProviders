@@ -23,6 +23,7 @@ class Attachments extends Table {
   )(); // enum: pending, uploaded, failed
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
+  TextColumn get originalPath => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

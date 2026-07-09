@@ -111,16 +111,17 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required String uploadedById,
   }) async {
     try {
-      final pickedPaths = await _pickPaths(source);
-      if (pickedPaths == null || pickedPaths.isEmpty) {
+      final pickedFiles = await _pickFiles(source);
+      if (pickedFiles == null || pickedFiles.isEmpty) {
         return const SuccessState(data: []);
       }
 
       final entities = <AttachmentEntity>[];
 
-      for (final originalPath in pickedPaths) {
+      for (final picked in pickedFiles) {
         final prepareResult = await _prepareFile(
-          originalPath: originalPath,
+          originalPath: picked.path,
+          originalName: picked.name,
           workOrderId: workOrderId,
           companyId: companyId,
           uploadedById: uploadedById,
@@ -207,19 +208,23 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   // Private helpers
   // ──────────────────────────────────────────
 
-  Future<List<String>?> _pickPaths(AttachmentSource source) => switch (source) {
-    AttachmentSource.cameraPhoto => _fileService.takePhoto().then(
-      (path) => path != null ? [path] : null,
-    ),
-    AttachmentSource.cameraVideo => _fileService.recordVideo().then(
-      (path) => path != null ? [path] : null,
-    ),
-    AttachmentSource.gallery => _fileService.pickMediaFromGallery(),
-    AttachmentSource.document => _fileService.pickDocuments(),
-  };
+  Future<List<PickedFile>?> _pickFiles(AttachmentSource source) =>
+      switch (source) {
+        // Camera picks always produce unique files — name is not meaningful
+        // for deduplication, so we reuse path as the name.
+        AttachmentSource.cameraPhoto => _fileService.takePhoto().then(
+          (path) => path != null ? [(path: path, name: path)] : null,
+        ),
+        AttachmentSource.cameraVideo => _fileService.recordVideo().then(
+          (path) => path != null ? [(path: path, name: path)] : null,
+        ),
+        AttachmentSource.gallery => _fileService.pickMediaFromGallery(),
+        AttachmentSource.document => _fileService.pickDocuments(),
+      };
 
   Future<DataState<AttachmentEntity>> _prepareFile({
     required String originalPath,
+    required String originalName,
     required String workOrderId,
     required String companyId,
     required String uploadedById,
@@ -266,18 +271,30 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     final localPath = sandboxResult.data!;
     final finalSize = await _fileService.getFileSizeBytes(localPath);
 
+    // DJB2 hash of the raw original bytes — the only stable cross-platform
+    // deduplication key. Both XFile.path and XFile.name include a UUID that
+    // changes on every pick on iOS and Android.
+    final rawBytes = await File(originalPath).readAsBytes();
+    int hash = 5381;
+    for (final byte in rawBytes) {
+      hash = ((hash << 5) + hash) + byte;
+      hash = hash & 0xFFFFFFFF;
+    }
+    final contentHash = hash.toRadixString(16);
+
     final entity = AttachmentEntity(
       id: entityId,
       workOrderId: workOrderId,
       companyId: companyId,
       uploadedById: uploadedById,
-      fileName: p.basename(originalPath),
+      fileName: originalName,
       fileType: fileType,
       localPath: localPath,
       fileSizeBytes: finalSize,
       isCompressed: isCompressed,
       uploadStatus: UploadStatus.pending,
       createdAt: DateTime.now(),
+      originalPath: contentHash,
     );
 
     final saveResult = await _localDataSource.saveAttachment(

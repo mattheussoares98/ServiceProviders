@@ -89,9 +89,15 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
       for (final newFile in pickedList) {
         final isDuplicate = state.attachments.any(
-          (existing) =>
-              existing.fileName == newFile.fileName &&
-              existing.fileSizeBytes == newFile.fileSizeBytes,
+          (existing) {
+            if (existing.originalPath != null &&
+                newFile.originalPath != null &&
+                existing.originalPath == newFile.originalPath) {
+              return true;
+            }
+            return existing.fileName == newFile.fileName &&
+                existing.fileSizeBytes == newFile.fileSizeBytes;
+          },
         );
 
         if (isDuplicate) {

@@ -1,5 +1,13 @@
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
+/// A file returned by a pick operation.
+///
+/// [*path] is the temp/cached file path on disk — it changes every time you
+/// pick the same gallery item.
+/// [*name] is the stable original filename (e.g. `IMG_001.jpg`) that
+/// image_picker preserves via `XFile.name`. Use this for deduplication.
+typedef PickedFile = ({String path, String name});
+
 /// Abstract service for device file I/O operations.
 ///
 /// Lives in `core/services/` because it is a shared infrastructure concern
@@ -22,13 +30,13 @@ abstract interface class FileService {
 
   /// Opens the gallery for multi-selection of both images and videos.
   ///
-  /// Returns a list of selected file paths, or `null` if the user cancelled.
-  Future<List<String>?> pickMediaFromGallery();
+  /// Returns a list of [PickedFile] records, or `null` if the user cancelled.
+  Future<List<PickedFile>?> pickMediaFromGallery();
 
   /// Opens the file picker for multi-document selection (PDF, DOCX, XLSX).
   ///
-  /// Returns a list of selected file paths, or `null` if the user cancelled.
-  Future<List<String>?> pickDocuments();
+  /// Returns a list of [PickedFile] records, or `null` if the user cancelled.
+  Future<List<PickedFile>?> pickDocuments();
 
   /// Compresses an image at [sourcePath] and copies the result into the
   /// app's secure sandbox directory.
