@@ -50,7 +50,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       _useCases.getWorkOrders(user.companyId),
       _useCases.getChangeRequests(user.companyId),
     ]);
-
+    //TODO when reloading, should reload the attachments too because it is not updating when deleting on another device and reload here
     if (isClosed) return;
 
     final workOrdersResult = results[0];
