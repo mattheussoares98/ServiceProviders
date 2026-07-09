@@ -1,10 +1,11 @@
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
-import 'package:o_jogo_da_obra/core/constants/api_endpoints.dart';
-import 'package:o_jogo_da_obra/core/data/handlers/api_handler.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AttachmentsRemoteDataSource {
   /// Requests a time-limited presigned PUT URL from the backend Edge Function.
@@ -18,62 +19,73 @@ abstract interface class AttachmentsRemoteDataSource {
     required String remoteUrl,
   });
 
-  /// Fetches all non-deleted attachments for a given work order from the API.
+  /// Fetches all non-deleted attachments for a given work order from the database.
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
     String workOrderId,
   );
 
-  /// Deletes an attachment by ID from the remote backend.
+  /// Deletes an attachment by ID from the remote database.
   FutureBool deleteAttachment(String id);
 }
 
 @LazySingleton(as: AttachmentsRemoteDataSource)
 final class AttachmentsRemoteDataSourceImpl
     implements AttachmentsRemoteDataSource {
-  const AttachmentsRemoteDataSourceImpl({required HttpClient httpClient})
-    : _httpClient = httpClient;
+  const AttachmentsRemoteDataSourceImpl({
+    required SupabaseDatabaseClient database,
+  }) : _database = database;
 
-  final HttpClient _httpClient;
+  final SupabaseDatabaseClient _database;
 
   @override
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey) =>
-      ApiHandler.call(
-        () => _httpClient.post<MapDynamic>(
-          ApiEndpoints.presignedUploadUrl,
-          data: {'object_key': objectKey},
-        ),
-        fromJson: (json) => PresignedUrlResponse(
-          uploadUrl: json['upload_url'] as String,
-          fileKey: json['file_key'] as String,
-        ),
-      );
+      SupabaseHandler.call(() async {
+        final response = await _database.invokeFunction(
+          'generate_presigned_url',
+          method: HttpMethod.post,
+          body: {'object_key': objectKey},
+        );
+        final data = response.data as MapDynamic;
+        return PresignedUrlResponse(
+          uploadUrl: data['upload_url'] as String,
+          fileKey: data['file_key'] as String,
+        );
+      });
 
   @override
   FutureBool confirmUpload({
     required String attachmentId,
     required String remoteUrl,
-  }) => ApiHandler.staticCall(
-    () => _httpClient.patch<void>(
-      '${ApiEndpoints.attachments}/$attachmentId/confirm',
-      data: {'remote_url': remoteUrl},
-    ),
-    staticData: true,
-  );
+  }) => SupabaseHandler.call(() async {
+    await _database.update(
+      table: 'attachments',
+      values: {'remote_url': remoteUrl, 'upload_status': 'uploaded'},
+      filters: [SupabaseFilter.eq('id', attachmentId)],
+    );
+    return true;
+  });
 
   @override
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
     String workOrderId,
-  ) => ApiHandler.call<List<AttachmentResponseModel>, AttachmentResponseModel>(
-    () => _httpClient.get<MapDynamic>(
-      ApiEndpoints.attachments,
-      queryParameters: {'work_order_id': workOrderId},
-    ),
-    fromJson: AttachmentResponseModel.fromJson,
-  );
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'attachments',
+      filters: [
+        SupabaseFilter.eq('work_order_id', workOrderId),
+        SupabaseFilter.isFilter('deleted_at', null),
+      ],
+    );
+    return response.map(AttachmentResponseModel.fromJson).toList();
+  });
 
   @override
-  FutureBool deleteAttachment(String id) => ApiHandler.staticCall(
-    () => _httpClient.delete<void>('${ApiEndpoints.attachments}/$id'),
-    staticData: true,
-  );
+  FutureBool deleteAttachment(String id) => SupabaseHandler.call(() async {
+    await _database.update(
+      table: 'attachments',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 }

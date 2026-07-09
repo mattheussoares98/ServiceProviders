@@ -1,31 +1,29 @@
-import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
-import 'package:o_jogo_da_obra/core/constants/api_endpoints.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
-Response<T> _mockResponse<T>(T data, {int statusCode = 200}) => Response(
-  data: data,
-  statusCode: statusCode,
-  requestOptions: RequestOptions(),
-);
-
 void main() {
   final faker = Faker();
-  late MockHttpClient mockHttpClient;
+  late MockSupabaseDatabaseClient mockDatabase;
   late AttachmentsRemoteDataSourceImpl dataSource;
 
+  setUpAll(() {
+    registerFallbackValue(HttpMethod.post);
+    registerFallbackValue(SupabaseFilter.eq('', ''));
+  });
+
   setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = AttachmentsRemoteDataSourceImpl(httpClient: mockHttpClient);
+    mockDatabase = MockSupabaseDatabaseClient();
+    dataSource = AttachmentsRemoteDataSourceImpl(database: mockDatabase);
   });
 
   group('getPresignedUploadUrl', () {
@@ -38,19 +36,23 @@ void main() {
     final tUploadUrl = 'https://bucket.r2.dev/$tObjectKey?sig=abc';
 
     test(
-      'should return SuccessState<PresignedUrlResponse> when API returns correct data',
+      'should return SuccessState<PresignedUrlResponse> when Edge Function call is successful',
       () async {
         // Arrange
         when(
-          () =>
-              mockHttpClient.post<MapDynamic>(any(), data: any(named: 'data')),
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            body: any(named: 'body'),
+          ),
         ).thenAnswer(
-          (_) async => _mockResponse<MapDynamic>({
-            'data': {
+          (_) async => FunctionResponse(
+            data: {
               'upload_url': tUploadUrl,
               'file_key': tObjectKey,
-            }
-          }),
+            },
+            status: 200,
+          ),
         );
 
         // Act
@@ -61,27 +63,25 @@ void main() {
         final data = (result as SuccessState<PresignedUrlResponse>).data;
         expect(data!.uploadUrl, tUploadUrl);
         expect(data.fileKey, tObjectKey);
+        verify(
+          () => mockDatabase.invokeFunction(
+            'generate_presigned_url',
+            method: HttpMethod.post,
+            body: {'object_key': tObjectKey},
+          ),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when API call fails', () async {
+    test('should return FailureState when Edge Function call throws exception', () async {
       // Arrange
       when(
-        () => mockHttpClient.post<MapDynamic>(
-          ApiEndpoints.presignedUploadUrl,
-          data: any(named: 'data'),
+        () => mockDatabase.invokeFunction(
+          any(),
+          method: any(named: 'method'),
+          body: any(named: 'body'),
         ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.badResponse,
-          response: Response(
-            statusCode: 400,
-            requestOptions: RequestOptions(),
-            data: {'message': 'Error requesting URL'},
-          ),
-        ),
-      );
+      ).thenThrow(const AuthException('Token expired'));
 
       // Act
       final result = await dataSource.getPresignedUploadUrl(tObjectKey);
@@ -96,15 +96,16 @@ void main() {
     final tRemoteUrl = faker.internet.httpsUrl();
 
     test(
-      'should return SuccessState<bool>(true) when API update is successful',
+      'should return SuccessState<bool>(true) when database update is successful',
       () async {
         // Arrange
         when(
-          () => mockHttpClient.patch<void>(
-            '${ApiEndpoints.attachments}/$tAttachmentId/confirm',
-            data: {'remote_url': tRemoteUrl},
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => _mockResponse<void>(null));
+        ).thenAnswer((_) async => []);
 
         // Act
         final result = await dataSource.confirmUpload(
@@ -115,19 +116,28 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, isTrue);
+        verify(
+          () => mockDatabase.update(
+            table: 'attachments',
+            values: {
+              'remote_url': tRemoteUrl,
+              'upload_status': 'uploaded',
+            },
+            filters: [SupabaseFilter.eq('id', tAttachmentId)],
+          ),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when API update fails', () async {
+    test('should return FailureState when database update throws exception', () async {
       // Arrange
       when(
-        () => mockHttpClient.patch<void>(any(), data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.badResponse,
+        () => mockDatabase.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
         ),
-      );
+      ).thenThrow(const PostgrestException(message: 'Database error'));
 
       // Act
       final result = await dataSource.confirmUpload(
@@ -146,19 +156,15 @@ void main() {
     final tModel = AttachmentResponseModel.fromEntity(tAttachmentEntity);
 
     test(
-      'should return SuccessState with list of models when API is successful',
+      'should return SuccessState with list of models when database query is successful',
       () async {
         // Arrange
         when(
-          () => mockHttpClient.get<MapDynamic>(
-            ApiEndpoints.attachments,
-            queryParameters: {'work_order_id': tWorkOrderId},
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
           ),
-        ).thenAnswer(
-          (_) async => _mockResponse<MapDynamic>({
-            'data': [tModel.toJson()]
-          }),
-        );
+        ).thenAnswer((_) async => [tModel.toJson()]);
 
         // Act
         final result = await dataSource.getAttachmentsByWorkOrder(tWorkOrderId);
@@ -170,22 +176,26 @@ void main() {
         expect(list, hasLength(1));
         expect(list![0].id, tModel.id);
         expect(list[0].fileName, tModel.fileName);
+        verify(
+          () => mockDatabase.selectList(
+            table: 'attachments',
+            filters: [
+              SupabaseFilter.eq('work_order_id', tWorkOrderId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when API call fails', () async {
+    test('should return FailureState when database query throws exception', () async {
       // Arrange
       when(
-        () => mockHttpClient.get<MapDynamic>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
         ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+      ).thenThrow(const PostgrestException(message: 'Query error'));
 
       // Act
       final result = await dataSource.getAttachmentsByWorkOrder(tWorkOrderId);
@@ -199,14 +209,16 @@ void main() {
     final tAttachmentId = faker.guid.guid();
 
     test(
-      'should return SuccessState<bool>(true) when API deletion is successful',
+      'should return SuccessState<bool>(true) when database soft-deletion is successful',
       () async {
         // Arrange
         when(
-          () => mockHttpClient.delete<void>(
-            '${ApiEndpoints.attachments}/$tAttachmentId',
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => _mockResponse<void>(null));
+        ).thenAnswer((_) async => []);
 
         // Act
         final result = await dataSource.deleteAttachment(tAttachmentId);
@@ -214,19 +226,25 @@ void main() {
         // Assert
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, isTrue);
+        verify(
+          () => mockDatabase.update(
+            table: 'attachments',
+            values: any(named: 'values'),
+            filters: [SupabaseFilter.eq('id', tAttachmentId)],
+          ),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when API deletion fails', () async {
+    test('should return FailureState when database soft-deletion throws exception', () async {
       // Arrange
       when(
-        () => mockHttpClient.delete<void>(any()),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.badResponse,
+        () => mockDatabase.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
         ),
-      );
+      ).thenThrow(const PostgrestException(message: 'Deletion error'));
 
       // Act
       final result = await dataSource.deleteAttachment(tAttachmentId);
@@ -236,4 +254,3 @@ void main() {
     });
   });
 }
-
