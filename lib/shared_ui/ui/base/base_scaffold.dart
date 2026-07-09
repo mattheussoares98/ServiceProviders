@@ -125,7 +125,11 @@ class _BaseScaffold extends StatelessWidget {
 
     if (params.isScrollable) {
       newChild = SingleChildScrollView(
-        padding: effectivePadding,
+        padding: PlatformUtil.isMobile
+            ? effectivePadding.copyWith(
+                bottom: effectivePadding.bottom + Sizes.p48,
+              )
+            : effectivePadding,
         physics: params.scrollPhysics,
         child: params.body,
       );
