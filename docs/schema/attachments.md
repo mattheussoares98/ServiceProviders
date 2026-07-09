@@ -13,5 +13,6 @@ Document links and photos captured offline and synchronized online.
 | `file_size_bytes` | INT | YES | - | File size |
 | `is_compressed` | BOOLEAN | NO | false | Compressed flag (images only) |
 | `upload_status` | VARCHAR(50) | NO | 'pending' | pending / uploaded / failed |
+| `original_path` | VARCHAR(1000) | YES | - | Path of the file before upload |
 
 **Note**: No `updated_at`.

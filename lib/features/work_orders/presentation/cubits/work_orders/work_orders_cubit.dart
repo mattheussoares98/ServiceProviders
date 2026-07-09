@@ -192,10 +192,26 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             )
             .toList();
         if (pending.isNotEmpty) {
-          await Future.wait([
+          final result = await Future.wait([
             for (final attachment in pending)
               _useCases.uploadAttachment(attachment),
           ]);
+
+          final anyFailure = result.firstWhere(
+            (element) => element is FailureState,
+            orElse: () => const SuccessState(data: true),
+          );
+
+          if (anyFailure is FailureState) {
+            emit(
+              state.copyWith(
+                status: StateStatus.savingError,
+                errorMessage: anyFailure.message,
+              ),
+            );
+            showDataStateToast(anyFailure);
+            return false;
+          }
         }
       }
 
@@ -205,7 +221,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState is FailureState
+              ? (dataState as FailureState).message
+              : '',
         ),
       );
       showDataStateToast(dataState);

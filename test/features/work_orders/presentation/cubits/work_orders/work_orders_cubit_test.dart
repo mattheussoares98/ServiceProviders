@@ -443,6 +443,73 @@ void main() {
         );
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit savingError and return false when attachment upload fails',
+          build: () {
+            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+              uploadStatus: UploadStatus.pending,
+            );
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetAttachments(any()),
+            ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
+            when(
+              () => mockUploadAttachment(any()),
+            ).thenAnswer((_) async => FailureState(message: 'Upload Fail'));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+            );
+
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>()
+                .having((s) => s.status, 'status', StateStatus.savingError)
+                .having((s) => s.errorMessage, 'errorMessage', 'Upload Fail'),
+          ],
+          verify: (_) {
+            verify(() => mockGetAttachments(any())).called(1);
+            verify(() => mockUploadAttachment(any())).called(1);
+            verifyNever(() => mockGetWorkOrders(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should emit error when creation fails',
           build: () {
             when(
