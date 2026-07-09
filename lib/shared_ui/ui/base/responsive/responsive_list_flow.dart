@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class ResponsiveListFlow extends StatelessWidget {
@@ -22,19 +23,24 @@ class ResponsiveListFlow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isIOS = theme.platform == TargetPlatform.iOS;
-    final isAndroid = theme.platform == TargetPlatform.android;
-
-    if (isIOS || isAndroid) {
-      return isSliver
-          ? SliverList.builder(itemBuilder: itemBuilder, itemCount: itemCount)
-          : ListView.builder(
-              physics: physics,
-              padding: padding,
-              itemBuilder: itemBuilder,
-              itemCount: itemCount,
-            );
+    final effectivePadding =
+        padding ?? const EdgeInsets.only(bottom: Sizes.p48);
+    if (PlatformUtil.isMobile) {
+      if (isSliver) {
+        return SliverPadding(
+          padding: effectivePadding,
+          sliver: SliverList.builder(
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+          ),
+        );
+      }
+      return ListView.builder(
+        physics: physics,
+        padding: effectivePadding,
+        itemBuilder: itemBuilder,
+        itemCount: itemCount,
+      );
     }
 
     final width = MediaQuery.of(context).size.width;
@@ -44,22 +50,26 @@ class ResponsiveListFlow extends StatelessWidget {
     final rowCount = (itemCount / itemsPerRow).ceil();
 
     if (isSliver) {
-      return SliverList.builder(
-        itemCount: rowCount,
-        itemBuilder: (context, rowIndex) {
-          return _RowsItems(
-            itemCount: itemCount,
-            itemBuilder: itemBuilder,
-            itemsPerRow: itemsPerRow,
-            rowIndex: rowIndex,
-          );
-        },
+      return SliverPadding(
+        padding: effectivePadding,
+        sliver: SliverList.builder(
+          itemCount: rowCount,
+          itemBuilder: (context, rowIndex) {
+            return _RowsItems(
+              itemCount: itemCount,
+              itemBuilder: itemBuilder,
+              itemsPerRow: itemsPerRow,
+              rowIndex: rowIndex,
+            );
+          },
+        ),
       );
     }
 
     return ListView.builder(
       physics: physics,
-      itemCount: itemCount,
+      itemCount: rowCount,
+      padding: effectivePadding,
       itemBuilder: (context, rowIndex) {
         return _RowsItems(
           itemCount: itemCount,
