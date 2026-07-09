@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sliding_toast/flutter_sliding_toast.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -46,6 +48,20 @@ abstract interface class ToastUtil {
     InteractiveToast.closeAllToast();
     InteractiveToast.slide(
       overlayState: _navigationClient.navigatorKey.currentState?.overlay,
+      leading: kDebugMode
+          ? CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: message));
+              },
+              child: const PlatformIcon(
+                materialIcon: Icons.copy_rounded,
+                cupertinoIcon: CupertinoIcons.doc_on_doc,
+                color: AppColors.red600,
+                size: 20,
+              ),
+            )
+          : null,
       title: BaseText(message, color: AppColors.red600),
       trailing: const PlatformIcon(
         materialIcon: Icons.warning_rounded,
