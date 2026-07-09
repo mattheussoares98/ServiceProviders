@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -19,56 +20,62 @@ class Attachments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<AttachmentsCubit>();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FittedBox(child: BaseText.titleMedium('Anexos'.hardcoded)),
-            Flexible(
-              child: BaseTextButton(
-                onPressed: () async {
-                  final source = await AttachmentSourceSheet.show(context);
-                  if (source != null && context.mounted) {
-                    await cubit.pickAttachment(source);
-                  }
-                },
-                text: 'Adicionar'.hardcoded,
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.add,
-                  cupertinoIcon: CupertinoIcons.add,
-                ),
-              ),
-            ),
-          ],
-        ),
-        gapH8,
+    return SliverMainAxisGroup(
+      slivers: [
+        const SliverToBoxAdapter(child: _AttachmentsAndAddRow()),
+        gapSliverH8,
         BlocBuilder<AttachmentsCubit, AttachmentsState>(
           builder: (context, state) {
             if (state.status == StateStatus.loading &&
                 state.attachments.isEmpty) {
-              return const Center(child: LoadingCircle());
+              return const SliverToBoxAdapter(
+                child: Center(child: LoadingCircle()),
+              );
+            } else if (state.attachments.isEmpty) {
+              return const SliverToBoxAdapter(child: _EmptyAttachment());
             }
 
-            if (state.attachments.isEmpty) {
-              return const _EmptyAttachment();
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              //TODO change this entire page to Sliver
-              physics: const NeverScrollableScrollPhysics(),
+            return ResponsiveListFlow(
+              isSliver: true,
+              padding: EdgeInsets.zero,
               itemCount: state.attachments.length,
               itemBuilder: (context, index) {
                 final attachment = state.attachments[index];
-
                 return AttachmentItem(attachment: attachment);
               },
             );
           },
+        ),
+      ],
+    );
+  }
+}
+
+class _AttachmentsAndAddRow extends StatelessWidget {
+  const _AttachmentsAndAddRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<AttachmentsCubit>();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        FittedBox(child: BaseText.titleMedium('Anexos'.hardcoded)),
+        Flexible(
+          child: BaseTextButton(
+            onPressed: () async {
+              final source = await AttachmentSourceSheet.show(context);
+              if (source != null && context.mounted) {
+                await cubit.pickAttachment(source);
+              }
+            },
+            text: 'Adicionar'.hardcoded,
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.add,
+              cupertinoIcon: CupertinoIcons.add,
+            ),
+          ),
         ),
       ],
     );

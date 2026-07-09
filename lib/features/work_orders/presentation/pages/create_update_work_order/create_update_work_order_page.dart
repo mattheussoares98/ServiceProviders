@@ -176,6 +176,7 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     return BaseScaffold(
+      isScrollable: false,
       appBar: BaseAppBar(
         title: workOrder == null
             ? 'Criando ordem de serviço'.hardcoded
@@ -184,49 +185,59 @@ class _CreateUpdatePage extends HookWidget {
       ),
       body: Form(
         key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TitleField(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: TitleField(
                 titleController: titleController,
                 titleFocusNode: titleFocusNode,
                 descFocusNode: descFocusNode,
               ),
-              gapH16,
-              DescriptionField(
+            ),
+            gapSliverH16,
+            SliverToBoxAdapter(
+              child: DescriptionField(
                 descController: descController,
                 descFocusNode: descFocusNode,
               ),
-              gapH16,
-              if (workOrder != null) ...[
-                WorkOrderStatusDropdown(
+            ),
+            gapSliverH16,
+            if (workOrder != null) ...[
+              SliverToBoxAdapter(
+                child: WorkOrderStatusDropdown(
                   onChanged: (v) => selectedStatus.value = v,
                   selectedStatus: selectedStatus.value,
                 ),
-                gapH16,
-              ],
-              LocationDropdown(
+              ),
+              gapSliverH16,
+            ],
+            SliverToBoxAdapter(
+              child: LocationDropdown(
                 selectedId: selectedLocationId.value,
                 onChanged: (val) {
                   selectedLocationId.value = val;
                   selectedAssetId.value = null;
                 },
               ),
-              gapH16,
-              AssetsDropdown(
+            ),
+            gapSliverH16,
+            SliverToBoxAdapter(
+              child: AssetsDropdown(
                 selectedAssetId: selectedAssetId.value,
                 selectedLocationId: selectedLocationId.value,
                 onChanged: (val) => selectedAssetId.value = val,
               ),
-              gapH16,
-              ResponsibleDropdown(
+            ),
+            gapSliverH16,
+            SliverToBoxAdapter(
+              child: ResponsibleDropdown(
                 onChanged: (val) => selectedAssignedToId.value = val,
                 responsibleId: selectedAssignedToId.value,
               ),
-              gapH16,
-              Row(
+            ),
+            gapSliverH16,
+            SliverToBoxAdapter(
+              child: Row(
                 children: [
                   Expanded(
                     child: WorkOrderTypeDropdown(
@@ -243,8 +254,10 @@ class _CreateUpdatePage extends HookWidget {
                   ),
                 ],
               ),
-              gapH16,
-              IntrinsicHeight(
+            ),
+            gapSliverH16,
+            SliverToBoxAdapter(
+              child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -265,10 +278,12 @@ class _CreateUpdatePage extends HookWidget {
                   ],
                 ),
               ),
-              gapH16,
-              const Attachments(),
-              gapH24,
-              Row(
+            ),
+            gapSliverH16,
+            const Attachments(),
+            gapSliverH24,
+            SliverToBoxAdapter(
+              child: Row(
                 mainAxisAlignment: .spaceBetween,
                 children: [
                   Flexible(
@@ -287,8 +302,9 @@ class _CreateUpdatePage extends HookWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            gapSliverH32,
+          ],
         ),
       ),
     );
