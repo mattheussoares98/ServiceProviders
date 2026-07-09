@@ -176,5 +176,36 @@ void main() {
         expect(getResult.data, isEmpty);
       },
     );
+
+    group('getAttachment', () {
+      test('should return correct attachment when it exists', () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tAttachmentModel.companyId,
+          userId: tAttachmentModel.uploadedById,
+          locationId: faker.guid.guid(),
+          areaId: faker.guid.guid(),
+          assetId: faker.guid.guid(),
+          workOrderId: tAttachmentModel.workOrderId,
+        );
+        await dataSource.saveAttachment(tAttachmentModel);
+
+        // Act
+        final result = await dataSource.getAttachment(tAttachmentModel.id);
+
+        // Assert
+        expect(result, isA<SuccessState<AttachmentResponseModel?>>());
+        expect(result.data, equals(tAttachmentModel));
+      });
+
+      test('should return null when attachment does not exist', () async {
+        // Act
+        final result = await dataSource.getAttachment(faker.guid.guid());
+
+        // Assert
+        expect(result, isA<SuccessState<AttachmentResponseModel?>>());
+        expect(result.data, null);
+      });
+    });
   });
 }

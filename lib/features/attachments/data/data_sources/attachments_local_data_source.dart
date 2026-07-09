@@ -12,6 +12,7 @@ abstract interface class AttachmentsLocalDataSource {
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
     String workOrderId,
   );
+  FutureData<AttachmentResponseModel?> getAttachment(String id);
   FutureBool saveAttachment(AttachmentResponseModel attachment);
   FutureBool deleteAttachment(String id);
 }
@@ -24,6 +25,37 @@ final class AttachmentsLocalDataSourceImpl
     : _database = database;
 
   final AppDatabase _database;
+
+  @override
+  FutureData<AttachmentResponseModel?> getAttachment(String id) {
+    return ErrorHandler.execute(() async {
+      final item = await (_database.select(_database.attachments)
+            ..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
+      if (item == null) {
+        return const SuccessState(data: null);
+      }
+
+      return SuccessState(
+        data: AttachmentResponseModel(
+          id: item.id,
+          workOrderId: item.workOrderId,
+          companyId: item.companyId,
+          uploadedById: item.uploadedById,
+          fileName: item.fileName,
+          fileType: FileType.fromCode(item.fileType),
+          localPath: item.localPath,
+          remoteUrl: item.remoteUrl,
+          fileSizeBytes: item.fileSizeBytes,
+          isCompressed: item.isCompressed,
+          uploadStatus: UploadStatus.fromCode(item.uploadStatus),
+          createdAt: item.createdAt,
+          deletedAt: item.deletedAt,
+        ),
+      );
+    });
+  }
 
   @override
   FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
