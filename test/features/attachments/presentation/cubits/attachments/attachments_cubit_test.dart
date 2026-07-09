@@ -165,6 +165,7 @@ void main() {
       act: (cubit) async {
         await cubit.init(tWorkOrderId);
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+        await cubit.uploadPending();
       },
       skip: 2, // Skip initial loading/loaded from init
       expect: () => [
@@ -224,6 +225,59 @@ void main() {
       verify: (_) {
         verify(() => mockDeleteAttachment(tAttachmentList.first.id)).called(1);
       },
+    );
+  });
+
+  group('AttachmentsCubit - uploadPending', () {
+    final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+      uploadStatus: UploadStatus.pending,
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'should upload pending attachments and return true on success',
+      build: () {
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer(
+          (_) async => SuccessState(
+            data: [tAttachment.copyWith(uploadStatus: UploadStatus.uploaded)],
+          ),
+        );
+        return AttachmentsCubit(useCases: useCases);
+      },
+      seed: () => AttachmentsState(
+        status: StateStatus.loaded,
+        attachments: [tAttachment],
+      ),
+      act: (cubit) async {
+        final success = await cubit.uploadPending();
+        expect(success, isTrue);
+      },
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.uploadingIds,
+          'uploadingIds',
+          {tAttachment.id},
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.uploadingIds,
+          'uploadingIds',
+          isEmpty,
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
     );
   });
 

@@ -106,13 +106,6 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
       final updatedList = List<AttachmentEntity>.from(state.attachments)
         ..addAll(newAttachments);
       emit(state.copyWith(attachments: updatedList));
-
-      // Start upload for each pending attachment (fire-and-forget)
-      for (final attachment in newAttachments.where(
-        (e) => e.uploadStatus == UploadStatus.pending,
-      )) {
-        unawaited(_uploadAttachment(attachment));
-      }
     } else {
       showDataStateToast(
         result,
@@ -121,19 +114,36 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     }
   }
 
-  Future<void> _uploadAttachment(AttachmentEntity attachment) async {
+  Future<bool> uploadPending() async {
+    final pending = state.attachments
+        .where((e) =>
+            e.uploadStatus == UploadStatus.pending ||
+            e.uploadStatus == UploadStatus.failed)
+        .toList();
+    if (pending.isEmpty) return true;
+
+    final results = await Future.wait([
+      for (final attachment in pending)
+        _uploadAttachment(attachment)
+    ]);
+
+    return !results.contains(false);
+  }
+
+  Future<bool> _uploadAttachment(AttachmentEntity attachment) async {
     final uploadingSet = Set<String>.from(state.uploadingIds)
       ..add(attachment.id);
     emit(state.copyWith(uploadingIds: uploadingSet));
 
     final result = await _useCases.uploadAttachment(attachment);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     final doneSet = Set<String>.from(state.uploadingIds)..remove(attachment.id);
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(uploadingIds: doneSet));
       await _refreshAttachments();
+      return true;
     } else {
       final updatedList = state.attachments.map((item) {
         if (item.id == attachment.id) {
@@ -144,6 +154,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
       emit(state.copyWith(attachments: updatedList, uploadingIds: doneSet));
       showDataStateToast(result, message: 'Falha ao enviar anexo'.hardcoded);
+      return false;
     }
   }
 
