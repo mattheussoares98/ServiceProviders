@@ -117,10 +117,75 @@ void main() {
         ).called(1);
         verify(
           () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
-        ).called(1);
+        ).called(2);
         for (final model in tAttachmentModelList) {
           verify(() => mockLocalDataSource.saveAttachment(model)).called(1);
         }
+      },
+    );
+
+    test(
+      'getAttachmentsByWorkOrder should delete local attachments that have been deleted remotely when online',
+      () async {
+        // Arrange
+        final workOrderId = faker.guid.guid();
+        final model1 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: faker.guid.guid(),
+            workOrderId: workOrderId,
+            uploadStatus: UploadStatus.uploaded,
+          ),
+        );
+        final model2 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: faker.guid.guid(),
+            workOrderId: workOrderId,
+            uploadStatus: UploadStatus.uploaded,
+          ),
+        );
+
+        when(() => mockInternet.isConnected).thenReturn(true);
+        // Remote only returns model1 (meaning model2 was deleted remotely)
+        when(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).thenAnswer((_) async => SuccessState(data: [model1]));
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        // Stub local DB returning both initially, then only model1 after sync/deletion
+        int localCallCount = 0;
+        when(
+          () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).thenAnswer((_) async {
+          localCallCount++;
+          if (localCallCount == 1) {
+            return SuccessState(data: [model1, model2]);
+          } else {
+            return SuccessState(data: [model1]);
+          }
+        });
+
+        // Act
+        final result = await repository.getAttachmentsByWorkOrder(workOrderId);
+
+        // Assert
+        expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+        expect(result.data?.length, 1);
+        expect(result.data?.first.id, model1.id);
+
+        verify(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).called(2);
+        verify(() => mockLocalDataSource.saveAttachment(model1)).called(1);
+        verify(() => mockLocalDataSource.deleteAttachment(model2.id)).called(1);
+        verifyNever(() => mockLocalDataSource.deleteAttachment(model1.id));
       },
     );
 

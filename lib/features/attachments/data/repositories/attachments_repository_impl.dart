@@ -54,10 +54,27 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         workOrderId,
       );
       if (remoteResult is SuccessState<List<AttachmentResponseModel>>) {
+        final remoteModels = remoteResult.data ?? <AttachmentResponseModel>[];
+        final remoteIds = remoteModels.map((m) => m.id).toSet();
+
         await Future.wait([
-          for (final model in remoteResult.data ?? <AttachmentResponseModel>[])
+          for (final model in remoteModels)
             _localDataSource.saveAttachment(model),
         ]);
+
+        // Find and delete local attachments that were deleted remotely
+        final localResult = await _localDataSource.getAttachmentsByWorkOrder(
+          workOrderId,
+        );
+        if (localResult is SuccessState<List<AttachmentResponseModel>>) {
+          final localModels = localResult.data ?? <AttachmentResponseModel>[];
+          await Future.wait([
+            for (final localModel in localModels)
+              if (localModel.uploadStatus == UploadStatus.uploaded &&
+                  !remoteIds.contains(localModel.id))
+                _localDataSource.deleteAttachment(localModel.id),
+          ]);
+        }
       }
     }
 
