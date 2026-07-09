@@ -136,7 +136,7 @@ class ScreenUtil {
   double gridViewSpace = 20;
 
   /// View horizontal padding
-  double get horizontalSpace => _isPhoneScreen ? widthPart(5, max: 20) : 24;
+  double get horizontalSpace => _isPhoneScreen ? Sizes.p8 : 24;
 
   /// View vertical padding
   double get verticalSpace => _isPhoneScreen ? Sizes.p8 : Sizes.p32;
