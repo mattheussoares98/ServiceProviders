@@ -130,16 +130,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
           return FailureState(message: (prepareResult as FailureState).message);
         }
 
-        var entity = prepareResult.data!;
-
-        if (_internet.isConnected) {
-          final uploadResult = await uploadPendingAttachment(entity);
-          if (uploadResult is SuccessState<bool>) {
-            entity = entity.copyWith(uploadStatus: UploadStatus.uploaded);
-          }
-        }
-
-        entities.add(entity);
+        entities.add(prepareResult.data!);
       }
 
       return SuccessState(data: entities);
@@ -280,7 +271,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       workOrderId: workOrderId,
       companyId: companyId,
       uploadedById: uploadedById,
-      fileName: p.basename(localPath),
+      fileName: p.basename(originalPath),
       fileType: fileType,
       localPath: localPath,
       fileSizeBytes: finalSize,

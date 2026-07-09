@@ -385,7 +385,7 @@ void main() {
     );
 
     test(
-      'should successfully compress, copy, and upload image when online',
+      'should only save locally as pending when online (no auto-upload)',
       () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         when(() => fileService.takePhoto()).thenAnswer((_) async => mockPath);
@@ -394,45 +394,12 @@ void main() {
         ).thenAnswer((_) async => 5 * 1024 * 1024);
 
         final sandboxPath = '${Directory.systemTemp.path}/test_sandbox.webp';
-        // Create a dummy file so that File(localPath).existsSync() checks pass in uploadPendingAttachment
-        final file = File(sandboxPath);
-        await file.create(recursive: true);
-        addTearDown(() async {
-          if (file.existsSync()) await file.delete();
-        });
-
         when(
           () => fileService.compressAndSaveImage(mockPath),
         ).thenAnswer((_) async => SuccessState(data: sandboxPath));
         when(
           () => fileService.getFileSizeBytes(sandboxPath),
         ).thenAnswer((_) async => 500 * 1024);
-        when(
-          () => fileService.getMimeType(sandboxPath),
-        ).thenReturn('image/webp');
-
-        // Upload flows mocks
-        const presignedUrlResponse = PresignedUrlResponse(
-          uploadUrl: 'http://upload',
-          fileKey: 'key',
-        );
-        when(
-          () => mockRemoteDataSource.getPresignedUploadUrl(any()),
-        ).thenAnswer(
-          (_) async => const SuccessState(data: presignedUrlResponse),
-        );
-        when(
-          () => storageClient.uploadFile(
-            presignedUrl: any(named: 'presignedUrl'),
-            filePath: any(named: 'filePath'),
-            mimeType: any(named: 'mimeType'),
-          ),
-        ).thenAnswer(
-          (_) async => const SuccessState(data: 'http://remote/url'),
-        );
-        when(
-          () => mockRemoteDataSource.confirmUpload(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         when(
           () => mockLocalDataSource.saveAttachment(any()),
@@ -448,7 +415,15 @@ void main() {
         expect(result, isA<SuccessState<List<AttachmentEntity>>>());
         expect(result.data!.length, 1);
         final entity = result.data!.first;
-        expect(entity.uploadStatus, UploadStatus.uploaded);
+        expect(entity.uploadStatus, UploadStatus.pending);
+
+        verifyNever(() => mockRemoteDataSource.getPresignedUploadUrl(any()));
+        verifyNever(() => storageClient.uploadFile(
+              presignedUrl: any(named: 'presignedUrl'),
+              filePath: any(named: 'filePath'),
+              mimeType: any(named: 'mimeType'),
+            ));
+        verifyNever(() => mockRemoteDataSource.confirmUpload(any()));
       },
     );
   });
