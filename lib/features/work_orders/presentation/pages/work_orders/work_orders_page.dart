@@ -27,7 +27,7 @@ class WorkOrdersPage extends StatelessWidget {
           .read<WorkOrdersCubit>()
           .loadWorkOrdersAndChangeRequests,
       appBar: BaseAppBar(
-        title: 'Ordens de Serviço'.hardcoded,
+        title: 'Ordens de serviço'.hardcoded,
         leading: BaseIconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
           platformIcon: const PlatformIcon(

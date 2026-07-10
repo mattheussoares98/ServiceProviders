@@ -6,8 +6,8 @@ enum ResourceType {
   categories('categories', 'Categorias'),
   checklists('checklists', 'Checklists'),
   locations('locations', 'Locais'),
-  workOrders('work_orders', 'Ordens de Serviço'),
-  maintenancePlans('maintenance_plans', 'Planos de Manutenção'),
+  workOrders('work_orders', 'Ordens de serviço'),
+  maintenancePlans('maintenance_plans', 'Planos de manutenção'),
   reports('reports', 'Relatórios'),
   users('users', 'Usuários');
 
@@ -60,10 +60,7 @@ class ResourcePermissionEntity extends Equatable {
 }
 
 class ActionPermission extends Equatable {
-  const ActionPermission({
-    required this.resource,
-    required this.action,
-  });
+  const ActionPermission({required this.resource, required this.action});
 
   final ResourceType resource;
   final PermissionAction action;
