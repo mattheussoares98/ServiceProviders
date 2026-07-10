@@ -119,25 +119,29 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
   @override
   FutureBool deleteAttachment(String id) async {
-    final localResult = await _localDataSource.getAttachment(id);
-    if (localResult is! SuccessState<AttachmentResponseModel?>) {
-      return FailureState(message: (localResult as FailureState).message);
-    }
-    final attachment = localResult.data;
-    if (attachment == null) {
-      return const SuccessState(data: true);
-    }
+    try {
+      final localResult = await _localDataSource.getAttachment(id);
+      if (localResult is! SuccessState<AttachmentResponseModel?>) {
+        return FailureState(message: (localResult as FailureState).message);
+      }
+      final attachment = localResult.data;
+      if (attachment == null) {
+        return const SuccessState(data: true);
+      }
 
-    final isUploaded = attachment.uploadStatus == UploadStatus.uploaded;
+      final isUploaded = attachment.uploadStatus == UploadStatus.uploaded;
 
-    return RepositoryHandler.fetchWithFallback<bool>(
-      isInternetConnected: _internet.isConnected,
-      remoteCallback: () => isUploaded
-          ? _remoteDataSource.deleteAttachment(id)
-          : Future.value(const SuccessState(data: true)),
-      onRemoteSuccess: (_) => _localDataSource.deleteAttachment(id),
-      localCallback: () => _localDataSource.deleteAttachment(id),
-    );
+      return RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => isUploaded
+            ? _remoteDataSource.deleteAttachment(id)
+            : Future.value(const SuccessState(data: true)),
+        onRemoteSuccess: (_) => _localDataSource.deleteAttachment(id),
+        localCallback: () => _localDataSource.deleteAttachment(id),
+      );
+    } catch (e) {
+      return FailureState(message: e.toString());
+    }
   }
 
   // ──────────────────────────────────────────

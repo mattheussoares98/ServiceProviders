@@ -418,13 +418,22 @@ void main() {
     test(
       'should successfully compress, copy, and save image to local when offline',
       () async {
+        // Create actual temporary files so File(originalPath).readAsBytes() does not throw FileSystemException
+        final tempDir = Directory.systemTemp.createTempSync('attachments_test_');
+        final mockPath = '${tempDir.path}/test_image.jpg';
+        File(mockPath).createSync(recursive: true);
+        File(mockPath).writeAsBytesSync(List.filled(100, 0));
+
         when(() => mockInternet.isConnected).thenReturn(false);
         when(() => fileService.takePhoto()).thenAnswer((_) async => mockPath);
         when(
           () => fileService.getFileSizeBytes(mockPath),
         ).thenAnswer((_) async => 5 * 1024 * 1024);
 
-        final sandboxPath = '/sandbox/${faker.guid.guid()}.webp';
+        final sandboxPath = '${tempDir.path}/${faker.guid.guid()}.webp';
+        File(sandboxPath).createSync(recursive: true);
+        File(sandboxPath).writeAsBytesSync(List.filled(10, 0));
+
         when(
           () => fileService.compressAndSaveImage(mockPath),
         ).thenAnswer((_) async => SuccessState(data: sandboxPath));
@@ -459,13 +468,22 @@ void main() {
     test(
       'should only save locally as pending when online (no auto-upload)',
       () async {
+        // Create actual temporary files so File(originalPath).readAsBytes() does not throw FileSystemException
+        final tempDir = Directory.systemTemp.createTempSync('attachments_test_');
+        final mockPath = '${tempDir.path}/test_image.jpg';
+        File(mockPath).createSync(recursive: true);
+        File(mockPath).writeAsBytesSync(List.filled(100, 0));
+
         when(() => mockInternet.isConnected).thenReturn(true);
         when(() => fileService.takePhoto()).thenAnswer((_) async => mockPath);
         when(
           () => fileService.getFileSizeBytes(mockPath),
         ).thenAnswer((_) async => 5 * 1024 * 1024);
 
-        final sandboxPath = '${Directory.systemTemp.path}/test_sandbox.webp';
+        final sandboxPath = '${tempDir.path}/${faker.guid.guid()}.webp';
+        File(sandboxPath).createSync(recursive: true);
+        File(sandboxPath).writeAsBytesSync(List.filled(10, 0));
+
         when(
           () => fileService.compressAndSaveImage(mockPath),
         ).thenAnswer((_) async => SuccessState(data: sandboxPath));
