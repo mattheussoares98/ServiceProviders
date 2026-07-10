@@ -1,5 +1,6 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -32,6 +33,7 @@ class WorkOrderRequestModel extends WorkOrderEntity
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
+    super.attachments,
   });
 
   factory WorkOrderRequestModel.fromEntity(WorkOrderEntity entity) =>
@@ -60,6 +62,7 @@ class WorkOrderRequestModel extends WorkOrderEntity
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
+        attachments: entity.attachments,
       );
 
   factory WorkOrderRequestModel.fromJson(MapDynamic json) =>
@@ -100,6 +103,11 @@ class WorkOrderRequestModel extends WorkOrderEntity
         deletedAt: json['deleted_at'] != null
             ? DateTime.parse(json['deleted_at'] as String)
             : null,
+        attachments: (json['attachments'] as List?)
+                ?.map((e) => AttachmentResponseModel.fromJson(e as MapDynamic))
+                .where((e) => e.deletedAt == null)
+                .toList() ??
+            const [],
       );
 
   @override
@@ -156,5 +164,6 @@ class WorkOrderRequestModel extends WorkOrderEntity
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
+    attachments: attachments,
   );
 }

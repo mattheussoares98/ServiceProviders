@@ -94,7 +94,8 @@ void main() {
   }
 
   group('WorkOrdersLocalDataSourceImpl - Work Orders', () {
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrderEntity =
+        EntityFactory.makeWorkOrderEntity().copyWith(attachments: const []);
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
     test(
@@ -247,6 +248,7 @@ void main() {
     final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tTaskModel.workOrderId,
+      attachments: const [],
     );
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
@@ -297,6 +299,7 @@ void main() {
     );
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tChangeModel.workOrderId,
+      attachments: const [],
     );
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
@@ -372,6 +375,7 @@ void main() {
     );
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tHistoryModel.workOrderId,
+      attachments: const [],
     );
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 

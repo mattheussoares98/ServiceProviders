@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -29,6 +30,7 @@ class WorkOrderEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
+    this.attachments = const [],
   });
 
   final String id;
@@ -55,6 +57,7 @@ class WorkOrderEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final List<AttachmentEntity> attachments;
 
   @override
   List<Object?> get props => [
@@ -82,6 +85,7 @@ class WorkOrderEntity extends Equatable {
     createdAt,
     updatedAt,
     deletedAt,
+    attachments,
   ];
 
   WorkOrderEntity copyWith({
@@ -109,6 +113,7 @@ class WorkOrderEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    List<AttachmentEntity>? attachments,
     bool? annulAssetId,
     bool? annulAssignedToId,
     bool? annulMaintenancePlanId,
@@ -160,6 +165,7 @@ class WorkOrderEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      attachments: attachments ?? this.attachments,
     );
   }
 }

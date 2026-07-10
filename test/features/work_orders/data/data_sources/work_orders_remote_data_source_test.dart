@@ -75,7 +75,7 @@ void main() {
         verify(
           () => mockDatabase.selectList(
             table: 'work_orders',
-            columns: '*, locations!inner(deleted_at)',
+            columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: [
               SupabaseFilter.eq('company_id', tCompanyId),
               SupabaseFilter.isFilter('deleted_at', null),
@@ -121,7 +121,7 @@ void main() {
         verify(
           () => mockDatabase.selectOne(
             table: 'work_orders',
-            columns: '*, locations!inner(deleted_at)',
+            columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: [
               SupabaseFilter.eq('id', tWorkOrderId),
               SupabaseFilter.isFilter('deleted_at', null),
@@ -151,7 +151,7 @@ void main() {
         verify(
           () => mockDatabase.selectOne(
             table: 'work_orders',
-            columns: '*, locations!inner(deleted_at)',
+            columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: [
               SupabaseFilter.eq('id', tWorkOrderId),
               SupabaseFilter.isFilter('deleted_at', null),

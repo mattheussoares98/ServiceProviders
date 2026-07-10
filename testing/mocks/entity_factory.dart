@@ -158,6 +158,7 @@ abstract final class EntityFactory {
       notes: _makePhrase(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      attachments: makeAttachmentEntityList(),
     );
   }
 

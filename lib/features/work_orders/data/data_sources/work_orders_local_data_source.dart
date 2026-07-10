@@ -4,6 +4,9 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -72,6 +75,37 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           );
       final rows = await query.get();
 
+      final orderIds = rows
+          .map((row) => row.readTable(_database.workOrders).id)
+          .toList();
+
+      final attachmentsQuery = _database.select(_database.attachments)
+        ..where((t) => t.workOrderId.isIn(orderIds) & t.deletedAt.isNull());
+      final attachmentsRows = await attachmentsQuery.get();
+
+      final attachmentsByWorkOrder = <String, List<AttachmentResponseModel>>{};
+      for (final row in attachmentsRows) {
+        final attachment = AttachmentResponseModel(
+          id: row.id,
+          workOrderId: row.workOrderId,
+          companyId: row.companyId,
+          uploadedById: row.uploadedById,
+          fileName: row.fileName,
+          fileType: FileType.fromCode(row.fileType),
+          localPath: row.localPath,
+          remoteUrl: row.remoteUrl,
+          fileSizeBytes: row.fileSizeBytes,
+          isCompressed: row.isCompressed,
+          uploadStatus: UploadStatus.fromCode(row.uploadStatus),
+          createdAt: row.createdAt,
+          deletedAt: row.deletedAt,
+          originalPath: row.originalPath,
+        );
+        attachmentsByWorkOrder
+            .putIfAbsent(row.workOrderId, () => [])
+            .add(attachment);
+      }
+
       final list = rows.map((row) {
         final order = row.readTable(_database.workOrders);
         return WorkOrderResponseModel(
@@ -99,6 +133,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           createdAt: order.createdAt,
           updatedAt: order.updatedAt,
           deletedAt: order.deletedAt,
+          attachments: attachmentsByWorkOrder[order.id] ?? const [],
         );
       }).toList();
 
@@ -126,6 +161,30 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         return FailureState(message: 'Work order not found');
       }
 
+      final attachmentsQuery = _database.select(_database.attachments)
+        ..where((t) => t.workOrderId.equals(id) & t.deletedAt.isNull());
+      final attachmentsRows = await attachmentsQuery.get();
+      final attachments = attachmentsRows
+          .map(
+            (t) => AttachmentResponseModel(
+              id: t.id,
+              workOrderId: t.workOrderId,
+              companyId: t.companyId,
+              uploadedById: t.uploadedById,
+              fileName: t.fileName,
+              fileType: FileType.fromCode(t.fileType),
+              localPath: t.localPath,
+              remoteUrl: t.remoteUrl,
+              fileSizeBytes: t.fileSizeBytes,
+              isCompressed: t.isCompressed,
+              uploadStatus: UploadStatus.fromCode(t.uploadStatus),
+              createdAt: t.createdAt,
+              deletedAt: t.deletedAt,
+              originalPath: t.originalPath,
+            ),
+          )
+          .toList();
+
       final order = row.readTable(_database.workOrders);
       final model = WorkOrderResponseModel(
         id: order.id,
@@ -152,6 +211,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
         deletedAt: order.deletedAt,
+        attachments: attachments,
       );
 
       return SuccessState(data: model);
@@ -191,6 +251,30 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               deletedAt: Value(workOrder.deletedAt),
             ),
           );
+
+      for (final attachment in workOrder.attachments) {
+        await _database
+            .into(_database.attachments)
+            .insertOnConflictUpdate(
+              AttachmentsCompanion(
+                id: Value(attachment.id),
+                workOrderId: Value(attachment.workOrderId),
+                companyId: Value(attachment.companyId),
+                uploadedById: Value(attachment.uploadedById),
+                fileName: Value(attachment.fileName),
+                fileType: Value(attachment.fileType.code),
+                localPath: Value(attachment.localPath),
+                remoteUrl: Value(attachment.remoteUrl),
+                fileSizeBytes: Value(attachment.fileSizeBytes),
+                isCompressed: Value(attachment.isCompressed),
+                uploadStatus: Value(attachment.uploadStatus.code),
+                createdAt: Value(attachment.createdAt),
+                deletedAt: Value(attachment.deletedAt),
+                originalPath: Value(attachment.originalPath),
+              ),
+            );
+      }
+
       return const SuccessState(data: true);
     });
   }
