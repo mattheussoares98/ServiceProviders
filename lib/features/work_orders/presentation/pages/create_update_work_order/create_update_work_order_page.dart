@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -30,6 +31,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_up
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_type_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
@@ -176,8 +178,66 @@ class _CreateUpdatePage extends HookWidget {
       }
     }
 
+    final initialTitle = workOrder?.title ?? '';
+    final initialDescription = workOrder?.description ?? '';
+    final initialDuration = workOrder?.estimatedDuration?.toString() ?? '';
+    final initialLocationId = workOrder?.locationId;
+    final initialAssetId = workOrder?.assetId;
+    final initialAssignedToId = workOrder?.assignedToId;
+    final initialPriority = workOrder?.priority ?? Priority.medium;
+    final initialType = workOrder?.type ?? WorkOrderType.corrective;
+    final initialStatus = workOrder?.status ?? WorkOrderStatus.open;
+    final initialScheduledDate = workOrder?.scheduledDate;
+
+    bool getHasChanges() {
+      final attachmentsState = context.read<AttachmentsCubit>().state;
+      final hasAttachmentChanges =
+          attachmentsState.pendingDeletions.isNotEmpty ||
+          attachmentsState.attachments.any(
+            (e) => e.uploadStatus == UploadStatus.pending,
+          );
+
+      if (hasAttachmentChanges) return true;
+
+      final hasChanges =
+          titleController.text.trim() != initialTitle ||
+          descController.text.trim() != initialDescription ||
+          durationController.text.trim() != initialDuration ||
+          selectedLocationId.value != initialLocationId ||
+          (selectedAssetId.value == '' ? null : selectedAssetId.value) !=
+              initialAssetId ||
+          (selectedAssignedToId.value == ''
+                  ? null
+                  : selectedAssignedToId.value) !=
+              initialAssignedToId ||
+          selectedPriority.value != initialPriority ||
+          selectedType.value != initialType ||
+          selectedStatus.value != initialStatus ||
+          selectedScheduledDate.value != initialScheduledDate;
+
+      return hasChanges;
+    }
+
     return BaseScaffold(
       isScrollable: false,
+      onPopInvokedWithResult: () async {
+        if (!getHasChanges()) {
+          Navigator.of(context).pop();
+          return;
+        }
+        final discard = await showAlertDialog(
+          context: context,
+          title: 'Descartar alterações?'.hardcoded,
+          contentText:
+              'Você tem alterações não salvas. Tem certeza que deseja descartar e sair?'
+                  .hardcoded,
+          cancelActionText: 'Continuar editando'.hardcoded,
+          defaultActionText: 'Descartar'.hardcoded,
+        );
+        if (discard == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       appBar: BaseAppBar(
         title: workOrder == null
             ? 'Criando ordem de serviço'.hardcoded
@@ -289,7 +349,7 @@ class _CreateUpdatePage extends HookWidget {
                 children: [
                   Flexible(
                     child: BaseTextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(context).maybePop(),
                       text: 'Cancelar'.hardcoded,
                       color: Colors.red,
                     ),
