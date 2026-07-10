@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -118,6 +119,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     double? totalCost,
     String? notes,
     DateTime? createdAt,
+    AttachmentsCubit? attachmentsCubit,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
@@ -182,6 +184,15 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      if (attachmentsCubit != null) {
+        final pendingDeletions = attachmentsCubit.state.pendingDeletions;
+        if (pendingDeletions.isNotEmpty) {
+          await Future.wait([
+            for (final dId in pendingDeletions) _useCases.deleteAttachment(dId),
+          ]);
+        }
+      }
+
       final attachmentsResult = await _useCases.getAttachments(workOrder.id);
       if (attachmentsResult is SuccessState<List<AttachmentEntity>>) {
         final pending = attachmentsResult.data!

@@ -5,6 +5,7 @@ class AttachmentsState extends BaseState {
     required super.status,
     this.attachments = const [],
     this.uploadingIds = const {},
+    this.pendingDeletions = const {},
     super.errorMessage,
   });
 
@@ -12,14 +13,16 @@ class AttachmentsState extends BaseState {
 
   final List<AttachmentEntity> attachments;
   final Set<String> uploadingIds; // tracks which items show a progress indicator
+  final Set<String> pendingDeletions; // tracks which items are marked for deletion in the UI
 
   @override
-  List<Object?> get props => [status, attachments, uploadingIds, errorMessage];
+  List<Object?> get props => [status, attachments, uploadingIds, pendingDeletions, errorMessage];
 
   AttachmentsState copyWith({
     StateStatus? status,
     List<AttachmentEntity>? attachments,
     Set<String>? uploadingIds,
+    Set<String>? pendingDeletions,
     String? errorMessage,
     bool? annulErrorMessage,
   }) {
@@ -27,7 +30,10 @@ class AttachmentsState extends BaseState {
       status: status ?? this.status,
       attachments: attachments ?? this.attachments,
       uploadingIds: uploadingIds ?? this.uploadingIds,
-      errorMessage: annulErrorMessage == true ? null : errorMessage ?? this.errorMessage,
+      pendingDeletions: pendingDeletions ?? this.pendingDeletions,
+      errorMessage: annulErrorMessage == true
+          ? null
+          : errorMessage ?? this.errorMessage,
     );
   }
 }

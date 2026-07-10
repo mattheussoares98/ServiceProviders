@@ -88,17 +88,15 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
       final newAttachments = <AttachmentEntity>[];
 
       for (final newFile in pickedList) {
-        final isDuplicate = state.attachments.any(
-          (existing) {
-            if (existing.originalPath != null &&
-                newFile.originalPath != null &&
-                existing.originalPath == newFile.originalPath) {
-              return true;
-            }
-            return existing.fileName == newFile.fileName &&
-                existing.fileSizeBytes == newFile.fileSizeBytes;
-          },
-        );
+        final isDuplicate = state.attachments.any((existing) {
+          if (existing.originalPath != null &&
+              newFile.originalPath != null &&
+              existing.originalPath == newFile.originalPath) {
+            return true;
+          }
+          return existing.fileName == newFile.fileName &&
+              existing.fileSizeBytes == newFile.fileSizeBytes;
+        });
 
         if (isDuplicate) {
           unawaited(_useCases.deleteAttachment(newFile.id));
@@ -122,15 +120,16 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
   Future<bool> uploadPending() async {
     final pending = state.attachments
-        .where((e) =>
-            e.uploadStatus == UploadStatus.pending ||
-            e.uploadStatus == UploadStatus.failed)
+        .where(
+          (e) =>
+              e.uploadStatus == UploadStatus.pending ||
+              e.uploadStatus == UploadStatus.failed,
+        )
         .toList();
     if (pending.isEmpty) return true;
 
     final results = await Future.wait([
-      for (final attachment in pending)
-        _uploadAttachment(attachment)
+      for (final attachment in pending) _uploadAttachment(attachment),
     ]);
 
     return !results.contains(false);
@@ -165,32 +164,12 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   }
 
   Future<bool> deleteAttachment(String id) async {
-    emit(state.copyWith(status: StateStatus.deleting));
-    final result = await _useCases.deleteAttachment(id);
-    if (isClosed) return false;
-
-    if (result is SuccessState<bool> && result.data == true) {
-      final updatedList = state.attachments
-          .where((item) => item.id != id)
-          .toList();
-      emit(
-        state.copyWith(
-          status: StateStatus.loaded,
-          attachments: updatedList,
-          annulErrorMessage: true,
-        ),
-      );
-      return true;
-    } else {
-      emit(
-        state.copyWith(
-          status: StateStatus.deletingError,
-          errorMessage: state.errorMessage,
-        ),
-      );
-      showDataStateToast(result);
-      return false;
-    }
+    final pending = Set<String>.from(state.pendingDeletions)..add(id);
+    final updatedList = state.attachments
+        .where((item) => item.id != id)
+        .toList();
+    emit(state.copyWith(attachments: updatedList, pendingDeletions: pending));
+    return true;
   }
 
   Future<void> openAttachment(AttachmentEntity attachment) async {

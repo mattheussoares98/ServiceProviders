@@ -6,8 +6,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -59,6 +61,12 @@ class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
 class MockUploadAttachmentUseCase extends Mock
     implements UploadAttachmentUseCase {}
 
+class MockDeleteAttachmentUseCase extends Mock
+    implements DeleteAttachmentUseCase {}
+
+class MockAttachmentsCubit extends MockCubit<AttachmentsState>
+    implements AttachmentsCubit {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -73,6 +81,7 @@ void main() {
   late MockGetWorkOrderHistoryUseCase mockGetWorkOrderHistory;
   late MockGetAttachmentsUseCase mockGetAttachments;
   late MockUploadAttachmentUseCase mockUploadAttachment;
+  late MockDeleteAttachmentUseCase mockDeleteAttachment;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -104,6 +113,7 @@ void main() {
     mockGetWorkOrderHistory = MockGetWorkOrderHistoryUseCase();
     mockGetAttachments = MockGetAttachmentsUseCase();
     mockUploadAttachment = MockUploadAttachmentUseCase();
+    mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -116,6 +126,9 @@ void main() {
     ).thenAnswer((_) async => const SuccessState(data: []));
     when(
       () => mockUploadAttachment(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockDeleteAttachment(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
 
     final useCases = WorkOrdersCubitUseCases(
@@ -130,6 +143,7 @@ void main() {
       getWorkOrderHistory: mockGetWorkOrderHistory,
       getAttachments: mockGetAttachments,
       uploadAttachment: mockUploadAttachment,
+      deleteAttachment: mockDeleteAttachment,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -439,6 +453,114 @@ void main() {
           verify: (_) {
             verify(() => mockGetAttachments(any())).called(1);
             verify(() => mockUploadAttachment(any())).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should delete pending attachments when creation succeeds',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockDeleteAttachment.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) async {
+            final mockAttachmentsCubit = MockAttachmentsCubit();
+            when(() => mockAttachmentsCubit.state).thenReturn(
+              const AttachmentsState(
+                status: StateStatus.loaded,
+                pendingDeletions: {'attachment_1', 'attachment_2'},
+              ),
+            );
+
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+              attachmentsCubit: mockAttachmentsCubit,
+            );
+
+            expect(result, isTrue);
+          },
+          verify: (_) {
+            verify(() => mockDeleteAttachment.call('attachment_1')).called(1);
+            verify(() => mockDeleteAttachment.call('attachment_2')).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should not delete pending attachments when creation fails',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => FailureState(message: 'Error'));
+            return cubit;
+          },
+          act: (cubit) async {
+            final mockAttachmentsCubit = MockAttachmentsCubit();
+            when(() => mockAttachmentsCubit.state).thenReturn(
+              const AttachmentsState(
+                status: StateStatus.loaded,
+                pendingDeletions: {'attachment_1', 'attachment_2'},
+              ),
+            );
+
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+              attachmentsCubit: mockAttachmentsCubit,
+            );
+
+            expect(result, isFalse);
+          },
+          verify: (_) {
+            verifyNever(() => mockDeleteAttachment.call(any()));
           },
         );
 

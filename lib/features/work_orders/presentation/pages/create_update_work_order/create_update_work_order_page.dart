@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
@@ -54,10 +55,13 @@ class CreateUpdateWorkOrderPage extends HookWidget {
       statuses: {StateStatus.saving, StateStatus.deleting},
     );
 
-    return _CreateUpdatePage(
-      workOrder: workOrder,
-      formKey: formKey,
-      workOrderId: workOrderId,
+    return BlocProvider(
+      create: (context) => GetIt.I<AttachmentsCubit>()..init(workOrderId),
+      child: _CreateUpdatePage(
+        workOrder: workOrder,
+        formKey: formKey,
+        workOrderId: workOrderId,
+      ),
     );
   }
 }
@@ -161,6 +165,7 @@ class _CreateUpdatePage extends HookWidget {
         partsCost: workOrder?.partsCost,
         startedAt: workOrder?.startedAt,
         totalCost: workOrder?.totalCost,
+        attachmentsCubit: context.read<AttachmentsCubit>(),
       );
       if (succeeds && context.mounted) {
         Navigator.of(context).pop();
