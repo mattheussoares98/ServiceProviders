@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -78,9 +80,20 @@ class AttachmentItem extends StatelessWidget {
                 cupertinoIcon: CupertinoIcons.trash,
                 color: Colors.redAccent,
               ),
-              onPressed: () => context
-                  .read<AttachmentsCubit>()
-                  .deleteAttachment(attachment.id),
+              onPressed: () {
+                showAlertDialog(
+                  context: context,
+                  title: 'Remover anexo'.hardcoded,
+                  contentText: 'Deseja realmente remover o anexo?'.hardcoded,
+                  defaultActionText: 'Sim'.hardcoded,
+                  cancelActionText: 'Não'.hardcoded,
+                  onOkPressed: () {
+                    context.read<AttachmentsCubit>().deleteAttachment(
+                      attachment.id,
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),
