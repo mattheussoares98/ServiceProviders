@@ -324,24 +324,27 @@ class _CreateUpdatePage extends HookWidget {
             gapSliverH16,
             SliverToBoxAdapter(
               child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: DurationField(
-                        durationController: durationController,
-                        durationFocusNode: durationFocusNode,
-                        onSubmit: onSubmit,
+                child: SizedBox(
+                  height: Sizes.p80,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: DurationField(
+                          durationController: durationController,
+                          durationFocusNode: durationFocusNode,
+                          onSubmit: onSubmit,
+                        ),
                       ),
-                    ),
-                    gapW16,
-                    Expanded(
-                      child: ProgrammedData(
-                        selectedScheduledDate: selectedScheduledDate.value,
-                        onChanged: (v) => selectedScheduledDate.value = v,
+                      gapW16,
+                      Expanded(
+                        child: ProgrammedData(
+                          selectedScheduledDate: selectedScheduledDate.value,
+                          onChanged: (v) => selectedScheduledDate.value = v,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
