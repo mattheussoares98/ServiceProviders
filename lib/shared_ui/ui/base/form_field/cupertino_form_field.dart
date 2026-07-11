@@ -115,12 +115,13 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (dtf.labelText != null) ...[
-              gapH8,
               BaseText(
                 dtf.labelText!,
                 color: isEnabled
                     ? colorScheme.onSurface.withAlpha(200)
                     : colorScheme.onSurface.withAlpha(100),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               gapH4,
             ],
