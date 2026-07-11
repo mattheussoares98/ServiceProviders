@@ -269,7 +269,13 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
       decoration: BoxDecoration(
         borderRadius: widget.borderRadius ?? BorderRadius.circular(Sizes.p8),
       ),
-      child: Hero(tag: tag, child: image),
+      child: Hero(
+        tag: tag,
+        // Keep the original image visible during the hero flight instead of
+        // showing an empty placeholder in its grid position.
+        placeholderBuilder: (context, heroSize, child) => child,
+        child: image,
+      ),
     );
 
     if (widget.enableFullScreenOnTap) {
