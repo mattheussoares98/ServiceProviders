@@ -59,6 +59,7 @@ class Attachments extends StatelessWidget {
           isSliver: true,
           padding: EdgeInsets.zero,
           maxItemWidth: 170,
+          useMultiColumnWhenMobile: true,
           itemCount: attachments.length,
           itemBuilder: (context, index) {
             final attachment = attachments[index];

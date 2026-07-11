@@ -15,6 +15,7 @@ class ResponsiveListFlow extends StatelessWidget {
     this.isSliver = false,
     this.padding,
     this.physics,
+    this.useMultiColumnWhenMobile = false,
   });
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
@@ -22,12 +23,13 @@ class ResponsiveListFlow extends StatelessWidget {
   final bool isSliver;
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
+  final bool useMultiColumnWhenMobile;
 
   @override
   Widget build(BuildContext context) {
     final effectivePadding =
         padding ?? const EdgeInsets.only(bottom: Sizes.p48);
-    if (PlatformUtil.isMobile) {
+    if (PlatformUtil.isMobile && !useMultiColumnWhenMobile) {
       if (isSliver) {
         return SliverPadding(
           padding: effectivePadding,
