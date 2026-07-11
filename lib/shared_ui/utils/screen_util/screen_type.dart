@@ -14,4 +14,14 @@ part of 'screen_util.dart';
 /// - [largeTablet]    : 841 dp to 1024 dp — large tablets.
 /// - [desktop]        : > 1024 dp — desktop or very large screen.
 
-enum ScreenType { unknown, compact, phone, tablet, largeTablet, desktop }
+enum ScreenType {
+  unknown(0),
+  compact(360),
+  phone(600),
+  tablet(840),
+  largeTablet(1024),
+  desktop(1600);
+
+  const ScreenType(this.maxWidth);
+  final double maxWidth;
+}
