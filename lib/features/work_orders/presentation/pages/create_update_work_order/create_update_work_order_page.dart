@@ -39,8 +39,9 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/two_columns.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:uuid/uuid.dart';
 
 @RoutePage()
@@ -225,6 +226,98 @@ class _CreateUpdatePage extends HookWidget {
       }
     }
 
+    final items = [
+      TitleField(
+        titleController: titleController,
+        titleFocusNode: titleFocusNode,
+        descFocusNode: descFocusNode,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: DescriptionField(
+          descController: descController,
+          descFocusNode: descFocusNode,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: ResponsibleDropdown(
+          onChanged: (val) => selectedAssignedToId.value = val,
+          responsibleId: selectedAssignedToId.value,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: Row(
+          children: [
+            Expanded(
+              child: WorkOrderTypeDropdown(
+                onChanged: (v) => selectedType.value = v,
+                selectedType: selectedType.value,
+              ),
+            ),
+            gapW16,
+            Expanded(
+              child: PriorityDropdown(
+                onChanged: (v) => selectedPriority.value = v,
+                selectedPriority: selectedPriority.value,
+              ),
+            ),
+          ],
+        ),
+      ),
+      if (workOrder != null) ...[
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: WorkOrderStatusDropdown(
+            onChanged: (v) => selectedStatus.value = v,
+            selectedStatus: selectedStatus.value,
+          ),
+        ),
+      ],
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: LocationDropdown(
+          selectedId: selectedLocationId.value,
+          onChanged: (val) {
+            selectedLocationId.value = val;
+            selectedAssetId.value = null;
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: AssetsDropdown(
+          selectedAssetId: selectedAssetId.value,
+          selectedLocationId: selectedLocationId.value,
+          onChanged: (val) => selectedAssetId.value = val,
+        ),
+      ),
+      IntrinsicHeight(
+        child: SizedBox(
+          height: Sizes.p80,
+          child: Row(
+            crossAxisAlignment: .stretch,
+            children: [
+              Expanded(
+                child: DurationField(
+                  durationController: durationController,
+                  durationFocusNode: durationFocusNode,
+                  onSubmit: onSubmit,
+                ),
+              ),
+              gapW16,
+              Expanded(
+                child: ProgrammedData(
+                  selectedScheduledDate: selectedScheduledDate.value,
+                  onChanged: (v) => selectedScheduledDate.value = v,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
     return BaseScaffold(
       isScrollable: false,
       onPopInvokedWithResult: () async {
@@ -255,95 +348,15 @@ class _CreateUpdatePage extends HookWidget {
         key: formKey,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: TwoColumns(
-                firstColumn: [
-                  TitleField(
-                    titleController: titleController,
-                    titleFocusNode: titleFocusNode,
-                    descFocusNode: descFocusNode,
-                  ),
-                  gapH8,
-                  DescriptionField(
-                    descController: descController,
-                    descFocusNode: descFocusNode,
-                  ),
-                  gapH16,
-                  ResponsibleDropdown(
-                    onChanged: (val) => selectedAssignedToId.value = val,
-                    responsibleId: selectedAssignedToId.value,
-                  ),
-                  gapH16,
-                  Row(
-                    children: [
-                      Expanded(
-                        child: WorkOrderTypeDropdown(
-                          onChanged: (v) => selectedType.value = v,
-                          selectedType: selectedType.value,
-                        ),
-                      ),
-                      gapW16,
-                      Expanded(
-                        child: PriorityDropdown(
-                          onChanged: (v) => selectedPriority.value = v,
-                          selectedPriority: selectedPriority.value,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                secondColumn: [
-                  if (workOrder != null) ...[
-                    WorkOrderStatusDropdown(
-                      onChanged: (v) => selectedStatus.value = v,
-                      selectedStatus: selectedStatus.value,
-                    ),
-                    gapH16,
-                  ],
-                  LocationDropdown(
-                    selectedId: selectedLocationId.value,
-                    onChanged: (val) {
-                      selectedLocationId.value = val;
-                      selectedAssetId.value = null;
-                    },
-                  ),
-                  gapH16,
-                  AssetsDropdown(
-                    selectedAssetId: selectedAssetId.value,
-                    selectedLocationId: selectedLocationId.value,
-                    onChanged: (val) => selectedAssetId.value = val,
-                  ),
-
-                  gapH16,
-                  IntrinsicHeight(
-                    child: SizedBox(
-                      height: Sizes.p80,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: DurationField(
-                              durationController: durationController,
-                              durationFocusNode: durationFocusNode,
-                              onSubmit: onSubmit,
-                            ),
-                          ),
-                          gapW16,
-                          Expanded(
-                            child: ProgrammedData(
-                              selectedScheduledDate:
-                                  selectedScheduledDate.value,
-                              onChanged: (v) => selectedScheduledDate.value = v,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            ResponsiveListFlow(
+              isSliver: true,
+              maxItemWidth: ScreenType.phone.maxWidth,
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return item;
+              },
             ),
-            gapSliverH16,
             Attachments(workOrderId: workOrderId),
             gapSliverH24,
             SliverToBoxAdapter(
