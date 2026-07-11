@@ -21,8 +21,8 @@ class ActiveWorkItems extends StatelessWidget {
         );
 
     Widget child;
-    if (ScreenUtil.I.type == ScreenType.compact ||
-        ScreenUtil.I.type == ScreenType.phone) {
+    if (context.screenType == ScreenType.compact ||
+        context.screenType == ScreenType.phone) {
       child = SizedBox(
         height: 105,
         child: ListView.builder(
