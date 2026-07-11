@@ -32,13 +32,16 @@ class AppRouter extends RootStackRouter {
             AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
           ],
         ),
+        //* Company
         AutoRoute(page: CompanyRoute.page, path: kCompanyPath),
         AutoRoute(
           page: CreateCompanyRoute.page,
           path: '$kCompanyPath/$kCreateCompanyPath',
           guards: const [AdminGuard()],
         ),
+        //* Configurations
         AutoRoute(page: ConfigurationsRoute.page, path: kConfigurationsPath),
+        //* Users and permissions
         AutoRoute(page: UsersAndPermissionsRoute.page, path: kPermissionsPath),
         AutoRoute(
           page: EditGroupPermissionsRoute.page,
@@ -48,21 +51,31 @@ class AppRouter extends RootStackRouter {
           page: EditUserPermissionsRoute.page,
           path: '$kPermissionsPath/$kEditUserPermissionsPath',
         ),
+        //* Areas
         AutoRoute(
           page: CreateUpdateAreaRoute.page,
           path: '$kCreateUpdateAreaRoute/$kCreateUpdateAreaPath',
         ),
+        //* Locations
         AutoRoute(
           page: CreateUpdateLocationRoute.page,
           path: '$kCreateUpdateLocationRoute/$kCreateUpdateLocationPath',
         ),
+        //* Assets
         AutoRoute(
           page: CreateUpdateAssetRoute.page,
           path: '$kCreateUpdateAssetRoute/$kCreateUpdateAssetPath',
         ),
+        //* Work orders
         AutoRoute(
-          page: CreateUpdateWorkOrderRoute.page,
-          path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
+          page: WorkOrderDetailsRoute.page,
+          path: '$kWorkOrderDetailsRoute/$kWorkOrderDetailsPath',
+          children: [
+            AutoRoute(
+              page: CreateUpdateWorkOrderRoute.page,
+              path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
+            ),
+          ],
         ),
       ],
     ),

@@ -115,9 +115,9 @@ class WorkOrderItem extends StatelessWidget {
                   resource: ResourceType.workOrders,
                   action: PermissionAction.update,
                 ),
-                text: 'Editar'.hardcoded,
+                text: 'Detalhes'.hardcoded,
                 onPressed: () => context.router.push(
-                  CreateUpdateWorkOrderRoute(workOrder: workOrder),
+                  WorkOrderDetailsRoute(workOrder: workOrder),
                 ),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.edit,
