@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -192,11 +193,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           ]);
         }
 
-        final pendingToSave = attachmentsCubit.state.attachments.where(
-          (e) =>
-              e.uploadStatus == UploadStatus.pending ||
-              e.uploadStatus == UploadStatus.failed,
-        ).toList();
+        final pendingToSave = attachmentsCubit.state.attachments
+            .where(
+              (e) =>
+                  e.uploadStatus == UploadStatus.pending ||
+                  e.uploadStatus == UploadStatus.failed,
+            )
+            .toList();
         if (pendingToSave.isNotEmpty) {
           await Future.wait([
             for (final attachment in pendingToSave)
@@ -314,5 +317,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       );
       showDataStateToast(dataState);
     }
+  }
+
+  Future<void> navigateToCreateUpdateWorkOrder({
+    required WorkOrderEntity? workOrder,
+  }) async {
+    await pushRoute(CreateUpdateWorkOrderRoute(workOrder: workOrder));
   }
 }

@@ -27,6 +27,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -104,6 +105,7 @@ void main() {
       ),
     );
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
+    registerFallbackValue(CreateUpdateWorkOrderRoute());
   });
 
   setUp(() {
@@ -1233,6 +1235,32 @@ void main() {
         verify: (_) {
           verify(() => mockReviewChangeRequest.call(tParams)).called(1);
           verifyNever(() => mockGetWorkOrders.call(any()));
+        },
+      );
+    });
+
+    group('Navigation', () {
+      final tWorkOrder = faker.randomGenerator.boolean()
+          ? EntityFactory.makeWorkOrderEntity()
+          : null;
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute',
+        build: () {
+          when(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.navigateToCreateUpdateWorkOrder(workOrder: tWorkOrder),
+        expect: () => <WorkOrdersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+          ).called(1);
         },
       );
     });
