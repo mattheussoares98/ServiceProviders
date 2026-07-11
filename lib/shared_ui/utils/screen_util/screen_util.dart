@@ -160,6 +160,26 @@ class ScreenUtil {
       width - (horizontalSpace * 2) - extraSpace;
 }
 
+extension ScreenUtilBuildContextExtension on BuildContext {
+  /// Automatically listens to screen size changes and returns the screen type
+  ScreenType get screenType {
+    MediaQuery.sizeOf(this);
+    return ScreenUtil.I.type;
+  }
+
+  /// Automatically listens to screen size changes and returns the width
+  double get screenWidth {
+    MediaQuery.sizeOf(this);
+    return ScreenUtil.I.width;
+  }
+
+  /// Automatically listens to screen size changes and returns the height
+  double get screenHeight {
+    MediaQuery.sizeOf(this);
+    return ScreenUtil.I.height;
+  }
+}
+
 extension NumScreenUtilExtension<T extends num> on T {
   T get avoidNegativeValue => (this < 0 ? 0 : this) as T;
 
