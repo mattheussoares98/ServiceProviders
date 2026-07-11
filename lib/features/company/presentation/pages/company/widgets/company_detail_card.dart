@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -48,12 +47,6 @@ class CompanyDetailCard extends StatelessWidget {
               heroTag: '${company.id}_logo',
               width: 120,
               height: 120,
-              errorWidget: PlatformIcon(
-                cupertinoIcon: CupertinoIcons.building_2_fill,
-                materialIcon: Icons.business,
-                size: Sizes.p32,
-                color: context.colorScheme.primary,
-              ),
             ),
           ),
           gapW16,

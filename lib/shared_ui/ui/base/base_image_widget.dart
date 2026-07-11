@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 sealed class BaseImageSource {
   const BaseImageSource();
@@ -25,6 +26,8 @@ final class LocalImageSource extends BaseImageSource {
   final String? path;
 }
 
+final Set<String> _brokenUrls = {};
+
 class BaseImageWidget extends StatelessWidget {
   const BaseImageWidget({
     required this.source,
@@ -32,7 +35,6 @@ class BaseImageWidget extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.placeholder,
-    this.errorWidget,
     this.enableFullScreenOnTap = false,
     this.heroTag,
     this.borderRadius,
@@ -44,7 +46,6 @@ class BaseImageWidget extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final Widget? placeholder;
-  final Widget? errorWidget;
   final bool enableFullScreenOnTap;
   final String? heroTag;
   final BorderRadius? borderRadius;
@@ -111,13 +112,48 @@ class BaseImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackWidget = Center(
-      child:
-          errorWidget ??
-          const PlatformIcon(
-            materialIcon: Icons.broken_image,
-            cupertinoIcon: Icons.broken_image,
-          ),
+    final fallbackWidget = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.4,
+        ),
+        borderRadius: borderRadius ?? BorderRadius.circular(Sizes.p8),
+        border: Border.all(
+          color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PlatformIcon(
+              materialIcon: Icons.image_not_supported_outlined,
+              cupertinoIcon: CupertinoIcons.photo,
+              size: (width != null && width! < 80) ? 20 : 32,
+              color: context.colorScheme.onSurfaceVariant.withValues(
+                alpha: 0.6,
+              ),
+            ),
+            if ((width == null || width! >= 100) &&
+                (height == null || height! >= 80)) ...[
+              gapH8,
+              Text(
+                'Sem imagem'.hardcoded,
+                style: context.theme.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.7,
+                  ),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
 
     final double devicePixelRatio =
@@ -139,21 +175,23 @@ class BaseImageWidget extends StatelessWidget {
     final image = switch (source) {
       NetworkImageSource(:final url) =>
         (url == null ||
-                url.isEmpty ||
-                (!url.startsWith('http://') && !url.startsWith('https://')))
+                url.trim().isEmpty ||
+                url.trim() == 'null' ||
+                _brokenUrls.contains(url.trim()) ||
+                (!url.trim().startsWith('http://') &&
+                    !url.trim().startsWith('https://')))
             ? fallbackWidget
             : CachedNetworkImage(
-                cacheKey: url,
-                imageUrl: url,
+                cacheKey: url.trim(),
+                imageUrl: url.trim(),
                 width: width,
                 height: height,
                 fit: fit,
                 placeholder: (context, url) =>
                     placeholder ?? const LoadingCircle(),
-                errorWidget: (context, url, error) => fallbackWidget,
-                errorListener: (error) {
-                  // Evict from cache on failure to prevent getting stuck in a corrupted cache state
-                  CachedNetworkImage.evictFromCache(url);
+                errorWidget: (context, url, error) {
+                  _brokenUrls.add(url.trim());
+                  return fallbackWidget;
                 },
                 memCacheWidth: resolvedCacheWidth,
                 memCacheHeight: resolvedCacheHeight,
