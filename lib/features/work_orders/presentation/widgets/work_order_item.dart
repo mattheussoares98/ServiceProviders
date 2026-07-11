@@ -119,8 +119,8 @@ class WorkOrderItem extends StatelessWidget {
                     .read<WorkOrdersCubit>()
                     .navigateToWorkOrderDetails(workOrder.id),
                 platformIcon: const PlatformIcon(
-                  materialIcon: Icons.edit,
-                  cupertinoIcon: CupertinoIcons.pencil,
+                  materialIcon: Icons.info,
+                  cupertinoIcon: CupertinoIcons.info,
                 ),
               ),
             ),
