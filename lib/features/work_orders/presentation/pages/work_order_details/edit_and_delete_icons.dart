@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class EditAndDeleteIcons extends StatelessWidget {
-  const EditAndDeleteIcons({super.key, required this.workOrder});
-  final WorkOrderEntity workOrder;
+  const EditAndDeleteIcons({super.key, required this.workOrderId});
+  final String workOrderId;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class EditAndDeleteIcons extends StatelessWidget {
             ),
             onPressed: () {
               context.read<WorkOrdersCubit>().navigateToCreateUpdateWorkOrder(
-                workOrder: workOrder,
+                workOrderId,
               );
             },
             platformIcon: const PlatformIcon(
@@ -54,7 +53,7 @@ class EditAndDeleteIcons extends StatelessWidget {
                 onOkPressed: () async {
                   final succeeds = await context
                       .read<WorkOrdersCubit>()
-                      .deleteWorkOrder(workOrder.id);
+                      .deleteWorkOrder(workOrderId);
                   if (succeeds && context.mounted) {
                     context.pop();
                   }

@@ -1253,8 +1253,7 @@ void main() {
           ).thenAnswer((_) async => null);
           return cubit;
         },
-        act: (cubit) =>
-            cubit.navigateToCreateUpdateWorkOrder(workOrder: tWorkOrder),
+        act: (cubit) => cubit.navigateToCreateUpdateWorkOrder(tWorkOrder?.id),
         expect: () => <WorkOrdersState>[],
         verify: (cubit) {
           verify(

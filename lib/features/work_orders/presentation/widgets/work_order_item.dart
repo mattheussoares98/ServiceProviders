@@ -117,7 +117,7 @@ class WorkOrderItem extends StatelessWidget {
                 ),
                 text: 'Detalhes'.hardcoded,
                 onPressed: () => context.router.push(
-                  WorkOrderDetailsRoute(workOrder: workOrder),
+                  WorkOrderDetailsRoute(workOrderId: workOrder.id),
                 ),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.edit,

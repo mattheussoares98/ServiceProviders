@@ -38,7 +38,7 @@ class ActiveWorkItems extends StatelessWidget {
                 child: ActiveStopwatchCard(
                   workOrder: workOrder,
                   onTap: () => context.router.push(
-                    CreateUpdateWorkOrderRoute(workOrder: workOrder),
+                    CreateUpdateWorkOrderRoute(workOrderId: workOrder.id),
                   ),
                 ),
               ),
@@ -58,7 +58,7 @@ class ActiveWorkItems extends StatelessWidget {
               child: ActiveStopwatchCard(
                 workOrder: workOrder,
                 onTap: () => context.router.push(
-                  CreateUpdateWorkOrderRoute(workOrder: workOrder),
+                  CreateUpdateWorkOrderRoute(workOrderId: workOrder.id),
                 ),
               ),
             );

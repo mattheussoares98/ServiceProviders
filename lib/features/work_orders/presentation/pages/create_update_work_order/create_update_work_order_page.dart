@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,27 +49,41 @@ import 'package:uuid/uuid.dart';
 
 @RoutePage()
 class CreateUpdateWorkOrderPage extends HookWidget {
-  const CreateUpdateWorkOrderPage({super.key, this.workOrder});
-
-  final WorkOrderEntity? workOrder;
+  const CreateUpdateWorkOrderPage({super.key, this.workOrderId});
+  final String? workOrderId;
 
   @override
   Widget build(BuildContext context) {
-    final workOrderId = useMemoized(() => workOrder?.id ?? const Uuid().v4());
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    final currentWorkOrderId = useMemoized(
+      () => workOrderId ?? const Uuid().v4(),
+    );
 
     observeLoading(
       [context.read<WorkOrdersCubit>()],
       statuses: {StateStatus.saving, StateStatus.deleting},
     );
 
-    return BlocProvider(
-      create: (context) => GetIt.I<AttachmentsCubit>()..init(workOrderId),
-      child: _CreateUpdatePage(
-        workOrder: workOrder,
-        formKey: formKey,
-        workOrderId: workOrderId,
-      ),
+    return Builder(
+      builder: (context) {
+        return BlocProvider(
+          create: (context) =>
+              GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
+          child:
+              BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
+                selector: (state) => state.workOrders.firstWhereOrNull(
+                  (e) => e.id == currentWorkOrderId,
+                ),
+                builder: (context, workOrder) {
+                  return _CreateUpdatePage(
+                    workOrder: workOrder,
+                    formKey: formKey,
+                    workOrderId: currentWorkOrderId,
+                  );
+                },
+              ),
+        );
+      },
     );
   }
 }
