@@ -260,7 +260,7 @@ class _CreateUpdatePage extends HookWidget {
                 descFocusNode: descFocusNode,
               ),
             ),
-            gapSliverH16,
+            gapSliverH8,
             SliverToBoxAdapter(
               child: DescriptionField(
                 descController: descController,
