@@ -191,6 +191,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             for (final dId in pendingDeletions) _useCases.deleteAttachment(dId),
           ]);
         }
+
+        final pendingToSave = attachmentsCubit.state.attachments.where(
+          (e) =>
+              e.uploadStatus == UploadStatus.pending ||
+              e.uploadStatus == UploadStatus.failed,
+        ).toList();
+        if (pendingToSave.isNotEmpty) {
+          await Future.wait([
+            for (final attachment in pendingToSave)
+              _useCases.createAttachment(attachment),
+          ]);
+        }
       }
 
       final attachmentsResult = await _useCases.getAttachments(workOrder.id);

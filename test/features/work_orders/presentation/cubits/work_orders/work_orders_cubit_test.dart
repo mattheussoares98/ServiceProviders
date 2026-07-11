@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
@@ -64,6 +65,9 @@ class MockUploadAttachmentUseCase extends Mock
 class MockDeleteAttachmentUseCase extends Mock
     implements DeleteAttachmentUseCase {}
 
+class MockCreateAttachmentUseCase extends Mock
+    implements CreateAttachmentUseCase {}
+
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
 
@@ -82,6 +86,7 @@ void main() {
   late MockGetAttachmentsUseCase mockGetAttachments;
   late MockUploadAttachmentUseCase mockUploadAttachment;
   late MockDeleteAttachmentUseCase mockDeleteAttachment;
+  late MockCreateAttachmentUseCase mockCreateAttachment;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -115,6 +120,7 @@ void main() {
     mockUploadAttachment = MockUploadAttachmentUseCase();
     mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockCreateAttachment = MockCreateAttachmentUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -144,6 +150,7 @@ void main() {
       getAttachments: mockGetAttachments,
       uploadAttachment: mockUploadAttachment,
       deleteAttachment: mockDeleteAttachment,
+      createAttachment: mockCreateAttachment,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -512,6 +519,77 @@ void main() {
           verify: (_) {
             verify(() => mockDeleteAttachment.call('attachment_1')).called(1);
             verify(() => mockDeleteAttachment.call('attachment_2')).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should save pending attachments locally and then upload them when saveWorkOrder succeeds',
+          build: () {
+            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+              uploadStatus: UploadStatus.pending,
+            );
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockCreateAttachment.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetAttachments(any()),
+            ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
+            when(
+              () => mockUploadAttachment(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) async {
+            final mockAttachmentsCubit = MockAttachmentsCubit();
+            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+              uploadStatus: UploadStatus.pending,
+            );
+            when(() => mockAttachmentsCubit.state).thenReturn(
+              AttachmentsState(
+                status: StateStatus.loaded,
+                attachments: [tAttachment],
+              ),
+            );
+
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: tWorkOrder.assignedToId,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+              attachmentsCubit: mockAttachmentsCubit,
+            );
+
+            expect(result, isTrue);
+          },
+          verify: (_) {
+            verify(() => mockCreateAttachment.call(any())).called(1);
+            verify(() => mockUploadAttachment(any())).called(1);
           },
         );
 

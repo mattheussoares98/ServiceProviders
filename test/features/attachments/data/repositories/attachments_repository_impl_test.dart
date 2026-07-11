@@ -441,10 +441,6 @@ void main() {
           () => fileService.getFileSizeBytes(sandboxPath),
         ).thenAnswer((_) async => 500 * 1024);
 
-        when(
-          () => mockLocalDataSource.saveAttachment(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
         final result = await repository.pickAndPrepareAttachment(
           source: AttachmentSource.cameraPhoto,
           workOrderId: workOrderId,
@@ -461,7 +457,6 @@ void main() {
         expect(entity.isCompressed, isTrue);
 
         verify(() => fileService.compressAndSaveImage(mockPath)).called(1);
-        verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
       },
     );
 
@@ -490,10 +485,6 @@ void main() {
         when(
           () => fileService.getFileSizeBytes(sandboxPath),
         ).thenAnswer((_) async => 500 * 1024);
-
-        when(
-          () => mockLocalDataSource.saveAttachment(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.pickAndPrepareAttachment(
           source: AttachmentSource.cameraPhoto,

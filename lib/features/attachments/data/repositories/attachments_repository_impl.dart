@@ -342,13 +342,6 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       originalPath: contentHash,
     );
 
-    final saveResult = await _localDataSource.saveAttachment(
-      AttachmentResponseModel.fromEntity(entity),
-    );
-    if (saveResult is FailureState<bool>) {
-      return FailureState(message: saveResult.message);
-    }
-
     return SuccessState(data: entity);
   }
 
