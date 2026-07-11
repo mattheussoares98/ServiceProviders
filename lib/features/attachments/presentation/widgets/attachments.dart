@@ -39,6 +39,7 @@ class Attachments extends StatelessWidget {
             return ResponsiveListFlow(
               isSliver: true,
               padding: EdgeInsets.zero,
+              maxItemWidth: 170,
               itemCount: state.attachments.length,
               itemBuilder: (context, index) {
                 final attachment = state.attachments[index];

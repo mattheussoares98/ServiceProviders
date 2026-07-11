@@ -36,67 +36,39 @@ class AttachmentItem extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Preview(attachment: attachment),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(Sizes.p12),
-                child: Column(
-                  crossAxisAlignment: .start,
-                  mainAxisAlignment: .center,
-                  children: [
-                    BaseText.bodyMedium(attachment.fileName),
-                    gapH4,
-                    Row(
-                      children: [
-                        if (attachment.fileSizeBytes != null) ...[
-                          BaseText.caption(
-                            _formatSize(attachment.fileSizeBytes!),
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                          gapW8,
-                          Container(
-                            width: 3,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: context.colorScheme.onSurfaceVariant,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          gapW8,
-                        ],
-                      ],
-                    ),
-                  ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Preview(attachment: attachment),
+          gapH4,
+          Row(
+            mainAxisAlignment: .spaceAround,
+            children: [
+              BaseText.caption(_formatSize(attachment.fileSizeBytes!)),
+              BaseIconButton(
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.delete_outline,
+                  cupertinoIcon: CupertinoIcons.trash,
+                  color: Colors.redAccent,
                 ),
+                onPressed: () {
+                  showAlertDialog(
+                    context: context,
+                    title: 'Remover anexo'.hardcoded,
+                    contentText: 'Deseja realmente remover o anexo?'.hardcoded,
+                    defaultActionText: 'Sim'.hardcoded,
+                    cancelActionText: 'Não'.hardcoded,
+                    onOkPressed: () {
+                      context.read<AttachmentsCubit>().deleteAttachment(
+                        attachment.id,
+                      );
+                    },
+                  );
+                },
               ),
-            ),
-            BaseIconButton(
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.delete_outline,
-                cupertinoIcon: CupertinoIcons.trash,
-                color: Colors.redAccent,
-              ),
-              onPressed: () {
-                showAlertDialog(
-                  context: context,
-                  title: 'Remover anexo'.hardcoded,
-                  contentText: 'Deseja realmente remover o anexo?'.hardcoded,
-                  defaultActionText: 'Sim'.hardcoded,
-                  cancelActionText: 'Não'.hardcoded,
-                  onOkPressed: () {
-                    context.read<AttachmentsCubit>().deleteAttachment(
-                      attachment.id,
-                    );
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }
