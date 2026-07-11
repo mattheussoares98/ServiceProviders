@@ -28,6 +28,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(CreateUpdateAssetRoute());
+    registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
   });
   late MockGetWorkOrdersUseCase mockGetWorkOrdersUseCase;
   late MockGetAssetsUseCase mockGetAssetsUseCase;
@@ -353,13 +354,34 @@ void main() {
           ).called(1);
         },
       );
+      blocTest<DashboardCubit, DashboardState>(
+        'navigateToWorkOrderDetails should push WorkOrderDetailsRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<WorkOrderDetailsRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToWorkOrderDetails('wo123'),
+        expect: () => <DashboardState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.pushRoute<WorkOrderDetailsRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
 
       blocTest<DashboardCubit, DashboardState>(
         'navigateToCreateUpdateAsset should push CreateUpdateAssetRoute',
         build: () {
           when(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateAssetRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<CreateUpdateAssetRouteArgs>(
+              any(),
+            ),
           ).thenAnswer((_) async => null);
           return cubit;
         },
@@ -367,8 +389,9 @@ void main() {
         expect: () => <DashboardState>[],
         verify: (_) {
           verify(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateAssetRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<CreateUpdateAssetRouteArgs>(
+              any(),
+            ),
           ).called(1);
         },
       );

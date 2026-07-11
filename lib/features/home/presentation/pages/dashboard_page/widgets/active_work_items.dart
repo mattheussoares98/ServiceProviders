@@ -36,7 +36,7 @@ class ActiveWorkItems extends StatelessWidget {
                 padding: const EdgeInsets.only(right: Sizes.p8),
                 child: ActiveStopwatchCard(
                   workOrder: workOrder,
-                  onTap: () => cubit.navigateToCreateUpdateWorkOrder(workOrder.id),
+                  onTap: () => cubit.navigateToWorkOrderDetails(workOrder.id),
                 ),
               ),
             );
@@ -54,7 +54,7 @@ class ActiveWorkItems extends StatelessWidget {
               height: 105,
               child: ActiveStopwatchCard(
                 workOrder: workOrder,
-                onTap: () => cubit.navigateToCreateUpdateWorkOrder(workOrder.id),
+                onTap: () => cubit.navigateToWorkOrderDetails(workOrder.id),
               ),
             );
           }).toList(),

@@ -123,6 +123,10 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     await pushRoute(CreateUpdateWorkOrderRoute(workOrderId: workOrderId));
   }
 
+  Future<void> navigateToWorkOrderDetails(String workOrderId) async {
+    await pushRoute(WorkOrderDetailsRoute(workOrderId: workOrderId));
+  }
+
   Future<void> navigateToCreateUpdateAsset() async {
     await pushRoute(CreateUpdateAssetRoute());
   }
