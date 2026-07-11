@@ -18,7 +18,7 @@ class DurationField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseTextFormField(
-      labelText: 'Duração (minutos, opcional)'.hardcoded,
+      labelText: 'Duração (min, opcional)'.hardcoded,
       hintText: 'Ex: 60'.hardcoded,
       controller: durationController,
       focusNode: durationFocusNode,

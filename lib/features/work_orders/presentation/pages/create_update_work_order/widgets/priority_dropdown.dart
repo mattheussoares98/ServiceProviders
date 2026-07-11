@@ -17,6 +17,7 @@ class PriorityDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseDropDown<Priority>(
+      showLabelAtTopLeft: true,
       key: const ValueKey('Priority'),
       label: 'Prioridade *'.hardcoded,
       selectedItem: selectedPriority,

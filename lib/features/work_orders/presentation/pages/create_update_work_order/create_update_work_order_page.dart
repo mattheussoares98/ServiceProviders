@@ -38,6 +38,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/two_columns.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:uuid/uuid.dart';
 
@@ -254,122 +256,118 @@ class _CreateUpdatePage extends HookWidget {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: TitleField(
-                titleController: titleController,
-                titleFocusNode: titleFocusNode,
-                descFocusNode: descFocusNode,
-              ),
-            ),
-            gapSliverH8,
-            SliverToBoxAdapter(
-              child: DescriptionField(
-                descController: descController,
-                descFocusNode: descFocusNode,
-              ),
-            ),
-            gapSliverH16,
-            if (workOrder != null) ...[
-              SliverToBoxAdapter(
-                child: WorkOrderStatusDropdown(
-                  onChanged: (v) => selectedStatus.value = v,
-                  selectedStatus: selectedStatus.value,
-                ),
-              ),
-              gapSliverH16,
-            ],
-            SliverToBoxAdapter(
-              child: LocationDropdown(
-                selectedId: selectedLocationId.value,
-                onChanged: (val) {
-                  selectedLocationId.value = val;
-                  selectedAssetId.value = null;
-                },
-              ),
-            ),
-            gapSliverH16,
-            SliverToBoxAdapter(
-              child: AssetsDropdown(
-                selectedAssetId: selectedAssetId.value,
-                selectedLocationId: selectedLocationId.value,
-                onChanged: (val) => selectedAssetId.value = val,
-              ),
-            ),
-            gapSliverH16,
-            SliverToBoxAdapter(
-              child: ResponsibleDropdown(
-                onChanged: (val) => selectedAssignedToId.value = val,
-                responsibleId: selectedAssignedToId.value,
-              ),
-            ),
-            gapSliverH16,
-            SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: WorkOrderTypeDropdown(
-                      onChanged: (v) => selectedType.value = v,
-                      selectedType: selectedType.value,
-                    ),
+              child: TwoColumns(
+                firstColumn: [
+                  TitleField(
+                    titleController: titleController,
+                    titleFocusNode: titleFocusNode,
+                    descFocusNode: descFocusNode,
                   ),
-                  gapW16,
-                  Expanded(
-                    child: PriorityDropdown(
-                      onChanged: (v) => selectedPriority.value = v,
-                      selectedPriority: selectedPriority.value,
-                    ),
+                  gapH8,
+                  DescriptionField(
+                    descController: descController,
+                    descFocusNode: descFocusNode,
                   ),
-                ],
-              ),
-            ),
-            gapSliverH16,
-            SliverToBoxAdapter(
-              child: IntrinsicHeight(
-                child: SizedBox(
-                  height: Sizes.p80,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  gapH16,
+                  ResponsibleDropdown(
+                    onChanged: (val) => selectedAssignedToId.value = val,
+                    responsibleId: selectedAssignedToId.value,
+                  ),
+                  gapH16,
+                  Row(
                     children: [
                       Expanded(
-                        child: DurationField(
-                          durationController: durationController,
-                          durationFocusNode: durationFocusNode,
-                          onSubmit: onSubmit,
+                        child: WorkOrderTypeDropdown(
+                          onChanged: (v) => selectedType.value = v,
+                          selectedType: selectedType.value,
                         ),
                       ),
                       gapW16,
                       Expanded(
-                        child: ProgrammedData(
-                          selectedScheduledDate: selectedScheduledDate.value,
-                          onChanged: (v) => selectedScheduledDate.value = v,
+                        child: PriorityDropdown(
+                          onChanged: (v) => selectedPriority.value = v,
+                          selectedPriority: selectedPriority.value,
                         ),
                       ),
                     ],
                   ),
-                ),
+                ],
+                secondColumn: [
+                  if (workOrder != null) ...[
+                    WorkOrderStatusDropdown(
+                      onChanged: (v) => selectedStatus.value = v,
+                      selectedStatus: selectedStatus.value,
+                    ),
+                    gapH16,
+                  ],
+                  LocationDropdown(
+                    selectedId: selectedLocationId.value,
+                    onChanged: (val) {
+                      selectedLocationId.value = val;
+                      selectedAssetId.value = null;
+                    },
+                  ),
+                  gapH16,
+                  AssetsDropdown(
+                    selectedAssetId: selectedAssetId.value,
+                    selectedLocationId: selectedLocationId.value,
+                    onChanged: (val) => selectedAssetId.value = val,
+                  ),
+
+                  gapH16,
+                  IntrinsicHeight(
+                    child: SizedBox(
+                      height: Sizes.p80,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: DurationField(
+                              durationController: durationController,
+                              durationFocusNode: durationFocusNode,
+                              onSubmit: onSubmit,
+                            ),
+                          ),
+                          gapW16,
+                          Expanded(
+                            child: ProgrammedData(
+                              selectedScheduledDate:
+                                  selectedScheduledDate.value,
+                              onChanged: (v) => selectedScheduledDate.value = v,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             gapSliverH16,
             Attachments(workOrderId: workOrderId),
             gapSliverH24,
             SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Flexible(
-                    child: BaseTextButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      text: 'Cancelar'.hardcoded,
-                      color: Colors.red,
+              child: ResponsiveCenter(
+                maxContentWidth: 1500,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: BaseTextButton(
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        text: 'Cancelar'.hardcoded,
+                        color: Colors.red,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: PrimaryButton(
-                      onTap: onSubmit,
-                      width: Sizes.p120,
-                      text: 'Salvar'.hardcoded,
+                    Expanded(
+                      child: PrimaryButton(
+                        onTap: onSubmit,
+                        width: Sizes.p120,
+                        text: 'Salvar'.hardcoded,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             gapSliverH32,
