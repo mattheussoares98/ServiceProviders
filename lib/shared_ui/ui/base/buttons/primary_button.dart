@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
@@ -11,7 +10,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class PrimaryButton extends HookWidget {
+class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     required this.onTap,
@@ -48,28 +47,15 @@ class PrimaryButton extends HookWidget {
       }
     }
 
-    final localLoading = useState(false);
-    final effectiveLoading = isLoading || localLoading.value;
-
     final tapCallback = onTap == null
         ? null
-        : () async {
+        : () {
             FocusManager.instance.primaryFocus?.unfocus();
-            final result = onTap!();
-            if (result is Future) {
-              localLoading.value = true;
-              try {
-                await result;
-              } finally {
-                if (context.mounted) {
-                  localLoading.value = false;
-                }
-              }
-            }
+            onTap!();
           };
 
     final effectiveForegroundColor = foregroundColor ?? AppColors.white;
-    Widget childWidget = effectiveLoading
+    Widget childWidget = isLoading
         ? LoadingCircle.small(effectiveForegroundColor)
         : BaseText(
             text,
@@ -78,7 +64,7 @@ class PrimaryButton extends HookWidget {
             fontWeight: textFontWeight ?? FontWeight.w500,
           );
 
-    if (platformIcon != null && !effectiveLoading) {
+    if (platformIcon != null && !isLoading) {
       childWidget = Row(
         mainAxisSize: MainAxisSize.min,
         children: [platformIcon!, gapW8, childWidget],
@@ -90,7 +76,7 @@ class PrimaryButton extends HookWidget {
       width: expandWidth ? double.maxFinite : width,
       child: context.isCupertino
           ? CupertinoButton(
-              onPressed: effectiveLoading ? null : tapCallback,
+              onPressed: tapCallback,
               color: color ?? AppColors.primary,
               disabledColor: color ?? AppColors.primary,
               padding: EdgeInsets.zero,
@@ -98,7 +84,7 @@ class PrimaryButton extends HookWidget {
               child: Center(child: childWidget),
             )
           : ElevatedButton(
-              onPressed: effectiveLoading ? null : tapCallback,
+              onPressed: tapCallback,
               style: ElevatedButton.styleFrom(backgroundColor: color),
               child: childWidget,
             ),
