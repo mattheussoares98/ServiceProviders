@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -7,7 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.da
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -23,9 +24,21 @@ class AttachmentItem extends StatelessWidget {
   final AttachmentEntity attachment;
   final bool isEditing;
 
-  //TODO improve this widget
   @override
   Widget build(BuildContext context) {
+    void onDelete() {
+      showAlertDialog(
+        context: context,
+        title: 'Remover anexo'.hardcoded,
+        contentText: 'Deseja realmente remover o anexo?'.hardcoded,
+        defaultActionText: 'Sim'.hardcoded,
+        cancelActionText: 'Não'.hardcoded,
+        onOkPressed: () {
+          context.read<AttachmentsCubit>().deleteAttachment(attachment.id);
+        },
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: Sizes.p12),
       decoration: BoxDecoration(
@@ -41,39 +54,52 @@ class AttachmentItem extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
         children: [
           _Preview(attachment: attachment),
           if (isEditing) ...[
-            gapH4,
-            Row(
-              mainAxisAlignment: .spaceAround,
-              children: [
-                BaseText.caption(_formatSize(attachment.fileSizeBytes!)),
-                BaseIconButton(
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.delete_outline,
-                    cupertinoIcon: CupertinoIcons.trash,
-                    color: Colors.redAccent,
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: [
+                  if (kDebugMode) ...[
+                    BaseText('Size showed on debug mode'.hardcoded),
+                    BaseText.title(_formatSize(attachment.fileSizeBytes!)),
+                  ],
+                  InkWell(
+                    onTap: onDelete,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.surface.withValues(
+                          alpha: 0.8,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, -2),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
+                      child: Center(
+                        child: BaseTextButton(
+                          text: 'Remover anexo'.hardcoded,
+                          textColor: Colors.redAccent,
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.delete_outline,
+                            cupertinoIcon: CupertinoIcons.trash,
+                            color: Colors.redAccent,
+                          ),
+                          onPressed: onDelete,
+                        ),
+                      ),
+                    ),
                   ),
-                  onPressed: () {
-                    showAlertDialog(
-                      context: context,
-                      title: 'Remover anexo'.hardcoded,
-                      contentText:
-                          'Deseja realmente remover o anexo?'.hardcoded,
-                      defaultActionText: 'Sim'.hardcoded,
-                      cancelActionText: 'Não'.hardcoded,
-                      onOkPressed: () {
-                        context.read<AttachmentsCubit>().deleteAttachment(
-                          attachment.id,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ],
