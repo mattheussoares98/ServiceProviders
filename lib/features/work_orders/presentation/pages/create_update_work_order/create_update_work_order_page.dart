@@ -86,8 +86,6 @@ class _CreateUpdatePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedScheduledDate = useState<DateTime?>(workOrder?.scheduledDate);
-
     final (assetsError, assetsLoading) = context.select(
       (AssetsCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
@@ -117,31 +115,6 @@ class _CreateUpdatePage extends HookWidget {
       );
     }
 
-    final titleController = useTextEditingController(text: workOrder?.title);
-    final descController = useTextEditingController(
-      text: workOrder?.description,
-    );
-    final durationController = useTextEditingController(
-      text: workOrder?.estimatedDuration?.toString() ?? '',
-    );
-
-    final titleFocusNode = useFocusNode();
-    final descFocusNode = useFocusNode();
-    final durationFocusNode = useFocusNode();
-
-    final selectedLocationId = useState<String?>(workOrder?.locationId);
-    final selectedAssetId = useState<String?>(workOrder?.assetId);
-    final selectedAssignedToId = useState<String?>(workOrder?.assignedToId);
-    final selectedPriority = useState<Priority>(
-      workOrder?.priority ?? Priority.medium,
-    );
-    final selectedType = useState<WorkOrderType>(
-      workOrder?.type ?? WorkOrderType.corrective,
-    );
-    final selectedStatus = useState<WorkOrderStatus>(
-      workOrder?.status ?? WorkOrderStatus.open,
-    );
-
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
     final initialDuration = workOrder?.estimatedDuration?.toString() ?? '';
@@ -152,6 +125,21 @@ class _CreateUpdatePage extends HookWidget {
     final initialType = workOrder?.type ?? WorkOrderType.corrective;
     final initialStatus = workOrder?.status ?? WorkOrderStatus.open;
     final initialScheduledDate = workOrder?.scheduledDate;
+
+    final titleController = useTextEditingController(text: initialTitle);
+    final descController = useTextEditingController(text: initialDescription);
+    final durationController = useTextEditingController(text: initialDuration);
+    final selectedLocationId = useState<String?>(initialLocationId);
+    final selectedAssetId = useState<String?>(initialAssetId);
+    final selectedAssignedToId = useState<String?>(initialAssignedToId);
+    final selectedPriority = useState<Priority>(initialPriority);
+    final selectedType = useState<WorkOrderType>(initialType);
+    final selectedStatus = useState<WorkOrderStatus>(initialStatus);
+    final selectedScheduledDate = useState<DateTime?>(initialScheduledDate);
+
+    final titleFocusNode = useFocusNode();
+    final descFocusNode = useFocusNode();
+    final durationFocusNode = useFocusNode();
 
     bool getHasChanges() {
       final attachmentsState = context.read<AttachmentsCubit>().state;
