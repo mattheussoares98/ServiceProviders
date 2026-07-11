@@ -107,7 +107,6 @@ class _Preview extends StatelessWidget {
           enableFullScreenOnTap: true,
           heroTag: source.hashCode.toString(),
           height: 200,
-          width: 400,
           fit: BoxFit.fill,
         );
       }

@@ -102,16 +102,12 @@ class BaseImageWidget extends StatelessWidget {
     );
   }
 
-  int _getStableCacheSize(int physicalPixels, int maxPhysicalSize) {
-    final clamped = physicalPixels.clamp(1, maxPhysicalSize);
-    if (clamped <= 256) return 256;
-    if (clamped <= 512) return 512;
-    if (clamped <= 1024) return 1024;
-    return (clamped / 512).ceil() * 512;
-  }
-
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: _buildContent);
+  }
+
+  Widget _buildContent(BuildContext context, BoxConstraints constraints) {
     final fallbackWidget = Container(
       width: width,
       height: height,
@@ -159,18 +155,21 @@ class BaseImageWidget extends StatelessWidget {
     final double devicePixelRatio =
         MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
     final screenSize = MediaQuery.sizeOf(context);
-    final int maxPhysicalWidth = (screenSize.width * devicePixelRatio).round();
-    final int maxPhysicalHeight = (screenSize.height * devicePixelRatio)
-        .round();
 
-    final int resolvedCacheWidth = _getStableCacheSize(
-      width != null ? (width! * devicePixelRatio).round() : maxPhysicalWidth,
-      maxPhysicalWidth,
-    );
-    final int resolvedCacheHeight = _getStableCacheSize(
-      height != null ? (height! * devicePixelRatio).round() : maxPhysicalHeight,
-      maxPhysicalHeight,
-    );
+    final double effectiveWidth =
+        width ??
+        (constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : screenSize.width);
+    final double effectiveHeight =
+        height ??
+        (constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : screenSize.height);
+
+    final int resolvedCacheWidth = (effectiveWidth * devicePixelRatio).round();
+    final int resolvedCacheHeight = (effectiveHeight * devicePixelRatio)
+        .round();
 
     final image = switch (source) {
       NetworkImageSource(:final url) =>
