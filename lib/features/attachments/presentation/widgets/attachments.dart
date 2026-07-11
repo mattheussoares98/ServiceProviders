@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class Attachments extends StatelessWidget {
   const Attachments({super.key, required this.workOrderId});
@@ -23,7 +24,14 @@ class Attachments extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverMainAxisGroup(
       slivers: [
-        const SliverToBoxAdapter(child: _AttachmentsAndAddRow()),
+        SliverToBoxAdapter(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: ScreenType.phone.maxWidth),
+              child: const _AttachmentsAndAddRow(),
+            ),
+          ),
+        ),
         gapSliverH8,
         BlocBuilder<AttachmentsCubit, AttachmentsState>(
           builder: (context, state) {
