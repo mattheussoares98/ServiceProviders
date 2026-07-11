@@ -44,91 +44,92 @@ class TitleAndSubtitle extends StatelessWidget {
 
     final isNullOrEmpty = subtitle == null || subtitle!.isEmpty;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: Sizes.p8),
-      padding: const EdgeInsets.all(Sizes.p8),
-      decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Sizes.p12),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Container(
-              padding: const EdgeInsets.all(Sizes.p8),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: IconTheme(
-                data: IconThemeData(color: colorScheme.primary, size: 20),
-                child: icon!,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: Sizes.p8),
+          padding: const EdgeInsets.all(Sizes.p8),
+          decoration: BoxDecoration(
+            color: backgroundColor ?? colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(Sizes.p12),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
             ),
-            gapW16,
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                BaseText.caption(
-                  title.toUpperCase(),
-                  color:
-                      titleColor ??
-                      colorScheme.onSurface.withValues(alpha: 0.55),
-                  fontWeight: FontWeight.w600,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              if (icon != null && constraints.maxWidth >= 150) ...[
+                Container(
+                  padding: const EdgeInsets.all(Sizes.p8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: icon!.copyWith(isSmall: true),
                 ),
-                gapH4,
-                Row(
-                  crossAxisAlignment: .baseline,
-                  textBaseline: TextBaseline.alphabetic,
+                gapW16,
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (type == TitleAndSubtitleType.money) ...[
-                      BaseText.bodySmall(
-                        '${type!.label} ',
-                        color: subtitleColor ?? colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ],
-                    Expanded(
-                      child: BaseText.bodyLarge(
-                        displaySubtitle,
-                        color: isNullOrEmpty
-                            ? colorScheme.onSurface.withValues(alpha: 0.38)
-                            : (subtitleColor ?? colorScheme.onSurface),
-                        fontWeight: isNullOrEmpty
-                            ? FontWeight.normal
-                            : FontWeight.w600,
-                        fontStyle: isNullOrEmpty
-                            ? FontStyle.italic
-                            : FontStyle.normal,
-                      ),
+                    BaseText.caption(
+                      title.toUpperCase(),
+                      color:
+                          titleColor ??
+                          colorScheme.onSurface.withValues(alpha: 0.55),
+                      fontWeight: FontWeight.w600,
                     ),
-                    if (type == TitleAndSubtitleType.percentage) ...[
-                      BaseText.bodySmall(
-                        ' ${type!.label}',
-                        color: subtitleColor ?? colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ],
+                    gapH4,
+                    Row(
+                      crossAxisAlignment: .baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        if (type == TitleAndSubtitleType.money) ...[
+                          BaseText.bodySmall(
+                            '${type!.label} ',
+                            color: subtitleColor ?? colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
+                        Expanded(
+                          child: BaseText.bodyLarge(
+                            displaySubtitle,
+                            color: isNullOrEmpty
+                                ? colorScheme.onSurface.withValues(alpha: 0.38)
+                                : (subtitleColor ?? colorScheme.onSurface),
+                            fontWeight: isNullOrEmpty
+                                ? FontWeight.normal
+                                : FontWeight.w600,
+                            fontStyle: isNullOrEmpty
+                                ? FontStyle.italic
+                                : FontStyle.normal,
+                          ),
+                        ),
+                        if (type == TitleAndSubtitleType.percentage) ...[
+                          BaseText.bodySmall(
+                            ' ${type!.label}',
+                            color: subtitleColor ?? colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
