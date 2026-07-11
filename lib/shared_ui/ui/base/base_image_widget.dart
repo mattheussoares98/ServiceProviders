@@ -28,7 +28,7 @@ final class LocalImageSource extends BaseImageSource {
 
 final Set<String> _brokenUrls = {};
 
-class BaseImageWidget extends StatelessWidget {
+class BaseImageWidget extends StatefulWidget {
   const BaseImageWidget({
     required this.source,
     this.width,
@@ -50,8 +50,20 @@ class BaseImageWidget extends StatelessWidget {
   final String? heroTag;
   final BorderRadius? borderRadius;
 
+  @override
+  State<BaseImageWidget> createState() => _BaseImageWidgetState();
+}
+
+class _BaseImageWidgetState extends State<BaseImageWidget> {
+  // Frozen on first layout. Never change again so that memCacheWidth/Height
+  // stay stable across resizes and don't trigger a cache miss.
+  int? _frozenCacheWidth;
+  int? _frozenCacheHeight;
+
   void _showFullScreenImage(BuildContext context) {
-    final tag = heroTag ?? source.hashCode.toString();
+    final tag = widget.heroTag ?? widget.source.hashCode.toString();
+    // Capture once at tap time — must not change on resize to avoid cache miss.
+    final screenSize = MediaQuery.sizeOf(context);
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         opaque: false,
@@ -71,9 +83,12 @@ class BaseImageWidget extends StatelessWidget {
                         minScale: 1,
                         maxScale: 4,
                         child: BaseImageWidget(
-                          source: source,
+                          source: widget.source,
                           fit: BoxFit.contain,
                           heroTag: tag,
+                          // Cap memory to screen size — no need to decode beyond it.
+                          width: screenSize.width,
+                          height: screenSize.height,
                         ),
                       ),
                     ),
@@ -104,14 +119,59 @@ class BaseImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // When explicit dimensions are provided, compute once and freeze.
+    if (widget.width != null && _frozenCacheWidth == null) {
+      final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
+      _frozenCacheWidth = (widget.width! * dpr).round();
+    }
+    if (widget.height != null && _frozenCacheHeight == null) {
+      final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
+      _frozenCacheHeight = (widget.height! * dpr).round();
+    }
+
+    // For layout-driven sizes (no explicit width/height), use LayoutBuilder to
+    // capture constraints once, then freeze them so resizes don't change the
+    // cache key and don't cause a reload or a full-resolution memory warning.
+    final bool needsLayoutBuilder =
+        (widget.width == null && _frozenCacheWidth == null) ||
+        (widget.height == null && _frozenCacheHeight == null);
+
+    if (needsLayoutBuilder) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
+          final screenSize = MediaQuery.sizeOf(context);
+
+          _frozenCacheWidth ??=
+              ((constraints.maxWidth.isFinite
+                          ? constraints.maxWidth
+                          : screenSize.width) *
+                      dpr)
+                  .round();
+          _frozenCacheHeight ??=
+              ((constraints.maxHeight.isFinite
+                          ? constraints.maxHeight
+                          : screenSize.height) *
+                      dpr)
+                  .round();
+
+          return _buildContent(context);
+        },
+      );
+    }
+
+    return _buildContent(context);
+  }
+
+  Widget _buildContent(BuildContext context) {
     final fallbackWidget = Container(
-      width: width,
-      height: height,
+      width: widget.width,
+      height: widget.height,
       decoration: BoxDecoration(
         color: context.colorScheme.surfaceContainerHighest.withValues(
           alpha: 0.4,
         ),
-        borderRadius: borderRadius ?? BorderRadius.circular(Sizes.p8),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(Sizes.p8),
         border: Border.all(
           color: context.colorScheme.outlineVariant.withValues(alpha: 0.3),
         ),
@@ -124,13 +184,13 @@ class BaseImageWidget extends StatelessWidget {
             PlatformIcon(
               materialIcon: Icons.image_not_supported_outlined,
               cupertinoIcon: CupertinoIcons.photo,
-              size: (width != null && width! < 80) ? 20 : 32,
+              size: (widget.width != null && widget.width! < 80) ? 20 : 32,
               color: context.colorScheme.onSurfaceVariant.withValues(
                 alpha: 0.6,
               ),
             ),
-            if ((width == null || width! >= 100) &&
-                (height == null || height! >= 80)) ...[
+            if ((widget.width == null || widget.width! >= 100) &&
+                (widget.height == null || widget.height! >= 80)) ...[
               gapH8,
               Text(
                 'Sem imagem'.hardcoded,
@@ -148,20 +208,7 @@ class BaseImageWidget extends StatelessWidget {
       ),
     );
 
-    final double devicePixelRatio =
-        MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
-
-    // Only compute cache dimensions when explicit sizes are provided.
-    // Using layout-constraint-derived sizes causes a cache miss on every resize
-    // because memCacheWidth/memCacheHeight act as part of the cache key.
-    final int? resolvedCacheWidth = width != null
-        ? (width! * devicePixelRatio).round()
-        : null;
-    final int? resolvedCacheHeight = height != null
-        ? (height! * devicePixelRatio).round()
-        : null;
-
-    final image = switch (source) {
+    final image = switch (widget.source) {
       NetworkImageSource(:final url) =>
         (url == null ||
                 url.trim().isEmpty ||
@@ -173,19 +220,19 @@ class BaseImageWidget extends StatelessWidget {
             : CachedNetworkImage(
                 cacheKey: url.trim(),
                 imageUrl: url.trim(),
-                width: width,
-                height: height,
-                fit: fit,
+                width: widget.width,
+                height: widget.height,
+                fit: widget.fit,
                 placeholder: (context, url) =>
-                    placeholder ?? const LoadingCircle(),
+                    widget.placeholder ?? const LoadingCircle(),
                 errorWidget: (context, url, error) {
                   _brokenUrls.add(url.trim());
                   return fallbackWidget;
                 },
-                memCacheWidth: resolvedCacheWidth,
-                memCacheHeight: resolvedCacheHeight,
-                maxWidthDiskCache: resolvedCacheWidth,
-                maxHeightDiskCache: resolvedCacheHeight,
+                memCacheWidth: _frozenCacheWidth,
+                memCacheHeight: _frozenCacheHeight,
+                maxWidthDiskCache: _frozenCacheWidth,
+                maxHeightDiskCache: _frozenCacheHeight,
               ),
       LocalImageSource(:final path) =>
         path?.isEmpty ?? true
@@ -194,38 +241,38 @@ class BaseImageWidget extends StatelessWidget {
                   ? Image.asset(
                       key: ValueKey(path),
                       path,
-                      width: width,
-                      height: height,
-                      fit: fit,
-                      cacheWidth: resolvedCacheWidth,
-                      cacheHeight: resolvedCacheHeight,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: widget.fit,
+                      cacheWidth: _frozenCacheWidth,
+                      cacheHeight: _frozenCacheHeight,
                       errorBuilder: (context, error, stackTrace) =>
                           fallbackWidget,
                     )
                   : Image.file(
                       key: ValueKey(path),
                       File(path),
-                      width: width,
-                      height: height,
-                      fit: fit,
-                      cacheWidth: resolvedCacheWidth,
-                      cacheHeight: resolvedCacheHeight,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: widget.fit,
+                      cacheWidth: _frozenCacheWidth,
+                      cacheHeight: _frozenCacheHeight,
                       errorBuilder: (context, error, stackTrace) =>
                           fallbackWidget,
                     )),
     };
 
-    final tag = heroTag ?? source.hashCode.toString();
+    final tag = widget.heroTag ?? widget.source.hashCode.toString();
 
     final content = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.circular(Sizes.p8),
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(Sizes.p8),
       ),
       child: Hero(tag: tag, child: image),
     );
 
-    if (enableFullScreenOnTap) {
+    if (widget.enableFullScreenOnTap) {
       return GestureDetector(
         onTap: () => _showFullScreenImage(context),
         child: content,
