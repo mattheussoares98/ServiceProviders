@@ -42,23 +42,23 @@ class EditAndDeleteIcons extends StatelessWidget {
               resource: ResourceType.workOrders,
               action: PermissionAction.delete,
             ),
-            onPressed: () {
-              showAlertDialog(
+            onPressed: () async {
+              final bool? ok = await showAlertDialog(
                 context: context,
                 title: 'Atenção!'.hardcoded,
                 contentText:
                     'Deseja realmente excluir a ordem de serviço?'.hardcoded,
                 defaultActionText: 'Sim'.hardcoded,
                 cancelActionText: 'Não'.hardcoded,
-                onOkPressed: () async {
-                  final succeeds = await context
-                      .read<WorkOrdersCubit>()
-                      .deleteWorkOrder(workOrderId);
-                  if (succeeds && context.mounted) {
-                    context.pop();
-                  }
-                },
               );
+              if (ok == true && context.mounted) {
+                final succeeds = await context
+                    .read<WorkOrdersCubit>()
+                    .deleteWorkOrder(workOrderId);
+                if (succeeds && context.mounted) {
+                  context.pop();
+                }
+              }
             },
             platformIcon: const PlatformIcon(
               materialIcon: Icons.delete,

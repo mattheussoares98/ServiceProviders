@@ -33,7 +33,16 @@ class WorkOrderDetailsPage extends StatelessWidget {
             state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
         builder: (context, workOrder) {
           if (workOrder == null) {
-            return BaseText.error('Ordem de serviço não encontrada'.hardcoded);
+            return BaseScaffold(
+              appBar: BaseAppBar(
+                title: 'Detalhes da ordem de serviço'.hardcoded,
+              ),
+              body: Center(
+                child: BaseText.error(
+                  'Ordem de serviço não encontrada'.hardcoded,
+                ),
+              ),
+            );
           }
           return _WorkOrderDetails(workOrder: workOrder);
         },
