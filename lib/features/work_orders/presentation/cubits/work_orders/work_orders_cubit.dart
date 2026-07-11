@@ -124,7 +124,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final isUpdate = id != null;
+    final isUpdate = id != null && state.workOrders.any((e) => e.id == id);
     final now = DateTime.now();
     final companyId = _useCases.getSessionUser().companyId;
 

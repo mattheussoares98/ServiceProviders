@@ -395,6 +395,7 @@ void main() {
                       companyId: actual.companyId,
                       createdAt: actual.createdAt,
                       updatedAt: actual.updatedAt,
+                      attachments: actual.attachments,
                     );
                     return actual == expected;
                   }),
@@ -769,6 +770,7 @@ void main() {
                       companyId: actual.companyId,
                       createdAt: actual.createdAt,
                       updatedAt: actual.updatedAt,
+                      attachments: actual.attachments,
                     );
                     return actual == expected;
                   }),
@@ -842,6 +844,7 @@ void main() {
                       companyId: actual.companyId,
                       createdAt: actual.createdAt,
                       updatedAt: actual.updatedAt,
+                      attachments: actual.attachments,
                     );
                     return actual == expected;
                   }),
@@ -909,6 +912,7 @@ void main() {
                       companyId: actual.companyId,
                       createdAt: actual.createdAt,
                       updatedAt: actual.updatedAt,
+                      attachments: actual.attachments,
                     );
                     return actual == expected;
                   }),
@@ -921,6 +925,9 @@ void main() {
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should set startedAt to current time when state changes to inProgress and startedAt is null',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [tWorkOrder],
+          ),
           build: () {
             when(
               () => mockUpdateWorkOrder.call(any()),
@@ -957,6 +964,9 @@ void main() {
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should set completedAt to current time when state changes to completed and completedAt is null',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [tWorkOrder],
+          ),
           build: () {
             when(
               () => mockUpdateWorkOrder.call(any()),
