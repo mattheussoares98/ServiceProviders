@@ -104,10 +104,6 @@ class BaseImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: _buildContent);
-  }
-
-  Widget _buildContent(BuildContext context, BoxConstraints constraints) {
     final fallbackWidget = Container(
       width: width,
       height: height,
@@ -154,22 +150,16 @@ class BaseImageWidget extends StatelessWidget {
 
     final double devicePixelRatio =
         MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
-    final screenSize = MediaQuery.sizeOf(context);
 
-    final double effectiveWidth =
-        width ??
-        (constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : screenSize.width);
-    final double effectiveHeight =
-        height ??
-        (constraints.maxHeight.isFinite
-            ? constraints.maxHeight
-            : screenSize.height);
-
-    final int resolvedCacheWidth = (effectiveWidth * devicePixelRatio).round();
-    final int resolvedCacheHeight = (effectiveHeight * devicePixelRatio)
-        .round();
+    // Only compute cache dimensions when explicit sizes are provided.
+    // Using layout-constraint-derived sizes causes a cache miss on every resize
+    // because memCacheWidth/memCacheHeight act as part of the cache key.
+    final int? resolvedCacheWidth = width != null
+        ? (width! * devicePixelRatio).round()
+        : null;
+    final int? resolvedCacheHeight = height != null
+        ? (height! * devicePixelRatio).round()
+        : null;
 
     final image = switch (source) {
       NetworkImageSource(:final url) =>
