@@ -67,10 +67,12 @@ class BaseText extends StatelessWidget {
     Color? color,
     FontWeight? fontWeight,
     TextOverflow? overflow,
+    FontStyle? fontStyle,
   }) => BaseText(
     text,
     overflow: overflow,
     textAlign: textAlign,
+    fontStyle: fontStyle,
     color: color,
     textType: TextType.bodyLarge,
     fontWeight: fontWeight ?? FontWeight.w400,

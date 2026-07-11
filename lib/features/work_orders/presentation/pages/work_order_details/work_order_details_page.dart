@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -14,9 +15,14 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends StatelessWidget {
@@ -35,123 +41,178 @@ class WorkOrderDetailsPage extends StatelessWidget {
 
 class _WorkOrderDetails extends StatelessWidget {
   const _WorkOrderDetails({required this.workOrder});
-
   final WorkOrderEntity workOrder;
 
   @override
   Widget build(BuildContext context) {
-    return BaseScaffold(
-      isScrollable: false,
-      appBar: BaseAppBar(title: 'Detalhes da ordem de serviço'.hardcoded),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: TitleAndSubtitle(
-              title: 'Título'.hardcoded,
-              subtitle: workOrder.title,
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: TitleAndSubtitle(
-              title: 'Descrição',
-              subtitle: workOrder.description,
-              messageIfSubtitleIsNull: 'Sem descrição'.hardcoded,
-            ),
-          ),
-          BlocSelector<UsersCubit, UsersState, UserProfileEntity?>(
-            selector: (state) => state.users.firstWhereOrNull(
-              (e) => e.id == workOrder.assignedToId,
-            ),
-            builder: (context, user) {
-              if (user == null) {
-                return const SliverToBoxAdapter(child: SizedBox.shrink());
-              }
-              return SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    TitleAndSubtitle(title: 'Responsável', subtitle: user.name),
-                  ],
+    final items = [
+      TitleAndSubtitle(
+        title: 'Título'.hardcoded,
+        subtitle: workOrder.title,
+        icon: const PlatformIcon(
+          materialIcon: Icons.assignment_outlined,
+          cupertinoIcon: CupertinoIcons.doc_text,
+        ),
+      ),
+      TitleAndSubtitle(
+        title: 'Descrição'.hardcoded,
+        subtitle: workOrder.description,
+        messageIfSubtitleIsNull: 'Sem descrição'.hardcoded,
+        icon: const PlatformIcon(
+          materialIcon: Icons.description_outlined,
+          cupertinoIcon: CupertinoIcons.doc_text,
+        ),
+      ),
+      BlocSelector<UsersCubit, UsersState, UserProfileEntity?>(
+        selector: (state) =>
+            state.users.firstWhereOrNull((e) => e.id == workOrder.assignedToId),
+        builder: (context, user) {
+          if (user == null) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TitleAndSubtitle(
+                title: 'Responsável'.hardcoded,
+                subtitle: user.name,
+                icon: const PlatformIcon(
+                  materialIcon: Icons.person_outline,
+                  cupertinoIcon: CupertinoIcons.person,
                 ),
-              );
-            },
-          ),
-          SliverToBoxAdapter(
+              ),
+            ],
+          );
+        },
+      ),
+      BlocSelector<LocationsCubit, LocationsState, LocationEntity?>(
+        selector: (state) => state.locations.firstWhereOrNull(
+          (e) => e.id == workOrder.locationId,
+        ),
+        builder: (context, location) {
+          if (location == null) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TitleAndSubtitle(
+                title: 'Local'.hardcoded,
+                subtitle: location.name,
+                messageIfSubtitleIsNull: 'Sem local definido'.hardcoded,
+                icon: const PlatformIcon(
+                  materialIcon: Icons.location_on_outlined,
+                  cupertinoIcon: CupertinoIcons.location,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      BlocSelector<AssetsCubit, AssetsState, AssetEntity?>(
+        selector: (state) =>
+            state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
+        builder: (context, asset) {
+          if (asset == null) {
+            return const SizedBox.shrink();
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TitleAndSubtitle(
+                title: 'Equipamento'.hardcoded,
+                subtitle: asset.name,
+                messageIfSubtitleIsNull: 'Sem equipamento definido'.hardcoded,
+                icon: const PlatformIcon(
+                  materialIcon: Icons.build_outlined,
+                  cupertinoIcon: CupertinoIcons.gear,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      Row(
+        children: [
+          Expanded(
             child: TitleAndSubtitle(
               title: 'Tipo'.hardcoded,
               subtitle: workOrder.type.label,
+              backgroundColor: workOrder.type.color.withValues(alpha: 0.15),
+              subtitleColor: workOrder.type.color,
+              icon: const PlatformIcon(
+                materialIcon: Icons.category_outlined,
+                cupertinoIcon: CupertinoIcons.tag,
+              ),
             ),
           ),
-          SliverToBoxAdapter(
+          gapW8,
+          Expanded(
             child: TitleAndSubtitle(
               title: 'Prioridade'.hardcoded,
               subtitle: workOrder.priority.label,
+              backgroundColor: workOrder.priority.color.withValues(alpha: 0.15),
+              subtitleColor: workOrder.priority.color,
+              icon: const PlatformIcon(
+                materialIcon: Icons.warning_amber_outlined,
+                cupertinoIcon: CupertinoIcons.exclamationmark_triangle,
+              ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: TitleAndSubtitle(
-              title: 'Status'.hardcoded,
-              subtitle: workOrder.status.label,
-            ),
-          ),
-          BlocSelector<LocationsCubit, LocationsState, LocationEntity?>(
-            selector: (state) => state.locations.firstWhereOrNull(
-              (e) => e.id == workOrder.locationId,
-            ),
-            builder: (context, location) {
-              if (location == null) {
-                return const SliverToBoxAdapter(child: SizedBox.shrink());
-              }
-              return SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    TitleAndSubtitle(
-                      title: 'Local'.hardcoded,
-                      subtitle: location.name,
-                      messageIfSubtitleIsNull: 'Sem local definido'.hardcoded,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          BlocSelector<AssetsCubit, AssetsState, AssetEntity?>(
-            selector: (state) =>
-                state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
-            builder: (context, asset) {
-              if (asset == null) {
-                return const SliverToBoxAdapter(child: SizedBox.shrink());
-              }
-              return SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    TitleAndSubtitle(
-                      title: 'Equipamento'.hardcoded,
-                      subtitle: asset.name,
-                      messageIfSubtitleIsNull:
-                          'Sem equipamento definido'.hardcoded,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          SliverToBoxAdapter(
+        ],
+      ),
+      TitleAndSubtitle(
+        title: 'Status'.hardcoded,
+        subtitle: workOrder.status.label,
+        backgroundColor: workOrder.status.color.withValues(alpha: 0.15),
+        subtitleColor: workOrder.status.color,
+        icon: const PlatformIcon(
+          materialIcon: Icons.info_outline,
+          cupertinoIcon: CupertinoIcons.info,
+        ),
+      ),
+      Row(
+        children: [
+          Expanded(
             child: TitleAndSubtitle(
               title: 'Duração estimada'.hardcoded,
               subtitle: '${workOrder.estimatedDuration} min',
               messageIfSubtitleIsNull: 'Sem duração estimada'.hardcoded,
+              icon: const PlatformIcon(
+                materialIcon: Icons.hourglass_empty_outlined,
+                cupertinoIcon: CupertinoIcons.timer,
+              ),
             ),
           ),
-          SliverToBoxAdapter(
+          gapW8,
+          Expanded(
             child: TitleAndSubtitle(
               title: 'Data programada'.hardcoded,
               subtitle: workOrder.scheduledDate?.formatDate(),
               messageIfSubtitleIsNull:
                   'Sem data de término programada'.hardcoded,
+              icon: const PlatformIcon(
+                materialIcon: Icons.calendar_today_outlined,
+                cupertinoIcon: CupertinoIcons.calendar,
+              ),
             ),
+          ),
+        ],
+      ),
+    ];
+
+    return BaseScaffold(
+      isScrollable: false,
+      appBar: BaseAppBar(title: 'Detalhes da ordem de serviço'.hardcoded),
+      body: CustomScrollView(
+        slivers: [
+          ResponsiveListFlow(
+            isSliver: true,
+            itemCount: items.length,
+            maxItemWidth: ScreenType.phone.maxWidth,
+            itemBuilder: (context, index) {
+              return items[index];
+            },
           ),
           Attachments(workOrderId: workOrder.id),
         ],
