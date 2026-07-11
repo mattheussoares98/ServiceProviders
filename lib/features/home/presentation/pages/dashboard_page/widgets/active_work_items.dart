@@ -19,6 +19,10 @@ class ActiveWorkItems extends StatelessWidget {
           (cubit) => cubit.state.activeWorkOrders,
         );
 
+    if (activeWorkOrders.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     Widget child;
     if (context.screenType == ScreenType.compact ||
         context.screenType == ScreenType.phone) {
