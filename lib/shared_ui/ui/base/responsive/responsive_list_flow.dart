@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class ResponsiveListFlow extends StatelessWidget {
   const ResponsiveListFlow({
@@ -43,7 +45,8 @@ class ResponsiveListFlow extends StatelessWidget {
       );
     }
 
-    final width = MediaQuery.of(context).size.width;
+    final maxWidthSize = ScreenType.desktop.maxWidth;
+    final width = min(maxWidthSize, MediaQuery.of(context).size.width);
     // Calculate how many items fit in one row
     final itemsPerRow = max((width / maxItemWidth!).floor(), 1);
     // Calculate the total number of rows needed
@@ -60,6 +63,7 @@ class ResponsiveListFlow extends StatelessWidget {
               itemBuilder: itemBuilder,
               itemsPerRow: itemsPerRow,
               rowIndex: rowIndex,
+              maxWidthSize: maxWidthSize,
             );
           },
         ),
@@ -76,6 +80,7 @@ class ResponsiveListFlow extends StatelessWidget {
           itemBuilder: itemBuilder,
           itemsPerRow: itemsPerRow,
           rowIndex: rowIndex,
+          maxWidthSize: maxWidthSize,
         );
       },
     );
@@ -88,15 +93,17 @@ class _RowsItems extends StatelessWidget {
     required this.itemBuilder,
     required this.itemsPerRow,
     required this.rowIndex,
+    this.maxWidthSize,
   });
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
   final int itemsPerRow;
   final int rowIndex;
+  final double? maxWidthSize;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final row = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(itemsPerRow, (colIndex) {
@@ -118,5 +125,11 @@ class _RowsItems extends StatelessWidget {
         }
       }),
     );
+
+    if (maxWidthSize != null) {
+      return ResponsiveCenter(maxContentWidth: maxWidthSize!, child: row);
+    }
+
+    return row;
   }
 }
