@@ -210,6 +210,7 @@ class _WorkOrderDetails extends StatelessWidget {
             isSliver: true,
             itemCount: items.length,
             maxItemWidth: ScreenType.phone.maxWidth,
+            padding: EdgeInsets.zero,
             itemBuilder: (context, index) {
               return items[index];
             },
