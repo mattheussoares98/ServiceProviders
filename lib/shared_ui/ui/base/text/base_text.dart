@@ -148,6 +148,32 @@ class BaseText extends StatelessWidget {
     fontWeight: fontWeight ?? FontWeight.w600,
   );
 
+  BaseText copyWith({
+    String? text,
+    TextAlign? textAlign,
+    TextOverflow? overflow,
+    int? maxLines,
+    Color? color,
+    TextType? textType,
+    FontWeight? fontWeight,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    FontStyle? fontStyle,
+  }) {
+    return BaseText(
+      text ?? this.text,
+      textAlign: textAlign,
+      overflow: overflow,
+      maxLines: maxLines,
+      color: color,
+      textType: textType ?? TextType.bodyMedium,
+      fontWeight: fontWeight ?? FontWeight.normal,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      fontStyle: fontStyle,
+    );
+  }
+
   final String text;
   final TextAlign? textAlign;
   final TextOverflow? overflow;
