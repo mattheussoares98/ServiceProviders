@@ -232,7 +232,7 @@ class _CreateUpdatePage extends HookWidget {
         attachmentsCubit: context.read<AttachmentsCubit>(),
       );
       if (succeeds && context.mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else {
         if (context.mounted) {
           unawaited(context.read<AttachmentsCubit>().init(workOrderId));

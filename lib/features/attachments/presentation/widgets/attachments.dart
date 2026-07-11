@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_item.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_source_sheet.dart';
@@ -27,6 +28,20 @@ class Attachments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final (
+      isLoading,
+      attachments,
+    ) = context.select<AttachmentsCubit, (bool, List<AttachmentEntity>)>(
+      (cubit) =>
+          (cubit.state.status == StateStatus.loading, cubit.state.attachments),
+    );
+
+    if (isLoading) {
+      return const SliverToBoxAdapter(child: Center(child: LoadingCircle()));
+    } else if (attachments.isEmpty) {
+      return const SliverToBoxAdapter(child: _EmptyAttachment());
+    }
+
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(
@@ -38,30 +53,14 @@ class Attachments extends StatelessWidget {
           ),
         ),
         gapSliverH8,
-        BlocBuilder<AttachmentsCubit, AttachmentsState>(
-          builder: (context, state) {
-            if (state.status == StateStatus.loading &&
-                state.attachments.isEmpty) {
-              return const SliverToBoxAdapter(
-                child: Center(child: LoadingCircle()),
-              );
-            } else if (state.attachments.isEmpty) {
-              return const SliverToBoxAdapter(child: _EmptyAttachment());
-            }
-
-            return ResponsiveListFlow(
-              isSliver: true,
-              padding: EdgeInsets.zero,
-              maxItemWidth: 170,
-              itemCount: state.attachments.length,
-              itemBuilder: (context, index) {
-                final attachment = state.attachments[index];
-                return AttachmentItem(
-                  attachment: attachment,
-                  isEditing: isEditing,
-                );
-              },
-            );
+        ResponsiveListFlow(
+          isSliver: true,
+          padding: EdgeInsets.zero,
+          maxItemWidth: 170,
+          itemCount: attachments.length,
+          itemBuilder: (context, index) {
+            final attachment = attachments[index];
+            return AttachmentItem(attachment: attachment, isEditing: isEditing);
           },
         ),
       ],

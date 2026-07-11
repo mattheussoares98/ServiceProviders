@@ -52,7 +52,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       _useCases.getWorkOrders(user.companyId),
       _useCases.getChangeRequests(user.companyId),
     ]);
-    //TODO when reloading, should reload the attachments too because it is not updating when deleting on another device and reload here
     if (isClosed) return;
 
     final workOrdersResult = results[0];
@@ -241,6 +240,10 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         }
       }
 
+      if (attachmentsCubit != null) {
+        await attachmentsCubit.init(workOrder.id);
+      }
+
       await loadWorkOrdersAndChangeRequests(showLoading: false);
       return true;
     } else {
@@ -319,8 +322,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
-  Future<void> navigateToCreateUpdateWorkOrder(String? workOrderId) async {
-    await pushRoute(CreateUpdateWorkOrderRoute(workOrderId: workOrderId));
+  Future<void> navigateToCreateUpdateWorkOrder(
+    String? workOrderId, {
+    AttachmentsCubit? attachmentsCubit,
+  }) async {
+    final result = await pushRoute<dynamic>(
+      CreateUpdateWorkOrderRoute(workOrderId: workOrderId),
+    );
+    if (result == true && workOrderId != null) {
+      //! very important to update the correct cubit that is being used in the previous screen
+      //!since using getIt.get<AttachmentsCubit>() would get a new instance every time
+      await attachmentsCubit?.init(workOrderId);
+    }
   }
 
   Future<void> navigateToWorkOrderDetails(String workOrderId) async {

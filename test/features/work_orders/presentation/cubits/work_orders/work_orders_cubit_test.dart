@@ -1251,26 +1251,57 @@ void main() {
     });
 
     group('Navigation', () {
-      final tWorkOrder = faker.randomGenerator.boolean()
-          ? EntityFactory.makeWorkOrderEntity()
-          : null;
+      late MockAttachmentsCubit tAttachmentsCubitFailure;
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute',
+        'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute and NOT init attachmentsCubit if result is not true',
         build: () {
+          tAttachmentsCubitFailure = MockAttachmentsCubit();
           when(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).thenAnswer((_) async => null);
           return cubit;
         },
-        act: (cubit) => cubit.navigateToCreateUpdateWorkOrder(tWorkOrder?.id),
+        act: (cubit) {
+          return cubit.navigateToCreateUpdateWorkOrder(
+            'work-order-id',
+            attachmentsCubit: tAttachmentsCubitFailure,
+          );
+        },
         expect: () => <WorkOrdersState>[],
         verify: (cubit) {
           verify(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).called(1);
+          // Verify init is never called on our mock attachments cubit
+          verifyNever(() => tAttachmentsCubitFailure.init(any()));
+        },
+      );
+
+      late MockAttachmentsCubit tAttachmentsCubit;
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute and init attachmentsCubit if result is true',
+        build: () {
+          tAttachmentsCubit = MockAttachmentsCubit();
+          when(() => tAttachmentsCubit.init(any())).thenAnswer((_) async {});
+          when(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).thenAnswer((_) async => true);
+          return cubit;
+        },
+        act: (cubit) {
+          return cubit.navigateToCreateUpdateWorkOrder(
+            'work-order-id',
+            attachmentsCubit: tAttachmentsCubit,
+          );
+        },
+        expect: () => <WorkOrdersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).called(1);
+          verify(() => tAttachmentsCubit.init('work-order-id')).called(1);
         },
       );
 
@@ -1278,8 +1309,9 @@ void main() {
         'navigateToWorkOrderDetails should push WorkOrderDetailsRoute',
         build: () {
           when(
-            () => mockNavigationClient
-                .pushRoute<WorkOrderDetailsRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<WorkOrderDetailsRouteArgs>(
+              any(),
+            ),
           ).thenAnswer((_) async => null);
           return cubit;
         },
@@ -1287,8 +1319,9 @@ void main() {
         expect: () => <WorkOrdersState>[],
         verify: (cubit) {
           verify(
-            () => mockNavigationClient
-                .pushRoute<WorkOrderDetailsRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<WorkOrderDetailsRouteArgs>(
+              any(),
+            ),
           ).called(1);
         },
       );
