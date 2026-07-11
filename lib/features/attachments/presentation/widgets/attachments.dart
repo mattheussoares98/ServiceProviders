@@ -51,13 +51,13 @@ class Attachments extends StatelessWidget {
             ),
           ),
         ),
+        gapSliverH8,
         if (attachments.isEmpty) ...[
           SliverToBoxAdapter(child: _EmptyAttachment(isEditing: isEditing)),
           gapSliverH8,
         ],
         ResponsiveListFlow(
           isSliver: true,
-          padding: EdgeInsets.zero,
           maxItemWidth: 170,
           useMultiColumnWhenMobile: true,
           itemCount: attachments.length,

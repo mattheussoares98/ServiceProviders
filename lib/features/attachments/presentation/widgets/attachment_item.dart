@@ -106,8 +106,9 @@ class _Preview extends StatelessWidget {
           source: source,
           enableFullScreenOnTap: true,
           heroTag: source.hashCode.toString(),
-          height: Sizes.p120,
-          width: Sizes.p120,
+          height: 200,
+          width: 400,
+          fit: BoxFit.fill,
         );
       }
     }
