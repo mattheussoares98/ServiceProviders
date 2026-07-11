@@ -24,6 +24,21 @@ class InfoItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.select<UsersCubit, UserProfileEntity?>(
+      (cubit) => cubit.state.users.firstWhereOrNull(
+        (e) => e.id == workOrder.assignedToId,
+      ),
+    );
+    final location = context.select<LocationsCubit, LocationEntity?>(
+      (cubit) => cubit.state.locations.firstWhereOrNull(
+        (e) => e.id == workOrder.locationId,
+      ),
+    );
+    final asset = context.select<AssetsCubit, AssetEntity?>(
+      (cubit) =>
+          cubit.state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
+    );
+
     final items = [
       TitleAndSubtitle(
         title: 'Título'.hardcoded,
@@ -42,75 +57,35 @@ class InfoItems extends StatelessWidget {
           cupertinoIcon: CupertinoIcons.doc_text,
         ),
       ),
-      BlocSelector<UsersCubit, UsersState, UserProfileEntity?>(
-        selector: (state) =>
-            state.users.firstWhereOrNull((e) => e.id == workOrder.assignedToId),
-        builder: (context, user) {
-          if (user == null) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TitleAndSubtitle(
-                title: 'Responsável'.hardcoded,
-                subtitle: user.name,
-                icon: const PlatformIcon(
-                  materialIcon: Icons.person_outline,
-                  cupertinoIcon: CupertinoIcons.person,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-      BlocSelector<LocationsCubit, LocationsState, LocationEntity?>(
-        selector: (state) => state.locations.firstWhereOrNull(
-          (e) => e.id == workOrder.locationId,
+      if (user != null)
+        TitleAndSubtitle(
+          title: 'Responsável'.hardcoded,
+          subtitle: user.name,
+          icon: const PlatformIcon(
+            materialIcon: Icons.person_outline,
+            cupertinoIcon: CupertinoIcons.person,
+          ),
         ),
-        builder: (context, location) {
-          if (location == null) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TitleAndSubtitle(
-                title: 'Local'.hardcoded,
-                subtitle: location.name,
-                messageIfSubtitleIsNull: 'Sem local definido'.hardcoded,
-                icon: const PlatformIcon(
-                  materialIcon: Icons.location_on_outlined,
-                  cupertinoIcon: CupertinoIcons.location,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-      BlocSelector<AssetsCubit, AssetsState, AssetEntity?>(
-        selector: (state) =>
-            state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
-        builder: (context, asset) {
-          if (asset == null) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TitleAndSubtitle(
-                title: 'Equipamento'.hardcoded,
-                subtitle: asset.name,
-                messageIfSubtitleIsNull: 'Sem equipamento definido'.hardcoded,
-                icon: const PlatformIcon(
-                  materialIcon: Icons.build_outlined,
-                  cupertinoIcon: CupertinoIcons.gear,
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+      if (location != null)
+        TitleAndSubtitle(
+          title: 'Local'.hardcoded,
+          subtitle: location.name,
+          messageIfSubtitleIsNull: 'Sem local definido'.hardcoded,
+          icon: const PlatformIcon(
+            materialIcon: Icons.location_on_outlined,
+            cupertinoIcon: CupertinoIcons.location,
+          ),
+        ),
+      if (asset != null)
+        TitleAndSubtitle(
+          title: 'Equipamento'.hardcoded,
+          subtitle: asset.name,
+          messageIfSubtitleIsNull: 'Sem equipamento definido'.hardcoded,
+          icon: const PlatformIcon(
+            materialIcon: Icons.build_outlined,
+            cupertinoIcon: CupertinoIcons.gear,
+          ),
+        ),
       Row(
         children: [
           Expanded(
