@@ -36,12 +36,9 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -381,32 +378,6 @@ class _CreateUpdatePage extends HookWidget {
               },
             ),
             Attachments(workOrderId: workOrderId, isEditing: true),
-            gapSliverH24,
-            SliverToBoxAdapter(
-              child: ResponsiveCenter(
-                maxContentWidth: 1500,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: BaseTextButton(
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        text: 'Cancelar'.hardcoded,
-                        color: Colors.red,
-                      ),
-                    ),
-                    Expanded(
-                      child: PrimaryButton(
-                        onTap: onSubmit,
-                        width: Sizes.p120,
-                        text: 'Salvar'.hardcoded,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            gapSliverH32,
           ],
         ),
       ),
