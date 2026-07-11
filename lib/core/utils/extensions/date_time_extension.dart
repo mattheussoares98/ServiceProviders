@@ -3,7 +3,7 @@
 import 'package:intl/intl.dart';
 
 extension DateTimeExtension on DateTime {
-  String formatDate([DateFormatType type = DateFormatType.yMMMd]) {
+  String formatDate([DateFormatType type = DateFormatType.ddMMyyyy]) {
     return DateFormat(type.pattern).format(this);
   }
 }
