@@ -373,6 +373,7 @@ class _CreateUpdatePage extends HookWidget {
             ResponsiveListFlow(
               isSliver: true,
               maxItemWidth: ScreenType.phone.maxWidth,
+              padding: EdgeInsets.zero,
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];

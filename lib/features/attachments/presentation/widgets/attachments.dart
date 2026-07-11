@@ -38,12 +38,11 @@ class Attachments extends StatelessWidget {
 
     if (isLoading) {
       return const SliverToBoxAdapter(child: Center(child: LoadingCircle()));
-    } else if (attachments.isEmpty) {
-      return const SliverToBoxAdapter(child: _EmptyAttachment());
     }
 
     return SliverMainAxisGroup(
       slivers: [
+        gapSliverH8,
         SliverToBoxAdapter(
           child: Center(
             child: ConstrainedBox(
@@ -52,7 +51,10 @@ class Attachments extends StatelessWidget {
             ),
           ),
         ),
-        gapSliverH8,
+        if (attachments.isEmpty) ...[
+          SliverToBoxAdapter(child: _EmptyAttachment(isEditing: isEditing)),
+          gapSliverH8,
+        ],
         ResponsiveListFlow(
           isSliver: true,
           padding: EdgeInsets.zero,
@@ -102,17 +104,20 @@ class _AttachmentsAndAddRow extends StatelessWidget {
 }
 
 class _EmptyAttachment extends StatelessWidget {
-  const _EmptyAttachment();
+  const _EmptyAttachment({required this.isEditing});
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
-        final source = await AttachmentSourceSheet.show(context);
-        if (source != null && context.mounted) {
-          await context.read<AttachmentsCubit>().pickAttachment(source);
-        }
-      },
+      onTap: isEditing
+          ? () async {
+              final source = await AttachmentSourceSheet.show(context);
+              if (source != null && context.mounted) {
+                await context.read<AttachmentsCubit>().pickAttachment(source);
+              }
+            }
+          : null,
       child: Container(
         padding: const EdgeInsets.all(Sizes.p24),
         decoration: BoxDecoration(
