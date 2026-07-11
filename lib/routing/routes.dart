@@ -70,12 +70,10 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: WorkOrderDetailsRoute.page,
           path: '$kWorkOrderDetailsRoute/$kWorkOrderDetailsPath',
-          children: [
-            AutoRoute(
-              page: CreateUpdateWorkOrderRoute.page,
-              path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
-            ),
-          ],
+        ),
+        AutoRoute(
+          page: CreateUpdateWorkOrderRoute.page,
+          path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
         ),
       ],
     ),

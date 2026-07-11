@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,7 +19,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/delete_work_order_icon_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
@@ -34,10 +34,12 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -186,6 +188,15 @@ class _CreateUpdatePage extends HookWidget {
         Navigator.of(context).pop();
         return;
       }
+
+      final pressedOk = await showAlertDialog(
+        context: context,
+        title: 'Salvar alterações?'.hardcoded,
+        defaultActionText: 'Sim'.hardcoded,
+        cancelActionText: 'Não'.hardcoded,
+      );
+
+      if (pressedOk != true || !context.mounted) return;
 
       final sessionUser = context.read<SessionCubit>().state.user;
 
@@ -342,7 +353,15 @@ class _CreateUpdatePage extends HookWidget {
         title: workOrder == null
             ? 'Criando ordem de serviço'.hardcoded
             : 'Editando ordem de serviço'.hardcoded,
-        actions: [DeleteWorkOrderIconButton(id: workOrder?.id)],
+        actions: [
+          BaseIconButton(
+            onPressed: onSubmit,
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.save,
+              cupertinoIcon: CupertinoIcons.check_mark,
+            ),
+          ),
+        ],
       ),
       body: Form(
         key: formKey,
