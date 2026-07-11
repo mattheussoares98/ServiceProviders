@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/users_and_permissions_page/widgets/permission_item.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -42,8 +40,9 @@ class Users extends StatelessWidget {
               subtitle:
                   '${user.email} • ${user.isAdmin ? "Administrador" : groupName}'
                       .hardcoded,
-              onTap: () =>
-                  context.router.push(EditUserPermissionsRoute(user: user)),
+              onTap: () => context
+                  .read<UsersCubit>()
+                  .navigateToEditUserPermissions(user),
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.person,
                 cupertinoIcon: CupertinoIcons.person,

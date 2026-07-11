@@ -58,7 +58,7 @@ class CreateUpdateAreaPage extends HookWidget {
       );
 
       if (succeeds && context.mounted) {
-        context.router.pop();
+        context.read<LocationsCubit>().popRoute();
       }
     }
 

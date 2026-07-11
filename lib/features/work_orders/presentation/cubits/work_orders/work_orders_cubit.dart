@@ -322,4 +322,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   Future<void> navigateToCreateUpdateWorkOrder(String? workOrderId) async {
     await pushRoute(CreateUpdateWorkOrderRoute(workOrderId: workOrderId));
   }
+
+  Future<void> navigateToWorkOrderDetails(String workOrderId) async {
+    await pushRoute(WorkOrderDetailsRoute(workOrderId: workOrderId));
+  }
 }

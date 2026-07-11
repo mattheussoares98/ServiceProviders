@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -24,6 +25,10 @@ class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(CreateUpdateWorkOrderRoute());
+    registerFallbackValue(CreateUpdateAssetRoute());
+  });
   late MockGetWorkOrdersUseCase mockGetWorkOrdersUseCase;
   late MockGetAssetsUseCase mockGetAssetsUseCase;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
@@ -328,5 +333,45 @@ void main() {
             .having((s) => s.activeWorkOrders, 'activeWorkOrders', isEmpty),
       ],
     );
+
+    group('Navigation', () {
+      blocTest<DashboardCubit, DashboardState>(
+        'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute',
+        build: () {
+          when(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateWorkOrder('wo123'),
+        expect: () => <DashboardState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+          ).called(1);
+        },
+      );
+
+      blocTest<DashboardCubit, DashboardState>(
+        'navigateToCreateUpdateAsset should push CreateUpdateAssetRoute',
+        build: () {
+          when(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateAssetRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateAsset(),
+        expect: () => <DashboardState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateAssetRouteArgs>(any()),
+          ).called(1);
+        },
+      );
+    });
   });
 }

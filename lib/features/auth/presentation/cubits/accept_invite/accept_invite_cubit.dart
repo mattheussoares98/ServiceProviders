@@ -209,4 +209,8 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     emit(state.copyWith(status: StateStatus.loaded));
     return true;
   }
+
+  Future<void> navigateToHome() async {
+    await replaceAllRoute(const HomeRoute());
+  }
 }

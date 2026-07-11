@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
@@ -55,7 +54,9 @@ class WorkOrdersPage extends StatelessWidget {
                 onPressed:
                     assetHasError || locationsHasError || categoriesHasError
                     ? null
-                    : () => context.router.push(CreateUpdateWorkOrderRoute()),
+                    : () => context
+                          .read<WorkOrdersCubit>()
+                          .navigateToCreateUpdateWorkOrder(null),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.add,
                   cupertinoIcon: CupertinoIcons.add,

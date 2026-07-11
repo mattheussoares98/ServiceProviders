@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +31,7 @@ class DeleteIconButton extends StatelessWidget {
             final cubit = context.read<LocationsCubit>();
             final succeeds = await cubit.deleteArea(area!.id, area!.locationId);
             if (succeeds && context.mounted) {
-              context.router.pop();
+              cubit.popRoute();
             }
           },
           contentText: 'Tem certeza que deseja excluir a área?'.hardcoded,

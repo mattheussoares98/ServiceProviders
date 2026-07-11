@@ -1,11 +1,9 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/active_stopwatch_card.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -15,6 +13,7 @@ class ActiveWorkItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<DashboardCubit>();
     final activeWorkOrders = context
         .select<DashboardCubit, List<WorkOrderEntity>>(
           (cubit) => cubit.state.activeWorkOrders,
@@ -37,9 +36,7 @@ class ActiveWorkItems extends StatelessWidget {
                 padding: const EdgeInsets.only(right: Sizes.p8),
                 child: ActiveStopwatchCard(
                   workOrder: workOrder,
-                  onTap: () => context.router.push(
-                    CreateUpdateWorkOrderRoute(workOrderId: workOrder.id),
-                  ),
+                  onTap: () => cubit.navigateToCreateUpdateWorkOrder(workOrder.id),
                 ),
               ),
             );
@@ -57,9 +54,7 @@ class ActiveWorkItems extends StatelessWidget {
               height: 105,
               child: ActiveStopwatchCard(
                 workOrder: workOrder,
-                onTap: () => context.router.push(
-                  CreateUpdateWorkOrderRoute(workOrderId: workOrder.id),
-                ),
+                onTap: () => cubit.navigateToCreateUpdateWorkOrder(workOrder.id),
               ),
             );
           }).toList(),

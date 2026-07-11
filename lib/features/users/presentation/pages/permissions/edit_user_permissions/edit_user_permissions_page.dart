@@ -55,11 +55,12 @@ class _Body extends HookWidget {
       selector: (state) => (state.isAdmin, state.status == StateStatus.saving),
       builder: (context, value) {
         Future<void> onSave() async {
-          final success = await context
-              .read<PermissionsCubit>()
-              .saveUserPermissions(context.read<UsersCubit>());
+          final cubit = context.read<PermissionsCubit>();
+          final success = await cubit.saveUserPermissions(
+            context.read<UsersCubit>(),
+          );
           if (success && context.mounted) {
-            context.router.pop();
+            cubit.popRoute();
           }
         }
 

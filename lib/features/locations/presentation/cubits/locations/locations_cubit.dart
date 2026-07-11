@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -238,5 +239,31 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       showDataStateToast(dataState);
       return false;
     }
+  }
+
+  Future<void> navigateToCreateUpdateArea({
+    required String locationId,
+    required String companyId,
+    AreaEntity? area,
+  }) async {
+    await pushRoute(
+      CreateUpdateAreaRoute(
+        locationId: locationId,
+        companyId: companyId,
+        area: area,
+      ),
+    );
+  }
+
+  Future<void> navigateToCreateUpdateLocation({
+    LocationEntity? existingLocation,
+  }) async {
+    await pushRoute(
+      CreateUpdateLocationRoute(existingLocation: existingLocation),
+    );
+  }
+
+  void popRoute() {
+    popRouteAdaptively();
   }
 }

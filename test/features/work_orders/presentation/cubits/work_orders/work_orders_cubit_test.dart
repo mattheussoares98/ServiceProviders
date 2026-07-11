@@ -106,6 +106,7 @@ void main() {
     );
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
     registerFallbackValue(CreateUpdateWorkOrderRoute());
+    registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
   });
 
   setUp(() {
@@ -1259,6 +1260,25 @@ void main() {
           verify(
             () => mockNavigationClient
                 .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+          ).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'navigateToWorkOrderDetails should push WorkOrderDetailsRoute',
+        build: () {
+          when(
+            () => mockNavigationClient
+                .pushRoute<WorkOrderDetailsRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToWorkOrderDetails('123'),
+        expect: () => <WorkOrdersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient
+                .pushRoute<WorkOrderDetailsRouteArgs>(any()),
           ).called(1);
         },
       );

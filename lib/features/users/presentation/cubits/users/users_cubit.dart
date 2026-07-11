@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'users_state.dart';
@@ -418,5 +419,17 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
 
     return false;
+  }
+
+  Future<void> navigateToEditUserPermissions(UserProfileEntity user) async {
+    await pushRoute(EditUserPermissionsRoute(user: user));
+  }
+
+  Future<void> navigateToEditGroupPermissions(PermissionGroupEntity group) async {
+    await pushRoute(EditGroupPermissionsRoute(group: group));
+  }
+
+  void popRoute() {
+    popRouteAdaptively();
   }
 }

@@ -61,7 +61,7 @@ class _Body extends HookWidget {
             context.read<UsersCubit>(),
           );
           if (success && context.mounted) {
-            context.router.pop();
+            cubit.popRoute();
           }
         }
 

@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,8 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -116,9 +115,9 @@ class WorkOrderItem extends StatelessWidget {
                   action: PermissionAction.update,
                 ),
                 text: 'Detalhes'.hardcoded,
-                onPressed: () => context.router.push(
-                  WorkOrderDetailsRoute(workOrderId: workOrder.id),
-                ),
+                onPressed: () => context
+                    .read<WorkOrdersCubit>()
+                    .navigateToWorkOrderDetails(workOrder.id),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.edit,
                   cupertinoIcon: CupertinoIcons.pencil,

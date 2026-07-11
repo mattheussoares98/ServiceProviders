@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -57,6 +58,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAssetEntity());
+    registerFallbackValue(CreateUpdateAssetRoute());
   });
 
   setUp(() {
@@ -598,6 +600,33 @@ void main() {
         verify: (_) {
           verify(() => mockDeleteAsset.call(tId)).called(1);
           verifyNever(() => mockGetAssets.call(any()));
+        },
+      );
+    });
+
+    group('Navigation', () {
+      final tAsset = faker.randomGenerator.boolean()
+          ? EntityFactory.makeAssetEntity()
+          : null;
+
+      blocTest<AssetsCubit, AssetsState>(
+        'navigateToCreateUpdateAsset should push CreateUpdateAssetRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateAssetRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateAsset(tAsset),
+        expect: () => <AssetsState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateAssetRouteArgs>(
+              any(),
+            ),
+          ).called(1);
         },
       );
     });

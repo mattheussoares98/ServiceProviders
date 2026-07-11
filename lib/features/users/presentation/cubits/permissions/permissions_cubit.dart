@@ -207,4 +207,8 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       return false;
     }
   }
+
+  void popRoute() {
+    popRouteAdaptively();
+  }
 }

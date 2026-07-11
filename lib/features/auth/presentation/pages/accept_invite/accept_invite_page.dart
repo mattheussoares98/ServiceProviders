@@ -8,7 +8,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -53,7 +52,7 @@ class AcceptInvitePage extends HookWidget {
               title: 'Aceitar Convite'.hardcoded,
               leading: BaseIconButton(
                 onPressed: () {
-                  context.router.replaceAll([const HomeRoute()]);
+                  cubit.navigateToHome();
                 },
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.arrow_back,
@@ -166,10 +165,8 @@ class AcceptInvitePage extends HookWidget {
                                   name: nameController.text,
                                   password: passwordController.text,
                                 );
-                                if (success && context.mounted) {
-                                  await context.router.replaceAll([
-                                    const HomeRoute(),
-                                  ]);
+                                if (success) {
+                                  await cubit.navigateToHome();
                                 }
                               },
                             ),
@@ -186,10 +183,8 @@ class AcceptInvitePage extends HookWidget {
                                   name: nameController.text,
                                   password: passwordController.text,
                                 );
-                                if (success && context.mounted) {
-                                  await context.router.replaceAll([
-                                    const HomeRoute(),
-                                  ]);
+                                if (success) {
+                                  await cubit.navigateToHome();
                                 }
                               },
                               text: 'Ativar Minha Conta'.hardcoded,

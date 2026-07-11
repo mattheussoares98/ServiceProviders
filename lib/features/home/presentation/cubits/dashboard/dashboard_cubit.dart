@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashb
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'dashboard_state.dart';
@@ -116,5 +117,13 @@ class DashboardCubit extends BaseCubit<DashboardState> {
         annulActiveWorkOrders: activeWorkOrders.isEmpty,
       ),
     );
+  }
+
+  Future<void> navigateToCreateUpdateWorkOrder([String? workOrderId]) async {
+    await pushRoute(CreateUpdateWorkOrderRoute(workOrderId: workOrderId));
+  }
+
+  Future<void> navigateToCreateUpdateAsset() async {
+    await pushRoute(CreateUpdateAssetRoute());
   }
 }

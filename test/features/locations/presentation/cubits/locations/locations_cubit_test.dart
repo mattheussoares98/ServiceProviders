@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -65,6 +66,8 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeLocationEntity());
     registerFallbackValue(EntityFactory.makeAreaEntity());
+    registerFallbackValue(CreateUpdateAreaRoute(locationId: '', companyId: ''));
+    registerFallbackValue(CreateUpdateLocationRoute());
   });
 
   setUp(() {
@@ -849,6 +852,70 @@ void main() {
           verifyNever(() => mockGetAreas.call(any()));
         },
       );
+    });
+
+    group('Navigation', () {
+      final tArea = faker.randomGenerator.boolean()
+          ? EntityFactory.makeAreaEntity()
+          : null;
+      final tLocation = faker.randomGenerator.boolean()
+          ? EntityFactory.makeLocationEntity()
+          : null;
+
+      blocTest<LocationsCubit, LocationsState>(
+        'navigateToCreateUpdateArea should push CreateUpdateAreaRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateAreaRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateArea(
+          locationId: 'loc1',
+          companyId: 'comp1',
+          area: tArea,
+        ),
+        expect: () => <LocationsState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateAreaRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'navigateToCreateUpdateLocation should push CreateUpdateLocationRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateLocationRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.navigateToCreateUpdateLocation(existingLocation: tLocation),
+        expect: () => <LocationsState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateLocationRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
+
+      test('popRoute should call popRouteAdaptively', () {
+        when(
+          () => mockNavigationClient.maybePop(),
+        ).thenAnswer((_) async => true);
+        cubit.popRoute();
+        verify(() => mockNavigationClient.maybePop()).called(1);
+      });
     });
   });
 }

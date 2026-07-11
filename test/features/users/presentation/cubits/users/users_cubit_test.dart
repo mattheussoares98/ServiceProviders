@@ -23,6 +23,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profi
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -89,6 +90,14 @@ void main() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makePermissionGroupEntity());
     registerFallbackValue(EntityFactory.makeUserInvitationEntity());
+    registerFallbackValue(
+      EditUserPermissionsRoute(user: EntityFactory.makeUserProfileEntity()),
+    );
+    registerFallbackValue(
+      EditGroupPermissionsRoute(
+        group: EntityFactory.makePermissionGroupEntity(),
+      ),
+    );
   });
 
   setUp(() {
@@ -1096,6 +1105,58 @@ void main() {
           expect(hasPerm, isTrue);
         },
       );
+    });
+
+    group('Navigation', () {
+      blocTest<UsersCubit, UsersState>(
+        'navigateToEditUserPermissions should push EditUserPermissionsRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<EditUserPermissionsRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToEditUserPermissions(tUserProfile),
+        expect: () => <UsersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<EditUserPermissionsRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'navigateToEditGroupPermissions should push EditGroupPermissionsRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<EditGroupPermissionsRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToEditGroupPermissions(tPermissionGroup),
+        expect: () => <UsersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient.pushRoute<EditGroupPermissionsRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
+
+      test('popRoute should call popRouteAdaptively', () {
+        when(
+          () => mockNavigationClient.maybePop(),
+        ).thenAnswer((_) async => true);
+        cubit.popRoute();
+        verify(() => mockNavigationClient.maybePop()).called(1);
+      });
     });
   });
 }

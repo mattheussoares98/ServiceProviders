@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -154,5 +155,9 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       showDataStateToast(result);
       return false;
     }
+  }
+
+  Future<void> navigateToCreateUpdateAsset([AssetEntity? asset]) async {
+    await pushRoute(CreateUpdateAssetRoute(asset: asset));
   }
 }

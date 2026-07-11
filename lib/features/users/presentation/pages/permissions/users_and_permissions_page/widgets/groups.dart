@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +5,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/users_and_permissions_page/widgets/permission_item.dart';
-import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -36,8 +34,9 @@ class Groups extends StatelessWidget {
                   ? 'Grupo padrão'.hardcoded
                   : '${group.permissions.length} recursos configurados'
                         .hardcoded,
-              onTap: () =>
-                  context.router.push(EditGroupPermissionsRoute(group: group)),
+              onTap: () => context
+                  .read<UsersCubit>()
+                  .navigateToEditGroupPermissions(group),
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.security,
                 cupertinoIcon: CupertinoIcons.shield_lefthalf_fill,

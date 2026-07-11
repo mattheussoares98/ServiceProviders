@@ -45,7 +45,9 @@ class LocationsPage extends StatelessWidget {
                 ),
                 onPressed: hasError
                     ? null
-                    : () => context.router.push(CreateUpdateLocationRoute()),
+                    : () => context
+                        .read<LocationsCubit>()
+                        .navigateToCreateUpdateLocation(),
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.add,
                   cupertinoIcon: CupertinoIcons.add,
