@@ -17,8 +17,13 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class Attachments extends StatelessWidget {
-  const Attachments({super.key, required this.workOrderId});
+  const Attachments({
+    super.key,
+    required this.workOrderId,
+    required this.isEditing,
+  });
   final String workOrderId;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class Attachments extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: ScreenType.phone.maxWidth),
-              child: const _AttachmentsAndAddRow(),
+              child: _AttachmentsAndAddRow(isEditing: isEditing),
             ),
           ),
         ),
@@ -51,7 +56,10 @@ class Attachments extends StatelessWidget {
               itemCount: state.attachments.length,
               itemBuilder: (context, index) {
                 final attachment = state.attachments[index];
-                return AttachmentItem(attachment: attachment);
+                return AttachmentItem(
+                  attachment: attachment,
+                  isEditing: isEditing,
+                );
               },
             );
           },
@@ -62,7 +70,8 @@ class Attachments extends StatelessWidget {
 }
 
 class _AttachmentsAndAddRow extends StatelessWidget {
-  const _AttachmentsAndAddRow();
+  const _AttachmentsAndAddRow({required this.isEditing});
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
@@ -72,21 +81,22 @@ class _AttachmentsAndAddRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FittedBox(child: BaseText.titleMedium('Anexos'.hardcoded)),
-        Flexible(
-          child: BaseTextButton(
-            onPressed: () async {
-              final source = await AttachmentSourceSheet.show(context);
-              if (source != null && context.mounted) {
-                await cubit.pickAttachment(source);
-              }
-            },
-            text: 'Adicionar'.hardcoded,
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.add,
-              cupertinoIcon: CupertinoIcons.add,
+        if (isEditing)
+          Flexible(
+            child: BaseTextButton(
+              onPressed: () async {
+                final source = await AttachmentSourceSheet.show(context);
+                if (source != null && context.mounted) {
+                  await cubit.pickAttachment(source);
+                }
+              },
+              text: 'Adicionar'.hardcoded,
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.add,
+                cupertinoIcon: CupertinoIcons.add,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

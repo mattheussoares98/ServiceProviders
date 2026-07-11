@@ -357,7 +357,7 @@ class _CreateUpdatePage extends HookWidget {
                 return item;
               },
             ),
-            Attachments(workOrderId: workOrderId),
+            Attachments(workOrderId: workOrderId, isEditing: true),
             gapSliverH24,
             SliverToBoxAdapter(
               child: ResponsiveCenter(

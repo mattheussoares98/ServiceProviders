@@ -215,7 +215,7 @@ class _WorkOrderDetails extends StatelessWidget {
               return items[index];
             },
           ),
-          Attachments(workOrderId: workOrder.id),
+          Attachments(workOrderId: workOrder.id, isEditing: false),
         ],
       ),
     );

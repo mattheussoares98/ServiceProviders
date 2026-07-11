@@ -14,9 +14,14 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class AttachmentItem extends StatelessWidget {
-  const AttachmentItem({super.key, required this.attachment});
+  const AttachmentItem({
+    super.key,
+    required this.attachment,
+    required this.isEditing,
+  });
 
   final AttachmentEntity attachment;
+  final bool isEditing;
 
   //TODO improve this widget
   @override
@@ -40,34 +45,37 @@ class AttachmentItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _Preview(attachment: attachment),
-          gapH4,
-          Row(
-            mainAxisAlignment: .spaceAround,
-            children: [
-              BaseText.caption(_formatSize(attachment.fileSizeBytes!)),
-              BaseIconButton(
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.delete_outline,
-                  cupertinoIcon: CupertinoIcons.trash,
-                  color: Colors.redAccent,
+          if (isEditing) ...[
+            gapH4,
+            Row(
+              mainAxisAlignment: .spaceAround,
+              children: [
+                BaseText.caption(_formatSize(attachment.fileSizeBytes!)),
+                BaseIconButton(
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.delete_outline,
+                    cupertinoIcon: CupertinoIcons.trash,
+                    color: Colors.redAccent,
+                  ),
+                  onPressed: () {
+                    showAlertDialog(
+                      context: context,
+                      title: 'Remover anexo'.hardcoded,
+                      contentText:
+                          'Deseja realmente remover o anexo?'.hardcoded,
+                      defaultActionText: 'Sim'.hardcoded,
+                      cancelActionText: 'Não'.hardcoded,
+                      onOkPressed: () {
+                        context.read<AttachmentsCubit>().deleteAttachment(
+                          attachment.id,
+                        );
+                      },
+                    );
+                  },
                 ),
-                onPressed: () {
-                  showAlertDialog(
-                    context: context,
-                    title: 'Remover anexo'.hardcoded,
-                    contentText: 'Deseja realmente remover o anexo?'.hardcoded,
-                    defaultActionText: 'Sim'.hardcoded,
-                    cancelActionText: 'Não'.hardcoded,
-                    onOkPressed: () {
-                      context.read<AttachmentsCubit>().deleteAttachment(
-                        attachment.id,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
