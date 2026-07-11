@@ -15,6 +15,7 @@ abstract interface class AttachmentsLocalDataSource {
   FutureData<AttachmentResponseModel?> getAttachment(String id);
   FutureBool saveAttachment(AttachmentResponseModel attachment);
   FutureBool deleteAttachment(String id);
+  FutureBool hardDeleteAttachment(String id);
 }
 
 //TODO create a way to delete automatically older files when they grow more than a limit(for space)
@@ -127,6 +128,16 @@ final class AttachmentsLocalDataSourceImpl
       await (_database.update(_database.attachments)
             ..where((t) => t.id.equals(id)))
           .write(AttachmentsCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool hardDeleteAttachment(String id) {
+    return ErrorHandler.execute(() async {
+      await (_database.delete(_database.attachments)
+            ..where((t) => t.id.equals(id)))
+          .go();
       return const SuccessState(data: true);
     });
   }

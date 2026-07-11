@@ -46,13 +46,18 @@ void main() {
       fileService: fileService,
       storageClient: storageClient,
     );
-    when(() => fileService.resolveSandboxPath(any())).thenAnswer(
-      (inv) async {
-        final path = inv.positionalArguments[0] as String?;
-        if (path == null) return null;
-        return '/sandbox/$path';
-      },
-    );
+    when(() => fileService.resolveSandboxPath(any())).thenAnswer((inv) async {
+      final path = inv.positionalArguments[0] as String?;
+      if (path == null) return null;
+      return '/sandbox/$path';
+    });
+    when(() => mockInternet.isConnected).thenReturn(true);
+    when(
+      () => mockRemoteDataSource.getAttachmentByHash(
+        workOrderId: any(named: 'workOrderId'),
+        hash: any(named: 'hash'),
+      ),
+    ).thenAnswer((_) async => const SuccessState(data: null));
   });
 
   final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
@@ -419,7 +424,9 @@ void main() {
       'should successfully compress, copy, and save image to local when offline',
       () async {
         // Create actual temporary files so File(originalPath).readAsBytes() does not throw FileSystemException
-        final tempDir = Directory.systemTemp.createTempSync('attachments_test_');
+        final tempDir = Directory.systemTemp.createTempSync(
+          'attachments_test_',
+        );
         final mockPath = '${tempDir.path}/test_image.jpg';
         File(mockPath).createSync(recursive: true);
         File(mockPath).writeAsBytesSync(List.filled(100, 0));
@@ -464,7 +471,9 @@ void main() {
       'should only save locally as pending when online (no auto-upload)',
       () async {
         // Create actual temporary files so File(originalPath).readAsBytes() does not throw FileSystemException
-        final tempDir = Directory.systemTemp.createTempSync('attachments_test_');
+        final tempDir = Directory.systemTemp.createTempSync(
+          'attachments_test_',
+        );
         final mockPath = '${tempDir.path}/test_image.jpg';
         File(mockPath).createSync(recursive: true);
         File(mockPath).writeAsBytesSync(List.filled(100, 0));
@@ -499,11 +508,13 @@ void main() {
         expect(entity.uploadStatus, UploadStatus.pending);
 
         verifyNever(() => mockRemoteDataSource.getPresignedUploadUrl(any()));
-        verifyNever(() => storageClient.uploadFile(
-              presignedUrl: any(named: 'presignedUrl'),
-              filePath: any(named: 'filePath'),
-              mimeType: any(named: 'mimeType'),
-            ));
+        verifyNever(
+          () => storageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        );
         verifyNever(() => mockRemoteDataSource.confirmUpload(any()));
       },
     );
@@ -512,6 +523,7 @@ void main() {
   group('uploadPendingAttachment', () {
     final mockEntity = EntityFactory.makeAttachmentEntity().copyWith(
       localPath: '${Directory.systemTemp.path}/local_file.jpg',
+      originalPath: '${Directory.systemTemp.path}/original_file.jpg',
     );
 
     test('should return FailureState when local file does not exist', () async {
@@ -685,5 +697,140 @@ void main() {
       expect(result, isA<FailureState<bool>>());
       expect((result as FailureState).message, 'Confirmation failed');
     });
+
+    test(
+      'should restore soft-deleted attachment and skip upload when identical attachment is soft-deleted',
+      () async {
+        final file = File(mockEntity.localPath!);
+        await file.create(recursive: true);
+        addTearDown(() async {
+          if (file.existsSync()) await file.delete();
+        });
+
+        final tDeletedEntity = tAttachmentModel.copyWith(
+          deletedAt: DateTime.now(),
+        );
+
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAttachmentByHash(
+            workOrderId: mockEntity.workOrderId,
+            hash: mockEntity.originalPath!,
+          ),
+        ).thenAnswer(
+          (_) async => SuccessState(
+            data: AttachmentResponseModel.fromEntity(tDeletedEntity),
+          ),
+        );
+
+        when(
+          () => mockRemoteDataSource.restoreAttachment(
+            id: tDeletedEntity.id,
+            uploadedById: mockEntity.uploadedById,
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        when(
+          () => mockLocalDataSource.hardDeleteAttachment(mockEntity.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.uploadPendingAttachment(mockEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+
+        verify(
+          () => mockRemoteDataSource.getAttachmentByHash(
+            workOrderId: mockEntity.workOrderId,
+            hash: mockEntity.originalPath!,
+          ),
+        ).called(1);
+        verify(
+          () => mockRemoteDataSource.restoreAttachment(
+            id: tDeletedEntity.id,
+            uploadedById: mockEntity.uploadedById,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.hardDeleteAttachment(mockEntity.id),
+        ).called(1);
+        verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+        verifyNever(() => mockRemoteDataSource.getPresignedUploadUrl(any()));
+        verifyNever(
+          () => storageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'should reuse active attachment and skip upload when identical attachment is active remotely',
+      () async {
+        final file = File(mockEntity.localPath!);
+        await file.create(recursive: true);
+        addTearDown(() async {
+          if (file.existsSync()) await file.delete();
+        });
+
+        final tActiveModel = tAttachmentModel.copyWith(annulDeletedAt: true);
+
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAttachmentByHash(
+            workOrderId: mockEntity.workOrderId,
+            hash: mockEntity.originalPath!,
+          ),
+        ).thenAnswer(
+          (_) async => SuccessState(
+            data: AttachmentResponseModel.fromEntity(tActiveModel),
+          ),
+        );
+
+        when(
+          () => mockLocalDataSource.hardDeleteAttachment(mockEntity.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.uploadPendingAttachment(mockEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+
+        verify(
+          () => mockRemoteDataSource.getAttachmentByHash(
+            workOrderId: mockEntity.workOrderId,
+            hash: mockEntity.originalPath!,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.hardDeleteAttachment(mockEntity.id),
+        ).called(1);
+        verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+        verifyNever(
+          () => mockRemoteDataSource.restoreAttachment(
+            id: any(named: 'id'),
+            uploadedById: any(named: 'uploadedById'),
+          ),
+        );
+        verifyNever(() => mockRemoteDataSource.getPresignedUploadUrl(any()));
+        verifyNever(
+          () => storageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        );
+      },
+    );
   });
 }

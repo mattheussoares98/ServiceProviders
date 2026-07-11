@@ -23,6 +23,18 @@ abstract interface class AttachmentsRemoteDataSource {
 
   /// Deletes an attachment by ID from the remote database.
   FutureBool deleteAttachment(String id);
+
+  /// Fetches an attachment by its hash/original path and work order ID (including soft-deleted).
+  FutureData<AttachmentResponseModel?> getAttachmentByHash({
+    required String workOrderId,
+    required String hash,
+  });
+
+  /// Restores a soft-deleted attachment by ID.
+  FutureBool restoreAttachment({
+    required String id,
+    required String uploadedById,
+  });
 }
 
 @LazySingleton(as: AttachmentsRemoteDataSource)
@@ -79,6 +91,39 @@ final class AttachmentsRemoteDataSourceImpl
     await _database.update(
       table: 'attachments',
       values: <String, dynamic>{'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
+
+  @override
+  FutureData<AttachmentResponseModel?> getAttachmentByHash({
+    required String workOrderId,
+    required String hash,
+  }) => SupabaseHandler.call(() async {
+    final response = await _database.selectOne(
+      table: 'attachments',
+      filters: [
+        SupabaseFilter.eq('work_order_id', workOrderId),
+        SupabaseFilter.eq('original_path', hash),
+      ],
+    );
+    if (response == null) return null;
+    return AttachmentResponseModel.fromJson(response);
+  });
+
+  @override
+  FutureBool restoreAttachment({
+    required String id,
+    required String uploadedById,
+  }) => SupabaseHandler.call(() async {
+    await _database.update(
+      table: 'attachments',
+      values: <String, dynamic>{
+        'deleted_at': null,
+        'upload_status': 'uploaded',
+        'uploaded_by_id': uploadedById,
+      },
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;

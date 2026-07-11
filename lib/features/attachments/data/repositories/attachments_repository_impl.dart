@@ -197,6 +197,50 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         return FailureState(message: 'Arquivo local não encontrado'.hardcoded);
       }
 
+      // Check if identical attachment already exists remotely
+      if (_internet.isConnected) {
+        final hash = attachment.originalPath;
+        if (hash != null && hash.isNotEmpty) {
+          final existingResult = await _remoteDataSource.getAttachmentByHash(
+            workOrderId: attachment.workOrderId,
+            hash: hash,
+          );
+          if (existingResult is SuccessState<AttachmentResponseModel?>) {
+            final existing = existingResult.data;
+            if (existing != null) {
+              if (existing.deletedAt != null) {
+                // Restore the remote soft-deleted record
+                final restoreResult = await _remoteDataSource.restoreAttachment(
+                  id: existing.id,
+                  uploadedById: attachment.uploadedById,
+                );
+                if (restoreResult is SuccessState<bool>) {
+                  // Hard delete local pending record
+                  await _localDataSource.hardDeleteAttachment(attachment.id);
+                  // Save restored record to local DB
+                  final restoredModel = AttachmentResponseModel.fromEntity(
+                    existing.copyWith(
+                      annulDeletedAt: true,
+                      uploadedById: attachment.uploadedById,
+                      uploadStatus: UploadStatus.uploaded,
+                    ),
+                  );
+                  await _localDataSource.saveAttachment(restoredModel);
+                  return const SuccessState(data: true);
+                }
+              } else {
+                // Already exists and is active remotely
+                // Hard delete local pending record
+                await _localDataSource.hardDeleteAttachment(attachment.id);
+                // Save the active record to local DB
+                await _localDataSource.saveAttachment(existing);
+                return const SuccessState(data: true);
+              }
+            }
+          }
+        }
+      }
+
       final ext = p.extension(localPath).toLowerCase().replaceFirst('.', '');
       final mimeType = _fileService.getMimeType(localPath);
       final objectKey = StorageClient.buildObjectKey(
@@ -248,6 +292,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       return FailureState(message: error.toString());
     }
   }
+
 
   // ──────────────────────────────────────────
   // Private helpers
