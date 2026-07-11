@@ -136,47 +136,6 @@ class _CreateUpdatePage extends HookWidget {
     final selectedStatus = useState<WorkOrderStatus>(
       workOrder?.status ?? WorkOrderStatus.open,
     );
-    Future<void> onSubmit() async {
-      if (formKey.currentState?.validate() != true) return;
-
-      final sessionUser = context.read<SessionCubit>().state.user;
-
-      final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
-        id: workOrderId,
-        locationId: selectedLocationId.value!,
-        assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
-        assignedToId: selectedAssignedToId.value == ''
-            ? null
-            : selectedAssignedToId.value,
-        createdById: workOrder?.createdById ?? sessionUser.id,
-        title: titleController.text.trim(),
-        description: descController.text.trim().isEmpty
-            ? null
-            : descController.text.trim(),
-        priority: selectedPriority.value,
-        status: selectedStatus.value,
-        type: selectedType.value,
-        scheduledDate: selectedScheduledDate.value,
-        estimatedDuration: int.tryParse(durationController.text.trim()),
-        createdAt: workOrder?.createdAt,
-        actualDuration: workOrder?.actualDuration,
-        completedAt: workOrder?.completedAt,
-        laborCost: workOrder?.laborCost,
-        maintenancePlanId: workOrder?.maintenancePlanId,
-        notes: workOrder?.notes,
-        partsCost: workOrder?.partsCost,
-        startedAt: workOrder?.startedAt,
-        totalCost: workOrder?.totalCost,
-        attachmentsCubit: context.read<AttachmentsCubit>(),
-      );
-      if (succeeds && context.mounted) {
-        Navigator.of(context).pop();
-      } else {
-        if (context.mounted) {
-          unawaited(context.read<AttachmentsCubit>().init(workOrderId));
-        }
-      }
-    }
 
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
@@ -216,6 +175,52 @@ class _CreateUpdatePage extends HookWidget {
           selectedScheduledDate.value != initialScheduledDate;
 
       return hasChanges;
+    }
+
+    Future<void> onSubmit() async {
+      if (formKey.currentState?.validate() != true) return;
+      if (!getHasChanges()) {
+        Navigator.of(context).pop();
+        return;
+      }
+
+      final sessionUser = context.read<SessionCubit>().state.user;
+
+      final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
+        id: workOrderId,
+        locationId: selectedLocationId.value!,
+        assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
+        assignedToId: selectedAssignedToId.value == ''
+            ? null
+            : selectedAssignedToId.value,
+        createdById: workOrder?.createdById ?? sessionUser.id,
+        title: titleController.text.trim(),
+        description: descController.text.trim().isEmpty
+            ? null
+            : descController.text.trim(),
+        priority: selectedPriority.value,
+        status: selectedStatus.value,
+        type: selectedType.value,
+        scheduledDate: selectedScheduledDate.value,
+        estimatedDuration: int.tryParse(durationController.text.trim()),
+        createdAt: workOrder?.createdAt,
+        actualDuration: workOrder?.actualDuration,
+        completedAt: workOrder?.completedAt,
+        laborCost: workOrder?.laborCost,
+        maintenancePlanId: workOrder?.maintenancePlanId,
+        notes: workOrder?.notes,
+        partsCost: workOrder?.partsCost,
+        startedAt: workOrder?.startedAt,
+        totalCost: workOrder?.totalCost,
+        attachmentsCubit: context.read<AttachmentsCubit>(),
+      );
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
+      } else {
+        if (context.mounted) {
+          unawaited(context.read<AttachmentsCubit>().init(workOrderId));
+        }
+      }
     }
 
     return BaseScaffold(
