@@ -38,6 +38,7 @@ dependencies:
   flutter_sliding_toast: ^1.5.2
   flutter_web_plugins:
     sdk: flutter
+  gal: ^2.3.1
   get_it: ^9.1.0
   google_sign_in: ^7.2.0
   http_parser: ^4.1.2

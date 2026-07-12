@@ -4,6 +4,7 @@ import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:gal/gal.dart';
 import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -57,6 +58,13 @@ final class FileServiceImpl implements FileService {
       source: ImageSource.camera,
       imageQuality: 100, // raw — we compress separately for full control
     );
+    if (xFile != null) {
+      try {
+        await Gal.putImage(xFile.path);
+      } catch (_) {
+        // Silently ignore gallery save failure to allow flow to continue
+      }
+    }
     return xFile?.path;
   }
 
@@ -66,6 +74,13 @@ final class FileServiceImpl implements FileService {
       source: ImageSource.camera,
       maxDuration: const Duration(seconds: 30),
     );
+    if (xFile != null) {
+      try {
+        await Gal.putVideo(xFile.path);
+      } catch (_) {
+        // Silently ignore gallery save failure to allow flow to continue
+      }
+    }
     return xFile?.path;
   }
 
