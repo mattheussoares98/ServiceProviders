@@ -32,17 +32,17 @@ final class AttachmentInvalidType extends AttachmentValidationResult {
 /// Compression is applied afterwards only for images and videos.
 abstract final class AttachmentFileValidator {
   // Original-file size limits (before compression).
-  static const _maxImageBytes = 20 * 1024 * 1024;   // 20 MB
-  static const _maxVideoBytes = 100 * 1024 * 1024;  // 100 MB
-  static const _maxPdfBytes = 10 * 1024 * 1024;     // 10 MB
+  static const _maxImageBytes = 20 * 1024 * 1024; // 20 MB
+  static const _maxVideoBytes = 500 * 1024 * 1024; // 100 MB
+  static const _maxPdfBytes = 10 * 1024 * 1024; // 10 MB
   static const _maxDocumentBytes = 5 * 1024 * 1024; //  5 MB
 
   static const _allowedExtensions = {
     'jpg', 'jpeg', 'png', 'webp', 'heic', // images
-    'mp4', 'mov',                           // videos
-    'pdf',                                  // PDF
-    'docx',                                 // Word
-    'xlsx',                                 // Excel
+    'mp4', 'mov', // videos
+    'pdf', // PDF
+    'docx', // Word
+    'xlsx', // Excel
   };
 
   /// Validates [extension] (without leading dot) and [sizeBytes].
