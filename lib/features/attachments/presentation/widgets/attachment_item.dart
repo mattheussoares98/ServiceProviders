@@ -14,6 +14,11 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
+part 'document_preview.dart';
+part 'image_preview.dart';
+
+const double _kAttachmentPreviewHeight = 200;
+
 class AttachmentItem extends StatelessWidget {
   const AttachmentItem({
     super.key,
@@ -121,40 +126,16 @@ class _Preview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (attachment.fileType == FileType.image) {
-      BaseImageSource? source;
-      if (attachment.localPath?.isNotEmpty ?? false) {
-        source = BaseImageSource.local(attachment.localPath);
-      } else if (attachment.remoteUrl?.isNotEmpty ?? false) {
-        source = BaseImageSource.network(attachment.remoteUrl);
-      }
-      if (source != null) {
-        return BaseImageWidget(
-          source: source,
-          enableFullScreenOnTap: true,
-          heroTag: source.hashCode.toString(),
-          height: 200,
-          fit: BoxFit.fill,
-        );
-      }
+      return _ImagePreview(attachment: attachment);
     }
 
-    final icon = switch (attachment.fileType) {
-      FileType.pdf => Icons.picture_as_pdf_outlined,
-      FileType.spreadsheet => Icons.table_chart_outlined,
-      FileType.video => Icons.play_circle_outline,
-      _ => Icons.insert_drive_file_outlined,
-    };
+    final previewWidget = attachment.fileType == FileType.video
+        ? _ImagePreview(attachment: attachment, isPlayable: true)
+        : _DocumentPreview(attachment: attachment);
 
-    final color = switch (attachment.fileType) {
-      FileType.pdf => Colors.red[700],
-      FileType.spreadsheet => Colors.green[700],
-      FileType.video => Colors.blue[700],
-      _ => Colors.grey[700],
-    };
-
-    return Container(
-      color: color?.withValues(alpha: 0.1),
-      child: Icon(icon, color: color, size: 28),
+    return InkWell(
+      onTap: () => context.read<AttachmentsCubit>().openAttachment(attachment),
+      child: previewWidget,
     );
   }
 }
