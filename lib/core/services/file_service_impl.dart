@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter_new_min/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_new_min/return_code.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gal/gal.dart';
@@ -184,18 +184,22 @@ final class FileServiceImpl implements FileService {
       final destPath = await _sandboxPath('${_uuid()}.mp4');
 
       // H.264 encoding, CRF 28 (good quality/size ratio), max 720p.
-      // scale=-2:720 keeps aspect ratio and ensures height divisible by 2.
+      // NOTE: FFmpegKit does NOT use a shell on Android/iOS, so paths must
+      // NOT be wrapped in quotes — they are passed directly as arguments.
+      // scale=-2:min(720\,ih) keeps aspect ratio with height capped at 720p.
       final command =
-          '-i "$sourcePath" -c:v libx264 -crf 28 -preset fast '
-          '-vf "scale=-2:min(720,ih)" -c:a aac -b:a 128k -movflags +faststart '
-          '"$destPath"';
+          '-y -i $sourcePath -c:v libx264 -crf 28 -preset fast '
+          r'-vf scale=-2:min(720\,ih) -c:a aac -b:a 128k -movflags +faststart '
+          '$destPath';
 
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
 
       if (!ReturnCode.isSuccess(returnCode)) {
+        final logs = await session.getAllLogsAsString();
         return FailureState(
           message: 'Não foi possível comprimir o vídeo.'.hardcoded,
+          error: logs,
         );
       }
 

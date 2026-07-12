@@ -19,7 +19,7 @@ dependencies:
   drift: ^2.22.0
   encrypt: ^5.0.3
   equatable: ^2.0.8
-  ffmpeg_kit_flutter_new_min: ^3.3.2
+  ffmpeg_kit_flutter_new: ^4.4.0
   file_picker: ^9.0.0
   firebase_analytics: ^12.4.0
   firebase_auth: ^6.5.0

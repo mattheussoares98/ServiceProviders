@@ -244,7 +244,8 @@ void main() {
       ).thenAnswer((_) async => fakePaths.map(XFile.new).toList());
 
       final result = await service.pickMediaFromGallery();
-      expect(result, fakePaths);
+      final expected = fakePaths.map((p) => (path: p, name: p.split('/').last)).toList();
+      expect(result, expected);
     });
 
     test('returns null when user cancels gallery pick', () async {
