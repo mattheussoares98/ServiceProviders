@@ -80,9 +80,14 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
         workOrderId: _workOrderId,
         companyId: user.companyId,
         userId: user.id,
+        onFilesPicked: (count) {
+          emit(state.copyWith(processingCount: count));
+        },
       ),
     );
     if (isClosed) return;
+
+    emit(state.copyWith(processingCount: 0));
 
     if (result is SuccessState<List<AttachmentEntity>>) {
       final pickedList = result.data ?? [];

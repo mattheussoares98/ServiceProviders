@@ -31,9 +31,14 @@ class Attachments extends StatelessWidget {
     final (
       isLoading,
       attachments,
-    ) = context.select<AttachmentsCubit, (bool, List<AttachmentEntity>)>(
+      processingCount,
+    ) = context.select<AttachmentsCubit, (bool, List<AttachmentEntity>, int)>(
       (cubit) =>
-          (cubit.state.status == StateStatus.loading, cubit.state.attachments),
+          (
+            cubit.state.status == StateStatus.loading,
+            cubit.state.attachments,
+            cubit.state.processingCount,
+          ),
     );
 
     if (isLoading) {
@@ -52,7 +57,7 @@ class Attachments extends StatelessWidget {
           ),
         ),
         gapSliverH8,
-        if (attachments.isEmpty) ...[
+        if (attachments.isEmpty && processingCount == 0) ...[
           SliverToBoxAdapter(child: _EmptyAttachment(isEditing: isEditing)),
           gapSliverH8,
         ],
@@ -60,10 +65,13 @@ class Attachments extends StatelessWidget {
           isSliver: true,
           maxItemWidth: 170,
           useMultiColumnWhenMobile: true,
-          itemCount: attachments.length,
+          itemCount: attachments.length + processingCount,
           itemBuilder: (context, index) {
-            final attachment = attachments[index];
-            return AttachmentItem(attachment: attachment, isEditing: isEditing);
+            if (index < attachments.length) {
+              final attachment = attachments[index];
+              return AttachmentItem(attachment: attachment, isEditing: isEditing);
+            }
+            return const ProcessingAttachmentItem();
           },
         ),
       ],

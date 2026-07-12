@@ -154,12 +154,15 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required String workOrderId,
     required String companyId,
     required String uploadedById,
+    void Function(int count)? onFilesPicked,
   }) async {
     try {
       final pickedFiles = await _pickFiles(source);
       if (pickedFiles == null || pickedFiles.isEmpty) {
         return const SuccessState(data: []);
       }
+
+      onFilesPicked?.call(pickedFiles.length);
 
       final entities = <AttachmentEntity>[];
 

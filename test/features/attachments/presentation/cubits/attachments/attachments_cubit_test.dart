@@ -247,6 +247,41 @@ void main() {
         verify(() => mockDeleteAttachment(tAttachmentList.first.id)).called(1);
       },
     );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'emits processingCount during picking and resets to 0 at the end',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(() => mockPickAttachment(any())).thenAnswer((invocation) async {
+          final params =
+              invocation.positionalArguments[0] as PickAttachmentParams;
+          params.onFilesPicked?.call(2);
+          return SuccessState(data: [tPickedFile]);
+        });
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) async {
+        await cubit.init(tWorkOrderId);
+        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+      },
+      skip: 2, // Skip initial loading/loaded from init
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.processingCount,
+          'processingCount',
+          2,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.processingCount, 'processingCount', 0)
+            .having((s) => s.attachments, 'attachments', isEmpty),
+        isA<AttachmentsState>()
+            .having((s) => s.processingCount, 'processingCount', 0)
+            .having((s) => s.attachments, 'attachments', [tPickedFile]),
+      ],
+    );
   });
 
   group('AttachmentsCubit - uploadPending', () {

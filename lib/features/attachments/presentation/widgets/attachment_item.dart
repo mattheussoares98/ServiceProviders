@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -16,6 +17,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 
 part 'document_preview.dart';
 part 'image_preview.dart';
+part 'processing_attachment_item.dart';
 
 const double _kAttachmentPreviewHeight = 200;
 

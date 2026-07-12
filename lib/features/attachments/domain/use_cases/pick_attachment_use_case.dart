@@ -11,12 +11,14 @@ class PickAttachmentParams extends Equatable {
     required this.workOrderId,
     required this.companyId,
     required this.userId,
+    this.onFilesPicked,
   });
 
   final AttachmentSource source;
   final String workOrderId;
   final String companyId;
   final String userId;
+  final void Function(int count)? onFilesPicked;
 
   @override
   List<Object?> get props => [source, workOrderId, companyId, userId];
@@ -37,5 +39,6 @@ class PickAttachmentUseCase
         workOrderId: request.workOrderId,
         companyId: request.companyId,
         uploadedById: request.userId,
+        onFilesPicked: request.onFilesPicked,
       );
 }

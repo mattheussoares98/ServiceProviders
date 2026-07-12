@@ -7,6 +7,7 @@ class AttachmentsState extends BaseState {
     this.uploadingIds = const {},
     this.pendingDeletions = const {},
     this.videoThumbnails = const {},
+    this.processingCount = 0,
     super.errorMessage,
   });
 
@@ -16,6 +17,7 @@ class AttachmentsState extends BaseState {
   final Set<String> uploadingIds; // tracks which items show a progress indicator
   final Set<String> pendingDeletions; // tracks which items are marked for deletion in the UI
   final Map<String, String> videoThumbnails; // maps attachment ID to local thumbnail path
+  final int processingCount;
 
   @override
   List<Object?> get props => [
@@ -24,6 +26,7 @@ class AttachmentsState extends BaseState {
         uploadingIds,
         pendingDeletions,
         videoThumbnails,
+        processingCount,
         errorMessage,
       ];
 
@@ -33,6 +36,7 @@ class AttachmentsState extends BaseState {
     Set<String>? uploadingIds,
     Set<String>? pendingDeletions,
     Map<String, String>? videoThumbnails,
+    int? processingCount,
     String? errorMessage,
     bool? annulErrorMessage,
   }) {
@@ -42,6 +46,7 @@ class AttachmentsState extends BaseState {
       uploadingIds: uploadingIds ?? this.uploadingIds,
       pendingDeletions: pendingDeletions ?? this.pendingDeletions,
       videoThumbnails: videoThumbnails ?? this.videoThumbnails,
+      processingCount: processingCount ?? this.processingCount,
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,

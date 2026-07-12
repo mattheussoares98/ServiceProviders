@@ -37,6 +37,7 @@ abstract interface class AttachmentsRepository {
     required String workOrderId,
     required String companyId,
     required String uploadedById,
+    void Function(int count)? onFilesPicked,
   });
 
   /// Uploads [attachment] to Cloudflare R2 using the presigned URL handshake,
