@@ -58,7 +58,7 @@ class Attachments extends StatelessWidget {
         ],
         ResponsiveListFlow(
           isSliver: true,
-          maxItemWidth: 210,
+          maxItemWidth: 170,
           useMultiColumnWhenMobile: true,
           itemCount: attachments.length,
           itemBuilder: (context, index) {
