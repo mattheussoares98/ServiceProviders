@@ -215,9 +215,18 @@ void main() {
       'filters out and cleans up duplicates during pickAttachment',
       build: () {
         when(() => mockGetSessionUser()).thenReturn(tUser);
+        final tUploadedList = tAttachmentList
+            .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
+            .toList();
         when(
           () => mockGetAttachments(any()),
-        ).thenAnswer((_) async => SuccessState(data: tAttachmentList));
+        ).thenAnswer((_) async => SuccessState(data: tUploadedList));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetVideoThumbnail(any()),
+        ).thenAnswer((_) async => const SuccessState(data: 'thumb.jpg'));
         // Returns the same attachment that is already in state
         when(
           () => mockPickAttachment(any()),
@@ -246,27 +255,34 @@ void main() {
     );
 
     blocTest<AttachmentsCubit, AttachmentsState>(
-      'should upload pending attachments and return true on success',
+      'should auto-upload pending attachments on init/refresh and succeed',
       build: () {
         when(
           () => mockUploadAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetAttachments(any())).thenAnswer(
-          (_) async => SuccessState(
+
+        var getAttachmentsCallCount = 0;
+        when(() => mockGetAttachments(any())).thenAnswer((_) async {
+          getAttachmentsCallCount++;
+          if (getAttachmentsCallCount == 1) {
+            return SuccessState(data: [tAttachment]);
+          }
+          return SuccessState(
             data: [tAttachment.copyWith(uploadStatus: UploadStatus.uploaded)],
-          ),
-        );
+          );
+        });
         return AttachmentsCubit(useCases: useCases);
       },
-      seed: () => AttachmentsState(
-        status: StateStatus.loaded,
-        attachments: [tAttachment],
-      ),
-      act: (cubit) async {
-        final success = await cubit.uploadPending();
-        expect(success, isTrue);
-      },
+      act: (cubit) => cubit.init(tWorkOrderId),
       expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.attachments, 'attachments', [tAttachment]),
         isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
           tAttachment.id,
         }),
@@ -280,11 +296,13 @@ void main() {
           'status',
           StateStatus.loading,
         ),
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
-        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments[0].uploadStatus,
+              'uploadStatus',
+              UploadStatus.uploaded,
+            ),
       ],
     );
   });
@@ -293,11 +311,8 @@ void main() {
     final tAttachment = tAttachmentList.first;
 
     blocTest<AttachmentsCubit, AttachmentsState>(
-      'emits [deleting, loaded] when delete is successful',
+      'adds ID to pendingDeletions and removes from attachments list',
       build: () {
-        when(
-          () => mockDeleteAttachment(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
         return AttachmentsCubit(useCases: useCases);
       },
       seed: () => AttachmentsState(
@@ -306,48 +321,16 @@ void main() {
       ),
       act: (cubit) => cubit.deleteAttachment(tAttachment.id),
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.deleting,
-        ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
               tAttachmentList.skip(1).toList(),
-            ),
-      ],
-      verify: (_) {
-        verify(() => mockDeleteAttachment(tAttachment.id)).called(1);
-      },
-    );
-
-    blocTest<AttachmentsCubit, AttachmentsState>(
-      'emits [deleting, deletingError] when delete fails',
-      build: () {
-        when(
-          () => mockDeleteAttachment(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Error deleting'));
-        return AttachmentsCubit(useCases: useCases);
-      },
-      seed: () => AttachmentsState(
-        status: StateStatus.loaded,
-        attachments: tAttachmentList,
-      ),
-      act: (cubit) => cubit.deleteAttachment(tAttachment.id),
-      expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.deleting,
-        ),
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.deletingError,
-        ),
+            )
+            .having((s) => s.pendingDeletions, 'pendingDeletions', {
+              tAttachment.id,
+            }),
       ],
     );
   });
