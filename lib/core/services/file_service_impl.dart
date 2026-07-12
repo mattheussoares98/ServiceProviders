@@ -219,6 +219,40 @@ final class FileServiceImpl implements FileService {
     }
   }
 
+  @override
+  FutureString getOrCreateVideoThumbnail(String videoPath) async {
+    try {
+      final String cleanName;
+      if (videoPath.startsWith('http://') || videoPath.startsWith('https://')) {
+        cleanName = videoPath.hashCode.toString();
+      } else {
+        cleanName = p.basenameWithoutExtension(videoPath);
+      }
+
+      final thumbnailPath = await _sandboxPath('thumb_$cleanName.jpg');
+
+      if (File(thumbnailPath).existsSync()) {
+        return SuccessState(data: thumbnailPath);
+      }
+
+      final command = '-y -ss 0 -i $videoPath -vframes 1 $thumbnailPath';
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+
+      if (!ReturnCode.isSuccess(returnCode)) {
+        final logs = await session.getAllLogsAsString();
+        return FailureState(
+          message: 'Não foi possível gerar miniatura do vídeo.'.hardcoded,
+          error: logs,
+        );
+      }
+
+      return SuccessState(data: thumbnailPath);
+    } catch (error) {
+      return FailureState(message: error.toString());
+    }
+  }
+
   // ──────────────────────────────────────────
   // Sandbox copy
   // ──────────────────────────────────────────

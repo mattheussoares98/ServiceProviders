@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/open_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
@@ -15,6 +16,7 @@ class AttachmentsCubitUseCases {
     required this.deleteAttachment,
     required this.openAttachment,
     required this.getSessionUser,
+    required this.getVideoThumbnail,
   });
 
   final GetAttachmentsUseCase getAttachments;
@@ -23,4 +25,5 @@ class AttachmentsCubitUseCases {
   final DeleteAttachmentUseCase deleteAttachment;
   final OpenAttachmentUseCase openAttachment;
   final GetSessionUserUseCase getSessionUser;
+  final GetVideoThumbnailUseCase getVideoThumbnail;
 }

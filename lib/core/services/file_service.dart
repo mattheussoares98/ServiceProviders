@@ -51,6 +51,11 @@ abstract interface class FileService {
   /// Returns the absolute path of the compressed file.
   FutureString compressAndSaveVideo(String sourcePath);
 
+  /// Extracts the first frame of a video at [videoPath] and saves it as a jpeg thumbnail.
+  ///
+  /// Returns the absolute path of the generated thumbnail image.
+  FutureString getOrCreateVideoThumbnail(String videoPath);
+
   /// Copies any file at [sourcePath] into the app's secure sandbox directory
   /// using [fileName] as the destination file name.
   ///

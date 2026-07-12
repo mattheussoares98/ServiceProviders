@@ -6,17 +6,21 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/services.dart';
 
 void main() {
   late MockAttachmentsRepository mockRepository;
+  late MockFileService mockFileService;
 
   // Use cases
   late CreateAttachmentUseCase createAttachmentUseCase;
   late DeleteAttachmentUseCase deleteAttachmentUseCase;
   late GetAttachmentsUseCase getAttachmentsUseCase;
+  late GetVideoThumbnailUseCase getVideoThumbnailUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
@@ -24,6 +28,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockAttachmentsRepository();
+    mockFileService = MockFileService();
     createAttachmentUseCase = CreateAttachmentUseCase(
       attachmentsRepository: mockRepository,
     );
@@ -32,6 +37,9 @@ void main() {
     );
     getAttachmentsUseCase = GetAttachmentsUseCase(
       attachmentsRepository: mockRepository,
+    );
+    getVideoThumbnailUseCase = GetVideoThumbnailUseCase(
+      fileService: mockFileService,
     );
   });
 
@@ -152,6 +160,42 @@ void main() {
         expect(result.message, 'Load failed');
         verify(
           () => mockRepository.getAttachmentsByWorkOrder(tWorkOrderId),
+        ).called(1);
+      });
+    });
+
+    group('GetVideoThumbnailUseCase', () {
+      test(
+        'should call fileService.getOrCreateVideoThumbnail and return thumbnail path on success',
+        () async {
+          final tVideoPath = faker.internet.httpsUrl();
+          final tThumbPath = faker.guid.guid();
+          when(
+            () => mockFileService.getOrCreateVideoThumbnail(any()),
+          ).thenAnswer((_) async => SuccessState(data: tThumbPath));
+
+          final result = await getVideoThumbnailUseCase(tVideoPath);
+
+          expect(result, isA<SuccessState<String>>());
+          expect(result.data, tThumbPath);
+          verify(
+            () => mockFileService.getOrCreateVideoThumbnail(tVideoPath),
+          ).called(1);
+        },
+      );
+
+      test('should return FailureState when fileService fails', () async {
+        final tVideoPath = faker.internet.httpsUrl();
+        when(
+          () => mockFileService.getOrCreateVideoThumbnail(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Failed to extract'));
+
+        final result = await getVideoThumbnailUseCase(tVideoPath);
+
+        expect(result, isA<FailureState<String>>());
+        expect((result as FailureState).message, 'Failed to extract');
+        verify(
+          () => mockFileService.getOrCreateVideoThumbnail(tVideoPath),
         ).called(1);
       });
     });

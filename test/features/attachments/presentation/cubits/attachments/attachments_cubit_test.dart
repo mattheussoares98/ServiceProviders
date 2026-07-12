@@ -5,10 +5,12 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/open_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
@@ -34,6 +36,9 @@ class MockOpenAttachmentUseCase extends Mock implements OpenAttachmentUseCase {}
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
+class MockGetVideoThumbnailUseCase extends Mock
+    implements GetVideoThumbnailUseCase {}
+
 void main() {
   final faker = Faker();
   late MockGetAttachmentsUseCase mockGetAttachments;
@@ -42,6 +47,7 @@ void main() {
   late MockDeleteAttachmentUseCase mockDeleteAttachment;
   late MockOpenAttachmentUseCase mockOpenAttachment;
   late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetVideoThumbnailUseCase mockGetVideoThumbnail;
   late AttachmentsCubitUseCases useCases;
   late MockNavigationClient mockNavigationClient;
 
@@ -64,6 +70,7 @@ void main() {
     mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockOpenAttachment = MockOpenAttachmentUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetVideoThumbnail = MockGetVideoThumbnailUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -75,6 +82,7 @@ void main() {
       deleteAttachment: mockDeleteAttachment,
       openAttachment: mockOpenAttachment,
       getSessionUser: mockGetSessionUser,
+      getVideoThumbnail: mockGetVideoThumbnail,
     );
   });
 
@@ -105,7 +113,11 @@ void main() {
         ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
-            .having((s) => s.attachments, 'attachments', tUploadedAttachmentList),
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tUploadedAttachmentList,
+            ),
       ],
       verify: (_) {
         verify(() => mockGetAttachments(tWorkOrderId)).called(1);
@@ -239,9 +251,7 @@ void main() {
         when(
           () => mockUploadAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockGetAttachments(any()),
-        ).thenAnswer(
+        when(() => mockGetAttachments(any())).thenAnswer(
           (_) async => SuccessState(
             data: [tAttachment.copyWith(uploadStatus: UploadStatus.uploaded)],
           ),
@@ -257,11 +267,9 @@ void main() {
         expect(success, isTrue);
       },
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.uploadingIds,
-          'uploadingIds',
-          {tAttachment.id},
-        ),
+        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
+          tAttachment.id,
+        }),
         isA<AttachmentsState>().having(
           (s) => s.uploadingIds,
           'uploadingIds',
@@ -359,6 +367,48 @@ void main() {
       expect: () => <AttachmentsState>[],
       verify: (_) {
         verify(() => mockOpenAttachment(tAttachment)).called(1);
+      },
+    );
+  });
+
+  group('AttachmentsCubit - video thumbnails', () {
+    final tVideoAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+      id: 'video_1',
+      fileType: FileType.video,
+      localPath: 'local_video.mp4',
+      uploadStatus: UploadStatus.uploaded,
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'successfully loads video thumbnails on init/refresh',
+      build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tVideoAttachment]));
+        when(
+          () => mockGetVideoThumbnail(any()),
+        ).thenAnswer((_) async => const SuccessState(data: 'thumb_path.jpg'));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.init(tWorkOrderId),
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.attachments, 'attachments', [tVideoAttachment]),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.videoThumbnails, 'videoThumbnails', {
+              'video_1': 'thumb_path.jpg',
+            }),
+      ],
+      verify: (_) {
+        verify(() => mockGetAttachments(tWorkOrderId)).called(1);
+        verify(() => mockGetVideoThumbnail('local_video.mp4')).called(1);
       },
     );
   });

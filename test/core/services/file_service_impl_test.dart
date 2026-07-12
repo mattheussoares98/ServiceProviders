@@ -353,6 +353,16 @@ void main() {
     });
   });
 
+  group('getOrCreateVideoThumbnail', () {
+    test('generates video thumbnail and returns SuccessState(path)', () async {
+      final source = '${tempDir.path}/video.mp4';
+      final result = await service.getOrCreateVideoThumbnail(source);
+      expect(result, isA<SuccessState<String>>());
+      expect(result.data, contains('/attachments/thumb_video.jpg'));
+      expect(File(result.data!).existsSync(), isTrue);
+    });
+  });
+
   group('openFile', () {
     test(
       'returns SuccessState(true) when launching remote http/https URL succeeds',

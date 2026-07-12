@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
@@ -40,6 +41,8 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
           annulErrorMessage: true,
         ),
       );
+
+      await _loadVideoThumbnails(list);
 
       // Auto-upload pending attachments on refresh/load
       for (final attachment in list.where(
@@ -110,6 +113,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
       final updatedList = List<AttachmentEntity>.from(state.attachments)
         ..addAll(newAttachments);
       emit(state.copyWith(attachments: updatedList));
+      await _loadVideoThumbnails(newAttachments);
     } else {
       showDataStateToast(
         result,
@@ -178,6 +182,33 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
     if (result is! SuccessState<void>) {
       showDataStateToast(result);
+    }
+  }
+
+  Future<void> _loadVideoThumbnails(List<AttachmentEntity> list) async {
+    final videos = list.where((e) => e.fileType == FileType.video).toList();
+    if (videos.isEmpty) return;
+
+    final updatedThumbnails = Map<String, String>.from(state.videoThumbnails);
+    var changed = false;
+
+    await Future.wait(
+      videos.map((video) async {
+        final path = video.localPath ?? video.remoteUrl;
+        if (path == null || path.isEmpty) return;
+
+        if (updatedThumbnails.containsKey(video.id)) return;
+
+        final res = await _useCases.getVideoThumbnail(path);
+        if (res is SuccessState<String> && res.data != null) {
+          updatedThumbnails[video.id] = res.data!;
+          changed = true;
+        }
+      }),
+    );
+
+    if (changed && !isClosed) {
+      emit(state.copyWith(videoThumbnails: updatedThumbnails));
     }
   }
 }
