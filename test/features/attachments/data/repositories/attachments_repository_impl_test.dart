@@ -426,6 +426,33 @@ void main() {
     );
 
     test(
+      'should not throw FormatException when path has custom/invalid URI scheme and no extension',
+      () async {
+        const invalidSchemePath = 'virtual_file://test_image_without_extension';
+        when(
+          () => fileService.takePhoto(),
+        ).thenAnswer((_) async => invalidSchemePath);
+        when(
+          () => fileService.getFileSizeBytes(any()),
+        ).thenAnswer((_) async => 1024);
+
+        final result = await repository.pickAndPrepareAttachment(
+          source: AttachmentSource.cameraPhoto,
+          workOrderId: workOrderId,
+          companyId: companyId,
+          uploadedById: uploadedById,
+        );
+
+        // It should still return a FailureState due to unsupported extension, not throw FormatException
+        expect(result, isA<FailureState<List<AttachmentEntity>>>());
+        expect(
+          (result as FailureState).message,
+          contains('Tipo de arquivo não suportado'),
+        );
+      },
+    );
+
+    test(
       'should successfully compress, copy, and save image to local when offline',
       () async {
         // Create actual temporary files so File(originalPath).readAsBytes() does not throw FileSystemException

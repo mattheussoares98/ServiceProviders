@@ -395,10 +395,16 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   String _getExtension(String path, [String? fallbackName]) {
     var ext = p.extension(path).toLowerCase().replaceFirst('.', '');
     if (ext.isEmpty) {
-      final uri = Uri.tryParse(path);
-      if (uri != null && uri.scheme.isNotEmpty) {
-        final filename = uri.path.isNotEmpty ? uri.pathSegments.last : uri.host;
-        ext = p.extension(filename).toLowerCase().replaceFirst('.', '');
+      try {
+        final uri = Uri.tryParse(path);
+        if (uri != null && uri.scheme.isNotEmpty) {
+          final filename = uri.path.isNotEmpty
+              ? uri.pathSegments.last
+              : uri.host;
+          ext = p.extension(filename).toLowerCase().replaceFirst('.', '');
+        }
+      } catch (_) {
+        // Fallback if parsing fails due to invalid/custom URI schemes
       }
     }
     if (ext.isEmpty && fallbackName != null && fallbackName.isNotEmpty) {
