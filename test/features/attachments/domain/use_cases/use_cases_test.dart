@@ -3,13 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_sandbox_size_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -221,22 +221,27 @@ void main() {
     });
 
     group('GetSandboxSizeUseCase', () {
-      test('should call repository.getSandboxSizeBytes and return size', () async {
-        when(() => mockRepository.getSandboxSizeBytes())
-            .thenAnswer((_) async => const SuccessState(data: 100));
+      test(
+        'should call repository.getSandboxSizeBytes and return size',
+        () async {
+          when(
+            () => mockRepository.getSandboxSizeBytes(),
+          ).thenAnswer((_) async => const SuccessState(data: 100));
 
-        final result = await getSandboxSizeUseCase();
+          final result = await getSandboxSizeUseCase();
 
-        expect(result, isA<SuccessState<int>>());
-        expect(result.data, 100);
-        verify(() => mockRepository.getSandboxSizeBytes()).called(1);
-      });
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, 100);
+          verify(() => mockRepository.getSandboxSizeBytes()).called(1);
+        },
+      );
     });
 
     group('PruneSandboxUseCase', () {
       test('should call repository.pruneSandbox', () async {
-        when(() => mockRepository.pruneSandbox())
-            .thenAnswer((_) async => SuccessState.nil);
+        when(
+          () => mockRepository.pruneSandbox(),
+        ).thenAnswer((_) async => SuccessState.nil);
 
         final result = await pruneSandboxUseCase();
 
@@ -247,8 +252,9 @@ void main() {
 
     group('ClearLocalAttachmentsUseCase', () {
       test('should call repository.clearLocalAttachments', () async {
-        when(() => mockRepository.clearLocalAttachments())
-            .thenAnswer((_) async => SuccessState.nil);
+        when(
+          () => mockRepository.clearLocalAttachments(),
+        ).thenAnswer((_) async => SuccessState.nil);
 
         final result = await clearLocalAttachmentsUseCase();
 
@@ -260,8 +266,9 @@ void main() {
     group('TouchLastAccessedUseCase', () {
       test('should call repository.touchLastAccessed', () async {
         final id = faker.guid.guid();
-        when(() => mockRepository.touchLastAccessed(id))
-            .thenAnswer((_) async => SuccessState.nil);
+        when(
+          () => mockRepository.touchLastAccessed(id),
+        ).thenAnswer((_) async => SuccessState.nil);
 
         final result = await touchLastAccessedUseCase(id);
 
