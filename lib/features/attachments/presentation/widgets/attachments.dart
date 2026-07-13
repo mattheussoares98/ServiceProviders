@@ -65,7 +65,6 @@ class Attachments extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index < attachments.length) {
               final attachment = attachments[index];
-              //TODO test to automatically update the images when add a new attachment using web browser``
               return AttachmentItem(
                 attachment: attachment,
                 isEditing: isEditing,

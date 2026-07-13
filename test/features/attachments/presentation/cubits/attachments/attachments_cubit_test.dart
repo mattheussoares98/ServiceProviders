@@ -10,9 +10,12 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_sandbox_size_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/open_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
@@ -39,6 +42,13 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 class MockGetVideoThumbnailUseCase extends Mock
     implements GetVideoThumbnailUseCase {}
 
+class MockPruneSandboxUseCase extends Mock implements PruneSandboxUseCase {}
+
+class MockGetSandboxSizeUseCase extends Mock implements GetSandboxSizeUseCase {}
+
+class MockTouchLastAccessedUseCase extends Mock
+    implements TouchLastAccessedUseCase {}
+
 void main() {
   final faker = Faker();
   late MockGetAttachmentsUseCase mockGetAttachments;
@@ -48,6 +58,9 @@ void main() {
   late MockOpenAttachmentUseCase mockOpenAttachment;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetVideoThumbnailUseCase mockGetVideoThumbnail;
+  late MockPruneSandboxUseCase mockPruneSandbox;
+  late MockGetSandboxSizeUseCase mockGetSandboxSize;
+  late MockTouchLastAccessedUseCase mockTouchLastAccessed;
   late AttachmentsCubitUseCases useCases;
   late MockNavigationClient mockNavigationClient;
 
@@ -71,9 +84,17 @@ void main() {
     mockOpenAttachment = MockOpenAttachmentUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetVideoThumbnail = MockGetVideoThumbnailUseCase();
+    mockPruneSandbox = MockPruneSandboxUseCase();
+    mockGetSandboxSize = MockGetSandboxSizeUseCase();
+    mockTouchLastAccessed = MockTouchLastAccessedUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(() => mockPruneSandbox()).thenAnswer((_) async => SuccessState.nil);
+    when(
+      () => mockTouchLastAccessed(any()),
+    ).thenAnswer((_) async => SuccessState.nil);
 
     useCases = AttachmentsCubitUseCases(
       getAttachments: mockGetAttachments,
@@ -83,6 +104,9 @@ void main() {
       openAttachment: mockOpenAttachment,
       getSessionUser: mockGetSessionUser,
       getVideoThumbnail: mockGetVideoThumbnail,
+      pruneSandbox: mockPruneSandbox,
+      getSandboxSize: mockGetSandboxSize,
+      touchLastAccessed: mockTouchLastAccessed,
     );
   });
 
@@ -427,6 +451,46 @@ void main() {
       verify: (_) {
         verify(() => mockGetAttachments(tWorkOrderId)).called(1);
         verify(() => mockGetVideoThumbnail('local_video.mp4')).called(1);
+      },
+    );
+  });
+
+  group('AttachmentsCubit - Cache Integration', () {
+    final tAttachment = EntityFactory.makeAttachmentEntity();
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'should call pruneSandbox before picking attachments',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(() => mockGetAttachments(any()))
+            .thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) async {
+        await cubit.init(tWorkOrderId);
+        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+      },
+      verify: (_) {
+        verify(() => mockPruneSandbox()).called(1);
+        verify(() => mockPickAttachment(any())).called(1);
+      },
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'should call touchLastAccessed when opening an attachment',
+      build: () {
+        when(
+          () => mockOpenAttachment(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+        return AttachmentsCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.openAttachment(tAttachment),
+      verify: (_) {
+        verify(() => mockTouchLastAccessed(tAttachment.id)).called(1);
+        verify(() => mockOpenAttachment(tAttachment)).called(1);
       },
     );
   });

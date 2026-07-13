@@ -73,6 +73,9 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   }
 
   Future<void> pickAttachment(AttachmentSource source) async {
+    // Prune the sandbox before picking new files to prevent storage overflow
+    await _useCases.pruneSandbox();
+    
     final user = _useCases.getSessionUser();
     final result = await _useCases.pickAttachment(
       PickAttachmentParams(
@@ -182,6 +185,8 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   }
 
   Future<void> openAttachment(AttachmentEntity attachment) async {
+    // Touch lastAccessedAt when opening an attachment
+    unawaited(_useCases.touchLastAccessed(attachment.id));
     final result = await _useCases.openAttachment(attachment);
     if (isClosed) return;
 
