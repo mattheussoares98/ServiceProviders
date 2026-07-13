@@ -16,6 +16,7 @@ class HomeCubit extends BaseCubit<HomeState> {
   final HomeCubitUseCases _useCases;
 
   Future<void> logout() async {
+    unawaited(_useCases.clearLocalAttachments.call());
     unawaited(_useCases.logOut.call());
     await replaceAllRoute(const LoginRoute());
   }
