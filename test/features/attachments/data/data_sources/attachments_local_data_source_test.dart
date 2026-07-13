@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -206,6 +207,123 @@ void main() {
         expect(result, isA<SuccessState<AttachmentResponseModel?>>());
         expect(result.data, null);
       });
+    });
+
+    group('Cache methods', () {
+      test('touchLastAccessed should update the lastAccessedAt time', () async {
+        await insertDependencies(
+          companyId: tAttachmentModel.companyId,
+          userId: tAttachmentModel.uploadedById,
+          locationId: faker.guid.guid(),
+          areaId: faker.guid.guid(),
+          assetId: faker.guid.guid(),
+          workOrderId: tAttachmentModel.workOrderId,
+        );
+        await dataSource.saveAttachment(tAttachmentModel);
+
+        final result = await dataSource.touchLastAccessed(tAttachmentModel.id);
+        expect(result, isA<SuccessState<void>>());
+
+        final updated = await dataSource.getAttachment(tAttachmentModel.id);
+        expect(updated.data?.lastAccessedAt, isNotNull);
+      });
+
+      test(
+        'getTotalSandboxBytes should sum file sizes of attachments with localPath',
+        () async {
+          await insertDependencies(
+            companyId: tAttachmentModel.companyId,
+            userId: tAttachmentModel.uploadedById,
+            locationId: faker.guid.guid(),
+            areaId: faker.guid.guid(),
+            assetId: faker.guid.guid(),
+            workOrderId: tAttachmentModel.workOrderId,
+          );
+
+          final att1 = tAttachmentModel.copyWith(
+            id: 'att1',
+            localPath: 'path1.jpg',
+            fileSizeBytes: 100,
+          );
+          final att2 = tAttachmentModel.copyWith(
+            id: 'att2',
+            localPath: 'path2.jpg',
+            fileSizeBytes: 200,
+          );
+          final att3 = tAttachmentModel.copyWith(
+            id: 'att3',
+            annulLocalPath: true,
+            fileSizeBytes: 300,
+          ); // no localPath
+
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att1),
+          );
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att2),
+          );
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att3),
+          );
+
+          final sizeResult = await dataSource.getTotalSandboxBytes();
+          expect(sizeResult, isA<SuccessState<int>>());
+          expect(sizeResult.data, 300); // 100 + 200
+        },
+      );
+
+      test(
+        'getUploadedOrderedByLastAccess should only return uploaded attachments with localPath ordered by lastAccessedAt',
+        () async {
+          await insertDependencies(
+            companyId: tAttachmentModel.companyId,
+            userId: tAttachmentModel.uploadedById,
+            locationId: faker.guid.guid(),
+            areaId: faker.guid.guid(),
+            assetId: faker.guid.guid(),
+            workOrderId: tAttachmentModel.workOrderId,
+          );
+
+          final now = DateTime.now();
+          final att1 = tAttachmentModel.copyWith(
+            id: 'att1',
+            localPath: 'path1.jpg',
+            uploadStatus: UploadStatus.uploaded,
+            lastAccessedAt: now.subtract(const Duration(minutes: 5)),
+          );
+          final att2 = tAttachmentModel.copyWith(
+            id: 'att2',
+            localPath: 'path2.jpg',
+            uploadStatus: UploadStatus.uploaded,
+            lastAccessedAt: now.subtract(const Duration(minutes: 10)), // oldest
+          );
+          final att3 = tAttachmentModel.copyWith(
+            id: 'att3',
+            localPath: 'path3.jpg',
+            uploadStatus: UploadStatus.pending, // pending, should not return
+            lastAccessedAt: now,
+          );
+
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att1),
+          );
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att2),
+          );
+          await dataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(att3),
+          );
+
+          final listResult = await dataSource.getUploadedOrderedByLastAccess();
+          expect(
+            listResult,
+            isA<SuccessState<List<AttachmentResponseModel>>>(),
+          );
+          expect(listResult.data, hasLength(2));
+          expect(listResult.data![0].id, 'att2'); // oldest accessed first
+          expect(listResult.data![1].id, 'att1');
+        },
+      );
     });
   });
 }

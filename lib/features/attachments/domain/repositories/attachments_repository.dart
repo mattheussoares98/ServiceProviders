@@ -44,4 +44,16 @@ abstract interface class AttachmentsRepository {
   /// confirms the upload on the backend, and marks the local record as
   /// [UploadStatus.uploaded].
   FutureBool uploadPendingAttachment(AttachmentEntity attachment);
+
+  /// Touches the lastAccessedAt value for the given attachment [id].
+  FutureVoid touchLastAccessed(String id);
+
+  /// Gets the total size in bytes of local sandbox cache files.
+  FutureData<int> getSandboxSizeBytes();
+
+  /// Evicts old uploaded attachment files when cache usage exceeds configured limits.
+  FutureVoid pruneSandbox();
+
+  /// Clears all local sandbox cache files for uploaded attachments (e.g. on logout).
+  FutureVoid clearLocalAttachments();
 }

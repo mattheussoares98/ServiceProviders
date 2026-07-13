@@ -16,6 +16,9 @@ abstract interface class AttachmentsLocalDataSource {
   FutureBool saveAttachment(AttachmentResponseModel attachment);
   FutureBool deleteAttachment(String id);
   FutureBool hardDeleteAttachment(String id);
+  FutureVoid touchLastAccessed(String id);
+  FutureData<int> getTotalSandboxBytes();
+  FutureList<AttachmentResponseModel> getUploadedOrderedByLastAccess();
 }
 
 //TODO create a way to delete automatically older files when they grow more than a limit(for space)
@@ -30,9 +33,9 @@ final class AttachmentsLocalDataSourceImpl
   @override
   FutureData<AttachmentResponseModel?> getAttachment(String id) {
     return ErrorHandler.execute(() async {
-      final item = await (_database.select(_database.attachments)
-            ..where((t) => t.id.equals(id)))
-          .getSingleOrNull();
+      final item = await (_database.select(
+        _database.attachments,
+      )..where((t) => t.id.equals(id))).getSingleOrNull();
 
       if (item == null) {
         return const SuccessState(data: null);
@@ -54,6 +57,7 @@ final class AttachmentsLocalDataSourceImpl
           createdAt: item.createdAt,
           deletedAt: item.deletedAt,
           originalPath: item.originalPath,
+          lastAccessedAt: item.lastAccessedAt,
         ),
       );
     });
@@ -88,6 +92,7 @@ final class AttachmentsLocalDataSourceImpl
                 createdAt: t.createdAt,
                 deletedAt: t.deletedAt,
                 originalPath: t.originalPath,
+                lastAccessedAt: t.lastAccessedAt,
               ),
             )
             .toList(),
@@ -116,6 +121,9 @@ final class AttachmentsLocalDataSourceImpl
               createdAt: Value(attachment.createdAt),
               deletedAt: Value(attachment.deletedAt),
               originalPath: Value(attachment.originalPath),
+              lastAccessedAt: Value(
+                attachment.lastAccessedAt ?? DateTime.now(),
+              ),
             ),
           );
       return const SuccessState(data: true);
@@ -135,10 +143,75 @@ final class AttachmentsLocalDataSourceImpl
   @override
   FutureBool hardDeleteAttachment(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.delete(_database.attachments)
-            ..where((t) => t.id.equals(id)))
-          .go();
+      await (_database.delete(
+        _database.attachments,
+      )..where((t) => t.id.equals(id))).go();
       return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureVoid touchLastAccessed(String id) {
+    return ErrorHandler.execute(() async {
+      await (_database.update(_database.attachments)
+            ..where((t) => t.id.equals(id)))
+          .write(AttachmentsCompanion(lastAccessedAt: Value(DateTime.now())));
+      return SuccessState.nil;
+    });
+  }
+
+  @override
+  FutureData<int> getTotalSandboxBytes() {
+    return ErrorHandler.execute(() async {
+      final query = _database.selectOnly(_database.attachments)
+        ..addColumns([_database.attachments.fileSizeBytes.sum()])
+        ..where(
+          _database.attachments.localPath.isNotNull() &
+              _database.attachments.deletedAt.isNull(),
+        );
+      final row = await query.getSingle();
+      final sum = row.read(_database.attachments.fileSizeBytes.sum()) ?? 0;
+      return SuccessState(data: sum);
+    });
+  }
+
+  @override
+  FutureList<AttachmentResponseModel> getUploadedOrderedByLastAccess() {
+    return ErrorHandler.execute(() async {
+      final list =
+          await (_database.select(_database.attachments)
+                ..where(
+                  (t) =>
+                      t.localPath.isNotNull() &
+                      t.deletedAt.isNull() &
+                      t.uploadStatus.equals(UploadStatus.uploaded.code),
+                )
+                ..orderBy([(t) => OrderingTerm(expression: t.lastAccessedAt)]))
+              .get();
+
+      return SuccessState(
+        data: list
+            .map(
+              (t) => AttachmentResponseModel(
+                id: t.id,
+                workOrderId: t.workOrderId,
+                companyId: t.companyId,
+                uploadedById: t.uploadedById,
+                fileName: t.fileName,
+                fileType: FileType.fromCode(t.fileType),
+                localPath: t.localPath,
+                remoteUrl: t.remoteUrl,
+                fileSizeBytes: t.fileSizeBytes,
+                isCompressed: t.isCompressed,
+                uploadStatus: UploadStatus.fromCode(t.uploadStatus),
+                createdAt: t.createdAt,
+                deletedAt: t.deletedAt,
+                originalPath: t.originalPath,
+                lastAccessedAt: t.lastAccessedAt,
+              ),
+            )
+            .toList(),
+      );
     });
   }
 }

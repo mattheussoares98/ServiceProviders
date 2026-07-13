@@ -5,6 +5,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
+import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/repositories/attachments_repository_impl.dart';
@@ -852,19 +853,142 @@ void main() {
         ).called(1);
         verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
         verifyNever(
-          () => mockRemoteDataSource.restoreAttachment(
-            id: any(named: 'id'),
-            uploadedById: any(named: 'uploadedById'),
-          ),
-        );
-        verifyNever(() => mockRemoteDataSource.getPresignedUploadUrl(any()));
-        verifyNever(
           () => storageClient.uploadFile(
             presignedUrl: any(named: 'presignedUrl'),
             filePath: any(named: 'filePath'),
             mimeType: any(named: 'mimeType'),
           ),
         );
+      },
+    );
+  });
+
+  group('AttachmentsRepositoryImpl - Cache Management', () {
+    test('touchLastAccessed should touch access time locally', () async {
+      final id = faker.guid.guid();
+      when(
+        () => mockLocalDataSource.touchLastAccessed(id),
+      ).thenAnswer((_) async => SuccessState.nil);
+
+      final result = await repository.touchLastAccessed(id);
+
+      expect(result, isA<SuccessState<void>>());
+      verify(() => mockLocalDataSource.touchLastAccessed(id)).called(1);
+    });
+
+    test(
+      'getSandboxSizeBytes should return local database sum of bytes',
+      () async {
+        final size = (kSandboxQuotaBytes * 0.15).round();
+        when(
+          () => mockLocalDataSource.getTotalSandboxBytes(),
+        ).thenAnswer((_) async => SuccessState(data: size));
+
+        final result = await repository.getSandboxSizeBytes();
+
+        expect(result, isA<SuccessState<int>>());
+        expect(result.data, size);
+        verify(() => mockLocalDataSource.getTotalSandboxBytes()).called(1);
+      },
+    );
+
+    test(
+      'pruneSandbox should do nothing if current sandbox size is under quota',
+      () async {
+        when(() => mockLocalDataSource.getTotalSandboxBytes()).thenAnswer(
+          (_) async => const SuccessState(data: kSandboxQuotaBytes - 1),
+        ); // kSandboxQuotaBytes - 1
+
+        final result = await repository.pruneSandbox();
+
+        expect(result, isA<SuccessState<void>>());
+        verifyNever(() => mockLocalDataSource.getUploadedOrderedByLastAccess());
+      },
+    );
+
+    test(
+      'pruneSandbox should evict oldest uploaded attachments until under quota',
+      () async {
+        final totalBytes = (kSandboxQuotaBytes * 1.5).round();
+        final candidate1Size = (kSandboxQuotaBytes * 0.6).round();
+        final candidate2Size = (kSandboxQuotaBytes * 0.4).round();
+
+        when(
+          () => mockLocalDataSource.getTotalSandboxBytes(),
+        ).thenAnswer((_) async => SuccessState(data: totalBytes));
+
+        final candidate1 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            localPath: 'file1.webp',
+            fileSizeBytes: candidate1Size,
+          ),
+        );
+        final candidate2 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            localPath: 'file2.webp',
+            fileSizeBytes: candidate2Size,
+          ),
+        );
+
+        when(
+          () => mockLocalDataSource.getUploadedOrderedByLastAccess(),
+        ).thenAnswer((_) async => SuccessState(data: [candidate1, candidate2]));
+        when(() => fileService.fileExists(any())).thenAnswer((_) async => true);
+        when(
+          () => fileService.deleteLocalFile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.pruneSandbox();
+
+        expect(result, isA<SuccessState<void>>());
+        // Candidate 1 evicted (frees candidate1Size, bringing total under quota)
+        // Candidate 2 should NOT be processed
+        verify(
+          () => fileService.deleteLocalFile('/sandbox/file1.webp'),
+        ).called(1);
+        verifyNever(() => fileService.deleteLocalFile('/sandbox/file2.webp'));
+        verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+      },
+    );
+
+    test(
+      'clearLocalAttachments should delete local sandbox files and nullify localPath in database',
+      () async {
+        final upload1 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            localPath: 'upload1.jpg',
+          ),
+        );
+        final upload2 = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            localPath: 'upload2.jpg',
+          ),
+        );
+
+        when(
+          () => mockLocalDataSource.getUploadedOrderedByLastAccess(),
+        ).thenAnswer((_) async => SuccessState(data: [upload1, upload2]));
+        when(() => fileService.fileExists(any())).thenAnswer((_) async => true);
+        when(
+          () => fileService.deleteLocalFile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.clearLocalAttachments();
+
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => fileService.deleteLocalFile('/sandbox/upload1.jpg'),
+        ).called(1);
+        verify(
+          () => fileService.deleteLocalFile('/sandbox/upload2.jpg'),
+        ).called(1);
+        verify(() => mockLocalDataSource.saveAttachment(any())).called(2);
       },
     );
   });

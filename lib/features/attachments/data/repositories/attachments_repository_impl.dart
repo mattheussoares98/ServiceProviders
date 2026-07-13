@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
+import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
@@ -104,11 +105,99 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
     final resolvedPath = await _fileService.resolveSandboxPath(localPath);
     if (resolvedPath != null && await _fileService.fileExists(resolvedPath)) {
-      return entity.copyWith(localPath: resolvedPath);
+      // Touch lastAccessedAt asynchronously
+      await _localDataSource.touchLastAccessed(model.id);
+      return entity.copyWith(
+        localPath: resolvedPath,
+        lastAccessedAt: DateTime.now(),
+      );
     }
 
     // If file doesn't exist locally, clear localPath so UI uses remoteUrl
     return entity.copyWith(annulLocalPath: true);
+  }
+
+  @override
+  FutureVoid touchLastAccessed(String id) =>
+      _localDataSource.touchLastAccessed(id);
+
+  @override
+  FutureData<int> getSandboxSizeBytes() =>
+      _localDataSource.getTotalSandboxBytes();
+
+  @override
+  FutureVoid pruneSandbox() async {
+    try {
+      final sizeResult = await getSandboxSizeBytes();
+      if (sizeResult is! SuccessState<int>) return SuccessState.nil;
+
+      int currentSize = sizeResult.data ?? 0;
+      if (currentSize <= kSandboxQuotaBytes) {
+        return SuccessState.nil;
+      }
+
+      final listResult = await _localDataSource
+          .getUploadedOrderedByLastAccess();
+      if (listResult is! SuccessState<List<AttachmentResponseModel>>) {
+        return SuccessState.nil;
+      }
+
+      final candidates = listResult.data ?? [];
+      for (final candidate in candidates) {
+        if (currentSize <= kSandboxQuotaBytes) break;
+
+        final localPath = candidate.localPath;
+        if (localPath != null && localPath.isNotEmpty) {
+          final resolvedPath = await _fileService.resolveSandboxPath(localPath);
+          if (resolvedPath != null &&
+              await _fileService.fileExists(resolvedPath)) {
+            await _fileService.deleteLocalFile(resolvedPath);
+          }
+        }
+
+        final updated = candidate.copyWith(annulLocalPath: true);
+        await _localDataSource.saveAttachment(
+          AttachmentResponseModel.fromEntity(updated),
+        );
+
+        currentSize -= candidate.fileSizeBytes ?? 0;
+      }
+
+      return SuccessState.nil;
+    } catch (e) {
+      return FailureState(message: e.toString());
+    }
+  }
+
+  @override
+  FutureVoid clearLocalAttachments() async {
+    try {
+      final listResult = await _localDataSource
+          .getUploadedOrderedByLastAccess();
+      if (listResult is! SuccessState<List<AttachmentResponseModel>>) {
+        return SuccessState.nil;
+      }
+
+      final uploaded = listResult.data ?? [];
+      for (final attachment in uploaded) {
+        final localPath = attachment.localPath;
+        if (localPath != null && localPath.isNotEmpty) {
+          final resolvedPath = await _fileService.resolveSandboxPath(localPath);
+          if (resolvedPath != null &&
+              await _fileService.fileExists(resolvedPath)) {
+            await _fileService.deleteLocalFile(resolvedPath);
+          }
+        }
+
+        final updated = attachment.copyWith(annulLocalPath: true);
+        await _localDataSource.saveAttachment(
+          AttachmentResponseModel.fromEntity(updated),
+        );
+      }
+      return SuccessState.nil;
+    } catch (e) {
+      return FailureState(message: e.toString());
+    }
   }
 
   @override
