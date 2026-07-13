@@ -28,18 +28,14 @@ class Attachments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (
-      isLoading,
-      attachments,
-      processingCount,
-    ) = context.select<AttachmentsCubit, (bool, List<AttachmentEntity>, int)>(
-      (cubit) =>
-          (
+    final (isLoading, attachments, processingCount) = context
+        .select<AttachmentsCubit, (bool, List<AttachmentEntity>, int)>(
+          (cubit) => (
             cubit.state.status == StateStatus.loading,
             cubit.state.attachments,
             cubit.state.processingCount,
           ),
-    );
+        );
 
     if (isLoading) {
       return const SliverToBoxAdapter(child: Center(child: LoadingCircle()));
@@ -69,7 +65,11 @@ class Attachments extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index < attachments.length) {
               final attachment = attachments[index];
-              return AttachmentItem(attachment: attachment, isEditing: isEditing);
+              //TODO test to automatically update the images when add a new attachment using web browser
+              return AttachmentItem(
+                attachment: attachment,
+                isEditing: isEditing,
+              );
             }
             return const ProcessingAttachmentItem();
           },
