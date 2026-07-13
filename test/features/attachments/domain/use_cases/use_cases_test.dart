@@ -7,6 +7,10 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_atta
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_sandbox_size_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -21,6 +25,10 @@ void main() {
   late DeleteAttachmentUseCase deleteAttachmentUseCase;
   late GetAttachmentsUseCase getAttachmentsUseCase;
   late GetVideoThumbnailUseCase getVideoThumbnailUseCase;
+  late GetSandboxSizeUseCase getSandboxSizeUseCase;
+  late PruneSandboxUseCase pruneSandboxUseCase;
+  late ClearLocalAttachmentsUseCase clearLocalAttachmentsUseCase;
+  late TouchLastAccessedUseCase touchLastAccessedUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
@@ -40,6 +48,18 @@ void main() {
     );
     getVideoThumbnailUseCase = GetVideoThumbnailUseCase(
       fileService: mockFileService,
+    );
+    getSandboxSizeUseCase = GetSandboxSizeUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    pruneSandboxUseCase = PruneSandboxUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    clearLocalAttachmentsUseCase = ClearLocalAttachmentsUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    touchLastAccessedUseCase = TouchLastAccessedUseCase(
+      attachmentsRepository: mockRepository,
     );
   });
 
@@ -197,6 +217,56 @@ void main() {
         verify(
           () => mockFileService.getOrCreateVideoThumbnail(tVideoPath),
         ).called(1);
+      });
+    });
+
+    group('GetSandboxSizeUseCase', () {
+      test('should call repository.getSandboxSizeBytes and return size', () async {
+        when(() => mockRepository.getSandboxSizeBytes())
+            .thenAnswer((_) async => const SuccessState(data: 100));
+
+        final result = await getSandboxSizeUseCase();
+
+        expect(result, isA<SuccessState<int>>());
+        expect(result.data, 100);
+        verify(() => mockRepository.getSandboxSizeBytes()).called(1);
+      });
+    });
+
+    group('PruneSandboxUseCase', () {
+      test('should call repository.pruneSandbox', () async {
+        when(() => mockRepository.pruneSandbox())
+            .thenAnswer((_) async => SuccessState.nil);
+
+        final result = await pruneSandboxUseCase();
+
+        expect(result, isA<SuccessState<void>>());
+        verify(() => mockRepository.pruneSandbox()).called(1);
+      });
+    });
+
+    group('ClearLocalAttachmentsUseCase', () {
+      test('should call repository.clearLocalAttachments', () async {
+        when(() => mockRepository.clearLocalAttachments())
+            .thenAnswer((_) async => SuccessState.nil);
+
+        final result = await clearLocalAttachmentsUseCase();
+
+        expect(result, isA<SuccessState<void>>());
+        verify(() => mockRepository.clearLocalAttachments()).called(1);
+      });
+    });
+
+    group('TouchLastAccessedUseCase', () {
+      test('should call repository.touchLastAccessed', () async {
+        final id = faker.guid.guid();
+        when(() => mockRepository.touchLastAccessed(id))
+            .thenAnswer((_) async => SuccessState.nil);
+
+        final result = await touchLastAccessedUseCase(id);
+
+        expect(result, isA<SuccessState<void>>());
+        verify(() => mockRepository.touchLastAccessed(id)).called(1);
       });
     });
   });
