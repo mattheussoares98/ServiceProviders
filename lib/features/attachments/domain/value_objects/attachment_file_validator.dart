@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Result type returned by [AttachmentFileValidator.validate].
 sealed class AttachmentValidationResult {
   const AttachmentValidationResult();
@@ -32,8 +34,11 @@ final class AttachmentInvalidType extends AttachmentValidationResult {
 /// Compression is applied afterwards only for images and videos.
 abstract final class AttachmentFileValidator {
   // Original-file size limits (before compression).
-  static const _maxImageBytes = 20 * 1024 * 1024; // 20 MB
-  static const _maxVideoBytes = 500 * 1024 * 1024; // 100 MB
+  static const _maxImageBytes =
+      (kIsWeb ? 2 : 20) * 1024 * 1024; // 2MB web && 20MB mobile
+  static const _maxVideoBytes =
+      (kIsWeb ? 10 : 500) * 1024 * 1024; // 10MB web && 500MB mobile
+  //! only compres on mobile device. This is why mobile values are bigger
   static const _maxPdfBytes = 10 * 1024 * 1024; // 10 MB
   static const _maxDocumentBytes = 5 * 1024 * 1024; //  5 MB
 

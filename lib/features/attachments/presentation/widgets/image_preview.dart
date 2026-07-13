@@ -16,15 +16,24 @@ class _ImagePreview extends StatelessWidget {
       );
 
       if (thumbnailPath == null || thumbnailPath.isEmpty) {
+        if (kIsWeb) {
+          return Container(
+            color: Colors.black.withValues(alpha: 0.8),
+            height: _kAttachmentPreviewHeight,
+            alignment: Alignment.center,
+            child: const PlatformIcon(
+              materialIcon: Icons.play_arrow_rounded,
+              cupertinoIcon: CupertinoIcons.play_arrow_solid,
+              color: Colors.white,
+              size: 40,
+            ),
+          );
+        }
         return Container(
           color: Colors.blue[700]?.withValues(alpha: 0.1),
           height: _kAttachmentPreviewHeight,
           alignment: Alignment.center,
-          child: const SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
+          child: const LoadingCircle(),
         );
       }
       source = BaseImageSource.local(thumbnailPath);

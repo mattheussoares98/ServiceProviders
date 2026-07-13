@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
@@ -249,17 +250,28 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
                       errorBuilder: (context, error, stackTrace) =>
                           fallbackWidget,
                     )
-                  : Image.file(
-                      key: ValueKey(path),
-                      File(path),
-                      width: widget.width,
-                      height: widget.height,
-                      fit: widget.fit,
-                      cacheWidth: _frozenCacheWidth,
-                      cacheHeight: _frozenCacheHeight,
-                      errorBuilder: (context, error, stackTrace) =>
-                          fallbackWidget,
-                    )),
+                  : (kIsWeb || path.startsWith('blob:')
+                        ? Image.network(
+                            path,
+                            width: widget.width,
+                            height: widget.height,
+                            fit: widget.fit,
+                            cacheWidth: kIsWeb ? null : _frozenCacheWidth,
+                            cacheHeight: kIsWeb ? null : _frozenCacheHeight,
+                            errorBuilder: (context, error, stackTrace) =>
+                                fallbackWidget,
+                          )
+                        : Image.file(
+                            key: ValueKey(path),
+                            File(path),
+                            width: widget.width,
+                            height: widget.height,
+                            fit: widget.fit,
+                            cacheWidth: _frozenCacheWidth,
+                            cacheHeight: _frozenCacheHeight,
+                            errorBuilder: (context, error, stackTrace) =>
+                                fallbackWidget,
+                          ))),
     };
 
     final tag = widget.heroTag ?? widget.source.hashCode.toString();

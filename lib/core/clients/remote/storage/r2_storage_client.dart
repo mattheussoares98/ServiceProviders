@@ -1,12 +1,13 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart'
+    show HttpClient;
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/api_endpoints.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
@@ -17,14 +18,18 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// self-authenticating and must not carry the backend JWT.
 @LazySingleton(as: StorageClient)
 final class R2StorageClient implements StorageClient {
-  R2StorageClient()
-    : _dio =
-          Dio(); //TODO is it using get it? Shouldn't we use the HttpClientModule?
+  R2StorageClient({required FileService fileService})
+    : _fileService = fileService,
+      _dio = Dio();
 
   @visibleForTesting
-  R2StorageClient.withDio(Dio dio) : _dio = dio;
+  R2StorageClient.withDio(Dio dio, FileService fileService)
+    : _dio = dio,
+      _fileService = fileService;
+
   // A fresh Dio without any interceptors — presigned URLs are self-authenticating.
   final Dio _dio;
+  final FileService _fileService;
 
   @override
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey) {
@@ -56,13 +61,12 @@ final class R2StorageClient implements StorageClient {
     required String mimeType,
   }) {
     return ErrorHandler.execute(() async {
-      final file = File(filePath);
-      final fileSize = await file.length();
-      final stream = file.openRead();
+      final bytes = await _fileService.readFileAsBytes(filePath);
+      final fileSize = bytes.length;
 
       await _dio.put<void>(
         presignedUrl,
-        data: stream,
+        data: bytes,
         options: Options(
           headers: {
             Headers.contentTypeHeader: mimeType,

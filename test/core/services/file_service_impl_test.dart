@@ -244,7 +244,9 @@ void main() {
       ).thenAnswer((_) async => fakePaths.map(XFile.new).toList());
 
       final result = await service.pickMediaFromGallery();
-      final expected = fakePaths.map((p) => (path: p, name: p.split('/').last)).toList();
+      final expected = fakePaths
+          .map((p) => (path: p, name: p.split('/').last, bytes: null))
+          .toList();
       expect(result, expected);
     });
 
@@ -255,6 +257,29 @@ void main() {
 
       final result = await service.pickMediaFromGallery();
       expect(result, isNull);
+    });
+  });
+
+  group('readFileAsBytes', () {
+    test('returns correct bytes of a file', () async {
+      final file = File('${tempDir.path}/test_bytes.txt');
+      final bytes = [10, 20, 30, 40];
+      await file.writeAsBytes(bytes);
+
+      final result = await service.readFileAsBytes(file.path);
+      expect(result, bytes);
+    });
+  });
+
+  group('fileExists', () {
+    test('returns true if file exists', () async {
+      final file = File('${tempDir.path}/exist.txt');
+      await file.writeAsBytes([0]);
+      expect(await service.fileExists(file.path), isTrue);
+    });
+
+    test('returns false if file does not exist', () async {
+      expect(await service.fileExists('${tempDir.path}/nonexistent.txt'), isFalse);
     });
   });
 

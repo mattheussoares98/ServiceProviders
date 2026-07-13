@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 /// A file returned by a pick operation.
@@ -6,19 +8,22 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// pick the same gallery item.
 /// [*name] is the stable original filename (e.g. `IMG_001.jpg`) that
 /// image_picker preserves via `XFile.name`. Use this for deduplication.
-typedef PickedFile = ({String path, String name});
+typedef PickedFile = ({String path, String name, Uint8List? bytes});
 
 /// Abstract service for device file I/O operations.
 ///
 /// Lives in `core/services/` because it is a shared infrastructure concern
 /// (camera, gallery, documents), potentially reused by any future feature.
 /// It is NOT a repository — it does not persist data to a local/remote source.
-///
-/// **Note:** This service is only supported on mobile platforms (iOS & Android)
-/// and will not work on Web because it depends on `dart:io` and native libraries
-/// like `ffmpeg_kit`.
 abstract interface class FileService {
+  /// Reads the file at [path] as a byte array.
+  Future<Uint8List> readFileAsBytes(String path);
+
+  /// Checks if a file exists at the given [path].
+  Future<bool> fileExists(String path);
+
   /// Opens the device camera and takes a single photo.
+
   ///
   /// Returns the temporary file path, or `null` if the user cancelled.
   Future<String?> takePhoto();

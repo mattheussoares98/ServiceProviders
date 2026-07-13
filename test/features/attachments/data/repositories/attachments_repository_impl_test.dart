@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,6 +52,10 @@ void main() {
       if (path == null) return null;
       return '/sandbox/$path';
     });
+    when(
+      () => fileService.readFileAsBytes(any()),
+    ).thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
+    when(() => fileService.fileExists(any())).thenAnswer((_) async => true);
     when(() => mockInternet.isConnected).thenReturn(true);
     when(
       () => mockRemoteDataSource.getAttachmentByHash(
@@ -527,6 +532,9 @@ void main() {
     );
 
     test('should return FailureState when local file does not exist', () async {
+      when(
+        () => fileService.fileExists('/does/not/exist.jpg'),
+      ).thenAnswer((_) async => false);
       final nonExistentEntity = mockEntity.copyWith(
         localPath: '/does/not/exist.jpg',
       );

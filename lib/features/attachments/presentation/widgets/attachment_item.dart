@@ -92,15 +92,17 @@ class AttachmentItem extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
                       child: Center(
-                        child: BaseTextButton(
-                          text: 'Remover anexo'.hardcoded,
-                          textColor: Colors.redAccent,
-                          platformIcon: const PlatformIcon(
-                            materialIcon: Icons.delete_outline,
-                            cupertinoIcon: CupertinoIcons.trash,
-                            color: Colors.redAccent,
+                        child: FittedBox(
+                          child: BaseTextButton(
+                            text: 'Remover anexo'.hardcoded,
+                            textColor: Colors.redAccent,
+                            platformIcon: const PlatformIcon(
+                              materialIcon: Icons.delete_outline,
+                              cupertinoIcon: CupertinoIcons.trash,
+                              color: Colors.redAccent,
+                            ),
+                            onPressed: onDelete,
                           ),
-                          onPressed: onDelete,
                         ),
                       ),
                     ),

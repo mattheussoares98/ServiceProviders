@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:image_picker/image_picker.dart';
 
 abstract final class ImagePickerUtil {
@@ -21,11 +19,6 @@ abstract final class ImagePickerUtil {
       requestFullMetadata: requestFullMetadata,
     );
 
-    if (xImage != null) {
-      final image = File(xImage.path);
-      return image.path;
-    }
-
-    return null;
+    return xImage?.path;
   }
 }

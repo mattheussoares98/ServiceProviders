@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,12 +9,15 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/r2_storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/services/file_service.dart';
 
 // ──────────────────────────────────────────
 // Mocks
 // ──────────────────────────────────────────
 
 class MockDio extends Mock implements Dio {}
+
+class MockFileService extends Mock implements FileService {}
 
 // ──────────────────────────────────────────
 // Helpers
@@ -27,11 +32,13 @@ Response<T> _mockResponse<T>(T data, {int statusCode = 200}) => Response(
 void main() {
   final faker = Faker();
   late MockDio mockDio;
+  late MockFileService mockFileService;
   late R2StorageClient client;
 
   setUp(() {
     mockDio = MockDio();
-    client = R2StorageClient.withDio(mockDio);
+    mockFileService = MockFileService();
+    client = R2StorageClient.withDio(mockDio, mockFileService);
   });
 
   setUpAll(() {
@@ -184,6 +191,8 @@ void main() {
       tempFile = await File(
         '${Directory.systemTemp.path}/test_upload_${faker.guid.guid()}.webp',
       ).writeAsBytes(List.filled(512, 0));
+      when(() => mockFileService.readFileAsBytes(tempFile.path))
+          .thenAnswer((_) async => Uint8List.fromList(List.filled(512, 0)));
     });
 
     tearDown(() async {
@@ -253,9 +262,13 @@ void main() {
     });
 
     test('returns FailureState when file does not exist', () async {
+      final nonExistentPath = '/nonexistent/${faker.guid.guid()}.webp';
+      when(() => mockFileService.readFileAsBytes(nonExistentPath))
+          .thenThrow(Exception('File not found'));
+
       final result = await client.uploadFile(
         presignedUrl: 'https://bucket.r2.dev/file.webp?sig=abc',
-        filePath: '/nonexistent/${faker.guid.guid()}.webp',
+        filePath: nonExistentPath,
         mimeType: 'image/webp',
       );
 

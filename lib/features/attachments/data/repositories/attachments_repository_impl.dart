@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
@@ -105,7 +103,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     }
 
     final resolvedPath = await _fileService.resolveSandboxPath(localPath);
-    if (resolvedPath != null && File(resolvedPath).existsSync()) {
+    if (resolvedPath != null && await _fileService.fileExists(resolvedPath)) {
       return entity.copyWith(localPath: resolvedPath);
     }
 
@@ -196,7 +194,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   FutureBool uploadPendingAttachment(AttachmentEntity attachment) async {
     try {
       final localPath = attachment.localPath;
-      if (localPath == null || !File(localPath).existsSync()) {
+      if (localPath == null || !await _fileService.fileExists(localPath)) {
         return FailureState(message: 'Arquivo local não encontrado'.hardcoded);
       }
 
@@ -244,7 +242,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         }
       }
 
-      final ext = p.extension(localPath).toLowerCase().replaceFirst('.', '');
+      final ext = _getExtension(localPath, attachment.fileName);
       final mimeType = _fileService.getMimeType(localPath);
       final objectKey = StorageClient.buildObjectKey(
         companyId: attachment.companyId,
@@ -296,7 +294,6 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     }
   }
 
-
   // ──────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────
@@ -306,10 +303,12 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         // Camera picks always produce unique files — name is not meaningful
         // for deduplication, so we reuse path as the name.
         AttachmentSource.cameraPhoto => _fileService.takePhoto().then(
-          (path) => path != null ? [(path: path, name: path)] : null,
+          (path) =>
+              path != null ? [(path: path, name: path, bytes: null)] : null,
         ),
         AttachmentSource.cameraVideo => _fileService.recordVideo().then(
-          (path) => path != null ? [(path: path, name: path)] : null,
+          (path) =>
+              path != null ? [(path: path, name: path, bytes: null)] : null,
         ),
         AttachmentSource.gallery => _fileService.pickMediaFromGallery(),
         AttachmentSource.document => _fileService.pickDocuments(),
@@ -322,7 +321,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required String companyId,
     required String uploadedById,
   }) async {
-    final ext = p.extension(originalPath).toLowerCase().replaceFirst('.', '');
+    final ext = _getExtension(originalPath, originalName);
     final fileType = FileType.fromExtension(ext);
     final originalSize = await _fileService.getFileSizeBytes(originalPath);
 
@@ -367,7 +366,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     // DJB2 hash of the raw original bytes — the only stable cross-platform
     // deduplication key. Both XFile.path and XFile.name include a UUID that
     // changes on every pick on iOS and Android.
-    final rawBytes = await File(originalPath).readAsBytes();
+    final rawBytes = await _fileService.readFileAsBytes(originalPath);
     int hash = 5381;
     for (final byte in rawBytes) {
       hash = ((hash << 5) + hash) + byte;
@@ -391,6 +390,21 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     );
 
     return SuccessState(data: entity);
+  }
+
+  String _getExtension(String path, [String? fallbackName]) {
+    var ext = p.extension(path).toLowerCase().replaceFirst('.', '');
+    if (ext.isEmpty) {
+      final uri = Uri.tryParse(path);
+      if (uri != null && uri.scheme.isNotEmpty) {
+        final filename = uri.path.isNotEmpty ? uri.pathSegments.last : uri.host;
+        ext = p.extension(filename).toLowerCase().replaceFirst('.', '');
+      }
+    }
+    if (ext.isEmpty && fallbackName != null && fallbackName.isNotEmpty) {
+      ext = p.extension(fallbackName).toLowerCase().replaceFirst('.', '');
+    }
+    return ext;
   }
 
   String _id() => const Uuid().v4();
