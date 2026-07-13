@@ -38,7 +38,7 @@ class _ImagePreview extends StatelessWidget {
       }
       source = BaseImageSource.local(thumbnailPath);
     } else {
-      if (attachment.localPath?.isNotEmpty ?? false) {
+      if ((attachment.localPath?.isNotEmpty ?? false) && !kIsWeb) {
         source = BaseImageSource.local(attachment.localPath);
       } else if (attachment.remoteUrl?.isNotEmpty ?? false) {
         source = BaseImageSource.network(attachment.remoteUrl);
