@@ -18,6 +18,7 @@ class AttachmentEntity extends Equatable {
     required this.createdAt,
     this.deletedAt,
     this.originalPath,
+    this.lastAccessedAt,
   });
 
   final String id;
@@ -34,6 +35,7 @@ class AttachmentEntity extends Equatable {
   final DateTime createdAt;
   final DateTime? deletedAt;
   final String? originalPath;
+  final DateTime? lastAccessedAt;
 
   @override
   List<Object?> get props => [
@@ -51,6 +53,7 @@ class AttachmentEntity extends Equatable {
     createdAt,
     deletedAt,
     originalPath,
+    lastAccessedAt,
   ];
 
   AttachmentEntity copyWith({
@@ -68,11 +71,13 @@ class AttachmentEntity extends Equatable {
     DateTime? createdAt,
     DateTime? deletedAt,
     String? originalPath,
+    DateTime? lastAccessedAt,
     bool? annulLocalPath,
     bool? annulRemoteUrl,
     bool? annulFileSizeBytes,
     bool? annulDeletedAt,
     bool? annulOriginalPath,
+    bool? annulLastAccessedAt,
   }) {
     return AttachmentEntity(
       id: id ?? this.id,
@@ -91,6 +96,7 @@ class AttachmentEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
       originalPath: annulOriginalPath == true ? null : originalPath ?? this.originalPath,
+      lastAccessedAt: annulLastAccessedAt == true ? null : lastAccessedAt ?? this.lastAccessedAt,
     );
   }
 }

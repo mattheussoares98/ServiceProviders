@@ -22,6 +22,7 @@ class AttachmentResponseModel extends AttachmentEntity
     required super.createdAt,
     super.deletedAt,
     super.originalPath,
+    super.lastAccessedAt,
   });
 
   factory AttachmentResponseModel.fromEntity(AttachmentEntity entity) =>
@@ -42,6 +43,7 @@ class AttachmentResponseModel extends AttachmentEntity
         createdAt: entity.createdAt,
         deletedAt: entity.deletedAt,
         originalPath: entity.originalPath,
+        lastAccessedAt: entity.lastAccessedAt,
       );
 
   factory AttachmentResponseModel.fromJson(MapDynamic json) =>
@@ -68,6 +70,9 @@ class AttachmentResponseModel extends AttachmentEntity
             ? DateTime.parse(json['deleted_at'] as String)
             : null,
         originalPath: json['original_path'] as String?,
+        lastAccessedAt: json['last_accessed_at'] != null
+            ? DateTime.parse(json['last_accessed_at'] as String)
+            : null,
       );
 
   @override
@@ -86,6 +91,7 @@ class AttachmentResponseModel extends AttachmentEntity
     'created_at': createdAt.toIso8601String(),
     'deleted_at': deletedAt?.toIso8601String(),
     'original_path': originalPath,
+    'last_accessed_at': lastAccessedAt?.toIso8601String(),
   };
 
   @override
@@ -104,6 +110,7 @@ class AttachmentResponseModel extends AttachmentEntity
     createdAt: createdAt,
     deletedAt: deletedAt,
     originalPath: originalPath,
+    lastAccessedAt: lastAccessedAt,
   );
 }
 

@@ -24,6 +24,7 @@ class Attachments extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
   TextColumn get originalPath => text().nullable()();
+  DateTimeColumn get lastAccessedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

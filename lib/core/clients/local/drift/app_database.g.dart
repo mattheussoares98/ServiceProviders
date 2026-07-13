@@ -9868,6 +9868,18 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _lastAccessedAtMeta = const VerificationMeta(
+    'lastAccessedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastAccessedAt =
+      GeneratedColumn<DateTime>(
+        'last_accessed_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -9884,6 +9896,7 @@ class $AttachmentsTable extends Attachments
     createdAt,
     deletedAt,
     originalPath,
+    lastAccessedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -10008,6 +10021,15 @@ class $AttachmentsTable extends Attachments
         ),
       );
     }
+    if (data.containsKey('last_accessed_at')) {
+      context.handle(
+        _lastAccessedAtMeta,
+        lastAccessedAt.isAcceptableOrUnknown(
+          data['last_accessed_at']!,
+          _lastAccessedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -10073,6 +10095,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.string,
         data['${effectivePrefix}original_path'],
       ),
+      lastAccessedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_accessed_at'],
+      ),
     );
   }
 
@@ -10097,6 +10123,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
   final DateTime createdAt;
   final DateTime? deletedAt;
   final String? originalPath;
+  final DateTime? lastAccessedAt;
   const Attachment({
     required this.id,
     required this.workOrderId,
@@ -10112,6 +10139,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     required this.createdAt,
     this.deletedAt,
     this.originalPath,
+    this.lastAccessedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10139,6 +10167,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     }
     if (!nullToAbsent || originalPath != null) {
       map['original_path'] = Variable<String>(originalPath);
+    }
+    if (!nullToAbsent || lastAccessedAt != null) {
+      map['last_accessed_at'] = Variable<DateTime>(lastAccessedAt);
     }
     return map;
   }
@@ -10169,6 +10200,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       originalPath: originalPath == null && nullToAbsent
           ? const Value.absent()
           : Value(originalPath),
+      lastAccessedAt: lastAccessedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastAccessedAt),
     );
   }
 
@@ -10192,6 +10226,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       originalPath: serializer.fromJson<String?>(json['originalPath']),
+      lastAccessedAt: serializer.fromJson<DateTime?>(json['lastAccessedAt']),
     );
   }
   @override
@@ -10212,6 +10247,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'originalPath': serializer.toJson<String?>(originalPath),
+      'lastAccessedAt': serializer.toJson<DateTime?>(lastAccessedAt),
     };
   }
 
@@ -10230,6 +10266,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     DateTime? createdAt,
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<String?> originalPath = const Value.absent(),
+    Value<DateTime?> lastAccessedAt = const Value.absent(),
   }) => Attachment(
     id: id ?? this.id,
     workOrderId: workOrderId ?? this.workOrderId,
@@ -10247,6 +10284,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     createdAt: createdAt ?? this.createdAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     originalPath: originalPath.present ? originalPath.value : this.originalPath,
+    lastAccessedAt: lastAccessedAt.present
+        ? lastAccessedAt.value
+        : this.lastAccessedAt,
   );
   Attachment copyWithCompanion(AttachmentsCompanion data) {
     return Attachment(
@@ -10276,6 +10316,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       originalPath: data.originalPath.present
           ? data.originalPath.value
           : this.originalPath,
+      lastAccessedAt: data.lastAccessedAt.present
+          ? data.lastAccessedAt.value
+          : this.lastAccessedAt,
     );
   }
 
@@ -10295,7 +10338,8 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           ..write('uploadStatus: $uploadStatus, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt, ')
-          ..write('originalPath: $originalPath')
+          ..write('originalPath: $originalPath, ')
+          ..write('lastAccessedAt: $lastAccessedAt')
           ..write(')'))
         .toString();
   }
@@ -10316,6 +10360,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     createdAt,
     deletedAt,
     originalPath,
+    lastAccessedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -10334,7 +10379,8 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           other.uploadStatus == this.uploadStatus &&
           other.createdAt == this.createdAt &&
           other.deletedAt == this.deletedAt &&
-          other.originalPath == this.originalPath);
+          other.originalPath == this.originalPath &&
+          other.lastAccessedAt == this.lastAccessedAt);
 }
 
 class AttachmentsCompanion extends UpdateCompanion<Attachment> {
@@ -10352,6 +10398,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
   final Value<DateTime> createdAt;
   final Value<DateTime?> deletedAt;
   final Value<String?> originalPath;
+  final Value<DateTime?> lastAccessedAt;
   final Value<int> rowid;
   const AttachmentsCompanion({
     this.id = const Value.absent(),
@@ -10368,6 +10415,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.originalPath = const Value.absent(),
+    this.lastAccessedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AttachmentsCompanion.insert({
@@ -10385,6 +10433,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.originalPath = const Value.absent(),
+    this.lastAccessedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        workOrderId = Value(workOrderId),
@@ -10407,6 +10456,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? deletedAt,
     Expression<String>? originalPath,
+    Expression<DateTime>? lastAccessedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10424,6 +10474,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       if (createdAt != null) 'created_at': createdAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (originalPath != null) 'original_path': originalPath,
+      if (lastAccessedAt != null) 'last_accessed_at': lastAccessedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10443,6 +10494,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Value<DateTime>? createdAt,
     Value<DateTime?>? deletedAt,
     Value<String?>? originalPath,
+    Value<DateTime?>? lastAccessedAt,
     Value<int>? rowid,
   }) {
     return AttachmentsCompanion(
@@ -10460,6 +10512,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
       originalPath: originalPath ?? this.originalPath,
+      lastAccessedAt: lastAccessedAt ?? this.lastAccessedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10509,6 +10562,9 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     if (originalPath.present) {
       map['original_path'] = Variable<String>(originalPath.value);
     }
+    if (lastAccessedAt.present) {
+      map['last_accessed_at'] = Variable<DateTime>(lastAccessedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -10532,6 +10588,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('originalPath: $originalPath, ')
+          ..write('lastAccessedAt: $lastAccessedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -24352,6 +24409,7 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime?> deletedAt,
       Value<String?> originalPath,
+      Value<DateTime?> lastAccessedAt,
       Value<int> rowid,
     });
 typedef $$AttachmentsTableUpdateCompanionBuilder =
@@ -24370,6 +24428,7 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime?> deletedAt,
       Value<String?> originalPath,
+      Value<DateTime?> lastAccessedAt,
       Value<int> rowid,
     });
 
@@ -24491,6 +24550,11 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<String> get originalPath => $composableBuilder(
     column: $table.originalPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastAccessedAt => $composableBuilder(
+    column: $table.lastAccessedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24628,6 +24692,11 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get lastAccessedAt => $composableBuilder(
+    column: $table.lastAccessedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$WorkOrdersTableOrderingComposer get workOrderId {
     final $$WorkOrdersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -24748,6 +24817,11 @@ class $$AttachmentsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get lastAccessedAt => $composableBuilder(
+    column: $table.lastAccessedAt,
+    builder: (column) => column,
+  );
+
   $$WorkOrdersTableAnnotationComposer get workOrderId {
     final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -24864,6 +24938,7 @@ class $$AttachmentsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String?> originalPath = const Value.absent(),
+                Value<DateTime?> lastAccessedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion(
                 id: id,
@@ -24880,6 +24955,7 @@ class $$AttachmentsTableTableManager
                 createdAt: createdAt,
                 deletedAt: deletedAt,
                 originalPath: originalPath,
+                lastAccessedAt: lastAccessedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -24898,6 +24974,7 @@ class $$AttachmentsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String?> originalPath = const Value.absent(),
+                Value<DateTime?> lastAccessedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AttachmentsCompanion.insert(
                 id: id,
@@ -24914,6 +24991,7 @@ class $$AttachmentsTableTableManager
                 createdAt: createdAt,
                 deletedAt: deletedAt,
                 originalPath: originalPath,
+                lastAccessedAt: lastAccessedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
