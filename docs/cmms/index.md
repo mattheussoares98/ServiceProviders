@@ -3,7 +3,7 @@
 A **Computerized Maintenance Management System (CMMS)** for Brazilian enterprises managing recurring maintenance across facilities (hospitals, academies, factories, hotels, commercial buildings).
 
 > [!IMPORTANT]
-> **Scope for V1**: Offline-first local database + core UI + file management + Supabase backend + bidirectional sync engine. **Excluded** from V1: QR code scanning, real-time WebSockets, background sync, push notifications, and multi-company support.
+> **Scope for V1**: Offline-first local database + core UI + file management + Supabase backend + bidirectional sync engine + personal configuration. **Additions to V1**: Firebase FCM push notifications for work order assignment, Company parameters admin panel (offline alerts/email notification toggles), and Work orders list with search filters and cursor-based pagination. Excluded from V1: QR code scanning, real-time WebSockets, background sync, and multi-company support.
 
 > [!IMPORTANT]
 > **Implementation Methodology**: We build step-by-step: table-by-table, column-by-column, data-source-by-data-source, repository-by-repository, module-by-module, page-by-page. Each component must be verified and aligned before proceeding.
