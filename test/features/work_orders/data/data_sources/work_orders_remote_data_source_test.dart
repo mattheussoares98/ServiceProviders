@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
@@ -11,6 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_r
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -22,6 +24,8 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, dynamic>{});
     registerFallbackValue(<SupabaseFilter>[]);
+    registerFallbackValue(<SupabaseOrder>[]);
+    registerFallbackValue(const WorkOrderFilter());
   });
 
   setUp(() {
@@ -64,6 +68,9 @@ void main() {
             table: any(named: 'table'),
             columns: any(named: 'columns'),
             filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
           ),
         ).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
 
@@ -76,11 +83,10 @@ void main() {
           () => mockDatabase.selectList(
             table: 'work_orders',
             columns: '*, locations!inner(deleted_at), attachments(*)',
-            filters: [
-              SupabaseFilter.eq('company_id', tCompanyId),
-              SupabaseFilter.isFilter('deleted_at', null),
-              SupabaseFilter.isFilter('locations.deleted_at', null),
-            ],
+            filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: 20,
+            offset: 0,
           ),
         ).called(1);
       },
@@ -94,6 +100,9 @@ void main() {
             table: any(named: 'table'),
             columns: any(named: 'columns'),
             filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
           ),
         ).thenThrow(Exception('database error'));
 

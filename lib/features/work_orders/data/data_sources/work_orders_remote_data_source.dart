@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
@@ -11,9 +12,15 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_r
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 abstract interface class WorkOrdersRemoteDataSource {
-  FutureList<WorkOrderResponseModel> getWorkOrders(String companyId);
+  FutureList<WorkOrderResponseModel> getWorkOrders(
+    String companyId, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 20,
+    int offset = 0,
+  });
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
   FutureBool createWorkOrder(WorkOrderRequestModel request);
   FutureBool updateWorkOrder(WorkOrderRequestModel request);
@@ -50,19 +57,53 @@ final class WorkOrdersRemoteDataSourceImpl
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<WorkOrderResponseModel> getWorkOrders(String companyId) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'work_orders',
-          columns: '*, locations!inner(deleted_at), attachments(*)',
-          filters: [
-            SupabaseFilter.eq('company_id', companyId),
-            SupabaseFilter.isFilter('deleted_at', null),
-            SupabaseFilter.isFilter('locations.deleted_at', null),
-          ],
-        );
-        return response.map(WorkOrderResponseModel.fromJson).toList();
-      });
+  FutureList<WorkOrderResponseModel> getWorkOrders(
+    String companyId, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 20,
+    int offset = 0,
+  }) => SupabaseHandler.call(() async {
+    final filters = [
+      SupabaseFilter.eq('company_id', companyId),
+      SupabaseFilter.isFilter('deleted_at', null),
+      SupabaseFilter.isFilter('locations.deleted_at', null),
+      if (filter.statuses.isNotEmpty)
+        SupabaseFilter.inList(
+          'status',
+          filter.statuses.map((s) => s.code).toList(),
+        ),
+      if (filter.priorities.isNotEmpty)
+        SupabaseFilter.inList(
+          'priority',
+          filter.priorities.map((p) => p.code).toList(),
+        ),
+      if (filter.type != null) SupabaseFilter.eq('type', filter.type!.code),
+      if (filter.assignedToId != null)
+        SupabaseFilter.eq('assigned_to_id', filter.assignedToId!),
+      if (filter.scheduledDateFrom != null)
+        SupabaseFilter.gte(
+          'scheduled_date',
+          filter.scheduledDateFrom!.toIso8601String(),
+        ),
+      if (filter.scheduledDateTo != null)
+        SupabaseFilter.lte(
+          'scheduled_date',
+          filter.scheduledDateTo!.toIso8601String(),
+        ),
+      if (filter.searchText != null && filter.searchText!.isNotEmpty)
+        SupabaseFilter.ilike('title', '%${filter.searchText!}%'),
+    ];
+
+    final response = await _database.selectList(
+      table: 'work_orders',
+      columns: '*, locations!inner(deleted_at), attachments(*)',
+      filters: filters,
+      orderBy: [const SupabaseOrder(column: 'created_at')],
+      limit: pageSize,
+      offset: offset,
+    );
+    return response.map(WorkOrderResponseModel.fromJson).toList();
+  });
 
   @override
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id) =>
