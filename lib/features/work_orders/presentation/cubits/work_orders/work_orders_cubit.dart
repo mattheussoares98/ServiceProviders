@@ -10,7 +10,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -26,8 +28,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   final WorkOrdersCubitUseCases _useCases;
 
+  static const _pageSize = 20;
+
   Future<void> loadWorkOrdersAndChangeRequests({
     bool showLoading = true,
+    WorkOrderFilter? filter,
   }) async {
     final user = _useCases.getSessionUser();
     if (user.companyId.isEmpty) {
@@ -44,12 +49,16 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return;
     }
 
+    final activeFilter = filter ?? state.activeFilter;
+
     if (showLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
     final results = await Future.wait([
-      _useCases.getWorkOrders(user.companyId),
+      _useCases.getWorkOrders(
+        GetWorkOrdersParams(companyId: user.companyId, filter: activeFilter),
+      ),
       _useCases.getChangeRequests(user.companyId),
     ]);
     if (isClosed) return;
@@ -60,11 +69,15 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (workOrdersResult is SuccessState<List<WorkOrderEntity>> &&
         changeRequestsResult
             is SuccessState<List<WorkOrderChangeRequestEntity>>) {
+      final fetchedOrders = workOrdersResult.data ?? [];
       emit(
         state.copyWith(
           status: StateStatus.loaded,
-          workOrders: workOrdersResult.data,
+          workOrders: fetchedOrders,
           changeRequests: changeRequestsResult.data,
+          activeFilter: activeFilter,
+          hasMorePages: fetchedOrders.length == _pageSize,
+          isLoadingMore: false,
           annulErrorMessage: true,
         ),
       );
@@ -78,6 +91,42 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           errorMessage: errorMessage,
         ),
       );
+    }
+  }
+
+  Future<void> applyFilter(WorkOrderFilter filter) =>
+      loadWorkOrdersAndChangeRequests(filter: filter);
+
+  Future<void> clearFilter() =>
+      loadWorkOrdersAndChangeRequests(filter: const WorkOrderFilter());
+
+  Future<void> loadNextPage() async {
+    if (!state.hasMorePages || state.isLoadingMore) return;
+    final user = _useCases.getSessionUser();
+    if (user.companyId.isEmpty) return;
+
+    emit(state.copyWith(isLoadingMore: true));
+
+    final dataState = await _useCases.getWorkOrders(
+      GetWorkOrdersParams(
+        companyId: user.companyId,
+        filter: state.activeFilter,
+        offset: state.workOrders.length,
+      ),
+    );
+    if (isClosed) return;
+
+    if (dataState is SuccessState<List<WorkOrderEntity>>) {
+      final newOrders = dataState.data ?? [];
+      emit(
+        state.copyWith(
+          workOrders: [...state.workOrders, ...newOrders],
+          hasMorePages: newOrders.length == _pageSize,
+          isLoadingMore: false,
+        ),
+      );
+    } else {
+      emit(state.copyWith(isLoadingMore: false));
     }
   }
 

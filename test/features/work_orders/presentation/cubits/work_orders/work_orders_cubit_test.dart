@@ -107,6 +107,7 @@ void main() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
+    registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
   });
 
   setUp(() {
@@ -192,7 +193,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
@@ -224,7 +225,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
@@ -257,7 +258,7 @@ void main() {
         ],
         verify: (_) {
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
@@ -403,7 +404,7 @@ void main() {
               ),
             ).called(1);
             verify(
-              () => mockGetWorkOrders.call(tUserProfile.companyId),
+              () => mockGetWorkOrders.call(any()),
             ).called(1);
           },
         );
@@ -852,7 +853,7 @@ void main() {
               ),
             ).called(1);
             verify(
-              () => mockGetWorkOrders.call(tUserProfile.companyId),
+              () => mockGetWorkOrders.call(any()),
             ).called(1);
           },
         );
@@ -1081,7 +1082,7 @@ void main() {
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
         },
       );
@@ -1147,7 +1148,7 @@ void main() {
         verify: (_) {
           verify(() => mockCreateChangeRequest.call(tRequest)).called(1);
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
         },
       );
@@ -1217,7 +1218,7 @@ void main() {
         verify: (_) {
           verify(() => mockReviewChangeRequest.call(tParams)).called(1);
           verify(
-            () => mockGetWorkOrders.call(tUserProfile.companyId),
+            () => mockGetWorkOrders.call(any()),
           ).called(1);
         },
       );
