@@ -21,6 +21,7 @@ class WorkOrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //TODO check this entire page because of the last changes
     return BaseScaffold(
       isScrollable: false,
       onRefresh: context
