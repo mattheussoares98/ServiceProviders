@@ -261,37 +261,64 @@ void main() {
   group('GetWorkOrdersUseCase', () {
     final tCompanyId = EntityFactory.makeWorkOrderEntity().companyId;
     final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+    final tParams = GetWorkOrdersParams(companyId: tCompanyId);
 
     test('should return a list of work orders on success', () async {
       // Arrange
       when(
-        () => mockRepository.getWorkOrders(any()),
+        () => mockRepository.getWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
       ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
 
       // Act
-      final result = await getWorkOrdersUseCase(tCompanyId);
+      final result = await getWorkOrdersUseCase(tParams);
 
       // Assert
       expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
       expect(result.data, tWorkOrders);
-      verify(() => mockRepository.getWorkOrders(tCompanyId)).called(1);
+      verify(
+        () => mockRepository.getWorkOrders(
+          tCompanyId,
+          filter: tParams.filter,
+          pageSize: tParams.pageSize,
+          offset: tParams.offset,
+        ),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(() => mockRepository.getWorkOrders(any())).thenAnswer(
+      when(
+        () => mockRepository.getWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).thenAnswer(
         (_) async =>
             FailureState<List<WorkOrderEntity>>(message: 'Load failed'),
       );
 
       // Act
-      final result = await getWorkOrdersUseCase(tCompanyId);
+      final result = await getWorkOrdersUseCase(tParams);
 
       // Assert
       expect(result, isA<FailureState<List<WorkOrderEntity>>>());
       expect(result.message, 'Load failed');
-      verify(() => mockRepository.getWorkOrders(tCompanyId)).called(1);
+      verify(
+        () => mockRepository.getWorkOrders(
+          tCompanyId,
+          filter: tParams.filter,
+          pageSize: tParams.pageSize,
+          offset: tParams.offset,
+        ),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
   });
