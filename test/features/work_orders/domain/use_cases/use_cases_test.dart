@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -34,6 +35,7 @@ void main() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
     registerFallbackValue(EntityFactory.makeWorkOrderEntity());
     registerFallbackValue(ChangeRequestStatus.approved);
+    registerFallbackValue(const WorkOrderFilter());
   });
 
   setUp(() {
