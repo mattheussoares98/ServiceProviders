@@ -29,6 +29,7 @@ void main() {
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(CreateUpdateAssetRoute());
     registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
+    registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
   });
   late MockGetWorkOrdersUseCase mockGetWorkOrdersUseCase;
   late MockGetAssetsUseCase mockGetAssetsUseCase;
@@ -120,7 +121,7 @@ void main() {
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
         when(
-          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+          () => mockGetWorkOrdersUseCase.call(any()),
         ).thenAnswer((_) async => FailureState(message: 'Error work orders'));
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
@@ -146,7 +147,7 @@ void main() {
       build: () {
         final userData = EntityFactory.makeUserDataEntity();
         when(
-          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+          () => mockGetWorkOrdersUseCase.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
@@ -197,7 +198,7 @@ void main() {
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+          () => mockGetWorkOrdersUseCase.call(any()),
         ).thenAnswer(
           (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
         );
@@ -258,7 +259,7 @@ void main() {
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+          () => mockGetWorkOrdersUseCase.call(any()),
         ).thenAnswer(
           (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
         );
@@ -315,7 +316,7 @@ void main() {
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         when(
-          () => mockGetWorkOrdersUseCase.call(userData.user.companyId),
+          () => mockGetWorkOrdersUseCase.call(any()),
         ).thenAnswer((_) async => SuccessState(data: [workOrder1, workOrder3]));
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),

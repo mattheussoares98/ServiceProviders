@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashb
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -39,7 +40,7 @@ class DashboardCubit extends BaseCubit<DashboardState> {
 
     // Run work orders and assets calls concurrently
     final results = await Future.wait([
-      _useCases.getWorkOrders.call(companyId),
+      _useCases.getWorkOrders.call(GetWorkOrdersParams(companyId: companyId)),
       _useCases.getAssets.call(companyId),
     ]);
 
