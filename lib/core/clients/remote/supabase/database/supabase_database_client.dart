@@ -18,6 +18,7 @@ abstract interface class SupabaseDatabaseClient {
     List<SupabaseFilter> filters = const [],
     List<SupabaseOrder> orderBy = const [],
     int? limit,
+    int? offset,
   });
 
   Future<List<MapDynamic>> insert({
@@ -86,13 +87,18 @@ final class SupabaseDatabaseClientImpl implements SupabaseDatabaseClient {
     List<SupabaseFilter> filters = const [],
     List<SupabaseOrder> orderBy = const [],
     int? limit,
+    int? offset,
   }) async {
     PostgrestTransformBuilder<PostgrestList> query = _applyFilters(
       _client.from(table).select(columns),
       filters,
     );
     query = _applyOrder(query, orderBy);
-    if (limit != null) query = query.limit(limit);
+    if (limit != null && offset != null) {
+      query = query.range(offset, offset + limit - 1);
+    } else if (limit != null) {
+      query = query.limit(limit);
+    }
 
     final response = await query;
     return _mapList(response);
