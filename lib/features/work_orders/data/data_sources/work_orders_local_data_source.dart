@@ -16,10 +16,16 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dar
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 abstract interface class WorkOrdersLocalDataSource {
   // Work Orders
-  FutureList<WorkOrderResponseModel> getWorkOrders(String companyId);
+  FutureList<WorkOrderResponseModel> getWorkOrders(
+    String companyId, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 20,
+    int offset = 0,
+  });
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
   FutureBool saveWorkOrder(WorkOrderResponseModel workOrder);
   FutureBool deleteWorkOrder(String id);
@@ -60,19 +66,72 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<WorkOrderResponseModel> getWorkOrders(String companyId) {
+  FutureList<WorkOrderResponseModel> getWorkOrders(
+    String companyId, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 20,
+    int offset = 0,
+  }) {
     return ErrorHandler.execute(() async {
-      final query =
-          _database.select(_database.workOrders).join([
-            innerJoin(
-              _database.locations,
-              _database.locations.id.equalsExp(_database.workOrders.locationId),
-            ),
-          ])..where(
-            _database.workOrders.companyId.equals(companyId) &
-                _database.workOrders.deletedAt.isNull() &
-                _database.locations.deletedAt.isNull(),
-          );
+      var query = _database.select(_database.workOrders).join([
+        innerJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.workOrders.locationId),
+        ),
+      ]);
+
+      // Base conditions
+      var condition = _database.workOrders.companyId.equals(companyId) &
+          _database.workOrders.deletedAt.isNull() &
+          _database.locations.deletedAt.isNull();
+
+      // Apply filters
+      if (filter.statuses.isNotEmpty) {
+        condition = condition &
+            _database.workOrders.status.isIn(
+              filter.statuses.map((s) => s.code).toList(),
+            );
+      }
+      if (filter.priorities.isNotEmpty) {
+        condition = condition &
+            _database.workOrders.priority.isIn(
+              filter.priorities.map((p) => p.code).toList(),
+            );
+      }
+      if (filter.type != null) {
+        condition = condition &
+            _database.workOrders.type.equals(filter.type!.code);
+      }
+      if (filter.assignedToId != null) {
+        condition = condition &
+            _database.workOrders.assignedToId.equals(filter.assignedToId!);
+      }
+      if (filter.scheduledDateFrom != null) {
+        condition = condition &
+            _database.workOrders.scheduledDate.isBiggerOrEqualValue(
+              filter.scheduledDateFrom!,
+            );
+      }
+      if (filter.scheduledDateTo != null) {
+        condition = condition &
+            _database.workOrders.scheduledDate.isSmallerOrEqualValue(
+              filter.scheduledDateTo!,
+            );
+      }
+      if (filter.searchText != null && filter.searchText!.isNotEmpty) {
+        condition = condition &
+            _database.workOrders.title.like(
+              '%${filter.searchText!}%',
+            );
+      }
+
+      query
+        ..where(condition)
+        ..orderBy([
+          OrderingTerm.desc(_database.workOrders.createdAt),
+        ])
+        ..limit(pageSize, offset: offset);
+
       final rows = await query.get();
 
       final orderIds = rows
