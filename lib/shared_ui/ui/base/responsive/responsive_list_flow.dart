@@ -16,6 +16,7 @@ class ResponsiveListFlow extends StatelessWidget {
     this.padding,
     this.physics,
     this.useMultiColumnWhenMobile = false,
+    this.scrollController,
   });
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
@@ -24,6 +25,7 @@ class ResponsiveListFlow extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
   final bool useMultiColumnWhenMobile;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,7 @@ class ResponsiveListFlow extends StatelessWidget {
         );
       }
       return ListView.builder(
+        controller: scrollController,
         physics: physics,
         padding: effectivePadding,
         itemBuilder: itemBuilder,
@@ -73,6 +76,7 @@ class ResponsiveListFlow extends StatelessWidget {
     }
 
     return ListView.builder(
+      controller: scrollController,
       physics: physics,
       itemCount: rowCount,
       padding: effectivePadding,
