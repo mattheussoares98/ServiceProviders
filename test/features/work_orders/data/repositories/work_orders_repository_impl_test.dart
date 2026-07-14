@@ -15,6 +15,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -54,6 +55,7 @@ void main() {
         EntityFactory.makeWorkOrderHistoryEntity(),
       ),
     );
+    registerFallbackValue(const WorkOrderFilter());
   });
 
   setUp(() {
@@ -95,7 +97,12 @@ void main() {
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockRemoteDataSource.getWorkOrders(any()),
+          () => mockRemoteDataSource.getWorkOrders(
+            any(),
+            filter: any(named: 'filter'),
+            pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
+          ),
         ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
         when(
           () => mockLocalDataSource.saveWorkOrder(any()),
@@ -105,7 +112,14 @@ void main() {
 
         expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
         expect(result.data, [tWorkOrderEntity]);
-        verify(() => mockRemoteDataSource.getWorkOrders(tCompanyId)).called(1);
+        verify(
+          () => mockRemoteDataSource.getWorkOrders(
+            tCompanyId,
+            filter: any(named: 'filter'),
+            pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
+          ),
+        ).called(1);
         verify(
           () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
         ).called(1);
@@ -115,15 +129,34 @@ void main() {
     test('should return local data when internet is disconnected', () async {
       when(() => mockInternetClient.isConnected).thenReturn(false);
       when(
-        () => mockLocalDataSource.getWorkOrders(any()),
+        () => mockLocalDataSource.getWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
       ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
 
       final result = await repository.getWorkOrders(tCompanyId);
 
       expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
       expect(result.data, [tWorkOrderEntity]);
-      verify(() => mockLocalDataSource.getWorkOrders(tCompanyId)).called(1);
-      verifyNever(() => mockRemoteDataSource.getWorkOrders(any()));
+      verify(
+        () => mockLocalDataSource.getWorkOrders(
+          tCompanyId,
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).called(1);
+      verifyNever(
+        () => mockRemoteDataSource.getWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      );
     });
 
     test(
@@ -131,15 +164,34 @@ void main() {
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockRemoteDataSource.getWorkOrders(any()),
+          () => mockRemoteDataSource.getWorkOrders(
+            any(),
+            filter: any(named: 'filter'),
+            pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
+          ),
         ).thenAnswer((_) async => FailureState(message: 'Server error'));
 
         final result = await repository.getWorkOrders(tCompanyId);
 
         expect(result, isA<FailureState<List<WorkOrderEntity>>>());
         expect(result.message, 'Server error');
-        verify(() => mockRemoteDataSource.getWorkOrders(tCompanyId)).called(1);
-        verifyNever(() => mockLocalDataSource.getWorkOrders(any()));
+        verify(
+          () => mockRemoteDataSource.getWorkOrders(
+            tCompanyId,
+            filter: any(named: 'filter'),
+            pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
+          ),
+        ).called(1);
+        verifyNever(
+          () => mockLocalDataSource.getWorkOrders(
+            any(),
+            filter: any(named: 'filter'),
+            pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
+          ),
+        );
       },
     );
   });

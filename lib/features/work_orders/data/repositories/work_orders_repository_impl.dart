@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_c
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 @LazySingleton(as: WorkOrdersRepository)
 final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
@@ -34,16 +35,35 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   final WorkOrdersLocalDataSource _localDataSource;
 
   @override
-  FutureList<WorkOrderEntity> getWorkOrders(String companyId) =>
+  FutureList<WorkOrderEntity> getWorkOrders(
+    String companyId, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 20,
+    int offset = 0,
+  }) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
         WorkOrderResponseModel,
         WorkOrderEntity
       >(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.getWorkOrders(companyId),
-        remoteCallback: () => _remoteDataSource.getWorkOrders(companyId),
+        localCallback: () => _localDataSource.getWorkOrders(
+          companyId,
+          filter: filter,
+          pageSize: pageSize,
+          offset: offset,
+        ),
+        remoteCallback: () => _remoteDataSource.getWorkOrders(
+          companyId,
+          filter: filter,
+          pageSize: pageSize,
+          offset: offset,
+        ),
         onRemoteSuccess: (list) async {
-          await Future.wait(list.map(_localDataSource.saveWorkOrder).toList());
+          if (offset == 0) {
+            await Future.wait(
+              list.map(_localDataSource.saveWorkOrder).toList(),
+            );
+          }
           return const SuccessState(data: true);
         },
       );
