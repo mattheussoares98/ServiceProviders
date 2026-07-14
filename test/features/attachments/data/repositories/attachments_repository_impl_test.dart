@@ -59,6 +59,9 @@ void main() {
     when(() => fileService.fileExists(any())).thenAnswer((_) async => true);
     when(() => mockInternet.isConnected).thenReturn(true);
     when(
+      () => mockLocalDataSource.touchLastAccessed(any()),
+    ).thenAnswer((_) async => SuccessState.nil);
+    when(
       () => mockRemoteDataSource.getAttachmentByHash(
         workOrderId: any(named: 'workOrderId'),
         hash: any(named: 'hash'),

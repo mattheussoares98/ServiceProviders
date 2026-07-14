@@ -109,7 +109,9 @@ void main() {
         );
   }
 
-  final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
+  final tAttachmentEntity = EntityFactory.makeAttachmentEntity().copyWith(
+    lastAccessedAt: DateTime(2026),
+  );
   final tAttachmentModel = AttachmentResponseModel.fromEntity(
     tAttachmentEntity,
   );
