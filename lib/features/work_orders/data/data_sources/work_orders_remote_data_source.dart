@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -22,8 +21,8 @@ abstract interface class WorkOrdersRemoteDataSource {
     int offset = 0,
   });
   FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
-  FutureBool createWorkOrder(WorkOrderRequestModel request);
-  FutureBool updateWorkOrder(WorkOrderRequestModel request);
+  FutureBool createWorkOrder(WorkOrderResponseModel request);
+  FutureBool updateWorkOrder(WorkOrderResponseModel request);
   FutureBool deleteWorkOrder(String id);
 
   FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId);
@@ -126,14 +125,14 @@ final class WorkOrdersRemoteDataSourceImpl
       });
 
   @override
-  FutureBool createWorkOrder(WorkOrderRequestModel request) =>
+  FutureBool createWorkOrder(WorkOrderResponseModel request) =>
       SupabaseHandler.call(() async {
         await _database.insert(table: 'work_orders', values: request.toJson());
         return true;
       });
 
   @override
-  FutureBool updateWorkOrder(WorkOrderRequestModel request) =>
+  FutureBool updateWorkOrder(WorkOrderResponseModel request) =>
       SupabaseHandler.call(() async {
         await _database.update(
           table: 'work_orders',

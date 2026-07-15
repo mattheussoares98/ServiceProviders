@@ -447,11 +447,20 @@ void main() {
             'resendingInvitationIds',
             {tUserInvitation.id},
           ),
-          isA<UsersState>().having(
-            (s) => s.resendingInvitationIds,
-            'resendingInvitationIds',
-            isEmpty,
-          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.resendingInvitationIds,
+                'resendingInvitationIds',
+                {tUserInvitation.id},
+              ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.resendingInvitationIds,
+                'resendingInvitationIds',
+                isEmpty,
+              ),
         ],
       );
 

@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -38,7 +37,7 @@ void main() {
 
   final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
   final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
-  final tWorkOrderRequest = WorkOrderRequestModel.fromEntity(tWorkOrderEntity);
+  final tWorkOrderRequest = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
   final tTaskEntity = EntityFactory.makeTaskEntity();
   final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);

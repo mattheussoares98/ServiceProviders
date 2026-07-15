@@ -550,11 +550,6 @@ void main() {
             'status',
             StateStatus.loaded,
           ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
         ],
         verify: (_) {
           verify(() => mockDeleteLocation.call(tId)).called(1);

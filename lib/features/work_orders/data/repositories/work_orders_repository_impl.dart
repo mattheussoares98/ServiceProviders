@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -92,7 +91,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
         ),
         remoteCallback: () async {
           final result = await _remoteDataSource.createWorkOrder(
-            WorkOrderRequestModel.fromEntity(workOrder),
+            WorkOrderResponseModel.fromEntity(workOrder),
           );
           if (result is SuccessState<bool> && result.data == true) {
             await _localDataSource.saveWorkOrder(
@@ -118,7 +117,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
         ),
         remoteCallback: () async {
           final result = await _remoteDataSource.updateWorkOrder(
-            WorkOrderRequestModel.fromEntity(workOrder),
+            WorkOrderResponseModel.fromEntity(workOrder),
           );
           if (result is SuccessState<bool> && result.data == true) {
             await _localDataSource.saveWorkOrder(

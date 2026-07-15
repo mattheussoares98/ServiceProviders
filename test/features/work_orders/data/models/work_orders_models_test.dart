@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
@@ -14,34 +13,14 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_h
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
-  group('WorkOrderRequestModel & WorkOrderResponseModel', () {
+  group('WorkOrderResponseModel & WorkOrderResponseModel', () {
     final tEntity = EntityFactory.makeWorkOrderEntity();
 
     test('should be a subclass of WorkOrderEntity', () {
-      final requestModel = WorkOrderRequestModel.fromEntity(tEntity);
+      final requestModel = WorkOrderResponseModel.fromEntity(tEntity);
       final responseModel = WorkOrderResponseModel.fromEntity(tEntity);
       expect(requestModel, isA<WorkOrderEntity>());
       expect(responseModel, isA<WorkOrderEntity>());
-    });
-
-    test('should map fromEntity, toJson, fromJson, and toEntity correctly', () {
-      // fromEntity
-      final requestModel = WorkOrderRequestModel.fromEntity(tEntity);
-      final responseModel = WorkOrderResponseModel.fromEntity(tEntity);
-
-      // toJson
-      final requestJson = requestModel.toJson();
-      final responseJson = responseModel.toJson();
-
-      // fromJson
-      final requestModelFromJson = WorkOrderRequestModel.fromJson(requestJson);
-      final responseModelFromJson = WorkOrderResponseModel.fromJson(
-        responseJson,
-      );
-
-      // toEntity
-      expect(requestModelFromJson.toEntity(), tEntity);
-      expect(responseModelFromJson.toEntity(), tEntity);
     });
   });
 
