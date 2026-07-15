@@ -137,9 +137,6 @@ class WorkOrderResponseModel extends WorkOrderEntity
     'created_at': createdAt.toUtc().toIso8601String(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
     'deleted_at': deletedAt?.toUtc().toIso8601String(),
-    'attachments': attachments
-        .map((e) => AttachmentResponseModel.fromEntity(e).toJson())
-        .toList(),
   };
 
   @override
