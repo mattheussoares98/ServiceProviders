@@ -59,6 +59,9 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           offset: offset,
         ),
         onRemoteSuccess: (list) async {
+          // Cache locally only when offset is 0 (first page) to keep the local database updated with
+          // the latest/most relevant orders, while preventing local database storage bloat with endless
+          // scrolled items.
           if (offset == 0) {
             await Future.wait(
               list.map(_localDataSource.saveWorkOrder).toList(),

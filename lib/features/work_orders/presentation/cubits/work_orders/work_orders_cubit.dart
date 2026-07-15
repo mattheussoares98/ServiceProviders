@@ -101,6 +101,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       loadWorkOrdersAndChangeRequests(filter: const WorkOrderFilter());
 
   Future<void> loadNextPage() async {
+    // isLoadingMore prevents duplicate concurrent requests for the same page
+    // when multiple scroll trigger events fire within a short timeframe.
     if (!state.hasMorePages || state.isLoadingMore) return;
     final user = _useCases.getSessionUser();
     if (user.companyId.isEmpty) return;
@@ -126,6 +128,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         ),
       );
     } else {
+      showErrorToast(
+        dataState.message ?? 'Erro ao carregar mais ordens de serviço'.hardcoded,
+      );
       emit(state.copyWith(isLoadingMore: false));
     }
   }

@@ -73,7 +73,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     int offset = 0,
   }) {
     return ErrorHandler.execute(() async {
-      var query = _database.select(_database.workOrders).join([
+      final query = _database.select(_database.workOrders).join([
         innerJoin(
           _database.locations,
           _database.locations.id.equalsExp(_database.workOrders.locationId),
@@ -81,55 +81,60 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       ]);
 
       // Base conditions
-      var condition = _database.workOrders.companyId.equals(companyId) &
+      var condition =
+          _database.workOrders.companyId.equals(companyId) &
           _database.workOrders.deletedAt.isNull() &
           _database.locations.deletedAt.isNull();
 
       // Apply filters
       if (filter.statuses.isNotEmpty) {
-        condition = condition &
+        condition =
+            condition &
             _database.workOrders.status.isIn(
               filter.statuses.map((s) => s.code).toList(),
             );
       }
       if (filter.priorities.isNotEmpty) {
-        condition = condition &
+        condition =
+            condition &
             _database.workOrders.priority.isIn(
               filter.priorities.map((p) => p.code).toList(),
             );
       }
       if (filter.type != null) {
-        condition = condition &
-            _database.workOrders.type.equals(filter.type!.code);
+        condition =
+            condition & _database.workOrders.type.equals(filter.type!.code);
       }
       if (filter.assignedToId != null) {
-        condition = condition &
+        condition =
+            condition &
             _database.workOrders.assignedToId.equals(filter.assignedToId!);
       }
       if (filter.scheduledDateFrom != null) {
-        condition = condition &
+        condition =
+            condition &
             _database.workOrders.scheduledDate.isBiggerOrEqualValue(
               filter.scheduledDateFrom!,
             );
       }
       if (filter.scheduledDateTo != null) {
-        condition = condition &
+        condition =
+            condition &
             _database.workOrders.scheduledDate.isSmallerOrEqualValue(
               filter.scheduledDateTo!,
             );
       }
       if (filter.searchText != null && filter.searchText!.isNotEmpty) {
-        condition = condition &
-            _database.workOrders.title.like(
-              '%${filter.searchText!}%',
-            );
+        condition =
+            condition &
+            _database.workOrders.title.like('%${filter.searchText!}%');
       }
 
+      // The 'offset' determines how many rows to skip before fetching.
+      // E.g., offset = 0 gets the first page, offset = 20 skips 20 and gets the second page.
       query
         ..where(condition)
-        ..orderBy([
-          OrderingTerm.desc(_database.workOrders.createdAt),
-        ])
+        ..orderBy([OrderingTerm.desc(_database.workOrders.createdAt)])
         ..limit(pageSize, offset: offset);
 
       final rows = await query.get();
