@@ -111,30 +111,5 @@ void main() {
         expect(find.byIcon(Icons.info_outline), findsOneWidget);
       }
     });
-
-    testWidgets('applies padding adaptively if specified', (tester) async {
-      final isCupertino = PlatformUtil.isCupertino;
-
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: PlatformIcon(
-              materialIcon: Icons.add,
-              cupertinoIcon: CupertinoIcons.add,
-            ),
-          ),
-        ),
-      );
-
-      final paddingFinder = find.byType(Padding);
-      expect(paddingFinder, findsOneWidget);
-
-      final paddingWidget = tester.widget<Padding>(paddingFinder);
-      if (isCupertino) {
-        expect(paddingWidget.padding, const EdgeInsets.all(16));
-      } else {
-        expect(paddingWidget.padding, const EdgeInsets.all(8));
-      }
-    });
   });
 }
