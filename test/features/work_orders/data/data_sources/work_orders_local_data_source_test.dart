@@ -9,6 +9,10 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_r
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -94,8 +98,9 @@ void main() {
   }
 
   group('WorkOrdersLocalDataSourceImpl - Work Orders', () {
-    final tWorkOrderEntity =
-        EntityFactory.makeWorkOrderEntity().copyWith(attachments: const []);
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+      attachments: const [],
+    );
     final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
 
     test(
@@ -239,6 +244,87 @@ void main() {
         );
         expect(getListResult.data, isEmpty);
         expect(getSingleResult, isA<FailureState<WorkOrderResponseModel>>());
+      },
+    );
+
+    test(
+      'should correctly apply all filters and pagination (limit/offset) on getWorkOrders',
+      () async {
+        final baseEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+          attachments: const [],
+          status: WorkOrderStatus.open,
+          priority: Priority.high,
+          type: WorkOrderType.preventive,
+          title: 'Manutenção de teste',
+          scheduledDate: DateTime(2026, 7, 15),
+        );
+        final modelMatch = WorkOrderResponseModel.fromEntity(baseEntity);
+
+        await insertDependencies(
+          companyId: modelMatch.companyId,
+          userId: modelMatch.createdById,
+          locationId: modelMatch.locationId,
+          areaId: faker.guid.guid(),
+          assetId: modelMatch.assetId!,
+        );
+
+        // Seed assigned user too
+        await database
+            .into(database.userProfiles)
+            .insert(
+              UserProfilesCompanion.insert(
+                id: modelMatch.assignedToId!,
+                companyId: modelMatch.companyId,
+                name: faker.person.name(),
+                email: faker.internet.email(),
+                isActive: const Value(true),
+              ),
+            );
+
+        final modelNonMatch = WorkOrderResponseModel.fromEntity(
+          baseEntity.copyWith(
+            id: faker.guid.guid(),
+            title: 'Outro titulo',
+            status: WorkOrderStatus.completed,
+          ),
+        );
+
+        await dataSource.saveWorkOrder(modelMatch);
+        await dataSource.saveWorkOrder(modelNonMatch);
+
+        final filter = WorkOrderFilter(
+          statuses: const [WorkOrderStatus.open],
+          priorities: const [Priority.high],
+          type: WorkOrderType.preventive,
+          assignedToId: modelMatch.assignedToId,
+          scheduledDateFrom: DateTime(2026, 7, 14),
+          scheduledDateTo: DateTime(2026, 7, 16),
+          searchText: 'teste',
+        );
+
+        // Verify filter works
+        final filterResult = await dataSource.getWorkOrders(
+          modelMatch.companyId,
+          filter: filter,
+        );
+
+        expect(filterResult.data, hasLength(1));
+        expect(filterResult.data!.first.id, modelMatch.id);
+
+        // Verify pagination (limit / offset)
+        final pagedResult1 = await dataSource.getWorkOrders(
+          modelMatch.companyId,
+          pageSize: 1,
+        );
+        expect(pagedResult1.data, hasLength(1));
+
+        final pagedResult2 = await dataSource.getWorkOrders(
+          modelMatch.companyId,
+          pageSize: 1,
+          offset: 1,
+        );
+        expect(pagedResult2.data, hasLength(1));
+        expect(pagedResult2.data!.first.id, isNot(pagedResult1.data!.first.id));
       },
     );
   });

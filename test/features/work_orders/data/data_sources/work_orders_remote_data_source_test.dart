@@ -12,6 +12,9 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_r
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -89,6 +92,105 @@ void main() {
             offset: 0,
           ),
         ).called(1);
+      },
+    );
+
+    test(
+      'getWorkOrders should properly construct filters list and call remote client with them',
+      () async {
+        final filter = WorkOrderFilter(
+          statuses: const [WorkOrderStatus.open],
+          priorities: const [Priority.high],
+          type: WorkOrderType.preventive,
+          assignedToId: 'user-123',
+          scheduledDateFrom: DateTime(2026, 7, 14),
+          scheduledDateTo: DateTime(2026, 7, 16),
+          searchText: 'manutencao',
+        );
+
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          ),
+        ).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+
+        final result = await dataSource.getWorkOrders(
+          tCompanyId,
+          filter: filter,
+          pageSize: 10,
+          offset: 5,
+        );
+
+        expect(result, isA<SuccessState<List<WorkOrderResponseModel>>>());
+
+        final capturedFilters =
+            verify(
+                  () => mockDatabase.selectList(
+                    table: 'work_orders',
+                    columns: '*, locations!inner(deleted_at), attachments(*)',
+                    filters: captureAny(named: 'filters'),
+                    orderBy: any(named: 'orderBy'),
+                    limit: 10,
+                    offset: 5,
+                  ),
+                ).captured.first
+                as List<SupabaseFilter>;
+
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.eq('company_id', tCompanyId)),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.isFilter('deleted_at', null)),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.isFilter('locations.deleted_at', null)),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.inList('status', const ['open'])),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.inList('priority', const ['high'])),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.eq('type', 'preventive')),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.eq('assigned_to_id', 'user-123')),
+        );
+        expect(
+          capturedFilters,
+          contains(
+            SupabaseFilter.gte(
+              'scheduled_date',
+              DateTime(2026, 7, 14).toIso8601String(),
+            ),
+          ),
+        );
+        expect(
+          capturedFilters,
+          contains(
+            SupabaseFilter.lte(
+              'scheduled_date',
+              DateTime(2026, 7, 16).toIso8601String(),
+            ),
+          ),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.ilike('title', '%manutencao%')),
+        );
       },
     );
 

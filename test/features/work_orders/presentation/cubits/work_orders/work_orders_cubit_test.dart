@@ -24,6 +24,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -192,9 +193,7 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
           ).called(1);
@@ -224,9 +223,7 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
           ).called(1);
@@ -257,9 +254,7 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
         ],
         verify: (_) {
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
           ).called(1);
@@ -284,6 +279,117 @@ void main() {
         verify: (_) {
           verifyNever(() => mockGetWorkOrders.call(any()));
         },
+      );
+    });
+
+    group('Filters and Pagination Tests', () {
+      const tFilter = WorkOrderFilter(searchText: 'filtro');
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'applyFilter should call loadWorkOrdersAndChangeRequests with filter',
+        build: () {
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetChangeRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.applyFilter(tFilter),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.activeFilter, 'activeFilter', tFilter),
+        ],
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'clearFilter should call loadWorkOrdersAndChangeRequests with empty filter',
+        build: () {
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetChangeRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.clearFilter(),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.activeFilter,
+                'activeFilter',
+                const WorkOrderFilter(),
+              ),
+        ],
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'loadNextPage should load next page and append work orders on success',
+        build: () {
+          final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
+          return cubit;
+        },
+        seed: () => const WorkOrdersState(
+          workOrders: [],
+          changeRequests: [],
+          historyByWorkOrder: {},
+        ),
+        act: (cubit) => cubit.loadNextPage(),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.isLoadingMore,
+            'isLoadingMore',
+            true,
+          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.isLoadingMore, 'isLoadingMore', false)
+              .having((s) => s.workOrders, 'workOrders', isNotEmpty),
+        ],
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'loadNextPage should show error toast and set isLoadingMore to false on failure',
+        build: () {
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'error pagination'));
+          return cubit;
+        },
+        seed: () => const WorkOrdersState(
+          workOrders: [],
+          changeRequests: [],
+          historyByWorkOrder: {},
+        ),
+        act: (cubit) => cubit.loadNextPage(),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.isLoadingMore,
+            'isLoadingMore',
+            true,
+          ),
+          isA<WorkOrdersState>().having(
+            (s) => s.isLoadingMore,
+            'isLoadingMore',
+            false,
+          ),
+        ],
       );
     });
 
@@ -403,9 +509,7 @@ void main() {
                 ),
               ),
             ).called(1);
-            verify(
-              () => mockGetWorkOrders.call(any()),
-            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
           },
         );
 
@@ -852,9 +956,7 @@ void main() {
                 ),
               ),
             ).called(1);
-            verify(
-              () => mockGetWorkOrders.call(any()),
-            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
           },
         );
 
@@ -1081,9 +1183,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
         },
       );
 
@@ -1147,9 +1247,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockCreateChangeRequest.call(tRequest)).called(1);
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
         },
       );
 
@@ -1217,9 +1315,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockReviewChangeRequest.call(tParams)).called(1);
-          verify(
-            () => mockGetWorkOrders.call(any()),
-          ).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
         },
       );
 
