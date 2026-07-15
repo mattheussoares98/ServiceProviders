@@ -443,6 +443,9 @@ void main() {
           'should emit saving and load data when creation succeeds',
           build: () {
             when(
+              () => mockDeleteWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
               () => mockCreateWorkOrder.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
             when(
@@ -591,6 +594,9 @@ void main() {
           },
           act: (cubit) async {
             final mockAttachmentsCubit = MockAttachmentsCubit();
+            when(
+              () => mockAttachmentsCubit.init(any()),
+            ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               const AttachmentsState(
                 status: StateStatus.loaded,
@@ -662,6 +668,9 @@ void main() {
             final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
               uploadStatus: UploadStatus.pending,
             );
+            when(
+              () => mockAttachmentsCubit.init(any()),
+            ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               AttachmentsState(
                 status: StateStatus.loaded,

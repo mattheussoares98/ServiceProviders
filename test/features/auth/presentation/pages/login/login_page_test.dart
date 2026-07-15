@@ -18,8 +18,13 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cub
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/login_page.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:patrol/patrol.dart';
 
@@ -33,6 +38,9 @@ final locator = GetIt.I;
 
 class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
     implements ScreenObserverCubit {}
+
+class MockKeyboardVisibilityCubit extends MockCubit<bool>
+    implements KeyboardVisibilityCubit {}
 
 void main() {
   late MockLoginUseCase mockLoginUseCase;
@@ -116,14 +124,27 @@ void main() {
       () => mockScreenObserverCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
 
+    final mockKeyboardVisibilityCubit = MockKeyboardVisibilityCubit();
+    when(() => mockKeyboardVisibilityCubit.state).thenReturn(false);
+    when(
+      () => mockKeyboardVisibilityCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+
     // Set the test binding surface size to match our screen configuration
     // This ensures widgets are within the render tree bounds
     await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
     // Render the view
     await $.pumpWidget(
-      BlocProvider<ScreenObserverCubit>(
-        create: (_) => mockScreenObserverCubit,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ScreenObserverCubit>(
+            create: (_) => mockScreenObserverCubit,
+          ),
+          BlocProvider<KeyboardVisibilityCubit>(
+            create: (_) => mockKeyboardVisibilityCubit,
+          ),
+        ],
         child: MaterialApp(theme: lightTheme, home: const LoginPage()),
       ),
     );
@@ -135,21 +156,21 @@ void main() {
     expect($('Login'), findsOne);
     expect($('Senha'), findsOne);
     final enabledButton = $(
-      ElevatedButton,
-    ).which<ElevatedButton>((b) => b.enabled);
+      PrimaryButton,
+    ).which<PrimaryButton>((b) => b.onTap != null);
     expect(enabledButton, findsOneWidget);
-    expect($(TextButton), findsNWidgets(2));
-    expect($(InkWell).$(Icons.visibility_off_outlined), findsOneWidget);
+    expect($(BaseTextButton), findsNWidgets(1));
+    expect($(PlatformIcon), findsOneWidget);
 
     // Enter email and password using standard Flutter test approach
     // This avoids hit-testability issues with Patrol's enterText in scrollable content
-    await $.tester.enterText(find.byType(TextField).first, 'username');
-    await $.tester.enterText(find.byType(TextField).at(1), 'password');
+    await $.tester.enterText(find.byType(BaseTextFormField).first, 'username');
+    await $.tester.enterText(find.byType(BaseTextFormField).at(1), 'password');
     await $.pumpAndSettle();
 
     // Use the login cubit's login method in the login_button widget.
     // Tap the login button using standard Flutter test
-    await $.tester.tap(find.byType(ElevatedButton));
+    await $.tester.tap(find.byType(PrimaryButton));
     await $.pumpAndSettle();
 
     verifyNever(() => mockNavigationClient.replaceAllRoute(any()));

@@ -150,7 +150,7 @@ void main() {
       act: (cubit) => cubit.togglePasswordVisibility(),
       expect: () => [
         const AcceptInviteState(
-          status: StateStatus.loaded,
+          status: StateStatus.initial,
           passwordVisibility: true,
         ),
       ],
@@ -162,7 +162,7 @@ void main() {
       act: (cubit) => cubit.toggleConfirmPasswordVisibility(),
       expect: () => [
         const AcceptInviteState(
-          status: StateStatus.loaded,
+          status: StateStatus.initial,
           confirmPasswordVisibility: true,
         ),
       ],
