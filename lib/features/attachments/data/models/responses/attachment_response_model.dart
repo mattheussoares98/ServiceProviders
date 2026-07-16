@@ -91,7 +91,6 @@ class AttachmentResponseModel extends AttachmentEntity
     'created_at': createdAt.toIso8601String(),
     'deleted_at': deletedAt?.toIso8601String(),
     'original_path': originalPath,
-    'last_accessed_at': lastAccessedAt?.toIso8601String(),
   };
 
   @override
