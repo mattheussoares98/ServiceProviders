@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_da
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
@@ -89,7 +90,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   Future<UserProfileResponseModel> _getUserProfile(String? userId) async {
     if (userId == null || userId.isEmpty) {
-      throw const AuthException('Usuário autenticado inválido.');
+      throw AuthException('Usuário autenticado inválido'.hardcoded);
     }
 
     final profileJson = await _supabaseDatabase.selectOne(
@@ -106,7 +107,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     if (providerJson == null) {
-      throw const AuthException('Perfil de usuário não encontrado.');
+      throw AuthException('Perfil de usuário não encontrado'.hardcoded);
     }
 
     return UserProfileResponseModel.fromServiceProviderJson(

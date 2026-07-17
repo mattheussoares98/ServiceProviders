@@ -272,6 +272,104 @@ void main() {
     });
   });
 
+  group('getCurrentUserProfile', () {
+    final tUserId = faker.guid.guid();
+
+    test(
+      'should return UserProfileResponseModel from service_provider_profiles when user_profiles is not found',
+      () async {
+        // Arrange
+        final serviceProviderProfile =
+            EntityFactory.makeServiceProviderProfileEntity().copyWith(
+              authUserId: tUserId,
+            );
+
+        // Convert the entity to model then to JSON to avoid manual MapDynamic declaration in test files
+        final serviceProviderJson =
+            UserProfileResponseModel.fromServiceProviderJson({
+              'name': serviceProviderProfile.name,
+              'email': serviceProviderProfile.email,
+              'phone': serviceProviderProfile.phone,
+              'is_active': serviceProviderProfile.isActive,
+              'created_at': serviceProviderProfile.createdAt.toIso8601String(),
+              'updated_at': serviceProviderProfile.updatedAt.toIso8601String(),
+            }, tUserId).toJson();
+
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'user_profiles',
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'service_provider_profiles',
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => serviceProviderJson);
+
+        // Act
+        final result = await dataSource.getCurrentUserProfile(tUserId);
+
+        // Assert
+        expect(result, isA<SuccessState<UserProfileResponseModel>>());
+        expect(result.data?.id, tUserId);
+        expect(result.data?.name, serviceProviderProfile.name);
+        expect(result.data?.email, serviceProviderProfile.email);
+
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'user_profiles',
+            filters: [SupabaseFilter.eq('id', tUserId)],
+          ),
+        ).called(1);
+
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'service_provider_profiles',
+            filters: [SupabaseFilter.eq('auth_user_id', tUserId)],
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return FailureState when user profile is not found in either table',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        // Act
+        final result = await dataSource.getCurrentUserProfile(tUserId);
+
+        // Assert
+        expect(result, isA<FailureState<UserProfileResponseModel>>());
+        final failure = result as FailureState<UserProfileResponseModel>;
+        expect(failure.message, contains('Perfil de usuário não encontrado'));
+
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'user_profiles',
+            filters: [SupabaseFilter.eq('id', tUserId)],
+          ),
+        ).called(1);
+
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'service_provider_profiles',
+            filters: [SupabaseFilter.eq('auth_user_id', tUserId)],
+          ),
+        ).called(1);
+      },
+    );
+  });
+
   group('checkAuth', () {
     test('should return true when session is not null', () {
       // Arrange
