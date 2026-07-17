@@ -2,7 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/repositories/users_repository_impl.dart';
@@ -27,7 +27,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      PermissionGroupResponseModel.fromEntity(
+      PermissionGroupModel.fromEntity(
         EntityFactory.makePermissionGroupEntity(),
       ),
     );
@@ -37,7 +37,7 @@ void main() {
       ),
     );
     registerFallbackValue(<UserProfileResponseModel>[]);
-    registerFallbackValue(<PermissionGroupResponseModel>[]);
+    registerFallbackValue(<PermissionGroupModel>[]);
     registerFallbackValue(<UserInvitationResponseModel>[]);
   });
 
@@ -66,7 +66,7 @@ void main() {
       .toList();
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
-  final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(
+  final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
   final tPermissionGroupList = [
@@ -75,7 +75,7 @@ void main() {
     tPermissionGroupEntity,
   ];
   final tPermissionGroupModelList = tPermissionGroupList
-      .map(PermissionGroupResponseModel.fromEntity)
+      .map(PermissionGroupModel.fromEntity)
       .toList();
 
   final tCompanyId = faker.guid.guid();

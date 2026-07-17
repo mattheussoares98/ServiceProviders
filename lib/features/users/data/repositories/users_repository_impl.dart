@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -152,7 +152,7 @@ final class UsersRepositoryImpl implements UsersRepository {
   @override
   FutureList<PermissionGroupEntity> getPermissionGroups(String companyId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
-        PermissionGroupResponseModel,
+        PermissionGroupModel,
         PermissionGroupEntity
       >(
         isInternetConnected: _internet.isConnected,
@@ -167,9 +167,9 @@ final class UsersRepositoryImpl implements UsersRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () async {
           final result = await _remoteDataSource.createPermissionGroup(
-            PermissionGroupResponseModel.fromEntity(group),
+            PermissionGroupModel.fromEntity(group),
           );
-          if (result is SuccessState<PermissionGroupResponseModel>) {
+          if (result is SuccessState<PermissionGroupModel>) {
             await _localDataSource.savePermissionGroup(result.data!);
             return const SuccessState(data: true);
           }
@@ -188,9 +188,9 @@ final class UsersRepositoryImpl implements UsersRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () async {
           final result = await _remoteDataSource.updatePermissionGroup(
-            PermissionGroupResponseModel.fromEntity(group),
+            PermissionGroupModel.fromEntity(group),
           );
-          if (result is SuccessState<PermissionGroupResponseModel>) {
+          if (result is SuccessState<PermissionGroupModel>) {
             await _localDataSource.savePermissionGroup(result.data!);
             return const SuccessState(data: true);
           }

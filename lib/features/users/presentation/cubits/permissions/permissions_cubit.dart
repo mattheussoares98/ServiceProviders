@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
@@ -12,6 +12,7 @@ part 'permissions_state.dart';
 class PermissionsCubit extends BaseCubit<PermissionsState> {
   PermissionsCubit() : super(const PermissionsState());
   // ============================================
+  // ============================================
   // Group Permissions Logic
   // ============================================
 
@@ -20,6 +21,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
 
     final localPermissions = <ResourceType, Set<PermissionAction>>{};
     for (final resource in ResourceType.values) {
+      if (resource == ResourceType.workOrders) continue;
       final initialActions = <PermissionAction>{};
       if (isAdminGroup) {
         initialActions.addAll(PermissionAction.values);
@@ -37,6 +39,9 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         group: group,
         isAdmin: isAdminGroup,
         draftGroupPermissions: localPermissions,
+        draftGroupWorkOrders: isAdminGroup
+            ? const WorkOrdersPermissionEntity.defaultAdmin()
+            : group.workOrders,
         status: StateStatus.loaded,
       ),
     );
@@ -47,7 +52,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     PermissionAction action,
     bool value,
   ) {
-    if (state.isAdmin) return;
+    if (state.isAdmin || resource == ResourceType.workOrders) return;
 
     final currentPermissions = Map<ResourceType, Set<PermissionAction>>.from(
       state.draftGroupPermissions,
@@ -68,6 +73,94 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     emit(state.copyWith(draftGroupPermissions: currentPermissions));
   }
 
+  void changeGroupWorkOrdersReadScope(WorkOrderReadScope value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          readScope: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersCreate(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          create: value,
+        ),
+      ),
+    );
+  }
+
+  void changeGroupWorkOrdersUpdateScope(WorkOrderUpdateScope value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          updateScope: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersDelete(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          delete: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersChangeStatus(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          changeStatus: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersReassign(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          reassign: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersApprovePause(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          approvePause: value,
+        ),
+      ),
+    );
+  }
+
+  void toggleGroupWorkOrdersApproveCompletion(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          approveCompletion: value,
+        ),
+      ),
+    );
+  }
+
   Future<bool> saveGroupPermissions(UsersCubit usersCubit) async {
     final group = state.group;
     if (group == null || state.isAdmin) return false;
@@ -78,7 +171,10 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       state.draftGroupPermissions,
     )..removeWhere((key, value) => value.isEmpty);
 
-    final updatedGroup = group.copyWith(permissions: updatedPermissions);
+    final updatedGroup = group.copyWith(
+      permissions: updatedPermissions,
+      workOrders: state.draftGroupWorkOrders,
+    );
 
     final success = await usersCubit.savePermissionGroup(
       updatedGroup,
@@ -89,8 +185,6 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       emit(state.copyWith(group: updatedGroup, status: StateStatus.loaded));
       return true;
     } else {
-      //not emiting error because it is already handling in the users cubit
-      //this cubit here just validate and call the service
       emit(state.copyWith(status: StateStatus.loaded));
       return false;
     }
@@ -104,8 +198,13 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     final localOverrides = <ResourceType, Map<PermissionAction, bool?>>{};
 
     for (final resource in ResourceType.values) {
+      if (resource == ResourceType.workOrders) continue;
       final resourceOverrides = <PermissionAction, bool?>{};
-      for (final action in PermissionAction.values) {
+      for (final action in [
+        PermissionAction.create,
+        PermissionAction.update,
+        PermissionAction.delete,
+      ]) {
         resourceOverrides[action] = user.permissions[resource]?[action];
       }
       localOverrides[resource] = resourceOverrides;
@@ -117,6 +216,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         isAdmin: user.isAdmin,
         selectedGroupId: user.permissionGroupId,
         draftUserPermissions: localOverrides,
+        draftUserWorkOrders: user.workOrdersPermissionOverrides,
         status: StateStatus.loaded,
       ),
     );
@@ -138,6 +238,8 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
           selectedGroupId: groupId,
           isAdmin: true,
           draftUserPermissions: const {},
+          draftUserWorkOrders:
+              const UserWorkOrdersPermissionOverrideEntity.empty(),
         ),
       );
     } else {
@@ -150,7 +252,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     PermissionAction action,
     bool? value,
   ) {
-    if (state.isAdmin) return;
+    if (state.isAdmin || resource == ResourceType.workOrders) return;
 
     final currentOverrides =
         Map<ResourceType, Map<PermissionAction, bool?>>.from(
@@ -166,6 +268,102 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     currentOverrides[resource] = resourceOverrides;
 
     emit(state.copyWith(draftUserPermissions: currentOverrides));
+  }
+
+  void changeUserWorkOrdersReadScope(WorkOrderReadScope? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          readScope: value,
+          annulReadScope: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersCreate(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          create: value,
+          annulCreate: value == null,
+        ),
+      ),
+    );
+  }
+
+  void changeUserWorkOrdersUpdateScope(WorkOrderUpdateScope? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          updateScope: value,
+          annulUpdateScope: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersDelete(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          delete: value,
+          annulDelete: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersChangeStatus(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          changeStatus: value,
+          annulChangeStatus: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersReassign(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          reassign: value,
+          annulReassign: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersApprovePause(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          approvePause: value,
+          annulApprovePause: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersApproveCompletion(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          approveCompletion: value,
+          annulApproveCompletion: value == null,
+        ),
+      ),
+    );
   }
 
   Future<bool> saveUserPermissions(UsersCubit usersCubit) async {
@@ -191,12 +389,14 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     final updatedUser = user.copyWith(
       permissions: finalPermissions,
       permissionGroupId: state.selectedGroupId,
+      workOrders: state.draftUserWorkOrders,
     );
 
     final success = await usersCubit.updateUserPermissions(
       user.id,
       finalPermissions,
       groupId: state.selectedGroupId,
+      workOrders: state.draftUserWorkOrders,
     );
 
     if (success) {

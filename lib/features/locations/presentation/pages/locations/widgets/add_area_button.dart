@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -30,9 +30,9 @@ class AddAreaButton extends StatelessWidget {
           ? null
           : () {
               context.read<LocationsCubit>().navigateToCreateUpdateArea(
-                    locationId: location.id,
-                    companyId: location.companyId,
-                  );
+                locationId: location.id,
+                companyId: location.companyId,
+              );
             },
       platformIcon: const PlatformIcon(
         materialIcon: Icons.add,

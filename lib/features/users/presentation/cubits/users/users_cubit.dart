@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -221,6 +221,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     String userId,
     Map<ResourceType, Map<PermissionAction, bool?>> permissions, {
     String? groupId,
+    UserWorkOrdersPermissionOverrideEntity? workOrders,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
@@ -240,6 +241,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     final updatedUser = currentUser.copyWith(
       permissions: permissions,
       permissionGroupId: groupId,
+      workOrders: workOrders,
     );
     final result = await _useCases.updateUserProfile(updatedUser);
     if (isClosed) return false;
@@ -425,7 +427,9 @@ class UsersCubit extends BaseCubit<UsersState> {
     await pushRoute(EditUserPermissionsRoute(user: user));
   }
 
-  Future<void> navigateToEditGroupPermissions(PermissionGroupEntity group) async {
+  Future<void> navigateToEditGroupPermissions(
+    PermissionGroupEntity group,
+  ) async {
     await pushRoute(EditGroupPermissionsRoute(group: group));
   }
 

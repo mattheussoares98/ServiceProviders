@@ -8,6 +8,10 @@ class PermissionsState extends BaseState {
     this.selectedGroupId,
     this.draftGroupPermissions = const {},
     this.draftUserPermissions = const {},
+    this.draftGroupWorkOrders =
+        const WorkOrdersPermissionEntity.defaultTechnical(),
+    this.draftUserWorkOrders =
+        const UserWorkOrdersPermissionOverrideEntity.empty(),
     super.status = StateStatus.initial,
     super.errorMessage = '',
   });
@@ -16,12 +20,18 @@ class PermissionsState extends BaseState {
   final UserProfileEntity? user;
   final bool isAdmin;
   final String? selectedGroupId;
-  
+
   // For group permissions: ResourceType -> Set of actions
   final Map<ResourceType, Set<PermissionAction>> draftGroupPermissions;
-  
+
   // For user permissions: ResourceType -> Map of actions to overrides (true = active, false = inactive, null = inherit)
   final Map<ResourceType, Map<PermissionAction, bool?>> draftUserPermissions;
+
+  // Work Orders permissions for groups
+  final WorkOrdersPermissionEntity draftGroupWorkOrders;
+
+  // Work Orders overrides for users
+  final UserWorkOrdersPermissionOverrideEntity draftUserWorkOrders;
 
   PermissionsState copyWith({
     PermissionGroupEntity? group,
@@ -30,6 +40,8 @@ class PermissionsState extends BaseState {
     String? selectedGroupId,
     Map<ResourceType, Set<PermissionAction>>? draftGroupPermissions,
     Map<ResourceType, Map<PermissionAction, bool?>>? draftUserPermissions,
+    WorkOrdersPermissionEntity? draftGroupWorkOrders,
+    UserWorkOrdersPermissionOverrideEntity? draftUserWorkOrders,
     StateStatus? status,
     String? errorMessage,
     bool? annulSelectedGroupId,
@@ -44,6 +56,8 @@ class PermissionsState extends BaseState {
       draftGroupPermissions:
           draftGroupPermissions ?? this.draftGroupPermissions,
       draftUserPermissions: draftUserPermissions ?? this.draftUserPermissions,
+      draftGroupWorkOrders: draftGroupWorkOrders ?? this.draftGroupWorkOrders,
+      draftUserWorkOrders: draftUserWorkOrders ?? this.draftUserWorkOrders,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -51,13 +65,15 @@ class PermissionsState extends BaseState {
 
   @override
   List<Object?> get props => [
-        group,
-        user,
-        isAdmin,
-        selectedGroupId,
-        draftGroupPermissions,
-        draftUserPermissions,
-        status,
-        errorMessage,
-      ];
+    group,
+    user,
+    isAdmin,
+    selectedGroupId,
+    draftGroupPermissions,
+    draftUserPermissions,
+    draftGroupWorkOrders,
+    draftUserWorkOrders,
+    status,
+    errorMessage,
+  ];
 }

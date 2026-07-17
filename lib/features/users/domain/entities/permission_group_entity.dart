@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 
 class PermissionGroupEntity extends Equatable {
   const PermissionGroupEntity({
@@ -7,6 +7,7 @@ class PermissionGroupEntity extends Equatable {
     required this.companyId,
     required this.name,
     required this.permissions,
+    required this.workOrders,
     required this.isDefault,
     required this.createdAt,
     this.deletedAt,
@@ -16,6 +17,7 @@ class PermissionGroupEntity extends Equatable {
   final String companyId;
   final String name;
   final Map<ResourceType, Set<PermissionAction>> permissions;
+  final WorkOrdersPermissionEntity workOrders;
   final bool isDefault;
   final DateTime createdAt;
   final DateTime? deletedAt;
@@ -26,6 +28,7 @@ class PermissionGroupEntity extends Equatable {
     companyId,
     name,
     permissions,
+    workOrders,
     isDefault,
     createdAt,
     deletedAt,
@@ -36,6 +39,7 @@ class PermissionGroupEntity extends Equatable {
     String? companyId,
     String? name,
     Map<ResourceType, Set<PermissionAction>>? permissions,
+    WorkOrdersPermissionEntity? workOrders,
     bool? isDefault,
     DateTime? createdAt,
     DateTime? deletedAt,
@@ -46,6 +50,7 @@ class PermissionGroupEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
       permissions: permissions ?? this.permissions,
+      workOrders: workOrders ?? this.workOrders,
       isDefault: isDefault ?? this.isDefault,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

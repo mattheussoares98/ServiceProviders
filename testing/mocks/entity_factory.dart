@@ -20,7 +20,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.da
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -320,10 +320,6 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       name: _makeWord(),
       permissions: const {
-        ResourceType.workOrders: {
-          PermissionAction.create,
-          PermissionAction.update,
-        },
         ResourceType.attachments: {
           PermissionAction.create,
           PermissionAction.read,
@@ -331,6 +327,7 @@ abstract final class EntityFactory {
           PermissionAction.delete,
         },
       },
+      workOrders: const WorkOrdersPermissionEntity.defaultTechnical(),
       isDefault: false,
       createdAt: _makeDateTime(),
     );

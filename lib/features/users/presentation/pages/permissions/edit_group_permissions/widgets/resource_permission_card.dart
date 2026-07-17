@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -28,7 +28,11 @@ class ResourcePermissionCard extends StatelessWidget {
           children: [
             BaseText(resource.label),
             const Divider(height: Sizes.p20),
-            ...PermissionAction.values.map((action) {
+            ...[
+              PermissionAction.create,
+              PermissionAction.update,
+              PermissionAction.delete,
+            ].map((action) {
               return _Item(
                 key: ValueKey('${resource.code}.$action'),
                 action: action,

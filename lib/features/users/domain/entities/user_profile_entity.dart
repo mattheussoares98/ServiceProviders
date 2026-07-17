@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 
 class UserProfileEntity extends Equatable {
   const UserProfileEntity({
@@ -16,6 +16,8 @@ class UserProfileEntity extends Equatable {
     required this.updatedAt,
     this.deletedAt,
     this.permissions = const {},
+    this.workOrdersPermissionOverrides =
+        const UserWorkOrdersPermissionOverrideEntity.empty(),
   });
 
   UserProfileEntity.empty()
@@ -31,7 +33,9 @@ class UserProfileEntity extends Equatable {
       createdAt = DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt = DateTime.fromMillisecondsSinceEpoch(0),
       deletedAt = null,
-      permissions = const {};
+      permissions = const {},
+      workOrdersPermissionOverrides =
+          const UserWorkOrdersPermissionOverrideEntity.empty();
 
   final String id;
   final String companyId;
@@ -46,6 +50,7 @@ class UserProfileEntity extends Equatable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final Map<ResourceType, Map<PermissionAction, bool?>> permissions;
+  final UserWorkOrdersPermissionOverrideEntity workOrdersPermissionOverrides;
 
   @override
   List<Object?> get props => [
@@ -62,6 +67,7 @@ class UserProfileEntity extends Equatable {
     updatedAt,
     deletedAt,
     permissions,
+    workOrdersPermissionOverrides,
   ];
 
   UserProfileEntity copyWith({
@@ -78,6 +84,7 @@ class UserProfileEntity extends Equatable {
     DateTime? updatedAt,
     DateTime? deletedAt,
     Map<ResourceType, Map<PermissionAction, bool?>>? permissions,
+    UserWorkOrdersPermissionOverrideEntity? workOrders,
     bool? annulPhone,
     bool? annulPermissionGroupId,
     bool? annulAvatarUrl,
@@ -101,6 +108,8 @@ class UserProfileEntity extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
       permissions: permissions ?? this.permissions,
+      workOrdersPermissionOverrides:
+          workOrders ?? workOrdersPermissionOverrides,
     );
   }
 }

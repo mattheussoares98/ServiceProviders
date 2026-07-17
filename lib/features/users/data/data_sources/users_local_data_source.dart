@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 
 abstract interface class UsersLocalDataSource {
@@ -19,11 +19,11 @@ abstract interface class UsersLocalDataSource {
   FutureBool deleteUserProfile(String id);
 
   // Permission Groups
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+  FutureList<PermissionGroupModel> getPermissionGroups(
     String companyId,
   );
-  FutureBool savePermissionGroup(PermissionGroupResponseModel group);
-  FutureBool savePermissionGroups(List<PermissionGroupResponseModel> groups);
+  FutureBool savePermissionGroup(PermissionGroupModel group);
+  FutureBool savePermissionGroups(List<PermissionGroupModel> groups);
   FutureBool deletePermissionGroup(String id);
 }
 
@@ -139,7 +139,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+  FutureList<PermissionGroupModel> getPermissionGroups(
     String companyId,
   ) {
     return ErrorHandler.execute(() async {
@@ -150,13 +150,13 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               .get();
 
       return SuccessState(
-        data: list.map(PermissionGroupResponseModel.fromDb).toList(),
+        data: list.map(PermissionGroupModel.fromDb).toList(),
       );
     });
   }
 
   @override
-  FutureBool savePermissionGroup(PermissionGroupResponseModel group) {
+  FutureBool savePermissionGroup(PermissionGroupModel group) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.permissionGroups)
@@ -176,7 +176,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   }
 
   @override
-  FutureBool savePermissionGroups(List<PermissionGroupResponseModel> groups) {
+  FutureBool savePermissionGroups(List<PermissionGroupModel> groups) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
         batch.insertAllOnConflictUpdate(

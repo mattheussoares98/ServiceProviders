@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
@@ -28,7 +28,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      PermissionGroupResponseModel.fromEntity(
+      PermissionGroupModel.fromEntity(
         EntityFactory.makePermissionGroupEntity(),
       ),
     );
@@ -49,7 +49,7 @@ void main() {
   );
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
-  final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(
+  final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
 
@@ -325,7 +325,7 @@ void main() {
     // ============================================
     group('getPermissionGroups', () {
       test(
-        'should return SuccessState<List<PermissionGroupResponseModel>> on success',
+        'should return SuccessState<List<PermissionGroupModel>> on success',
         () async {
           when(
             () => mockDatabase.selectList(
@@ -338,7 +338,7 @@ void main() {
 
           expect(
             result,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tPermissionGroupModel.id);
@@ -357,7 +357,7 @@ void main() {
 
     group('createPermissionGroup', () {
       test(
-        'should return SuccessState<PermissionGroupResponseModel> on success',
+        'should return SuccessState<PermissionGroupModel> on success',
         () async {
           when(
             () => mockDatabase.insert(
@@ -370,7 +370,7 @@ void main() {
             tPermissionGroupModel,
           );
 
-          expect(result, isA<SuccessState<PermissionGroupResponseModel>>());
+          expect(result, isA<SuccessState<PermissionGroupModel>>());
           expect(result.data!.id, tPermissionGroupModel.id);
           verify(
             () => mockDatabase.insert(
@@ -384,7 +384,7 @@ void main() {
 
     group('updatePermissionGroup', () {
       test(
-        'should return SuccessState<PermissionGroupResponseModel> on success',
+        'should return SuccessState<PermissionGroupModel> on success',
         () async {
           when(
             () => mockDatabase.update(
@@ -398,7 +398,7 @@ void main() {
             tPermissionGroupModel,
           );
 
-          expect(result, isA<SuccessState<PermissionGroupResponseModel>>());
+          expect(result, isA<SuccessState<PermissionGroupModel>>());
           expect(result.data!.id, tPermissionGroupModel.id);
           verify(
             () => mockDatabase.update(

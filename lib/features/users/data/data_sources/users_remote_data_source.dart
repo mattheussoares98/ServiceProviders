@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
@@ -32,14 +32,14 @@ abstract interface class UsersRemoteDataSource {
   FutureVoid resendInvitation(UserInvitationEntity invitation);
 
   // Permission Groups
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+  FutureList<PermissionGroupModel> getPermissionGroups(
     String companyId,
   );
-  FutureData<PermissionGroupResponseModel> createPermissionGroup(
-    PermissionGroupResponseModel request,
+  FutureData<PermissionGroupModel> createPermissionGroup(
+    PermissionGroupModel request,
   );
-  FutureData<PermissionGroupResponseModel> updatePermissionGroup(
-    PermissionGroupResponseModel request,
+  FutureData<PermissionGroupModel> updatePermissionGroup(
+    PermissionGroupModel request,
   );
   FutureVoid deletePermissionGroup(String id);
 }
@@ -168,7 +168,7 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   // ============================================
 
   @override
-  FutureList<PermissionGroupResponseModel> getPermissionGroups(
+  FutureList<PermissionGroupModel> getPermissionGroups(
     String companyId,
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectList(
@@ -178,30 +178,30 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
         SupabaseFilter.isFilter('deleted_at', null),
       ],
     );
-    return response.map(PermissionGroupResponseModel.fromJson).toList();
+    return response.map(PermissionGroupModel.fromJson).toList();
   });
 
   @override
-  FutureData<PermissionGroupResponseModel> createPermissionGroup(
-    PermissionGroupResponseModel request,
+  FutureData<PermissionGroupModel> createPermissionGroup(
+    PermissionGroupModel request,
   ) => SupabaseHandler.call(() async {
     final response = await _database.insert(
       table: 'permission_groups',
       values: request.toJson(),
     );
-    return PermissionGroupResponseModel.fromJson(response.first);
+    return PermissionGroupModel.fromJson(response.first);
   });
 
   @override
-  FutureData<PermissionGroupResponseModel> updatePermissionGroup(
-    PermissionGroupResponseModel request,
+  FutureData<PermissionGroupModel> updatePermissionGroup(
+    PermissionGroupModel request,
   ) => SupabaseHandler.call(() async {
     final response = await _database.update(
       table: 'permission_groups',
       values: request.toJson(),
       filters: [SupabaseFilter.eq('id', request.id)],
     );
-    return PermissionGroupResponseModel.fromJson(response.first);
+    return PermissionGroupModel.fromJson(response.first);
   });
 
   @override

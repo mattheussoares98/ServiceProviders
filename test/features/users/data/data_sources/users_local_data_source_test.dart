@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -48,7 +48,7 @@ void main() {
   );
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
-  final tPermissionGroupModel = PermissionGroupResponseModel.fromEntity(
+  final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
 
@@ -265,7 +265,7 @@ void main() {
 
           expect(
             getResult,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(getResult.data, hasLength(1));
           expect(getResult.data!.first, equals(tPermissionGroupModel));
@@ -276,7 +276,7 @@ void main() {
         'should save multiple permission groups and successfully retrieve them',
         () async {
           await insertTestCompany(tPermissionGroupModel.companyId);
-          final group2 = PermissionGroupResponseModel.fromEntity(
+          final group2 = PermissionGroupModel.fromEntity(
             EntityFactory.makePermissionGroupEntity().copyWith(
               companyId: tPermissionGroupModel.companyId,
             ),
@@ -296,7 +296,7 @@ void main() {
 
           expect(
             getResult,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(getResult.data, hasLength(2));
           expect(getResult.data, containsAll([tPermissionGroupModel, group2]));
@@ -322,7 +322,7 @@ void main() {
           final otherCompanyId = faker.guid.guid();
           final otherGroupEntity = EntityFactory.makePermissionGroupEntity()
               .copyWith(companyId: otherCompanyId);
-          final otherGroupModel = PermissionGroupResponseModel.fromEntity(
+          final otherGroupModel = PermissionGroupModel.fromEntity(
             otherGroupEntity,
           );
 
@@ -338,7 +338,7 @@ void main() {
 
           expect(
             result,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tPermissionGroupModel));
@@ -354,7 +354,7 @@ void main() {
 
           expect(
             result,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(result.data, isEmpty);
         },
@@ -371,7 +371,7 @@ void main() {
 
           expect(
             result,
-            isA<FailureState<List<PermissionGroupResponseModel>>>(),
+            isA<FailureState<List<PermissionGroupModel>>>(),
           );
         },
       );
@@ -408,7 +408,7 @@ void main() {
 
           expect(
             getResult,
-            isA<SuccessState<List<PermissionGroupResponseModel>>>(),
+            isA<SuccessState<List<PermissionGroupModel>>>(),
           );
           expect(getResult.data, isEmpty);
         },

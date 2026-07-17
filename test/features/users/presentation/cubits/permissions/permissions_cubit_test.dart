@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
@@ -27,6 +27,8 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makePermissionGroupEntity());
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
+    registerFallbackValue(const WorkOrdersPermissionEntity.defaultTechnical());
+    registerFallbackValue(const UserWorkOrdersPermissionOverrideEntity.empty());
   });
 
   setUp(() {
@@ -58,7 +60,7 @@ void main() {
               (s) =>
                   s.draftGroupPermissions.containsKey(ResourceType.workOrders),
               'has workOrders',
-              true,
+              false,
             ),
       ],
     );
@@ -67,16 +69,17 @@ void main() {
       'toggleGroupPermission updates localGroupPermissions',
       build: () => cubit..initGroup(tGroup),
       act: (c) => c.toggleGroupPermission(
-        ResourceType.workOrders,
+        ResourceType.attachments,
         PermissionAction.delete,
         true,
       ),
       expect: () => [
         isA<PermissionsState>().having(
-          (s) => s.draftGroupPermissions[ResourceType.workOrders],
+          (s) => s.draftGroupPermissions[ResourceType.attachments],
           'actions list',
           {
             PermissionAction.create,
+            PermissionAction.read,
             PermissionAction.update,
             PermissionAction.delete,
           },
@@ -174,7 +177,7 @@ void main() {
       build: () => cubit
         ..initUser(tUser)
         ..setUserPermissionOverride(
-          ResourceType.workOrders,
+          ResourceType.attachments,
           PermissionAction.create,
           true,
         ),
@@ -245,14 +248,14 @@ void main() {
       'setUserPermissionOverride updates state overrides',
       build: () => cubit..initUser(tUser),
       act: (c) => c.setUserPermissionOverride(
-        ResourceType.workOrders,
+        ResourceType.attachments,
         PermissionAction.create,
         true,
       ),
       expect: () => [
         isA<PermissionsState>().having(
           (s) =>
-              s.draftUserPermissions[ResourceType.workOrders]?[PermissionAction
+              s.draftUserPermissions[ResourceType.attachments]?[PermissionAction
                   .create],
           'override status',
           true,
@@ -268,6 +271,7 @@ void main() {
             any(),
             any(),
             groupId: any(named: 'groupId'),
+            workOrders: any(named: 'workOrders'),
           ),
         ).thenAnswer((_) async => true);
         return cubit..initUser(tUser);
@@ -291,9 +295,222 @@ void main() {
             tUser.id,
             any(),
             groupId: tUser.permissionGroupId,
+            workOrders: any(named: 'workOrders'),
           ),
         ).called(1);
       },
     );
+
+    group('PermissionsCubit Group Work Orders Logic', () {
+      blocTest<PermissionsCubit, PermissionsState>(
+        'changeGroupWorkOrdersReadScope updates draftGroupWorkOrders readScope',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.changeGroupWorkOrdersReadScope(WorkOrderReadScope.all),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.readScope,
+            'readScope',
+            WorkOrderReadScope.all,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersCreate updates draftGroupWorkOrders create',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersCreate(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.create,
+            'create',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'changeGroupWorkOrdersUpdateScope updates draftGroupWorkOrders updateScope',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.changeGroupWorkOrdersUpdateScope(WorkOrderUpdateScope.own),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.updateScope,
+            'updateScope',
+            WorkOrderUpdateScope.own,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersDelete updates draftGroupWorkOrders delete',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersDelete(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.delete,
+            'delete',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersChangeStatus updates draftGroupWorkOrders changeStatus',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersChangeStatus(false),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.changeStatus,
+            'changeStatus',
+            false,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersReassign updates draftGroupWorkOrders reassign',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersReassign(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.reassign,
+            'reassign',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersApprovePause updates draftGroupWorkOrders approvePause',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersApprovePause(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.approvePause,
+            'approvePause',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersApproveCompletion updates draftGroupWorkOrders approveCompletion',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersApproveCompletion(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.approveCompletion,
+            'approveCompletion',
+            true,
+          ),
+        ],
+      );
+    });
+
+    group('PermissionsCubit User Work Orders Overrides Logic', () {
+      blocTest<PermissionsCubit, PermissionsState>(
+        'changeUserWorkOrdersReadScope updates draftUserWorkOrders readScope override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.changeUserWorkOrdersReadScope(WorkOrderReadScope.all),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.readScope,
+            'readScope override',
+            WorkOrderReadScope.all,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersCreate updates draftUserWorkOrders create override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersCreate(false),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.create,
+            'create override',
+            false,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'changeUserWorkOrdersUpdateScope updates draftUserWorkOrders updateScope override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.changeUserWorkOrdersUpdateScope(WorkOrderUpdateScope.own),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.updateScope,
+            'updateScope override',
+            WorkOrderUpdateScope.own,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersDelete updates draftUserWorkOrders delete override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersDelete(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.delete,
+            'delete override',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersChangeStatus updates draftUserWorkOrders changeStatus override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersChangeStatus(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.changeStatus,
+            'changeStatus override',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersReassign updates draftUserWorkOrders reassign override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersReassign(false),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.reassign,
+            'reassign override',
+            false,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersApprovePause updates draftUserWorkOrders approvePause override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersApprovePause(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.approvePause,
+            'approvePause override',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersApproveCompletion updates draftUserWorkOrders approveCompletion override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersApproveCompletion(false),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.approveCompletion,
+            'approveCompletion override',
+            false,
+          ),
+        ],
+      );
+    });
   });
 }
