@@ -17,6 +17,12 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: EmailConfirmationRoute.page, path: kEmailConfirmationPath),
     AutoRoute(page: ChangePasswordRoute.page, path: kChangePasswordPath),
     AutoRoute(page: AcceptInviteRoute.page, path: kAcceptInvitePath),
+    AutoRoute(page: ModeSwitcherRoute.page, path: kModeSwitcherPath),
+    AutoRoute(
+      page: ProviderHomeRoute.page,
+      path: kProviderHomePath,
+      guards: const [AuthenticatedGuard()],
+    ),
     AutoRoute(
       path: kHomePath,
       page: HomeRoute.page,

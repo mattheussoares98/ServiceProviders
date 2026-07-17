@@ -12,6 +12,12 @@ const String kSignUpPath = '/sign_up';
 const String kChangePasswordRoute = 'ChangePasswordRoute';
 const String kChangePasswordPath = '/change-password';
 
+const String kModeSwitcherRoute = 'ModeSwitcherRoute';
+const String kModeSwitcherPath = '/mode-switcher';
+
+const String kProviderHomeRoute = 'ProviderHomeRoute';
+const String kProviderHomePath = '/provider-home';
+
 // Dashboard
 const String kDashboardRoute = 'DashboardRoute';
 const String kDashboardPath = '/dashboard/home';
