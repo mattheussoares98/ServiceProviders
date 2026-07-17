@@ -49,11 +49,23 @@ class $AppSettingsTable extends AppSettings
         ),
         defaultValue: const Constant(false),
       );
+  static const VerificationMeta _selectedModeMeta = const VerificationMeta(
+    'selectedMode',
+  );
+  @override
+  late final GeneratedColumn<String> selectedMode = GeneratedColumn<String>(
+    'selected_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     themeMode,
     pushNotificationsEnabled,
+    selectedMode,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -85,6 +97,15 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('selected_mode')) {
+      context.handle(
+        _selectedModeMeta,
+        selectedMode.isAcceptableOrUnknown(
+          data['selected_mode']!,
+          _selectedModeMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -106,6 +127,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.bool,
         data['${effectivePrefix}push_notifications_enabled'],
       )!,
+      selectedMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}selected_mode'],
+      ),
     );
   }
 
@@ -119,10 +144,12 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
   final int id;
   final String themeMode;
   final bool pushNotificationsEnabled;
+  final String? selectedMode;
   const AppSetting({
     required this.id,
     required this.themeMode,
     required this.pushNotificationsEnabled,
+    this.selectedMode,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -132,6 +159,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     map['push_notifications_enabled'] = Variable<bool>(
       pushNotificationsEnabled,
     );
+    if (!nullToAbsent || selectedMode != null) {
+      map['selected_mode'] = Variable<String>(selectedMode);
+    }
     return map;
   }
 
@@ -140,6 +170,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       id: Value(id),
       themeMode: Value(themeMode),
       pushNotificationsEnabled: Value(pushNotificationsEnabled),
+      selectedMode: selectedMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedMode),
     );
   }
 
@@ -154,6 +187,7 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       pushNotificationsEnabled: serializer.fromJson<bool>(
         json['pushNotificationsEnabled'],
       ),
+      selectedMode: serializer.fromJson<String?>(json['selectedMode']),
     );
   }
   @override
@@ -165,6 +199,7 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       'pushNotificationsEnabled': serializer.toJson<bool>(
         pushNotificationsEnabled,
       ),
+      'selectedMode': serializer.toJson<String?>(selectedMode),
     };
   }
 
@@ -172,11 +207,13 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     int? id,
     String? themeMode,
     bool? pushNotificationsEnabled,
+    Value<String?> selectedMode = const Value.absent(),
   }) => AppSetting(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
     pushNotificationsEnabled:
         pushNotificationsEnabled ?? this.pushNotificationsEnabled,
+    selectedMode: selectedMode.present ? selectedMode.value : this.selectedMode,
   );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
@@ -185,6 +222,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       pushNotificationsEnabled: data.pushNotificationsEnabled.present
           ? data.pushNotificationsEnabled.value
           : this.pushNotificationsEnabled,
+      selectedMode: data.selectedMode.present
+          ? data.selectedMode.value
+          : this.selectedMode,
     );
   }
 
@@ -193,46 +233,54 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     return (StringBuffer('AppSetting(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
-          ..write('pushNotificationsEnabled: $pushNotificationsEnabled')
+          ..write('pushNotificationsEnabled: $pushNotificationsEnabled, ')
+          ..write('selectedMode: $selectedMode')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, themeMode, pushNotificationsEnabled);
+  int get hashCode =>
+      Object.hash(id, themeMode, pushNotificationsEnabled, selectedMode);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AppSetting &&
           other.id == this.id &&
           other.themeMode == this.themeMode &&
-          other.pushNotificationsEnabled == this.pushNotificationsEnabled);
+          other.pushNotificationsEnabled == this.pushNotificationsEnabled &&
+          other.selectedMode == this.selectedMode);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<int> id;
   final Value<String> themeMode;
   final Value<bool> pushNotificationsEnabled;
+  final Value<String?> selectedMode;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.pushNotificationsEnabled = const Value.absent(),
+    this.selectedMode = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.pushNotificationsEnabled = const Value.absent(),
+    this.selectedMode = const Value.absent(),
   });
   static Insertable<AppSetting> custom({
     Expression<int>? id,
     Expression<String>? themeMode,
     Expression<bool>? pushNotificationsEnabled,
+    Expression<String>? selectedMode,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (themeMode != null) 'theme_mode': themeMode,
       if (pushNotificationsEnabled != null)
         'push_notifications_enabled': pushNotificationsEnabled,
+      if (selectedMode != null) 'selected_mode': selectedMode,
     });
   }
 
@@ -240,12 +288,14 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Value<int>? id,
     Value<String>? themeMode,
     Value<bool>? pushNotificationsEnabled,
+    Value<String?>? selectedMode,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
       themeMode: themeMode ?? this.themeMode,
       pushNotificationsEnabled:
           pushNotificationsEnabled ?? this.pushNotificationsEnabled,
+      selectedMode: selectedMode ?? this.selectedMode,
     );
   }
 
@@ -263,6 +313,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
         pushNotificationsEnabled.value,
       );
     }
+    if (selectedMode.present) {
+      map['selected_mode'] = Variable<String>(selectedMode.value);
+    }
     return map;
   }
 
@@ -271,7 +324,8 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     return (StringBuffer('AppSettingsCompanion(')
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
-          ..write('pushNotificationsEnabled: $pushNotificationsEnabled')
+          ..write('pushNotificationsEnabled: $pushNotificationsEnabled, ')
+          ..write('selectedMode: $selectedMode')
           ..write(')'))
         .toString();
   }
@@ -14811,12 +14865,14 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<int> id,
       Value<String> themeMode,
       Value<bool> pushNotificationsEnabled,
+      Value<String?> selectedMode,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
       Value<int> id,
       Value<String> themeMode,
       Value<bool> pushNotificationsEnabled,
+      Value<String?> selectedMode,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -14840,6 +14896,11 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<bool> get pushNotificationsEnabled => $composableBuilder(
     column: $table.pushNotificationsEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get selectedMode => $composableBuilder(
+    column: $table.selectedMode,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -14867,6 +14928,11 @@ class $$AppSettingsTableOrderingComposer
     column: $table.pushNotificationsEnabled,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get selectedMode => $composableBuilder(
+    column: $table.selectedMode,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -14886,6 +14952,11 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<bool> get pushNotificationsEnabled => $composableBuilder(
     column: $table.pushNotificationsEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get selectedMode => $composableBuilder(
+    column: $table.selectedMode,
     builder: (column) => column,
   );
 }
@@ -14924,20 +14995,24 @@ class $$AppSettingsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> pushNotificationsEnabled = const Value.absent(),
+                Value<String?> selectedMode = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 themeMode: themeMode,
                 pushNotificationsEnabled: pushNotificationsEnabled,
+                selectedMode: selectedMode,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> pushNotificationsEnabled = const Value.absent(),
+                Value<String?> selectedMode = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
                 pushNotificationsEnabled: pushNotificationsEnabled,
+                selectedMode: selectedMode,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

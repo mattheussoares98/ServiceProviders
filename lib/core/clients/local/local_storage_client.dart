@@ -9,6 +9,8 @@ abstract interface class LocalStorageClient {
   String getThemeMode();
   Future<void> savePushNotifications(bool enabled);
   bool getPushNotifications();
+  Future<void> saveSelectedMode(String? mode);
+  String? getSelectedMode();
   Future<void> saveUserSession(UserDataEntity userSession);
   UserDataEntity? getUserSession();
   Future<void> clearUserSession();
@@ -36,6 +38,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   final AppDatabase _database;
   String _themeMode = 'system';
   bool _pushNotificationsEnabled = true;
+  String? _selectedMode;
   UserDataEntity? _userSession;
 
   Future<void> init() async {
@@ -45,6 +48,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
     if (setting != null) {
       _themeMode = setting.themeMode;
       _pushNotificationsEnabled = setting.pushNotificationsEnabled;
+      _selectedMode = setting.selectedMode;
     }
 
     final session = await (_database.select(
@@ -97,6 +101,22 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   bool getPushNotifications() => _pushNotificationsEnabled;
 
   @override
+  Future<void> saveSelectedMode(String? mode) async {
+    _selectedMode = mode;
+    await _database
+        .into(_database.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion(
+            id: const Value(1),
+            selectedMode: Value(mode),
+          ),
+        );
+  }
+
+  @override
+  String? getSelectedMode() => _selectedMode;
+
+  @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
     _userSession = userSession;
     await _database.transaction(() async {
@@ -129,6 +149,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   Future<void> clearAll() async {
     _themeMode = 'system';
     _pushNotificationsEnabled = false;
+    _selectedMode = null;
     _userSession = null;
     await _database.transaction(() async {
       await _database.delete(_database.appSettings).go();

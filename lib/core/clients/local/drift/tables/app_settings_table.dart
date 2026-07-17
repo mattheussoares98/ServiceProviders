@@ -5,4 +5,5 @@ class AppSettings extends Table {
   TextColumn get themeMode => text().withDefault(const Constant('system'))();
   BoolColumn get pushNotificationsEnabled =>
       boolean().withDefault(const Constant(false))();
+  TextColumn get selectedMode => text().nullable()();
 }

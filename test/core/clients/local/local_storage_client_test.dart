@@ -50,6 +50,38 @@ void main() {
     });
   });
 
+  group('LocalStorageClientImpl — Selected Mode', () {
+    test('getSelectedMode defaults to null', () {
+      expect(localStorageClient.getSelectedMode(), isNull);
+    });
+
+    test('saveSelectedMode persists value and updates cache', () async {
+      final newMode = faker.randomGenerator.element([
+        'provider',
+        'client',
+        null,
+      ]);
+      await localStorageClient.saveSelectedMode(newMode);
+
+      expect(localStorageClient.getSelectedMode(), newMode);
+
+      // Check database
+      final dbValue = await (database.select(
+        database.appSettings,
+      )..where((t) => t.id.equals(1))).getSingleOrNull();
+      expect(dbValue?.selectedMode, newMode);
+    });
+
+    test('init restores selectedMode from database', () async {
+      await localStorageClient.saveSelectedMode('provider');
+
+      final secondClient = LocalStorageClientImpl(database: database);
+      await secondClient.init();
+
+      expect(secondClient.getSelectedMode(), 'provider');
+    });
+  });
+
   group('LocalStorageClientImpl — User Session', () {
     test('getUserSession returns null initially', () {
       expect(localStorageClient.getUserSession(), isNull);
@@ -130,11 +162,13 @@ void main() {
       );
 
       await localStorageClient.saveThemeMode('dark');
+      await localStorageClient.saveSelectedMode('provider');
       await localStorageClient.saveUserSession(userSession);
 
       await localStorageClient.clearAll();
 
       expect(localStorageClient.getThemeMode(), 'system');
+      expect(localStorageClient.getSelectedMode(), isNull);
       expect(localStorageClient.getUserSession(), isNull);
 
       final dbSettings = await database.select(database.appSettings).get();
