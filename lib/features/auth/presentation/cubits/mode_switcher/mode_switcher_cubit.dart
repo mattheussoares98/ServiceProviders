@@ -1,24 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'mode_switcher_state.dart';
-
-enum AppMode {
-  internal('internal'),
-  provider('provider');
-
-  const AppMode(this.code);
-  final String code;
-
-  static AppMode? fromCode(String? code) {
-    if (code == 'internal') return AppMode.internal;
-    if (code == 'provider') return AppMode.provider;
-    return null;
-  }
-}
 
 @injectable
 class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
@@ -32,7 +19,7 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
     emit(state.copyWith(status: StateStatus.loading, selectedMode: mode));
 
     try {
-      await _localStorageClient.saveSelectedMode(mode.code);
+      await _localStorageClient.saveSelectedMode(mode.name);
       emit(state.copyWith(status: StateStatus.loaded));
 
       if (mode == AppMode.provider) {

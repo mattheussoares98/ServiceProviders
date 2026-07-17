@@ -3,9 +3,9 @@ import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
-import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -78,9 +78,9 @@ class LoginCubit extends BaseCubit<LoginState> {
 
       if (hasInternalProfile && hasProviderProfile) {
         final savedMode = _localStorageClient.getSelectedMode();
-        if (savedMode == AppMode.internal.code) {
+        if (savedMode == AppMode.internal.name) {
           await replaceAllRoute(const HomeRoute());
-        } else if (savedMode == AppMode.provider.code) {
+        } else if (savedMode == AppMode.provider.name) {
           await replaceAllRoute(const ProviderHomeRoute());
         } else {
           await replaceAllRoute(const ModeSwitcherRoute());
