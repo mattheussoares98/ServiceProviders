@@ -71,6 +71,18 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
   );
 
   @override
+  FutureList<ServiceProviderProfileEntity> getServiceProviderProfilesByAuthUser(
+    String authUserId,
+  ) => RepositoryHandler.fetchWithFallbackAndMapList<
+    ServiceProviderProfileResponseModel,
+    ServiceProviderProfileEntity
+  >(
+    isInternetConnected: _online,
+    remoteCallback: () =>
+        _remoteDataSource.getServiceProviderProfilesByAuthUser(authUserId),
+  );
+
+  @override
   FutureBool createServiceProviderProfile(
     ServiceProviderProfileEntity profile,
   ) => _remoteDataSource.createServiceProviderProfile(

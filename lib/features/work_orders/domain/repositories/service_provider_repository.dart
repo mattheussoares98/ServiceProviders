@@ -19,6 +19,9 @@ abstract interface class ServiceProviderRepository {
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
+  FutureList<ServiceProviderProfileEntity> getServiceProviderProfilesByAuthUser(
+    String authUserId,
+  );
   FutureBool createServiceProviderProfile(
     ServiceProviderProfileEntity profile,
   );

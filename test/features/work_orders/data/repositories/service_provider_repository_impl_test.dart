@@ -176,6 +176,29 @@ void main() {
     );
   });
 
+  group('getServiceProviderProfilesByAuthUser', () {
+    test(
+      'should return SuccessState with domain profiles list when remote call succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.getServiceProviderProfilesByAuthUser(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
+
+        final result = await repository.getServiceProviderProfilesByAuthUser(
+          tProfileEntity.authUserId!,
+        );
+
+        expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
+        expect(
+          (result as SuccessState<List<ServiceProviderProfileEntity>>)
+              .data!
+              .first,
+          tProfileEntity,
+        );
+      },
+    );
+  });
+
   group('createServiceProviderProfile', () {
     test('should return true when creation succeeds', () async {
       when(

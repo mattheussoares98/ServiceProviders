@@ -261,6 +261,36 @@ void main() {
     );
   });
 
+  group('getServiceProviderProfilesByAuthUser', () {
+    test(
+      'should return SuccessState with list of profile models when successful',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tProfileModel.toJson()]);
+
+        final result = await dataSource.getServiceProviderProfilesByAuthUser(
+          tProfileEntity.authUserId!,
+        );
+
+        expect(
+          result,
+          isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+        );
+        expect(
+          (result as SuccessState<List<ServiceProviderProfileResponseModel>>)
+              .data!
+              .first
+              .id,
+          tProfileEntity.id,
+        );
+      },
+    );
+  });
+
   group('createServiceProviderProfile', () {
     test(
       'should return SuccessState(true) when insert is successful',
