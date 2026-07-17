@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/configurations/domain/repositories/confi
 import 'package:o_jogo_da_obra/features/locations/domain/repositories/locations_repository.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
 import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/service_provider_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
 
 class MockAssetsRepository extends Mock implements AssetsRepository {}
@@ -37,3 +38,6 @@ class MockSessionRepository extends Mock implements SessionRepository {}
 
 class MockConfigurationsRepository extends Mock
     implements ConfigurationsRepository {}
+
+class MockServiceProviderRepository extends Mock
+    implements ServiceProviderRepository {}
