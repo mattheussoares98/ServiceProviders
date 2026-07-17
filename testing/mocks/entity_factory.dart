@@ -26,6 +26,8 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_en
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
@@ -159,6 +161,8 @@ abstract final class EntityFactory {
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
       attachments: makeAttachmentEntityList(),
+      serviceProviderCompanyId: _makeId(),
+      providerProfileId: _makeId(),
     );
   }
 
@@ -458,6 +462,55 @@ abstract final class EntityFactory {
       makeUserInvitationEntity(),
       makeUserInvitationEntity(),
       makeUserInvitationEntity(),
+    ];
+  }
+
+  // Service Provider Company
+  static ServiceProviderCompanyEntity makeServiceProviderCompanyEntity() {
+    return ServiceProviderCompanyEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      name: _makeCompanyName(),
+      document: '12345678000199',
+      documentType: 'cnpj',
+      contactEmail: _makeEmail(),
+      contactPhone: _makeInt(99999999, min: 10000000).toString(),
+      isActive: true,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<ServiceProviderCompanyEntity>
+  makeServiceProviderCompanyEntityList() {
+    return [
+      makeServiceProviderCompanyEntity(),
+      makeServiceProviderCompanyEntity(),
+      makeServiceProviderCompanyEntity(),
+    ];
+  }
+
+  // Service Provider Profile
+  static ServiceProviderProfileEntity makeServiceProviderProfileEntity() {
+    return ServiceProviderProfileEntity(
+      id: _makeId(),
+      authUserId: _makeId(),
+      serviceProviderCompanyId: _makeId(),
+      name: _makePersonName(),
+      email: _makeEmail(),
+      phone: _makeInt(99999999, min: 10000000).toString(),
+      isActive: true,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<ServiceProviderProfileEntity>
+  makeServiceProviderProfileEntityList() {
+    return [
+      makeServiceProviderProfileEntity(),
+      makeServiceProviderProfileEntity(),
+      makeServiceProviderProfileEntity(),
     ];
   }
 }

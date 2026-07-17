@@ -34,6 +34,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
     required super.updatedAt,
     super.deletedAt,
     super.attachments,
+    super.serviceProviderCompanyId,
+    super.providerProfileId,
+    super.openedBy,
   });
 
   factory WorkOrderResponseModel.fromEntity(WorkOrderEntity entity) =>
@@ -63,6 +66,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
         attachments: entity.attachments,
+        serviceProviderCompanyId: entity.serviceProviderCompanyId,
+        providerProfileId: entity.providerProfileId,
+        openedBy: entity.openedBy,
       );
 
   factory WorkOrderResponseModel.fromJson(MapDynamic json) =>
@@ -109,6 +115,10 @@ class WorkOrderResponseModel extends WorkOrderEntity
                 .where((e) => e.deletedAt == null)
                 .toList() ??
             const [],
+        serviceProviderCompanyId:
+            json['service_provider_company_id'] as String?,
+        providerProfileId: json['provider_profile_id'] as String?,
+        openedBy: json['opened_by'] as String? ?? 'internal',
       );
 
   @override
@@ -137,6 +147,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
     'created_at': createdAt.toUtc().toIso8601String(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
     'deleted_at': deletedAt?.toUtc().toIso8601String(),
+    'service_provider_company_id': serviceProviderCompanyId,
+    'provider_profile_id': providerProfileId,
+    'opened_by': openedBy,
   };
 
   @override
@@ -166,5 +179,8 @@ class WorkOrderResponseModel extends WorkOrderEntity
     updatedAt: updatedAt,
     deletedAt: deletedAt,
     attachments: attachments,
+    serviceProviderCompanyId: serviceProviderCompanyId,
+    providerProfileId: providerProfileId,
+    openedBy: openedBy,
   );
 }

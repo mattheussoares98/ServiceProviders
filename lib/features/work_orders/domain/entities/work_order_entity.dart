@@ -31,6 +31,9 @@ class WorkOrderEntity extends Equatable {
     required this.updatedAt,
     this.deletedAt,
     this.attachments = const [],
+    this.serviceProviderCompanyId,
+    this.providerProfileId,
+    this.openedBy = 'internal',
   });
 
   final String id;
@@ -58,6 +61,9 @@ class WorkOrderEntity extends Equatable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final List<AttachmentEntity> attachments;
+  final String? serviceProviderCompanyId;
+  final String? providerProfileId;
+  final String openedBy;
 
   @override
   List<Object?> get props => [
@@ -86,6 +92,9 @@ class WorkOrderEntity extends Equatable {
     updatedAt,
     deletedAt,
     attachments,
+    serviceProviderCompanyId,
+    providerProfileId,
+    openedBy,
   ];
 
   WorkOrderEntity copyWith({
@@ -114,6 +123,9 @@ class WorkOrderEntity extends Equatable {
     DateTime? updatedAt,
     DateTime? deletedAt,
     List<AttachmentEntity>? attachments,
+    String? serviceProviderCompanyId,
+    String? providerProfileId,
+    String? openedBy,
     bool? annulAssetId,
     bool? annulAssignedToId,
     bool? annulMaintenancePlanId,
@@ -127,6 +139,8 @@ class WorkOrderEntity extends Equatable {
     bool? annulTotalCost,
     bool? annulNotes,
     bool? annulDeletedAt,
+    bool? annulServiceProviderCompanyId,
+    bool? annulProviderProfileId,
   }) {
     return WorkOrderEntity(
       id: id ?? this.id,
@@ -166,6 +180,13 @@ class WorkOrderEntity extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
       attachments: attachments ?? this.attachments,
+      serviceProviderCompanyId: annulServiceProviderCompanyId == true
+          ? null
+          : serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+      providerProfileId: annulProviderProfileId == true
+          ? null
+          : providerProfileId ?? this.providerProfileId,
+      openedBy: openedBy ?? this.openedBy,
     );
   }
 }
