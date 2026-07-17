@@ -96,10 +96,22 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       table: 'user_profiles',
       filters: [SupabaseFilter.eq('id', userId)],
     );
-    if (profileJson == null) {
+    if (profileJson != null) {
+      return UserProfileResponseModel.fromJson(profileJson);
+    }
+
+    final providerJson = await _supabaseDatabase.selectOne(
+      table: 'service_provider_profiles',
+      filters: [SupabaseFilter.eq('auth_user_id', userId)],
+    );
+
+    if (providerJson == null) {
       throw const AuthException('Perfil de usuário não encontrado.');
     }
 
-    return UserProfileResponseModel.fromJson(profileJson);
+    return UserProfileResponseModel.fromServiceProviderJson(
+      providerJson,
+      userId,
+    );
   }
 }
