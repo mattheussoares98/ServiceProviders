@@ -17,6 +17,7 @@ A **Computerized Maintenance Management System (CMMS)** for Brazilian enterprise
 | [Architecture](/docs/cmms/architecture.md) | Offline-first design, data flow, file management, invitation flow, infrastructure |
 | [Development Phases](/docs/cmms/development_phases.md) | Phase timeline, hour estimates, verification plan |
 | [Resolved Questions](/docs/cmms/resolved_questions.md) | Decision log for past design choices |
+| [V2 Feature Roadmap](/docs/cmms/v2_features.md) | Scope and details for V2 features |
 
 ## Related Documentation
 

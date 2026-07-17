@@ -6,29 +6,89 @@ This document organizes the features discussed during the partner review session
 
 ## 1. Service Provider (Fornecedor) Management
 
-### 1.1 Register Service Providers
-A dedicated **service provider** entity (distinct from internal `user_profiles`). A service provider is an **external company or individual** contracted to execute work orders.
+### 1.1 Identity Architecture — Dual-Mode Model
 
-**New table: `service_providers`**
+A single Supabase Auth account (email + password) can hold two separate identities simultaneously:
+
+- **Employee identity** → a row in `user_profiles` (existing table, unchanged)
+- **Provider identity** → one or more rows in `service_provider_profiles` (new table)
+
+The contracting company admin creates a `service_provider_companies` record and invites users to it via the existing Edge Function invite flow. No platform intervention required.
+
+```
+auth.users (single email + password)
+  ├──► user_profiles                  (employee of one contracting company)
+  └──► service_provider_profiles      (member of one or more provider companies)
+                                       [one row per provider company]
+```
+
+**App login routing:**
+
+| Identities found | Behavior |
+|---|---|
+| `user_profiles` only | Go directly to **Company Mode** |
+| `service_provider_profiles` only | Go directly to **Provider Mode** (enterprise picker if multiple) |
+| Both | Show **Mode Switcher** screen |
+
+The last active mode is persisted locally (via `user_parameters` or local storage) so the user does not have to choose on every launch.
+
+---
+
+### 1.2 New Tables
+
+**`service_provider_companies`** — created and managed by the contracting company admin
 | Column | Type | Description |
-|---|---|---|
-| `company_id` | UUID | Tenant FK |
-| `name` | VARCHAR(255) | Provider name |
-| `cnpj` | VARCHAR(14) | Brazilian CNPJ (optional) |
-| `contact_name` | VARCHAR(255) | Main contact person |
-| `contact_email` | VARCHAR(255) | Email |
-| `contact_phone` | VARCHAR(30) | Phone |
+|---|---|
+| `company_id` | UUID | FK → the contracting company that manages this |
+| `name` | VARCHAR(255) | Provider company name |
+| `cnpj` | VARCHAR(14) | Brazilian CNPJ — legal entity (optional) |
+| `cpf` | VARCHAR(11) | Brazilian CPF — individual person (optional) |
+| `contact_email` | VARCHAR(255) | General contact |
+| `contact_phone` | VARCHAR(30) | Optional |
 | `is_active` | BOOLEAN | Active status |
 
-### 1.2 Assign Responsible Company to a Work Order
-Extend `work_orders` with a `service_provider_id` FK column so that an external service provider can be designated as the responsible party.
+> **DB constraint:** `CHECK ((cnpj IS NOT NULL AND cpf IS NULL) OR (cpf IS NOT NULL AND cnpj IS NULL) OR (cnpj IS NULL AND cpf IS NULL))` — at most one document type can be filled.
 
-**`work_orders` addition:** `service_provider_id UUID? → service_providers.id (Set Null)`
+**`service_provider_profiles`** — individual users of a provider company
+| Column | Type | Description |
+|---|---|---|
+| `auth_user_id` | UUID? | FK → Supabase Auth uid (null until invite accepted) |
+| `service_provider_company_id` | UUID | FK → `service_provider_companies.id` (Cascade) |
+| `name` | VARCHAR(255) | Display name |
+| `email` | VARCHAR(255) | Login email |
+| `phone` | VARCHAR(30) | Optional |
+| `is_active` | BOOLEAN | Active status |
 
-### 1.3 Provider-Initiated Work Orders
-Service providers must be able to open their own work orders (tickets). A `opened_by` column differentiates who created the ticket.
+---
 
-**`work_orders` addition:** `opened_by VARCHAR(20)` → `'internal'` | `'provider'`
+### 1.3 Work Order Assignment — 3 Options
+
+When creating or editing a work order, the responsible party can be:
+
+| Option | Description | Columns set |
+|---|---|---|
+| **1** | Internal company user | `assigned_to_id` |
+| **2** | Provider enterprise (whole company) | `service_provider_company_id` |
+| **3** | Provider enterprise + specific technician | `service_provider_company_id` + `provider_profile_id` |
+
+**`work_orders` additions:**
+| Column | Type | Description |
+|---|---|---|
+| `service_provider_company_id` | UUID? | FK → `service_provider_companies.id` (Set Null) |
+| `provider_profile_id` | UUID? | FK → `service_provider_profiles.id` (Set Null) |
+| `opened_by` | VARCHAR(20) | `'internal'` \| `'provider'` |
+
+---
+
+### 1.4 Provider Mode — Online-Only (V2)
+
+> [IMPORTANT]
+> **Provider Mode is online-only in V2.** All data fetching in provider mode goes directly to Supabase. No local Drift caching is used for provider work orders.
+>
+> **Rationale:** Provider mode spans multiple contracting companies. Scoping the offline-first Drift database to multiple `company_id` values would require a significant architecture change. For V2, providers are expected to have internet connectivity while in the field.
+
+> [NOTE]
+> **Future (V3+):** Implement a separate Drift database scope for provider mode, allowing offline access to work orders assigned to the provider's enterprise. This should be designed as an isolated local DB instance, not an extension of the existing employee Drift database.
 
 ---
 
@@ -44,7 +104,9 @@ SLAs apply to **both** the service provider AND the contracting company. Each SL
 | `name` | VARCHAR(100) | e.g. "SLA Urgente", "SLA Padrão" |
 | `target_hours` | INT | Max hours to resolve |
 | `applies_to` | VARCHAR(20) | `'provider'` \| `'contractor'` \| `'both'` |
-| `priority_level` | VARCHAR(50) | low / medium / high / critical |
+
+> [NOTE]
+> **SLA Scope (Resolved):** SLA policies are **freely configurable per work order** — not tied to priority levels. The company admin creates named policies (e.g. "SLA Urgente = 4h", "SLA Padrão = 48h") and the user selects which policy applies when creating or editing a work order.
 
 **`work_orders` additions:**
 | Column | Type | Description |
@@ -193,7 +255,7 @@ Track every user login event and significant access action for security and audi
 | `device_info` | VARCHAR(255)? | Platform/device string |
 | `created_at` | TIMESTAMP | Event timestamp |
 
-> [!NOTE]
+> [NOTE]
 > No `updated_at` or `deleted_at` — access logs are immutable, append-only records.
 
 ---
@@ -214,19 +276,91 @@ Reference: https://github.com/pmistandards/pmbokguide
 
 ---
 
-## Open Questions
+## 10. Two-Tier & Scope-Based Permission Architecture
 
-> [!IMPORTANT]
-> **Q1 — Provider Portal vs. Role:** Should service providers have their own login (separate auth flow) or be regular `user_profiles` with a specific permission group?
+To accommodate attribute-based scoping for work orders (e.g. "Técnico can edit only assigned work orders") while maintaining simplicity for standard features, we implement a two-tier permission model.
 
-> [!IMPORTANT]
-> **Q2 — SLA Scope:** Should SLA policies be tied to priority levels (e.g., critical=4h, medium=48h) or freely configurable per work order?
+### 10.1 Database Schema (JSON Representation)
+Both `permission_groups.permissions` and `user_profiles.permissions` JSONB columns will transition from a JSON array of keys (e.g. `["locations.read"]`) to a flat JSON object (e.g. `{"locations.create": true}`). 
 
-> [!IMPORTANT]
-> **Q3 — Escalation Engine:** Should it run server-side via Supabase `pg_cron` or client-driven? Server-side is recommended for reliability.
+Standard resources use boolean keys. Work orders use specific scope/action keys:
+```json
+{
+  "locations.create": true,
+  "locations.update": true,
+  "locations.delete": false,
+  "work_orders.read_scope": "all",
+  "work_orders.create": true,
+  "work_orders.update_scope": "assigned",
+  "work_orders.delete": false,
+  "work_orders.change_status": true,
+  "work_orders.reassign": false,
+  "work_orders.approve_pause": false,
+  "work_orders.approve_completion": false
+}
+```
 
-> [!IMPORTANT]
-> **Q4 — "Taxa de entrega":** Is this a performance KPI (% of work orders completed on time) shown in a dashboard, or a literal fee charged to the provider?
+### 10.2 Server‑Side Database Policies & Helper Functions
+1. **Migration SQL**: Modify `public.has_permission(permission_key TEXT)` to support parsing keys out of the flat JSON object (while maintaining array compatibility).
+2. **Read Scope Helper**:
+   ```sql
+   CREATE OR REPLACE FUNCTION public.get_work_orders_read_scope()
+   RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
+     SELECT CASE 
+       WHEN up.is_admin THEN 'all'
+       ELSE COALESCE(pg.permissions ->> 'work_orders.read_scope', 'assigned')
+     END
+     FROM public.user_profiles up
+     LEFT JOIN public.permission_groups pg ON up.permission_group_id = pg.id
+     WHERE up.id = auth.uid();
+   $$;
+   ```
+3. **Update Scope Helper**:
+   ```sql
+   CREATE OR REPLACE FUNCTION public.get_work_orders_update_scope()
+   RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
+     SELECT CASE 
+       WHEN up.is_admin THEN 'all'
+       ELSE COALESCE(pg.permissions ->> 'work_orders.update_scope', 'none')
+     END
+     FROM public.user_profiles up
+     LEFT JOIN public.permission_groups pg ON up.permission_group_id = pg.id
+     WHERE up.id = auth.uid();
+   $$;
+   ```
+4. **Row Level Security (RLS)** updates:
+   - **`work_orders` SELECT**:
+     `company_id = public.get_user_company_id() AND (public.get_work_orders_read_scope() = 'all' OR (public.get_work_orders_read_scope() = 'assigned' AND assigned_to_id = auth.uid()))`
+   - **`work_orders` UPDATE**:
+     `company_id = public.get_user_company_id() AND (public.get_work_orders_update_scope() = 'all' OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid()) OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid()))`
 
-> [!IMPORTANT]
-> **Q5 — "Tratativas do lado do cliente":** A dedicated UI section for the contracting company to manage their own actions/responses on a work order, separate from the provider's view?
+### 10.3 Frontend Integration (Flutter)
+1. **Model / Entities**:
+   - Introduce `WorkOrdersPermissionEntity` in `lib/features/users/domain/entities/permission.dart` to cleanly model work order scopes and actions.
+   - Refactor `PermissionGroupEntity` and `UserProfileEntity` parser methods (`_parsePermissions`) to construct the new nested entities from the flat JSON object.
+2. **UsersCubit / Context Helper**:
+   - Update `BuildContextExtension.hasPermission()` to support checking permissions with contextual record reference check.
+   - Example: `hasPermission(ActionPermission(resource: ResourceType.workOrders, action: PermissionAction.update), record: workOrder)`.
+3. **UI / Presentation**:
+   - Edit the Group Permissions and User Permissions screens to lock `read` to always-on (not switchable/editable) for standard resources.
+   - Display a dropdown/segmented control for `read_scope` (`'all'` \| `'assigned'`) and `update_scope` (`'all'` \| `'assigned'` \| `'own'` \| `'none'`) on `work_orders`.
+   - Display switchable toggles for the special work order actions (`change_status`, `reassign`, `approve_pause`, `approve_completion`).
+
+---
+
+## Resolved Questions
+
+> [NOTE]
+> **Q1 — Provider Login:** ✅ **Resolved.** Same login page, auth methods, and flow as internal company users. No separate portal. The app detects which identities exist after login and routes accordingly.
+>
+> **Q2 — SLA Scope:** ✅ **Resolved.** SLA policies are **freely configurable** per work order. Not tied to priority levels. See §2.1.
+>
+> **Q3 — Escalation Engine Runtime:** ✅ **Resolved.** Runs server-side as a Supabase Edge Function triggered by `pg_cron`. The engine checks for overdue work orders at regular intervals and sends FCM notifications up the hierarchy (supervisor → manager → admin) automatically, without the app needing to be open.
+>
+> **Q4 — "Taxa de entrega" (Delivery Rate):** ✅ **Resolved.** A **performance KPI dashboard metric** — percentage of work orders completed within SLA time. Displayed on a reporting/analytics screen.
+>
+> **Q5 — Provider Work Order Interactions:** ✅ **Resolved.** Service providers can:
+> - **Create** work orders
+> - **Interact** with assigned work orders (add observations, update progress)
+> - **Request pause** — always requires a **selected reason** from a predefined list. The pause request notifies the **contractor company** for approval before the SLA clock is affected.
+> - All pauses, regardless of who requests them, go through the approval workflow in §3.
