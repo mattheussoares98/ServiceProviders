@@ -26,8 +26,7 @@ final class SessionRepositoryImpl implements SessionRepository {
   @override
   bool get isLoggedIn =>
       (_auth.currentSession?.accessToken.isNotEmpty ?? false) &&
-      _userData.user.id.isNotEmpty &&
-      _userData.user.companyId.isNotEmpty;
+      _userData.user.id.isNotEmpty;
 
   @override
   UserDataEntity get userData => _userData;
