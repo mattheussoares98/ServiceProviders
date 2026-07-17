@@ -79,6 +79,27 @@ class UserProfileResponseModel extends UserProfileEntity
     );
   }
 
+  factory UserProfileResponseModel.fromServiceProviderJson(
+    MapDynamic json,
+    String authUserId,
+  ) {
+    return UserProfileResponseModel(
+      id: authUserId,
+      companyId: '',
+      name: json['name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      phone: json['phone'] as String?,
+      isActive: json['is_active'] as bool? ?? true,
+      isAdmin: false,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
+    );
+  }
+
   factory UserProfileResponseModel.fromJson(MapDynamic json) {
     final parsed = _parsePermissions(json['permissions']);
     return UserProfileResponseModel(
