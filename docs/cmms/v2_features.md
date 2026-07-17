@@ -348,6 +348,22 @@ Standard resources use boolean keys. Work orders use specific scope/action keys:
 
 ---
 
+## 11. Real-Time Synchronization & Graceful Page Reloads
+
+To improve user experience and avoid manual refreshing, the application will support real-time data push instead of polling timers.
+
+### 11.1 Real-Time Trigger Events
+1. **Permissions Change**: When a user's permissions are updated on the server, the app immediately receives the event to update the local cache and security state without requiring a logout/login.
+2. **Work Order Modification/Creation**: When a work order is added or modified, the app receives the update from the server to update the local lists.
+
+### 11.2 Graceful Reload Strategy (Avoid Jarring UI Shifts)
+To prevent unexpected page jumping or list shifting while the user is scrolling or reading, we will implement the following strategies:
+- **Option A (Floating Toast Alert - Recommended)**: When a real-time event is received, show a subtle overlay toast or chip at the bottom/top of the page (e.g., *"Novas ordens de serviço disponíveis. Toque para atualizar"*). The list is refreshed only when the user clicks the action button.
+- **Option B (Scroll-Aware Buffering)**: Check if the user is scrolling by listening to the list's `ScrollController`. If the user is actively scrolling, delay the state refresh. The refresh triggers automatically only after the user stops scrolling (idle timeout).
+- **Option C (Immediate Reload)**: Refresh the list immediately upon event reception, without scroll checks or toast confirmations.
+
+---
+
 ## Resolved Questions
 
 > [NOTE]
@@ -364,3 +380,6 @@ Standard resources use boolean keys. Work orders use specific scope/action keys:
 > - **Interact** with assigned work orders (add observations, update progress)
 > - **Request pause** — always requires a **selected reason** from a predefined list. The pause request notifies the **contractor company** for approval before the SLA clock is affected.
 > - All pauses, regardless of who requests them, go through the approval workflow in §3.
+>
+> **Q6 — Real-Time Reloading Behavior:** ✅ **Resolved.** Updates are pushed in real time via Supabase Realtime Channels. To prevent jarring UI shifts while scrolling (e.g., when a new work order is created by another user), the application will default to Option A (Toast/Banner notification) or Option B (Scroll-Aware buffering) to let the user control the refresh timing, with a fallback to immediate reload if a simpler approach is preferred.
+
