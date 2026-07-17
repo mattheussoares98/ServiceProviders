@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dar
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 
 @LazySingleton()
 class LoginCubitUseCases {
@@ -15,6 +16,7 @@ class LoginCubitUseCases {
     required this.setSession,
     required this.getUserData,
     required this.saveUserData,
+    required this.getServiceProviderProfilesByAuthUser,
   });
 
   final LoginUseCase login;
@@ -23,4 +25,5 @@ class LoginCubitUseCases {
   final SetSessionUseCase setSession;
   final GetUserDataUseCase getUserData;
   final SaveUserDataUseCase saveUserData;
+  final GetServiceProviderProfilesByAuthUserUseCase getServiceProviderProfilesByAuthUser;
 }

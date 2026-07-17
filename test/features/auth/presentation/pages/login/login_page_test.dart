@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
@@ -17,6 +18,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_ca
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/login_page.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
@@ -52,6 +54,9 @@ void main() {
   late MockGetUserDataUseCase mockGetUserDataUseCase;
   late MockSaveUserDataUseCase mockSaveUserDataUseCase;
   late UserDataEntity userData;
+  late MockGetServiceProviderProfilesByAuthUserUseCase
+  getServiceProviderProfilesByAuthUserUseCase;
+  late MockLocalStorageClient mockLocalStorageClient;
 
   setUpAll(() {
     userData = EntityFactory.makeUserDataEntity();
@@ -69,6 +74,9 @@ void main() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockGetUserDataUseCase = MockGetUserDataUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
+    getServiceProviderProfilesByAuthUserUseCase =
+        MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockLocalStorageClient = MockLocalStorageClient();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -79,6 +87,10 @@ void main() {
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase)
       ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
+      ..registerSingleton<LocalStorageClient>(mockLocalStorageClient)
+      ..registerSingleton<GetServiceProviderProfilesByAuthUserUseCase>(
+        getServiceProviderProfilesByAuthUserUseCase,
+      )
       ..registerFactory<LoginCubit>(
         () => LoginCubit(
           useCases: LoginCubitUseCases(
@@ -88,9 +100,14 @@ void main() {
             setSession: mockSetSessionUseCase,
             getUserData: mockGetUserDataUseCase,
             saveUserData: mockSaveUserDataUseCase,
+            getServiceProviderProfilesByAuthUser:
+                getServiceProviderProfilesByAuthUserUseCase,
           ),
+          localStorageClient: mockLocalStorageClient,
         ),
       );
+
+    when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(null);
 
     const screenDetails = ScreenDetails(
       logicalSize: Size(1920, 1280),

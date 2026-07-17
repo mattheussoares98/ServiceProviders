@@ -3,6 +3,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
@@ -15,7 +16,9 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -37,6 +40,9 @@ void main() {
   late UserDataEntity userData;
   late MockGetUserDataUseCase mockGetUserDataUseCase;
   late MockSaveUserDataUseCase mockSaveUserDataUseCase;
+  late MockGetServiceProviderProfilesByAuthUserUseCase
+  mockGetServiceProviderProfilesByAuthUserUseCase;
+  late MockLocalStorageClient mockLocalStorageClient;
 
   setUpAll(() {
     userData = EntityFactory.makeUserDataEntity().copyWith(
@@ -56,6 +62,9 @@ void main() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockGetUserDataUseCase = MockGetUserDataUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
+    mockGetServiceProviderProfilesByAuthUserUseCase =
+        MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockLocalStorageClient = MockLocalStorageClient();
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -65,7 +74,11 @@ void main() {
       ..registerSingleton<ResetPasswordUseCase>(mockResetPasswordUseCase)
       ..registerSingleton<SetSessionUseCase>(mockSetSessionUseCase)
       ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
-      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase);
+      ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase)
+      ..registerSingleton<LocalStorageClient>(mockLocalStorageClient)
+      ..registerSingleton<GetServiceProviderProfilesByAuthUserUseCase>(
+        mockGetServiceProviderProfilesByAuthUserUseCase,
+      );
 
     final useCases = LoginCubitUseCases(
       login: mockLoginUseCase,
@@ -74,8 +87,19 @@ void main() {
       setSession: mockSetSessionUseCase,
       getUserData: mockGetUserDataUseCase,
       saveUserData: mockSaveUserDataUseCase,
+      getServiceProviderProfilesByAuthUser:
+          mockGetServiceProviderProfilesByAuthUserUseCase,
     );
-    loginCubit = LoginCubit(useCases: useCases);
+    loginCubit = LoginCubit(
+      useCases: useCases,
+      localStorageClient: mockLocalStorageClient,
+    );
+
+    // Default to empty provider profiles to keep original tests passing
+    when(
+      () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(null);
   });
 
   tearDown(locator.reset);
@@ -110,7 +134,79 @@ void main() {
       verify(() => mockLoginUseCase.call(any())).called(1);
       verify(() => mockSetSessionUseCase.call(any())).called(1);
       verify(() => mockSaveUserDataUseCase.call(any())).called(1);
+      verify(
+        () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
+      ).called(1);
       verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should navigate to ModeSwitcherRoute when user has both company and provider profiles',
+    build: () {
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: userData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
+      ).thenAnswer(
+        (_) async => SuccessState(
+          data: [EntityFactory.makeServiceProviderProfileEntity()],
+        ),
+      );
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verify(
+        () => mockNavigationClient.replaceAllRoute(const ModeSwitcherRoute()),
+      ).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should navigate to ProviderHomeRoute when user only has provider profiles',
+    build: () {
+      final providerUserData = userData.copyWith(
+        user: userData.user.copyWith(companyId: ''),
+      );
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: providerUserData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
+      ).thenAnswer(
+        (_) async => SuccessState(
+          data: [EntityFactory.makeServiceProviderProfileEntity()],
+        ),
+      );
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verify(
+        () => mockNavigationClient.replaceAllRoute(const ProviderHomeRoute()),
+      ).called(1);
     },
   );
 
