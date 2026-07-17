@@ -3,6 +3,8 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_table.dart';
 
 @TableIndex(name: 'idx_work_orders_company', columns: {#companyId})
@@ -49,6 +51,18 @@ class WorkOrders extends Table {
   RealColumn get partsCost => real().nullable()();
   RealColumn get totalCost => real().nullable()();
   TextColumn get notes => text().nullable()();
+  TextColumn get serviceProviderCompanyId => text().nullable().references(
+    ServiceProviderCompanies,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get providerProfileId => text().nullable().references(
+    ServiceProviderProfiles,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get openedBy =>
+      text().withDefault(const Constant('internal'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

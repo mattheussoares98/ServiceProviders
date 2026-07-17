@@ -7611,6 +7611,1265 @@ class MaintenancePlansCompanion extends UpdateCompanion<MaintenancePlan> {
   }
 }
 
+class $ServiceProviderCompaniesTable extends ServiceProviderCompanies
+    with TableInfo<$ServiceProviderCompaniesTable, ServiceProviderCompany> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServiceProviderCompaniesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _documentMeta = const VerificationMeta(
+    'document',
+  );
+  @override
+  late final GeneratedColumn<String> document = GeneratedColumn<String>(
+    'document',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _documentTypeMeta = const VerificationMeta(
+    'documentType',
+  );
+  @override
+  late final GeneratedColumn<String> documentType = GeneratedColumn<String>(
+    'document_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactEmailMeta = const VerificationMeta(
+    'contactEmail',
+  );
+  @override
+  late final GeneratedColumn<String> contactEmail = GeneratedColumn<String>(
+    'contact_email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contactPhoneMeta = const VerificationMeta(
+    'contactPhone',
+  );
+  @override
+  late final GeneratedColumn<String> contactPhone = GeneratedColumn<String>(
+    'contact_phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    name,
+    document,
+    documentType,
+    contactEmail,
+    contactPhone,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'service_provider_companies';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ServiceProviderCompany> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('document')) {
+      context.handle(
+        _documentMeta,
+        document.isAcceptableOrUnknown(data['document']!, _documentMeta),
+      );
+    }
+    if (data.containsKey('document_type')) {
+      context.handle(
+        _documentTypeMeta,
+        documentType.isAcceptableOrUnknown(
+          data['document_type']!,
+          _documentTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_email')) {
+      context.handle(
+        _contactEmailMeta,
+        contactEmail.isAcceptableOrUnknown(
+          data['contact_email']!,
+          _contactEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('contact_phone')) {
+      context.handle(
+        _contactPhoneMeta,
+        contactPhone.isAcceptableOrUnknown(
+          data['contact_phone']!,
+          _contactPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServiceProviderCompany map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServiceProviderCompany(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      document: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document'],
+      ),
+      documentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_type'],
+      ),
+      contactEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_email'],
+      ),
+      contactPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contact_phone'],
+      ),
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $ServiceProviderCompaniesTable createAlias(String alias) {
+    return $ServiceProviderCompaniesTable(attachedDatabase, alias);
+  }
+}
+
+class ServiceProviderCompany extends DataClass
+    implements Insertable<ServiceProviderCompany> {
+  final String id;
+  final String companyId;
+  final String name;
+  final String? document;
+  final String? documentType;
+  final String? contactEmail;
+  final String? contactPhone;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const ServiceProviderCompany({
+    required this.id,
+    required this.companyId,
+    required this.name,
+    this.document,
+    this.documentType,
+    this.contactEmail,
+    this.contactPhone,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || document != null) {
+      map['document'] = Variable<String>(document);
+    }
+    if (!nullToAbsent || documentType != null) {
+      map['document_type'] = Variable<String>(documentType);
+    }
+    if (!nullToAbsent || contactEmail != null) {
+      map['contact_email'] = Variable<String>(contactEmail);
+    }
+    if (!nullToAbsent || contactPhone != null) {
+      map['contact_phone'] = Variable<String>(contactPhone);
+    }
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  ServiceProviderCompaniesCompanion toCompanion(bool nullToAbsent) {
+    return ServiceProviderCompaniesCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      name: Value(name),
+      document: document == null && nullToAbsent
+          ? const Value.absent()
+          : Value(document),
+      documentType: documentType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(documentType),
+      contactEmail: contactEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactEmail),
+      contactPhone: contactPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactPhone),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ServiceProviderCompany.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServiceProviderCompany(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      name: serializer.fromJson<String>(json['name']),
+      document: serializer.fromJson<String?>(json['document']),
+      documentType: serializer.fromJson<String?>(json['documentType']),
+      contactEmail: serializer.fromJson<String?>(json['contactEmail']),
+      contactPhone: serializer.fromJson<String?>(json['contactPhone']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'name': serializer.toJson<String>(name),
+      'document': serializer.toJson<String?>(document),
+      'documentType': serializer.toJson<String?>(documentType),
+      'contactEmail': serializer.toJson<String?>(contactEmail),
+      'contactPhone': serializer.toJson<String?>(contactPhone),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  ServiceProviderCompany copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    Value<String?> document = const Value.absent(),
+    Value<String?> documentType = const Value.absent(),
+    Value<String?> contactEmail = const Value.absent(),
+    Value<String?> contactPhone = const Value.absent(),
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => ServiceProviderCompany(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    name: name ?? this.name,
+    document: document.present ? document.value : this.document,
+    documentType: documentType.present ? documentType.value : this.documentType,
+    contactEmail: contactEmail.present ? contactEmail.value : this.contactEmail,
+    contactPhone: contactPhone.present ? contactPhone.value : this.contactPhone,
+    isActive: isActive ?? this.isActive,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  ServiceProviderCompany copyWithCompanion(
+    ServiceProviderCompaniesCompanion data,
+  ) {
+    return ServiceProviderCompany(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      name: data.name.present ? data.name.value : this.name,
+      document: data.document.present ? data.document.value : this.document,
+      documentType: data.documentType.present
+          ? data.documentType.value
+          : this.documentType,
+      contactEmail: data.contactEmail.present
+          ? data.contactEmail.value
+          : this.contactEmail,
+      contactPhone: data.contactPhone.present
+          ? data.contactPhone.value
+          : this.contactPhone,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderCompany(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('document: $document, ')
+          ..write('documentType: $documentType, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyId,
+    name,
+    document,
+    documentType,
+    contactEmail,
+    contactPhone,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServiceProviderCompany &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.name == this.name &&
+          other.document == this.document &&
+          other.documentType == this.documentType &&
+          other.contactEmail == this.contactEmail &&
+          other.contactPhone == this.contactPhone &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ServiceProviderCompaniesCompanion
+    extends UpdateCompanion<ServiceProviderCompany> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> name;
+  final Value<String?> document;
+  final Value<String?> documentType;
+  final Value<String?> contactEmail;
+  final Value<String?> contactPhone;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const ServiceProviderCompaniesCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.document = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ServiceProviderCompaniesCompanion.insert({
+    required String id,
+    required String companyId,
+    required String name,
+    this.document = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.contactEmail = const Value.absent(),
+    this.contactPhone = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       name = Value(name);
+  static Insertable<ServiceProviderCompany> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? name,
+    Expression<String>? document,
+    Expression<String>? documentType,
+    Expression<String>? contactEmail,
+    Expression<String>? contactPhone,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (name != null) 'name': name,
+      if (document != null) 'document': document,
+      if (documentType != null) 'document_type': documentType,
+      if (contactEmail != null) 'contact_email': contactEmail,
+      if (contactPhone != null) 'contact_phone': contactPhone,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ServiceProviderCompaniesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? name,
+    Value<String?>? document,
+    Value<String?>? documentType,
+    Value<String?>? contactEmail,
+    Value<String?>? contactPhone,
+    Value<bool>? isActive,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return ServiceProviderCompaniesCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      document: document ?? this.document,
+      documentType: documentType ?? this.documentType,
+      contactEmail: contactEmail ?? this.contactEmail,
+      contactPhone: contactPhone ?? this.contactPhone,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (document.present) {
+      map['document'] = Variable<String>(document.value);
+    }
+    if (documentType.present) {
+      map['document_type'] = Variable<String>(documentType.value);
+    }
+    if (contactEmail.present) {
+      map['contact_email'] = Variable<String>(contactEmail.value);
+    }
+    if (contactPhone.present) {
+      map['contact_phone'] = Variable<String>(contactPhone.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderCompaniesCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('document: $document, ')
+          ..write('documentType: $documentType, ')
+          ..write('contactEmail: $contactEmail, ')
+          ..write('contactPhone: $contactPhone, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ServiceProviderProfilesTable extends ServiceProviderProfiles
+    with TableInfo<$ServiceProviderProfilesTable, ServiceProviderProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServiceProviderProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _authUserIdMeta = const VerificationMeta(
+    'authUserId',
+  );
+  @override
+  late final GeneratedColumn<String> authUserId = GeneratedColumn<String>(
+    'auth_user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serviceProviderCompanyIdMeta =
+      const VerificationMeta('serviceProviderCompanyId');
+  @override
+  late final GeneratedColumn<String> serviceProviderCompanyId =
+      GeneratedColumn<String>(
+        'service_provider_company_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES service_provider_companies (id) ON DELETE CASCADE',
+        ),
+      );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+    'phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    authUserId,
+    serviceProviderCompanyId,
+    name,
+    email,
+    phone,
+    isActive,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'service_provider_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ServiceProviderProfile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('auth_user_id')) {
+      context.handle(
+        _authUserIdMeta,
+        authUserId.isAcceptableOrUnknown(
+          data['auth_user_id']!,
+          _authUserIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('service_provider_company_id')) {
+      context.handle(
+        _serviceProviderCompanyIdMeta,
+        serviceProviderCompanyId.isAcceptableOrUnknown(
+          data['service_provider_company_id']!,
+          _serviceProviderCompanyIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_serviceProviderCompanyIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+        _phoneMeta,
+        phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServiceProviderProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServiceProviderProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      authUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}auth_user_id'],
+      ),
+      serviceProviderCompanyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_provider_company_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      )!,
+      phone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone'],
+      ),
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ServiceProviderProfilesTable createAlias(String alias) {
+    return $ServiceProviderProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class ServiceProviderProfile extends DataClass
+    implements Insertable<ServiceProviderProfile> {
+  final String id;
+  final String? authUserId;
+  final String serviceProviderCompanyId;
+  final String name;
+  final String email;
+  final String? phone;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const ServiceProviderProfile({
+    required this.id,
+    this.authUserId,
+    required this.serviceProviderCompanyId,
+    required this.name,
+    required this.email,
+    this.phone,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || authUserId != null) {
+      map['auth_user_id'] = Variable<String>(authUserId);
+    }
+    map['service_provider_company_id'] = Variable<String>(
+      serviceProviderCompanyId,
+    );
+    map['name'] = Variable<String>(name);
+    map['email'] = Variable<String>(email);
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ServiceProviderProfilesCompanion toCompanion(bool nullToAbsent) {
+    return ServiceProviderProfilesCompanion(
+      id: Value(id),
+      authUserId: authUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(authUserId),
+      serviceProviderCompanyId: Value(serviceProviderCompanyId),
+      name: Value(name),
+      email: Value(email),
+      phone: phone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phone),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ServiceProviderProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServiceProviderProfile(
+      id: serializer.fromJson<String>(json['id']),
+      authUserId: serializer.fromJson<String?>(json['authUserId']),
+      serviceProviderCompanyId: serializer.fromJson<String>(
+        json['serviceProviderCompanyId'],
+      ),
+      name: serializer.fromJson<String>(json['name']),
+      email: serializer.fromJson<String>(json['email']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'authUserId': serializer.toJson<String?>(authUserId),
+      'serviceProviderCompanyId': serializer.toJson<String>(
+        serviceProviderCompanyId,
+      ),
+      'name': serializer.toJson<String>(name),
+      'email': serializer.toJson<String>(email),
+      'phone': serializer.toJson<String?>(phone),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ServiceProviderProfile copyWith({
+    String? id,
+    Value<String?> authUserId = const Value.absent(),
+    String? serviceProviderCompanyId,
+    String? name,
+    String? email,
+    Value<String?> phone = const Value.absent(),
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => ServiceProviderProfile(
+    id: id ?? this.id,
+    authUserId: authUserId.present ? authUserId.value : this.authUserId,
+    serviceProviderCompanyId:
+        serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+    name: name ?? this.name,
+    email: email ?? this.email,
+    phone: phone.present ? phone.value : this.phone,
+    isActive: isActive ?? this.isActive,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ServiceProviderProfile copyWithCompanion(
+    ServiceProviderProfilesCompanion data,
+  ) {
+    return ServiceProviderProfile(
+      id: data.id.present ? data.id.value : this.id,
+      authUserId: data.authUserId.present
+          ? data.authUserId.value
+          : this.authUserId,
+      serviceProviderCompanyId: data.serviceProviderCompanyId.present
+          ? data.serviceProviderCompanyId.value
+          : this.serviceProviderCompanyId,
+      name: data.name.present ? data.name.value : this.name,
+      email: data.email.present ? data.email.value : this.email,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderProfile(')
+          ..write('id: $id, ')
+          ..write('authUserId: $authUserId, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('name: $name, ')
+          ..write('email: $email, ')
+          ..write('phone: $phone, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    authUserId,
+    serviceProviderCompanyId,
+    name,
+    email,
+    phone,
+    isActive,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServiceProviderProfile &&
+          other.id == this.id &&
+          other.authUserId == this.authUserId &&
+          other.serviceProviderCompanyId == this.serviceProviderCompanyId &&
+          other.name == this.name &&
+          other.email == this.email &&
+          other.phone == this.phone &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ServiceProviderProfilesCompanion
+    extends UpdateCompanion<ServiceProviderProfile> {
+  final Value<String> id;
+  final Value<String?> authUserId;
+  final Value<String> serviceProviderCompanyId;
+  final Value<String> name;
+  final Value<String> email;
+  final Value<String?> phone;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const ServiceProviderProfilesCompanion({
+    this.id = const Value.absent(),
+    this.authUserId = const Value.absent(),
+    this.serviceProviderCompanyId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.email = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ServiceProviderProfilesCompanion.insert({
+    required String id,
+    this.authUserId = const Value.absent(),
+    required String serviceProviderCompanyId,
+    required String name,
+    required String email,
+    this.phone = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       serviceProviderCompanyId = Value(serviceProviderCompanyId),
+       name = Value(name),
+       email = Value(email);
+  static Insertable<ServiceProviderProfile> custom({
+    Expression<String>? id,
+    Expression<String>? authUserId,
+    Expression<String>? serviceProviderCompanyId,
+    Expression<String>? name,
+    Expression<String>? email,
+    Expression<String>? phone,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (authUserId != null) 'auth_user_id': authUserId,
+      if (serviceProviderCompanyId != null)
+        'service_provider_company_id': serviceProviderCompanyId,
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+      if (phone != null) 'phone': phone,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ServiceProviderProfilesCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? authUserId,
+    Value<String>? serviceProviderCompanyId,
+    Value<String>? name,
+    Value<String>? email,
+    Value<String?>? phone,
+    Value<bool>? isActive,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return ServiceProviderProfilesCompanion(
+      id: id ?? this.id,
+      authUserId: authUserId ?? this.authUserId,
+      serviceProviderCompanyId:
+          serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (authUserId.present) {
+      map['auth_user_id'] = Variable<String>(authUserId.value);
+    }
+    if (serviceProviderCompanyId.present) {
+      map['service_provider_company_id'] = Variable<String>(
+        serviceProviderCompanyId.value,
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('authUserId: $authUserId, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('name: $name, ')
+          ..write('email: $email, ')
+          ..write('phone: $phone, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WorkOrdersTable extends WorkOrders
     with TableInfo<$WorkOrdersTable, WorkOrder> {
   @override
@@ -7861,6 +9120,47 @@ class $WorkOrdersTable extends WorkOrders
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _serviceProviderCompanyIdMeta =
+      const VerificationMeta('serviceProviderCompanyId');
+  @override
+  late final GeneratedColumn<String> serviceProviderCompanyId =
+      GeneratedColumn<String>(
+        'service_provider_company_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES service_provider_companies (id) ON DELETE SET NULL',
+        ),
+      );
+  static const VerificationMeta _providerProfileIdMeta = const VerificationMeta(
+    'providerProfileId',
+  );
+  @override
+  late final GeneratedColumn<String> providerProfileId =
+      GeneratedColumn<String>(
+        'provider_profile_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES service_provider_profiles (id) ON DELETE SET NULL',
+        ),
+      );
+  static const VerificationMeta _openedByMeta = const VerificationMeta(
+    'openedBy',
+  );
+  @override
+  late final GeneratedColumn<String> openedBy = GeneratedColumn<String>(
+    'opened_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('internal'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7919,6 +9219,9 @@ class $WorkOrdersTable extends WorkOrders
     partsCost,
     totalCost,
     notes,
+    serviceProviderCompanyId,
+    providerProfileId,
+    openedBy,
     createdAt,
     updatedAt,
     deletedAt,
@@ -8092,6 +9395,30 @@ class $WorkOrdersTable extends WorkOrders
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('service_provider_company_id')) {
+      context.handle(
+        _serviceProviderCompanyIdMeta,
+        serviceProviderCompanyId.isAcceptableOrUnknown(
+          data['service_provider_company_id']!,
+          _serviceProviderCompanyIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('provider_profile_id')) {
+      context.handle(
+        _providerProfileIdMeta,
+        providerProfileId.isAcceptableOrUnknown(
+          data['provider_profile_id']!,
+          _providerProfileIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('opened_by')) {
+      context.handle(
+        _openedByMeta,
+        openedBy.isAcceptableOrUnknown(data['opened_by']!, _openedByMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -8203,6 +9530,18 @@ class $WorkOrdersTable extends WorkOrders
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      serviceProviderCompanyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_provider_company_id'],
+      ),
+      providerProfileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider_profile_id'],
+      ),
+      openedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}opened_by'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -8246,6 +9585,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
   final double? partsCost;
   final double? totalCost;
   final String? notes;
+  final String? serviceProviderCompanyId;
+  final String? providerProfileId;
+  final String openedBy;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -8271,6 +9613,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     this.partsCost,
     this.totalCost,
     this.notes,
+    this.serviceProviderCompanyId,
+    this.providerProfileId,
+    required this.openedBy,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -8325,6 +9670,15 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || serviceProviderCompanyId != null) {
+      map['service_provider_company_id'] = Variable<String>(
+        serviceProviderCompanyId,
+      );
+    }
+    if (!nullToAbsent || providerProfileId != null) {
+      map['provider_profile_id'] = Variable<String>(providerProfileId);
+    }
+    map['opened_by'] = Variable<String>(openedBy);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -8382,6 +9736,13 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      serviceProviderCompanyId: serviceProviderCompanyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceProviderCompanyId),
+      providerProfileId: providerProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(providerProfileId),
+      openedBy: Value(openedBy),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -8419,6 +9780,13 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       partsCost: serializer.fromJson<double?>(json['partsCost']),
       totalCost: serializer.fromJson<double?>(json['totalCost']),
       notes: serializer.fromJson<String?>(json['notes']),
+      serviceProviderCompanyId: serializer.fromJson<String?>(
+        json['serviceProviderCompanyId'],
+      ),
+      providerProfileId: serializer.fromJson<String?>(
+        json['providerProfileId'],
+      ),
+      openedBy: serializer.fromJson<String>(json['openedBy']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -8449,6 +9817,11 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       'partsCost': serializer.toJson<double?>(partsCost),
       'totalCost': serializer.toJson<double?>(totalCost),
       'notes': serializer.toJson<String?>(notes),
+      'serviceProviderCompanyId': serializer.toJson<String?>(
+        serviceProviderCompanyId,
+      ),
+      'providerProfileId': serializer.toJson<String?>(providerProfileId),
+      'openedBy': serializer.toJson<String>(openedBy),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -8477,6 +9850,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     Value<double?> partsCost = const Value.absent(),
     Value<double?> totalCost = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> serviceProviderCompanyId = const Value.absent(),
+    Value<String?> providerProfileId = const Value.absent(),
+    String? openedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
@@ -8510,6 +9886,13 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     partsCost: partsCost.present ? partsCost.value : this.partsCost,
     totalCost: totalCost.present ? totalCost.value : this.totalCost,
     notes: notes.present ? notes.value : this.notes,
+    serviceProviderCompanyId: serviceProviderCompanyId.present
+        ? serviceProviderCompanyId.value
+        : this.serviceProviderCompanyId,
+    providerProfileId: providerProfileId.present
+        ? providerProfileId.value
+        : this.providerProfileId,
+    openedBy: openedBy ?? this.openedBy,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -8555,6 +9938,13 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       partsCost: data.partsCost.present ? data.partsCost.value : this.partsCost,
       totalCost: data.totalCost.present ? data.totalCost.value : this.totalCost,
       notes: data.notes.present ? data.notes.value : this.notes,
+      serviceProviderCompanyId: data.serviceProviderCompanyId.present
+          ? data.serviceProviderCompanyId.value
+          : this.serviceProviderCompanyId,
+      providerProfileId: data.providerProfileId.present
+          ? data.providerProfileId.value
+          : this.providerProfileId,
+      openedBy: data.openedBy.present ? data.openedBy.value : this.openedBy,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -8585,6 +9975,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ..write('partsCost: $partsCost, ')
           ..write('totalCost: $totalCost, ')
           ..write('notes: $notes, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('providerProfileId: $providerProfileId, ')
+          ..write('openedBy: $openedBy, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -8615,6 +10008,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     partsCost,
     totalCost,
     notes,
+    serviceProviderCompanyId,
+    providerProfileId,
+    openedBy,
     createdAt,
     updatedAt,
     deletedAt,
@@ -8644,6 +10040,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           other.partsCost == this.partsCost &&
           other.totalCost == this.totalCost &&
           other.notes == this.notes &&
+          other.serviceProviderCompanyId == this.serviceProviderCompanyId &&
+          other.providerProfileId == this.providerProfileId &&
+          other.openedBy == this.openedBy &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -8671,6 +10070,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
   final Value<double?> partsCost;
   final Value<double?> totalCost;
   final Value<String?> notes;
+  final Value<String?> serviceProviderCompanyId;
+  final Value<String?> providerProfileId;
+  final Value<String> openedBy;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -8697,6 +10099,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     this.partsCost = const Value.absent(),
     this.totalCost = const Value.absent(),
     this.notes = const Value.absent(),
+    this.serviceProviderCompanyId = const Value.absent(),
+    this.providerProfileId = const Value.absent(),
+    this.openedBy = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -8724,6 +10129,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     this.partsCost = const Value.absent(),
     this.totalCost = const Value.absent(),
     this.notes = const Value.absent(),
+    this.serviceProviderCompanyId = const Value.absent(),
+    this.providerProfileId = const Value.absent(),
+    this.openedBy = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -8755,6 +10163,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Expression<double>? partsCost,
     Expression<double>? totalCost,
     Expression<String>? notes,
+    Expression<String>? serviceProviderCompanyId,
+    Expression<String>? providerProfileId,
+    Expression<String>? openedBy,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -8782,6 +10193,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
       if (partsCost != null) 'parts_cost': partsCost,
       if (totalCost != null) 'total_cost': totalCost,
       if (notes != null) 'notes': notes,
+      if (serviceProviderCompanyId != null)
+        'service_provider_company_id': serviceProviderCompanyId,
+      if (providerProfileId != null) 'provider_profile_id': providerProfileId,
+      if (openedBy != null) 'opened_by': openedBy,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -8811,6 +10226,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Value<double?>? partsCost,
     Value<double?>? totalCost,
     Value<String?>? notes,
+    Value<String?>? serviceProviderCompanyId,
+    Value<String?>? providerProfileId,
+    Value<String>? openedBy,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
@@ -8838,6 +10256,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
       partsCost: partsCost ?? this.partsCost,
       totalCost: totalCost ?? this.totalCost,
       notes: notes ?? this.notes,
+      serviceProviderCompanyId:
+          serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+      providerProfileId: providerProfileId ?? this.providerProfileId,
+      openedBy: openedBy ?? this.openedBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -8911,6 +10333,17 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (serviceProviderCompanyId.present) {
+      map['service_provider_company_id'] = Variable<String>(
+        serviceProviderCompanyId.value,
+      );
+    }
+    if (providerProfileId.present) {
+      map['provider_profile_id'] = Variable<String>(providerProfileId.value);
+    }
+    if (openedBy.present) {
+      map['opened_by'] = Variable<String>(openedBy.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -8950,6 +10383,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
           ..write('partsCost: $partsCost, ')
           ..write('totalCost: $totalCost, ')
           ..write('notes: $notes, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('providerProfileId: $providerProfileId, ')
+          ..write('openedBy: $openedBy, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -12849,6 +14285,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MaintenancePlansTable maintenancePlans = $MaintenancePlansTable(
     this,
   );
+  late final $ServiceProviderCompaniesTable serviceProviderCompanies =
+      $ServiceProviderCompaniesTable(this);
+  late final $ServiceProviderProfilesTable serviceProviderProfiles =
+      $ServiceProviderProfilesTable(this);
   late final $WorkOrdersTable workOrders = $WorkOrdersTable(this);
   late final $TasksTable tasks = $TasksTable(this);
   late final $AttachmentsTable attachments = $AttachmentsTable(this);
@@ -12907,6 +14347,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxMaintenancePlansCompany = Index(
     'idx_maintenance_plans_company',
     'CREATE INDEX idx_maintenance_plans_company ON maintenance_plans (company_id)',
+  );
+  late final Index idxSpcCompany = Index(
+    'idx_spc_company',
+    'CREATE INDEX idx_spc_company ON service_provider_companies (company_id)',
+  );
+  late final Index idxSppCompany = Index(
+    'idx_spp_company',
+    'CREATE INDEX idx_spp_company ON service_provider_profiles (service_provider_company_id)',
+  );
+  late final Index idxSppAuthUser = Index(
+    'idx_spp_auth_user',
+    'CREATE INDEX idx_spp_auth_user ON service_provider_profiles (auth_user_id)',
   );
   late final Index idxWorkOrdersCompany = Index(
     'idx_work_orders_company',
@@ -12977,6 +14429,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     checklistTemplates,
     checklistItems,
     maintenancePlans,
+    serviceProviderCompanies,
+    serviceProviderProfiles,
     workOrders,
     tasks,
     attachments,
@@ -12996,6 +14450,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     assetsCompanyCodeActiveIdx,
     assetsCompanySerialActiveIdx,
     idxMaintenancePlansCompany,
+    idxSpcCompany,
+    idxSppCompany,
+    idxSppAuthUser,
     idxWorkOrdersCompany,
     idxWorkOrdersStatus,
     idxWorkOrdersAssigned,
@@ -13157,6 +14614,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         'companies',
         limitUpdateKind: UpdateKind.delete,
       ),
+      result: [
+        TableUpdate('service_provider_companies', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'service_provider_companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('service_provider_profiles', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
       result: [TableUpdate('work_orders', kind: UpdateKind.delete)],
     ),
     WritePropagation(
@@ -13190,6 +14665,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'maintenance_plans',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_orders', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'service_provider_companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_orders', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'service_provider_profiles',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('work_orders', kind: UpdateKind.update)],
@@ -13898,6 +15387,31 @@ final class $$CompaniesTableReferences
     );
   }
 
+  static MultiTypedResultKey<
+    $ServiceProviderCompaniesTable,
+    List<ServiceProviderCompany>
+  >
+  _serviceProviderCompaniesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.serviceProviderCompanies,
+        aliasName: 'companies__id__service_provider_companies__company_id',
+      );
+
+  $$ServiceProviderCompaniesTableProcessedTableManager
+  get serviceProviderCompaniesRefs {
+    final manager = $$ServiceProviderCompaniesTableTableManager(
+      $_db,
+      $_db.serviceProviderCompanies,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _serviceProviderCompaniesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
@@ -14309,6 +15823,33 @@ class $$CompaniesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> serviceProviderCompaniesRefs(
+    Expression<bool> Function($$ServiceProviderCompaniesTableFilterComposer f)
+    f,
+  ) {
+    final $$ServiceProviderCompaniesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 
@@ -14798,6 +16339,33 @@ class $$CompaniesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> serviceProviderCompaniesRefs<T extends Object>(
+    Expression<T> Function($$ServiceProviderCompaniesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$ServiceProviderCompaniesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> workOrdersRefs<T extends Object>(
     Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
   ) {
@@ -15000,6 +16568,7 @@ class $$CompaniesTableTableManager
             bool checklistTemplatesRefs,
             bool checklistItemsRefs,
             bool maintenancePlansRefs,
+            bool serviceProviderCompaniesRefs,
             bool workOrdersRefs,
             bool tasksRefs,
             bool attachmentsRefs,
@@ -15083,6 +16652,7 @@ class $$CompaniesTableTableManager
                 checklistTemplatesRefs = false,
                 checklistItemsRefs = false,
                 maintenancePlansRefs = false,
+                serviceProviderCompaniesRefs = false,
                 workOrdersRefs = false,
                 tasksRefs = false,
                 attachmentsRefs = false,
@@ -15103,6 +16673,8 @@ class $$CompaniesTableTableManager
                     if (checklistTemplatesRefs) db.checklistTemplates,
                     if (checklistItemsRefs) db.checklistItems,
                     if (maintenancePlansRefs) db.maintenancePlans,
+                    if (serviceProviderCompaniesRefs)
+                      db.serviceProviderCompanies,
                     if (workOrdersRefs) db.workOrders,
                     if (tasksRefs) db.tasks,
                     if (attachmentsRefs) db.attachments,
@@ -15303,6 +16875,27 @@ class $$CompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (serviceProviderCompaniesRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          ServiceProviderCompany
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._serviceProviderCompaniesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).serviceProviderCompaniesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (workOrdersRefs)
                         await $_getPrefetchedData<
                           Company,
@@ -15480,6 +17073,7 @@ typedef $$CompaniesTableProcessedTableManager =
         bool checklistTemplatesRefs,
         bool checklistItemsRefs,
         bool maintenancePlansRefs,
+        bool serviceProviderCompaniesRefs,
         bool workOrdersRefs,
         bool tasksRefs,
         bool attachmentsRefs,
@@ -22219,6 +23813,1206 @@ typedef $$MaintenancePlansTableProcessedTableManager =
         bool workOrdersRefs,
       })
     >;
+typedef $$ServiceProviderCompaniesTableCreateCompanionBuilder =
+    ServiceProviderCompaniesCompanion Function({
+      required String id,
+      required String companyId,
+      required String name,
+      Value<String?> document,
+      Value<String?> documentType,
+      Value<String?> contactEmail,
+      Value<String?> contactPhone,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$ServiceProviderCompaniesTableUpdateCompanionBuilder =
+    ServiceProviderCompaniesCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> name,
+      Value<String?> document,
+      Value<String?> documentType,
+      Value<String?> contactEmail,
+      Value<String?> contactPhone,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$ServiceProviderCompaniesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ServiceProviderCompaniesTable,
+          ServiceProviderCompany
+        > {
+  $$ServiceProviderCompaniesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
+      .createAlias('service_provider_companies__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $ServiceProviderProfilesTable,
+    List<ServiceProviderProfile>
+  >
+  _serviceProviderProfilesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.serviceProviderProfiles,
+    aliasName:
+        'service_provider_companies__id__service_provider_profiles__service_provider_company_id',
+  );
+
+  $$ServiceProviderProfilesTableProcessedTableManager
+  get serviceProviderProfilesRefs {
+    final manager =
+        $$ServiceProviderProfilesTableTableManager(
+          $_db,
+          $_db.serviceProviderProfiles,
+        ).filter(
+          (f) => f.serviceProviderCompanyId.id.sqlEquals(
+            $_itemColumn<String>('id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _serviceProviderProfilesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
+  _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.workOrders,
+    aliasName:
+        'service_provider_companies__id__work_orders__service_provider_company_id',
+  );
+
+  $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
+    final manager = $$WorkOrdersTableTableManager($_db, $_db.workOrders).filter(
+      (f) =>
+          f.serviceProviderCompanyId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_workOrdersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ServiceProviderCompaniesTableFilterComposer
+    extends Composer<_$AppDatabase, $ServiceProviderCompaniesTable> {
+  $$ServiceProviderCompaniesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get document => $composableBuilder(
+    column: $table.document,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> serviceProviderProfilesRefs(
+    Expression<bool> Function($$ServiceProviderProfilesTableFilterComposer f) f,
+  ) {
+    final $$ServiceProviderProfilesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderProfiles,
+          getReferencedColumn: (t) => t.serviceProviderCompanyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderProfilesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> workOrdersRefs(
+    Expression<bool> Function($$WorkOrdersTableFilterComposer f) f,
+  ) {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.serviceProviderCompanyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ServiceProviderCompaniesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ServiceProviderCompaniesTable> {
+  $$ServiceProviderCompaniesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get document => $composableBuilder(
+    column: $table.document,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ServiceProviderCompaniesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ServiceProviderCompaniesTable> {
+  $$ServiceProviderCompaniesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get document =>
+      $composableBuilder(column: $table.document, builder: (column) => column);
+
+  GeneratedColumn<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactEmail => $composableBuilder(
+    column: $table.contactEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contactPhone => $composableBuilder(
+    column: $table.contactPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> serviceProviderProfilesRefs<T extends Object>(
+    Expression<T> Function($$ServiceProviderProfilesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$ServiceProviderProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderProfiles,
+          getReferencedColumn: (t) => t.serviceProviderCompanyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> workOrdersRefs<T extends Object>(
+    Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.serviceProviderCompanyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ServiceProviderCompaniesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ServiceProviderCompaniesTable,
+          ServiceProviderCompany,
+          $$ServiceProviderCompaniesTableFilterComposer,
+          $$ServiceProviderCompaniesTableOrderingComposer,
+          $$ServiceProviderCompaniesTableAnnotationComposer,
+          $$ServiceProviderCompaniesTableCreateCompanionBuilder,
+          $$ServiceProviderCompaniesTableUpdateCompanionBuilder,
+          (ServiceProviderCompany, $$ServiceProviderCompaniesTableReferences),
+          ServiceProviderCompany,
+          PrefetchHooks Function({
+            bool companyId,
+            bool serviceProviderProfilesRefs,
+            bool workOrdersRefs,
+          })
+        > {
+  $$ServiceProviderCompaniesTableTableManager(
+    _$AppDatabase db,
+    $ServiceProviderCompaniesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ServiceProviderCompaniesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ServiceProviderCompaniesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ServiceProviderCompaniesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> document = const Value.absent(),
+                Value<String?> documentType = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderCompaniesCompanion(
+                id: id,
+                companyId: companyId,
+                name: name,
+                document: document,
+                documentType: documentType,
+                contactEmail: contactEmail,
+                contactPhone: contactPhone,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String name,
+                Value<String?> document = const Value.absent(),
+                Value<String?> documentType = const Value.absent(),
+                Value<String?> contactEmail = const Value.absent(),
+                Value<String?> contactPhone = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderCompaniesCompanion.insert(
+                id: id,
+                companyId: companyId,
+                name: name,
+                document: document,
+                documentType: documentType,
+                contactEmail: contactEmail,
+                contactPhone: contactPhone,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ServiceProviderCompaniesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                companyId = false,
+                serviceProviderProfilesRefs = false,
+                workOrdersRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (serviceProviderProfilesRefs) db.serviceProviderProfiles,
+                    if (workOrdersRefs) db.workOrders,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (companyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.companyId,
+                                    referencedTable:
+                                        $$ServiceProviderCompaniesTableReferences
+                                            ._companyIdTable(db),
+                                    referencedColumn:
+                                        $$ServiceProviderCompaniesTableReferences
+                                            ._companyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (serviceProviderProfilesRefs)
+                        await $_getPrefetchedData<
+                          ServiceProviderCompany,
+                          $ServiceProviderCompaniesTable,
+                          ServiceProviderProfile
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$ServiceProviderCompaniesTableReferences
+                                  ._serviceProviderProfilesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ServiceProviderCompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).serviceProviderProfilesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.serviceProviderCompanyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (workOrdersRefs)
+                        await $_getPrefetchedData<
+                          ServiceProviderCompany,
+                          $ServiceProviderCompaniesTable,
+                          WorkOrder
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$ServiceProviderCompaniesTableReferences
+                                  ._workOrdersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ServiceProviderCompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrdersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.serviceProviderCompanyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ServiceProviderCompaniesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ServiceProviderCompaniesTable,
+      ServiceProviderCompany,
+      $$ServiceProviderCompaniesTableFilterComposer,
+      $$ServiceProviderCompaniesTableOrderingComposer,
+      $$ServiceProviderCompaniesTableAnnotationComposer,
+      $$ServiceProviderCompaniesTableCreateCompanionBuilder,
+      $$ServiceProviderCompaniesTableUpdateCompanionBuilder,
+      (ServiceProviderCompany, $$ServiceProviderCompaniesTableReferences),
+      ServiceProviderCompany,
+      PrefetchHooks Function({
+        bool companyId,
+        bool serviceProviderProfilesRefs,
+        bool workOrdersRefs,
+      })
+    >;
+typedef $$ServiceProviderProfilesTableCreateCompanionBuilder =
+    ServiceProviderProfilesCompanion Function({
+      required String id,
+      Value<String?> authUserId,
+      required String serviceProviderCompanyId,
+      required String name,
+      required String email,
+      Value<String?> phone,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$ServiceProviderProfilesTableUpdateCompanionBuilder =
+    ServiceProviderProfilesCompanion Function({
+      Value<String> id,
+      Value<String?> authUserId,
+      Value<String> serviceProviderCompanyId,
+      Value<String> name,
+      Value<String> email,
+      Value<String?> phone,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$ServiceProviderProfilesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ServiceProviderProfilesTable,
+          ServiceProviderProfile
+        > {
+  $$ServiceProviderProfilesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ServiceProviderCompaniesTable _serviceProviderCompanyIdTable(
+    _$AppDatabase db,
+  ) => db.serviceProviderCompanies.createAlias(
+    'service_provider_profiles__service_provider_company_id__service_provider_companies__id',
+  );
+
+  $$ServiceProviderCompaniesTableProcessedTableManager
+  get serviceProviderCompanyId {
+    final $_column = $_itemColumn<String>('service_provider_company_id')!;
+
+    final manager = $$ServiceProviderCompaniesTableTableManager(
+      $_db,
+      $_db.serviceProviderCompanies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _serviceProviderCompanyIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
+  _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.workOrders,
+    aliasName:
+        'service_provider_profiles__id__work_orders__provider_profile_id',
+  );
+
+  $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
+    final manager = $$WorkOrdersTableTableManager($_db, $_db.workOrders).filter(
+      (f) => f.providerProfileId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_workOrdersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ServiceProviderProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $ServiceProviderProfilesTable> {
+  $$ServiceProviderProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authUserId => $composableBuilder(
+    column: $table.authUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ServiceProviderCompaniesTableFilterComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  Expression<bool> workOrdersRefs(
+    Expression<bool> Function($$WorkOrdersTableFilterComposer f) f,
+  ) {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.providerProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ServiceProviderProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ServiceProviderProfilesTable> {
+  $$ServiceProviderProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authUserId => $composableBuilder(
+    column: $table.authUserId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ServiceProviderCompaniesTableOrderingComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableOrderingComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$ServiceProviderProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ServiceProviderProfilesTable> {
+  $$ServiceProviderProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get authUserId => $composableBuilder(
+    column: $table.authUserId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ServiceProviderCompaniesTableAnnotationComposer
+  get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  Expression<T> workOrdersRefs<T extends Object>(
+    Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.providerProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ServiceProviderProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ServiceProviderProfilesTable,
+          ServiceProviderProfile,
+          $$ServiceProviderProfilesTableFilterComposer,
+          $$ServiceProviderProfilesTableOrderingComposer,
+          $$ServiceProviderProfilesTableAnnotationComposer,
+          $$ServiceProviderProfilesTableCreateCompanionBuilder,
+          $$ServiceProviderProfilesTableUpdateCompanionBuilder,
+          (ServiceProviderProfile, $$ServiceProviderProfilesTableReferences),
+          ServiceProviderProfile,
+          PrefetchHooks Function({
+            bool serviceProviderCompanyId,
+            bool workOrdersRefs,
+          })
+        > {
+  $$ServiceProviderProfilesTableTableManager(
+    _$AppDatabase db,
+    $ServiceProviderProfilesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ServiceProviderProfilesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ServiceProviderProfilesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ServiceProviderProfilesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> authUserId = const Value.absent(),
+                Value<String> serviceProviderCompanyId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> email = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderProfilesCompanion(
+                id: id,
+                authUserId: authUserId,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                name: name,
+                email: email,
+                phone: phone,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> authUserId = const Value.absent(),
+                required String serviceProviderCompanyId,
+                required String name,
+                required String email,
+                Value<String?> phone = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderProfilesCompanion.insert(
+                id: id,
+                authUserId: authUserId,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                name: name,
+                email: email,
+                phone: phone,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ServiceProviderProfilesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({serviceProviderCompanyId = false, workOrdersRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [if (workOrdersRefs) db.workOrders],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (serviceProviderCompanyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn:
+                                        table.serviceProviderCompanyId,
+                                    referencedTable:
+                                        $$ServiceProviderProfilesTableReferences
+                                            ._serviceProviderCompanyIdTable(db),
+                                    referencedColumn:
+                                        $$ServiceProviderProfilesTableReferences
+                                            ._serviceProviderCompanyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (workOrdersRefs)
+                        await $_getPrefetchedData<
+                          ServiceProviderProfile,
+                          $ServiceProviderProfilesTable,
+                          WorkOrder
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$ServiceProviderProfilesTableReferences
+                                  ._workOrdersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ServiceProviderProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrdersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.providerProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ServiceProviderProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ServiceProviderProfilesTable,
+      ServiceProviderProfile,
+      $$ServiceProviderProfilesTableFilterComposer,
+      $$ServiceProviderProfilesTableOrderingComposer,
+      $$ServiceProviderProfilesTableAnnotationComposer,
+      $$ServiceProviderProfilesTableCreateCompanionBuilder,
+      $$ServiceProviderProfilesTableUpdateCompanionBuilder,
+      (ServiceProviderProfile, $$ServiceProviderProfilesTableReferences),
+      ServiceProviderProfile,
+      PrefetchHooks Function({
+        bool serviceProviderCompanyId,
+        bool workOrdersRefs,
+      })
+    >;
 typedef $$WorkOrdersTableCreateCompanionBuilder =
     WorkOrdersCompanion Function({
       required String id,
@@ -22242,6 +25036,9 @@ typedef $$WorkOrdersTableCreateCompanionBuilder =
       Value<double?> partsCost,
       Value<double?> totalCost,
       Value<String?> notes,
+      Value<String?> serviceProviderCompanyId,
+      Value<String?> providerProfileId,
+      Value<String> openedBy,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -22270,6 +25067,9 @@ typedef $$WorkOrdersTableUpdateCompanionBuilder =
       Value<double?> partsCost,
       Value<double?> totalCost,
       Value<String?> notes,
+      Value<String?> serviceProviderCompanyId,
+      Value<String?> providerProfileId,
+      Value<String> openedBy,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -22379,6 +25179,49 @@ final class $$WorkOrdersTableReferences
       $_db.maintenancePlans,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_maintenancePlanIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ServiceProviderCompaniesTable _serviceProviderCompanyIdTable(
+    _$AppDatabase db,
+  ) => db.serviceProviderCompanies.createAlias(
+    'work_orders__service_provider_company_id__service_provider_companies__id',
+  );
+
+  $$ServiceProviderCompaniesTableProcessedTableManager?
+  get serviceProviderCompanyId {
+    final $_column = $_itemColumn<String>('service_provider_company_id');
+    if ($_column == null) return null;
+    final manager = $$ServiceProviderCompaniesTableTableManager(
+      $_db,
+      $_db.serviceProviderCompanies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _serviceProviderCompanyIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ServiceProviderProfilesTable _providerProfileIdTable(
+    _$AppDatabase db,
+  ) => db.serviceProviderProfiles.createAlias(
+    'work_orders__provider_profile_id__service_provider_profiles__id',
+  );
+
+  $$ServiceProviderProfilesTableProcessedTableManager? get providerProfileId {
+    final $_column = $_itemColumn<String>('provider_profile_id');
+    if ($_column == null) return null;
+    final manager = $$ServiceProviderProfilesTableTableManager(
+      $_db,
+      $_db.serviceProviderProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_providerProfileIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -22552,6 +25395,11 @@ class $$WorkOrdersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get openedBy => $composableBuilder(
+    column: $table.openedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -22702,6 +25550,54 @@ class $$WorkOrdersTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return composer;
+  }
+
+  $$ServiceProviderCompaniesTableFilterComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$ServiceProviderProfilesTableFilterComposer get providerProfileId {
+    final $$ServiceProviderProfilesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.providerProfileId,
+          referencedTable: $db.serviceProviderProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderProfilesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return composer;
   }
 
@@ -22891,6 +25787,11 @@ class $$WorkOrdersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get openedBy => $composableBuilder(
+    column: $table.openedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -23043,6 +25944,54 @@ class $$WorkOrdersTableOrderingComposer
     );
     return composer;
   }
+
+  $$ServiceProviderCompaniesTableOrderingComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableOrderingComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$ServiceProviderProfilesTableOrderingComposer get providerProfileId {
+    final $$ServiceProviderProfilesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.providerProfileId,
+          referencedTable: $db.serviceProviderProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderProfilesTableOrderingComposer(
+                $db: $db,
+                $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
 }
 
 class $$WorkOrdersTableAnnotationComposer
@@ -23108,6 +26057,9 @@ class $$WorkOrdersTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get openedBy =>
+      $composableBuilder(column: $table.openedBy, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -23256,6 +26208,55 @@ class $$WorkOrdersTableAnnotationComposer
     return composer;
   }
 
+  $$ServiceProviderCompaniesTableAnnotationComposer
+  get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$ServiceProviderProfilesTableAnnotationComposer get providerProfileId {
+    final $$ServiceProviderProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.providerProfileId,
+          referencedTable: $db.serviceProviderProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   Expression<T> tasksRefs<T extends Object>(
     Expression<T> Function($$TasksTableAnnotationComposer a) f,
   ) {
@@ -23379,6 +26380,8 @@ class $$WorkOrdersTableTableManager
             bool assignedToId,
             bool createdById,
             bool maintenancePlanId,
+            bool serviceProviderCompanyId,
+            bool providerProfileId,
             bool tasksRefs,
             bool attachmentsRefs,
             bool workOrderChangeRequestsRefs,
@@ -23419,6 +26422,9 @@ class $$WorkOrdersTableTableManager
                 Value<double?> partsCost = const Value.absent(),
                 Value<double?> totalCost = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> serviceProviderCompanyId = const Value.absent(),
+                Value<String?> providerProfileId = const Value.absent(),
+                Value<String> openedBy = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -23445,6 +26451,9 @@ class $$WorkOrdersTableTableManager
                 partsCost: partsCost,
                 totalCost: totalCost,
                 notes: notes,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                providerProfileId: providerProfileId,
+                openedBy: openedBy,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -23473,6 +26482,9 @@ class $$WorkOrdersTableTableManager
                 Value<double?> partsCost = const Value.absent(),
                 Value<double?> totalCost = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> serviceProviderCompanyId = const Value.absent(),
+                Value<String?> providerProfileId = const Value.absent(),
+                Value<String> openedBy = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -23499,6 +26511,9 @@ class $$WorkOrdersTableTableManager
                 partsCost: partsCost,
                 totalCost: totalCost,
                 notes: notes,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                providerProfileId: providerProfileId,
+                openedBy: openedBy,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -23520,6 +26535,8 @@ class $$WorkOrdersTableTableManager
                 assignedToId = false,
                 createdById = false,
                 maintenancePlanId = false,
+                serviceProviderCompanyId = false,
+                providerProfileId = false,
                 tasksRefs = false,
                 attachmentsRefs = false,
                 workOrderChangeRequestsRefs = false,
@@ -23629,6 +26646,35 @@ class $$WorkOrdersTableTableManager
                                     referencedColumn:
                                         $$WorkOrdersTableReferences
                                             ._maintenancePlanIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (serviceProviderCompanyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn:
+                                        table.serviceProviderCompanyId,
+                                    referencedTable: $$WorkOrdersTableReferences
+                                        ._serviceProviderCompanyIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrdersTableReferences
+                                            ._serviceProviderCompanyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (providerProfileId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.providerProfileId,
+                                    referencedTable: $$WorkOrdersTableReferences
+                                        ._providerProfileIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrdersTableReferences
+                                            ._providerProfileIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -23749,6 +26795,8 @@ typedef $$WorkOrdersTableProcessedTableManager =
         bool assignedToId,
         bool createdById,
         bool maintenancePlanId,
+        bool serviceProviderCompanyId,
+        bool providerProfileId,
         bool tasksRefs,
         bool attachmentsRefs,
         bool workOrderChangeRequestsRefs,
@@ -27281,6 +30329,16 @@ class $AppDatabaseManager {
       $$ChecklistItemsTableTableManager(_db, _db.checklistItems);
   $$MaintenancePlansTableTableManager get maintenancePlans =>
       $$MaintenancePlansTableTableManager(_db, _db.maintenancePlans);
+  $$ServiceProviderCompaniesTableTableManager get serviceProviderCompanies =>
+      $$ServiceProviderCompaniesTableTableManager(
+        _db,
+        _db.serviceProviderCompanies,
+      );
+  $$ServiceProviderProfilesTableTableManager get serviceProviderProfiles =>
+      $$ServiceProviderProfilesTableTableManager(
+        _db,
+        _db.serviceProviderProfiles,
+      );
   $$WorkOrdersTableTableManager get workOrders =>
       $$WorkOrdersTableTableManager(_db, _db.workOrders);
   $$TasksTableTableManager get tasks =>

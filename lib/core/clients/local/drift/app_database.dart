@@ -16,6 +16,8 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/company_parameter
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/permission_groups_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sync_audit_logs_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/tasks_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_table.dart';
@@ -40,6 +42,8 @@ part 'app_database.g.dart';
     ChecklistTemplates,
     ChecklistItems,
     MaintenancePlans,
+    ServiceProviderCompanies,
+    ServiceProviderProfiles,
     WorkOrders,
     Tasks,
     Attachments,
@@ -55,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -113,6 +117,13 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 9) {
         await m.addColumn(attachments, attachments.lastAccessedAt);
+      }
+      if (from < 10) {
+        await m.createTable(serviceProviderCompanies);
+        await m.createTable(serviceProviderProfiles);
+        await m.addColumn(workOrders, workOrders.serviceProviderCompanyId);
+        await m.addColumn(workOrders, workOrders.providerProfileId);
+        await m.addColumn(workOrders, workOrders.openedBy);
       }
     },
   );
