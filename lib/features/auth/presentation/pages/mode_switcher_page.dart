@@ -1,10 +1,17 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
 class ModeSwitcherPage extends StatelessWidget {
@@ -12,72 +19,61 @@ class ModeSwitcherPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    //TODO check this entire page
     return BlocProvider<ModeSwitcherCubit>(
       create: (context) => GetIt.I<ModeSwitcherCubit>(),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.surface,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(),
-                Text(
-                  'Como deseja acessar?',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sua conta possui acesso de funcionário interno e de prestador de serviços.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 48),
-                BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
-                  builder: (context, state) {
-                    final cubit = context.read<ModeSwitcherCubit>();
-                    final isLoading = state.status == StateStatus.loading;
-
-                    return Column(
-                      children: [
-                        _ModeCard(
-                          title: 'Funcionário da Obra',
-                          description:
-                              'Gerencie obras, ordens de serviço, ativos, locais e equipes.',
-                          icon: Icons.business_outlined,
-                          isSelected: state.selectedMode == AppMode.internal,
-                          isDisabled: isLoading,
-                          onTap: () => cubit.selectMode(AppMode.internal),
-                          theme: theme,
-                        ),
-                        const SizedBox(height: 20),
-                        _ModeCard(
-                          title: 'Prestador de Serviços',
-                          description:
-                              'Acesse e atenda ordens de serviço externas da sua empresa.',
-                          icon: Icons.handyman_outlined,
-                          isSelected: state.selectedMode == AppMode.provider,
-                          isDisabled: isLoading,
-                          onTap: () => cubit.selectMode(AppMode.provider),
-                          theme: theme,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const Spacer(),
-              ],
+      child: BaseScaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Spacer(),
+            BaseText.title('Como deseja acessar?'.hardcoded),
+            gapH8,
+            BaseText(
+              'Sua conta possui acesso de funcionário interno e de prestador de serviços'
+                  .hardcoded,
+              textAlign: TextAlign.center,
             ),
-          ),
+            gapH48,
+            BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
+              builder: (context, state) {
+                final cubit = context.read<ModeSwitcherCubit>();
+                final isLoading = state.status == StateStatus.loading;
+
+                return Column(
+                  children: [
+                    _ModeCard(
+                      title: 'Funcionário da obra'.hardcoded,
+                      description:
+                          'Gerencie obras, ordens de serviço, ativos, locais e equipes'
+                              .hardcoded,
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.business_outlined,
+                        cupertinoIcon: CupertinoIcons.building_2_fill,
+                      ),
+                      isSelected: state.selectedMode == AppMode.internal,
+                      isDisabled: isLoading,
+                      onTap: () => cubit.selectMode(AppMode.internal),
+                    ),
+                    const SizedBox(height: 20),
+                    _ModeCard(
+                      title: 'Prestador de serviços'.hardcoded,
+                      description:
+                          'Acesse e atenda ordens de serviço externas da sua empresa'
+                              .hardcoded,
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.handyman_outlined,
+                        cupertinoIcon: CupertinoIcons.hammer,
+                      ),
+                      isSelected: state.selectedMode == AppMode.provider,
+                      isDisabled: isLoading,
+                      onTap: () => cubit.selectMode(AppMode.provider),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const Spacer(),
+          ],
         ),
       ),
     );
@@ -88,25 +84,23 @@ class _ModeCard extends StatelessWidget {
   const _ModeCard({
     required this.title,
     required this.description,
-    required this.icon,
+    required this.platformIcon,
     required this.isSelected,
     required this.isDisabled,
     required this.onTap,
-    required this.theme,
   });
 
   final String title;
   final String description;
-  final IconData icon;
+  final PlatformIcon platformIcon;
   final bool isSelected;
   final bool isDisabled;
   final VoidCallback onTap;
-  final ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = theme.colorScheme.primary;
-    final cardColor = theme.cardColor;
+    final primaryColor = context.theme.colorScheme.primary;
+    final cardColor = context.theme.cardColor;
 
     return InkWell(
       onTap: isDisabled ? null : onTap,
@@ -119,7 +113,7 @@ class _ModeCard extends StatelessWidget {
           color: isSelected ? primaryColor.withValues(alpha: 0.08) : cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? primaryColor : theme.dividerColor,
+            color: isSelected ? primaryColor : context.theme.dividerColor,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -136,13 +130,13 @@ class _ModeCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isSelected ? primaryColor : theme.colorScheme.surface,
+                color: isSelected
+                    ? primaryColor
+                    : context.theme.colorScheme.surface,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
+              child: platformIcon.copyWith(
                 color: isSelected ? Colors.white : primaryColor,
-                size: 28,
               ),
             ),
             const SizedBox(width: 16),
@@ -150,23 +144,17 @@ class _ModeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  BaseText.title(
                     title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? primaryColor
-                          : theme.colorScheme.onSurface,
-                    ),
+                    color: isSelected
+                        ? primaryColor
+                        : context.theme.colorScheme.onSurface,
                   ),
                   const SizedBox(height: 6),
-                  Text(
+                  BaseText(
                     description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(
-                        alpha: 0.65,
-                      ),
-                      height: 1.3,
+                    color: context.theme.colorScheme.onSurface.withValues(
+                      alpha: 0.65,
                     ),
                   ),
                 ],
