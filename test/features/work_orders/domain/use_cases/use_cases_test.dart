@@ -3,9 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -13,6 +17,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -21,6 +27,7 @@ import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockWorkOrdersRepository mockRepository;
+  late MockServiceProviderRepository mockServiceProviderRepository;
 
   late CreateWorkOrderChangeRequestUseCase createWorkOrderChangeRequestUseCase;
   late CreateWorkOrderUseCase createWorkOrderUseCase;
@@ -31,15 +38,23 @@ void main() {
   late ReviewWorkOrderChangeRequestUseCase reviewWorkOrderChangeRequestUseCase;
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
 
+  late CreateServiceProviderCompanyUseCase createServiceProviderCompanyUseCase;
+  late UpdateServiceProviderCompanyUseCase updateServiceProviderCompanyUseCase;
+  late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
+  late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
+
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
     registerFallbackValue(EntityFactory.makeWorkOrderEntity());
     registerFallbackValue(ChangeRequestStatus.approved);
     registerFallbackValue(const WorkOrderFilter());
+    registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
+    registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
   });
 
   setUp(() {
     mockRepository = MockWorkOrdersRepository();
+    mockServiceProviderRepository = MockServiceProviderRepository();
 
     createWorkOrderChangeRequestUseCase = CreateWorkOrderChangeRequestUseCase(
       workOrdersRepository: mockRepository,
@@ -64,6 +79,19 @@ void main() {
     );
     updateWorkOrderUseCase = UpdateWorkOrderUseCase(
       workOrdersRepository: mockRepository,
+    );
+
+    createServiceProviderCompanyUseCase = CreateServiceProviderCompanyUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    updateServiceProviderCompanyUseCase = UpdateServiceProviderCompanyUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    createServiceProviderProfileUseCase = CreateServiceProviderProfileUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    updateServiceProviderProfileUseCase = UpdateServiceProviderProfileUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
     );
   });
 
@@ -423,6 +451,66 @@ void main() {
       expect(result.message, 'Update failed');
       verify(() => mockRepository.updateWorkOrder(tWorkOrder)).called(1);
       verifyNoMoreInteractions(mockRepository);
+    });
+  });
+
+  group('CreateServiceProviderCompanyUseCase', () {
+    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+
+    test('should return true on success', () async {
+      when(() => mockServiceProviderRepository.createServiceProviderCompany(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await createServiceProviderCompanyUseCase(tCompany);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockServiceProviderRepository.createServiceProviderCompany(tCompany)).called(1);
+    });
+  });
+
+  group('UpdateServiceProviderCompanyUseCase', () {
+    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+
+    test('should return true on success', () async {
+      when(() => mockServiceProviderRepository.updateServiceProviderCompany(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await updateServiceProviderCompanyUseCase(tCompany);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockServiceProviderRepository.updateServiceProviderCompany(tCompany)).called(1);
+    });
+  });
+
+  group('CreateServiceProviderProfileUseCase', () {
+    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+
+    test('should return true on success', () async {
+      when(() => mockServiceProviderRepository.createServiceProviderProfile(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await createServiceProviderProfileUseCase(tProfile);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockServiceProviderRepository.createServiceProviderProfile(tProfile)).called(1);
+    });
+  });
+
+  group('UpdateServiceProviderProfileUseCase', () {
+    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+
+    test('should return true on success', () async {
+      when(() => mockServiceProviderRepository.updateServiceProviderProfile(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await updateServiceProviderProfileUseCase(tProfile);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockServiceProviderRepository.updateServiceProviderProfile(tProfile)).called(1);
     });
   });
 }
