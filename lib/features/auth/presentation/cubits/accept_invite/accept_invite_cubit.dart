@@ -170,6 +170,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
 
     emit(state.copyWith(status: StateStatus.loading));
 
+    if (profile.isActive) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      return true;
+    }
+
     // 1. Update the password
     final changePassResult = await _useCases.changePassword.call(password);
     if (isClosed) return false;

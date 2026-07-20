@@ -232,7 +232,9 @@ void main() {
       'acceptInvite should call password change, update profile, and save session on success',
       seed: () => AcceptInviteState(
         status: StateStatus.loaded,
-        userProfile: EntityFactory.makeUserProfileEntity(),
+        userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+          isActive: false,
+        ),
       ),
       build: () {
         when(
@@ -284,6 +286,40 @@ void main() {
         verify(() => mockUpdateUserProfile.call(any())).called(1);
         verify(() => mockSetSession.call(any())).called(1);
         verify(() => mockSaveUserData.call(any())).called(1);
+      },
+    );
+
+    blocTest<AcceptInviteCubit, AcceptInviteState>(
+      'acceptInvite should skip password change and profile update if profile is already active',
+      seed: () => AcceptInviteState(
+        status: StateStatus.loaded,
+        userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+          isActive: true,
+        ),
+      ),
+      build: () => cubit,
+      act: (cubit) async {
+        final result = await cubit.acceptInvite(
+          name: faker.person.name(),
+          password: faker.internet.password(),
+        );
+        expect(result, isTrue);
+      },
+      expect: () => [
+        isA<AcceptInviteState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AcceptInviteState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => mockChangePassword.call(any()));
+        verifyNever(() => mockUpdateUserProfile.call(any()));
       },
     );
 
