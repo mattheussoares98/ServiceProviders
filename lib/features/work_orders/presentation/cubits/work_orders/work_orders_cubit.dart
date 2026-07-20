@@ -174,6 +174,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     String? notes,
     DateTime? createdAt,
     AttachmentsCubit? attachmentsCubit,
+    String? serviceProviderCompanyId,
+    String? providerProfileId,
+    String openedBy = 'internal',
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
@@ -230,6 +233,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       notes: notes?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
+      serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
+      providerProfileId: providerProfileId?.trimToNull(),
+      openedBy: openedBy,
     );
 
     final dataState = isUpdate

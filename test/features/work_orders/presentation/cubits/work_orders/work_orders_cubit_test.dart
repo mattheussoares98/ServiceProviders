@@ -517,6 +517,78 @@ void main() {
         );
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and call createWorkOrder with service provider details when provided',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: null,
+              assetId: tWorkOrder.assetId,
+              locationId: tWorkOrder.locationId,
+              assignedToId: null,
+              createdById: tWorkOrder.createdById,
+              maintenancePlanId: tWorkOrder.maintenancePlanId,
+              title: tWorkOrder.title,
+              description: tWorkOrder.description,
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              scheduledDate: tWorkOrder.scheduledDate,
+              startedAt: tWorkOrder.startedAt,
+              completedAt: tWorkOrder.completedAt,
+              estimatedDuration: tWorkOrder.estimatedDuration,
+              actualDuration: tWorkOrder.actualDuration,
+              laborCost: tWorkOrder.laborCost,
+              partsCost: tWorkOrder.partsCost,
+              totalCost: tWorkOrder.totalCost,
+              notes: tWorkOrder.notes,
+              createdAt: tWorkOrder.createdAt,
+              serviceProviderCompanyId: 'company-uuid',
+              providerProfileId: 'profile-uuid',
+              openedBy: 'provider',
+            );
+
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockCreateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>((actual) {
+                    return actual.serviceProviderCompanyId == 'company-uuid' &&
+                        actual.providerProfileId == 'profile-uuid' &&
+                        actual.openedBy == 'provider' &&
+                        actual.assignedToId == null;
+                  }),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should upload pending/failed attachments when creation succeeds',
           build: () {
             final status = faker.randomGenerator.boolean()
