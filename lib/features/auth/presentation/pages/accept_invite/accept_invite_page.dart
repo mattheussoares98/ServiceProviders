@@ -76,6 +76,31 @@ class AcceptInvitePage extends HookWidget {
                     }
                   },
                   builder: (context, userProfile) {
+                    if (userProfile != null && userProfile.isActive) {
+                      return Padding(
+                        padding: const EdgeInsets.all(Sizes.p24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            BaseText.bodyLarge(
+                              'Sua conta já está ativa e vinculada. Deseja prosseguir para a tela inicial?'
+                                  .hardcoded,
+                              textAlign: TextAlign.center,
+                            ),
+                            gapH48,
+                            PrimaryButton(
+                              isLoading: isLoading,
+                              expandWidth: true,
+                              onTap: () async {
+                                await cubit.navigateToHome();
+                              },
+                              text: 'Prosseguir'.hardcoded,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
                     return Padding(
                       padding: const EdgeInsets.all(Sizes.p24),
                       child: Form(
