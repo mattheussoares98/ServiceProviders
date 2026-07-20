@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dar
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
@@ -63,9 +64,19 @@ class CreateUpdateWorkOrderPage extends HookWidget {
 
     return Builder(
       builder: (context) {
-        return BlocProvider(
-          create: (context) =>
-              GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
+        final sessionUser = context.read<SessionCubit>().state.user;
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) =>
+                  GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  GetIt.I<ServiceProvidersCubit>()
+                    ..loadCompanies(sessionUser.companyId),
+            ),
+          ],
           child:
               BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
                 selector: (state) => state.workOrders.firstWhereOrNull(
