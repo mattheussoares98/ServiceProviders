@@ -1,6 +1,6 @@
 enum ChecklistItemType {
   boolean('boolean'),
-  BaseText('text'),
+  text('text'),
   number('number'),
   photo('photo'),
   selection('selection');
