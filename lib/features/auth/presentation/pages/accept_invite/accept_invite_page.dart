@@ -91,14 +91,12 @@ class AcceptInvitePage extends HookWidget {
                             PrimaryButton(
                               isLoading: isLoading,
                               expandWidth: true,
-                              onTap: () async {
-                                await cubit.navigateToHome();
-                              },
+                              onTap: cubit.navigateToHome,
                               text: 'Prosseguir'.hardcoded,
                             ),
                           ],
                         ),
-                      );
+                      ); //TODO test
                     }
 
                     return Padding(
