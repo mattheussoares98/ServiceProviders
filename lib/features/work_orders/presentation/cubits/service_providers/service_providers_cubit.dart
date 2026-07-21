@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
@@ -43,6 +44,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return;
 
     if (result is SuccessState<List<ServiceProviderCompanyEntity>>) {
+      //TODO check to automatically load the quantity of work orders that are not finished and show it fast in the UI by company
       emit(
         state.copyWith(
           status: StateStatus.loaded,
@@ -54,7 +56,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.loadingError,
           errorMessage:
-              result.message ?? 'Erro ao carregar prestadores de serviços.',
+              result.message ??
+              'Erro ao carregar prestadores de serviços'.hardcoded,
+          //TODO test how it is being showed in the UI
         ),
       );
     }
@@ -93,7 +97,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.loadingError,
           errorMessage:
-              result.message ?? 'Erro ao carregar técnicos do prestador.',
+              result.message ??
+              'Erro ao carregar técnicos do prestador'.hardcoded,
+
+          //TODO test how it is being showed in the UI
         ),
       );
     }
@@ -126,8 +133,11 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.savingError,
           errorMessage:
-              result.message ?? 'Erro ao salvar prestador de serviços.',
+              result.message ??
+              'Erro ao salvar prestador de serviços'.hardcoded,
         ),
+
+        //TODO test how it is being showed in the UI
       );
       return false;
     }
@@ -152,7 +162,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.savingError,
           errorMessage:
-              result.message ?? 'Erro ao salvar técnico do prestador.',
+              result.message ?? 'Erro ao salvar técnico do prestador'.hardcoded,
+
+          //TODO test how it is being showed in the UI
         ),
       );
       return false;
