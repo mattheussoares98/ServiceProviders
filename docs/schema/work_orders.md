@@ -23,3 +23,11 @@ Instances of preventive, corrective, or inspection tasks.
 | `parts_cost` | REAL | YES | - | Parts cost |
 | `total_cost` | REAL | YES | - | Total labor + parts |
 | `notes` | VARCHAR(2000) | YES | - | Closing notes / technician remarks |
+| `service_provider_company_id` | UUID | YES | - | FK → `service_provider_companies.id` (Set Null) |
+| `provider_profile_id` | UUID | YES | - | FK → `service_provider_profiles.id` (Set Null) |
+| `opened_by` | VARCHAR(20) | NO | 'internal' | Who opened: internal / provider |
+| `sla_policy_id` | UUID | YES | - | FK → `sla_policies.id` (Set Null) |
+| `sla_deadline_at` | TIMESTAMP | YES | - | SLA Target Deadline timestamp |
+| `sla_breached` | BOOLEAN | NO | false | Whether SLA deadline was breached |
+| `net_active_duration` | INT | YES | - | Total net active duration (excluding pauses) in minutes |
+

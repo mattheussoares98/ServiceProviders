@@ -36,6 +36,8 @@ erDiagram
     Companies ||--o{ CompanyParameters : has
     Companies ||--o{ SyncAuditLogs : has
     Companies ||--o{ WorkOrderHistory : has
+    Companies ||--o{ SlaPolicies : has
+    Companies ||--o{ WorkOrderPauseRequests : has
 
     PermissionGroups ||--o{ UserProfiles : governs
     Locations ||--o{ Areas : contains
@@ -63,6 +65,8 @@ erDiagram
     WorkOrders ||--o{ Attachments : contains
     WorkOrders ||--o{ WorkOrderChangeRequests : changes
     WorkOrders ||--o{ WorkOrderHistory : logs
+    WorkOrders ||--o{ WorkOrderPauseRequests : has
+    SlaPolicies ||--o{ WorkOrders : has
     MaintenancePlans ||--o{ WorkOrders : generates
 ```
 
@@ -90,6 +94,9 @@ erDiagram
 | 16 | user_parameters | [user_parameters.md](user_parameters.md) |
 | 17 | sync_audit_logs | [sync_audit_logs.md](sync_audit_logs.md) |
 | 18 | work_order_history | [work_order_history.md](work_order_history.md) |
+| 19 | sla_policies | [sla_policies.md](sla_policies.md) |
+| 20 | work_order_pause_requests | [work_order_pause_requests.md](work_order_pause_requests.md) |
+
 
 ---
 
