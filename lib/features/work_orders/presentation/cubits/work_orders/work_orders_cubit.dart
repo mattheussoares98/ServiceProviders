@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -129,7 +130,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       );
     } else {
       showErrorToast(
-        dataState.message ?? 'Erro ao carregar mais ordens de serviço'.hardcoded,
+        dataState.message ??
+            'Erro ao carregar mais ordens de serviço'.hardcoded,
       );
       emit(state.copyWith(isLoadingMore: false));
     }
@@ -176,7 +178,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     AttachmentsCubit? attachmentsCubit,
     String? serviceProviderCompanyId,
     String? providerProfileId,
-    String openedBy = 'internal',
+    AppMode openedBy = AppMode.internal,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 

@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_atta
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -555,7 +556,7 @@ void main() {
               createdAt: tWorkOrder.createdAt,
               serviceProviderCompanyId: 'company-uuid',
               providerProfileId: 'profile-uuid',
-              openedBy: 'provider',
+              openedBy: AppMode.provider,
             );
 
             expect(result, isTrue);
@@ -579,7 +580,7 @@ void main() {
                   that: predicate<WorkOrderEntity>((actual) {
                     return actual.serviceProviderCompanyId == 'company-uuid' &&
                         actual.providerProfileId == 'profile-uuid' &&
-                        actual.openedBy == 'provider' &&
+                        actual.openedBy == AppMode.provider &&
                         actual.assignedToId == null;
                   }),
                 ),

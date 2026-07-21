@@ -1,6 +1,7 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -118,7 +119,8 @@ class WorkOrderResponseModel extends WorkOrderEntity
         serviceProviderCompanyId:
             json['service_provider_company_id'] as String?,
         providerProfileId: json['provider_profile_id'] as String?,
-        openedBy: json['opened_by'] as String? ?? 'internal',
+        openedBy:
+            AppMode.fromName(json['opened_by'] as String?) ?? AppMode.internal,
       );
 
   @override
@@ -149,7 +151,7 @@ class WorkOrderResponseModel extends WorkOrderEntity
     'deleted_at': deletedAt?.toUtc().toIso8601String(),
     'service_provider_company_id': serviceProviderCompanyId,
     'provider_profile_id': providerProfileId,
-    'opened_by': openedBy,
+    'opened_by': openedBy.name,
   };
 
   @override
