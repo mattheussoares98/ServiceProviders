@@ -38,6 +38,7 @@ erDiagram
     Companies ||--o{ WorkOrderHistory : has
     Companies ||--o{ SlaPolicies : has
     Companies ||--o{ WorkOrderPauseRequests : has
+    Companies ||--o{ PauseReasons : has
 
     PermissionGroups ||--o{ UserProfiles : governs
     Locations ||--o{ Areas : contains
@@ -67,6 +68,7 @@ erDiagram
     WorkOrders ||--o{ WorkOrderHistory : logs
     WorkOrders ||--o{ WorkOrderPauseRequests : has
     SlaPolicies ||--o{ WorkOrders : has
+    PauseReasons ||--o{ WorkOrderPauseRequests : classifies
     MaintenancePlans ||--o{ WorkOrders : generates
 ```
 
@@ -96,6 +98,8 @@ erDiagram
 | 18 | work_order_history | [work_order_history.md](work_order_history.md) |
 | 19 | sla_policies | [sla_policies.md](sla_policies.md) |
 | 20 | work_order_pause_requests | [work_order_pause_requests.md](work_order_pause_requests.md) |
+| 21 | pause_reasons | [pause_reasons.md](pause_reasons.md) |
+
 
 
 ---

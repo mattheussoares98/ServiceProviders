@@ -8,7 +8,8 @@ class PauseRequestEntity extends Equatable {
     required this.companyId,
     required this.workOrderId,
     this.requestedById,
-    required this.reason,
+    this.reasonId,
+    this.customReason,
     this.observation,
     required this.responsibility,
     this.sector,
@@ -26,7 +27,8 @@ class PauseRequestEntity extends Equatable {
   final String companyId;
   final String workOrderId;
   final String? requestedById;
-  final String reason;
+  final String? reasonId;
+  final String? customReason;
   final String? observation;
   final PauseResponsibility responsibility;
   final String? sector;
@@ -45,7 +47,8 @@ class PauseRequestEntity extends Equatable {
     companyId,
     workOrderId,
     requestedById,
-    reason,
+    reasonId,
+    customReason,
     observation,
     responsibility,
     sector,
@@ -64,7 +67,8 @@ class PauseRequestEntity extends Equatable {
     String? companyId,
     String? workOrderId,
     String? requestedById,
-    String? reason,
+    String? reasonId,
+    String? customReason,
     String? observation,
     PauseResponsibility? responsibility,
     String? sector,
@@ -77,6 +81,8 @@ class PauseRequestEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? annulRequestedById,
+    bool? annulReasonId,
+    bool? annulCustomReason,
     bool? annulObservation,
     bool? annulSector,
     bool? annulResumedAt,
@@ -90,7 +96,8 @@ class PauseRequestEntity extends Equatable {
       requestedById: annulRequestedById == true
           ? null
           : requestedById ?? this.requestedById,
-      reason: reason ?? this.reason,
+      reasonId: annulReasonId == true ? null : reasonId ?? this.reasonId,
+      customReason: annulCustomReason == true ? null : customReason ?? this.customReason,
       observation: annulObservation == true
           ? null
           : observation ?? this.observation,
