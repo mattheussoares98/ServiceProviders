@@ -35,6 +35,10 @@ class WorkOrderEntity extends Equatable {
     this.serviceProviderCompanyId,
     this.providerProfileId,
     this.openedBy = AppMode.internal,
+    this.slaPolicyId,
+    this.slaDeadlineAt,
+    this.slaBreached = false,
+    this.netActiveDuration,
   });
 
   final String id;
@@ -65,6 +69,10 @@ class WorkOrderEntity extends Equatable {
   final String? serviceProviderCompanyId;
   final String? providerProfileId;
   final AppMode openedBy;
+  final String? slaPolicyId;
+  final DateTime? slaDeadlineAt;
+  final bool slaBreached;
+  final int? netActiveDuration;
 
   @override
   List<Object?> get props => [
@@ -96,6 +104,10 @@ class WorkOrderEntity extends Equatable {
     serviceProviderCompanyId,
     providerProfileId,
     openedBy,
+    slaPolicyId,
+    slaDeadlineAt,
+    slaBreached,
+    netActiveDuration,
   ];
 
   WorkOrderEntity copyWith({
@@ -127,6 +139,10 @@ class WorkOrderEntity extends Equatable {
     String? serviceProviderCompanyId,
     String? providerProfileId,
     AppMode? openedBy,
+    String? slaPolicyId,
+    DateTime? slaDeadlineAt,
+    bool? slaBreached,
+    int? netActiveDuration,
     bool? annulAssetId,
     bool? annulAssignedToId,
     bool? annulMaintenancePlanId,
@@ -142,6 +158,9 @@ class WorkOrderEntity extends Equatable {
     bool? annulDeletedAt,
     bool? annulServiceProviderCompanyId,
     bool? annulProviderProfileId,
+    bool? annulSlaPolicyId,
+    bool? annulSlaDeadlineAt,
+    bool? annulNetActiveDuration,
   }) {
     return WorkOrderEntity(
       id: id ?? this.id,
@@ -188,6 +207,16 @@ class WorkOrderEntity extends Equatable {
           ? null
           : providerProfileId ?? this.providerProfileId,
       openedBy: openedBy ?? this.openedBy,
+      slaPolicyId: annulSlaPolicyId == true
+          ? null
+          : slaPolicyId ?? this.slaPolicyId,
+      slaDeadlineAt: annulSlaDeadlineAt == true
+          ? null
+          : slaDeadlineAt ?? this.slaDeadlineAt,
+      slaBreached: slaBreached ?? this.slaBreached,
+      netActiveDuration: annulNetActiveDuration == true
+          ? null
+          : netActiveDuration ?? this.netActiveDuration,
     );
   }
 }
