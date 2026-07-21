@@ -3,8 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
@@ -458,14 +456,19 @@ void main() {
     final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
 
     test('should return true on success', () async {
-      when(() => mockServiceProviderRepository.createServiceProviderCompany(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockServiceProviderRepository.createServiceProviderCompany(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await createServiceProviderCompanyUseCase(tCompany);
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
-      verify(() => mockServiceProviderRepository.createServiceProviderCompany(tCompany)).called(1);
+      verify(
+        () => mockServiceProviderRepository.createServiceProviderCompany(
+          tCompany,
+        ),
+      ).called(1);
     });
   });
 
@@ -473,14 +476,19 @@ void main() {
     final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
 
     test('should return true on success', () async {
-      when(() => mockServiceProviderRepository.updateServiceProviderCompany(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockServiceProviderRepository.updateServiceProviderCompany(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await updateServiceProviderCompanyUseCase(tCompany);
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
-      verify(() => mockServiceProviderRepository.updateServiceProviderCompany(tCompany)).called(1);
+      verify(
+        () => mockServiceProviderRepository.updateServiceProviderCompany(
+          tCompany,
+        ),
+      ).called(1);
     });
   });
 
@@ -488,14 +496,19 @@ void main() {
     final tProfile = EntityFactory.makeServiceProviderProfileEntity();
 
     test('should return true on success', () async {
-      when(() => mockServiceProviderRepository.createServiceProviderProfile(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockServiceProviderRepository.createServiceProviderProfile(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await createServiceProviderProfileUseCase(tProfile);
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
-      verify(() => mockServiceProviderRepository.createServiceProviderProfile(tProfile)).called(1);
+      verify(
+        () => mockServiceProviderRepository.createServiceProviderProfile(
+          tProfile,
+        ),
+      ).called(1);
     });
   });
 
@@ -503,14 +516,19 @@ void main() {
     final tProfile = EntityFactory.makeServiceProviderProfileEntity();
 
     test('should return true on success', () async {
-      when(() => mockServiceProviderRepository.updateServiceProviderProfile(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockServiceProviderRepository.updateServiceProviderProfile(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await updateServiceProviderProfileUseCase(tProfile);
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
-      verify(() => mockServiceProviderRepository.updateServiceProviderProfile(tProfile)).called(1);
+      verify(
+        () => mockServiceProviderRepository.updateServiceProviderProfile(
+          tProfile,
+        ),
+      ).called(1);
     });
   });
 }
