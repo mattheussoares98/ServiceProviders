@@ -25,9 +25,15 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
@@ -511,6 +517,75 @@ abstract final class EntityFactory {
       makeServiceProviderProfileEntity(),
       makeServiceProviderProfileEntity(),
       makeServiceProviderProfileEntity(),
+    ];
+  }
+
+  // SLA Policy
+  static SlaPolicyEntity makeSlaPolicyEntity() {
+    return SlaPolicyEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      name: _makeCompanyName(),
+      targetHours: _makeInt(48, min: 1),
+      appliesTo: SlaAppliesTo.both,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<SlaPolicyEntity> makeSlaPolicyEntityList() {
+    return [
+      makeSlaPolicyEntity(),
+      makeSlaPolicyEntity(),
+      makeSlaPolicyEntity(),
+    ];
+  }
+
+  // Pause Reason
+  static PauseReasonEntity makePauseReasonEntity() {
+    return PauseReasonEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      name: _makeCompanyName(),
+      isActive: true,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<PauseReasonEntity> makePauseReasonEntityList() {
+    return [
+      makePauseReasonEntity(),
+      makePauseReasonEntity(),
+      makePauseReasonEntity(),
+    ];
+  }
+
+  // Pause Request
+  static PauseRequestEntity makePauseRequestEntity() {
+    return PauseRequestEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      workOrderId: _makeId(),
+      requestedById: _makeId(),
+      reasonId: _makeId(),
+      customReason: _makePhrase(),
+      observation: _makePhrase(),
+      responsibility: PauseResponsibility.provider,
+      sector: _makeCompanyName(),
+      status: PauseRequestStatus.pending,
+      pausedAt: _makeDateTime(),
+      affectsSla: true,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<PauseRequestEntity> makePauseRequestEntityList() {
+    return [
+      makePauseRequestEntity(),
+      makePauseRequestEntity(),
+      makePauseRequestEntity(),
     ];
   }
 }
