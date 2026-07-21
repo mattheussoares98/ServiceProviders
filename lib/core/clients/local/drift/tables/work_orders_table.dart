@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.d
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sla_policies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_table.dart';
 
 @TableIndex(name: 'idx_work_orders_company', columns: {#companyId})
@@ -63,6 +64,14 @@ class WorkOrders extends Table {
   )();
   TextColumn get openedBy =>
       text().withDefault(const Constant('internal'))();
+  TextColumn get slaPolicyId => text().nullable().references(
+        SlaPolicies,
+        #id,
+        onDelete: KeyAction.setNull,
+      )();
+  DateTimeColumn get slaDeadlineAt => dateTime().nullable()();
+  BoolColumn get slaBreached => boolean().nullable()();
+  IntColumn get netActiveDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

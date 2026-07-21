@@ -8924,6 +8924,521 @@ class ServiceProviderProfilesCompanion
   }
 }
 
+class $SlaPoliciesTable extends SlaPolicies
+    with TableInfo<$SlaPoliciesTable, SlaPolicy> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SlaPoliciesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetHoursMeta = const VerificationMeta(
+    'targetHours',
+  );
+  @override
+  late final GeneratedColumn<int> targetHours = GeneratedColumn<int>(
+    'target_hours',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _appliesToMeta = const VerificationMeta(
+    'appliesTo',
+  );
+  @override
+  late final GeneratedColumn<String> appliesTo = GeneratedColumn<String>(
+    'applies_to',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    name,
+    targetHours,
+    appliesTo,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sla_policies';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SlaPolicy> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('target_hours')) {
+      context.handle(
+        _targetHoursMeta,
+        targetHours.isAcceptableOrUnknown(
+          data['target_hours']!,
+          _targetHoursMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetHoursMeta);
+    }
+    if (data.containsKey('applies_to')) {
+      context.handle(
+        _appliesToMeta,
+        appliesTo.isAcceptableOrUnknown(data['applies_to']!, _appliesToMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_appliesToMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SlaPolicy map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SlaPolicy(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      targetHours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_hours'],
+      )!,
+      appliesTo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}applies_to'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $SlaPoliciesTable createAlias(String alias) {
+    return $SlaPoliciesTable(attachedDatabase, alias);
+  }
+}
+
+class SlaPolicy extends DataClass implements Insertable<SlaPolicy> {
+  final String id;
+  final String companyId;
+  final String name;
+  final int targetHours;
+  final String appliesTo;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const SlaPolicy({
+    required this.id,
+    required this.companyId,
+    required this.name,
+    required this.targetHours,
+    required this.appliesTo,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['name'] = Variable<String>(name);
+    map['target_hours'] = Variable<int>(targetHours);
+    map['applies_to'] = Variable<String>(appliesTo);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  SlaPoliciesCompanion toCompanion(bool nullToAbsent) {
+    return SlaPoliciesCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      name: Value(name),
+      targetHours: Value(targetHours),
+      appliesTo: Value(appliesTo),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory SlaPolicy.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SlaPolicy(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      name: serializer.fromJson<String>(json['name']),
+      targetHours: serializer.fromJson<int>(json['targetHours']),
+      appliesTo: serializer.fromJson<String>(json['appliesTo']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'name': serializer.toJson<String>(name),
+      'targetHours': serializer.toJson<int>(targetHours),
+      'appliesTo': serializer.toJson<String>(appliesTo),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  SlaPolicy copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    int? targetHours,
+    String? appliesTo,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => SlaPolicy(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    name: name ?? this.name,
+    targetHours: targetHours ?? this.targetHours,
+    appliesTo: appliesTo ?? this.appliesTo,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  SlaPolicy copyWithCompanion(SlaPoliciesCompanion data) {
+    return SlaPolicy(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      name: data.name.present ? data.name.value : this.name,
+      targetHours: data.targetHours.present
+          ? data.targetHours.value
+          : this.targetHours,
+      appliesTo: data.appliesTo.present ? data.appliesTo.value : this.appliesTo,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SlaPolicy(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('appliesTo: $appliesTo, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyId,
+    name,
+    targetHours,
+    appliesTo,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SlaPolicy &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.name == this.name &&
+          other.targetHours == this.targetHours &&
+          other.appliesTo == this.appliesTo &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class SlaPoliciesCompanion extends UpdateCompanion<SlaPolicy> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> name;
+  final Value<int> targetHours;
+  final Value<String> appliesTo;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const SlaPoliciesCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.targetHours = const Value.absent(),
+    this.appliesTo = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SlaPoliciesCompanion.insert({
+    required String id,
+    required String companyId,
+    required String name,
+    required int targetHours,
+    required String appliesTo,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       name = Value(name),
+       targetHours = Value(targetHours),
+       appliesTo = Value(appliesTo);
+  static Insertable<SlaPolicy> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? name,
+    Expression<int>? targetHours,
+    Expression<String>? appliesTo,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (name != null) 'name': name,
+      if (targetHours != null) 'target_hours': targetHours,
+      if (appliesTo != null) 'applies_to': appliesTo,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SlaPoliciesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? name,
+    Value<int>? targetHours,
+    Value<String>? appliesTo,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return SlaPoliciesCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      targetHours: targetHours ?? this.targetHours,
+      appliesTo: appliesTo ?? this.appliesTo,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (targetHours.present) {
+      map['target_hours'] = Variable<int>(targetHours.value);
+    }
+    if (appliesTo.present) {
+      map['applies_to'] = Variable<String>(appliesTo.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SlaPoliciesCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('targetHours: $targetHours, ')
+          ..write('appliesTo: $appliesTo, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WorkOrdersTable extends WorkOrders
     with TableInfo<$WorkOrdersTable, WorkOrder> {
   @override
@@ -9215,6 +9730,57 @@ class $WorkOrdersTable extends WorkOrders
     requiredDuringInsert: false,
     defaultValue: const Constant('internal'),
   );
+  static const VerificationMeta _slaPolicyIdMeta = const VerificationMeta(
+    'slaPolicyId',
+  );
+  @override
+  late final GeneratedColumn<String> slaPolicyId = GeneratedColumn<String>(
+    'sla_policy_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES sla_policies (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _slaDeadlineAtMeta = const VerificationMeta(
+    'slaDeadlineAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> slaDeadlineAt =
+      GeneratedColumn<DateTime>(
+        'sla_deadline_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _slaBreachedMeta = const VerificationMeta(
+    'slaBreached',
+  );
+  @override
+  late final GeneratedColumn<bool> slaBreached = GeneratedColumn<bool>(
+    'sla_breached',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sla_breached" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _netActiveDurationMeta = const VerificationMeta(
+    'netActiveDuration',
+  );
+  @override
+  late final GeneratedColumn<int> netActiveDuration = GeneratedColumn<int>(
+    'net_active_duration',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -9276,6 +9842,10 @@ class $WorkOrdersTable extends WorkOrders
     serviceProviderCompanyId,
     providerProfileId,
     openedBy,
+    slaPolicyId,
+    slaDeadlineAt,
+    slaBreached,
+    netActiveDuration,
     createdAt,
     updatedAt,
     deletedAt,
@@ -9473,6 +10043,42 @@ class $WorkOrdersTable extends WorkOrders
         openedBy.isAcceptableOrUnknown(data['opened_by']!, _openedByMeta),
       );
     }
+    if (data.containsKey('sla_policy_id')) {
+      context.handle(
+        _slaPolicyIdMeta,
+        slaPolicyId.isAcceptableOrUnknown(
+          data['sla_policy_id']!,
+          _slaPolicyIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sla_deadline_at')) {
+      context.handle(
+        _slaDeadlineAtMeta,
+        slaDeadlineAt.isAcceptableOrUnknown(
+          data['sla_deadline_at']!,
+          _slaDeadlineAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sla_breached')) {
+      context.handle(
+        _slaBreachedMeta,
+        slaBreached.isAcceptableOrUnknown(
+          data['sla_breached']!,
+          _slaBreachedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('net_active_duration')) {
+      context.handle(
+        _netActiveDurationMeta,
+        netActiveDuration.isAcceptableOrUnknown(
+          data['net_active_duration']!,
+          _netActiveDurationMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -9596,6 +10202,22 @@ class $WorkOrdersTable extends WorkOrders
         DriftSqlType.string,
         data['${effectivePrefix}opened_by'],
       )!,
+      slaPolicyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sla_policy_id'],
+      ),
+      slaDeadlineAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}sla_deadline_at'],
+      ),
+      slaBreached: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sla_breached'],
+      ),
+      netActiveDuration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}net_active_duration'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -9642,6 +10264,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
   final String? serviceProviderCompanyId;
   final String? providerProfileId;
   final String openedBy;
+  final String? slaPolicyId;
+  final DateTime? slaDeadlineAt;
+  final bool? slaBreached;
+  final int? netActiveDuration;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -9670,6 +10296,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     this.serviceProviderCompanyId,
     this.providerProfileId,
     required this.openedBy,
+    this.slaPolicyId,
+    this.slaDeadlineAt,
+    this.slaBreached,
+    this.netActiveDuration,
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
@@ -9733,6 +10363,18 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       map['provider_profile_id'] = Variable<String>(providerProfileId);
     }
     map['opened_by'] = Variable<String>(openedBy);
+    if (!nullToAbsent || slaPolicyId != null) {
+      map['sla_policy_id'] = Variable<String>(slaPolicyId);
+    }
+    if (!nullToAbsent || slaDeadlineAt != null) {
+      map['sla_deadline_at'] = Variable<DateTime>(slaDeadlineAt);
+    }
+    if (!nullToAbsent || slaBreached != null) {
+      map['sla_breached'] = Variable<bool>(slaBreached);
+    }
+    if (!nullToAbsent || netActiveDuration != null) {
+      map['net_active_duration'] = Variable<int>(netActiveDuration);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -9797,6 +10439,18 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ? const Value.absent()
           : Value(providerProfileId),
       openedBy: Value(openedBy),
+      slaPolicyId: slaPolicyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(slaPolicyId),
+      slaDeadlineAt: slaDeadlineAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(slaDeadlineAt),
+      slaBreached: slaBreached == null && nullToAbsent
+          ? const Value.absent()
+          : Value(slaBreached),
+      netActiveDuration: netActiveDuration == null && nullToAbsent
+          ? const Value.absent()
+          : Value(netActiveDuration),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -9841,6 +10495,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
         json['providerProfileId'],
       ),
       openedBy: serializer.fromJson<String>(json['openedBy']),
+      slaPolicyId: serializer.fromJson<String?>(json['slaPolicyId']),
+      slaDeadlineAt: serializer.fromJson<DateTime?>(json['slaDeadlineAt']),
+      slaBreached: serializer.fromJson<bool?>(json['slaBreached']),
+      netActiveDuration: serializer.fromJson<int?>(json['netActiveDuration']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -9876,6 +10534,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       ),
       'providerProfileId': serializer.toJson<String?>(providerProfileId),
       'openedBy': serializer.toJson<String>(openedBy),
+      'slaPolicyId': serializer.toJson<String?>(slaPolicyId),
+      'slaDeadlineAt': serializer.toJson<DateTime?>(slaDeadlineAt),
+      'slaBreached': serializer.toJson<bool?>(slaBreached),
+      'netActiveDuration': serializer.toJson<int?>(netActiveDuration),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -9907,6 +10569,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     Value<String?> serviceProviderCompanyId = const Value.absent(),
     Value<String?> providerProfileId = const Value.absent(),
     String? openedBy,
+    Value<String?> slaPolicyId = const Value.absent(),
+    Value<DateTime?> slaDeadlineAt = const Value.absent(),
+    Value<bool?> slaBreached = const Value.absent(),
+    Value<int?> netActiveDuration = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
@@ -9947,6 +10613,14 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
         ? providerProfileId.value
         : this.providerProfileId,
     openedBy: openedBy ?? this.openedBy,
+    slaPolicyId: slaPolicyId.present ? slaPolicyId.value : this.slaPolicyId,
+    slaDeadlineAt: slaDeadlineAt.present
+        ? slaDeadlineAt.value
+        : this.slaDeadlineAt,
+    slaBreached: slaBreached.present ? slaBreached.value : this.slaBreached,
+    netActiveDuration: netActiveDuration.present
+        ? netActiveDuration.value
+        : this.netActiveDuration,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -9999,6 +10673,18 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ? data.providerProfileId.value
           : this.providerProfileId,
       openedBy: data.openedBy.present ? data.openedBy.value : this.openedBy,
+      slaPolicyId: data.slaPolicyId.present
+          ? data.slaPolicyId.value
+          : this.slaPolicyId,
+      slaDeadlineAt: data.slaDeadlineAt.present
+          ? data.slaDeadlineAt.value
+          : this.slaDeadlineAt,
+      slaBreached: data.slaBreached.present
+          ? data.slaBreached.value
+          : this.slaBreached,
+      netActiveDuration: data.netActiveDuration.present
+          ? data.netActiveDuration.value
+          : this.netActiveDuration,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -10032,6 +10718,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
           ..write('providerProfileId: $providerProfileId, ')
           ..write('openedBy: $openedBy, ')
+          ..write('slaPolicyId: $slaPolicyId, ')
+          ..write('slaDeadlineAt: $slaDeadlineAt, ')
+          ..write('slaBreached: $slaBreached, ')
+          ..write('netActiveDuration: $netActiveDuration, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -10065,6 +10755,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     serviceProviderCompanyId,
     providerProfileId,
     openedBy,
+    slaPolicyId,
+    slaDeadlineAt,
+    slaBreached,
+    netActiveDuration,
     createdAt,
     updatedAt,
     deletedAt,
@@ -10097,6 +10791,10 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           other.serviceProviderCompanyId == this.serviceProviderCompanyId &&
           other.providerProfileId == this.providerProfileId &&
           other.openedBy == this.openedBy &&
+          other.slaPolicyId == this.slaPolicyId &&
+          other.slaDeadlineAt == this.slaDeadlineAt &&
+          other.slaBreached == this.slaBreached &&
+          other.netActiveDuration == this.netActiveDuration &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -10127,6 +10825,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
   final Value<String?> serviceProviderCompanyId;
   final Value<String?> providerProfileId;
   final Value<String> openedBy;
+  final Value<String?> slaPolicyId;
+  final Value<DateTime?> slaDeadlineAt;
+  final Value<bool?> slaBreached;
+  final Value<int?> netActiveDuration;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -10156,6 +10858,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     this.serviceProviderCompanyId = const Value.absent(),
     this.providerProfileId = const Value.absent(),
     this.openedBy = const Value.absent(),
+    this.slaPolicyId = const Value.absent(),
+    this.slaDeadlineAt = const Value.absent(),
+    this.slaBreached = const Value.absent(),
+    this.netActiveDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -10186,6 +10892,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     this.serviceProviderCompanyId = const Value.absent(),
     this.providerProfileId = const Value.absent(),
     this.openedBy = const Value.absent(),
+    this.slaPolicyId = const Value.absent(),
+    this.slaDeadlineAt = const Value.absent(),
+    this.slaBreached = const Value.absent(),
+    this.netActiveDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -10220,6 +10930,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Expression<String>? serviceProviderCompanyId,
     Expression<String>? providerProfileId,
     Expression<String>? openedBy,
+    Expression<String>? slaPolicyId,
+    Expression<DateTime>? slaDeadlineAt,
+    Expression<bool>? slaBreached,
+    Expression<int>? netActiveDuration,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -10251,6 +10965,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
         'service_provider_company_id': serviceProviderCompanyId,
       if (providerProfileId != null) 'provider_profile_id': providerProfileId,
       if (openedBy != null) 'opened_by': openedBy,
+      if (slaPolicyId != null) 'sla_policy_id': slaPolicyId,
+      if (slaDeadlineAt != null) 'sla_deadline_at': slaDeadlineAt,
+      if (slaBreached != null) 'sla_breached': slaBreached,
+      if (netActiveDuration != null) 'net_active_duration': netActiveDuration,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -10283,6 +11001,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Value<String?>? serviceProviderCompanyId,
     Value<String?>? providerProfileId,
     Value<String>? openedBy,
+    Value<String?>? slaPolicyId,
+    Value<DateTime?>? slaDeadlineAt,
+    Value<bool?>? slaBreached,
+    Value<int?>? netActiveDuration,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
@@ -10314,6 +11036,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
           serviceProviderCompanyId ?? this.serviceProviderCompanyId,
       providerProfileId: providerProfileId ?? this.providerProfileId,
       openedBy: openedBy ?? this.openedBy,
+      slaPolicyId: slaPolicyId ?? this.slaPolicyId,
+      slaDeadlineAt: slaDeadlineAt ?? this.slaDeadlineAt,
+      slaBreached: slaBreached ?? this.slaBreached,
+      netActiveDuration: netActiveDuration ?? this.netActiveDuration,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -10398,6 +11124,18 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     if (openedBy.present) {
       map['opened_by'] = Variable<String>(openedBy.value);
     }
+    if (slaPolicyId.present) {
+      map['sla_policy_id'] = Variable<String>(slaPolicyId.value);
+    }
+    if (slaDeadlineAt.present) {
+      map['sla_deadline_at'] = Variable<DateTime>(slaDeadlineAt.value);
+    }
+    if (slaBreached.present) {
+      map['sla_breached'] = Variable<bool>(slaBreached.value);
+    }
+    if (netActiveDuration.present) {
+      map['net_active_duration'] = Variable<int>(netActiveDuration.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -10440,6 +11178,10 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
           ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
           ..write('providerProfileId: $providerProfileId, ')
           ..write('openedBy: $openedBy, ')
+          ..write('slaPolicyId: $slaPolicyId, ')
+          ..write('slaDeadlineAt: $slaDeadlineAt, ')
+          ..write('slaBreached: $slaBreached, ')
+          ..write('netActiveDuration: $netActiveDuration, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -14319,6 +15061,1477 @@ class WorkOrderHistoryCompanion extends UpdateCompanion<WorkOrderHistoryData> {
   }
 }
 
+class $PauseReasonsTable extends PauseReasons
+    with TableInfo<$PauseReasonsTable, PauseReason> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PauseReasonsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    name,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pause_reasons';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PauseReason> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PauseReason map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PauseReason(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $PauseReasonsTable createAlias(String alias) {
+    return $PauseReasonsTable(attachedDatabase, alias);
+  }
+}
+
+class PauseReason extends DataClass implements Insertable<PauseReason> {
+  final String id;
+  final String companyId;
+  final String name;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const PauseReason({
+    required this.id,
+    required this.companyId,
+    required this.name,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['name'] = Variable<String>(name);
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  PauseReasonsCompanion toCompanion(bool nullToAbsent) {
+    return PauseReasonsCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      name: Value(name),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory PauseReason.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PauseReason(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      name: serializer.fromJson<String>(json['name']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'name': serializer.toJson<String>(name),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  PauseReason copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => PauseReason(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    name: name ?? this.name,
+    isActive: isActive ?? this.isActive,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  PauseReason copyWithCompanion(PauseReasonsCompanion data) {
+    return PauseReason(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      name: data.name.present ? data.name.value : this.name,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PauseReason(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyId,
+    name,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PauseReason &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.name == this.name &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class PauseReasonsCompanion extends UpdateCompanion<PauseReason> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> name;
+  final Value<bool> isActive;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const PauseReasonsCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PauseReasonsCompanion.insert({
+    required String id,
+    required String companyId,
+    required String name,
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       name = Value(name);
+  static Insertable<PauseReason> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? name,
+    Expression<bool>? isActive,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (name != null) 'name': name,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PauseReasonsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? name,
+    Value<bool>? isActive,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return PauseReasonsCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PauseReasonsCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
+    with TableInfo<$WorkOrderPauseRequestsTable, WorkOrderPauseRequest> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WorkOrderPauseRequestsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _workOrderIdMeta = const VerificationMeta(
+    'workOrderId',
+  );
+  @override
+  late final GeneratedColumn<String> workOrderId = GeneratedColumn<String>(
+    'work_order_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES work_orders (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _requestedByIdMeta = const VerificationMeta(
+    'requestedById',
+  );
+  @override
+  late final GeneratedColumn<String> requestedById = GeneratedColumn<String>(
+    'requested_by_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_profiles (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _reasonIdMeta = const VerificationMeta(
+    'reasonId',
+  );
+  @override
+  late final GeneratedColumn<String> reasonId = GeneratedColumn<String>(
+    'reason_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES pause_reasons (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _customReasonMeta = const VerificationMeta(
+    'customReason',
+  );
+  @override
+  late final GeneratedColumn<String> customReason = GeneratedColumn<String>(
+    'custom_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _observationMeta = const VerificationMeta(
+    'observation',
+  );
+  @override
+  late final GeneratedColumn<String> observation = GeneratedColumn<String>(
+    'observation',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _responsibilityMeta = const VerificationMeta(
+    'responsibility',
+  );
+  @override
+  late final GeneratedColumn<String> responsibility = GeneratedColumn<String>(
+    'responsibility',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sectorMeta = const VerificationMeta('sector');
+  @override
+  late final GeneratedColumn<String> sector = GeneratedColumn<String>(
+    'sector',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pausedAtMeta = const VerificationMeta(
+    'pausedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> pausedAt = GeneratedColumn<DateTime>(
+    'paused_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resumedAtMeta = const VerificationMeta(
+    'resumedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> resumedAt = GeneratedColumn<DateTime>(
+    'resumed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reviewedByIdMeta = const VerificationMeta(
+    'reviewedById',
+  );
+  @override
+  late final GeneratedColumn<String> reviewedById = GeneratedColumn<String>(
+    'reviewed_by_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_profiles (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _reviewObservationMeta = const VerificationMeta(
+    'reviewObservation',
+  );
+  @override
+  late final GeneratedColumn<String> reviewObservation =
+      GeneratedColumn<String>(
+        'review_observation',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _affectsSlaMeta = const VerificationMeta(
+    'affectsSla',
+  );
+  @override
+  late final GeneratedColumn<bool> affectsSla = GeneratedColumn<bool>(
+    'affects_sla',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("affects_sla" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    workOrderId,
+    requestedById,
+    reasonId,
+    customReason,
+    observation,
+    responsibility,
+    sector,
+    status,
+    pausedAt,
+    resumedAt,
+    reviewedById,
+    reviewObservation,
+    affectsSla,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'work_order_pause_requests';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WorkOrderPauseRequest> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('work_order_id')) {
+      context.handle(
+        _workOrderIdMeta,
+        workOrderId.isAcceptableOrUnknown(
+          data['work_order_id']!,
+          _workOrderIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_workOrderIdMeta);
+    }
+    if (data.containsKey('requested_by_id')) {
+      context.handle(
+        _requestedByIdMeta,
+        requestedById.isAcceptableOrUnknown(
+          data['requested_by_id']!,
+          _requestedByIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reason_id')) {
+      context.handle(
+        _reasonIdMeta,
+        reasonId.isAcceptableOrUnknown(data['reason_id']!, _reasonIdMeta),
+      );
+    }
+    if (data.containsKey('custom_reason')) {
+      context.handle(
+        _customReasonMeta,
+        customReason.isAcceptableOrUnknown(
+          data['custom_reason']!,
+          _customReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('observation')) {
+      context.handle(
+        _observationMeta,
+        observation.isAcceptableOrUnknown(
+          data['observation']!,
+          _observationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('responsibility')) {
+      context.handle(
+        _responsibilityMeta,
+        responsibility.isAcceptableOrUnknown(
+          data['responsibility']!,
+          _responsibilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_responsibilityMeta);
+    }
+    if (data.containsKey('sector')) {
+      context.handle(
+        _sectorMeta,
+        sector.isAcceptableOrUnknown(data['sector']!, _sectorMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('paused_at')) {
+      context.handle(
+        _pausedAtMeta,
+        pausedAt.isAcceptableOrUnknown(data['paused_at']!, _pausedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pausedAtMeta);
+    }
+    if (data.containsKey('resumed_at')) {
+      context.handle(
+        _resumedAtMeta,
+        resumedAt.isAcceptableOrUnknown(data['resumed_at']!, _resumedAtMeta),
+      );
+    }
+    if (data.containsKey('reviewed_by_id')) {
+      context.handle(
+        _reviewedByIdMeta,
+        reviewedById.isAcceptableOrUnknown(
+          data['reviewed_by_id']!,
+          _reviewedByIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('review_observation')) {
+      context.handle(
+        _reviewObservationMeta,
+        reviewObservation.isAcceptableOrUnknown(
+          data['review_observation']!,
+          _reviewObservationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('affects_sla')) {
+      context.handle(
+        _affectsSlaMeta,
+        affectsSla.isAcceptableOrUnknown(data['affects_sla']!, _affectsSlaMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WorkOrderPauseRequest map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WorkOrderPauseRequest(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      workOrderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}work_order_id'],
+      )!,
+      requestedById: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}requested_by_id'],
+      ),
+      reasonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason_id'],
+      ),
+      customReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_reason'],
+      ),
+      observation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}observation'],
+      ),
+      responsibility: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}responsibility'],
+      )!,
+      sector: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sector'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      pausedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}paused_at'],
+      )!,
+      resumedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}resumed_at'],
+      ),
+      reviewedById: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reviewed_by_id'],
+      ),
+      reviewObservation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}review_observation'],
+      ),
+      affectsSla: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}affects_sla'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WorkOrderPauseRequestsTable createAlias(String alias) {
+    return $WorkOrderPauseRequestsTable(attachedDatabase, alias);
+  }
+}
+
+class WorkOrderPauseRequest extends DataClass
+    implements Insertable<WorkOrderPauseRequest> {
+  final String id;
+  final String companyId;
+  final String workOrderId;
+  final String? requestedById;
+  final String? reasonId;
+  final String? customReason;
+  final String? observation;
+  final String responsibility;
+  final String? sector;
+  final String status;
+  final DateTime pausedAt;
+  final DateTime? resumedAt;
+  final String? reviewedById;
+  final String? reviewObservation;
+  final bool affectsSla;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const WorkOrderPauseRequest({
+    required this.id,
+    required this.companyId,
+    required this.workOrderId,
+    this.requestedById,
+    this.reasonId,
+    this.customReason,
+    this.observation,
+    required this.responsibility,
+    this.sector,
+    required this.status,
+    required this.pausedAt,
+    this.resumedAt,
+    this.reviewedById,
+    this.reviewObservation,
+    required this.affectsSla,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['work_order_id'] = Variable<String>(workOrderId);
+    if (!nullToAbsent || requestedById != null) {
+      map['requested_by_id'] = Variable<String>(requestedById);
+    }
+    if (!nullToAbsent || reasonId != null) {
+      map['reason_id'] = Variable<String>(reasonId);
+    }
+    if (!nullToAbsent || customReason != null) {
+      map['custom_reason'] = Variable<String>(customReason);
+    }
+    if (!nullToAbsent || observation != null) {
+      map['observation'] = Variable<String>(observation);
+    }
+    map['responsibility'] = Variable<String>(responsibility);
+    if (!nullToAbsent || sector != null) {
+      map['sector'] = Variable<String>(sector);
+    }
+    map['status'] = Variable<String>(status);
+    map['paused_at'] = Variable<DateTime>(pausedAt);
+    if (!nullToAbsent || resumedAt != null) {
+      map['resumed_at'] = Variable<DateTime>(resumedAt);
+    }
+    if (!nullToAbsent || reviewedById != null) {
+      map['reviewed_by_id'] = Variable<String>(reviewedById);
+    }
+    if (!nullToAbsent || reviewObservation != null) {
+      map['review_observation'] = Variable<String>(reviewObservation);
+    }
+    map['affects_sla'] = Variable<bool>(affectsSla);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WorkOrderPauseRequestsCompanion toCompanion(bool nullToAbsent) {
+    return WorkOrderPauseRequestsCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      workOrderId: Value(workOrderId),
+      requestedById: requestedById == null && nullToAbsent
+          ? const Value.absent()
+          : Value(requestedById),
+      reasonId: reasonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasonId),
+      customReason: customReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customReason),
+      observation: observation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(observation),
+      responsibility: Value(responsibility),
+      sector: sector == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sector),
+      status: Value(status),
+      pausedAt: Value(pausedAt),
+      resumedAt: resumedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resumedAt),
+      reviewedById: reviewedById == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reviewedById),
+      reviewObservation: reviewObservation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reviewObservation),
+      affectsSla: Value(affectsSla),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WorkOrderPauseRequest.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WorkOrderPauseRequest(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      workOrderId: serializer.fromJson<String>(json['workOrderId']),
+      requestedById: serializer.fromJson<String?>(json['requestedById']),
+      reasonId: serializer.fromJson<String?>(json['reasonId']),
+      customReason: serializer.fromJson<String?>(json['customReason']),
+      observation: serializer.fromJson<String?>(json['observation']),
+      responsibility: serializer.fromJson<String>(json['responsibility']),
+      sector: serializer.fromJson<String?>(json['sector']),
+      status: serializer.fromJson<String>(json['status']),
+      pausedAt: serializer.fromJson<DateTime>(json['pausedAt']),
+      resumedAt: serializer.fromJson<DateTime?>(json['resumedAt']),
+      reviewedById: serializer.fromJson<String?>(json['reviewedById']),
+      reviewObservation: serializer.fromJson<String?>(
+        json['reviewObservation'],
+      ),
+      affectsSla: serializer.fromJson<bool>(json['affectsSla']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'workOrderId': serializer.toJson<String>(workOrderId),
+      'requestedById': serializer.toJson<String?>(requestedById),
+      'reasonId': serializer.toJson<String?>(reasonId),
+      'customReason': serializer.toJson<String?>(customReason),
+      'observation': serializer.toJson<String?>(observation),
+      'responsibility': serializer.toJson<String>(responsibility),
+      'sector': serializer.toJson<String?>(sector),
+      'status': serializer.toJson<String>(status),
+      'pausedAt': serializer.toJson<DateTime>(pausedAt),
+      'resumedAt': serializer.toJson<DateTime?>(resumedAt),
+      'reviewedById': serializer.toJson<String?>(reviewedById),
+      'reviewObservation': serializer.toJson<String?>(reviewObservation),
+      'affectsSla': serializer.toJson<bool>(affectsSla),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WorkOrderPauseRequest copyWith({
+    String? id,
+    String? companyId,
+    String? workOrderId,
+    Value<String?> requestedById = const Value.absent(),
+    Value<String?> reasonId = const Value.absent(),
+    Value<String?> customReason = const Value.absent(),
+    Value<String?> observation = const Value.absent(),
+    String? responsibility,
+    Value<String?> sector = const Value.absent(),
+    String? status,
+    DateTime? pausedAt,
+    Value<DateTime?> resumedAt = const Value.absent(),
+    Value<String?> reviewedById = const Value.absent(),
+    Value<String?> reviewObservation = const Value.absent(),
+    bool? affectsSla,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => WorkOrderPauseRequest(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    workOrderId: workOrderId ?? this.workOrderId,
+    requestedById: requestedById.present
+        ? requestedById.value
+        : this.requestedById,
+    reasonId: reasonId.present ? reasonId.value : this.reasonId,
+    customReason: customReason.present ? customReason.value : this.customReason,
+    observation: observation.present ? observation.value : this.observation,
+    responsibility: responsibility ?? this.responsibility,
+    sector: sector.present ? sector.value : this.sector,
+    status: status ?? this.status,
+    pausedAt: pausedAt ?? this.pausedAt,
+    resumedAt: resumedAt.present ? resumedAt.value : this.resumedAt,
+    reviewedById: reviewedById.present ? reviewedById.value : this.reviewedById,
+    reviewObservation: reviewObservation.present
+        ? reviewObservation.value
+        : this.reviewObservation,
+    affectsSla: affectsSla ?? this.affectsSla,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  WorkOrderPauseRequest copyWithCompanion(
+    WorkOrderPauseRequestsCompanion data,
+  ) {
+    return WorkOrderPauseRequest(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      workOrderId: data.workOrderId.present
+          ? data.workOrderId.value
+          : this.workOrderId,
+      requestedById: data.requestedById.present
+          ? data.requestedById.value
+          : this.requestedById,
+      reasonId: data.reasonId.present ? data.reasonId.value : this.reasonId,
+      customReason: data.customReason.present
+          ? data.customReason.value
+          : this.customReason,
+      observation: data.observation.present
+          ? data.observation.value
+          : this.observation,
+      responsibility: data.responsibility.present
+          ? data.responsibility.value
+          : this.responsibility,
+      sector: data.sector.present ? data.sector.value : this.sector,
+      status: data.status.present ? data.status.value : this.status,
+      pausedAt: data.pausedAt.present ? data.pausedAt.value : this.pausedAt,
+      resumedAt: data.resumedAt.present ? data.resumedAt.value : this.resumedAt,
+      reviewedById: data.reviewedById.present
+          ? data.reviewedById.value
+          : this.reviewedById,
+      reviewObservation: data.reviewObservation.present
+          ? data.reviewObservation.value
+          : this.reviewObservation,
+      affectsSla: data.affectsSla.present
+          ? data.affectsSla.value
+          : this.affectsSla,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkOrderPauseRequest(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('workOrderId: $workOrderId, ')
+          ..write('requestedById: $requestedById, ')
+          ..write('reasonId: $reasonId, ')
+          ..write('customReason: $customReason, ')
+          ..write('observation: $observation, ')
+          ..write('responsibility: $responsibility, ')
+          ..write('sector: $sector, ')
+          ..write('status: $status, ')
+          ..write('pausedAt: $pausedAt, ')
+          ..write('resumedAt: $resumedAt, ')
+          ..write('reviewedById: $reviewedById, ')
+          ..write('reviewObservation: $reviewObservation, ')
+          ..write('affectsSla: $affectsSla, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyId,
+    workOrderId,
+    requestedById,
+    reasonId,
+    customReason,
+    observation,
+    responsibility,
+    sector,
+    status,
+    pausedAt,
+    resumedAt,
+    reviewedById,
+    reviewObservation,
+    affectsSla,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WorkOrderPauseRequest &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.workOrderId == this.workOrderId &&
+          other.requestedById == this.requestedById &&
+          other.reasonId == this.reasonId &&
+          other.customReason == this.customReason &&
+          other.observation == this.observation &&
+          other.responsibility == this.responsibility &&
+          other.sector == this.sector &&
+          other.status == this.status &&
+          other.pausedAt == this.pausedAt &&
+          other.resumedAt == this.resumedAt &&
+          other.reviewedById == this.reviewedById &&
+          other.reviewObservation == this.reviewObservation &&
+          other.affectsSla == this.affectsSla &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WorkOrderPauseRequestsCompanion
+    extends UpdateCompanion<WorkOrderPauseRequest> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> workOrderId;
+  final Value<String?> requestedById;
+  final Value<String?> reasonId;
+  final Value<String?> customReason;
+  final Value<String?> observation;
+  final Value<String> responsibility;
+  final Value<String?> sector;
+  final Value<String> status;
+  final Value<DateTime> pausedAt;
+  final Value<DateTime?> resumedAt;
+  final Value<String?> reviewedById;
+  final Value<String?> reviewObservation;
+  final Value<bool> affectsSla;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const WorkOrderPauseRequestsCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.workOrderId = const Value.absent(),
+    this.requestedById = const Value.absent(),
+    this.reasonId = const Value.absent(),
+    this.customReason = const Value.absent(),
+    this.observation = const Value.absent(),
+    this.responsibility = const Value.absent(),
+    this.sector = const Value.absent(),
+    this.status = const Value.absent(),
+    this.pausedAt = const Value.absent(),
+    this.resumedAt = const Value.absent(),
+    this.reviewedById = const Value.absent(),
+    this.reviewObservation = const Value.absent(),
+    this.affectsSla = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WorkOrderPauseRequestsCompanion.insert({
+    required String id,
+    required String companyId,
+    required String workOrderId,
+    this.requestedById = const Value.absent(),
+    this.reasonId = const Value.absent(),
+    this.customReason = const Value.absent(),
+    this.observation = const Value.absent(),
+    required String responsibility,
+    this.sector = const Value.absent(),
+    required String status,
+    required DateTime pausedAt,
+    this.resumedAt = const Value.absent(),
+    this.reviewedById = const Value.absent(),
+    this.reviewObservation = const Value.absent(),
+    this.affectsSla = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       workOrderId = Value(workOrderId),
+       responsibility = Value(responsibility),
+       status = Value(status),
+       pausedAt = Value(pausedAt);
+  static Insertable<WorkOrderPauseRequest> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? workOrderId,
+    Expression<String>? requestedById,
+    Expression<String>? reasonId,
+    Expression<String>? customReason,
+    Expression<String>? observation,
+    Expression<String>? responsibility,
+    Expression<String>? sector,
+    Expression<String>? status,
+    Expression<DateTime>? pausedAt,
+    Expression<DateTime>? resumedAt,
+    Expression<String>? reviewedById,
+    Expression<String>? reviewObservation,
+    Expression<bool>? affectsSla,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (workOrderId != null) 'work_order_id': workOrderId,
+      if (requestedById != null) 'requested_by_id': requestedById,
+      if (reasonId != null) 'reason_id': reasonId,
+      if (customReason != null) 'custom_reason': customReason,
+      if (observation != null) 'observation': observation,
+      if (responsibility != null) 'responsibility': responsibility,
+      if (sector != null) 'sector': sector,
+      if (status != null) 'status': status,
+      if (pausedAt != null) 'paused_at': pausedAt,
+      if (resumedAt != null) 'resumed_at': resumedAt,
+      if (reviewedById != null) 'reviewed_by_id': reviewedById,
+      if (reviewObservation != null) 'review_observation': reviewObservation,
+      if (affectsSla != null) 'affects_sla': affectsSla,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WorkOrderPauseRequestsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? workOrderId,
+    Value<String?>? requestedById,
+    Value<String?>? reasonId,
+    Value<String?>? customReason,
+    Value<String?>? observation,
+    Value<String>? responsibility,
+    Value<String?>? sector,
+    Value<String>? status,
+    Value<DateTime>? pausedAt,
+    Value<DateTime?>? resumedAt,
+    Value<String?>? reviewedById,
+    Value<String?>? reviewObservation,
+    Value<bool>? affectsSla,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return WorkOrderPauseRequestsCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      workOrderId: workOrderId ?? this.workOrderId,
+      requestedById: requestedById ?? this.requestedById,
+      reasonId: reasonId ?? this.reasonId,
+      customReason: customReason ?? this.customReason,
+      observation: observation ?? this.observation,
+      responsibility: responsibility ?? this.responsibility,
+      sector: sector ?? this.sector,
+      status: status ?? this.status,
+      pausedAt: pausedAt ?? this.pausedAt,
+      resumedAt: resumedAt ?? this.resumedAt,
+      reviewedById: reviewedById ?? this.reviewedById,
+      reviewObservation: reviewObservation ?? this.reviewObservation,
+      affectsSla: affectsSla ?? this.affectsSla,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (workOrderId.present) {
+      map['work_order_id'] = Variable<String>(workOrderId.value);
+    }
+    if (requestedById.present) {
+      map['requested_by_id'] = Variable<String>(requestedById.value);
+    }
+    if (reasonId.present) {
+      map['reason_id'] = Variable<String>(reasonId.value);
+    }
+    if (customReason.present) {
+      map['custom_reason'] = Variable<String>(customReason.value);
+    }
+    if (observation.present) {
+      map['observation'] = Variable<String>(observation.value);
+    }
+    if (responsibility.present) {
+      map['responsibility'] = Variable<String>(responsibility.value);
+    }
+    if (sector.present) {
+      map['sector'] = Variable<String>(sector.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (pausedAt.present) {
+      map['paused_at'] = Variable<DateTime>(pausedAt.value);
+    }
+    if (resumedAt.present) {
+      map['resumed_at'] = Variable<DateTime>(resumedAt.value);
+    }
+    if (reviewedById.present) {
+      map['reviewed_by_id'] = Variable<String>(reviewedById.value);
+    }
+    if (reviewObservation.present) {
+      map['review_observation'] = Variable<String>(reviewObservation.value);
+    }
+    if (affectsSla.present) {
+      map['affects_sla'] = Variable<bool>(affectsSla.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkOrderPauseRequestsCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('workOrderId: $workOrderId, ')
+          ..write('requestedById: $requestedById, ')
+          ..write('reasonId: $reasonId, ')
+          ..write('customReason: $customReason, ')
+          ..write('observation: $observation, ')
+          ..write('responsibility: $responsibility, ')
+          ..write('sector: $sector, ')
+          ..write('status: $status, ')
+          ..write('pausedAt: $pausedAt, ')
+          ..write('resumedAt: $resumedAt, ')
+          ..write('reviewedById: $reviewedById, ')
+          ..write('reviewObservation: $reviewObservation, ')
+          ..write('affectsSla: $affectsSla, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -14343,6 +16556,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ServiceProviderCompaniesTable(this);
   late final $ServiceProviderProfilesTable serviceProviderProfiles =
       $ServiceProviderProfilesTable(this);
+  late final $SlaPoliciesTable slaPolicies = $SlaPoliciesTable(this);
   late final $WorkOrdersTable workOrders = $WorkOrdersTable(this);
   late final $TasksTable tasks = $TasksTable(this);
   late final $AttachmentsTable attachments = $AttachmentsTable(this);
@@ -14354,6 +16568,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WorkOrderHistoryTable workOrderHistory = $WorkOrderHistoryTable(
     this,
   );
+  late final $PauseReasonsTable pauseReasons = $PauseReasonsTable(this);
+  late final $WorkOrderPauseRequestsTable workOrderPauseRequests =
+      $WorkOrderPauseRequestsTable(this);
   late final Index idxPermissionGroupsCompany = Index(
     'idx_permission_groups_company',
     'CREATE INDEX idx_permission_groups_company ON permission_groups (company_id)',
@@ -14485,6 +16702,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     maintenancePlans,
     serviceProviderCompanies,
     serviceProviderProfiles,
+    slaPolicies,
     workOrders,
     tasks,
     attachments,
@@ -14492,6 +16710,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     companyParameters,
     syncAuditLogs,
     workOrderHistory,
+    pauseReasons,
+    workOrderPauseRequests,
     idxPermissionGroupsCompany,
     idxUserProfilesCompany,
     locationsCompanyNameActiveIdx,
@@ -14686,6 +16906,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         'companies',
         limitUpdateKind: UpdateKind.delete,
       ),
+      result: [TableUpdate('sla_policies', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
       result: [TableUpdate('work_orders', kind: UpdateKind.delete)],
     ),
     WritePropagation(
@@ -14733,6 +16960,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'service_provider_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_orders', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sla_policies',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('work_orders', kind: UpdateKind.update)],
@@ -14856,6 +17090,58 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('work_order_history', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('pause_reasons', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'work_orders',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.update),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'pause_reasons',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.update),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.update),
+      ],
     ),
   ]);
 }
@@ -15487,6 +17773,24 @@ final class $$CompaniesTableReferences
     );
   }
 
+  static MultiTypedResultKey<$SlaPoliciesTable, List<SlaPolicy>>
+  _slaPoliciesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.slaPolicies,
+    aliasName: 'companies__id__sla_policies__company_id',
+  );
+
+  $$SlaPoliciesTableProcessedTableManager get slaPoliciesRefs {
+    final manager = $$SlaPoliciesTableTableManager(
+      $_db,
+      $_db.slaPolicies,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_slaPoliciesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
@@ -15620,6 +17924,49 @@ final class $$CompaniesTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _workOrderHistoryRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PauseReasonsTable, List<PauseReason>>
+  _pauseReasonsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.pauseReasons,
+    aliasName: 'companies__id__pause_reasons__company_id',
+  );
+
+  $$PauseReasonsTableProcessedTableManager get pauseReasonsRefs {
+    final manager = $$PauseReasonsTableTableManager(
+      $_db,
+      $_db.pauseReasons,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_pauseReasonsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $WorkOrderPauseRequestsTable,
+    List<WorkOrderPauseRequest>
+  >
+  _workOrderPauseRequestsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderPauseRequests,
+        aliasName: 'companies__id__work_order_pause_requests__company_id',
+      );
+
+  $$WorkOrderPauseRequestsTableProcessedTableManager
+  get workOrderPauseRequestsRefs {
+    final manager = $$WorkOrderPauseRequestsTableTableManager(
+      $_db,
+      $_db.workOrderPauseRequests,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderPauseRequestsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -15928,6 +18275,31 @@ class $$CompaniesTableFilterComposer
     return f(composer);
   }
 
+  Expression<bool> slaPoliciesRefs(
+    Expression<bool> Function($$SlaPoliciesTableFilterComposer f) f,
+  ) {
+    final $$SlaPoliciesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.slaPolicies,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SlaPoliciesTableFilterComposer(
+            $db: $db,
+            $table: $db.slaPolicies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> workOrdersRefs(
     Expression<bool> Function($$WorkOrdersTableFilterComposer f) f,
   ) {
@@ -16101,6 +18473,57 @@ class $$CompaniesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> pauseReasonsRefs(
+    Expression<bool> Function($$PauseReasonsTableFilterComposer f) f,
+  ) {
+    final $$PauseReasonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pauseReasons,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PauseReasonsTableFilterComposer(
+            $db: $db,
+            $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> workOrderPauseRequestsRefs(
+    Expression<bool> Function($$WorkOrderPauseRequestsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -16441,6 +18864,31 @@ class $$CompaniesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> slaPoliciesRefs<T extends Object>(
+    Expression<T> Function($$SlaPoliciesTableAnnotationComposer a) f,
+  ) {
+    final $$SlaPoliciesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.slaPolicies,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SlaPoliciesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.slaPolicies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> workOrdersRefs<T extends Object>(
     Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
   ) {
@@ -16618,6 +19066,57 @@ class $$CompaniesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> pauseReasonsRefs<T extends Object>(
+    Expression<T> Function($$PauseReasonsTableAnnotationComposer a) f,
+  ) {
+    final $$PauseReasonsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.pauseReasons,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PauseReasonsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> workOrderPauseRequestsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderPauseRequestsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CompaniesTableTableManager
@@ -16644,6 +19143,7 @@ class $$CompaniesTableTableManager
             bool checklistItemsRefs,
             bool maintenancePlansRefs,
             bool serviceProviderCompaniesRefs,
+            bool slaPoliciesRefs,
             bool workOrdersRefs,
             bool tasksRefs,
             bool attachmentsRefs,
@@ -16651,6 +19151,8 @@ class $$CompaniesTableTableManager
             bool companyParametersRefs,
             bool syncAuditLogsRefs,
             bool workOrderHistoryRefs,
+            bool pauseReasonsRefs,
+            bool workOrderPauseRequestsRefs,
           })
         > {
   $$CompaniesTableTableManager(_$AppDatabase db, $CompaniesTable table)
@@ -16728,6 +19230,7 @@ class $$CompaniesTableTableManager
                 checklistItemsRefs = false,
                 maintenancePlansRefs = false,
                 serviceProviderCompaniesRefs = false,
+                slaPoliciesRefs = false,
                 workOrdersRefs = false,
                 tasksRefs = false,
                 attachmentsRefs = false,
@@ -16735,6 +19238,8 @@ class $$CompaniesTableTableManager
                 companyParametersRefs = false,
                 syncAuditLogsRefs = false,
                 workOrderHistoryRefs = false,
+                pauseReasonsRefs = false,
+                workOrderPauseRequestsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -16750,6 +19255,7 @@ class $$CompaniesTableTableManager
                     if (maintenancePlansRefs) db.maintenancePlans,
                     if (serviceProviderCompaniesRefs)
                       db.serviceProviderCompanies,
+                    if (slaPoliciesRefs) db.slaPolicies,
                     if (workOrdersRefs) db.workOrders,
                     if (tasksRefs) db.tasks,
                     if (attachmentsRefs) db.attachments,
@@ -16757,6 +19263,8 @@ class $$CompaniesTableTableManager
                     if (companyParametersRefs) db.companyParameters,
                     if (syncAuditLogsRefs) db.syncAuditLogs,
                     if (workOrderHistoryRefs) db.workOrderHistory,
+                    if (pauseReasonsRefs) db.pauseReasons,
+                    if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -16971,6 +19479,27 @@ class $$CompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (slaPoliciesRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          SlaPolicy
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._slaPoliciesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).slaPoliciesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (workOrdersRefs)
                         await $_getPrefetchedData<
                           Company,
@@ -17118,6 +19647,48 @@ class $$CompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (pauseReasonsRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          PauseReason
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._pauseReasonsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).pauseReasonsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (workOrderPauseRequestsRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          WorkOrderPauseRequest
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._workOrderPauseRequestsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderPauseRequestsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -17149,6 +19720,7 @@ typedef $$CompaniesTableProcessedTableManager =
         bool checklistItemsRefs,
         bool maintenancePlansRefs,
         bool serviceProviderCompaniesRefs,
+        bool slaPoliciesRefs,
         bool workOrdersRefs,
         bool tasksRefs,
         bool attachmentsRefs,
@@ -17156,6 +19728,8 @@ typedef $$CompaniesTableProcessedTableManager =
         bool companyParametersRefs,
         bool syncAuditLogsRefs,
         bool workOrderHistoryRefs,
+        bool pauseReasonsRefs,
+        bool workOrderPauseRequestsRefs,
       })
     >;
 typedef $$PermissionGroupsTableCreateCompanionBuilder =
@@ -25088,6 +27662,472 @@ typedef $$ServiceProviderProfilesTableProcessedTableManager =
         bool workOrdersRefs,
       })
     >;
+typedef $$SlaPoliciesTableCreateCompanionBuilder =
+    SlaPoliciesCompanion Function({
+      required String id,
+      required String companyId,
+      required String name,
+      required int targetHours,
+      required String appliesTo,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$SlaPoliciesTableUpdateCompanionBuilder =
+    SlaPoliciesCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> name,
+      Value<int> targetHours,
+      Value<String> appliesTo,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$SlaPoliciesTableReferences
+    extends BaseReferences<_$AppDatabase, $SlaPoliciesTable, SlaPolicy> {
+  $$SlaPoliciesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('sla_policies__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
+  _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.workOrders,
+    aliasName: 'sla_policies__id__work_orders__sla_policy_id',
+  );
+
+  $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
+    final manager = $$WorkOrdersTableTableManager(
+      $_db,
+      $_db.workOrders,
+    ).filter((f) => f.slaPolicyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_workOrdersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$SlaPoliciesTableFilterComposer
+    extends Composer<_$AppDatabase, $SlaPoliciesTable> {
+  $$SlaPoliciesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get appliesTo => $composableBuilder(
+    column: $table.appliesTo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> workOrdersRefs(
+    Expression<bool> Function($$WorkOrdersTableFilterComposer f) f,
+  ) {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.slaPolicyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$SlaPoliciesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SlaPoliciesTable> {
+  $$SlaPoliciesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get appliesTo => $composableBuilder(
+    column: $table.appliesTo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SlaPoliciesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SlaPoliciesTable> {
+  $$SlaPoliciesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get targetHours => $composableBuilder(
+    column: $table.targetHours,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get appliesTo =>
+      $composableBuilder(column: $table.appliesTo, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> workOrdersRefs<T extends Object>(
+    Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.slaPolicyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$SlaPoliciesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SlaPoliciesTable,
+          SlaPolicy,
+          $$SlaPoliciesTableFilterComposer,
+          $$SlaPoliciesTableOrderingComposer,
+          $$SlaPoliciesTableAnnotationComposer,
+          $$SlaPoliciesTableCreateCompanionBuilder,
+          $$SlaPoliciesTableUpdateCompanionBuilder,
+          (SlaPolicy, $$SlaPoliciesTableReferences),
+          SlaPolicy,
+          PrefetchHooks Function({bool companyId, bool workOrdersRefs})
+        > {
+  $$SlaPoliciesTableTableManager(_$AppDatabase db, $SlaPoliciesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SlaPoliciesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SlaPoliciesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SlaPoliciesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> targetHours = const Value.absent(),
+                Value<String> appliesTo = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SlaPoliciesCompanion(
+                id: id,
+                companyId: companyId,
+                name: name,
+                targetHours: targetHours,
+                appliesTo: appliesTo,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String name,
+                required int targetHours,
+                required String appliesTo,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SlaPoliciesCompanion.insert(
+                id: id,
+                companyId: companyId,
+                name: name,
+                targetHours: targetHours,
+                appliesTo: appliesTo,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SlaPoliciesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({companyId = false, workOrdersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (workOrdersRefs) db.workOrders],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (companyId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.companyId,
+                                referencedTable: $$SlaPoliciesTableReferences
+                                    ._companyIdTable(db),
+                                referencedColumn: $$SlaPoliciesTableReferences
+                                    ._companyIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (workOrdersRefs)
+                    await $_getPrefetchedData<
+                      SlaPolicy,
+                      $SlaPoliciesTable,
+                      WorkOrder
+                    >(
+                      currentTable: table,
+                      referencedTable: $$SlaPoliciesTableReferences
+                          ._workOrdersRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$SlaPoliciesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).workOrdersRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.slaPolicyId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SlaPoliciesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SlaPoliciesTable,
+      SlaPolicy,
+      $$SlaPoliciesTableFilterComposer,
+      $$SlaPoliciesTableOrderingComposer,
+      $$SlaPoliciesTableAnnotationComposer,
+      $$SlaPoliciesTableCreateCompanionBuilder,
+      $$SlaPoliciesTableUpdateCompanionBuilder,
+      (SlaPolicy, $$SlaPoliciesTableReferences),
+      SlaPolicy,
+      PrefetchHooks Function({bool companyId, bool workOrdersRefs})
+    >;
 typedef $$WorkOrdersTableCreateCompanionBuilder =
     WorkOrdersCompanion Function({
       required String id,
@@ -25114,6 +28154,10 @@ typedef $$WorkOrdersTableCreateCompanionBuilder =
       Value<String?> serviceProviderCompanyId,
       Value<String?> providerProfileId,
       Value<String> openedBy,
+      Value<String?> slaPolicyId,
+      Value<DateTime?> slaDeadlineAt,
+      Value<bool?> slaBreached,
+      Value<int?> netActiveDuration,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -25145,6 +28189,10 @@ typedef $$WorkOrdersTableUpdateCompanionBuilder =
       Value<String?> serviceProviderCompanyId,
       Value<String?> providerProfileId,
       Value<String> openedBy,
+      Value<String?> slaPolicyId,
+      Value<DateTime?> slaDeadlineAt,
+      Value<bool?> slaBreached,
+      Value<int?> netActiveDuration,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
@@ -25303,6 +28351,23 @@ final class $$WorkOrdersTableReferences
     );
   }
 
+  static $SlaPoliciesTable _slaPolicyIdTable(_$AppDatabase db) => db.slaPolicies
+      .createAlias('work_orders__sla_policy_id__sla_policies__id');
+
+  $$SlaPoliciesTableProcessedTableManager? get slaPolicyId {
+    final $_column = $_itemColumn<String>('sla_policy_id');
+    if ($_column == null) return null;
+    final manager = $$SlaPoliciesTableTableManager(
+      $_db,
+      $_db.slaPolicies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_slaPolicyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
   static MultiTypedResultKey<$TasksTable, List<Task>> _tasksRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -25379,6 +28444,31 @@ final class $$WorkOrdersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _workOrderHistoryRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $WorkOrderPauseRequestsTable,
+    List<WorkOrderPauseRequest>
+  >
+  _workOrderPauseRequestsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderPauseRequests,
+        aliasName: 'work_orders__id__work_order_pause_requests__work_order_id',
+      );
+
+  $$WorkOrderPauseRequestsTableProcessedTableManager
+  get workOrderPauseRequestsRefs {
+    final manager = $$WorkOrderPauseRequestsTableTableManager(
+      $_db,
+      $_db.workOrderPauseRequests,
+    ).filter((f) => f.workOrderId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderPauseRequestsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -25472,6 +28562,21 @@ class $$WorkOrdersTableFilterComposer
 
   ColumnFilters<String> get openedBy => $composableBuilder(
     column: $table.openedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get slaDeadlineAt => $composableBuilder(
+    column: $table.slaDeadlineAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get slaBreached => $composableBuilder(
+    column: $table.slaBreached,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get netActiveDuration => $composableBuilder(
+    column: $table.netActiveDuration,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -25676,6 +28781,29 @@ class $$WorkOrdersTableFilterComposer
     return composer;
   }
 
+  $$SlaPoliciesTableFilterComposer get slaPolicyId {
+    final $$SlaPoliciesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.slaPolicyId,
+      referencedTable: $db.slaPolicies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SlaPoliciesTableFilterComposer(
+            $db: $db,
+            $table: $db.slaPolicies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<bool> tasksRefs(
     Expression<bool> Function($$TasksTableFilterComposer f) f,
   ) {
@@ -25776,6 +28904,32 @@ class $$WorkOrdersTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> workOrderPauseRequestsRefs(
+    Expression<bool> Function($$WorkOrderPauseRequestsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.workOrderId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$WorkOrdersTableOrderingComposer
@@ -25864,6 +29018,21 @@ class $$WorkOrdersTableOrderingComposer
 
   ColumnOrderings<String> get openedBy => $composableBuilder(
     column: $table.openedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get slaDeadlineAt => $composableBuilder(
+    column: $table.slaDeadlineAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get slaBreached => $composableBuilder(
+    column: $table.slaBreached,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get netActiveDuration => $composableBuilder(
+    column: $table.netActiveDuration,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -26067,6 +29236,29 @@ class $$WorkOrdersTableOrderingComposer
         );
     return composer;
   }
+
+  $$SlaPoliciesTableOrderingComposer get slaPolicyId {
+    final $$SlaPoliciesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.slaPolicyId,
+      referencedTable: $db.slaPolicies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SlaPoliciesTableOrderingComposer(
+            $db: $db,
+            $table: $db.slaPolicies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$WorkOrdersTableAnnotationComposer
@@ -26135,6 +29327,21 @@ class $$WorkOrdersTableAnnotationComposer
 
   GeneratedColumn<String> get openedBy =>
       $composableBuilder(column: $table.openedBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get slaDeadlineAt => $composableBuilder(
+    column: $table.slaDeadlineAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get slaBreached => $composableBuilder(
+    column: $table.slaBreached,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get netActiveDuration => $composableBuilder(
+    column: $table.netActiveDuration,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -26332,6 +29539,29 @@ class $$WorkOrdersTableAnnotationComposer
     return composer;
   }
 
+  $$SlaPoliciesTableAnnotationComposer get slaPolicyId {
+    final $$SlaPoliciesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.slaPolicyId,
+      referencedTable: $db.slaPolicies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SlaPoliciesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.slaPolicies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> tasksRefs<T extends Object>(
     Expression<T> Function($$TasksTableAnnotationComposer a) f,
   ) {
@@ -26433,6 +29663,32 @@ class $$WorkOrdersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> workOrderPauseRequestsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderPauseRequestsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.workOrderId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$WorkOrdersTableTableManager
@@ -26457,10 +29713,12 @@ class $$WorkOrdersTableTableManager
             bool maintenancePlanId,
             bool serviceProviderCompanyId,
             bool providerProfileId,
+            bool slaPolicyId,
             bool tasksRefs,
             bool attachmentsRefs,
             bool workOrderChangeRequestsRefs,
             bool workOrderHistoryRefs,
+            bool workOrderPauseRequestsRefs,
           })
         > {
   $$WorkOrdersTableTableManager(_$AppDatabase db, $WorkOrdersTable table)
@@ -26500,6 +29758,10 @@ class $$WorkOrdersTableTableManager
                 Value<String?> serviceProviderCompanyId = const Value.absent(),
                 Value<String?> providerProfileId = const Value.absent(),
                 Value<String> openedBy = const Value.absent(),
+                Value<String?> slaPolicyId = const Value.absent(),
+                Value<DateTime?> slaDeadlineAt = const Value.absent(),
+                Value<bool?> slaBreached = const Value.absent(),
+                Value<int?> netActiveDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -26529,6 +29791,10 @@ class $$WorkOrdersTableTableManager
                 serviceProviderCompanyId: serviceProviderCompanyId,
                 providerProfileId: providerProfileId,
                 openedBy: openedBy,
+                slaPolicyId: slaPolicyId,
+                slaDeadlineAt: slaDeadlineAt,
+                slaBreached: slaBreached,
+                netActiveDuration: netActiveDuration,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -26560,6 +29826,10 @@ class $$WorkOrdersTableTableManager
                 Value<String?> serviceProviderCompanyId = const Value.absent(),
                 Value<String?> providerProfileId = const Value.absent(),
                 Value<String> openedBy = const Value.absent(),
+                Value<String?> slaPolicyId = const Value.absent(),
+                Value<DateTime?> slaDeadlineAt = const Value.absent(),
+                Value<bool?> slaBreached = const Value.absent(),
+                Value<int?> netActiveDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
@@ -26589,6 +29859,10 @@ class $$WorkOrdersTableTableManager
                 serviceProviderCompanyId: serviceProviderCompanyId,
                 providerProfileId: providerProfileId,
                 openedBy: openedBy,
+                slaPolicyId: slaPolicyId,
+                slaDeadlineAt: slaDeadlineAt,
+                slaBreached: slaBreached,
+                netActiveDuration: netActiveDuration,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
@@ -26612,10 +29886,12 @@ class $$WorkOrdersTableTableManager
                 maintenancePlanId = false,
                 serviceProviderCompanyId = false,
                 providerProfileId = false,
+                slaPolicyId = false,
                 tasksRefs = false,
                 attachmentsRefs = false,
                 workOrderChangeRequestsRefs = false,
                 workOrderHistoryRefs = false,
+                workOrderPauseRequestsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -26624,6 +29900,7 @@ class $$WorkOrdersTableTableManager
                     if (attachmentsRefs) db.attachments,
                     if (workOrderChangeRequestsRefs) db.workOrderChangeRequests,
                     if (workOrderHistoryRefs) db.workOrderHistory,
+                    if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
                   ],
                   addJoins:
                       <
@@ -26754,6 +30031,20 @@ class $$WorkOrdersTableTableManager
                                   )
                                   as T;
                         }
+                        if (slaPolicyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.slaPolicyId,
+                                    referencedTable: $$WorkOrdersTableReferences
+                                        ._slaPolicyIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrdersTableReferences
+                                            ._slaPolicyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
                         return state;
                       },
@@ -26843,6 +30134,27 @@ class $$WorkOrdersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (workOrderPauseRequestsRefs)
+                        await $_getPrefetchedData<
+                          WorkOrder,
+                          $WorkOrdersTable,
+                          WorkOrderPauseRequest
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WorkOrdersTableReferences
+                              ._workOrderPauseRequestsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WorkOrdersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderPauseRequestsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.workOrderId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -26872,10 +30184,12 @@ typedef $$WorkOrdersTableProcessedTableManager =
         bool maintenancePlanId,
         bool serviceProviderCompanyId,
         bool providerProfileId,
+        bool slaPolicyId,
         bool tasksRefs,
         bool attachmentsRefs,
         bool workOrderChangeRequestsRefs,
         bool workOrderHistoryRefs,
+        bool workOrderPauseRequestsRefs,
       })
     >;
 typedef $$TasksTableCreateCompanionBuilder =
@@ -30376,6 +33690,1420 @@ typedef $$WorkOrderHistoryTableProcessedTableManager =
       WorkOrderHistoryData,
       PrefetchHooks Function({bool workOrderId, bool companyId, bool userId})
     >;
+typedef $$PauseReasonsTableCreateCompanionBuilder =
+    PauseReasonsCompanion Function({
+      required String id,
+      required String companyId,
+      required String name,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$PauseReasonsTableUpdateCompanionBuilder =
+    PauseReasonsCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> name,
+      Value<bool> isActive,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$PauseReasonsTableReferences
+    extends BaseReferences<_$AppDatabase, $PauseReasonsTable, PauseReason> {
+  $$PauseReasonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('pause_reasons__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $WorkOrderPauseRequestsTable,
+    List<WorkOrderPauseRequest>
+  >
+  _workOrderPauseRequestsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderPauseRequests,
+        aliasName: 'pause_reasons__id__work_order_pause_requests__reason_id',
+      );
+
+  $$WorkOrderPauseRequestsTableProcessedTableManager
+  get workOrderPauseRequestsRefs {
+    final manager = $$WorkOrderPauseRequestsTableTableManager(
+      $_db,
+      $_db.workOrderPauseRequests,
+    ).filter((f) => f.reasonId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderPauseRequestsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PauseReasonsTableFilterComposer
+    extends Composer<_$AppDatabase, $PauseReasonsTable> {
+  $$PauseReasonsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> workOrderPauseRequestsRefs(
+    Expression<bool> Function($$WorkOrderPauseRequestsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.reasonId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$PauseReasonsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PauseReasonsTable> {
+  $$PauseReasonsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PauseReasonsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PauseReasonsTable> {
+  $$PauseReasonsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> workOrderPauseRequestsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderPauseRequestsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.reasonId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$PauseReasonsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PauseReasonsTable,
+          PauseReason,
+          $$PauseReasonsTableFilterComposer,
+          $$PauseReasonsTableOrderingComposer,
+          $$PauseReasonsTableAnnotationComposer,
+          $$PauseReasonsTableCreateCompanionBuilder,
+          $$PauseReasonsTableUpdateCompanionBuilder,
+          (PauseReason, $$PauseReasonsTableReferences),
+          PauseReason,
+          PrefetchHooks Function({
+            bool companyId,
+            bool workOrderPauseRequestsRefs,
+          })
+        > {
+  $$PauseReasonsTableTableManager(_$AppDatabase db, $PauseReasonsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PauseReasonsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PauseReasonsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PauseReasonsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PauseReasonsCompanion(
+                id: id,
+                companyId: companyId,
+                name: name,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String name,
+                Value<bool> isActive = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PauseReasonsCompanion.insert(
+                id: id,
+                companyId: companyId,
+                name: name,
+                isActive: isActive,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PauseReasonsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({companyId = false, workOrderPauseRequestsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (companyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.companyId,
+                                    referencedTable:
+                                        $$PauseReasonsTableReferences
+                                            ._companyIdTable(db),
+                                    referencedColumn:
+                                        $$PauseReasonsTableReferences
+                                            ._companyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (workOrderPauseRequestsRefs)
+                        await $_getPrefetchedData<
+                          PauseReason,
+                          $PauseReasonsTable,
+                          WorkOrderPauseRequest
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PauseReasonsTableReferences
+                              ._workOrderPauseRequestsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PauseReasonsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderPauseRequestsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.reasonId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$PauseReasonsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PauseReasonsTable,
+      PauseReason,
+      $$PauseReasonsTableFilterComposer,
+      $$PauseReasonsTableOrderingComposer,
+      $$PauseReasonsTableAnnotationComposer,
+      $$PauseReasonsTableCreateCompanionBuilder,
+      $$PauseReasonsTableUpdateCompanionBuilder,
+      (PauseReason, $$PauseReasonsTableReferences),
+      PauseReason,
+      PrefetchHooks Function({bool companyId, bool workOrderPauseRequestsRefs})
+    >;
+typedef $$WorkOrderPauseRequestsTableCreateCompanionBuilder =
+    WorkOrderPauseRequestsCompanion Function({
+      required String id,
+      required String companyId,
+      required String workOrderId,
+      Value<String?> requestedById,
+      Value<String?> reasonId,
+      Value<String?> customReason,
+      Value<String?> observation,
+      required String responsibility,
+      Value<String?> sector,
+      required String status,
+      required DateTime pausedAt,
+      Value<DateTime?> resumedAt,
+      Value<String?> reviewedById,
+      Value<String?> reviewObservation,
+      Value<bool> affectsSla,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$WorkOrderPauseRequestsTableUpdateCompanionBuilder =
+    WorkOrderPauseRequestsCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> workOrderId,
+      Value<String?> requestedById,
+      Value<String?> reasonId,
+      Value<String?> customReason,
+      Value<String?> observation,
+      Value<String> responsibility,
+      Value<String?> sector,
+      Value<String> status,
+      Value<DateTime> pausedAt,
+      Value<DateTime?> resumedAt,
+      Value<String?> reviewedById,
+      Value<String?> reviewObservation,
+      Value<bool> affectsSla,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$WorkOrderPauseRequestsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $WorkOrderPauseRequestsTable,
+          WorkOrderPauseRequest
+        > {
+  $$WorkOrderPauseRequestsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
+      .createAlias('work_order_pause_requests__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) => db.workOrders
+      .createAlias('work_order_pause_requests__work_order_id__work_orders__id');
+
+  $$WorkOrdersTableProcessedTableManager get workOrderId {
+    final $_column = $_itemColumn<String>('work_order_id')!;
+
+    final manager = $$WorkOrdersTableTableManager(
+      $_db,
+      $_db.workOrders,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_workOrderIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $UserProfilesTable _requestedByIdTable(_$AppDatabase db) =>
+      db.userProfiles.createAlias(
+        'work_order_pause_requests__requested_by_id__user_profiles__id',
+      );
+
+  $$UserProfilesTableProcessedTableManager? get requestedById {
+    final $_column = $_itemColumn<String>('requested_by_id');
+    if ($_column == null) return null;
+    final manager = $$UserProfilesTableTableManager(
+      $_db,
+      $_db.userProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_requestedByIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PauseReasonsTable _reasonIdTable(_$AppDatabase db) => db.pauseReasons
+      .createAlias('work_order_pause_requests__reason_id__pause_reasons__id');
+
+  $$PauseReasonsTableProcessedTableManager? get reasonId {
+    final $_column = $_itemColumn<String>('reason_id');
+    if ($_column == null) return null;
+    final manager = $$PauseReasonsTableTableManager(
+      $_db,
+      $_db.pauseReasons,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_reasonIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $UserProfilesTable _reviewedByIdTable(_$AppDatabase db) =>
+      db.userProfiles.createAlias(
+        'work_order_pause_requests__reviewed_by_id__user_profiles__id',
+      );
+
+  $$UserProfilesTableProcessedTableManager? get reviewedById {
+    final $_column = $_itemColumn<String>('reviewed_by_id');
+    if ($_column == null) return null;
+    final manager = $$UserProfilesTableTableManager(
+      $_db,
+      $_db.userProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_reviewedByIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WorkOrderPauseRequestsTableFilterComposer
+    extends Composer<_$AppDatabase, $WorkOrderPauseRequestsTable> {
+  $$WorkOrderPauseRequestsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customReason => $composableBuilder(
+    column: $table.customReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get observation => $composableBuilder(
+    column: $table.observation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get responsibility => $composableBuilder(
+    column: $table.responsibility,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sector => $composableBuilder(
+    column: $table.sector,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get resumedAt => $composableBuilder(
+    column: $table.resumedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reviewObservation => $composableBuilder(
+    column: $table.reviewObservation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get affectsSla => $composableBuilder(
+    column: $table.affectsSla,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableFilterComposer get workOrderId {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableFilterComposer get requestedById {
+    final $$UserProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.requestedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PauseReasonsTableFilterComposer get reasonId {
+    final $$PauseReasonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reasonId,
+      referencedTable: $db.pauseReasons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PauseReasonsTableFilterComposer(
+            $db: $db,
+            $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableFilterComposer get reviewedById {
+    final $$UserProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reviewedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderPauseRequestsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WorkOrderPauseRequestsTable> {
+  $$WorkOrderPauseRequestsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customReason => $composableBuilder(
+    column: $table.customReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get observation => $composableBuilder(
+    column: $table.observation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get responsibility => $composableBuilder(
+    column: $table.responsibility,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sector => $composableBuilder(
+    column: $table.sector,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get pausedAt => $composableBuilder(
+    column: $table.pausedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get resumedAt => $composableBuilder(
+    column: $table.resumedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reviewObservation => $composableBuilder(
+    column: $table.reviewObservation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get affectsSla => $composableBuilder(
+    column: $table.affectsSla,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableOrderingComposer get workOrderId {
+    final $$WorkOrdersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableOrderingComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableOrderingComposer get requestedById {
+    final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.requestedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableOrderingComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PauseReasonsTableOrderingComposer get reasonId {
+    final $$PauseReasonsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reasonId,
+      referencedTable: $db.pauseReasons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PauseReasonsTableOrderingComposer(
+            $db: $db,
+            $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableOrderingComposer get reviewedById {
+    final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reviewedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableOrderingComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderPauseRequestsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WorkOrderPauseRequestsTable> {
+  $$WorkOrderPauseRequestsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get customReason => $composableBuilder(
+    column: $table.customReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get observation => $composableBuilder(
+    column: $table.observation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get responsibility => $composableBuilder(
+    column: $table.responsibility,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sector =>
+      $composableBuilder(column: $table.sector, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get pausedAt =>
+      $composableBuilder(column: $table.pausedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get resumedAt =>
+      $composableBuilder(column: $table.resumedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get reviewObservation => $composableBuilder(
+    column: $table.reviewObservation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get affectsSla => $composableBuilder(
+    column: $table.affectsSla,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableAnnotationComposer get workOrderId {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableAnnotationComposer get requestedById {
+    final $$UserProfilesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.requestedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PauseReasonsTableAnnotationComposer get reasonId {
+    final $$PauseReasonsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reasonId,
+      referencedTable: $db.pauseReasons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PauseReasonsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableAnnotationComposer get reviewedById {
+    final $$UserProfilesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.reviewedById,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderPauseRequestsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WorkOrderPauseRequestsTable,
+          WorkOrderPauseRequest,
+          $$WorkOrderPauseRequestsTableFilterComposer,
+          $$WorkOrderPauseRequestsTableOrderingComposer,
+          $$WorkOrderPauseRequestsTableAnnotationComposer,
+          $$WorkOrderPauseRequestsTableCreateCompanionBuilder,
+          $$WorkOrderPauseRequestsTableUpdateCompanionBuilder,
+          (WorkOrderPauseRequest, $$WorkOrderPauseRequestsTableReferences),
+          WorkOrderPauseRequest,
+          PrefetchHooks Function({
+            bool companyId,
+            bool workOrderId,
+            bool requestedById,
+            bool reasonId,
+            bool reviewedById,
+          })
+        > {
+  $$WorkOrderPauseRequestsTableTableManager(
+    _$AppDatabase db,
+    $WorkOrderPauseRequestsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WorkOrderPauseRequestsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$WorkOrderPauseRequestsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$WorkOrderPauseRequestsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> workOrderId = const Value.absent(),
+                Value<String?> requestedById = const Value.absent(),
+                Value<String?> reasonId = const Value.absent(),
+                Value<String?> customReason = const Value.absent(),
+                Value<String?> observation = const Value.absent(),
+                Value<String> responsibility = const Value.absent(),
+                Value<String?> sector = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<DateTime> pausedAt = const Value.absent(),
+                Value<DateTime?> resumedAt = const Value.absent(),
+                Value<String?> reviewedById = const Value.absent(),
+                Value<String?> reviewObservation = const Value.absent(),
+                Value<bool> affectsSla = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WorkOrderPauseRequestsCompanion(
+                id: id,
+                companyId: companyId,
+                workOrderId: workOrderId,
+                requestedById: requestedById,
+                reasonId: reasonId,
+                customReason: customReason,
+                observation: observation,
+                responsibility: responsibility,
+                sector: sector,
+                status: status,
+                pausedAt: pausedAt,
+                resumedAt: resumedAt,
+                reviewedById: reviewedById,
+                reviewObservation: reviewObservation,
+                affectsSla: affectsSla,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String workOrderId,
+                Value<String?> requestedById = const Value.absent(),
+                Value<String?> reasonId = const Value.absent(),
+                Value<String?> customReason = const Value.absent(),
+                Value<String?> observation = const Value.absent(),
+                required String responsibility,
+                Value<String?> sector = const Value.absent(),
+                required String status,
+                required DateTime pausedAt,
+                Value<DateTime?> resumedAt = const Value.absent(),
+                Value<String?> reviewedById = const Value.absent(),
+                Value<String?> reviewObservation = const Value.absent(),
+                Value<bool> affectsSla = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WorkOrderPauseRequestsCompanion.insert(
+                id: id,
+                companyId: companyId,
+                workOrderId: workOrderId,
+                requestedById: requestedById,
+                reasonId: reasonId,
+                customReason: customReason,
+                observation: observation,
+                responsibility: responsibility,
+                sector: sector,
+                status: status,
+                pausedAt: pausedAt,
+                resumedAt: resumedAt,
+                reviewedById: reviewedById,
+                reviewObservation: reviewObservation,
+                affectsSla: affectsSla,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$WorkOrderPauseRequestsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                companyId = false,
+                workOrderId = false,
+                requestedById = false,
+                reasonId = false,
+                reviewedById = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (companyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.companyId,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._companyIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._companyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (workOrderId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.workOrderId,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._workOrderIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._workOrderIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (requestedById) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.requestedById,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._requestedByIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._requestedByIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (reasonId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.reasonId,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._reasonIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._reasonIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (reviewedById) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.reviewedById,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._reviewedByIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._reviewedByIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$WorkOrderPauseRequestsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WorkOrderPauseRequestsTable,
+      WorkOrderPauseRequest,
+      $$WorkOrderPauseRequestsTableFilterComposer,
+      $$WorkOrderPauseRequestsTableOrderingComposer,
+      $$WorkOrderPauseRequestsTableAnnotationComposer,
+      $$WorkOrderPauseRequestsTableCreateCompanionBuilder,
+      $$WorkOrderPauseRequestsTableUpdateCompanionBuilder,
+      (WorkOrderPauseRequest, $$WorkOrderPauseRequestsTableReferences),
+      WorkOrderPauseRequest,
+      PrefetchHooks Function({
+        bool companyId,
+        bool workOrderId,
+        bool requestedById,
+        bool reasonId,
+        bool reviewedById,
+      })
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -30414,6 +35142,8 @@ class $AppDatabaseManager {
         _db,
         _db.serviceProviderProfiles,
       );
+  $$SlaPoliciesTableTableManager get slaPolicies =>
+      $$SlaPoliciesTableTableManager(_db, _db.slaPolicies);
   $$WorkOrdersTableTableManager get workOrders =>
       $$WorkOrdersTableTableManager(_db, _db.workOrders);
   $$TasksTableTableManager get tasks =>
@@ -30431,4 +35161,11 @@ class $AppDatabaseManager {
       $$SyncAuditLogsTableTableManager(_db, _db.syncAuditLogs);
   $$WorkOrderHistoryTableTableManager get workOrderHistory =>
       $$WorkOrderHistoryTableTableManager(_db, _db.workOrderHistory);
+  $$PauseReasonsTableTableManager get pauseReasons =>
+      $$PauseReasonsTableTableManager(_db, _db.pauseReasons);
+  $$WorkOrderPauseRequestsTableTableManager get workOrderPauseRequests =>
+      $$WorkOrderPauseRequestsTableTableManager(
+        _db,
+        _db.workOrderPauseRequests,
+      );
 }

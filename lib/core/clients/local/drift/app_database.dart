@@ -15,15 +15,18 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.d
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/company_parameters_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/pause_reasons_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/permission_groups_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sla_policies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sync_audit_logs_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/tasks_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_sessions_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_change_requests_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_history_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_pause_requests_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_orders_table.dart';
 
 part 'app_database.g.dart';
@@ -51,6 +54,9 @@ part 'app_database.g.dart';
     CompanyParameters,
     SyncAuditLogs,
     WorkOrderHistory,
+    SlaPolicies,
+    PauseReasons,
+    WorkOrderPauseRequests,
   ],
 )
 @LazySingleton()
@@ -59,7 +65,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -127,6 +133,15 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 11) {
         await m.addColumn(appSettings, appSettings.selectedMode);
+      }
+      if (from < 12) {
+        await m.createTable(slaPolicies);
+        await m.createTable(pauseReasons);
+        await m.createTable(workOrderPauseRequests);
+        await m.addColumn(workOrders, workOrders.slaPolicyId);
+        await m.addColumn(workOrders, workOrders.slaDeadlineAt);
+        await m.addColumn(workOrders, workOrders.slaBreached);
+        await m.addColumn(workOrders, workOrders.netActiveDuration);
       }
     },
   );
