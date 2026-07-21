@@ -3,11 +3,11 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -73,13 +73,19 @@ void main() {
       'loadCompanies should fetch companies and emit loaded',
       build: () {
         when(() => mockGetCompanies.call(any())).thenAnswer(
-          (_) async => SuccessState(data: [EntityFactory.makeServiceProviderCompanyEntity()]),
+          (_) async => SuccessState(
+            data: [EntityFactory.makeServiceProviderCompanyEntity()],
+          ),
         );
         return cubit;
       },
       act: (cubit) => cubit.loadCompanies(faker.guid.guid()),
       expect: () => [
-        isA<ServiceProvidersState>().having((s) => s.status, 'status', StateStatus.loading),
+        isA<ServiceProvidersState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
         isA<ServiceProvidersState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.companies, 'companies', isNotEmpty),
@@ -90,7 +96,9 @@ void main() {
       'selectCompany should load profiles and emit loaded',
       build: () {
         when(() => mockGetProfiles.call(any())).thenAnswer(
-          (_) async => SuccessState(data: [EntityFactory.makeServiceProviderProfileEntity()]),
+          (_) async => SuccessState(
+            data: [EntityFactory.makeServiceProviderProfileEntity()],
+          ),
         );
         return cubit;
       },

@@ -480,6 +480,9 @@ void main() {
               totalCost: tWorkOrder.totalCost,
               notes: tWorkOrder.notes,
               createdAt: tWorkOrder.createdAt,
+              serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
+              providerProfileId: tWorkOrder.providerProfileId,
+              openedBy: tWorkOrder.openedBy,
             );
 
             expect(result, isTrue);
@@ -536,7 +539,6 @@ void main() {
               id: null,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
-              assignedToId: null,
               createdById: tWorkOrder.createdById,
               maintenancePlanId: tWorkOrder.maintenancePlanId,
               title: tWorkOrder.title,
@@ -931,6 +933,9 @@ void main() {
               totalCost: tWorkOrder.totalCost,
               notes: tWorkOrder.notes,
               createdAt: tWorkOrder.createdAt,
+              serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
+              providerProfileId: tWorkOrder.providerProfileId,
+              openedBy: tWorkOrder.openedBy,
             );
 
             expect(result, isFalse);
@@ -1009,6 +1014,9 @@ void main() {
             totalCost: tWorkOrder.totalCost,
             notes: tWorkOrder.notes,
             createdAt: tWorkOrder.createdAt,
+            serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
+            providerProfileId: tWorkOrder.providerProfileId,
+            openedBy: tWorkOrder.openedBy,
           ),
           expect: () => [
             isA<WorkOrdersState>().having(
@@ -1075,6 +1083,9 @@ void main() {
             totalCost: tWorkOrder.totalCost,
             notes: tWorkOrder.notes,
             createdAt: tWorkOrder.createdAt,
+            serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
+            providerProfileId: tWorkOrder.providerProfileId,
+            openedBy: tWorkOrder.openedBy,
           ),
           expect: () => [
             isA<WorkOrdersState>().having(
