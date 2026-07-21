@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -21,6 +22,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_t
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_service_provider_company_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
@@ -215,6 +217,12 @@ class _CreateUpdatePage extends HookWidget {
       return hasChanges;
     }
 
+    void onCompanyChanged(String? val) {
+      selectedServiceProviderCompanyId.value = val;
+      selectedProviderProfileId.value = null;
+      context.read<ServiceProvidersCubit>().selectCompany(val);
+    }
+
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
       if (!getHasChanges()) {
@@ -294,13 +302,48 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: ServiceProviderCompanyDropdown(
-          selectedCompanyId: selectedServiceProviderCompanyId.value,
-          onChanged: (val) {
-            selectedServiceProviderCompanyId.value = val;
-            selectedProviderProfileId.value = null;
-            context.read<ServiceProvidersCubit>().selectCompany(val);
-          },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: ServiceProviderCompanyDropdown(
+                selectedCompanyId: selectedServiceProviderCompanyId.value,
+                onChanged: onCompanyChanged,
+              ),
+            ),
+            gapW8,
+            BaseIconButton(
+              onPressed: () async {
+                final result = await CreateServiceProviderCompanyDialog.show(
+                  context,
+                );
+                if (result != null && context.mounted) {
+                  final sessionUser = context.read<SessionCubit>().state.user;
+                  final company = result.copyWith(
+                    companyId: sessionUser.companyId,
+                  );
+                  final cubit = context.read<ServiceProvidersCubit>();
+                  final success = await cubit.saveCompany(company);
+                  if (success && context.mounted) {
+                    final newCompany = cubit.state.companies.firstWhereOrNull(
+                      (c) => c.name == company.name,
+                    );
+                    if (newCompany != null) {
+                      onCompanyChanged(newCompany.id);
+                    }
+                  }
+                }
+              },
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.add,
+                cupertinoIcon: CupertinoIcons.add,
+              ),
+              permission: const ActionPermission(
+                resource: ResourceType.serviceProviders,
+                action: PermissionAction.create,
+              ),
+            ),
+          ],
         ),
       ),
       Padding(
