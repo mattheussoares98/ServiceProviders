@@ -51,7 +51,7 @@ final class ServiceProviderRemoteDataSourceImpl
       table: 'service_provider_companies',
       filters: [
         SupabaseFilter.eq('company_id', companyId),
-        SupabaseFilter.isFilter('deleted_at', null),
+        SupabaseFilter.eq('is_active', true),
       ],
     );
     return response.map(ServiceProviderCompanyResponseModel.fromJson).toList();
@@ -65,7 +65,7 @@ final class ServiceProviderRemoteDataSourceImpl
       table: 'service_provider_companies',
       filters: [
         SupabaseFilter.eq('id', id),
-        SupabaseFilter.isFilter('deleted_at', null),
+        SupabaseFilter.eq('is_active', true),
       ],
     );
     if (response == null) {
