@@ -27,6 +27,8 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_up
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/priority_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/programmed_data.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_company_dropdown.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_profile_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/try_again_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_status_dropdown.dart';
@@ -148,6 +150,8 @@ class _CreateUpdatePage extends HookWidget {
     final initialType = workOrder?.type ?? WorkOrderType.corrective;
     final initialStatus = workOrder?.status ?? WorkOrderStatus.open;
     final initialScheduledDate = workOrder?.scheduledDate;
+    final initialServiceProviderCompanyId = workOrder?.serviceProviderCompanyId;
+    final initialProviderProfileId = workOrder?.providerProfileId;
 
     final titleController = useTextEditingController(text: initialTitle);
     final descController = useTextEditingController(text: initialDescription);
@@ -159,10 +163,25 @@ class _CreateUpdatePage extends HookWidget {
     final selectedType = useState<WorkOrderType>(initialType);
     final selectedStatus = useState<WorkOrderStatus>(initialStatus);
     final selectedScheduledDate = useState<DateTime?>(initialScheduledDate);
+    final selectedServiceProviderCompanyId = useState<String?>(
+      initialServiceProviderCompanyId,
+    );
+    final selectedProviderProfileId = useState<String?>(
+      initialProviderProfileId,
+    );
 
     final titleFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
     final durationFocusNode = useFocusNode();
+
+    useEffect(() {
+      if (initialServiceProviderCompanyId != null) {
+        context.read<ServiceProvidersCubit>().selectCompany(
+          initialServiceProviderCompanyId,
+        );
+      }
+      return null;
+    }, [initialServiceProviderCompanyId]);
 
     bool getHasChanges() {
       final attachmentsState = context.read<AttachmentsCubit>().state;
@@ -188,7 +207,10 @@ class _CreateUpdatePage extends HookWidget {
           selectedPriority.value != initialPriority ||
           selectedType.value != initialType ||
           selectedStatus.value != initialStatus ||
-          selectedScheduledDate.value != initialScheduledDate;
+          selectedScheduledDate.value != initialScheduledDate ||
+          selectedServiceProviderCompanyId.value !=
+              initialServiceProviderCompanyId ||
+          selectedProviderProfileId.value != initialProviderProfileId;
 
       return hasChanges;
     }
@@ -238,6 +260,8 @@ class _CreateUpdatePage extends HookWidget {
         startedAt: workOrder?.startedAt,
         totalCost: workOrder?.totalCost,
         attachmentsCubit: context.read<AttachmentsCubit>(),
+        serviceProviderCompanyId: selectedServiceProviderCompanyId.value,
+        providerProfileId: selectedProviderProfileId.value,
       );
       if (succeeds && context.mounted) {
         Navigator.of(context).pop(true);
@@ -266,6 +290,24 @@ class _CreateUpdatePage extends HookWidget {
         child: ResponsibleDropdown(
           onChanged: (val) => selectedAssignedToId.value = val,
           responsibleId: selectedAssignedToId.value,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: ServiceProviderCompanyDropdown(
+          selectedCompanyId: selectedServiceProviderCompanyId.value,
+          onChanged: (val) {
+            selectedServiceProviderCompanyId.value = val;
+            selectedProviderProfileId.value = null;
+            context.read<ServiceProvidersCubit>().selectCompany(val);
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: ServiceProviderProfileDropdown(
+          selectedProfileId: selectedProviderProfileId.value,
+          onChanged: (val) => selectedProviderProfileId.value = val,
         ),
       ),
       Padding(
