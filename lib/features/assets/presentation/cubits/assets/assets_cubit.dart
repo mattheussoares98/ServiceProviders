@@ -21,13 +21,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
   Future<void> loadAssets({bool emitLoading = true}) async {
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError, assets: []));
-      return;
-    }
+
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
@@ -76,19 +70,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     final isUpdate = id != null;
     final now = DateTime.now();
     final companyId = _useCases.getSessionUser().companyId;
-
-    if (companyId.isEmpty) {
-      emit(
-        state.copyWith(
-          status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
-        ),
-      );
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      return false;
-    }
 
     final asset = AssetEntity(
       id: id ?? const Uuid().v4(),

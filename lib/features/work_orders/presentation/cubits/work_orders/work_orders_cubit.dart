@@ -36,19 +36,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     WorkOrderFilter? filter,
   }) async {
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(
-        state.copyWith(
-          status: StateStatus.loadingError,
-          workOrders: [],
-          changeRequests: [],
-        ),
-      );
-      return;
-    }
 
     final activeFilter = filter ?? state.activeFilter;
 
@@ -106,7 +93,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     // when multiple scroll trigger events fire within a short timeframe.
     if (!state.hasMorePages || state.isLoadingMore) return;
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) return;
 
     emit(state.copyWith(isLoadingMore: true));
 
@@ -185,19 +171,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final isUpdate = id != null && state.workOrders.any((e) => e.id == id);
     final now = DateTime.now();
     final companyId = _useCases.getSessionUser().companyId;
-
-    if (companyId.isEmpty) {
-      emit(
-        state.copyWith(
-          status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
-        ),
-      );
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      return false;
-    }
 
     final computedStartedAt =
         startedAt ?? (status == WorkOrderStatus.inProgress ? now : null);

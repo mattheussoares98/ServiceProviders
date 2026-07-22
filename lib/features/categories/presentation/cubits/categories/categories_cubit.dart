@@ -18,13 +18,6 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
 
   Future<void> loadCategories({bool emitLoading = true}) async {
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError, categories: []));
-      return;
-    }
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -62,14 +55,6 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     final isUpdate = id != null;
     final now = DateTime.now();
     final companyId = _useCases.getSessionUser().companyId;
-
-    if (companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError));
-      return false;
-    }
 
     final category = CategoryEntity(
       id: id ?? const Uuid().v4(),

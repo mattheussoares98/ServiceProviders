@@ -17,14 +17,6 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
 
   Future<bool> invite({required String email, required String groupId}) async {
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError));
-      //TODO instead of treat it inside a lot of different methods, centralize it
-      return false;
-    }
 
     emit(state.copyWith(status: StateStatus.loading));
 

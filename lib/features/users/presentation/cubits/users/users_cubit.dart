@@ -26,13 +26,6 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   Future<void> loadUsers({bool emitLoading = true}) async {
     final sessionUser = _useCases.getSessionUser();
-    if (sessionUser.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError, users: []));
-      return;
-    }
 
     if (emitLoading && !isClosed) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -60,15 +53,6 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   Future<void> loadPermissionGroups({bool emitLoading = true}) async {
     final sessionUser = _useCases.getSessionUser();
-    if (sessionUser.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(
-        state.copyWith(status: StateStatus.loadingError, permissionGroups: []),
-      );
-      return;
-    }
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -97,13 +81,6 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   Future<void> loadInvitations({bool emitLoading = true}) async {
     final sessionUser = _useCases.getSessionUser();
-    if (sessionUser.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError, invitations: []));
-      return;
-    }
 
     if (emitLoading && !isClosed) {
       emit(state.copyWith(status: StateStatus.loading));

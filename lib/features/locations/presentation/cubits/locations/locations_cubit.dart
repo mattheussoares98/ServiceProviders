@@ -20,13 +20,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
     final user = _useCases.getSessionUser();
-    if (user.companyId.isEmpty) {
-      showErrorToast(
-        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
-      );
-      emit(state.copyWith(status: StateStatus.loadingError, locations: []));
-      return;
-    }
 
     emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
 
