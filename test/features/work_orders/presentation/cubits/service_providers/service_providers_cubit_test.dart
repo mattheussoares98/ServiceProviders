@@ -1,8 +1,11 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_companies_use_case.dart';
@@ -10,8 +13,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
+import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 
 class MockGetServiceProviderCompaniesUseCase extends Mock
@@ -32,6 +37,8 @@ class MockCreateServiceProviderProfileUseCase extends Mock
 class MockUpdateServiceProviderProfileUseCase extends Mock
     implements UpdateServiceProviderProfileUseCase {}
 
+class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
+
 void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
@@ -39,7 +46,9 @@ void main() {
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
   late MockUpdateServiceProviderProfileUseCase mockUpdateProfile;
+  late MockGetSessionUserUseCase mockGetSessionUser;
   late ServiceProvidersCubit cubit;
+  late MockNavigationClient mockNavigationClient;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -53,6 +62,10 @@ void main() {
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
     mockUpdateProfile = MockUpdateServiceProviderProfileUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     cubit = ServiceProvidersCubit(
       getCompanies: mockGetCompanies,
@@ -61,37 +74,43 @@ void main() {
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
       updateProfile: mockUpdateProfile,
+      getSessionUser: mockGetSessionUser,
     );
   });
+
+  tearDown(GetIt.I.reset);
 
   group('ServiceProvidersCubit', () {
     test('initial state should be empty', () {
       expect(cubit.state, const ServiceProvidersState.initial());
     });
 
-    blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-      'loadCompanies should fetch companies and emit loaded',
-      build: () {
-        when(() => mockGetCompanies.call(any())).thenAnswer(
-          (_) async => SuccessState(
-            data: [EntityFactory.makeServiceProviderCompanyEntity()],
+    group('Load companies', () {
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'loadCompanies should fetch companies and emit loaded',
+        build: () {
+          when(() => mockGetCompanies.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.loadCompanies(faker.guid.guid()),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
           ),
-        );
-        return cubit;
-      },
-      act: (cubit) => cubit.loadCompanies(faker.guid.guid()),
-      expect: () => [
-        isA<ServiceProvidersState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
-        isA<ServiceProvidersState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
-            .having((s) => s.companies, 'companies', isNotEmpty),
-      ],
-    );
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies, 'companies', isNotEmpty),
+        ],
+      );
+    });
 
+    group('Select company', () {});
     blocTest<ServiceProvidersCubit, ServiceProvidersState>(
       'selectCompany should load profiles and emit loaded',
       build: () {
@@ -112,18 +131,118 @@ void main() {
             .having((s) => s.profiles, 'profiles', isNotEmpty),
       ],
     );
+    group('Select profile', () {
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'selectProfile should update selectedProfileId',
+        build: () => cubit,
+        act: (cubit) => cubit.selectProfile('some-profile-id'),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.selectedProfileId,
+            'selectedProfileId',
+            'some-profile-id',
+          ),
+        ],
+      );
+    });
 
-    blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-      'selectProfile should update selectedProfileId',
-      build: () => cubit,
-      act: (cubit) => cubit.selectProfile('some-profile-id'),
-      expect: () => [
-        isA<ServiceProvidersState>().having(
-          (s) => s.selectedProfileId,
-          'selectedProfileId',
-          'some-profile-id',
+    group('Save company', () {
+      final user = EntityFactory.makeUserProfileEntity();
+      final name = faker.company.name();
+      final contactEmail = faker.internet.email();
+      final contactPhone = faker.randomGenerator.integer(99999999).toString();
+      const document = '12345678901';
+      const documentType = 'cpf';
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany success should create company, call loadCompanies, and return true',
+        build: () {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(
+            () => mockCreateCompany.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.saveCompany(
+          name: name,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          document: document,
+          documentType: documentType,
         ),
-      ],
-    );
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies, 'companies', isNotEmpty),
+        ],
+        verify: (cubit) {
+          verify(
+            () => mockCreateCompany.call(
+              any(
+                that: isA<ServiceProviderCompanyEntity>()
+                    .having((e) => e.name, 'name', name)
+                    .having((e) => e.contactEmail, 'contactEmail', contactEmail)
+                    .having((e) => e.contactPhone, 'contactPhone', contactPhone)
+                    .having((e) => e.document, 'document', document)
+                    .having((e) => e.documentType, 'documentType', documentType)
+                    .having((e) => e.companyId, 'companyId', user.companyId),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany failure should emit savingError state',
+        build: () {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(() => mockCreateCompany.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Error saving company'),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.saveCompany(name: name),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Error saving company',
+              ),
+        ],
+        verify: (cubit) {
+          verify(
+            () => mockCreateCompany.call(
+              any(
+                that: isA<ServiceProviderCompanyEntity>()
+                    .having((e) => e.name, 'name', name)
+                    .having((e) => e.companyId, 'companyId', user.companyId),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+    });
   });
 }

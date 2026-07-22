@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
@@ -10,6 +11,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
 
@@ -22,12 +24,14 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required UpdateServiceProviderCompanyUseCase updateCompany,
     required CreateServiceProviderProfileUseCase createProfile,
     required UpdateServiceProviderProfileUseCase updateProfile,
+    required GetSessionUserUseCase getSessionUser,
   }) : _getCompanies = getCompanies,
        _getProfiles = getProfiles,
        _createCompany = createCompany,
        _updateCompany = updateCompany,
        _createProfile = createProfile,
        _updateProfile = updateProfile,
+       _getSessionUser = getSessionUser,
        super(const ServiceProvidersState.initial());
 
   final GetServiceProviderCompaniesUseCase _getCompanies;
@@ -36,6 +40,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   final UpdateServiceProviderCompanyUseCase _updateCompany;
   final CreateServiceProviderProfileUseCase _createProfile;
   final UpdateServiceProviderProfileUseCase _updateProfile;
+  final GetSessionUserUseCase _getSessionUser;
 
   Future<void> loadCompanies(String companyId) async {
     emit(state.copyWith(status: StateStatus.loading));
@@ -114,14 +119,31 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     }
   }
 
-  Future<bool> saveCompany(ServiceProviderCompanyEntity company) async {
+  Future<bool> saveCompany({
+    required String name,
+    String? contactEmail,
+    String? contactPhone,
+    String? document,
+    String? documentType,
+  }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final isUpdate =
-        company.id.isNotEmpty && state.companies.any((e) => e.id == company.id);
+    final user = _getSessionUser();
+    final now = DateTime.now();
 
-    final result = isUpdate
-        ? await _updateCompany.call(company)
-        : await _createCompany.call(company);
+    final company = ServiceProviderCompanyEntity(
+      id: const Uuid().v4(),
+      companyId: user.companyId,
+      name: name,
+      contactEmail: contactEmail,
+      contactPhone: contactPhone,
+      document: document,
+      documentType: documentType,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    final result = await _createCompany.call(company);
 
     if (isClosed) return false;
 

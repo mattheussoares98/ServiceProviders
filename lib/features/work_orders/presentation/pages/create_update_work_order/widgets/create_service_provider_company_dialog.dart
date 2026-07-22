@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
@@ -46,35 +44,30 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
 
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
-      final now = DateTime.now();
-      final result = ServiceProviderCompanyEntity(
-        id: '', //TODO move this to the cubit
-        companyId: '', // Will be set by the calling side before save
-        name: nameController.text.trim(),
-        contactEmail: emailController.text.trim().isEmpty
-            ? null
-            : emailController.text.trim(),
-        contactPhone: phoneController.text.trim().isEmpty
-            ? null
-            : phoneController.text.trim(),
-        document: documentController.text.trim().isEmpty
-            ? null
-            : documentController.text.trim(),
-        documentType: documentType.value,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
-      );
+      final name = nameController.text.trim();
+      final contactEmail = emailController.text.trim().isEmpty
+          ? null
+          : emailController.text.trim();
+      final contactPhone = phoneController.text.trim().isEmpty
+          ? null
+          : phoneController.text.trim();
+      final document = documentController.text.trim().isEmpty
+          ? null
+          : documentController.text.trim();
+      final docType = documentType.value;
 
-      //TODO should save in the CreateServiceProviderCompanyDialog to avoid losing the data then it throws
       if (context.mounted) {
-        final sessionUser = context.read<SessionCubit>().state.user;
-        final company = result.copyWith(companyId: sessionUser.companyId);
         final cubit = context.read<ServiceProvidersCubit>();
-        final success = await cubit.saveCompany(company);
+        final success = await cubit.saveCompany(
+          name: name,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          document: document,
+          documentType: docType,
+        );
         if (success && context.mounted) {
           final newCompany = cubit.state.companies.firstWhereOrNull(
-            (c) => c.name == company.name,
+            (c) => c.name == name,
           );
           if (newCompany != null) {
             onCompanyChanged(newCompany.id);
