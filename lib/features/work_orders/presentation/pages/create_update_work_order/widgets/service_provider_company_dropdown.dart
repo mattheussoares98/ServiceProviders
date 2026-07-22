@@ -18,9 +18,10 @@ class ServiceProviderCompanyDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final companies = context.select<ServiceProvidersCubit, List<ServiceProviderCompanyEntity>>(
-      (cubit) => cubit.state.companies,
-    );
+    final companies = context
+        .select<ServiceProvidersCubit, List<ServiceProviderCompanyEntity>>(
+          (cubit) => cubit.state.companies,
+        );
 
     final dropdownItems = companies
         .map(
@@ -33,7 +34,7 @@ class ServiceProviderCompanyDropdown extends StatelessWidget {
 
     return BaseDropDown<String?>(
       key: const ValueKey('ServiceProviderCompany'),
-      label: 'Prestador de Serviços (empresa)'.hardcoded,
+      label: 'Empresa prestadora do serviço'.hardcoded,
       showLabelAtTopLeft: true,
       selectedItem: selectedCompanyId,
       items: dropdownItems,
