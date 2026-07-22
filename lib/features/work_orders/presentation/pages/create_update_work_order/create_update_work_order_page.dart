@@ -325,26 +325,10 @@ class _CreateUpdatePage extends HookWidget {
             gapW8,
             BaseIconButton(
               onPressed: () async {
-                final result = await CreateServiceProviderCompanyDialog.show(
+                await CreateServiceProviderCompanyDialog.show(
                   context,
+                  onCompanyChanged: onCompanyChanged,
                 );
-                //TODO should save in the CreateServiceProviderCompanyDialog to avoid losing the data then it throws
-                if (result != null && context.mounted) {
-                  final sessionUser = context.read<SessionCubit>().state.user;
-                  final company = result.copyWith(
-                    companyId: sessionUser.companyId,
-                  );
-                  final cubit = context.read<ServiceProvidersCubit>();
-                  final success = await cubit.saveCompany(company);
-                  if (success && context.mounted) {
-                    final newCompany = cubit.state.companies.firstWhereOrNull(
-                      (c) => c.name == company.name,
-                    );
-                    if (newCompany != null) {
-                      onCompanyChanged(newCompany.id);
-                    }
-                  }
-                }
               },
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.add,
