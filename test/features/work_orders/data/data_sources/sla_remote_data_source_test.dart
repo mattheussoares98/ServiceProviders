@@ -94,4 +94,42 @@ void main() {
       expect(result, isA<FailureState<dynamic>>());
     });
   });
+
+  group('createSlaPolicy', () {
+    test(
+      'should return SuccessState(true) when insertion is successful',
+      () async {
+        when(
+          () => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          ),
+        ).thenAnswer((_) async => [tSlaPolicyModel.toJson()]);
+
+        final result = await dataSource.createSlaPolicy(tSlaPolicyModel);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockDatabase.insert(
+            table: 'sla_policies',
+            values: any(named: 'values'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return FailureState when insertion fails', () async {
+      when(
+        () => mockDatabase.insert(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+        ),
+      ).thenThrow(Exception('DB error'));
+
+      final result = await dataSource.createSlaPolicy(tSlaPolicyModel);
+
+      expect(result, isA<FailureState<dynamic>>());
+    });
+  });
 }

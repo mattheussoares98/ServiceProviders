@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/sla_po
 abstract interface class SlaRemoteDataSource {
   FutureList<SlaPolicyModel> getSlaPolicies(String companyId);
   FutureData<SlaPolicyModel> getSlaPolicyById(String id);
+  FutureBool createSlaPolicy(SlaPolicyModel model);
 }
 
 @LazySingleton(as: SlaRemoteDataSource)
@@ -45,6 +46,16 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
           throw _NotFoundException('Política de SLA não encontrada'.hardcoded);
         }
         return SlaPolicyModel.fromJson(response);
+      });
+
+  @override
+  FutureBool createSlaPolicy(SlaPolicyModel model) =>
+      SupabaseHandler.call(() async {
+        await _database.insert(
+          table: 'sla_policies',
+          values: model.toJson(),
+        );
+        return true;
       });
 }
 
