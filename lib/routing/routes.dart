@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:o_jogo_da_obra/routing/guards/admin_guard.dart';
 import 'package:o_jogo_da_obra/routing/guards/authenticated_guard.dart';
+import 'package:o_jogo_da_obra/routing/guards/company_guard.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
@@ -31,6 +32,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           path: '',
           page: HomeTabsRoute.page,
+          guards: const [CompanyGuard()],
           children: [
             AutoRoute(page: DashboardRoute.page, path: kDashboardSubPath),
             AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
