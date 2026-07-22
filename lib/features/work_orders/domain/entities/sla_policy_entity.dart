@@ -22,6 +22,28 @@ class SlaPolicyEntity extends Equatable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  SlaPolicyEntity copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    int? targetHours,
+    SlaAppliesTo? appliesTo,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? Function()? deletedAt,
+  }) {
+    return SlaPolicyEntity(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      targetHours: targetHours ?? this.targetHours,
+      appliesTo: appliesTo ?? this.appliesTo,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt != null ? deletedAt() : this.deletedAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,
