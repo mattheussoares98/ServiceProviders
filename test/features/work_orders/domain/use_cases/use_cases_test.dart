@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_r
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policy_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
@@ -53,6 +54,7 @@ void main() {
 
   late GetSlaPoliciesUseCase getSlaPoliciesUseCase;
   late GetSlaPolicyByIdUseCase getSlaPolicyByIdUseCase;
+  late CreateSlaPolicyUseCase createSlaPolicyUseCase;
   late GetPauseReasonsUseCase getPauseReasonsUseCase;
   late GetPauseRequestsUseCase getPauseRequestsUseCase;
   late RequestPauseUseCase requestPauseUseCase;
@@ -130,6 +132,9 @@ void main() {
       slaRepository: mockSlaRepository,
     );
     getSlaPolicyByIdUseCase = GetSlaPolicyByIdUseCase(
+      slaRepository: mockSlaRepository,
+    );
+    createSlaPolicyUseCase = CreateSlaPolicyUseCase(
       slaRepository: mockSlaRepository,
     );
     getPauseReasonsUseCase = GetPauseReasonsUseCase(
@@ -619,6 +624,22 @@ void main() {
       expect(result, isA<SuccessState<dynamic>>());
       expect(result.data, tSlaPolicy);
       verify(() => mockSlaRepository.getSlaPolicyById(tId)).called(1);
+    });
+  });
+
+  group('CreateSlaPolicyUseCase', () {
+    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+
+    test('should return true on success', () async {
+      when(
+        () => mockSlaRepository.createSlaPolicy(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await createSlaPolicyUseCase(tSlaPolicy);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockSlaRepository.createSlaPolicy(tSlaPolicy)).called(1);
     });
   });
 
