@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
@@ -22,12 +23,16 @@ class MockGetSlaPoliciesUseCase extends Mock implements GetSlaPoliciesUseCase {}
 class MockGetSlaPolicyByIdUseCase extends Mock
     implements GetSlaPolicyByIdUseCase {}
 
+class MockCreateSlaPolicyUseCase extends Mock
+    implements CreateSlaPolicyUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSlaPoliciesUseCase mockGetSlaPolicies;
   late MockGetSlaPolicyByIdUseCase mockGetSlaPolicyById;
+  late MockCreateSlaPolicyUseCase mockCreateSlaPolicy;
   late MockNavigationClient mockNavigationClient;
 
   late SlaPoliciesCubit cubit;
@@ -41,6 +46,7 @@ void main() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetSlaPolicies = MockGetSlaPoliciesUseCase();
     mockGetSlaPolicyById = MockGetSlaPolicyByIdUseCase();
+    mockCreateSlaPolicy = MockCreateSlaPolicyUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -52,6 +58,7 @@ void main() {
       getSessionUser: mockGetSessionUser,
       getSlaPolicies: mockGetSlaPolicies,
       getSlaPolicyById: mockGetSlaPolicyById,
+      createSlaPolicy: mockCreateSlaPolicy,
     );
 
     cubit = SlaPoliciesCubit(useCases: useCases);
@@ -161,6 +168,71 @@ void main() {
             isNull,
           ),
         ],
+      );
+    });
+
+    group('saveSlaPolicy', () {
+      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should emit saving and loaded, and reload policies when creation succeeds',
+        build: () {
+          when(
+            () => mockCreateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
+          return cubit;
+        },
+        act: (cubit) => cubit.saveSlaPolicy(tPolicy),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockCreateSlaPolicy.call(tPolicy)).called(1);
+          verify(
+            () => mockGetSlaPolicies.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should emit saving and savingError when creation fails',
+        build: () {
+          when(
+            () => mockCreateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error creating'));
+          return cubit;
+        },
+        act: (cubit) => cubit.saveSlaPolicy(tPolicy),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<SlaPoliciesState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error creating'),
+        ],
+        verify: (_) {
+          verify(() => mockCreateSlaPolicy.call(tPolicy)).called(1);
+        },
       );
     });
   });

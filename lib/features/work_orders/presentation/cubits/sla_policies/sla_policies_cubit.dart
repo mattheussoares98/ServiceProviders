@@ -60,4 +60,25 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       emit(state.copyWith(annulSelectedSlaPolicy: true));
     }
   }
+
+  Future<bool> saveSlaPolicy(SlaPolicyEntity policy) async {
+    emit(state.copyWith(status: StateStatus.saving));
+    final result = await _useCases.createSlaPolicy(policy);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      await loadSlaPolicies(emitLoading: false);
+      return true;
+    } else {
+      //TODO test this
+      final message =
+          result.message ?? 'Erro ao criar política de SLA'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
 }
