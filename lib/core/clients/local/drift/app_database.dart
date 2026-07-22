@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.d
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/pause_reasons_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/permission_groups_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sectors_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sla_policies_table.dart';
@@ -57,6 +58,7 @@ part 'app_database.g.dart';
     SlaPolicies,
     PauseReasons,
     WorkOrderPauseRequests,
+    Sectors,
   ],
 )
 @LazySingleton()
@@ -65,7 +67,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -142,6 +144,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(workOrders, workOrders.slaDeadlineAt);
         await m.addColumn(workOrders, workOrders.slaBreached);
         await m.addColumn(workOrders, workOrders.netActiveDuration);
+      }
+      if (from < 13) {
+        await m.createTable(sectors);
+        await m.deleteTable('work_order_pause_requests');
+        await m.createTable(workOrderPauseRequests);
       }
     },
   );

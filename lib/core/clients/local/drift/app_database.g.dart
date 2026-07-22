@@ -15524,6 +15524,413 @@ class PauseReasonsCompanion extends UpdateCompanion<PauseReason> {
   }
 }
 
+class $SectorsTable extends Sectors with TableInfo<$SectorsTable, Sector> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SectorsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    name,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sectors';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Sector> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Sector map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Sector(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $SectorsTable createAlias(String alias) {
+    return $SectorsTable(attachedDatabase, alias);
+  }
+}
+
+class Sector extends DataClass implements Insertable<Sector> {
+  final String id;
+  final String companyId;
+  final String name;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const Sector({
+    required this.id,
+    required this.companyId,
+    required this.name,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  SectorsCompanion toCompanion(bool nullToAbsent) {
+    return SectorsCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      name: Value(name),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory Sector.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Sector(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  Sector copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => Sector(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    name: name ?? this.name,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  Sector copyWithCompanion(SectorsCompanion data) {
+    return Sector(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Sector(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, companyId, name, createdAt, updatedAt, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Sector &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class SectorsCompanion extends UpdateCompanion<Sector> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const SectorsCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SectorsCompanion.insert({
+    required String id,
+    required String companyId,
+    required String name,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       name = Value(name);
+  static Insertable<Sector> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SectorsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return SectorsCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SectorsCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
     with TableInfo<$WorkOrderPauseRequestsTable, WorkOrderPauseRequest> {
   @override
@@ -15628,14 +16035,19 @@ class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _sectorMeta = const VerificationMeta('sector');
+  static const VerificationMeta _sectorIdMeta = const VerificationMeta(
+    'sectorId',
+  );
   @override
-  late final GeneratedColumn<String> sector = GeneratedColumn<String>(
-    'sector',
+  late final GeneratedColumn<String> sectorId = GeneratedColumn<String>(
+    'sector_id',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES sectors (id) ON DELETE SET NULL',
+    ),
   );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
@@ -15743,7 +16155,7 @@ class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
     customReason,
     observation,
     responsibility,
-    sector,
+    sectorId,
     status,
     pausedAt,
     resumedAt,
@@ -15833,10 +16245,10 @@ class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
     } else if (isInserting) {
       context.missing(_responsibilityMeta);
     }
-    if (data.containsKey('sector')) {
+    if (data.containsKey('sector_id')) {
       context.handle(
-        _sectorMeta,
-        sector.isAcceptableOrUnknown(data['sector']!, _sectorMeta),
+        _sectorIdMeta,
+        sectorId.isAcceptableOrUnknown(data['sector_id']!, _sectorIdMeta),
       );
     }
     if (data.containsKey('status')) {
@@ -15938,9 +16350,9 @@ class $WorkOrderPauseRequestsTable extends WorkOrderPauseRequests
         DriftSqlType.string,
         data['${effectivePrefix}responsibility'],
       )!,
-      sector: attachedDatabase.typeMapping.read(
+      sectorId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}sector'],
+        data['${effectivePrefix}sector_id'],
       ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -15993,7 +16405,7 @@ class WorkOrderPauseRequest extends DataClass
   final String? customReason;
   final String? observation;
   final String responsibility;
-  final String? sector;
+  final String? sectorId;
   final String status;
   final DateTime pausedAt;
   final DateTime? resumedAt;
@@ -16011,7 +16423,7 @@ class WorkOrderPauseRequest extends DataClass
     this.customReason,
     this.observation,
     required this.responsibility,
-    this.sector,
+    this.sectorId,
     required this.status,
     required this.pausedAt,
     this.resumedAt,
@@ -16040,8 +16452,8 @@ class WorkOrderPauseRequest extends DataClass
       map['observation'] = Variable<String>(observation);
     }
     map['responsibility'] = Variable<String>(responsibility);
-    if (!nullToAbsent || sector != null) {
-      map['sector'] = Variable<String>(sector);
+    if (!nullToAbsent || sectorId != null) {
+      map['sector_id'] = Variable<String>(sectorId);
     }
     map['status'] = Variable<String>(status);
     map['paused_at'] = Variable<DateTime>(pausedAt);
@@ -16078,9 +16490,9 @@ class WorkOrderPauseRequest extends DataClass
           ? const Value.absent()
           : Value(observation),
       responsibility: Value(responsibility),
-      sector: sector == null && nullToAbsent
+      sectorId: sectorId == null && nullToAbsent
           ? const Value.absent()
-          : Value(sector),
+          : Value(sectorId),
       status: Value(status),
       pausedAt: Value(pausedAt),
       resumedAt: resumedAt == null && nullToAbsent
@@ -16112,7 +16524,7 @@ class WorkOrderPauseRequest extends DataClass
       customReason: serializer.fromJson<String?>(json['customReason']),
       observation: serializer.fromJson<String?>(json['observation']),
       responsibility: serializer.fromJson<String>(json['responsibility']),
-      sector: serializer.fromJson<String?>(json['sector']),
+      sectorId: serializer.fromJson<String?>(json['sectorId']),
       status: serializer.fromJson<String>(json['status']),
       pausedAt: serializer.fromJson<DateTime>(json['pausedAt']),
       resumedAt: serializer.fromJson<DateTime?>(json['resumedAt']),
@@ -16137,7 +16549,7 @@ class WorkOrderPauseRequest extends DataClass
       'customReason': serializer.toJson<String?>(customReason),
       'observation': serializer.toJson<String?>(observation),
       'responsibility': serializer.toJson<String>(responsibility),
-      'sector': serializer.toJson<String?>(sector),
+      'sectorId': serializer.toJson<String?>(sectorId),
       'status': serializer.toJson<String>(status),
       'pausedAt': serializer.toJson<DateTime>(pausedAt),
       'resumedAt': serializer.toJson<DateTime?>(resumedAt),
@@ -16158,7 +16570,7 @@ class WorkOrderPauseRequest extends DataClass
     Value<String?> customReason = const Value.absent(),
     Value<String?> observation = const Value.absent(),
     String? responsibility,
-    Value<String?> sector = const Value.absent(),
+    Value<String?> sectorId = const Value.absent(),
     String? status,
     DateTime? pausedAt,
     Value<DateTime?> resumedAt = const Value.absent(),
@@ -16178,7 +16590,7 @@ class WorkOrderPauseRequest extends DataClass
     customReason: customReason.present ? customReason.value : this.customReason,
     observation: observation.present ? observation.value : this.observation,
     responsibility: responsibility ?? this.responsibility,
-    sector: sector.present ? sector.value : this.sector,
+    sectorId: sectorId.present ? sectorId.value : this.sectorId,
     status: status ?? this.status,
     pausedAt: pausedAt ?? this.pausedAt,
     resumedAt: resumedAt.present ? resumedAt.value : this.resumedAt,
@@ -16212,7 +16624,7 @@ class WorkOrderPauseRequest extends DataClass
       responsibility: data.responsibility.present
           ? data.responsibility.value
           : this.responsibility,
-      sector: data.sector.present ? data.sector.value : this.sector,
+      sectorId: data.sectorId.present ? data.sectorId.value : this.sectorId,
       status: data.status.present ? data.status.value : this.status,
       pausedAt: data.pausedAt.present ? data.pausedAt.value : this.pausedAt,
       resumedAt: data.resumedAt.present ? data.resumedAt.value : this.resumedAt,
@@ -16241,7 +16653,7 @@ class WorkOrderPauseRequest extends DataClass
           ..write('customReason: $customReason, ')
           ..write('observation: $observation, ')
           ..write('responsibility: $responsibility, ')
-          ..write('sector: $sector, ')
+          ..write('sectorId: $sectorId, ')
           ..write('status: $status, ')
           ..write('pausedAt: $pausedAt, ')
           ..write('resumedAt: $resumedAt, ')
@@ -16264,7 +16676,7 @@ class WorkOrderPauseRequest extends DataClass
     customReason,
     observation,
     responsibility,
-    sector,
+    sectorId,
     status,
     pausedAt,
     resumedAt,
@@ -16286,7 +16698,7 @@ class WorkOrderPauseRequest extends DataClass
           other.customReason == this.customReason &&
           other.observation == this.observation &&
           other.responsibility == this.responsibility &&
-          other.sector == this.sector &&
+          other.sectorId == this.sectorId &&
           other.status == this.status &&
           other.pausedAt == this.pausedAt &&
           other.resumedAt == this.resumedAt &&
@@ -16307,7 +16719,7 @@ class WorkOrderPauseRequestsCompanion
   final Value<String?> customReason;
   final Value<String?> observation;
   final Value<String> responsibility;
-  final Value<String?> sector;
+  final Value<String?> sectorId;
   final Value<String> status;
   final Value<DateTime> pausedAt;
   final Value<DateTime?> resumedAt;
@@ -16326,7 +16738,7 @@ class WorkOrderPauseRequestsCompanion
     this.customReason = const Value.absent(),
     this.observation = const Value.absent(),
     this.responsibility = const Value.absent(),
-    this.sector = const Value.absent(),
+    this.sectorId = const Value.absent(),
     this.status = const Value.absent(),
     this.pausedAt = const Value.absent(),
     this.resumedAt = const Value.absent(),
@@ -16346,7 +16758,7 @@ class WorkOrderPauseRequestsCompanion
     this.customReason = const Value.absent(),
     this.observation = const Value.absent(),
     required String responsibility,
-    this.sector = const Value.absent(),
+    this.sectorId = const Value.absent(),
     required String status,
     required DateTime pausedAt,
     this.resumedAt = const Value.absent(),
@@ -16371,7 +16783,7 @@ class WorkOrderPauseRequestsCompanion
     Expression<String>? customReason,
     Expression<String>? observation,
     Expression<String>? responsibility,
-    Expression<String>? sector,
+    Expression<String>? sectorId,
     Expression<String>? status,
     Expression<DateTime>? pausedAt,
     Expression<DateTime>? resumedAt,
@@ -16391,7 +16803,7 @@ class WorkOrderPauseRequestsCompanion
       if (customReason != null) 'custom_reason': customReason,
       if (observation != null) 'observation': observation,
       if (responsibility != null) 'responsibility': responsibility,
-      if (sector != null) 'sector': sector,
+      if (sectorId != null) 'sector_id': sectorId,
       if (status != null) 'status': status,
       if (pausedAt != null) 'paused_at': pausedAt,
       if (resumedAt != null) 'resumed_at': resumedAt,
@@ -16413,7 +16825,7 @@ class WorkOrderPauseRequestsCompanion
     Value<String?>? customReason,
     Value<String?>? observation,
     Value<String>? responsibility,
-    Value<String?>? sector,
+    Value<String?>? sectorId,
     Value<String>? status,
     Value<DateTime>? pausedAt,
     Value<DateTime?>? resumedAt,
@@ -16433,7 +16845,7 @@ class WorkOrderPauseRequestsCompanion
       customReason: customReason ?? this.customReason,
       observation: observation ?? this.observation,
       responsibility: responsibility ?? this.responsibility,
-      sector: sector ?? this.sector,
+      sectorId: sectorId ?? this.sectorId,
       status: status ?? this.status,
       pausedAt: pausedAt ?? this.pausedAt,
       resumedAt: resumedAt ?? this.resumedAt,
@@ -16473,8 +16885,8 @@ class WorkOrderPauseRequestsCompanion
     if (responsibility.present) {
       map['responsibility'] = Variable<String>(responsibility.value);
     }
-    if (sector.present) {
-      map['sector'] = Variable<String>(sector.value);
+    if (sectorId.present) {
+      map['sector_id'] = Variable<String>(sectorId.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -16517,7 +16929,7 @@ class WorkOrderPauseRequestsCompanion
           ..write('customReason: $customReason, ')
           ..write('observation: $observation, ')
           ..write('responsibility: $responsibility, ')
-          ..write('sector: $sector, ')
+          ..write('sectorId: $sectorId, ')
           ..write('status: $status, ')
           ..write('pausedAt: $pausedAt, ')
           ..write('resumedAt: $resumedAt, ')
@@ -16569,6 +16981,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $PauseReasonsTable pauseReasons = $PauseReasonsTable(this);
+  late final $SectorsTable sectors = $SectorsTable(this);
   late final $WorkOrderPauseRequestsTable workOrderPauseRequests =
       $WorkOrderPauseRequestsTable(this);
   late final Index idxPermissionGroupsCompany = Index(
@@ -16683,6 +17096,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_work_order_history_company',
     'CREATE INDEX idx_work_order_history_company ON work_order_history (company_id)',
   );
+  late final Index sectorsCompanyNameActiveIdx = Index(
+    'sectors_company_name_active_idx',
+    'CREATE UNIQUE INDEX sectors_company_name_active_idx ON sectors (company_id, name COLLATE NOCASE) WHERE deleted_at IS NULL',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -16711,6 +17128,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncAuditLogs,
     workOrderHistory,
     pauseReasons,
+    sectors,
     workOrderPauseRequests,
     idxPermissionGroupsCompany,
     idxUserProfilesCompany,
@@ -16740,6 +17158,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxSyncAuditLogsUser,
     idxWorkOrderHistoryWorkOrder,
     idxWorkOrderHistoryCompany,
+    sectorsCompanyNameActiveIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -17103,6 +17522,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         'companies',
         limitUpdateKind: UpdateKind.delete,
       ),
+      result: [TableUpdate('sectors', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
       result: [
         TableUpdate('work_order_pause_requests', kind: UpdateKind.delete),
       ],
@@ -17128,6 +17554,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'pause_reasons',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('work_order_pause_requests', kind: UpdateKind.update),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sectors',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [
@@ -17948,6 +18383,25 @@ final class $$CompaniesTableReferences
     );
   }
 
+  static MultiTypedResultKey<$SectorsTable, List<Sector>> _sectorsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.sectors,
+    aliasName: 'companies__id__sectors__company_id',
+  );
+
+  $$SectorsTableProcessedTableManager get sectorsRefs {
+    final manager = $$SectorsTableTableManager(
+      $_db,
+      $_db.sectors,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_sectorsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<
     $WorkOrderPauseRequestsTable,
     List<WorkOrderPauseRequest>
@@ -18492,6 +18946,31 @@ class $$CompaniesTableFilterComposer
           }) => $$PauseReasonsTableFilterComposer(
             $db: $db,
             $table: $db.pauseReasons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> sectorsRefs(
+    Expression<bool> Function($$SectorsTableFilterComposer f) f,
+  ) {
+    final $$SectorsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sectors,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SectorsTableFilterComposer(
+            $db: $db,
+            $table: $db.sectors,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -19092,6 +19571,31 @@ class $$CompaniesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> sectorsRefs<T extends Object>(
+    Expression<T> Function($$SectorsTableAnnotationComposer a) f,
+  ) {
+    final $$SectorsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sectors,
+      getReferencedColumn: (t) => t.companyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SectorsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sectors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> workOrderPauseRequestsRefs<T extends Object>(
     Expression<T> Function($$WorkOrderPauseRequestsTableAnnotationComposer a) f,
   ) {
@@ -19152,6 +19656,7 @@ class $$CompaniesTableTableManager
             bool syncAuditLogsRefs,
             bool workOrderHistoryRefs,
             bool pauseReasonsRefs,
+            bool sectorsRefs,
             bool workOrderPauseRequestsRefs,
           })
         > {
@@ -19239,6 +19744,7 @@ class $$CompaniesTableTableManager
                 syncAuditLogsRefs = false,
                 workOrderHistoryRefs = false,
                 pauseReasonsRefs = false,
+                sectorsRefs = false,
                 workOrderPauseRequestsRefs = false,
               }) {
                 return PrefetchHooks(
@@ -19264,6 +19770,7 @@ class $$CompaniesTableTableManager
                     if (syncAuditLogsRefs) db.syncAuditLogs,
                     if (workOrderHistoryRefs) db.workOrderHistory,
                     if (pauseReasonsRefs) db.pauseReasons,
+                    if (sectorsRefs) db.sectors,
                     if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
                   ],
                   addJoins: null,
@@ -19668,6 +20175,27 @@ class $$CompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (sectorsRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          Sector
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._sectorsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).sectorsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (workOrderPauseRequestsRefs)
                         await $_getPrefetchedData<
                           Company,
@@ -19729,6 +20257,7 @@ typedef $$CompaniesTableProcessedTableManager =
         bool syncAuditLogsRefs,
         bool workOrderHistoryRefs,
         bool pauseReasonsRefs,
+        bool sectorsRefs,
         bool workOrderPauseRequestsRefs,
       })
     >;
@@ -34152,6 +34681,447 @@ typedef $$PauseReasonsTableProcessedTableManager =
       PauseReason,
       PrefetchHooks Function({bool companyId, bool workOrderPauseRequestsRefs})
     >;
+typedef $$SectorsTableCreateCompanionBuilder =
+    SectorsCompanion Function({
+      required String id,
+      required String companyId,
+      required String name,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$SectorsTableUpdateCompanionBuilder =
+    SectorsCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> name,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$SectorsTableReferences
+    extends BaseReferences<_$AppDatabase, $SectorsTable, Sector> {
+  $$SectorsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) =>
+      db.companies.createAlias('sectors__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $WorkOrderPauseRequestsTable,
+    List<WorkOrderPauseRequest>
+  >
+  _workOrderPauseRequestsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderPauseRequests,
+        aliasName: 'sectors__id__work_order_pause_requests__sector_id',
+      );
+
+  $$WorkOrderPauseRequestsTableProcessedTableManager
+  get workOrderPauseRequestsRefs {
+    final manager = $$WorkOrderPauseRequestsTableTableManager(
+      $_db,
+      $_db.workOrderPauseRequests,
+    ).filter((f) => f.sectorId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderPauseRequestsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$SectorsTableFilterComposer
+    extends Composer<_$AppDatabase, $SectorsTable> {
+  $$SectorsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> workOrderPauseRequestsRefs(
+    Expression<bool> Function($$WorkOrderPauseRequestsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.sectorId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$SectorsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SectorsTable> {
+  $$SectorsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SectorsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SectorsTable> {
+  $$SectorsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> workOrderPauseRequestsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderPauseRequestsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderPauseRequestsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderPauseRequests,
+          getReferencedColumn: (t) => t.sectorId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderPauseRequestsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$SectorsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SectorsTable,
+          Sector,
+          $$SectorsTableFilterComposer,
+          $$SectorsTableOrderingComposer,
+          $$SectorsTableAnnotationComposer,
+          $$SectorsTableCreateCompanionBuilder,
+          $$SectorsTableUpdateCompanionBuilder,
+          (Sector, $$SectorsTableReferences),
+          Sector,
+          PrefetchHooks Function({
+            bool companyId,
+            bool workOrderPauseRequestsRefs,
+          })
+        > {
+  $$SectorsTableTableManager(_$AppDatabase db, $SectorsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SectorsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SectorsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SectorsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SectorsCompanion(
+                id: id,
+                companyId: companyId,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String name,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SectorsCompanion.insert(
+                id: id,
+                companyId: companyId,
+                name: name,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SectorsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({companyId = false, workOrderPauseRequestsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (companyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.companyId,
+                                    referencedTable: $$SectorsTableReferences
+                                        ._companyIdTable(db),
+                                    referencedColumn: $$SectorsTableReferences
+                                        ._companyIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (workOrderPauseRequestsRefs)
+                        await $_getPrefetchedData<
+                          Sector,
+                          $SectorsTable,
+                          WorkOrderPauseRequest
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SectorsTableReferences
+                              ._workOrderPauseRequestsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SectorsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderPauseRequestsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sectorId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$SectorsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SectorsTable,
+      Sector,
+      $$SectorsTableFilterComposer,
+      $$SectorsTableOrderingComposer,
+      $$SectorsTableAnnotationComposer,
+      $$SectorsTableCreateCompanionBuilder,
+      $$SectorsTableUpdateCompanionBuilder,
+      (Sector, $$SectorsTableReferences),
+      Sector,
+      PrefetchHooks Function({bool companyId, bool workOrderPauseRequestsRefs})
+    >;
 typedef $$WorkOrderPauseRequestsTableCreateCompanionBuilder =
     WorkOrderPauseRequestsCompanion Function({
       required String id,
@@ -34162,7 +35132,7 @@ typedef $$WorkOrderPauseRequestsTableCreateCompanionBuilder =
       Value<String?> customReason,
       Value<String?> observation,
       required String responsibility,
-      Value<String?> sector,
+      Value<String?> sectorId,
       required String status,
       required DateTime pausedAt,
       Value<DateTime?> resumedAt,
@@ -34183,7 +35153,7 @@ typedef $$WorkOrderPauseRequestsTableUpdateCompanionBuilder =
       Value<String?> customReason,
       Value<String?> observation,
       Value<String> responsibility,
-      Value<String?> sector,
+      Value<String?> sectorId,
       Value<String> status,
       Value<DateTime> pausedAt,
       Value<DateTime?> resumedAt,
@@ -34278,6 +35248,23 @@ final class $$WorkOrderPauseRequestsTableReferences
     );
   }
 
+  static $SectorsTable _sectorIdTable(_$AppDatabase db) => db.sectors
+      .createAlias('work_order_pause_requests__sector_id__sectors__id');
+
+  $$SectorsTableProcessedTableManager? get sectorId {
+    final $_column = $_itemColumn<String>('sector_id');
+    if ($_column == null) return null;
+    final manager = $$SectorsTableTableManager(
+      $_db,
+      $_db.sectors,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sectorIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
   static $UserProfilesTable _reviewedByIdTable(_$AppDatabase db) =>
       db.userProfiles.createAlias(
         'work_order_pause_requests__reviewed_by_id__user_profiles__id',
@@ -34324,11 +35311,6 @@ class $$WorkOrderPauseRequestsTableFilterComposer
 
   ColumnFilters<String> get responsibility => $composableBuilder(
     column: $table.responsibility,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get sector => $composableBuilder(
-    column: $table.sector,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -34459,6 +35441,29 @@ class $$WorkOrderPauseRequestsTableFilterComposer
     return composer;
   }
 
+  $$SectorsTableFilterComposer get sectorId {
+    final $$SectorsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sectorId,
+      referencedTable: $db.sectors,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SectorsTableFilterComposer(
+            $db: $db,
+            $table: $db.sectors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$UserProfilesTableFilterComposer get reviewedById {
     final $$UserProfilesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -34509,11 +35514,6 @@ class $$WorkOrderPauseRequestsTableOrderingComposer
 
   ColumnOrderings<String> get responsibility => $composableBuilder(
     column: $table.responsibility,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get sector => $composableBuilder(
-    column: $table.sector,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -34644,6 +35644,29 @@ class $$WorkOrderPauseRequestsTableOrderingComposer
     return composer;
   }
 
+  $$SectorsTableOrderingComposer get sectorId {
+    final $$SectorsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sectorId,
+      referencedTable: $db.sectors,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SectorsTableOrderingComposer(
+            $db: $db,
+            $table: $db.sectors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$UserProfilesTableOrderingComposer get reviewedById {
     final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -34694,9 +35717,6 @@ class $$WorkOrderPauseRequestsTableAnnotationComposer
     column: $table.responsibility,
     builder: (column) => column,
   );
-
-  GeneratedColumn<String> get sector =>
-      $composableBuilder(column: $table.sector, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
@@ -34815,6 +35835,29 @@ class $$WorkOrderPauseRequestsTableAnnotationComposer
     return composer;
   }
 
+  $$SectorsTableAnnotationComposer get sectorId {
+    final $$SectorsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sectorId,
+      referencedTable: $db.sectors,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SectorsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sectors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$UserProfilesTableAnnotationComposer get reviewedById {
     final $$UserProfilesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -34857,6 +35900,7 @@ class $$WorkOrderPauseRequestsTableTableManager
             bool workOrderId,
             bool requestedById,
             bool reasonId,
+            bool sectorId,
             bool reviewedById,
           })
         > {
@@ -34892,7 +35936,7 @@ class $$WorkOrderPauseRequestsTableTableManager
                 Value<String?> customReason = const Value.absent(),
                 Value<String?> observation = const Value.absent(),
                 Value<String> responsibility = const Value.absent(),
-                Value<String?> sector = const Value.absent(),
+                Value<String?> sectorId = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<DateTime> pausedAt = const Value.absent(),
                 Value<DateTime?> resumedAt = const Value.absent(),
@@ -34911,7 +35955,7 @@ class $$WorkOrderPauseRequestsTableTableManager
                 customReason: customReason,
                 observation: observation,
                 responsibility: responsibility,
-                sector: sector,
+                sectorId: sectorId,
                 status: status,
                 pausedAt: pausedAt,
                 resumedAt: resumedAt,
@@ -34932,7 +35976,7 @@ class $$WorkOrderPauseRequestsTableTableManager
                 Value<String?> customReason = const Value.absent(),
                 Value<String?> observation = const Value.absent(),
                 required String responsibility,
-                Value<String?> sector = const Value.absent(),
+                Value<String?> sectorId = const Value.absent(),
                 required String status,
                 required DateTime pausedAt,
                 Value<DateTime?> resumedAt = const Value.absent(),
@@ -34951,7 +35995,7 @@ class $$WorkOrderPauseRequestsTableTableManager
                 customReason: customReason,
                 observation: observation,
                 responsibility: responsibility,
-                sector: sector,
+                sectorId: sectorId,
                 status: status,
                 pausedAt: pausedAt,
                 resumedAt: resumedAt,
@@ -34976,6 +36020,7 @@ class $$WorkOrderPauseRequestsTableTableManager
                 workOrderId = false,
                 requestedById = false,
                 reasonId = false,
+                sectorId = false,
                 reviewedById = false,
               }) {
                 return PrefetchHooks(
@@ -35057,6 +36102,21 @@ class $$WorkOrderPauseRequestsTableTableManager
                                   )
                                   as T;
                         }
+                        if (sectorId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sectorId,
+                                    referencedTable:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._sectorIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderPauseRequestsTableReferences
+                                            ._sectorIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
                         if (reviewedById) {
                           state =
                               state.withJoin(
@@ -35101,6 +36161,7 @@ typedef $$WorkOrderPauseRequestsTableProcessedTableManager =
         bool workOrderId,
         bool requestedById,
         bool reasonId,
+        bool sectorId,
         bool reviewedById,
       })
     >;
@@ -35163,6 +36224,8 @@ class $AppDatabaseManager {
       $$WorkOrderHistoryTableTableManager(_db, _db.workOrderHistory);
   $$PauseReasonsTableTableManager get pauseReasons =>
       $$PauseReasonsTableTableManager(_db, _db.pauseReasons);
+  $$SectorsTableTableManager get sectors =>
+      $$SectorsTableTableManager(_db, _db.sectors);
   $$WorkOrderPauseRequestsTableTableManager get workOrderPauseRequests =>
       $$WorkOrderPauseRequestsTableTableManager(
         _db,
