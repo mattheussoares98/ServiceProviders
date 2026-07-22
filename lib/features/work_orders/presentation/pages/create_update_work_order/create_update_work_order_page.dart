@@ -429,15 +429,15 @@ class _CreateUpdatePage extends HookWidget {
                 final result = await CreateSlaPolicyDialog.show(context);
                 //TODO should save in the CreateSlaPolicyDialog to avoid losing the data then it throws
                 if (result != null && context.mounted) {
-                  final sessionUser = context.read<SessionCubit>().state.user;
-                  final policy = result.copyWith(
-                    companyId: sessionUser.companyId,
-                  );
                   final cubit = context.read<SlaPoliciesCubit>();
-                  final success = await cubit.saveSlaPolicy(policy);
+                  final success = await cubit.saveSlaPolicy(
+                    name: result.name,
+                    targetHours: result.targetHours,
+                    appliesTo: result.appliesTo,
+                  );
                   if (success && context.mounted) {
                     final newPolicy = cubit.state.slaPolicies.firstWhereOrNull(
-                      (p) => p.name == policy.name,
+                      (p) => p.name == result.name,
                     );
                     if (newPolicy != null) {
                       selectedSlaPolicyId.value = newPolicy.id;

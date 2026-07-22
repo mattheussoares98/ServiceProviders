@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policy_by_id_use_case.dart';
@@ -185,7 +186,11 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
           return cubit;
         },
-        act: (cubit) => cubit.saveSlaPolicy(tPolicy),
+        act: (cubit) => cubit.saveSlaPolicy(
+          name: tPolicy.name,
+          targetHours: tPolicy.targetHours,
+          appliesTo: tPolicy.appliesTo,
+        ),
         expect: () => [
           isA<SlaPoliciesState>().having(
             (s) => s.status,
@@ -204,7 +209,20 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateSlaPolicy.call(tPolicy)).called(1);
+          verify(
+            () => mockCreateSlaPolicy.call(
+              any(
+                that: predicate<SlaPolicyEntity>(
+                  (p) =>
+                      p.name == tPolicy.name &&
+                      p.targetHours == tPolicy.targetHours &&
+                      p.appliesTo == tPolicy.appliesTo &&
+                      p.companyId == tUserProfile.companyId &&
+                      p.id.isNotEmpty,
+                ),
+              ),
+            ),
+          ).called(1);
           verify(
             () => mockGetSlaPolicies.call(tUserProfile.companyId),
           ).called(1);
@@ -219,7 +237,11 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Error creating'));
           return cubit;
         },
-        act: (cubit) => cubit.saveSlaPolicy(tPolicy),
+        act: (cubit) => cubit.saveSlaPolicy(
+          name: tPolicy.name,
+          targetHours: tPolicy.targetHours,
+          appliesTo: tPolicy.appliesTo,
+        ),
         expect: () => [
           isA<SlaPoliciesState>().having(
             (s) => s.status,
@@ -231,7 +253,20 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', 'Error creating'),
         ],
         verify: (_) {
-          verify(() => mockCreateSlaPolicy.call(tPolicy)).called(1);
+          verify(
+            () => mockCreateSlaPolicy.call(
+              any(
+                that: predicate<SlaPolicyEntity>(
+                  (p) =>
+                      p.name == tPolicy.name &&
+                      p.targetHours == tPolicy.targetHours &&
+                      p.appliesTo == tPolicy.appliesTo &&
+                      p.companyId == tUserProfile.companyId &&
+                      p.id.isNotEmpty,
+                ),
+              ),
+            ),
+          ).called(1);
         },
       );
     });

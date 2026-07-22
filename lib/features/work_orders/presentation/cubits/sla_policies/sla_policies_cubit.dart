@@ -1,9 +1,11 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:uuid/uuid.dart';
 
 part 'sla_policies_state.dart';
 
@@ -61,8 +63,23 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     }
   }
 
-  Future<bool> saveSlaPolicy(SlaPolicyEntity policy) async {
+  Future<bool> saveSlaPolicy({
+    required String name,
+    required int targetHours,
+    required SlaAppliesTo appliesTo,
+  }) async {
     emit(state.copyWith(status: StateStatus.saving));
+    final user = _useCases.getSessionUser();
+    final now = DateTime.now();
+    final policy = SlaPolicyEntity(
+      id: const Uuid().v4(),
+      companyId: user.companyId,
+      name: name,
+      targetHours: targetHours,
+      appliesTo: appliesTo,
+      createdAt: now,
+      updatedAt: now,
+    );
     final result = await _useCases.createSlaPolicy(policy);
     if (isClosed) return false;
 
