@@ -24,6 +24,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_poli
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_service_provider_company_dialog.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_sla_policy_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
@@ -327,6 +328,7 @@ class _CreateUpdatePage extends HookWidget {
                 final result = await CreateServiceProviderCompanyDialog.show(
                   context,
                 );
+                //TODO should save in the CreateServiceProviderCompanyDialog to avoid losing the data then it throws
                 if (result != null && context.mounted) {
                   final sessionUser = context.read<SessionCubit>().state.user;
                   final company = result.copyWith(
@@ -412,9 +414,43 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: SlaPolicyDropdown(
-          selectedSlaPolicyId: selectedSlaPolicyId.value,
-          onChanged: (val) => selectedSlaPolicyId.value = val,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: SlaPolicyDropdown(
+                selectedSlaPolicyId: selectedSlaPolicyId.value,
+                onChanged: (val) => selectedSlaPolicyId.value = val,
+              ),
+            ),
+            gapW8,
+            BaseIconButton(
+              onPressed: () async {
+                final result = await CreateSlaPolicyDialog.show(context);
+                //TODO should save in the CreateSlaPolicyDialog to avoid losing the data then it throws
+                if (result != null && context.mounted) {
+                  final sessionUser = context.read<SessionCubit>().state.user;
+                  final policy = result.copyWith(
+                    companyId: sessionUser.companyId,
+                  );
+                  final cubit = context.read<SlaPoliciesCubit>();
+                  final success = await cubit.saveSlaPolicy(policy);
+                  if (success && context.mounted) {
+                    final newPolicy = cubit.state.slaPolicies.firstWhereOrNull(
+                      (p) => p.name == policy.name,
+                    );
+                    if (newPolicy != null) {
+                      selectedSlaPolicyId.value = newPolicy.id;
+                    }
+                  }
+                }
+              },
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.add,
+                cupertinoIcon: CupertinoIcons.add,
+              ),
+            ),
+          ],
         ),
       ),
       IntrinsicHeight(
