@@ -3,17 +3,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policies_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -26,6 +34,8 @@ import '../../../../../testing/mocks/repository_mocks.dart';
 void main() {
   late MockWorkOrdersRepository mockRepository;
   late MockServiceProviderRepository mockServiceProviderRepository;
+  late MockSlaRepository mockSlaRepository;
+  late MockPauseRepository mockPauseRepository;
 
   late CreateWorkOrderChangeRequestUseCase createWorkOrderChangeRequestUseCase;
   late CreateWorkOrderUseCase createWorkOrderUseCase;
@@ -41,6 +51,14 @@ void main() {
   late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
   late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
 
+  late GetSlaPoliciesUseCase getSlaPoliciesUseCase;
+  late GetSlaPolicyByIdUseCase getSlaPolicyByIdUseCase;
+  late GetPauseReasonsUseCase getPauseReasonsUseCase;
+  late GetPauseRequestsUseCase getPauseRequestsUseCase;
+  late RequestPauseUseCase requestPauseUseCase;
+  late ReviewPauseUseCase reviewPauseUseCase;
+  late CancelPauseUseCase cancelPauseUseCase;
+
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
     registerFallbackValue(EntityFactory.makeWorkOrderEntity());
@@ -48,11 +66,27 @@ void main() {
     registerFallbackValue(const WorkOrderFilter());
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
+    registerFallbackValue(EntityFactory.makeSlaPolicyEntity());
+    registerFallbackValue(EntityFactory.makePauseReasonEntity());
+    registerFallbackValue(EntityFactory.makePauseRequestEntity());
+    registerFallbackValue(PauseRequestStatus.pending);
+    registerFallbackValue(
+      ReviewPauseParams(
+        id: faker.guid.guid(),
+        status: PauseRequestStatus.approved,
+        reviewedById: faker.guid.guid(),
+      ),
+    );
+    registerFallbackValue(
+      CancelPauseParams(id: faker.guid.guid(), resumedAt: DateTime.now()),
+    );
   });
 
   setUp(() {
     mockRepository = MockWorkOrdersRepository();
     mockServiceProviderRepository = MockServiceProviderRepository();
+    mockSlaRepository = MockSlaRepository();
+    mockPauseRepository = MockPauseRepository();
 
     createWorkOrderChangeRequestUseCase = CreateWorkOrderChangeRequestUseCase(
       workOrdersRepository: mockRepository,
@@ -90,6 +124,28 @@ void main() {
     );
     updateServiceProviderProfileUseCase = UpdateServiceProviderProfileUseCase(
       serviceProviderRepository: mockServiceProviderRepository,
+    );
+
+    getSlaPoliciesUseCase = GetSlaPoliciesUseCase(
+      slaRepository: mockSlaRepository,
+    );
+    getSlaPolicyByIdUseCase = GetSlaPolicyByIdUseCase(
+      slaRepository: mockSlaRepository,
+    );
+    getPauseReasonsUseCase = GetPauseReasonsUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    getPauseRequestsUseCase = GetPauseRequestsUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    requestPauseUseCase = RequestPauseUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    reviewPauseUseCase = ReviewPauseUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    cancelPauseUseCase = CancelPauseUseCase(
+      pauseRepository: mockPauseRepository,
     );
   });
 
@@ -527,6 +583,152 @@ void main() {
       verify(
         () => mockServiceProviderRepository.updateServiceProviderProfile(
           tProfile,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('GetSlaPoliciesUseCase', () {
+    final tCompanyId = faker.guid.guid();
+    final tSlaPolicies = EntityFactory.makeSlaPolicyEntityList();
+
+    test('should return list of SLA policies on success', () async {
+      when(
+        () => mockSlaRepository.getSlaPolicies(any()),
+      ).thenAnswer((_) async => SuccessState(data: tSlaPolicies));
+
+      final result = await getSlaPoliciesUseCase(tCompanyId);
+
+      expect(result, isA<SuccessState<List<dynamic>>>());
+      expect(result.data, tSlaPolicies);
+      verify(() => mockSlaRepository.getSlaPolicies(tCompanyId)).called(1);
+    });
+  });
+
+  group('GetSlaPolicyByIdUseCase', () {
+    final tId = faker.guid.guid();
+    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+
+    test('should return SLA policy on success', () async {
+      when(
+        () => mockSlaRepository.getSlaPolicyById(any()),
+      ).thenAnswer((_) async => SuccessState(data: tSlaPolicy));
+
+      final result = await getSlaPolicyByIdUseCase(tId);
+
+      expect(result, isA<SuccessState<dynamic>>());
+      expect(result.data, tSlaPolicy);
+      verify(() => mockSlaRepository.getSlaPolicyById(tId)).called(1);
+    });
+  });
+
+  group('GetPauseReasonsUseCase', () {
+    final tCompanyId = faker.guid.guid();
+    final tReasons = EntityFactory.makePauseReasonEntityList();
+
+    test('should return list of pause reasons on success', () async {
+      when(
+        () => mockPauseRepository.getPauseReasons(any()),
+      ).thenAnswer((_) async => SuccessState(data: tReasons));
+
+      final result = await getPauseReasonsUseCase(tCompanyId);
+
+      expect(result, isA<SuccessState<List<dynamic>>>());
+      expect(result.data, tReasons);
+      verify(() => mockPauseRepository.getPauseReasons(tCompanyId)).called(1);
+    });
+  });
+
+  group('GetPauseRequestsUseCase', () {
+    final tWorkOrderId = faker.guid.guid();
+    final tRequests = EntityFactory.makePauseRequestEntityList();
+
+    test('should return list of pause requests on success', () async {
+      when(
+        () => mockPauseRepository.getPauseRequests(any()),
+      ).thenAnswer((_) async => SuccessState(data: tRequests));
+
+      final result = await getPauseRequestsUseCase(tWorkOrderId);
+
+      expect(result, isA<SuccessState<List<dynamic>>>());
+      expect(result.data, tRequests);
+      verify(
+        () => mockPauseRepository.getPauseRequests(tWorkOrderId),
+      ).called(1);
+    });
+  });
+
+  group('RequestPauseUseCase', () {
+    final tRequest = EntityFactory.makePauseRequestEntity();
+
+    test('should return true on success', () async {
+      when(
+        () => mockPauseRepository.requestPause(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await requestPauseUseCase(tRequest);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockPauseRepository.requestPause(tRequest)).called(1);
+    });
+  });
+
+  group('ReviewPauseUseCase', () {
+    final tParams = ReviewPauseParams(
+      id: faker.guid.guid(),
+      status: PauseRequestStatus.approved,
+      reviewedById: faker.guid.guid(),
+      reviewObservation: 'Approved',
+    );
+
+    test('should return true on success', () async {
+      when(
+        () => mockPauseRepository.reviewPause(
+          id: any(named: 'id'),
+          status: any(named: 'status'),
+          reviewedById: any(named: 'reviewedById'),
+          reviewObservation: any(named: 'reviewObservation'),
+        ),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await reviewPauseUseCase(tParams);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockPauseRepository.reviewPause(
+          id: tParams.id,
+          status: tParams.status,
+          reviewedById: tParams.reviewedById,
+          reviewObservation: tParams.reviewObservation,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('CancelPauseUseCase', () {
+    final tParams = CancelPauseParams(
+      id: faker.guid.guid(),
+      resumedAt: DateTime.now(),
+    );
+
+    test('should return true on success', () async {
+      when(
+        () => mockPauseRepository.cancelPause(
+          id: any(named: 'id'),
+          resumedAt: any(named: 'resumedAt'),
+        ),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await cancelPauseUseCase(tParams);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockPauseRepository.cancelPause(
+          id: tParams.id,
+          resumedAt: tParams.resumedAt,
         ),
       ).called(1);
     });
