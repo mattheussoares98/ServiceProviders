@@ -20,6 +20,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_service_provider_company_dialog.dart';
@@ -31,6 +32,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_up
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_company_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_profile_dropdown.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/sla_policy_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/try_again_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_status_dropdown.dart';
@@ -79,6 +81,10 @@ class CreateUpdateWorkOrderPage extends HookWidget {
               create: (context) =>
                   GetIt.I<ServiceProvidersCubit>()
                     ..loadCompanies(sessionUser.companyId),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
             ),
           ],
           child:
@@ -154,6 +160,7 @@ class _CreateUpdatePage extends HookWidget {
     final initialScheduledDate = workOrder?.scheduledDate;
     final initialServiceProviderCompanyId = workOrder?.serviceProviderCompanyId;
     final initialProviderProfileId = workOrder?.providerProfileId;
+    final initialSlaPolicyId = workOrder?.slaPolicyId;
 
     final titleController = useTextEditingController(text: initialTitle);
     final descController = useTextEditingController(text: initialDescription);
@@ -171,6 +178,7 @@ class _CreateUpdatePage extends HookWidget {
     final selectedProviderProfileId = useState<String?>(
       initialProviderProfileId,
     );
+    final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
 
     final titleFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
@@ -212,7 +220,8 @@ class _CreateUpdatePage extends HookWidget {
           selectedScheduledDate.value != initialScheduledDate ||
           selectedServiceProviderCompanyId.value !=
               initialServiceProviderCompanyId ||
-          selectedProviderProfileId.value != initialProviderProfileId;
+          selectedProviderProfileId.value != initialProviderProfileId ||
+          selectedSlaPolicyId.value != initialSlaPolicyId;
 
       return hasChanges;
     }
@@ -270,6 +279,7 @@ class _CreateUpdatePage extends HookWidget {
         attachmentsCubit: context.read<AttachmentsCubit>(),
         serviceProviderCompanyId: selectedServiceProviderCompanyId.value,
         providerProfileId: selectedProviderProfileId.value,
+        slaPolicyId: selectedSlaPolicyId.value,
       );
       if (succeeds && context.mounted) {
         Navigator.of(context).pop(true);
@@ -398,6 +408,13 @@ class _CreateUpdatePage extends HookWidget {
           selectedAssetId: selectedAssetId.value,
           selectedLocationId: selectedLocationId.value,
           onChanged: (val) => selectedAssetId.value = val,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: SlaPolicyDropdown(
+          selectedSlaPolicyId: selectedSlaPolicyId.value,
+          onChanged: (val) => selectedSlaPolicyId.value = val,
         ),
       ),
       IntrinsicHeight(

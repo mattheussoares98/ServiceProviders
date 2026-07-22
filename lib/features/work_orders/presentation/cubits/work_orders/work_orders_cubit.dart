@@ -164,6 +164,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     AttachmentsCubit? attachmentsCubit,
     String? serviceProviderCompanyId,
     String? providerProfileId,
+    String? slaPolicyId,
     AppMode openedBy = AppMode.internal,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
@@ -210,6 +211,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       updatedAt: now,
       serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
       providerProfileId: providerProfileId?.trimToNull(),
+      slaPolicyId: slaPolicyId,
       openedBy: openedBy,
     );
 
