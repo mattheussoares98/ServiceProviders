@@ -72,6 +72,7 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
           if (newCompany != null) {
             onCompanyChanged(newCompany.id);
           }
+          Navigator.of(context).pop();
         }
       }
     }
