@@ -49,4 +49,16 @@ final class SlaRepositoryImpl implements SlaRepository {
         remoteCallback: () => _remoteDataSource.getSlaPolicyById(id),
         onRemoteSuccess: _localDataSource.saveSlaPolicy,
       );
+
+  @override
+  FutureBool createSlaPolicy(SlaPolicyEntity policy) =>
+      RepositoryHandler.fetchWithFallback(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.createSlaPolicy(
+          SlaPolicyModel.fromEntity(policy),
+        ),
+        localCallback: () => _localDataSource.saveSlaPolicy(
+          SlaPolicyModel.fromEntity(policy),
+        ),
+      );
 }

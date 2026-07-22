@@ -115,4 +115,49 @@ void main() {
       },
     );
   });
+
+  group('createSlaPolicy', () {
+    test(
+      'should create policy remotely and locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.createSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.saveSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createSlaPolicy(tSlaPolicyEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.createSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should create policy locally only when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.createSlaPolicy(tSlaPolicyEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verifyNever(() => mockRemoteDataSource.createSlaPolicy(any()));
+        verify(
+          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+      },
+    );
+  });
 }
