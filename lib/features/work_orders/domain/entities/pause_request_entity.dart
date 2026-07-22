@@ -12,7 +12,7 @@ class PauseRequestEntity extends Equatable {
     this.customReason,
     this.observation,
     required this.responsibility,
-    this.sector,
+    this.sectorId,
     required this.status,
     required this.pausedAt,
     this.resumedAt,
@@ -31,7 +31,7 @@ class PauseRequestEntity extends Equatable {
   final String? customReason;
   final String? observation;
   final PauseResponsibility responsibility;
-  final String? sector;
+  final String? sectorId;
   final PauseRequestStatus status;
   final DateTime pausedAt;
   final DateTime? resumedAt;
@@ -51,7 +51,7 @@ class PauseRequestEntity extends Equatable {
     customReason,
     observation,
     responsibility,
-    sector,
+    sectorId,
     status,
     pausedAt,
     resumedAt,
@@ -71,7 +71,7 @@ class PauseRequestEntity extends Equatable {
     String? customReason,
     String? observation,
     PauseResponsibility? responsibility,
-    String? sector,
+    String? sectorId,
     PauseRequestStatus? status,
     DateTime? pausedAt,
     DateTime? resumedAt,
@@ -84,7 +84,7 @@ class PauseRequestEntity extends Equatable {
     bool? annulReasonId,
     bool? annulCustomReason,
     bool? annulObservation,
-    bool? annulSector,
+    bool? annulSectorId,
     bool? annulResumedAt,
     bool? annulReviewedById,
     bool? annulReviewObservation,
@@ -102,7 +102,7 @@ class PauseRequestEntity extends Equatable {
           ? null
           : observation ?? this.observation,
       responsibility: responsibility ?? this.responsibility,
-      sector: annulSector == true ? null : sector ?? this.sector,
+      sectorId: annulSectorId == true ? null : sectorId ?? this.sectorId,
       status: status ?? this.status,
       pausedAt: pausedAt ?? this.pausedAt,
       resumedAt: annulResumedAt == true ? null : resumedAt ?? this.resumedAt,

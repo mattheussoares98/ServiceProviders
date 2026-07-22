@@ -8,7 +8,8 @@ enum ResourceType {
   // maintenancePlans('maintenance_plans', 'Planos de manutenção'),
   // reports('reports', 'Relatórios'),
   users('users', 'Usuários'),
-  serviceProviders('service_providers', 'Prestadores de serviço');
+  serviceProviders('service_providers', 'Prestadores de serviço'),
+  sectors('sectors', 'Setores');
 
   const ResourceType(this.code, this.label);
   final String code;

@@ -572,7 +572,7 @@ abstract final class EntityFactory {
       customReason: _makePhrase(),
       observation: _makePhrase(),
       responsibility: PauseResponsibility.provider,
-      sector: _makeCompanyName(),
+      sectorId: _makeId(),
       status: PauseRequestStatus.pending,
       pausedAt: _makeDateTime(),
       affectsSla: true,
