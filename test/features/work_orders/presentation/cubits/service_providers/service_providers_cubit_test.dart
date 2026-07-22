@@ -43,7 +43,6 @@ void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
   late MockCreateServiceProviderCompanyUseCase mockCreateCompany;
-  late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
   late MockUpdateServiceProviderProfileUseCase mockUpdateProfile;
   late MockGetSessionUserUseCase mockGetSessionUser;
@@ -59,7 +58,6 @@ void main() {
     mockGetCompanies = MockGetServiceProviderCompaniesUseCase();
     mockGetProfiles = MockGetServiceProviderProfilesUseCase();
     mockCreateCompany = MockCreateServiceProviderCompanyUseCase();
-    mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
     mockUpdateProfile = MockUpdateServiceProviderProfileUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
@@ -71,7 +69,6 @@ void main() {
       getCompanies: mockGetCompanies,
       getProfiles: mockGetProfiles,
       createCompany: mockCreateCompany,
-      updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
       updateProfile: mockUpdateProfile,
       getSessionUser: mockGetSessionUser,

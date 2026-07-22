@@ -8,7 +8,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_serv
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
@@ -21,14 +20,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required GetServiceProviderCompaniesUseCase getCompanies,
     required GetServiceProviderProfilesUseCase getProfiles,
     required CreateServiceProviderCompanyUseCase createCompany,
-    required UpdateServiceProviderCompanyUseCase updateCompany,
     required CreateServiceProviderProfileUseCase createProfile,
     required UpdateServiceProviderProfileUseCase updateProfile,
     required GetSessionUserUseCase getSessionUser,
   }) : _getCompanies = getCompanies,
        _getProfiles = getProfiles,
        _createCompany = createCompany,
-       _updateCompany = updateCompany,
        _createProfile = createProfile,
        _updateProfile = updateProfile,
        _getSessionUser = getSessionUser,
@@ -37,7 +34,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   final GetServiceProviderCompaniesUseCase _getCompanies;
   final GetServiceProviderProfilesUseCase _getProfiles;
   final CreateServiceProviderCompanyUseCase _createCompany;
-  final UpdateServiceProviderCompanyUseCase _updateCompany;
   final CreateServiceProviderProfileUseCase _createProfile;
   final UpdateServiceProviderProfileUseCase _updateProfile;
   final GetSessionUserUseCase _getSessionUser;
