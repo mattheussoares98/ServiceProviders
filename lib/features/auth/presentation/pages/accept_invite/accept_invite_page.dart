@@ -33,7 +33,6 @@ class AcceptInvitePage extends HookWidget {
     final passwordFocusNode = useFocusNode();
     final confirmPasswordFocusNode = useFocusNode();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    //TODO organize better this page
     return BlocProvider(
       create: (context) => GetIt.I<AcceptInviteCubit>()..initialize(),
       child: BlocConsumer<AcceptInviteCubit, AcceptInviteState>(
@@ -49,11 +48,9 @@ class AcceptInvitePage extends HookWidget {
           return BaseScaffold(
             observeScreenChanges: true,
             appBar: BaseAppBar(
-              title: 'Aceitar Convite'.hardcoded,
+              title: 'Aceitar convite'.hardcoded,
               leading: BaseIconButton(
-                onPressed: () {
-                  cubit.navigateToHome();
-                },
+                onPressed: cubit.navigateToHome,
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.arrow_back,
                   cupertinoIcon: CupertinoIcons.arrow_left,
@@ -96,7 +93,7 @@ class AcceptInvitePage extends HookWidget {
                             ),
                           ],
                         ),
-                      ); //TODO test
+                      );
                     }
 
                     return Padding(
@@ -113,7 +110,7 @@ class AcceptInvitePage extends HookWidget {
                             gapH32,
                             BaseTextFormField(
                               enabled: !isLoading,
-                              labelText: 'Nome Completo'.hardcoded,
+                              labelText: 'Nome completo'.hardcoded,
                               hintText: 'Digite seu nome completo'.hardcoded,
                               controller: nameController,
                               validator: FormValidators.compose([
@@ -155,7 +152,7 @@ class AcceptInvitePage extends HookWidget {
                             BaseTextFormField(
                               enabled: !isLoading,
                               focusNode: confirmPasswordFocusNode,
-                              labelText: 'Confirmar Senha'.hardcoded,
+                              labelText: 'Confirmar senha'.hardcoded,
                               hintText:
                                   'Confirme sua senha de acesso'.hardcoded,
                               controller: confirmPasswordController,
@@ -210,7 +207,7 @@ class AcceptInvitePage extends HookWidget {
                                   await cubit.navigateToHome();
                                 }
                               },
-                              text: 'Ativar Minha Conta'.hardcoded,
+                              text: 'Ativar minha conta'.hardcoded,
                             ),
                           ],
                         ),
