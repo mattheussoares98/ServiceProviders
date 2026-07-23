@@ -7,7 +7,7 @@ class ServiceProviderCompanies extends Table {
   TextColumn get companyId =>
       text().references(Companies, #id, onDelete: KeyAction.cascade)();
   TextColumn get name => text()();
-  TextColumn get document => text().nullable()();
+  TextColumn get document => text().nullable().unique()();
   TextColumn get documentType => text().nullable()();
   TextColumn get contactEmail => text().nullable()();
   TextColumn get contactPhone => text().nullable()();

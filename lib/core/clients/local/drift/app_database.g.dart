@@ -7713,6 +7713,7 @@ class $ServiceProviderCompaniesTable extends ServiceProviderCompanies
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _documentTypeMeta = const VerificationMeta(
     'documentType',
