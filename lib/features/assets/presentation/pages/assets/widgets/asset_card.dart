@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/edit_asset_button.dart';
-import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/subtitle.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/location_are_priority_and_criticity.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
@@ -35,7 +35,7 @@ class AssetCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             BaseText.titleMedium(asset.name),
-            SubTitle(asset: asset),
+            LocationAreaPriorityAndCriticity(asset: asset),
             gapH8,
             TitleAndSubtitle(
               title: 'Categoria'.hardcoded,
