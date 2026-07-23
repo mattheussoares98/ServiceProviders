@@ -1,5 +1,6 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 
 class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
@@ -8,8 +9,8 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     required super.id,
     required super.companyId,
     required super.name,
-    super.document,
-    super.documentType,
+    required super.document,
+    required super.documentType,
     super.contactEmail,
     super.contactPhone,
     required super.isActive,
@@ -39,8 +40,8 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
         id: json['id'] as String? ?? '',
         companyId: json['company_id'] as String? ?? '',
         name: json['name'] as String? ?? '',
-        document: json['document'] as String?,
-        documentType: json['document_type'] as String?,
+        document: json['document'] as String,
+        documentType: DocumentType.fromName(json['document_type'] as String),
         contactEmail: json['contact_email'] as String?,
         contactPhone: json['contact_phone'] as String?,
         isActive: json['is_active'] as bool? ?? true,

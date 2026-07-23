@@ -1,12 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 
 class ServiceProviderCompanyEntity extends Equatable {
   const ServiceProviderCompanyEntity({
     required this.id,
     required this.companyId,
     required this.name,
-    this.document,
-    this.documentType,
+    required this.documentType,
+    required this.document,
     this.contactEmail,
     this.contactPhone,
     required this.isActive,
@@ -18,8 +19,8 @@ class ServiceProviderCompanyEntity extends Equatable {
   final String id;
   final String companyId;
   final String name;
-  final String? document;
-  final String? documentType;
+  final DocumentType documentType;
+  final String document;
   final String? contactEmail;
   final String? contactPhone;
   final bool isActive;
@@ -47,15 +48,13 @@ class ServiceProviderCompanyEntity extends Equatable {
     String? companyId,
     String? name,
     String? document,
-    String? documentType,
+    DocumentType? documentType,
     String? contactEmail,
     String? contactPhone,
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
-    bool? annulDocument,
-    bool? annulDocumentType,
     bool? annulContactEmail,
     bool? annulContactPhone,
     bool? annulDeletedAt,
@@ -64,13 +63,14 @@ class ServiceProviderCompanyEntity extends Equatable {
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
-      document: annulDocument == true ? null : document ?? this.document,
-      documentType:
-          annulDocumentType == true ? null : documentType ?? this.documentType,
-      contactEmail:
-          annulContactEmail == true ? null : contactEmail ?? this.contactEmail,
-      contactPhone:
-          annulContactPhone == true ? null : contactPhone ?? this.contactPhone,
+      document: document ?? this.document,
+      documentType: documentType ?? this.documentType,
+      contactEmail: annulContactEmail == true
+          ? null
+          : contactEmail ?? this.contactEmail,
+      contactPhone: annulContactPhone == true
+          ? null
+          : contactPhone ?? this.contactPhone,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

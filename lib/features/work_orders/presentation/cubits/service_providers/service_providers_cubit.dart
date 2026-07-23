@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
@@ -117,10 +118,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
   Future<bool> saveCompany({
     required String name,
+    required String document,
+    required DocumentType documentType,
     String? contactEmail,
     String? contactPhone,
-    String? document,
-    String? documentType,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final user = _getSessionUser();

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
@@ -40,7 +41,7 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
     final phoneController = useTextEditingController();
     final documentController = useTextEditingController();
     final documentFocusNode = useFocusNode();
-    final documentType = useState<String?>(null);
+    final documentType = useState<DocumentType>(DocumentType.cnpj);
 
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
@@ -51,9 +52,7 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
       final contactPhone = phoneController.text.trim().isEmpty
           ? null
           : phoneController.text.trim();
-      final document = documentController.text.trim().isEmpty
-          ? null
-          : documentController.text.trim();
+      final document = documentController.text.trim();
       final docType = documentType.value;
 
       if (context.mounted) {
@@ -104,34 +103,38 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
               keyboardType: TextInputType.phone,
             ),
             gapH12,
-            BaseDropDown<String>(
+            BaseDropDown<DocumentType>(
               selectedItem: documentType.value,
               label: 'Tipo de documento'.hardcoded,
               items: [
                 DropdownMenuItem(
-                  value: 'cpf',
-                  child: BaseText('CPF'.hardcoded),
+                  value: DocumentType.cpf,
+                  child: BaseText(
+                    DocumentType.cpf.name.toUpperCase().hardcoded,
+                  ),
                 ),
                 DropdownMenuItem(
-                  value: 'cnpj',
-                  child: BaseText('CNPJ'.hardcoded),
+                  value: DocumentType.cnpj,
+                  child: BaseText(
+                    DocumentType.cnpj.name.toUpperCase().hardcoded,
+                  ),
                 ),
               ],
               onChanged: (val) => documentType.value = val,
             ),
             gapH12,
             BaseTextFormField(
-              labelText: documentType.value == 'cpf'
+              labelText: documentType.value == DocumentType.cpf
                   ? 'CPF'.hardcoded
                   : 'CNPJ'.hardcoded,
               controller: documentController,
               focusNode: documentFocusNode,
               keyboardType: TextInputType.number,
-              maxLength: documentType.value == 'cpf' ? 11 : 14,
+              maxLength: documentType.value == DocumentType.cpf ? 11 : 14,
               validator: FormValidators.compose([
                 CpfCnpjValidator(
-                  validateOnlyCnpj: documentType.value == 'cnpj',
-                  validateOnlyCpf: documentType.value == 'cpf',
+                  validateOnlyCnpj: documentType.value == DocumentType.cnpj,
+                  validateOnlyCpf: documentType.value == DocumentType.cpf,
                 ),
               ]),
             ),

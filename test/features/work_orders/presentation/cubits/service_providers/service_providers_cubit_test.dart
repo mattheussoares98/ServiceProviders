@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
@@ -149,7 +150,7 @@ void main() {
       final contactEmail = faker.internet.email();
       final contactPhone = faker.randomGenerator.integer(99999999).toString();
       const document = '12345678901';
-      const documentType = 'cpf';
+      const documentType = DocumentType.cpf;
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'saveCompany success should create company, call loadCompanies, and return true',
@@ -213,7 +214,11 @@ void main() {
           );
           return cubit;
         },
-        act: (cubit) => cubit.saveCompany(name: name),
+        act: (cubit) => cubit.saveCompany(
+          name: name,
+          document: '323234',
+          documentType: DocumentType.cnpj,
+        ),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,

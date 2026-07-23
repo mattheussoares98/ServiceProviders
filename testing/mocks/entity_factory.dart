@@ -25,6 +25,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
@@ -478,7 +479,7 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       name: _makeCompanyName(),
       document: '12345678000199',
-      documentType: 'cnpj',
+      documentType: DocumentType.values[_makeInt(DocumentType.values.length)],
       contactEmail: _makeEmail(),
       contactPhone: _makeInt(99999999, min: 10000000).toString(),
       isActive: true,
