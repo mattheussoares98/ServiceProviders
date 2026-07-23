@@ -36,6 +36,9 @@ class TitleAndSubtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if ((subtitle?.isEmpty ?? true) && messageIfSubtitleIsNull == null) {
+      return const SizedBox.shrink();
+    }
     final colorScheme = context.theme.colorScheme;
 
     final String displaySubtitle = (subtitle == null || subtitle!.isEmpty)
