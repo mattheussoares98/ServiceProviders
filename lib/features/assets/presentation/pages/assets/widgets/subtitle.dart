@@ -40,25 +40,26 @@ class SubTitle extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: BaseText.bodySmall(subtitleParts)),
+          Flexible(flex: 2, child: BaseText.bodyMedium(subtitleParts)),
           gapW8,
-          Expanded(
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              runAlignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.end,
-              runSpacing: Sizes.p4,
-              spacing: Sizes.p8,
-              children: [
-                BaseIndicationItem(
-                  color: asset.status.color,
-                  label: asset.status.label,
-                ),
-                BaseIndicationItem(
-                  color: asset.criticality.color,
-                  label: asset.criticality.label,
-                ),
-              ],
+          Flexible(
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  WidgetSpan(
+                    child: BaseIndicationItem(
+                      color: asset.status.color,
+                      label: asset.status.label,
+                    ),
+                  ),
+                  WidgetSpan(
+                    child: BaseIndicationItem(
+                      color: asset.criticality.color,
+                      label: asset.criticality.label,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

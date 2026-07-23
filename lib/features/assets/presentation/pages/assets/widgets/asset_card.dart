@@ -1,14 +1,17 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/edit_asset_button.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/subtitle.dart';
-import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class AssetCard extends StatelessWidget {
   const AssetCard({super.key, required this.asset, required this.allAssets});
@@ -18,10 +21,11 @@ class AssetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO use the CategoriesCubit instead
-    const CategoryEntity? category = null; /*  categories.firstWhereOrNull(
-      (e) => e.id == asset.categoryId,
-    ); */
+    final category = context
+        .read<CategoriesCubit>()
+        .state
+        .categories
+        .firstWhereOrNull((e) => e.id == asset.categoryId);
 
     final AssetEntity? parentAsset = allAssets.firstWhereOrNull(
       (e) => e.id == asset.parentAssetId,
@@ -34,44 +38,81 @@ class AssetCard extends StatelessWidget {
           children: [
             BaseText.titleMedium(asset.name),
             SubTitle(asset: asset),
-            if (category != null)
-              _DetailRow(label: 'Categoria:'.hardcoded, value: category.name),
-            if (parentAsset?.name.isNotEmpty ?? false)
-              _DetailRow(
-                label: 'Equipamento Pai:'.hardcoded,
-                value: parentAsset!.name,
+            gapH8,
+            TitleAndSubtitle(
+              title: 'Categoria'.hardcoded,
+              subtitle: category?.name,
+              icon: const PlatformIcon(
+                materialIcon: Icons.category,
+                cupertinoIcon: CupertinoIcons.tag,
               ),
-            if (asset.manufacturer != null && asset.manufacturer!.isNotEmpty)
-              _DetailRow(
-                label: 'Fabricante:'.hardcoded,
-                value: asset.manufacturer!,
+            ),
+            TitleAndSubtitle(
+              title: 'Equipamento pai'.hardcoded,
+              subtitle: parentAsset?.name,
+              icon: const PlatformIcon(
+                materialIcon: Icons.inventory,
+                cupertinoIcon: CupertinoIcons.archivebox,
               ),
-            if (asset.model != null && asset.model!.isNotEmpty)
-              _DetailRow(label: 'Modelo:'.hardcoded, value: asset.model!),
-            if (asset.serialNumber != null && asset.serialNumber!.isNotEmpty)
-              _DetailRow(
-                label: 'Número de série:'.hardcoded,
-                value: asset.serialNumber!,
+            ),
+            TitleAndSubtitle(
+              title: 'Fabricante'.hardcoded,
+              subtitle: asset.manufacturer,
+              icon: const PlatformIcon(
+                materialIcon: Icons.factory,
+                cupertinoIcon: CupertinoIcons.cube_box,
               ),
-            if (asset.installDate != null)
-              _DetailRow(
-                label: 'Data de instalação:'.hardcoded,
-                value: asset.installDate!.formatDate(DateFormatType.yMMMMd),
+            ),
+            TitleAndSubtitle(
+              title: 'Modelo'.hardcoded,
+              subtitle: asset.model,
+              icon: const PlatformIcon(
+                materialIcon: Icons.model_training,
+                cupertinoIcon: CupertinoIcons.cube,
               ),
-            if (asset.warrantyExpiration != null)
-              _DetailRow(
-                label: 'Vencimento da garantia:'.hardcoded,
-                value: asset.warrantyExpiration!.formatDate(),
+            ),
+            TitleAndSubtitle(
+              title: 'Número de série'.hardcoded,
+              subtitle: asset.serialNumber,
+              icon: const PlatformIcon(
+                materialIcon: Icons.numbers,
+                cupertinoIcon: CupertinoIcons.number,
               ),
-            if (asset.revisionForecast != null)
-              _DetailRow(
-                label: 'Previsão de revisão:'.hardcoded,
-                value: asset.revisionForecast!.formatDate(
-                  DateFormatType.yMMMMd,
-                ),
+            ),
+            TitleAndSubtitle(
+              title: 'Data de instalação'.hardcoded,
+              subtitle: asset.installDate?.formatDate(DateFormatType.yMMMMd),
+              icon: const PlatformIcon(
+                materialIcon: Icons.calendar_month,
+                cupertinoIcon: CupertinoIcons.calendar,
               ),
-            if (asset.notes != null && asset.notes!.isNotEmpty)
-              _DetailRow(label: 'Observações:'.hardcoded, value: asset.notes!),
+            ),
+            TitleAndSubtitle(
+              title: 'Vencimento da garantia'.hardcoded,
+              subtitle: asset.warrantyExpiration?.formatDate(),
+              icon: const PlatformIcon(
+                materialIcon: Icons.calendar_month,
+                cupertinoIcon: CupertinoIcons.calendar,
+              ),
+            ),
+            TitleAndSubtitle(
+              title: 'Previsão de revisão'.hardcoded,
+              subtitle: asset.revisionForecast?.formatDate(
+                DateFormatType.yMMMMd,
+              ),
+              icon: const PlatformIcon(
+                materialIcon: Icons.calendar_month,
+                cupertinoIcon: CupertinoIcons.calendar,
+              ),
+            ),
+            TitleAndSubtitle(
+              title: 'Observações'.hardcoded,
+              subtitle: asset.notes,
+              icon: const PlatformIcon(
+                materialIcon: Icons.notes,
+                cupertinoIcon: CupertinoIcons.text_alignleft,
+              ),
+            ),
             gapH16,
             Align(
               alignment: .centerEnd,
@@ -79,24 +120,6 @@ class AssetCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        text: label,
-        style: context.theme.textTheme.bodyMedium,
-        children: [TextSpan(text: value)],
       ),
     );
   }

@@ -22,8 +22,6 @@ class AssetsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO read all this page code to check possible improvements
-
     useEffect(() {
       context.read<AssetsCubit>().loadAssets();
       return null;
