@@ -11,13 +11,12 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/w
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/hello_user.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/not_closed_work_orders.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/recent_work_orders.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -45,15 +44,6 @@ class DashboardView extends HookWidget {
       cubit.loadDashboardData();
       return null;
     }, []);
-
-    //TODO create default button because it is repeating in all tab pages
-    final drawerButton = BaseIconButton(
-      onPressed: Scaffold.of(context).openDrawer,
-      platformIcon: const PlatformIcon(
-        materialIcon: Icons.menu,
-        cupertinoIcon: CupertinoIcons.bars,
-      ),
-    );
 
     return BlocListener<WorkOrdersCubit, WorkOrdersState>(
       listenWhen: (previous, current) =>
@@ -97,7 +87,7 @@ class DashboardView extends HookWidget {
             padding: const EdgeInsets.all(Sizes.p8),
             appBar: BaseAppBar(
               title: 'Painel'.hardcoded,
-              leading: drawerButton,
+              leading: const OpenDrawerIconButton(),
             ),
             onRefresh: cubit.loadDashboardData,
             body: body,

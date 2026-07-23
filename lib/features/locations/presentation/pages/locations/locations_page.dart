@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/pages/locations/widgets/location_card.dart';
@@ -26,13 +27,7 @@ class LocationsPage extends StatelessWidget {
       isScrollable: false,
       appBar: BaseAppBar(
         title: 'Locais'.hardcoded,
-        leading: BaseIconButton(
-          onPressed: Scaffold.of(context).openDrawer,
-          platformIcon: const PlatformIcon(
-            materialIcon: Icons.menu,
-            cupertinoIcon: CupertinoIcons.bars,
-          ),
-        ),
+        leading: const OpenDrawerIconButton(),
         actions: [
           BlocSelector<LocationsCubit, LocationsState, bool>(
             selector: (state) => state.errorMessage?.isNotEmpty ?? false,

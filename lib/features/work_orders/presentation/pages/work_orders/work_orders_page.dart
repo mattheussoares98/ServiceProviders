@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -29,13 +30,7 @@ class WorkOrdersPage extends StatelessWidget {
           .loadWorkOrdersAndChangeRequests,
       appBar: BaseAppBar(
         title: 'Ordens de serviço'.hardcoded,
-        leading: BaseIconButton(
-          onPressed: () => Scaffold.of(context).openDrawer(),
-          platformIcon: const PlatformIcon(
-            materialIcon: Icons.menu,
-            cupertinoIcon: CupertinoIcons.bars,
-          ),
-        ),
+        leading: const OpenDrawerIconButton(),
         actions: [
           BaseIconButton(
             onPressed: () {
