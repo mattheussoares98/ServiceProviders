@@ -5,10 +5,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -28,13 +30,22 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
     required void Function(String value) onCompanyChanged,
   }) {
     return showModalPage(
-      CreateServiceProviderCompanyDialog(onCompanyChanged: onCompanyChanged),
+      BlocProvider.value(
+        value: context.read<ServiceProvidersCubit>(),
+        child: CreateServiceProviderCompanyDialog(
+          onCompanyChanged: onCompanyChanged,
+        ),
+      ),
       context,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    observeLoading(
+      [context.read<ServiceProvidersCubit>()],
+      statuses: {StateStatus.saving},
+    );
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController();
     final emailController = useTextEditingController();
@@ -131,6 +142,7 @@ class CreateServiceProviderCompanyDialog extends HookWidget {
               focusNode: documentFocusNode,
               keyboardType: TextInputType.number,
               maxLength: documentType.value == DocumentType.cpf ? 11 : 14,
+              autovalidateMode: AutovalidateMode.onUserInteractionIfError,
               validator: FormValidators.compose([
                 CpfCnpjValidator(
                   validateOnlyCnpj: documentType.value == DocumentType.cnpj,

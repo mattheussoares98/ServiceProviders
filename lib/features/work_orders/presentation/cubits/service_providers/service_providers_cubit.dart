@@ -148,16 +148,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       await loadCompanies(company.companyId);
       return true;
     } else {
+      final errorMessage =
+          result.message ?? 'Erro ao salvar prestador de serviços'.hardcoded;
+
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage:
-              result.message ??
-              'Erro ao salvar prestador de serviços'.hardcoded,
+          errorMessage: errorMessage,
         ),
-
-        //TODO test how it is being showed in the UI
       );
+
+      showErrorToast(errorMessage);
       return false;
     }
   }

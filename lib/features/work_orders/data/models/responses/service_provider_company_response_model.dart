@@ -62,7 +62,7 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     'company_id': companyId,
     'name': name,
     'document': document,
-    'document_type': documentType,
+    'document_type': documentType.name,
     'contact_email': contactEmail,
     'contact_phone': contactPhone,
     'is_active': isActive,
