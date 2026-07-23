@@ -3,13 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockLocalStorageClient mockLocalStorageClient;
   late ConfigurationsLocalDataSourceImpl dataSource;
+
+  setUpAll(() {
+    registerFallbackValue(EntityFactory.makeConfigurationsEntity());
+  });
 
   setUp(() {
     mockLocalStorageClient = MockLocalStorageClient();
@@ -20,7 +25,7 @@ void main() {
 
   group('getConfigurations', () {
     test(
-      'should return SuccessState containing ConfigurationsEntity from LocalStorageClient',
+      'should return SuccessState containing ConfigurationsResponseModel from LocalStorageClient',
       () async {
         final tPushEnabled = faker.randomGenerator.boolean();
         final tThemeMode = faker.randomGenerator.element([
@@ -38,8 +43,9 @@ void main() {
 
         final result = await dataSource.getConfigurations();
 
-        expect(result, isA<SuccessState<ConfigurationsEntity>>());
-        final entity = (result as SuccessState<ConfigurationsEntity>).data;
+        expect(result, isA<SuccessState<ConfigurationsResponseModel>>());
+        final entity =
+            (result as SuccessState<ConfigurationsResponseModel>).data;
         expect(entity?.pushNotificationsEnabled, tPushEnabled);
         expect(entity?.themeMode, tThemeMode);
         expect(entity?.systemNotificationsEnabled, false);
@@ -55,7 +61,7 @@ void main() {
 
       final result = await dataSource.getConfigurations();
 
-      expect(result, isA<FailureState<ConfigurationsEntity>>());
+      expect(result, isA<FailureState<ConfigurationsResponseModel>>());
     });
   });
 
@@ -84,5 +90,48 @@ void main() {
 
       expect(result, isA<FailureState<bool>>());
     });
+  });
+
+  group('saveConfigurations', () {
+    test(
+      'should call savePushNotifications and saveThemeMode on LocalStorageClient',
+      () async {
+        final tEntity = EntityFactory.makeConfigurationsEntity();
+
+        when(
+          () => mockLocalStorageClient.savePushNotifications(any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockLocalStorageClient.saveThemeMode(any()),
+        ).thenAnswer((_) async {});
+
+        final result = await dataSource.saveConfigurations(tEntity);
+
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockLocalStorageClient.savePushNotifications(
+            tEntity.pushNotificationsEnabled,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalStorageClient.saveThemeMode(tEntity.themeMode),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return FailureState when saving configurations throws error',
+      () async {
+        final tEntity = EntityFactory.makeConfigurationsEntity();
+
+        when(
+          () => mockLocalStorageClient.savePushNotifications(any()),
+        ).thenThrow(Exception('Save error'));
+
+        final result = await dataSource.saveConfigurations(tEntity);
+
+        expect(result, isA<FailureState<bool>>());
+      },
+    );
   });
 }
