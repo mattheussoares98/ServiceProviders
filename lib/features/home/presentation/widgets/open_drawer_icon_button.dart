@@ -9,7 +9,14 @@ class OpenDrawerIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseIconButton(
-      onPressed: Scaffold.of(context).openDrawer,
+      onPressed: () {
+        var scaffoldState = Scaffold.maybeOf(context);
+        while (scaffoldState != null && !scaffoldState.hasDrawer) {
+          scaffoldState = scaffoldState.context
+              .findAncestorStateOfType<ScaffoldState>();
+        }
+        scaffoldState?.openDrawer();
+      },
       platformIcon: const PlatformIcon(
         materialIcon: Icons.menu,
         cupertinoIcon: CupertinoIcons.bars,
