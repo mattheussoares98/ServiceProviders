@@ -2,13 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-Future<T?> showModalPage<T>(Widget body, BuildContext context) async {
+Future<T?> showModalPage<T>(
+  Widget body,
+  BuildContext context, {
+  bool isScrollControlled = true,
+  bool useDraggable = true,
+  double initialChildSize = 0.95,
+  double minChildSize = 0.5,
+  double maxChildSize = 0.95,
+}) async {
   final result = await showModalBottomSheet<T>(
     context: context,
-    isScrollControlled: true, // Allows the modal to be full-screen
+    isScrollControlled: isScrollControlled,
     backgroundColor: Colors.transparent,
     useSafeArea: true,
     builder: (context) {
+      if (!useDraggable) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(onTap: Navigator.of(context).pop),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(child: _Body(body: body, expand: false)),
+            ),
+          ],
+        );
+      }
       return Stack(
         children: [
           Positioned.fill(
@@ -16,11 +37,10 @@ Future<T?> showModalPage<T>(Widget body, BuildContext context) async {
           ),
           DraggableScrollableSheet(
             expand: false,
-            initialChildSize: 0.95,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
+            initialChildSize: initialChildSize,
+            minChildSize: minChildSize,
+            maxChildSize: maxChildSize,
             builder: (_, controller) {
-              //TODO test using BaseScaffold below
               return SafeArea(child: _Body(body: body));
             },
           ),
@@ -32,8 +52,9 @@ Future<T?> showModalPage<T>(Widget body, BuildContext context) async {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.body});
+  const _Body({required this.body, this.expand = true});
   final Widget body;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +64,7 @@ class _Body extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           //dragglable indicator
           Center(
@@ -56,9 +78,14 @@ class _Body extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-            child: Scaffold(backgroundColor: Colors.transparent, body: body),
-          ),
+          if (expand)
+            Expanded(
+              child: Scaffold(backgroundColor: Colors.transparent, body: body),
+            )
+          else
+            Flexible(
+              child: Material(color: Colors.transparent, child: body),
+            ),
           // const SizedBox(height: Sizes.p12),
         ],
       ),
