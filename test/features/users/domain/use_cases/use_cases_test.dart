@@ -1,6 +1,7 @@
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -14,10 +15,15 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_users_use_cas
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/invite_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_avatar_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 
+import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/external/external_mocks.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/services.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockUsersRepository mockRepository;
@@ -209,6 +215,118 @@ void main() {
         expect(result, isA<SuccessState<void>>());
         verify(() => mockRepository.resendInvitation(invitation)).called(1);
       });
+    });
+
+    group('UpdateUserAvatarUseCase', () {
+      late MockStorageClient mockStorage;
+      late MockSetSessionUseCase mockSetSession;
+      late MockSaveUserDataUseCase mockSaveUserData;
+      late MockSupabaseAuthClient mockAuth;
+      late MockFileService mockFileService;
+      late UpdateUserAvatarUseCase updateUserAvatarUseCase;
+
+      setUp(() {
+        mockStorage = MockStorageClient();
+        mockSetSession = MockSetSessionUseCase();
+        mockSaveUserData = MockSaveUserDataUseCase();
+        mockAuth = MockSupabaseAuthClient();
+        mockFileService = MockFileService();
+        updateUserAvatarUseCase = UpdateUserAvatarUseCase(
+          storageClient: mockStorage,
+          usersRepository: mockRepository,
+          setSession: mockSetSession,
+          saveUserData: mockSaveUserData,
+          authClient: mockAuth,
+          fileService: mockFileService,
+        );
+      });
+
+      test(
+        'should successfully upload avatar and update profile and session',
+        () async {
+          final localPath = '${faker.lorem.word()}.jpg';
+          final params = UpdateUserAvatarParams(
+            userProfile: tUserProfileEntity,
+            localPath: localPath,
+          );
+
+          when(
+            () => mockFileService.getMimeType(any()),
+          ).thenReturn('image/jpeg');
+          when(() => mockStorage.getPresignedUploadUrl(any())).thenAnswer(
+            (_) async => const SuccessState(
+              data: PresignedUrlResponse(
+                uploadUrl: 'http://upload',
+                fileKey: 'key',
+                publicUrl: 'http://public',
+              ),
+            ),
+          );
+          when(
+            () => mockStorage.uploadFile(
+              presignedUrl: any(named: 'presignedUrl'),
+              filePath: any(named: 'filePath'),
+              mimeType: any(named: 'mimeType'),
+            ),
+          ).thenAnswer((_) async => const SuccessState(data: 'http://public'));
+
+          when(
+            () => mockRepository.updateUserProfile(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockAuth.currentSession).thenReturn(null);
+          when(
+            () => mockSaveUserData.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await updateUserAvatarUseCase(params);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+
+          verify(() => mockFileService.getMimeType(localPath)).called(1);
+          verify(() => mockStorage.getPresignedUploadUrl(any())).called(1);
+          verify(
+            () => mockStorage.uploadFile(
+              presignedUrl: 'http://upload',
+              filePath: localPath,
+              mimeType: 'image/jpeg',
+            ),
+          ).called(1);
+          verify(() => mockRepository.updateUserProfile(any())).called(1);
+          verify(() => mockSetSession.call(any())).called(1);
+          verify(() => mockSaveUserData.call(any())).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when getPresignedUploadUrl fails',
+        () async {
+          final localPath = '${faker.lorem.word()}.jpg';
+          final params = UpdateUserAvatarParams(
+            userProfile: tUserProfileEntity,
+            localPath: localPath,
+          );
+
+          when(
+            () => mockFileService.getMimeType(any()),
+          ).thenReturn('image/jpeg');
+          when(
+            () => mockStorage.getPresignedUploadUrl(any()),
+          ).thenAnswer((_) async => FailureState(message: 'presigned error'));
+
+          final result = await updateUserAvatarUseCase(params);
+
+          expect(result, isA<FailureState<bool>>());
+          expect((result as FailureState).message, 'presigned error');
+          verifyNever(
+            () => mockStorage.uploadFile(
+              presignedUrl: any(named: 'presignedUrl'),
+              filePath: any(named: 'filePath'),
+              mimeType: any(named: 'mimeType'),
+            ),
+          );
+        },
+      );
     });
   });
 

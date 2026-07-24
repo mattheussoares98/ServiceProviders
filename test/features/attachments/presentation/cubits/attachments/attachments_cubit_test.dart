@@ -462,8 +462,9 @@ void main() {
       'should call pruneSandbox before picking attachments',
       build: () {
         when(() => mockGetSessionUser()).thenReturn(tUser);
-        when(() => mockGetAttachments(any()))
-            .thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
         when(
           () => mockPickAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
