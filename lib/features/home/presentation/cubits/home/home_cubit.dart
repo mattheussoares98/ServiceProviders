@@ -50,6 +50,7 @@ class HomeCubit extends BaseCubit<HomeState> {
         workOrderId: 'avatar', // Dummy ID for R2 path prefix validation
         companyId: user.companyId,
         userId: user.id,
+        multiple: false,
       ),
     );
 

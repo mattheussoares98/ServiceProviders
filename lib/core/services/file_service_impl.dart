@@ -29,8 +29,8 @@ final class FileServiceImpl implements FileService {
   Future<String?> recordVideo() => _helper.recordVideo();
 
   @override
-  Future<List<PickedFile>?> pickMediaFromGallery() =>
-      _helper.pickMediaFromGallery();
+  Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true}) =>
+      _helper.pickMediaFromGallery(multiple: multiple);
 
   @override
   Future<List<PickedFile>?> pickDocuments() => _helper.pickDocuments();

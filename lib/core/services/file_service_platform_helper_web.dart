@@ -61,8 +61,17 @@ final class FileServiceWeb implements FileServicePlatformHelper {
   }
 
   @override
-  Future<List<PickedFile>?> pickMediaFromGallery() async {
-    final xFiles = await _imagePicker.pickMultipleMedia();
+  Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true}) async {
+    final List<XFile> xFiles;
+    if (multiple) {
+      xFiles = await _imagePicker.pickMultipleMedia();
+    } else {
+      final xFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+      xFiles = xFile != null ? [xFile] : [];
+    }
     if (xFiles.isEmpty) return null;
 
     final picked = <PickedFile>[];

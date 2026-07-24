@@ -135,10 +135,20 @@ void main() {
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenReturn(tUser);
         when(
-          () => mockpickAttachment.call(any()),
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
         ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
         when(
-          () => mockUpdateUserAvatarUseCase.call(any()),
+          () => mockUpdateUserAvatarUseCase.call(
+            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+          ),
         ).thenAnswer((_) async => const SuccessState(data: true));
         return homeCubit;
       },
@@ -149,8 +159,22 @@ void main() {
       ],
       verify: (cubit) {
         verify(() => mockGetSessionUserUseCase.call()).called(1);
-        verify(() => mockpickAttachment.call(any())).called(1);
-        verify(() => mockUpdateUserAvatarUseCase.call(any())).called(1);
+        verify(
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockUpdateUserAvatarUseCase.call(
+            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+          ),
+        ).called(1);
       },
     );
 
@@ -159,7 +183,15 @@ void main() {
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenReturn(tUser);
         when(
-          () => mockpickAttachment.call(any()),
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
         ).thenAnswer((_) async => const SuccessState(data: []));
         return homeCubit;
       },
@@ -170,7 +202,17 @@ void main() {
       ],
       verify: (cubit) {
         verify(() => mockGetSessionUserUseCase.call()).called(1);
-        verify(() => mockpickAttachment.call(any())).called(1);
+        verify(
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
+        ).called(1);
         verifyNever(() => mockUpdateUserAvatarUseCase.call(any()));
       },
     );
@@ -180,10 +222,20 @@ void main() {
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenReturn(tUser);
         when(
-          () => mockpickAttachment.call(any()),
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
         ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
         when(
-          () => mockUpdateUserAvatarUseCase.call(any()),
+          () => mockUpdateUserAvatarUseCase.call(
+            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+          ),
         ).thenAnswer((_) async => FailureState(message: 'Upload error'));
         return homeCubit;
       },
@@ -198,8 +250,22 @@ void main() {
       ],
       verify: (cubit) {
         verify(() => mockGetSessionUserUseCase.call()).called(1);
-        verify(() => mockpickAttachment.call(any())).called(1);
-        verify(() => mockUpdateUserAvatarUseCase.call(any())).called(1);
+        verify(
+          () => mockpickAttachment.call(
+            PickAttachmentParams(
+              source: AttachmentSource.gallery,
+              workOrderId: 'avatar',
+              companyId: tUser.companyId,
+              userId: tUser.id,
+              multiple: false,
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockUpdateUserAvatarUseCase.call(
+            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+          ),
+        ).called(1);
       },
     );
   });

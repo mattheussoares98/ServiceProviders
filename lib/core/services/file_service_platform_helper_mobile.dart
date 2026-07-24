@@ -81,12 +81,21 @@ final class FileServiceMobile implements FileServicePlatformHelper {
   }
 
   @override
-  Future<List<PickedFile>?> pickMediaFromGallery() async {
-    final xFiles = await _imagePicker.pickMultipleMedia();
-    if (xFiles.isEmpty) return null;
-    return xFiles
-        .map((f) => (path: f.path, name: f.name, bytes: null))
-        .toList();
+  Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true}) async {
+    if (multiple) {
+      final xFiles = await _imagePicker.pickMultipleMedia();
+      if (xFiles.isEmpty) return null;
+      return xFiles
+          .map((f) => (path: f.path, name: f.name, bytes: null))
+          .toList();
+    } else {
+      final xFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+      if (xFile == null) return null;
+      return [(path: xFile.path, name: xFile.name, bytes: null)];
+    }
   }
 
   @override

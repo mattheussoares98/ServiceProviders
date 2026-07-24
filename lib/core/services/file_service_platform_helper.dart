@@ -12,7 +12,7 @@ abstract interface class FileServicePlatformHelper {
   Future<bool> fileExists(String path);
   Future<String?> takePhoto();
   Future<String?> recordVideo();
-  Future<List<PickedFile>?> pickMediaFromGallery();
+  Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true});
   Future<List<PickedFile>?> pickDocuments();
   FutureString compressAndSaveImage(String sourcePath);
   FutureString compressAndSaveVideo(String sourcePath);

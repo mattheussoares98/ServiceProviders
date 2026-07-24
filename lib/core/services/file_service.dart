@@ -33,10 +33,10 @@ abstract interface class FileService {
   /// Returns the temporary file path, or `null` if the user cancelled.
   Future<String?> recordVideo();
 
-  /// Opens the gallery for multi-selection of both images and videos.
+  /// Opens the gallery for selection of both images and videos.
   ///
   /// Returns a list of [PickedFile] records, or `null` if the user cancelled.
-  Future<List<PickedFile>?> pickMediaFromGallery();
+  Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true});
 
   /// Opens the file picker for multi-document selection (PDF, DOCX, XLSX).
   ///

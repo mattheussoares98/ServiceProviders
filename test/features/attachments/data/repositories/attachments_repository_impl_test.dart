@@ -554,6 +554,64 @@ void main() {
         verifyNever(() => mockRemoteDataSource.confirmUpload(any()));
       },
     );
+
+    test(
+      'should call pickMediaFromGallery with multiple: false when multiple: false is passed',
+      () async {
+        final tempDir = Directory.systemTemp.createTempSync(
+          'attachments_test_',
+        );
+        final mockPath = '${tempDir.path}/test_gallery_image.jpg';
+        final f = File(mockPath);
+        if (!f.existsSync()) {
+          f
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(List.filled(10, 0));
+        }
+
+        when(
+          () => fileService.pickMediaFromGallery(multiple: false),
+        ).thenAnswer(
+          (_) async => [
+            (path: mockPath, name: 'test_gallery_image.jpg', bytes: null),
+          ],
+        );
+        when(
+          () => fileService.getFileSizeBytes(mockPath),
+        ).thenAnswer((_) async => 1024);
+
+        final sandboxPath = '${tempDir.path}/sandbox_image.webp';
+        final fSandbox = File(sandboxPath);
+        if (!fSandbox.existsSync()) {
+          fSandbox
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(List.filled(5, 0));
+        }
+
+        when(
+          () => fileService.compressAndSaveImage(mockPath),
+        ).thenAnswer((_) async => SuccessState(data: sandboxPath));
+        when(
+          () => fileService.getFileSizeBytes(sandboxPath),
+        ).thenAnswer((_) async => 500);
+
+        final result = await repository.pickAndPrepareAttachment(
+          source: AttachmentSource.gallery,
+          workOrderId: workOrderId,
+          companyId: companyId,
+          uploadedById: uploadedById,
+          multiple: false,
+        );
+
+        expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+        expect(result.data!.length, 1);
+        expect(result.data!.first.localPath, sandboxPath);
+
+        verify(
+          () => fileService.pickMediaFromGallery(multiple: false),
+        ).called(1);
+      },
+    );
   });
 
   group('uploadPendingAttachment', () {

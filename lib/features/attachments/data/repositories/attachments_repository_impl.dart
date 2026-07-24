@@ -242,9 +242,10 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required String companyId,
     required String uploadedById,
     void Function(int count)? onFilesPicked,
+    bool multiple = true,
   }) async {
     try {
-      final pickedFiles = await _pickFiles(source);
+      final pickedFiles = await _pickFiles(source, multiple: multiple);
       if (pickedFiles == null || pickedFiles.isEmpty) {
         return const SuccessState(data: []);
       }
@@ -387,7 +388,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   // Private helpers
   // ──────────────────────────────────────────
 
-  Future<List<PickedFile>?> _pickFiles(AttachmentSource source) =>
+  Future<List<PickedFile>?> _pickFiles(AttachmentSource source, {bool multiple = true}) =>
       switch (source) {
         // Camera picks always produce unique files — name is not meaningful
         // for deduplication, so we reuse path as the name.
@@ -399,7 +400,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
           (path) =>
               path != null ? [(path: path, name: path, bytes: null)] : null,
         ),
-        AttachmentSource.gallery => _fileService.pickMediaFromGallery(),
+        AttachmentSource.gallery => _fileService.pickMediaFromGallery(multiple: multiple),
         AttachmentSource.document => _fileService.pickDocuments(),
       };
 

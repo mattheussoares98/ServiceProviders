@@ -12,6 +12,7 @@ class PickAttachmentParams extends Equatable {
     required this.companyId,
     required this.userId,
     this.onFilesPicked,
+    this.multiple = true,
   });
 
   final AttachmentSource source;
@@ -19,9 +20,10 @@ class PickAttachmentParams extends Equatable {
   final String companyId;
   final String userId;
   final void Function(int count)? onFilesPicked;
+  final bool multiple;
 
   @override
-  List<Object?> get props => [source, workOrderId, companyId, userId];
+  List<Object?> get props => [source, workOrderId, companyId, userId, multiple];
 }
 
 @LazySingleton()
@@ -40,5 +42,6 @@ class PickAttachmentUseCase
         companyId: request.companyId,
         uploadedById: request.userId,
         onFilesPicked: request.onFilesPicked,
+        multiple: request.multiple,
       );
 }

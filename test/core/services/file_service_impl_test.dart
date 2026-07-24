@@ -258,6 +258,33 @@ void main() {
       final result = await service.pickMediaFromGallery();
       expect(result, isNull);
     });
+
+    test('returns single file path when multiple = false', () async {
+      final fakePath = '${tempDir.path}/${faker.guid.guid()}.jpg';
+      when(
+        () => mockImagePicker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 100,
+        ),
+      ).thenAnswer((_) async => XFile(fakePath));
+
+      final result = await service.pickMediaFromGallery(multiple: false);
+      expect(result, [
+        (path: fakePath, name: fakePath.split('/').last, bytes: null),
+      ]);
+    });
+
+    test('returns null when user cancels single file pick (multiple = false)', () async {
+      when(
+        () => mockImagePicker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 100,
+        ),
+      ).thenAnswer((_) async => null);
+
+      final result = await service.pickMediaFromGallery(multiple: false);
+      expect(result, isNull);
+    });
   });
 
   group('readFileAsBytes', () {
