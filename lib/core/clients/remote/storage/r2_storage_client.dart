@@ -4,12 +4,13 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart'
     show HttpClient;
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
-import 'package:o_jogo_da_obra/core/constants/api_endpoints.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show HttpMethod;
 
 /// Cloudflare R2 implementation of [StorageClient].
 ///
@@ -18,38 +19,33 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// self-authenticating and must not carry the backend JWT.
 @LazySingleton(as: StorageClient)
 final class R2StorageClient implements StorageClient {
-  R2StorageClient({required FileService fileService})
-    : _fileService = fileService,
-      _dio = Dio();
-
-  @visibleForTesting
-  R2StorageClient.withDio(Dio dio, FileService fileService)
-    : _dio = dio,
-      _fileService = fileService;
+  R2StorageClient({
+    required FileService fileService,
+    required SupabaseDatabaseClient database,
+    @visibleForTesting Dio? dio,
+  })  : _fileService = fileService,
+        _database = database,
+        _dio = dio ?? Dio();
 
   // A fresh Dio without any interceptors — presigned URLs are self-authenticating.
   final Dio _dio;
   final FileService _fileService;
+  final SupabaseDatabaseClient _database;
 
   @override
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey) {
-    return ErrorHandler.execute(() async {
-      final response = await _dio.post<MapDynamic>(
-        ApiEndpoints.presignedUploadUrl,
-        data: {'object_key': objectKey},
+    return SupabaseHandler.call(() async {
+      final response = await _database.invokeFunction(
+        'generate_presigned_url',
+        method: HttpMethod.post,
+        body: {'object_key': objectKey},
       );
 
-      final body = response.data;
-      if (body == null) {
-        return FailureState(message: 'Resposta vazia do servidor'.hardcoded);
-      }
-
-      return SuccessState(
-        data: PresignedUrlResponse(
-          uploadUrl: body['upload_url'] as String,
-          fileKey: body['file_key'] as String,
-          publicUrl: body['public_url'] as String? ?? '',
-        ),
+      final data = response.data as MapDynamic;
+      return PresignedUrlResponse(
+        uploadUrl: data['upload_url'] as String,
+        fileKey: data['file_key'] as String,
+        publicUrl: data['public_url'] as String? ?? '',
       );
     });
   }

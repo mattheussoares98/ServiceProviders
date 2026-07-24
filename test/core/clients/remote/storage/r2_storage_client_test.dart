@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -8,8 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/r2_storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show FunctionResponse, HttpMethod;
 
 // ──────────────────────────────────────────
 // Mocks
@@ -18,6 +20,9 @@ import 'package:o_jogo_da_obra/core/services/file_service.dart';
 class MockDio extends Mock implements Dio {}
 
 class MockFileService extends Mock implements FileService {}
+
+class MockSupabaseDatabaseClient extends Mock
+    implements SupabaseDatabaseClient {}
 
 // ──────────────────────────────────────────
 // Helpers
@@ -33,17 +38,24 @@ void main() {
   final faker = Faker();
   late MockDio mockDio;
   late MockFileService mockFileService;
+  late MockSupabaseDatabaseClient mockDatabase;
   late R2StorageClient client;
 
   setUp(() {
     mockDio = MockDio();
     mockFileService = MockFileService();
-    client = R2StorageClient.withDio(mockDio, mockFileService);
+    mockDatabase = MockSupabaseDatabaseClient();
+    client = R2StorageClient(
+      fileService: mockFileService,
+      database: mockDatabase,
+      dio: mockDio,
+    );
   });
 
   setUpAll(() {
     registerFallbackValue(Options());
     registerFallbackValue(RequestOptions());
+    registerFallbackValue(HttpMethod.post);
   });
 
   // ──────────────────────────────────────────
@@ -109,22 +121,21 @@ void main() {
         final publicUrl = 'https://cdn.example.com/$objectKey';
 
         when(
-          () => mockDio.post<Map<String, dynamic>>(
+          () => mockDatabase.invokeFunction(
             any(),
-            data: any(named: 'data'),
-            options: any(named: 'options'),
-            queryParameters: any(named: 'queryParameters'),
-            cancelToken: any(named: 'cancelToken'),
-            onSendProgress: any(named: 'onSendProgress'),
-            onReceiveProgress: any(named: 'onReceiveProgress'),
+            method: any(named: 'method'),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
           ),
         ).thenAnswer(
-          (_) async =>
-              _mockResponse({
-                'upload_url': uploadUrl,
-                'file_key': fileKey,
-                'public_url': publicUrl,
-              }),
+          (_) async => FunctionResponse(
+            status: 200,
+            data: {
+              'upload_url': uploadUrl,
+              'file_key': fileKey,
+              'public_url': publicUrl,
+            },
+          ),
         );
 
         final result = await client.getPresignedUploadUrl(objectKey);
@@ -137,46 +148,23 @@ void main() {
       },
     );
 
-    test('returns FailureState when response body is null', () async {
-      when(
-        () => mockDio.post<Map<String, dynamic>>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-          queryParameters: any(named: 'queryParameters'),
-          cancelToken: any(named: 'cancelToken'),
-          onSendProgress: any(named: 'onSendProgress'),
-          onReceiveProgress: any(named: 'onReceiveProgress'),
-        ),
-      ).thenAnswer((_) async => _mockResponse<Map<String, dynamic>>({}));
+    test(
+      'returns FailureState when database client throws an exception',
+      () async {
+        when(
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenThrow(Exception('Invoke failed'));
 
-      final result = await client.getPresignedUploadUrl(faker.guid.guid());
+        final result = await client.getPresignedUploadUrl(faker.guid.guid());
 
-      expect(result, isA<FailureState<PresignedUrlResponse>>());
-    });
-
-    test('returns FailureState when Dio throws a DioException', () async {
-      when(
-        () => mockDio.post<Map<String, dynamic>>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-          queryParameters: any(named: 'queryParameters'),
-          cancelToken: any(named: 'cancelToken'),
-          onSendProgress: any(named: 'onSendProgress'),
-          onReceiveProgress: any(named: 'onReceiveProgress'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(),
-          type: DioExceptionType.connectionError,
-        ),
-      );
-
-      final result = await client.getPresignedUploadUrl(faker.guid.guid());
-
-      expect(result, isA<FailureState<PresignedUrlResponse>>());
-    });
+        expect(result, isA<FailureState<PresignedUrlResponse>>());
+      },
+    );
   });
 
   // ──────────────────────────────────────────
@@ -191,8 +179,9 @@ void main() {
       tempFile = await File(
         '${Directory.systemTemp.path}/test_upload_${faker.guid.guid()}.webp',
       ).writeAsBytes(List.filled(512, 0));
-      when(() => mockFileService.readFileAsBytes(tempFile.path))
-          .thenAnswer((_) async => Uint8List.fromList(List.filled(512, 0)));
+      when(
+        () => mockFileService.readFileAsBytes(tempFile.path),
+      ).thenAnswer((_) async => Uint8List.fromList(List.filled(512, 0)));
     });
 
     tearDown(() async {
@@ -263,8 +252,9 @@ void main() {
 
     test('returns FailureState when file does not exist', () async {
       final nonExistentPath = '/nonexistent/${faker.guid.guid()}.webp';
-      when(() => mockFileService.readFileAsBytes(nonExistentPath))
-          .thenThrow(Exception('File not found'));
+      when(
+        () => mockFileService.readFileAsBytes(nonExistentPath),
+      ).thenThrow(Exception('File not found'));
 
       final result = await client.uploadFile(
         presignedUrl: 'https://bucket.r2.dev/file.webp?sig=abc',
