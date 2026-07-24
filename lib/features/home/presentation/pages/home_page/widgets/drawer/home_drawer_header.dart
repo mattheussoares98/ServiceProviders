@@ -6,10 +6,12 @@ import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachme
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -126,8 +128,8 @@ class HomeDrawerHeader extends StatelessWidget {
                                             source: BaseImageSource.network(
                                               avatarUrl,
                                             ),
-                                            width: Sizes.p80,
-                                            height: Sizes.p80,
+                                            width: Sizes.p100,
+                                            height: Sizes.p100,
                                             enableFullScreenOnTap: true,
                                           ),
                                         )
@@ -152,6 +154,21 @@ class HomeDrawerHeader extends StatelessWidget {
                             cupertinoIcon: CupertinoIcons.photo_camera_solid,
                           ),
                         ),
+                      ),
+                      BlocSelector<HomeCubit, HomeState, bool>(
+                        selector: (s) => s.status == StateStatus.saving,
+                        builder: (context, saving) {
+                          if (saving) {
+                            return const Positioned(
+                              right: 0,
+                              top: 0,
+                              bottom: 0,
+                              left: 0,
+                              child: LoadingCircle(),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ],
                   ),
