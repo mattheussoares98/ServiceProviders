@@ -60,7 +60,7 @@ final class FileServiceMobile implements FileServicePlatformHelper {
     );
     if (xFile != null) {
       try {
-        await Gal.putImage(xFile.path);
+        await Gal.putImage(xFile.path); //! save the file on camera roll
       } catch (_) {}
     }
     return xFile?.path;
@@ -74,7 +74,7 @@ final class FileServiceMobile implements FileServicePlatformHelper {
     );
     if (xFile != null) {
       try {
-        await Gal.putVideo(xFile.path);
+        await Gal.putVideo(xFile.path); //! save the file on camera roll
       } catch (_) {}
     }
     return xFile?.path;
