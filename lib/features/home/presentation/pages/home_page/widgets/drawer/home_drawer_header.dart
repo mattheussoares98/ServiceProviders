@@ -8,8 +8,10 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -19,37 +21,57 @@ class HomeDrawerHeader extends StatelessWidget {
   const HomeDrawerHeader({super.key});
 
   void _showImageSourcePicker(BuildContext context) {
-    //TODO change this to a showModalPage. But we should be able to pass the height in the showModalPage
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (modalContext) => CupertinoActionSheet(
-        title: BaseText.title('Alterar foto de perfil'.hardcoded),
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: BaseText('Tirar foto'.hardcoded),
-            onPressed: () {
-              Navigator.pop(modalContext);
-              context.read<HomeCubit>().changeAvatar(
-                AttachmentSource.cameraPhoto,
-              );
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: BaseText('Escolher da galeria'.hardcoded),
-            onPressed: () {
-              Navigator.pop(modalContext);
-              context.read<HomeCubit>().changeAvatar(AttachmentSource.gallery);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          isDefaultAction: true,
-          onPressed: () {
-            Navigator.pop(modalContext);
-          },
-          child: BaseText('Cancelar'.hardcoded),
+    showModalPage<void>(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Sizes.p24,
+          Sizes.p8,
+          Sizes.p24,
+          Sizes.p24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: BaseText.title('Alterar foto de perfil'.hardcoded),
+            ),
+            const SizedBox(height: Sizes.p16),
+            BaseListTile(
+              padding: EdgeInsets.zero,
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.camera_alt_outlined,
+                cupertinoIcon: CupertinoIcons.camera,
+              ),
+              title: 'Tirar foto'.hardcoded,
+              onTap: () {
+                Navigator.pop(context);
+                context.read<HomeCubit>().changeAvatar(
+                  AttachmentSource.cameraPhoto,
+                );
+              },
+            ),
+            const Divider(height: 1),
+            BaseListTile(
+              padding: EdgeInsets.zero,
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.photo_library_outlined,
+                cupertinoIcon: CupertinoIcons.photo,
+              ),
+              title: 'Escolher da galeria'.hardcoded,
+              onTap: () {
+                Navigator.pop(context);
+                context.read<HomeCubit>().changeAvatar(
+                  AttachmentSource.gallery,
+                );
+              },
+            ),
+          ],
         ),
       ),
+      context,
+      useDraggable: false,
     );
   }
 
