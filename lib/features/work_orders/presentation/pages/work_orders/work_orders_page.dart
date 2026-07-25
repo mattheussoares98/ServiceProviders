@@ -23,6 +23,7 @@ class WorkOrdersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //TODO check this entire page because of the last changes
+    //TODO check whether is saving the work orders locally or not because of the offline first approach
     return BaseScaffold(
       isScrollable: false,
       onRefresh: context
