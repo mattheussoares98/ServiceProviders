@@ -1,17 +1,14 @@
-import 'package:equatable/equatable.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
-class WorkOrderObservationsState extends Equatable {
+class WorkOrderObservationsState extends BaseState {
   const WorkOrderObservationsState({
-    this.status = StateStatus.initial,
+    super.status = StateStatus.initial,
     this.observations = const [],
-    this.errorMessage,
+    super.errorMessage,
   });
 
-  final StateStatus status;
   final List<WorkOrderObservationEntity> observations;
-  final String? errorMessage;
 
   @override
   List<Object?> get props => [status, observations, errorMessage];
