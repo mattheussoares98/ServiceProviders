@@ -19,6 +19,7 @@ You focus on aesthetics, responsiveness, and clean widget trees. You do NOT writ
 - Declared as a `part of` the cubit file.
 - Must extend `BaseState` (which provides `status` of type `StateStatus`).
 - Must implement `props` for Equatable.
+- **Error Toast**: Call `showDataStateToast(res)` on Cubit errors to display failure on screen.
 
 ```dart
 // State (presentation/cubits/login/login_state.dart)
@@ -44,7 +45,7 @@ class LoginCubit extends BaseCubit<LoginState> {
       await replaceAllRoute(const HomeRoute());
     } else {
       emit(state.copyWith(status: StateStatus.error));
-      showToast(res.message);
+      showDataStateToast(res);
     }
   }
 }
