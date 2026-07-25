@@ -12,6 +12,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     required this.reassign,
     required this.approvePause,
     required this.approveCompletion,
+    required this.deleteObservation,
   });
 
   const WorkOrdersPermissionEntity.defaultTechnical()
@@ -22,7 +23,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = false,
       approvePause = false,
-      approveCompletion = false;
+      approveCompletion = false,
+      deleteObservation = false;
 
   const WorkOrdersPermissionEntity.defaultSupervisor()
     : readScope = WorkOrderReadScope.all,
@@ -32,7 +34,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = true,
       approvePause = true,
-      approveCompletion = true;
+      approveCompletion = true,
+      deleteObservation = true;
 
   const WorkOrdersPermissionEntity.defaultAdmin()
     : readScope = WorkOrderReadScope.all,
@@ -42,7 +45,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = true,
       approvePause = true,
-      approveCompletion = true;
+      approveCompletion = true,
+      deleteObservation = true;
 
   final WorkOrderReadScope readScope;
   final bool create;
@@ -52,6 +56,7 @@ class WorkOrdersPermissionEntity extends Equatable {
   final bool reassign;
   final bool approvePause;
   final bool approveCompletion;
+  final bool deleteObservation;
 
   @override
   List<Object?> get props => [
@@ -63,6 +68,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     reassign,
     approvePause,
     approveCompletion,
+    deleteObservation,
   ];
 
   WorkOrdersPermissionEntity copyWith({
@@ -74,6 +80,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     bool? reassign,
     bool? approvePause,
     bool? approveCompletion,
+    bool? deleteObservation,
   }) {
     return WorkOrdersPermissionEntity(
       readScope: readScope ?? this.readScope,
@@ -84,6 +91,7 @@ class WorkOrdersPermissionEntity extends Equatable {
       reassign: reassign ?? this.reassign,
       approvePause: approvePause ?? this.approvePause,
       approveCompletion: approveCompletion ?? this.approveCompletion,
+      deleteObservation: deleteObservation ?? this.deleteObservation,
     );
   }
 }

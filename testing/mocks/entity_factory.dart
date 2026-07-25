@@ -40,6 +40,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_c
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -589,4 +590,27 @@ abstract final class EntityFactory {
       makePauseRequestEntity(),
     ];
   }
+
+  // Work Order Observation
+  static WorkOrderObservationEntity makeWorkOrderObservationEntity() {
+    return WorkOrderObservationEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      workOrderId: _makeId(),
+      authorId: _makeId(),
+      authorName: _makePhrase(),
+      content: _makePhrase(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<WorkOrderObservationEntity> makeWorkOrderObservationEntityList() {
+    return [
+      makeWorkOrderObservationEntity(),
+      makeWorkOrderObservationEntity(),
+      makeWorkOrderObservationEntity(),
+    ];
+  }
 }
+

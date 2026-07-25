@@ -12,6 +12,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     this.reassign,
     this.approvePause,
     this.approveCompletion,
+    this.deleteObservation,
   });
 
   const UserWorkOrdersPermissionOverrideEntity.empty()
@@ -22,7 +23,8 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
       changeStatus = null,
       reassign = null,
       approvePause = null,
-      approveCompletion = null;
+      approveCompletion = null,
+      deleteObservation = null;
 
   final WorkOrderReadScope? readScope;
   final bool? create;
@@ -32,6 +34,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
   final bool? reassign;
   final bool? approvePause;
   final bool? approveCompletion;
+  final bool? deleteObservation;
 
   @override
   List<Object?> get props => [
@@ -43,6 +46,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     reassign,
     approvePause,
     approveCompletion,
+    deleteObservation,
   ];
 
   UserWorkOrdersPermissionOverrideEntity copyWith({
@@ -54,6 +58,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? reassign,
     bool? approvePause,
     bool? approveCompletion,
+    bool? deleteObservation,
     bool? annulReadScope,
     bool? annulCreate,
     bool? annulUpdateScope,
@@ -62,6 +67,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? annulReassign,
     bool? annulApprovePause,
     bool? annulApproveCompletion,
+    bool? annulDeleteObservation,
   }) {
     return UserWorkOrdersPermissionOverrideEntity(
       readScope: annulReadScope == true ? null : readScope ?? this.readScope,
@@ -80,6 +86,9 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
       approveCompletion: annulApproveCompletion == true
           ? null
           : approveCompletion ?? this.approveCompletion,
+      deleteObservation: annulDeleteObservation == true
+          ? null
+          : deleteObservation ?? this.deleteObservation,
     );
   }
 }

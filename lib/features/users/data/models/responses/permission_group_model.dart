@@ -128,6 +128,8 @@ class PermissionGroupModel extends PermissionGroupEntity
           final approvePause = data['work_orders.approve_pause'] == true;
           final approveCompletion =
               data['work_orders.approve_completion'] == true;
+          final deleteObservation =
+              data['work_orders.delete_observation'] == true;
 
           workOrders = WorkOrdersPermissionEntity(
             readScope: readScope,
@@ -138,6 +140,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             reassign: reassign,
             approvePause: approvePause,
             approveCompletion: approveCompletion,
+            deleteObservation: deleteObservation,
           );
         }
       } else if (data is List) {
@@ -212,6 +215,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             reassign: false,
             approvePause: false,
             approveCompletion: false,
+            deleteObservation: false,
           );
         }
       }
@@ -238,6 +242,7 @@ class PermissionGroupModel extends PermissionGroupEntity
     flat['work_orders.reassign'] = workOrders.reassign;
     flat['work_orders.approve_pause'] = workOrders.approvePause;
     flat['work_orders.approve_completion'] = workOrders.approveCompletion;
+    flat['work_orders.delete_observation'] = workOrders.deleteObservation;
 
     return {
       'id': id,
