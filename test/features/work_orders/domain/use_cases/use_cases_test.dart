@@ -21,7 +21,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_pol
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
@@ -60,6 +62,9 @@ void main() {
   late RequestPauseUseCase requestPauseUseCase;
   late ReviewPauseUseCase reviewPauseUseCase;
   late CancelPauseUseCase cancelPauseUseCase;
+  late RequestCompletionUseCase requestCompletionUseCase;
+  late ReviewCompletionUseCase reviewCompletionUseCase;
+
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
@@ -152,7 +157,14 @@ void main() {
     cancelPauseUseCase = CancelPauseUseCase(
       pauseRepository: mockPauseRepository,
     );
+    requestCompletionUseCase = RequestCompletionUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    reviewCompletionUseCase = ReviewCompletionUseCase(
+      pauseRepository: mockPauseRepository,
+    );
   });
+
 
   group('CreateWorkOrderChangeRequestUseCase', () {
     final tChangeRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
@@ -754,4 +766,53 @@ void main() {
       ).called(1);
     });
   });
+
+  group('RequestCompletionUseCase', () {
+    final tRequest = EntityFactory.makePauseRequestEntity();
+
+    test('should call requestPause on pauseRepository and return true on success', () async {
+      when(() => mockPauseRepository.requestPause(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await requestCompletionUseCase(tRequest);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockPauseRepository.requestPause(tRequest)).called(1);
+    });
+  });
+
+  group('ReviewCompletionUseCase', () {
+    final tParams = ReviewCompletionParams(
+      id: faker.guid.guid(),
+      status: PauseRequestStatus.approved,
+      reviewedById: faker.guid.guid(),
+      reviewObservation: 'Approved completion',
+    );
+
+    test('should call reviewPause on pauseRepository and return true on success', () async {
+      when(
+        () => mockPauseRepository.reviewPause(
+          id: any(named: 'id'),
+          status: any(named: 'status'),
+          reviewedById: any(named: 'reviewedById'),
+          reviewObservation: any(named: 'reviewObservation'),
+        ),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await reviewCompletionUseCase(tParams);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockPauseRepository.reviewPause(
+          id: tParams.id,
+          status: tParams.status,
+          reviewedById: tParams.reviewedById,
+          reviewObservation: tParams.reviewObservation,
+        ),
+      ).called(1);
+    });
+  });
 }
+

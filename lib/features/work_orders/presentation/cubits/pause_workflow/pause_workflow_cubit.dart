@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -57,8 +58,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       );
     } else {
       final message =
-          result.message ??
-          'Erro ao carregar solicitações de pausa'.hardcoded;
+          result.message ?? 'Erro ao carregar solicitações de pausa'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
@@ -136,6 +136,59 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return true;
     } else {
       final message = result.message ?? 'Erro ao revisar pausa'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
+  Future<bool> requestCompletion(PauseRequestEntity request) async {
+    emit(state.copyWith(status: StateStatus.saving));
+    final result = await _useCases.requestCompletion(request);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      await loadPauseRequests(request.workOrderId);
+      return true;
+    } else {
+      final message = result.message ?? 'Erro ao solicitar conclusão'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
+  Future<bool> reviewCompletion({
+    required String id,
+    required PauseRequestStatus status,
+    required String reviewedById,
+    required String workOrderId,
+    String? reviewObservation,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+    final result = await _useCases.reviewCompletion(
+      ReviewCompletionParams(
+        id: id,
+        status: status,
+        reviewedById: reviewedById,
+        reviewObservation: reviewObservation,
+      ),
+    );
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      await loadPauseRequests(workOrderId);
+      return true;
+    } else {
+      final message =
+          result.message ??
+          'Erro ao revisar solicitação de conclusão'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
       );

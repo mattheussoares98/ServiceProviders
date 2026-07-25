@@ -9,7 +9,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
@@ -33,6 +35,12 @@ class MockGetPauseReasonsUseCase extends Mock
 class MockGetPauseRequestsUseCase extends Mock
     implements GetPauseRequestsUseCase {}
 
+class MockRequestCompletionUseCase extends Mock
+    implements RequestCompletionUseCase {}
+
+class MockReviewCompletionUseCase extends Mock
+    implements ReviewCompletionUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -42,6 +50,8 @@ void main() {
   late MockReviewPauseUseCase mockReviewPause;
   late MockGetPauseReasonsUseCase mockGetPauseReasons;
   late MockGetPauseRequestsUseCase mockGetPauseRequests;
+  late MockRequestCompletionUseCase mockRequestCompletion;
+  late MockReviewCompletionUseCase mockReviewCompletion;
   late MockNavigationClient mockNavigationClient;
 
   late PauseWorkflowCubit cubit;
@@ -57,7 +67,15 @@ void main() {
         reviewedById: '',
       ),
     );
+    registerFallbackValue(
+      const ReviewCompletionParams(
+        id: '',
+        status: PauseRequestStatus.approved,
+        reviewedById: '',
+      ),
+    );
   });
+
 
   setUp(() {
     mockGetSessionUser = MockGetSessionUserUseCase();
@@ -66,6 +84,8 @@ void main() {
     mockReviewPause = MockReviewPauseUseCase();
     mockGetPauseReasons = MockGetPauseReasonsUseCase();
     mockGetPauseRequests = MockGetPauseRequestsUseCase();
+    mockRequestCompletion = MockRequestCompletionUseCase();
+    mockReviewCompletion = MockReviewCompletionUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -80,6 +100,8 @@ void main() {
       reviewPause: mockReviewPause,
       getPauseReasons: mockGetPauseReasons,
       getPauseRequests: mockGetPauseRequests,
+      requestCompletion: mockRequestCompletion,
+      reviewCompletion: mockReviewCompletion,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -313,5 +335,111 @@ void main() {
         ],
       );
     });
+
+    group('requestCompletion', () {
+      final tRequest = EntityFactory.makePauseRequestEntity();
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit saving, loaded, loading, loaded when completion request succeeds',
+        build: () {
+          when(
+            () => mockRequestCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.requestCompletion(tRequest),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
+        ],
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit saving and savingError when completion request fails',
+        build: () {
+          when(
+            () => mockRequestCompletion.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Completion failed'));
+          return cubit;
+        },
+        act: (cubit) => cubit.requestCompletion(tRequest),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Completion failed'),
+        ],
+      );
+    });
+
+    group('reviewCompletion', () {
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit saving, loaded, loading, loaded when review completion succeeds',
+        build: () {
+          when(
+            () => mockReviewCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.reviewCompletion(
+          id: 'request-id',
+          status: PauseRequestStatus.approved,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+          reviewObservation: 'Approved completion',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+      );
+    });
   });
 }
+
