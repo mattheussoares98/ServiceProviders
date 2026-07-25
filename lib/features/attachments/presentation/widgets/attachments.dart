@@ -22,9 +22,11 @@ class Attachments extends StatelessWidget {
     super.key,
     required this.workOrderId,
     required this.isEditing,
+    this.padding,
   });
   final String workOrderId;
   final bool isEditing;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +62,7 @@ class Attachments extends StatelessWidget {
         ResponsiveListFlow(
           isSliver: true,
           maxItemWidth: 170,
+          padding: padding,
           useMultiColumnWhenMobile: true,
           itemCount: attachments.length + processingCount,
           itemBuilder: (context, index) {
