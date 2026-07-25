@@ -45,10 +45,13 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
                     state.errorMessage ??
                         'Ocorreu um erro não esperado. Tente novamente'
                             .hardcoded,
+                    color: Colors.red,
+                    fontStyle: FontStyle.italic,
                   ),
                   if (onRetry != null) ...[
                     gapH16,
                     PrimaryButton(
+                      color: Colors.red,
                       onTap: onRetry,
                       text: 'Tentar novamente'.hardcoded,
                     ),
