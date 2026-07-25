@@ -24,7 +24,7 @@ class CreateAssetButton extends StatelessWidget {
     );
 
     return BaseIconButton(
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.assets,
         action: PermissionAction.create,
       ),

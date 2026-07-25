@@ -178,10 +178,16 @@ void main() {
           when(
             () => mockGetSessionUser.call(),
           ).thenReturn(tSessionUser.copyWith(companyId: ''));
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error message'));
           return cubit;
         },
         act: (cubit) => cubit.loadUsers(),
         expect: () => [
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.users, 'users', isEmpty),
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.users, 'users', isEmpty),
@@ -1112,6 +1118,133 @@ void main() {
           );
 
           expect(hasPerm, isTrue);
+        },
+      );
+    });
+
+    group('hasActionPermission & hasWorkOrderSubActionPermission', () {
+      test(
+        'hasActionPermission routes ResourceActionPermission to hasPermission',
+        () {
+          final adminUser = tSessionUser.copyWith(isAdmin: true);
+          when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+          final result = cubit.hasActionPermission(
+            const ActionPermission.resource(
+              resource: ResourceType.assets,
+              action: PermissionAction.create,
+            ),
+          );
+
+          expect(result, isTrue);
+        },
+      );
+
+      test(
+        'hasActionPermission routes WorkOrderSubActionPermission to hasWorkOrderSubActionPermission',
+        () {
+          final adminUser = tSessionUser.copyWith(isAdmin: true);
+          when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+          final result = cubit.hasActionPermission(
+            const ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.deleteObservation,
+            ),
+          );
+
+          expect(result, isTrue);
+        },
+      );
+
+      test(
+        'should return true when user is admin for work order sub-actions',
+        () {
+          final adminUser = tSessionUser.copyWith(isAdmin: true);
+          when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+          for (final subAction in WorkOrderSubAction.values) {
+            expect(cubit.hasWorkOrderSubActionPermission(subAction), isTrue);
+          }
+        },
+      );
+
+      test('should return user override when override is explicitly set', () {
+        final regularUser = tSessionUser.copyWith(
+          isAdmin: false,
+          workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
+              .copyWith(deleteObservation: true, approvePause: false),
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+        expect(
+          cubit.hasWorkOrderSubActionPermission(
+            WorkOrderSubAction.deleteObservation,
+          ),
+          isTrue,
+        );
+        expect(
+          cubit.hasWorkOrderSubActionPermission(
+            WorkOrderSubAction.approvePause,
+          ),
+          isFalse,
+        );
+      });
+
+      test(
+        'should fallback to group permissions when user override is null',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+            workOrders: const UserWorkOrdersPermissionOverrideEntity.empty(),
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            workOrders: const WorkOrdersPermissionEntity.defaultSupervisor(),
+          );
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          expect(
+            cubit.hasWorkOrderSubActionPermission(
+              WorkOrderSubAction.deleteObservation,
+            ),
+            isTrue,
+          );
+          expect(
+            cubit.hasWorkOrderSubActionPermission(
+              WorkOrderSubAction.changeStatus,
+            ),
+            isTrue,
+          );
+        },
+      );
+
+      test(
+        'should return false when non-admin has no override and group is missing/inactive',
+        () {
+          final groupId = faker.guid.guid();
+          final regularUser = tSessionUser.copyWith(
+            isAdmin: false,
+            permissionGroupId: groupId,
+            workOrders: const UserWorkOrdersPermissionOverrideEntity.empty(),
+          );
+          when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+          final group = tPermissionGroup.copyWith(
+            id: groupId,
+            workOrders: const WorkOrdersPermissionEntity.defaultTechnical(),
+          );
+          cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
+
+          expect(
+            cubit.hasWorkOrderSubActionPermission(
+              WorkOrderSubAction.deleteObservation,
+            ),
+            isFalse,
+          );
         },
       );
     });

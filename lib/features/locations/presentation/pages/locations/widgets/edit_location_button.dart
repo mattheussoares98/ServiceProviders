@@ -14,7 +14,7 @@ class EditLocationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseIconButton(
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.locations,
         action: PermissionAction.update,
       ),

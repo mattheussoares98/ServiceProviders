@@ -22,7 +22,7 @@ class EditAndDeleteIcons extends StatelessWidget {
       children: [
         Flexible(
           child: BaseIconButton(
-            permission: const ActionPermission(
+            permission: const ActionPermission.resource(
               resource: ResourceType.workOrders,
               action: PermissionAction.update,
             ),
@@ -40,7 +40,7 @@ class EditAndDeleteIcons extends StatelessWidget {
         ),
         Flexible(
           child: BaseIconButton(
-            permission: const ActionPermission(
+            permission: const ActionPermission.resource(
               resource: ResourceType.workOrders,
               action: PermissionAction.delete,
             ),

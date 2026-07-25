@@ -120,7 +120,7 @@ class InvitationsPage extends StatelessWidget {
                             );
                           }
                           return BaseIconButton(
-                            permission: const ActionPermission(
+                            permission: const ActionPermission.resource(
                               resource: ResourceType.users,
                               action: PermissionAction.create,
                             ),
@@ -166,7 +166,7 @@ class InvitationsPage extends StatelessWidget {
                           );
                         }
                         return BaseIconButton(
-                          permission: const ActionPermission(
+                          permission: const ActionPermission.resource(
                             resource: ResourceType.users,
                             action: PermissionAction.delete,
                           ),

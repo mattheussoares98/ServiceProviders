@@ -374,6 +374,58 @@ class UsersCubit extends BaseCubit<UsersState> {
   // Permission Helper
   // ============================================
 
+  bool hasActionPermission(ActionPermission permission) {
+    return switch (permission) {
+      ResourceActionPermission(:final resource, :final action) => hasPermission(
+        resource,
+        action,
+      ),
+      WorkOrderSubActionPermission(:final subAction) =>
+        hasWorkOrderSubActionPermission(subAction),
+    };
+  }
+
+  bool hasWorkOrderSubActionPermission(WorkOrderSubAction subAction) {
+    final sessionUser = _useCases.getSessionUser();
+    final currentUser =
+        state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
+        sessionUser;
+
+    if (currentUser.isAdmin) return true;
+
+    final woPermissions = currentUser.workOrdersPermissionOverrides;
+    final groupPermissions = state.permissionGroups
+        .firstWhereOrNull((g) => g.id == currentUser.permissionGroupId)
+        ?.workOrders;
+
+    switch (subAction) {
+      case WorkOrderSubAction.deleteObservation:
+        final override = woPermissions.deleteObservation;
+        if (override != null) return override;
+        return groupPermissions?.deleteObservation ?? false;
+
+      case WorkOrderSubAction.changeStatus:
+        final override = woPermissions.changeStatus;
+        if (override != null) return override;
+        return groupPermissions?.changeStatus ?? false;
+
+      case WorkOrderSubAction.reassign:
+        final override = woPermissions.reassign;
+        if (override != null) return override;
+        return groupPermissions?.reassign ?? false;
+
+      case WorkOrderSubAction.approvePause:
+        final override = woPermissions.approvePause;
+        if (override != null) return override;
+        return groupPermissions?.approvePause ?? false;
+
+      case WorkOrderSubAction.approveCompletion:
+        final override = woPermissions.approveCompletion;
+        if (override != null) return override;
+        return groupPermissions?.approveCompletion ?? false;
+    }
+  }
+
   bool hasPermission(ResourceType resource, PermissionAction action) {
     final sessionUser = _useCases.getSessionUser();
     final currentUser =
@@ -382,9 +434,24 @@ class UsersCubit extends BaseCubit<UsersState> {
 
     if (currentUser.isAdmin) return true;
 
+    if (resource == ResourceType.workOrders) {
+      final woPermissions = currentUser.workOrdersPermissionOverrides;
+      final groupPermissions = state.permissionGroups
+          .firstWhereOrNull((g) => g.id == currentUser.permissionGroupId)
+          ?.workOrders;
+
+      if (action == PermissionAction.create) {
+        if (woPermissions.create != null) return woPermissions.create!;
+        if (groupPermissions?.create == true) return true;
+      } else if (action == PermissionAction.delete) {
+        if (woPermissions.delete != null) return woPermissions.delete!;
+        if (groupPermissions?.delete == true) return true;
+      }
+    }
+
     final userOverride = currentUser.permissions[resource]?[action];
     if (userOverride != null) {
-      return userOverride; //TODO check if there is a test for it
+      return userOverride;
     }
 
     final groupId = currentUser.permissionGroupId;

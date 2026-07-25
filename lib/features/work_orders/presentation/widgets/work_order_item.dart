@@ -110,7 +110,7 @@ class WorkOrderItem extends StatelessWidget {
             Align(
               alignment: .centerRight,
               child: BaseTextButton(
-                permission: const ActionPermission(
+                permission: const ActionPermission.resource(
                   resource: ResourceType.workOrders,
                   action: PermissionAction.update,
                 ),

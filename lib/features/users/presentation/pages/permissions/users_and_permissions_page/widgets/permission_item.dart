@@ -22,7 +22,7 @@ class PermissionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canEditUsers = context.hasPermission(
-      const ActionPermission(
+      const ActionPermission.resource(
         resource: ResourceType.users,
         action: PermissionAction.update,
       ),

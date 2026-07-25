@@ -63,7 +63,7 @@ class WorkOrdersPage extends StatelessWidget {
                 (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
               );
               return BaseIconButton(
-                permission: const ActionPermission(
+                permission: const ActionPermission.resource(
                   resource: ResourceType.workOrders,
                   action: PermissionAction.create,
                 ),

@@ -18,7 +18,7 @@ class DeleteLocationButton extends StatelessWidget {
     if (locationId == null) return const SizedBox.shrink();
 
     return BaseIconButton(
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.locations,
         action: PermissionAction.delete,
       ),

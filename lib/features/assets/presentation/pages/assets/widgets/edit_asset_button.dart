@@ -15,7 +15,7 @@ class EditAssetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseTextButton(
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.locations,
         action: PermissionAction.update,
       ),

@@ -44,7 +44,7 @@ class AreaItem extends StatelessWidget {
         ),
         FittedBox(
           child: BaseIconButton(
-            permission: const ActionPermission(
+            permission: const ActionPermission.resource(
               resource: ResourceType.locations,
               action: PermissionAction.update,
             ),

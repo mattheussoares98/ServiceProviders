@@ -34,7 +34,7 @@ class UsersAndPermissionsPage extends HookWidget {
       child: Builder(
         builder: (context) {
           final canInviteUsers = context.hasPermission(
-            const ActionPermission(
+            const ActionPermission.resource(
               resource: ResourceType.users,
               action: PermissionAction.create,
             ),

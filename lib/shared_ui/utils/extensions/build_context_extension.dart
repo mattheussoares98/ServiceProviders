@@ -25,7 +25,7 @@ extension BuildContextExtension on BuildContext {
 
     // Evaluate the permission using UsersCubit
     return select<UsersCubit, bool>(
-      (cubit) => cubit.hasPermission(permission.resource, permission.action),
+      (cubit) => cubit.hasActionPermission(permission),
     );
   }
 }

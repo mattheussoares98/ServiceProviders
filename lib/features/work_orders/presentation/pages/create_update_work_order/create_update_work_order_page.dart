@@ -334,7 +334,7 @@ class _CreateUpdatePage extends HookWidget {
                 materialIcon: Icons.add,
                 cupertinoIcon: CupertinoIcons.add,
               ),
-              permission: const ActionPermission(
+              permission: const ActionPermission.resource(
                 resource: ResourceType.serviceProviders,
                 action: PermissionAction.create,
               ),

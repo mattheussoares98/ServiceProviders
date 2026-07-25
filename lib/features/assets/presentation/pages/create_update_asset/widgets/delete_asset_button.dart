@@ -22,7 +22,7 @@ class DeleteAssetButton extends StatelessWidget {
         cupertinoIcon: CupertinoIcons.trash,
         color: Colors.red,
       ),
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.assets,
         action: PermissionAction.delete,
       ),

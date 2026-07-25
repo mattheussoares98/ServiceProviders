@@ -107,7 +107,7 @@ void main() {
         testWidgets('renders normally when permission is granted', (
           tester,
         ) async {
-          const permission = ActionPermission(
+          const permission = ActionPermission.resource(
             resource: ResourceType.users,
             action: PermissionAction.create,
           );
@@ -135,7 +135,7 @@ void main() {
         testWidgets('renders SizedBox.shrink() when permission is denied', (
           tester,
         ) async {
-          const permission = ActionPermission(
+          const permission = ActionPermission.resource(
             resource: ResourceType.users,
             action: PermissionAction.create,
           );

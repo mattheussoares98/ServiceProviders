@@ -22,7 +22,7 @@ class AddAreaButton extends StatelessWidget {
     );
 
     return BaseTextButton(
-      permission: const ActionPermission(
+      permission: const ActionPermission.resource(
         resource: ResourceType.locations,
         action: PermissionAction.create,
       ),
