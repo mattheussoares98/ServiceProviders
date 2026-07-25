@@ -5,6 +5,8 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observat
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
+import 'package:uuid/uuid.dart';
+
 @injectable
 class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   WorkOrderObservationsCubit({
@@ -42,7 +44,7 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
     required String content,
   }) async {
     final newObservation = WorkOrderObservationEntity(
-      id: '',
+      id: const Uuid().v4(),
       companyId: companyId,
       workOrderId: workOrderId,
       authorId: authorId,
