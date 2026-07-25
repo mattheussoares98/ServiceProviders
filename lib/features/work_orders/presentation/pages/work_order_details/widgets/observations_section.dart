@@ -17,6 +17,9 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 class ObservationsSection extends HookWidget {
   const ObservationsSection({
@@ -34,10 +37,30 @@ class ObservationsSection extends HookWidget {
       () =>
           GetIt.I<WorkOrderObservationsCubit>()..fetchObservations(workOrderId),
     );
+    final formKey = useMemoized(GlobalKey<FormState>.new);
 
     final textController = useTextEditingController();
 
     final currentUser = context.select((SessionCubit c) => c.state.user);
+
+    Future<void> onSubmit() async {
+      if (formKey.currentState?.validate() != true) return;
+
+      final content = textController.text.trim();
+      if (content.isEmpty) return;
+
+      final success = await cubit.createObservation(
+        companyId: companyId,
+        workOrderId: workOrderId,
+        authorId: currentUser.id,
+        authorName: currentUser.name,
+        content: content,
+      );
+
+      if (success) {
+        textController.clear();
+      }
+    }
 
     return BlocProvider.value(
       value: cubit,
@@ -120,50 +143,45 @@ class ObservationsSection extends HookWidget {
               );
             },
           ),
-          //TODO check to change where show this ontion because it is being showed inside the details page, not editing. Also, add a scroll to the top floating action button when has scrolled a lot to the bottom
           gapSliverH16,
           SliverToBoxAdapter(
-            child: BaseTextFormField(
-              controller: textController,
-              hintText: 'Adicionar uma observação...'.hardcoded,
-              maxLines: 8,
-              maxLength: 2000,
-            ),
-          ),
-          gapSliverH8,
-          SliverToBoxAdapter(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child:
-                  BlocSelector<
-                    WorkOrderObservationsCubit,
-                    WorkOrderObservationsState,
-                    bool
-                  >(
-                    selector: (state) => state.status == StateStatus.saving,
-                    builder: (context, isSubmitting) {
-                      return PrimaryButton(
-                        text: 'Enviar'.hardcoded,
-                        isLoading: isSubmitting,
-                        onTap: () async {
-                          final content = textController.text.trim();
-                          if (content.isEmpty) return;
-
-                          final success = await cubit.createObservation(
-                            companyId: companyId,
-                            workOrderId: workOrderId,
-                            authorId: currentUser.id,
-                            authorName: currentUser.name,
-                            content: content,
-                          );
-
-                          if (success) {
-                            textController.clear();
-                          }
-                        },
-                      );
-                    },
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  BaseTextFormField(
+                    controller: textController,
+                    hintText: 'Adicionar uma observação...'.hardcoded,
+                    maxLines: 8,
+                    maxLength: 2000,
+                    autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                    validator: FormValidators.compose([
+                      NonEmptyValidator(),
+                      MinLengthValidator(10),
+                    ]),
                   ),
+                  gapH8,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child:
+                        BlocSelector<
+                          WorkOrderObservationsCubit,
+                          WorkOrderObservationsState,
+                          bool
+                        >(
+                          selector: (state) =>
+                              state.status == StateStatus.saving,
+                          builder: (context, isSubmitting) {
+                            return PrimaryButton(
+                              text: 'Adicionar observação'.hardcoded,
+                              isLoading: isSubmitting,
+                              onTap: onSubmit,
+                            );
+                          },
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
