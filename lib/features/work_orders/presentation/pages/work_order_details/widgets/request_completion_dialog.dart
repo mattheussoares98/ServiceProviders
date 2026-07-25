@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
@@ -16,9 +16,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:uuid/uuid.dart';
 
-class RequestPauseDialog extends HookWidget {
-  //TODO review this entire page
-  const RequestPauseDialog({
+class RequestCompletionDialog extends HookWidget {
+  const RequestCompletionDialog({
     required this.companyId,
     required this.workOrderId,
     required this.currentUserId,
@@ -28,31 +27,26 @@ class RequestPauseDialog extends HookWidget {
   final String companyId;
   final String workOrderId;
   final String currentUserId;
-
+  //TODO check this entire code
   @override
   Widget build(BuildContext context) {
     final cubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
 
-    useEffect(() {
-      cubit.loadPauseReasons(companyId);
-      return null;
-    }, []);
-
-    final selectedReason = useState<PauseReasonEntity?>(null);
     final selectedResponsibility = useState<PauseResponsibility>(
       PauseResponsibility.provider,
     );
     final selectedSectorId = useState<String?>(null);
-    final customReasonController = useTextEditingController();
+    final reasonController = useTextEditingController();
     final observationController = useTextEditingController();
 
-    // Mock sectors for dropdown (since Sectors is not fully implemented in the domain layer yet)
-    //TODO fix this and check the entire dialog
-    final mockSectors = useMemoized(
+    // Available sectors options
+    final defaultSectors = useMemoized(
       () => [
         (id: '1', name: 'Manutenção'),
         (id: '2', name: 'Operação'),
         (id: '3', name: 'Limpeza'),
+        (id: '4', name: 'Elétrica'),
+        (id: '5', name: 'Hidráulica'),
       ],
     );
 
@@ -60,13 +54,6 @@ class RequestPauseDialog extends HookWidget {
       value: cubit,
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
         builder: (context, state) {
-          final dropdownReasons = state.pauseReasons.map((reason) {
-            return DropdownMenuItem<PauseReasonEntity>(
-              value: reason,
-              child: BaseText.bodyMedium(reason.name),
-            );
-          }).toList();
-
           final dropdownResponsibilities = PauseResponsibility.values.map((
             resp,
           ) {
@@ -76,7 +63,7 @@ class RequestPauseDialog extends HookWidget {
             );
           }).toList();
 
-          final dropdownSectors = mockSectors.map((sec) {
+          final dropdownSectors = defaultSectors.map((sec) {
             return DropdownMenuItem<String>(
               value: sec.id,
               child: BaseText.bodyMedium(sec.name),
@@ -94,18 +81,17 @@ class RequestPauseDialog extends HookWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   BaseText.titleMedium(
-                    'Solicitar Pausa'.hardcoded,
+                    'Solicitar Conclusão'.hardcoded,
                     fontWeight: FontWeight.bold,
                   ),
                   gapH16,
-                  BaseDropDown<PauseReasonEntity>(
-                    label: 'Motivo da Pausa'.hardcoded,
-                    hint: BaseText.bodyMedium('Selecione um motivo'.hardcoded),
-                    items: dropdownReasons,
-                    selectedItem: selectedReason.value,
-                    onChanged: (val) {
-                      selectedReason.value = val;
-                    },
+                  BaseTextFormField(
+                    controller: reasonController,
+                    labelText: 'Justificativa de Conclusão'.hardcoded,
+                    hintText: 'Descreva o trabalho realizado / justificativa'
+                        .hardcoded,
+                    maxLength: 250,
+                    maxLines: 2,
                   ),
                   gapH12,
                   BaseDropDown<PauseResponsibility>(
@@ -128,19 +114,12 @@ class RequestPauseDialog extends HookWidget {
                   ),
                   gapH12,
                   BaseTextFormField(
-                    controller: customReasonController,
-                    labelText: 'Motivo Personalizado (opcional)'.hardcoded,
-                    hintText:
-                        'Digite um motivo específico se aplicável'.hardcoded,
-                    maxLength: 100,
-                  ),
-                  gapH12,
-                  BaseTextFormField(
                     controller: observationController,
-                    labelText: 'Observação (opcional)'.hardcoded,
-                    hintText: 'Observações adicionais'.hardcoded,
+                    labelText: 'Observação Adicional (opcional)'.hardcoded,
+                    hintText:
+                        'Observações sobre a entrega do serviço'.hardcoded,
                     maxLength: 250,
-                    maxLines: 3,
+                    maxLines: 2,
                   ),
                   gapH24,
                   Row(
@@ -154,17 +133,22 @@ class RequestPauseDialog extends HookWidget {
                       PrimaryButton(
                         text: 'Confirmar'.hardcoded,
                         onTap: () async {
+                          if (reasonController.text.trim().isEmpty) {
+                            cubit.showErrorToast(
+                              'Por favor, informe a justificativa de conclusão.'
+                                  .hardcoded,
+                            );
+                            return;
+                          }
+
                           final now = DateTime.now();
-                          final pauseRequest = PauseRequestEntity(
+                          final completionRequest = PauseRequestEntity(
                             id: const Uuid().v4(),
                             companyId: companyId,
                             workOrderId: workOrderId,
                             requestedById: currentUserId,
-                            reasonId: selectedReason.value?.id,
-                            customReason:
-                                customReasonController.text.trim().isEmpty
-                                ? null
-                                : customReasonController.text.trim(),
+                            eventType: PauseEventType.completion,
+                            customReason: reasonController.text.trim(),
                             observation:
                                 observationController.text.trim().isEmpty
                                 ? null
@@ -173,13 +157,13 @@ class RequestPauseDialog extends HookWidget {
                             sectorId: selectedSectorId.value,
                             status: PauseRequestStatus.pending,
                             pausedAt: now,
-                            affectsSla: true,
+                            affectsSla: false,
                             createdAt: now,
                             updatedAt: now,
                           );
 
-                          final success = await cubit.requestPause(
-                            pauseRequest,
+                          final success = await cubit.requestCompletion(
+                            completionRequest,
                           );
                           if (success && context.mounted) {
                             Navigator.of(context).pop(true);
