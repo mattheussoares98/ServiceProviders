@@ -5,12 +5,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -93,45 +95,41 @@ class ObservationsSection extends HookWidget {
                   }
 
                   final item = observations[index - 1];
-                  final isAuthor = currentUser.id == item.authorId;
 
                   return Card(
                     child: Padding(
                       padding: const EdgeInsets.all(Sizes.p8),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: .stretch,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              BaseText(
-                                item.authorName,
-                                fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: BaseText(
+                                  item.authorName,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              Row(
-                                children: [
-                                  BaseText(
-                                    item.createdAt.formatDate(
-                                      DateFormatType.ddMMyyyyHHmm,
-                                    ),
-                                  ),
-                                  if (isAuthor) ...[
-                                    gapW8,
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await cubit.deleteObservation(item.id);
-                                      },
-                                      child: const PlatformIcon(
-                                        materialIcon: Icons.delete_outline,
-                                        cupertinoIcon: CupertinoIcons.trash,
-                                        size: Sizes.p16,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                              BaseIconButton(
+                                onPressed: () async {
+                                  await cubit.deleteObservation(item.id);
+                                },
+                                permission: const ActionPermission(
+                                  resource: ResourceType.workOrders,
+                                  action: PermissionAction.delete,
+                                ),
+                                platformIcon: const PlatformIcon(
+                                  materialIcon: Icons.delete_outline,
+                                  cupertinoIcon: CupertinoIcons.trash,
+                                  color: Colors.red,
+                                ),
                               ),
                             ],
+                          ),
+                          BaseText(
+                            item.createdAt.formatDate(
+                              DateFormatType.ddMMyyyyHHmm,
+                            ),
                           ),
                           gapH8,
                           BaseText(item.content),

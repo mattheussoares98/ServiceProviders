@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/get_new_date.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -19,10 +20,12 @@ class ProgrammedData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        BaseText('Data programada'.hardcoded),
+        FittedBox(child: BaseText('Data programada'.hardcoded)),
         gapH8,
         Expanded(
           child: InkWell(
@@ -54,23 +57,25 @@ class ProgrammedData extends StatelessWidget {
                             ),
                     ),
                   ),
-                  if (selectedScheduledDate != null)
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const PlatformIcon(
-                        materialIcon: Icons.clear,
-                        cupertinoIcon: CupertinoIcons.clear,
-                        color: Colors.red,
+                  if (screenWidth > 250) ...[
+                    if (selectedScheduledDate != null)
+                      BaseIconButton(
+                        padding: EdgeInsets.zero,
+                        platformIcon: const PlatformIcon(
+                          materialIcon: Icons.clear,
+                          cupertinoIcon: CupertinoIcons.clear,
+                          color: Colors.red,
+                          size: 16,
+                        ),
+                        onPressed: () => onChanged(null),
+                      )
+                    else
+                      const PlatformIcon(
+                        materialIcon: Icons.calendar_today,
+                        cupertinoIcon: CupertinoIcons.calendar,
                         size: 16,
                       ),
-                      onPressed: () => onChanged(null),
-                    )
-                  else
-                    const PlatformIcon(
-                      materialIcon: Icons.calendar_today,
-                      cupertinoIcon: CupertinoIcons.calendar,
-                      size: 16,
-                    ),
+                  ],
                 ],
               ),
             ),

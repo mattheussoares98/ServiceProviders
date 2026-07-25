@@ -92,7 +92,7 @@ class _AttachmentsAndAddRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        FittedBox(child: BaseText.titleMedium('Anexos'.hardcoded)),
+        Flexible(child: BaseText.titleMedium('Anexos'.hardcoded)),
         if (isEditing)
           Flexible(
             child: BaseTextButton(
