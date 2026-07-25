@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart'
     show HttpClient;
@@ -22,10 +21,10 @@ final class R2StorageClient implements StorageClient {
   R2StorageClient({
     required FileService fileService,
     required SupabaseDatabaseClient database,
-    @visibleForTesting Dio? dio,
-  })  : _fileService = fileService,
-        _database = database,
-        _dio = dio ?? Dio();
+    required Dio? dio,
+  }) : _fileService = fileService,
+       _database = database,
+       _dio = dio ?? Dio();
 
   // A fresh Dio without any interceptors — presigned URLs are self-authenticating.
   final Dio _dio;
