@@ -142,12 +142,14 @@ class BaseText extends StatelessWidget {
     String text, {
     TextAlign? textAlign,
     FontWeight? fontWeight,
+    FontStyle? fontStyle,
   }) => BaseText(
     text,
     textAlign: textAlign ?? TextAlign.center,
     color: Colors.red,
     textType: TextType.titleMedium,
     fontWeight: fontWeight ?? FontWeight.w600,
+    fontStyle: fontStyle,
   );
 
   BaseText copyWith({

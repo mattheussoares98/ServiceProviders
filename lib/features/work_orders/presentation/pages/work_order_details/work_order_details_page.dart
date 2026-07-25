@@ -12,11 +12,13 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends StatelessWidget {
@@ -71,7 +73,16 @@ class _WorkOrderDetails extends HookWidget {
       body: CustomScrollView(
         slivers: [
           InfoItems(workOrder: workOrder),
-          Attachments(workOrderId: workOrder.id, isEditing: false),
+          Attachments(
+            workOrderId: workOrder.id,
+            isEditing: false,
+            padding: EdgeInsets.zero,
+          ),
+          ObservationsSection(
+            workOrderId: workOrder.id,
+            companyId: workOrder.companyId,
+          ),
+          gapSliverH24,
         ],
       ),
     );
