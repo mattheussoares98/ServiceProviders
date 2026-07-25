@@ -147,22 +147,18 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
           final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
           final screenSize = MediaQuery.sizeOf(context);
 
-          // Only freeze dimensions if explicitly provided or if BOTH width & height are bounded.
-          // Setting BOTH memCacheWidth and memCacheHeight distorts aspect ratio if they don't match the image's original ratio.
-          if (widget.width != null) {
-            _frozenCacheWidth ??= (widget.width! * dpr).round();
-          } else if (widget.height == null) {
-            // When neither is provided, decode based on max width only to preserve aspect ratio.
-            _frozenCacheWidth ??=
-                ((constraints.maxWidth.isFinite
-                            ? constraints.maxWidth
-                            : screenSize.width) *
-                        dpr)
-                    .round();
-          }
+          final targetWidth =
+              widget.width ??
+              (constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : screenSize.width);
+          final targetHeight =
+              widget.height ??
+              (constraints.maxHeight.isFinite ? constraints.maxHeight : null);
 
-          if (widget.height != null) {
-            _frozenCacheHeight ??= (widget.height! * dpr).round();
+          _frozenCacheWidth ??= (targetWidth * dpr).round();
+          if (targetHeight != null && widget.height != null) {
+            _frozenCacheHeight ??= (targetHeight * dpr).round();
           }
 
           return _buildContent(context);
