@@ -12,7 +12,7 @@ Instances of preventive, corrective, or inspection tasks.
 | `title` | VARCHAR(255) | NO | - | Summary of issue/task |
 | `description` | VARCHAR(2000) | YES | - | Details |
 | `priority` | VARCHAR(50) | NO | 'medium' | low / medium / high / critical |
-| `status` | VARCHAR(50) | NO | 'open' | open / in_progress / on_hold / completed |
+| `status` | VARCHAR(50) | NO | 'open' | open / in_progress / pending_pause / on_hold / pending_approval / completed / cancelled |
 | `type` | VARCHAR(50) | NO | 'corrective' | corrective / preventive / inspection |
 | `scheduled_date` | TIMESTAMP | YES | - | Planned execution date |
 | `started_at` | TIMESTAMP | YES | - | Work start time |
@@ -30,4 +30,8 @@ Instances of preventive, corrective, or inspection tasks.
 | `sla_deadline_at` | TIMESTAMP | YES | - | SLA Target Deadline timestamp |
 | `sla_breached` | BOOLEAN | NO | false | Whether SLA deadline was breached |
 | `net_active_duration` | INT | YES | - | Total net active duration (excluding pauses) in minutes |
+| `completion_reason` | VARCHAR(1000) | YES | - | Reason/justification provided upon completion |
+| `completion_responsibility` | VARCHAR(20) | YES | - | Responsibility upon completion: `provider` / `contractor` / `shared` |
+| `completion_sector_id` | UUID | YES | - | FK → `sectors.id` (Set Null) - Sector responsible for completion |
+
 
