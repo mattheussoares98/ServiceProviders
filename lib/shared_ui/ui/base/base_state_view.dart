@@ -14,11 +14,13 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
     required this.dataSelector,
     required this.builder,
     this.onRetry,
+    this.isSliver = false,
   });
 
   final D Function(S state) dataSelector;
   final Widget Function(BuildContext context, D data) builder;
   final VoidCallback? onRetry;
+  final bool isSliver;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +28,13 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
       //!It automatically searches for the nearest Cubit with type C
       builder: (context, state) {
         if (state.status == StateStatus.loading) {
-          return const LoadingCircle();
+          return isSliver
+              ? const SliverToBoxAdapter(child: LoadingCircle())
+              : const LoadingCircle();
         }
 
         if (state.status == StateStatus.loadingError) {
-          return Center(
+          final Widget errorWidget = Center(
             child: Padding(
               padding: const EdgeInsets.all(Sizes.p16),
               child: Column(
@@ -53,6 +57,12 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
               ),
             ),
           );
+
+          if (isSliver) {
+            return SliverToBoxAdapter(child: errorWidget);
+          }
+
+          return errorWidget;
         }
 
         return builder(context, dataSelector(state));
