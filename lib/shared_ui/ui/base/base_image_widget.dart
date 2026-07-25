@@ -71,17 +71,25 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
         barrierLabel: 'Fechar'.hardcoded,
         barrierColor: Colors.black.withValues(alpha: 0.6),
         pageBuilder: (context, animation, secondaryAnimation) {
-          return GestureDetector(
-            onTap: Navigator.of(context).pop,
-            child: Material(
-              color: Colors.transparent,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Center(
-                      child: InteractiveViewer(
-                        minScale: 1,
-                        maxScale: 4,
+          return Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: Navigator.of(context).pop,
+                    behavior: HitTestBehavior.opaque,
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: Navigator.of(context).pop,
+                    child: InteractiveViewer(
+                      minScale: 1,
+                      maxScale: 4,
+                      clipBehavior: Clip.none,
+                      child: Center(
                         child: BaseImageWidget(
                           source: widget.source,
                           fit: BoxFit.contain,
@@ -90,20 +98,20 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: MediaQuery.paddingOf(context).top + Sizes.p16,
-                    right: Sizes.p16,
-                    child: IconButton(
-                      icon: const PlatformIcon(
-                        materialIcon: Icons.close,
-                        cupertinoIcon: CupertinoIcons.xmark,
-                        color: Colors.white,
-                      ),
-                      onPressed: Navigator.of(context).pop,
+                ),
+                Positioned(
+                  top: MediaQuery.paddingOf(context).top + Sizes.p16,
+                  right: Sizes.p16,
+                  child: IconButton(
+                    icon: const PlatformIcon(
+                      materialIcon: Icons.close,
+                      cupertinoIcon: CupertinoIcons.xmark,
+                      color: Colors.white,
                     ),
+                    onPressed: Navigator.of(context).pop,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
