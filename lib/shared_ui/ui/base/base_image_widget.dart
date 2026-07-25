@@ -64,7 +64,6 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
   void _showFullScreenImage(BuildContext context) {
     final tag = widget.heroTag ?? widget.source.hashCode.toString();
     // Capture once at tap time — must not change on resize to avoid cache miss.
-    final screenSize = MediaQuery.sizeOf(context);
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         opaque: false,
@@ -87,9 +86,6 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
                           source: widget.source,
                           fit: BoxFit.contain,
                           heroTag: tag,
-                          // Cap memory to screen size — no need to decode beyond it.
-                          width: screenSize.width,
-                          height: screenSize.height,
                         ),
                       ),
                     ),
@@ -143,18 +139,23 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
           final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
           final screenSize = MediaQuery.sizeOf(context);
 
-          _frozenCacheWidth ??=
-              ((constraints.maxWidth.isFinite
-                          ? constraints.maxWidth
-                          : screenSize.width) *
-                      dpr)
-                  .round();
-          _frozenCacheHeight ??=
-              ((constraints.maxHeight.isFinite
-                          ? constraints.maxHeight
-                          : screenSize.height) *
-                      dpr)
-                  .round();
+          // Only freeze dimensions if explicitly provided or if BOTH width & height are bounded.
+          // Setting BOTH memCacheWidth and memCacheHeight distorts aspect ratio if they don't match the image's original ratio.
+          if (widget.width != null) {
+            _frozenCacheWidth ??= (widget.width! * dpr).round();
+          } else if (widget.height == null) {
+            // When neither is provided, decode based on max width only to preserve aspect ratio.
+            _frozenCacheWidth ??=
+                ((constraints.maxWidth.isFinite
+                            ? constraints.maxWidth
+                            : screenSize.width) *
+                        dpr)
+                    .round();
+          }
+
+          if (widget.height != null) {
+            _frozenCacheHeight ??= (widget.height! * dpr).round();
+          }
 
           return _buildContent(context);
         },
