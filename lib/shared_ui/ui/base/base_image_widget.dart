@@ -61,6 +61,17 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
   int? _frozenCacheWidth;
   int? _frozenCacheHeight;
 
+  @override
+  void didUpdateWidget(covariant BaseImageWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.width != widget.width ||
+        oldWidget.height != widget.height ||
+        oldWidget.source != widget.source) {
+      _frozenCacheWidth = null;
+      _frozenCacheHeight = null;
+    }
+  }
+
   void _showFullScreenImage(BuildContext context) {
     final tag = widget.heroTag ?? widget.source.hashCode.toString();
     // Capture once at tap time — must not change on resize to avoid cache miss.
@@ -229,6 +240,7 @@ class _BaseImageWidgetState extends State<BaseImageWidget> {
                 width: widget.width,
                 height: widget.height,
                 fit: widget.fit,
+                useOldImageOnUrlChange: true,
                 placeholder: (context, url) =>
                     widget.placeholder ?? const LoadingCircle(),
                 errorWidget: (context, url, error) {

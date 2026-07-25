@@ -64,6 +64,7 @@ class ResponsiveListFlow extends StatelessWidget {
           itemCount: rowCount,
           itemBuilder: (context, rowIndex) {
             return _RowsItems(
+              key: ValueKey('row_${rowIndex}_$itemsPerRow'),
               itemCount: itemCount,
               itemBuilder: itemBuilder,
               itemsPerRow: itemsPerRow,
@@ -82,6 +83,7 @@ class ResponsiveListFlow extends StatelessWidget {
       padding: effectivePadding,
       itemBuilder: (context, rowIndex) {
         return _RowsItems(
+          key: ValueKey('row_${rowIndex}_$itemsPerRow'),
           itemCount: itemCount,
           itemBuilder: itemBuilder,
           itemsPerRow: itemsPerRow,
@@ -95,6 +97,7 @@ class ResponsiveListFlow extends StatelessWidget {
 
 class _RowsItems extends StatelessWidget {
   const _RowsItems({
+    super.key,
     required this.itemCount,
     required this.itemBuilder,
     required this.itemsPerRow,
