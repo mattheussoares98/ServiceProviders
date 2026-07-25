@@ -240,19 +240,12 @@ class _WorkOrderDetails extends HookWidget {
         child: PrimaryButton(
           text: 'Retomar trabalho'.hardcoded,
           onTap: () async {
-            final updatedWo = workOrder.copyWith(
-              status: WorkOrderStatus.inProgress,
-            );
-            final success = await context.read<WorkOrdersCubit>().saveWorkOrder(
-              //TODO create a new method to change the status
-              id: updatedWo.id,
-              locationId: updatedWo.locationId,
-              createdById: updatedWo.createdById,
-              title: updatedWo.title,
-              priority: updatedWo.priority,
-              status: updatedWo.status,
-              type: updatedWo.type,
-            );
+            final success = await context
+                .read<WorkOrdersCubit>()
+                .changeWorkOrderStatus(
+                  workOrder: workOrder,
+                  status: WorkOrderStatus.inProgress,
+                );
             if (success) {
               unawaited(pauseCubit.loadPauseRequests(workOrder.id));
             }

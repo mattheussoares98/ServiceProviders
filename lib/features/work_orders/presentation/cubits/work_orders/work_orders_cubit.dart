@@ -297,6 +297,62 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+  Future<bool> changeWorkOrderStatus({
+    required WorkOrderEntity workOrder,
+    required WorkOrderStatus status,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final now = DateTime.now();
+
+    final computedStartedAt =
+        workOrder.startedAt ??
+        (status == WorkOrderStatus.inProgress
+            //*not started yet and it is starting now
+            ? now
+            : null);
+
+    DateTime? computedCompletedAt = workOrder.completedAt;
+    bool annulCompletedAt = false;
+
+    if (status == WorkOrderStatus.completed) {
+      //*not completed yet and it is completing now
+      computedCompletedAt ??= now;
+    } else if (status == WorkOrderStatus.open ||
+        status == WorkOrderStatus.inProgress ||
+        status == WorkOrderStatus.onHold) {
+      computedCompletedAt = null;
+      annulCompletedAt = true;
+    }
+
+    final updatedWorkOrder = workOrder.copyWith(
+      status: status,
+      startedAt: computedStartedAt,
+      completedAt: computedCompletedAt,
+      annulCompletedAt: annulCompletedAt,
+      updatedAt: now,
+    );
+
+    final dataState = await _useCases.updateWorkOrder(updatedWorkOrder);
+    if (isClosed) return false;
+
+    if (dataState is SuccessState<bool> && dataState.data == true) {
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage:
+              dataState.message ??
+              'Erro não esperado para atualizar o status'.hardcoded,
+        ),
+      );
+      showDataStateToast(dataState);
+      return false;
+    }
+  }
+
   Future<bool> deleteWorkOrder(String id) async {
     emit(state.copyWith(status: StateStatus.deleting));
     final dataState = await _useCases.deleteWorkOrder(id);

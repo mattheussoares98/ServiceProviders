@@ -1247,6 +1247,90 @@ void main() {
           },
         );
       });
+
+      group('changeWorkOrderStatus', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and loaded when changeWorkOrderStatus succeeds',
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.changeWorkOrderStatus(
+              workOrder: tWorkOrder,
+              status: WorkOrderStatus.inProgress,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.status == WorkOrderStatus.inProgress,
+                  ),
+                ),
+              ),
+            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and savingError when changeWorkOrderStatus fails',
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.changeWorkOrderStatus(
+              workOrder: tWorkOrder,
+              status: WorkOrderStatus.completed,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.savingError,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockUpdateWorkOrder.call(any())).called(1);
+            verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+      });
     });
 
     group('deleteWorkOrder', () {
