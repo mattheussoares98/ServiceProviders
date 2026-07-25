@@ -23,13 +23,35 @@ class WorkOrderObservationEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        workOrderId,
-        authorId,
-        authorName,
-        content,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    companyId,
+    workOrderId,
+    authorId,
+    authorName,
+    content,
+    createdAt,
+    updatedAt,
+  ];
+
+  WorkOrderObservationEntity copyWith({
+    String? id,
+    String? companyId,
+    String? workOrderId,
+    String? authorId,
+    String? authorName,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return WorkOrderObservationEntity(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      workOrderId: workOrderId ?? this.workOrderId,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

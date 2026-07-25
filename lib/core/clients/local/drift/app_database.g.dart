@@ -16945,6 +16945,581 @@ class WorkOrderPauseRequestsCompanion
   }
 }
 
+class $WorkOrderObservationsTable extends WorkOrderObservations
+    with TableInfo<$WorkOrderObservationsTable, WorkOrderObservation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WorkOrderObservationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _companyIdMeta = const VerificationMeta(
+    'companyId',
+  );
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+    'company_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES companies (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _workOrderIdMeta = const VerificationMeta(
+    'workOrderId',
+  );
+  @override
+  late final GeneratedColumn<String> workOrderId = GeneratedColumn<String>(
+    'work_order_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES work_orders (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _authorIdMeta = const VerificationMeta(
+    'authorId',
+  );
+  @override
+  late final GeneratedColumn<String> authorId = GeneratedColumn<String>(
+    'author_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES user_profiles (id) ON DELETE RESTRICT',
+    ),
+  );
+  static const VerificationMeta _authorNameMeta = const VerificationMeta(
+    'authorName',
+  );
+  @override
+  late final GeneratedColumn<String> authorName = GeneratedColumn<String>(
+    'author_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    companyId,
+    workOrderId,
+    authorId,
+    authorName,
+    content,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'work_order_observations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WorkOrderObservation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(
+        _companyIdMeta,
+        companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_companyIdMeta);
+    }
+    if (data.containsKey('work_order_id')) {
+      context.handle(
+        _workOrderIdMeta,
+        workOrderId.isAcceptableOrUnknown(
+          data['work_order_id']!,
+          _workOrderIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_workOrderIdMeta);
+    }
+    if (data.containsKey('author_id')) {
+      context.handle(
+        _authorIdMeta,
+        authorId.isAcceptableOrUnknown(data['author_id']!, _authorIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_authorIdMeta);
+    }
+    if (data.containsKey('author_name')) {
+      context.handle(
+        _authorNameMeta,
+        authorName.isAcceptableOrUnknown(data['author_name']!, _authorNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_authorNameMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WorkOrderObservation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WorkOrderObservation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      companyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}company_id'],
+      )!,
+      workOrderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}work_order_id'],
+      )!,
+      authorId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author_id'],
+      )!,
+      authorName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author_name'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $WorkOrderObservationsTable createAlias(String alias) {
+    return $WorkOrderObservationsTable(attachedDatabase, alias);
+  }
+}
+
+class WorkOrderObservation extends DataClass
+    implements Insertable<WorkOrderObservation> {
+  final String id;
+  final String companyId;
+  final String workOrderId;
+  final String authorId;
+  final String authorName;
+  final String content;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const WorkOrderObservation({
+    required this.id,
+    required this.companyId,
+    required this.workOrderId,
+    required this.authorId,
+    required this.authorName,
+    required this.content,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['company_id'] = Variable<String>(companyId);
+    map['work_order_id'] = Variable<String>(workOrderId);
+    map['author_id'] = Variable<String>(authorId);
+    map['author_name'] = Variable<String>(authorName);
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  WorkOrderObservationsCompanion toCompanion(bool nullToAbsent) {
+    return WorkOrderObservationsCompanion(
+      id: Value(id),
+      companyId: Value(companyId),
+      workOrderId: Value(workOrderId),
+      authorId: Value(authorId),
+      authorName: Value(authorName),
+      content: Value(content),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory WorkOrderObservation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WorkOrderObservation(
+      id: serializer.fromJson<String>(json['id']),
+      companyId: serializer.fromJson<String>(json['companyId']),
+      workOrderId: serializer.fromJson<String>(json['workOrderId']),
+      authorId: serializer.fromJson<String>(json['authorId']),
+      authorName: serializer.fromJson<String>(json['authorName']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'companyId': serializer.toJson<String>(companyId),
+      'workOrderId': serializer.toJson<String>(workOrderId),
+      'authorId': serializer.toJson<String>(authorId),
+      'authorName': serializer.toJson<String>(authorName),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  WorkOrderObservation copyWith({
+    String? id,
+    String? companyId,
+    String? workOrderId,
+    String? authorId,
+    String? authorName,
+    String? content,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => WorkOrderObservation(
+    id: id ?? this.id,
+    companyId: companyId ?? this.companyId,
+    workOrderId: workOrderId ?? this.workOrderId,
+    authorId: authorId ?? this.authorId,
+    authorName: authorName ?? this.authorName,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  WorkOrderObservation copyWithCompanion(WorkOrderObservationsCompanion data) {
+    return WorkOrderObservation(
+      id: data.id.present ? data.id.value : this.id,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      workOrderId: data.workOrderId.present
+          ? data.workOrderId.value
+          : this.workOrderId,
+      authorId: data.authorId.present ? data.authorId.value : this.authorId,
+      authorName: data.authorName.present
+          ? data.authorName.value
+          : this.authorName,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkOrderObservation(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('workOrderId: $workOrderId, ')
+          ..write('authorId: $authorId, ')
+          ..write('authorName: $authorName, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    companyId,
+    workOrderId,
+    authorId,
+    authorName,
+    content,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WorkOrderObservation &&
+          other.id == this.id &&
+          other.companyId == this.companyId &&
+          other.workOrderId == this.workOrderId &&
+          other.authorId == this.authorId &&
+          other.authorName == this.authorName &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class WorkOrderObservationsCompanion
+    extends UpdateCompanion<WorkOrderObservation> {
+  final Value<String> id;
+  final Value<String> companyId;
+  final Value<String> workOrderId;
+  final Value<String> authorId;
+  final Value<String> authorName;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const WorkOrderObservationsCompanion({
+    this.id = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.workOrderId = const Value.absent(),
+    this.authorId = const Value.absent(),
+    this.authorName = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WorkOrderObservationsCompanion.insert({
+    required String id,
+    required String companyId,
+    required String workOrderId,
+    required String authorId,
+    required String authorName,
+    required String content,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       companyId = Value(companyId),
+       workOrderId = Value(workOrderId),
+       authorId = Value(authorId),
+       authorName = Value(authorName),
+       content = Value(content);
+  static Insertable<WorkOrderObservation> custom({
+    Expression<String>? id,
+    Expression<String>? companyId,
+    Expression<String>? workOrderId,
+    Expression<String>? authorId,
+    Expression<String>? authorName,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (companyId != null) 'company_id': companyId,
+      if (workOrderId != null) 'work_order_id': workOrderId,
+      if (authorId != null) 'author_id': authorId,
+      if (authorName != null) 'author_name': authorName,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WorkOrderObservationsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? companyId,
+    Value<String>? workOrderId,
+    Value<String>? authorId,
+    Value<String>? authorName,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return WorkOrderObservationsCompanion(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      workOrderId: workOrderId ?? this.workOrderId,
+      authorId: authorId ?? this.authorId,
+      authorName: authorName ?? this.authorName,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (workOrderId.present) {
+      map['work_order_id'] = Variable<String>(workOrderId.value);
+    }
+    if (authorId.present) {
+      map['author_id'] = Variable<String>(authorId.value);
+    }
+    if (authorName.present) {
+      map['author_name'] = Variable<String>(authorName.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkOrderObservationsCompanion(')
+          ..write('id: $id, ')
+          ..write('companyId: $companyId, ')
+          ..write('workOrderId: $workOrderId, ')
+          ..write('authorId: $authorId, ')
+          ..write('authorName: $authorName, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -16985,6 +17560,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SectorsTable sectors = $SectorsTable(this);
   late final $WorkOrderPauseRequestsTable workOrderPauseRequests =
       $WorkOrderPauseRequestsTable(this);
+  late final $WorkOrderObservationsTable workOrderObservations =
+      $WorkOrderObservationsTable(this);
   late final Index idxPermissionGroupsCompany = Index(
     'idx_permission_groups_company',
     'CREATE INDEX idx_permission_groups_company ON permission_groups (company_id)',
@@ -17131,6 +17708,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     pauseReasons,
     sectors,
     workOrderPauseRequests,
+    workOrderObservations,
     idxPermissionGroupsCompany,
     idxUserProfilesCompany,
     locationsCompanyNameActiveIdx,
@@ -17578,6 +18156,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       result: [
         TableUpdate('work_order_pause_requests', kind: UpdateKind.update),
       ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_order_observations', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'work_orders',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_order_observations', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -18427,6 +19019,31 @@ final class $$CompaniesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $WorkOrderObservationsTable,
+    List<WorkOrderObservation>
+  >
+  _workOrderObservationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderObservations,
+        aliasName: 'companies__id__work_order_observations__company_id',
+      );
+
+  $$WorkOrderObservationsTableProcessedTableManager
+  get workOrderObservationsRefs {
+    final manager = $$WorkOrderObservationsTableTableManager(
+      $_db,
+      $_db.workOrderObservations,
+    ).filter((f) => f.companyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderObservationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CompaniesTableFilterComposer
@@ -18998,6 +19615,32 @@ class $$CompaniesTableFilterComposer
               }) => $$WorkOrderPauseRequestsTableFilterComposer(
                 $db: $db,
                 $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> workOrderObservationsRefs(
+    Expression<bool> Function($$WorkOrderObservationsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderObservationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -19622,6 +20265,32 @@ class $$CompaniesTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> workOrderObservationsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderObservationsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderObservationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.companyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CompaniesTableTableManager
@@ -19659,6 +20328,7 @@ class $$CompaniesTableTableManager
             bool pauseReasonsRefs,
             bool sectorsRefs,
             bool workOrderPauseRequestsRefs,
+            bool workOrderObservationsRefs,
           })
         > {
   $$CompaniesTableTableManager(_$AppDatabase db, $CompaniesTable table)
@@ -19747,6 +20417,7 @@ class $$CompaniesTableTableManager
                 pauseReasonsRefs = false,
                 sectorsRefs = false,
                 workOrderPauseRequestsRefs = false,
+                workOrderObservationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -19773,6 +20444,7 @@ class $$CompaniesTableTableManager
                     if (pauseReasonsRefs) db.pauseReasons,
                     if (sectorsRefs) db.sectors,
                     if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
+                    if (workOrderObservationsRefs) db.workOrderObservations,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -20218,6 +20890,27 @@ class $$CompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (workOrderObservationsRefs)
+                        await $_getPrefetchedData<
+                          Company,
+                          $CompaniesTable,
+                          WorkOrderObservation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CompaniesTableReferences
+                              ._workOrderObservationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderObservationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.companyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -20260,6 +20953,7 @@ typedef $$CompaniesTableProcessedTableManager =
         bool pauseReasonsRefs,
         bool sectorsRefs,
         bool workOrderPauseRequestsRefs,
+        bool workOrderObservationsRefs,
       })
     >;
 typedef $$PermissionGroupsTableCreateCompanionBuilder =
@@ -20889,6 +21583,31 @@ final class $$UserProfilesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $WorkOrderObservationsTable,
+    List<WorkOrderObservation>
+  >
+  _workOrderObservationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderObservations,
+        aliasName: 'user_profiles__id__work_order_observations__author_id',
+      );
+
+  $$WorkOrderObservationsTableProcessedTableManager
+  get workOrderObservationsRefs {
+    final manager = $$WorkOrderObservationsTableTableManager(
+      $_db,
+      $_db.workOrderObservations,
+    ).filter((f) => f.authorId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderObservationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$UserProfilesTableFilterComposer
@@ -21123,6 +21842,32 @@ class $$UserProfilesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> workOrderObservationsRefs(
+    Expression<bool> Function($$WorkOrderObservationsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderObservationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.authorId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -21452,6 +22197,32 @@ class $$UserProfilesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> workOrderObservationsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderObservationsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderObservationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.authorId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$UserProfilesTableTableManager
@@ -21475,6 +22246,7 @@ class $$UserProfilesTableTableManager
             bool attachmentsRefs,
             bool syncAuditLogsRefs,
             bool workOrderHistoryRefs,
+            bool workOrderObservationsRefs,
           })
         > {
   $$UserProfilesTableTableManager(_$AppDatabase db, $UserProfilesTable table)
@@ -21569,6 +22341,7 @@ class $$UserProfilesTableTableManager
                 attachmentsRefs = false,
                 syncAuditLogsRefs = false,
                 workOrderHistoryRefs = false,
+                workOrderObservationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -21578,6 +22351,7 @@ class $$UserProfilesTableTableManager
                     if (attachmentsRefs) db.attachments,
                     if (syncAuditLogsRefs) db.syncAuditLogs,
                     if (workOrderHistoryRefs) db.workOrderHistory,
+                    if (workOrderObservationsRefs) db.workOrderObservations,
                   ],
                   addJoins:
                       <
@@ -21735,6 +22509,27 @@ class $$UserProfilesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (workOrderObservationsRefs)
+                        await $_getPrefetchedData<
+                          UserProfile,
+                          $UserProfilesTable,
+                          WorkOrderObservation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UserProfilesTableReferences
+                              ._workOrderObservationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UserProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderObservationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.authorId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -21763,6 +22558,7 @@ typedef $$UserProfilesTableProcessedTableManager =
         bool attachmentsRefs,
         bool syncAuditLogsRefs,
         bool workOrderHistoryRefs,
+        bool workOrderObservationsRefs,
       })
     >;
 typedef $$LocationsTableCreateCompanionBuilder =
@@ -29004,6 +29800,31 @@ final class $$WorkOrdersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $WorkOrderObservationsTable,
+    List<WorkOrderObservation>
+  >
+  _workOrderObservationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.workOrderObservations,
+        aliasName: 'work_orders__id__work_order_observations__work_order_id',
+      );
+
+  $$WorkOrderObservationsTableProcessedTableManager
+  get workOrderObservationsRefs {
+    final manager = $$WorkOrderObservationsTableTableManager(
+      $_db,
+      $_db.workOrderObservations,
+    ).filter((f) => f.workOrderId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _workOrderObservationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$WorkOrdersTableFilterComposer
@@ -29452,6 +30273,32 @@ class $$WorkOrdersTableFilterComposer
               }) => $$WorkOrderPauseRequestsTableFilterComposer(
                 $db: $db,
                 $table: $db.workOrderPauseRequests,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> workOrderObservationsRefs(
+    Expression<bool> Function($$WorkOrderObservationsTableFilterComposer f) f,
+  ) {
+    final $$WorkOrderObservationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.workOrderId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableFilterComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -30219,6 +31066,32 @@ class $$WorkOrdersTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> workOrderObservationsRefs<T extends Object>(
+    Expression<T> Function($$WorkOrderObservationsTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrderObservationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.workOrderObservations,
+          getReferencedColumn: (t) => t.workOrderId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WorkOrderObservationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.workOrderObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$WorkOrdersTableTableManager
@@ -30249,6 +31122,7 @@ class $$WorkOrdersTableTableManager
             bool workOrderChangeRequestsRefs,
             bool workOrderHistoryRefs,
             bool workOrderPauseRequestsRefs,
+            bool workOrderObservationsRefs,
           })
         > {
   $$WorkOrdersTableTableManager(_$AppDatabase db, $WorkOrdersTable table)
@@ -30422,6 +31296,7 @@ class $$WorkOrdersTableTableManager
                 workOrderChangeRequestsRefs = false,
                 workOrderHistoryRefs = false,
                 workOrderPauseRequestsRefs = false,
+                workOrderObservationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -30431,6 +31306,7 @@ class $$WorkOrdersTableTableManager
                     if (workOrderChangeRequestsRefs) db.workOrderChangeRequests,
                     if (workOrderHistoryRefs) db.workOrderHistory,
                     if (workOrderPauseRequestsRefs) db.workOrderPauseRequests,
+                    if (workOrderObservationsRefs) db.workOrderObservations,
                   ],
                   addJoins:
                       <
@@ -30685,6 +31561,27 @@ class $$WorkOrdersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (workOrderObservationsRefs)
+                        await $_getPrefetchedData<
+                          WorkOrder,
+                          $WorkOrdersTable,
+                          WorkOrderObservation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WorkOrdersTableReferences
+                              ._workOrderObservationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WorkOrdersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrderObservationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.workOrderId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -30720,6 +31617,7 @@ typedef $$WorkOrdersTableProcessedTableManager =
         bool workOrderChangeRequestsRefs,
         bool workOrderHistoryRefs,
         bool workOrderPauseRequestsRefs,
+        bool workOrderObservationsRefs,
       })
     >;
 typedef $$TasksTableCreateCompanionBuilder =
@@ -36166,6 +37064,604 @@ typedef $$WorkOrderPauseRequestsTableProcessedTableManager =
         bool reviewedById,
       })
     >;
+typedef $$WorkOrderObservationsTableCreateCompanionBuilder =
+    WorkOrderObservationsCompanion Function({
+      required String id,
+      required String companyId,
+      required String workOrderId,
+      required String authorId,
+      required String authorName,
+      required String content,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+typedef $$WorkOrderObservationsTableUpdateCompanionBuilder =
+    WorkOrderObservationsCompanion Function({
+      Value<String> id,
+      Value<String> companyId,
+      Value<String> workOrderId,
+      Value<String> authorId,
+      Value<String> authorName,
+      Value<String> content,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<int> rowid,
+    });
+
+final class $$WorkOrderObservationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $WorkOrderObservationsTable,
+          WorkOrderObservation
+        > {
+  $$WorkOrderObservationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CompaniesTable _companyIdTable(_$AppDatabase db) => db.companies
+      .createAlias('work_order_observations__company_id__companies__id');
+
+  $$CompaniesTableProcessedTableManager get companyId {
+    final $_column = $_itemColumn<String>('company_id')!;
+
+    final manager = $$CompaniesTableTableManager(
+      $_db,
+      $_db.companies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_companyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $WorkOrdersTable _workOrderIdTable(_$AppDatabase db) => db.workOrders
+      .createAlias('work_order_observations__work_order_id__work_orders__id');
+
+  $$WorkOrdersTableProcessedTableManager get workOrderId {
+    final $_column = $_itemColumn<String>('work_order_id')!;
+
+    final manager = $$WorkOrdersTableTableManager(
+      $_db,
+      $_db.workOrders,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_workOrderIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $UserProfilesTable _authorIdTable(_$AppDatabase db) => db.userProfiles
+      .createAlias('work_order_observations__author_id__user_profiles__id');
+
+  $$UserProfilesTableProcessedTableManager get authorId {
+    final $_column = $_itemColumn<String>('author_id')!;
+
+    final manager = $$UserProfilesTableTableManager(
+      $_db,
+      $_db.userProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_authorIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WorkOrderObservationsTableFilterComposer
+    extends Composer<_$AppDatabase, $WorkOrderObservationsTable> {
+  $$WorkOrderObservationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CompaniesTableFilterComposer get companyId {
+    final $$CompaniesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableFilterComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableFilterComposer get workOrderId {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableFilterComposer get authorId {
+    final $$UserProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.authorId,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderObservationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WorkOrderObservationsTable> {
+  $$WorkOrderObservationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CompaniesTableOrderingComposer get companyId {
+    final $$CompaniesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableOrderingComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableOrderingComposer get workOrderId {
+    final $$WorkOrdersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableOrderingComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableOrderingComposer get authorId {
+    final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.authorId,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableOrderingComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderObservationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WorkOrderObservationsTable> {
+  $$WorkOrderObservationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get authorName => $composableBuilder(
+    column: $table.authorName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  $$CompaniesTableAnnotationComposer get companyId {
+    final $$CompaniesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.companyId,
+      referencedTable: $db.companies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CompaniesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.companies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$WorkOrdersTableAnnotationComposer get workOrderId {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.workOrderId,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$UserProfilesTableAnnotationComposer get authorId {
+    final $$UserProfilesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.authorId,
+      referencedTable: $db.userProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserProfilesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WorkOrderObservationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WorkOrderObservationsTable,
+          WorkOrderObservation,
+          $$WorkOrderObservationsTableFilterComposer,
+          $$WorkOrderObservationsTableOrderingComposer,
+          $$WorkOrderObservationsTableAnnotationComposer,
+          $$WorkOrderObservationsTableCreateCompanionBuilder,
+          $$WorkOrderObservationsTableUpdateCompanionBuilder,
+          (WorkOrderObservation, $$WorkOrderObservationsTableReferences),
+          WorkOrderObservation,
+          PrefetchHooks Function({
+            bool companyId,
+            bool workOrderId,
+            bool authorId,
+          })
+        > {
+  $$WorkOrderObservationsTableTableManager(
+    _$AppDatabase db,
+    $WorkOrderObservationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WorkOrderObservationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$WorkOrderObservationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$WorkOrderObservationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> companyId = const Value.absent(),
+                Value<String> workOrderId = const Value.absent(),
+                Value<String> authorId = const Value.absent(),
+                Value<String> authorName = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WorkOrderObservationsCompanion(
+                id: id,
+                companyId: companyId,
+                workOrderId: workOrderId,
+                authorId: authorId,
+                authorName: authorName,
+                content: content,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String companyId,
+                required String workOrderId,
+                required String authorId,
+                required String authorName,
+                required String content,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WorkOrderObservationsCompanion.insert(
+                id: id,
+                companyId: companyId,
+                workOrderId: workOrderId,
+                authorId: authorId,
+                authorName: authorName,
+                content: content,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$WorkOrderObservationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({companyId = false, workOrderId = false, authorId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (companyId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.companyId,
+                                    referencedTable:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._companyIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._companyIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (workOrderId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.workOrderId,
+                                    referencedTable:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._workOrderIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._workOrderIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (authorId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.authorId,
+                                    referencedTable:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._authorIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrderObservationsTableReferences
+                                            ._authorIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$WorkOrderObservationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WorkOrderObservationsTable,
+      WorkOrderObservation,
+      $$WorkOrderObservationsTableFilterComposer,
+      $$WorkOrderObservationsTableOrderingComposer,
+      $$WorkOrderObservationsTableAnnotationComposer,
+      $$WorkOrderObservationsTableCreateCompanionBuilder,
+      $$WorkOrderObservationsTableUpdateCompanionBuilder,
+      (WorkOrderObservation, $$WorkOrderObservationsTableReferences),
+      WorkOrderObservation,
+      PrefetchHooks Function({bool companyId, bool workOrderId, bool authorId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -36232,4 +37728,6 @@ class $AppDatabaseManager {
         _db,
         _db.workOrderPauseRequests,
       );
+  $$WorkOrderObservationsTableTableManager get workOrderObservations =>
+      $$WorkOrderObservationsTableTableManager(_db, _db.workOrderObservations);
 }

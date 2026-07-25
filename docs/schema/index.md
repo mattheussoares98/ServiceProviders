@@ -103,6 +103,8 @@ erDiagram
 | 20 | work_order_pause_requests | [work_order_pause_requests.md](work_order_pause_requests.md) |
 | 21 | pause_reasons | [pause_reasons.md](pause_reasons.md) |
 | 22 | sectors | [sectors.md](sectors.md) |
+| 23 | work_order_observations | [work_order_observations.md](work_order_observations.md) |
+
 
 
 

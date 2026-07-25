@@ -27,6 +27,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_tab
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_sessions_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_change_requests_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_history_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_observations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_order_pause_requests_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/work_orders_table.dart';
 
@@ -59,6 +60,7 @@ part 'app_database.g.dart';
     PauseReasons,
     WorkOrderPauseRequests,
     Sectors,
+    WorkOrderObservations,
   ],
 )
 @LazySingleton()
@@ -67,7 +69,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -149,6 +151,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(sectors);
         await m.deleteTable('work_order_pause_requests');
         await m.createTable(workOrderPauseRequests);
+      }
+      if (from < 14) {
+        await m.createTable(workOrderObservations);
       }
     },
   );
