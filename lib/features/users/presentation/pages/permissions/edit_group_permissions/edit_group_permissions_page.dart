@@ -202,7 +202,8 @@ class _GroupWorkOrdersCard extends StatelessWidget {
                     value: selectedValue,
                     onChanged: isAdmin ? null : onChanged,
                   );
-                }
+                } //TODO create a separated widget instead of using a method
+                //TODO when succeeds the change, should close the page
 
                 return Column(
                   children: [
@@ -252,6 +253,11 @@ class _GroupWorkOrdersCard extends StatelessWidget {
                       label: 'Aprovar conclusão'.hardcoded,
                       selectedValue: draft.approveCompletion,
                       onChanged: cubit.toggleGroupWorkOrdersApproveCompletion,
+                    ),
+                    buildSwitchRow(
+                      label: 'Excluir observações'.hardcoded,
+                      selectedValue: draft.deleteObservation,
+                      onChanged: cubit.toggleGroupWorkOrdersDeleteObservation,
                     ),
                   ],
                 );

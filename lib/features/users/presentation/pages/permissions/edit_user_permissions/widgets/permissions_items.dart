@@ -324,6 +324,11 @@ class _WorkOrdersCard extends StatelessWidget {
                     selectedValue: draft.approveCompletion,
                     onChanged: cubit.toggleUserWorkOrdersApproveCompletion,
                   ),
+                  buildToggleRow(
+                    label: 'Excluir observações'.hardcoded,
+                    selectedValue: draft.deleteObservation,
+                    onChanged: cubit.toggleUserWorkOrdersDeleteObservation,
+                  ),
                   gapH8,
                 ],
               );

@@ -132,6 +132,18 @@ void main() {
         ),
       ],
     );
+    blocTest<PermissionsCubit, PermissionsState>(
+      'toggleGroupWorkOrdersDeleteObservation updates state draftGroupWorkOrders',
+      build: () => cubit..initGroup(tGroup),
+      act: (c) => c.toggleGroupWorkOrdersDeleteObservation(true),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.draftGroupWorkOrders.deleteObservation,
+          'deleteObservation',
+          true,
+        ),
+      ],
+    );
   });
 
   group('PermissionsCubit User Logic', () {
@@ -331,7 +343,8 @@ void main() {
       blocTest<PermissionsCubit, PermissionsState>(
         'changeGroupWorkOrdersUpdateScope updates draftGroupWorkOrders updateScope',
         build: () => cubit..initGroup(tGroup),
-        act: (c) => c.changeGroupWorkOrdersUpdateScope(WorkOrderUpdateScope.own),
+        act: (c) =>
+            c.changeGroupWorkOrdersUpdateScope(WorkOrderUpdateScope.own),
         expect: () => [
           isA<PermissionsState>().having(
             (s) => s.draftGroupWorkOrders.updateScope,

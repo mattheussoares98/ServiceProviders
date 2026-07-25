@@ -161,6 +161,17 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
   }
 
+  void toggleGroupWorkOrdersDeleteObservation(bool value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
+          deleteObservation: value,
+        ),
+      ),
+    );
+  }
+
   Future<bool> saveGroupPermissions(UsersCubit usersCubit) async {
     final group = state.group;
     if (group == null || state.isAdmin) return false;
@@ -361,6 +372,18 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
           approveCompletion: value,
           annulApproveCompletion: value == null,
+        ),
+      ),
+    );
+  }
+
+  void toggleUserWorkOrdersDeleteObservation(bool? value) {
+    if (state.isAdmin) return;
+    emit(
+      state.copyWith(
+        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
+          deleteObservation: value,
+          annulDeleteObservation: value == null,
         ),
       ),
     );
