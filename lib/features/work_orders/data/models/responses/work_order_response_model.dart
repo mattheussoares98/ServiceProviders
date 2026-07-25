@@ -2,6 +2,7 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -38,6 +39,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
     super.serviceProviderCompanyId,
     super.providerProfileId,
     super.openedBy,
+    super.completionReason,
+    super.completionResponsibility,
+    super.completionSectorId,
   });
 
   factory WorkOrderResponseModel.fromEntity(WorkOrderEntity entity) =>
@@ -70,6 +74,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
         serviceProviderCompanyId: entity.serviceProviderCompanyId,
         providerProfileId: entity.providerProfileId,
         openedBy: entity.openedBy,
+        completionReason: entity.completionReason,
+        completionResponsibility: entity.completionResponsibility,
+        completionSectorId: entity.completionSectorId,
       );
 
   factory WorkOrderResponseModel.fromJson(MapDynamic json) =>
@@ -121,6 +128,13 @@ class WorkOrderResponseModel extends WorkOrderEntity
         providerProfileId: json['provider_profile_id'] as String?,
         openedBy:
             AppMode.fromName(json['opened_by'] as String?) ?? AppMode.internal,
+        completionReason: json['completion_reason'] as String?,
+        completionResponsibility: json['completion_responsibility'] != null
+            ? PauseResponsibility.fromValue(
+                json['completion_responsibility'] as String,
+              )
+            : null,
+        completionSectorId: json['completion_sector_id'] as String?,
       );
 
   @override
@@ -152,6 +166,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
     'service_provider_company_id': serviceProviderCompanyId,
     'provider_profile_id': providerProfileId,
     'opened_by': openedBy.name,
+    'completion_reason': completionReason,
+    'completion_responsibility': completionResponsibility?.value,
+    'completion_sector_id': completionSectorId,
   };
 
   @override
@@ -184,5 +201,9 @@ class WorkOrderResponseModel extends WorkOrderEntity
     serviceProviderCompanyId: serviceProviderCompanyId,
     providerProfileId: providerProfileId,
     openedBy: openedBy,
+    completionReason: completionReason,
+    completionResponsibility: completionResponsibility,
+    completionSectorId: completionSectorId,
   );
 }
+

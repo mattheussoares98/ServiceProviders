@@ -16,6 +16,8 @@ class WorkOrderPauseRequests extends Table {
     #id,
     onDelete: KeyAction.setNull,
   )();
+  TextColumn get eventType =>
+      text().withDefault(const Constant('pause'))();
   TextColumn get reasonId => text().nullable().references(
     PauseReasons,
     #id,
@@ -42,3 +44,4 @@ class WorkOrderPauseRequests extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+

@@ -39,6 +39,10 @@ extension WorkOrderStatusUiExtension on WorkOrderStatus {
         return Colors.green;
       case WorkOrderStatus.cancelled:
         return Colors.red;
+      case WorkOrderStatus.pendingConclusionApproval:
+        return Colors.lightBlue;
+      case WorkOrderStatus.pendingPauseApproval:
+        return Colors.blueAccent;
     }
   }
 }

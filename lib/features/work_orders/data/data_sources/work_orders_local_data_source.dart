@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -198,6 +199,11 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           updatedAt: order.updatedAt,
           deletedAt: order.deletedAt,
           attachments: attachmentsByWorkOrder[order.id] ?? const [],
+          completionReason: order.completionReason,
+          completionResponsibility: order.completionResponsibility != null
+              ? PauseResponsibility.fromValue(order.completionResponsibility!)
+              : null,
+          completionSectorId: order.completionSectorId,
         );
       }).toList();
 
@@ -276,6 +282,11 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         updatedAt: order.updatedAt,
         deletedAt: order.deletedAt,
         attachments: attachments,
+        completionReason: order.completionReason,
+        completionResponsibility: order.completionResponsibility != null
+            ? PauseResponsibility.fromValue(order.completionResponsibility!)
+            : null,
+        completionSectorId: order.completionSectorId,
       );
 
       return SuccessState(data: model);
@@ -313,6 +324,11 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               createdAt: Value(workOrder.createdAt),
               updatedAt: Value(workOrder.updatedAt),
               deletedAt: Value(workOrder.deletedAt),
+              completionReason: Value(workOrder.completionReason),
+              completionResponsibility: Value(
+                workOrder.completionResponsibility?.value,
+              ),
+              completionSectorId: Value(workOrder.completionSectorId),
             ),
           );
 

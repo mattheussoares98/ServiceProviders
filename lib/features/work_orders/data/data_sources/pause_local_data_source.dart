@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 
@@ -87,6 +88,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               companyId: r.companyId,
               workOrderId: r.workOrderId,
               requestedById: r.requestedById,
+              eventType: PauseEventType.fromValue(r.eventType),
               reasonId: r.reasonId,
               customReason: r.customReason,
               observation: r.observation,
@@ -118,6 +120,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               companyId: Value(request.companyId),
               workOrderId: Value(request.workOrderId),
               requestedById: Value(request.requestedById),
+              eventType: Value(request.eventType.value),
               reasonId: Value(request.reasonId),
               customReason: Value(request.customReason),
               observation: Value(request.observation),
@@ -136,6 +139,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
       return const SuccessState(data: true);
     });
   }
+
 
   @override
   FutureBool reviewPause({

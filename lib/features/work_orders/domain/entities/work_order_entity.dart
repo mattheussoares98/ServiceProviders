@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -39,6 +40,9 @@ class WorkOrderEntity extends Equatable {
     this.slaDeadlineAt,
     this.slaBreached = false,
     this.netActiveDuration,
+    this.completionReason,
+    this.completionResponsibility,
+    this.completionSectorId,
   });
 
   final String id;
@@ -73,6 +77,9 @@ class WorkOrderEntity extends Equatable {
   final DateTime? slaDeadlineAt;
   final bool slaBreached;
   final int? netActiveDuration;
+  final String? completionReason;
+  final PauseResponsibility? completionResponsibility;
+  final String? completionSectorId;
 
   @override
   List<Object?> get props => [
@@ -108,6 +115,9 @@ class WorkOrderEntity extends Equatable {
     slaDeadlineAt,
     slaBreached,
     netActiveDuration,
+    completionReason,
+    completionResponsibility,
+    completionSectorId,
   ];
 
   WorkOrderEntity copyWith({
@@ -143,6 +153,9 @@ class WorkOrderEntity extends Equatable {
     DateTime? slaDeadlineAt,
     bool? slaBreached,
     int? netActiveDuration,
+    String? completionReason,
+    PauseResponsibility? completionResponsibility,
+    String? completionSectorId,
     bool? annulAssetId,
     bool? annulAssignedToId,
     bool? annulMaintenancePlanId,
@@ -161,6 +174,9 @@ class WorkOrderEntity extends Equatable {
     bool? annulSlaPolicyId,
     bool? annulSlaDeadlineAt,
     bool? annulNetActiveDuration,
+    bool? annulCompletionReason,
+    bool? annulCompletionResponsibility,
+    bool? annulCompletionSectorId,
   }) {
     return WorkOrderEntity(
       id: id ?? this.id,
@@ -217,6 +233,16 @@ class WorkOrderEntity extends Equatable {
       netActiveDuration: annulNetActiveDuration == true
           ? null
           : netActiveDuration ?? this.netActiveDuration,
+      completionReason: annulCompletionReason == true
+          ? null
+          : completionReason ?? this.completionReason,
+      completionResponsibility: annulCompletionResponsibility == true
+          ? null
+          : completionResponsibility ?? this.completionResponsibility,
+      completionSectorId: annulCompletionSectorId == true
+          ? null
+          : completionSectorId ?? this.completionSectorId,
     );
   }
 }
+

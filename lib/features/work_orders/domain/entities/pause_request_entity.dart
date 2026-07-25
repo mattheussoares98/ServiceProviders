@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 
@@ -8,6 +9,7 @@ class PauseRequestEntity extends Equatable {
     required this.companyId,
     required this.workOrderId,
     this.requestedById,
+    this.eventType = PauseEventType.pause,
     this.reasonId,
     this.customReason,
     this.observation,
@@ -27,6 +29,7 @@ class PauseRequestEntity extends Equatable {
   final String companyId;
   final String workOrderId;
   final String? requestedById;
+  final PauseEventType eventType;
   final String? reasonId;
   final String? customReason;
   final String? observation;
@@ -47,6 +50,7 @@ class PauseRequestEntity extends Equatable {
     companyId,
     workOrderId,
     requestedById,
+    eventType,
     reasonId,
     customReason,
     observation,
@@ -67,6 +71,7 @@ class PauseRequestEntity extends Equatable {
     String? companyId,
     String? workOrderId,
     String? requestedById,
+    PauseEventType? eventType,
     String? reasonId,
     String? customReason,
     String? observation,
@@ -96,6 +101,7 @@ class PauseRequestEntity extends Equatable {
       requestedById: annulRequestedById == true
           ? null
           : requestedById ?? this.requestedById,
+      eventType: eventType ?? this.eventType,
       reasonId: annulReasonId == true ? null : reasonId ?? this.reasonId,
       customReason: annulCustomReason == true ? null : customReason ?? this.customReason,
       observation: annulObservation == true
@@ -118,3 +124,4 @@ class PauseRequestEntity extends Equatable {
     );
   }
 }
+

@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sectors_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sla_policies_table.dart';
@@ -72,6 +73,13 @@ class WorkOrders extends Table {
   DateTimeColumn get slaDeadlineAt => dateTime().nullable()();
   BoolColumn get slaBreached => boolean().nullable()();
   IntColumn get netActiveDuration => integer().nullable()();
+  TextColumn get completionReason => text().nullable()();
+  TextColumn get completionResponsibility => text().nullable()();
+  TextColumn get completionSectorId => text().nullable().references(
+        Sectors,
+        #id,
+        onDelete: KeyAction.setNull,
+      )();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -79,3 +87,4 @@ class WorkOrders extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+

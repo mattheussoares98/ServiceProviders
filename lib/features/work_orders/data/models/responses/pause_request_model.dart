@@ -1,5 +1,6 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
@@ -11,6 +12,7 @@ class PauseRequestModel extends PauseRequestEntity
     required super.companyId,
     required super.workOrderId,
     super.requestedById,
+    super.eventType,
     super.reasonId,
     super.customReason,
     super.observation,
@@ -32,6 +34,7 @@ class PauseRequestModel extends PauseRequestEntity
         companyId: entity.companyId,
         workOrderId: entity.workOrderId,
         requestedById: entity.requestedById,
+        eventType: entity.eventType,
         reasonId: entity.reasonId,
         customReason: entity.customReason,
         observation: entity.observation,
@@ -54,6 +57,9 @@ class PauseRequestModel extends PauseRequestEntity
       companyId: json['company_id'] as String? ?? '',
       workOrderId: json['work_order_id'] as String? ?? '',
       requestedById: json['requested_by_id'] as String?,
+      eventType: PauseEventType.fromValue(
+        json['event_type'] as String? ?? 'pause',
+      ),
       reasonId: json['reason_id'] as String?,
       customReason: json['custom_reason'] as String?,
       observation: json['observation'] as String?,
@@ -86,6 +92,7 @@ class PauseRequestModel extends PauseRequestEntity
     'company_id': companyId,
     'work_order_id': workOrderId,
     'requested_by_id': requestedById,
+    'event_type': eventType.value,
     'reason_id': reasonId,
     'custom_reason': customReason,
     'observation': observation,
@@ -107,6 +114,7 @@ class PauseRequestModel extends PauseRequestEntity
     companyId: companyId,
     workOrderId: workOrderId,
     requestedById: requestedById,
+    eventType: eventType,
     reasonId: reasonId,
     customReason: customReason,
     observation: observation,
@@ -122,3 +130,4 @@ class PauseRequestModel extends PauseRequestEntity
     updatedAt: updatedAt,
   );
 }
+
