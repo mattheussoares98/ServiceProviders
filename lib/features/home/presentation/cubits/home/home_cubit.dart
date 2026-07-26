@@ -39,6 +39,10 @@ class HomeCubit extends BaseCubit<HomeState> {
     await pushRoute(const UsersAndPermissionsRoute());
   }
 
+  Future<void> navigateToModeSwitcher() async {
+    await pushRoute(const ModeSwitcherRoute());
+  }
+
   Future<void> changeAvatar(AttachmentSource source) async {
     final user = _useCases.getSessionUser.call();
 

@@ -25,7 +25,6 @@ class ModeSwitcherPage extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Spacer(),
             BaseText.title('Como deseja acessar?'.hardcoded),
             gapH8,
             BaseText(
@@ -72,7 +71,6 @@ class ModeSwitcherPage extends StatelessWidget {
                 );
               },
             ),
-            const Spacer(),
           ],
         ),
       ),

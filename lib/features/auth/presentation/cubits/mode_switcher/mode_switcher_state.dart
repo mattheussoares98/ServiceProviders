@@ -20,10 +20,12 @@ class ModeSwitcherState extends Equatable {
   }) {
     return ModeSwitcherState(
       status: status ?? this.status,
-      selectedMode:
-          annulSelectedMode == true ? null : selectedMode ?? this.selectedMode,
-      errorMessage:
-          annulErrorMessage == true ? null : errorMessage ?? this.errorMessage,
+      selectedMode: annulSelectedMode == true
+          ? null
+          : selectedMode ?? this.selectedMode,
+      errorMessage: annulErrorMessage == true
+          ? null
+          : errorMessage ?? this.errorMessage,
     );
   }
 
