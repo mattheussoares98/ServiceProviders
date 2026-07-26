@@ -18,7 +18,7 @@ class ServiceProvidersState extends BaseState {
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<ServiceProviderCompanyEntity> companies;
-  final List<ServiceProviderProfileEntity> profiles;
+  final List<ServiceProviderProfileEntity> profiles; //TODO delete this state
   final String? selectedCompanyId;
   final String? selectedProfileId;
 

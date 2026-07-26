@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class ServiceProviderProfileEntity extends Equatable {
+  //TODO move to serviceProvider feature
   const ServiceProviderProfileEntity({
     required this.id,
     this.authUserId,
@@ -51,8 +52,9 @@ class ServiceProviderProfileEntity extends Equatable {
   }) {
     return ServiceProviderProfileEntity(
       id: id ?? this.id,
-      authUserId:
-          annulAuthUserId == true ? null : authUserId ?? this.authUserId,
+      authUserId: annulAuthUserId == true
+          ? null
+          : authUserId ?? this.authUserId,
       serviceProviderCompanyId:
           serviceProviderCompanyId ?? this.serviceProviderCompanyId,
       name: name ?? this.name,
