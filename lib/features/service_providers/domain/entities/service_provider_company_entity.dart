@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 
 class ServiceProviderCompanyEntity extends Equatable {
   const ServiceProviderCompanyEntity({

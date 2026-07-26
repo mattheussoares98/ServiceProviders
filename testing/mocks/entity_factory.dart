@@ -20,19 +20,19 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.da
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
@@ -613,4 +613,3 @@ abstract final class EntityFactory {
     ];
   }
 }
-
