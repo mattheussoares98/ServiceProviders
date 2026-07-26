@@ -17,6 +17,14 @@ Stores pending and historical invitations issued to service provider companies.
 
 ---
 
+## Helper RPCs & Functions
+
+- **`send_service_provider_invitation(p_service_provider_company_id UUID, p_email TEXT)`**: Generates or refreshes a pending invitation for a provider company with a 7-day token.
+- **`delete_service_provider_invitation(p_invitation_id UUID)`**: Revokes/deletes a pending or expired invitation.
+- **`create_service_provider_invitation(...)`**: Core logic function that sets up token expiration and auto-links existing `auth.users` accounts.
+
+---
+
 ## Local Schema (Drift - SQLite)
 
 Table name: `service_provider_invitations_table`
@@ -31,3 +39,4 @@ Table name: `service_provider_invitations_table`
 | `created_at` | `DateTimeColumn` | Creation timestamp |
 | `accepted_at` | `DateTimeColumn` (nullable) | Acceptance timestamp |
 | `expires_at` | `DateTimeColumn` (nullable) | Expiration timestamp |
+
