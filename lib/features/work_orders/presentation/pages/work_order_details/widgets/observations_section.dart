@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observat
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
@@ -111,8 +112,18 @@ class ObservationsSection extends HookWidget {
                                 ),
                               ),
                               BaseIconButton(
-                                onPressed: () async {
-                                  await cubit.deleteObservation(item.id);
+                                onPressed: () {
+                                  showAlertDialog(
+                                    context: context,
+                                    title: 'Excluir observação'.hardcoded,
+                                    contentText:
+                                        'Deseja realmente excluir a observação?'
+                                            .hardcoded,
+                                    cancelActionText: 'Não'.hardcoded,
+                                    defaultActionText: 'Sim'.hardcoded,
+                                    onOkPressed: () =>
+                                        cubit.deleteObservation(item.id),
+                                  );
                                 },
                                 permission:
                                     const ActionPermission.workOrderSubAction(
