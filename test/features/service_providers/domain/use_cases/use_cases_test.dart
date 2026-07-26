@@ -5,7 +5,9 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 
@@ -20,6 +22,8 @@ void main() {
   late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
   late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
   late GetServiceProviderInvitationsUseCase getServiceProviderInvitationsUseCase;
+  late SendServiceProviderInvitationUseCase sendServiceProviderInvitationUseCase;
+  late DeleteServiceProviderInvitationUseCase deleteServiceProviderInvitationUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -43,6 +47,12 @@ void main() {
       serviceProviderRepository: mockServiceProviderRepository,
     );
     getServiceProviderInvitationsUseCase = GetServiceProviderInvitationsUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    sendServiceProviderInvitationUseCase = SendServiceProviderInvitationUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    deleteServiceProviderInvitationUseCase = DeleteServiceProviderInvitationUseCase(
       serviceProviderRepository: mockServiceProviderRepository,
     );
   });
@@ -143,6 +153,53 @@ void main() {
       verify(
         () => mockServiceProviderRepository.getServiceProviderInvitations(
           tCompanyId,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('SendServiceProviderInvitationUseCase', () {
+    final tParams = SendServiceProviderInvitationParams(
+      serviceProviderCompanyId: faker.guid.guid(),
+      email: faker.internet.email(),
+    );
+
+    test('should return true on success', () async {
+      when(
+        () => mockServiceProviderRepository.sendServiceProviderInvitation(
+          serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+          email: any(named: 'email'),
+        ),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await sendServiceProviderInvitationUseCase(tParams);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockServiceProviderRepository.sendServiceProviderInvitation(
+          serviceProviderCompanyId: tParams.serviceProviderCompanyId,
+          email: tParams.email,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('DeleteServiceProviderInvitationUseCase', () {
+    final tInvitationId = faker.guid.guid();
+
+    test('should return true on success', () async {
+      when(
+        () => mockServiceProviderRepository.deleteServiceProviderInvitation(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await deleteServiceProviderInvitationUseCase(tInvitationId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockServiceProviderRepository.deleteServiceProviderInvitation(
+          tInvitationId,
         ),
       ).called(1);
     });

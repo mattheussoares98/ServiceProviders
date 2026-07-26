@@ -36,6 +36,11 @@ abstract interface class ServiceProviderRemoteDataSource {
 
   FutureList<ServiceProviderInvitationResponseModel>
   getServiceProviderInvitations(String serviceProviderCompanyId);
+  FutureBool sendServiceProviderInvitation({
+    required String serviceProviderCompanyId,
+    required String email,
+  });
+  FutureBool deleteServiceProviderInvitation(String invitationId);
 }
 
 @LazySingleton(as: ServiceProviderRemoteDataSource)
@@ -169,6 +174,31 @@ final class ServiceProviderRemoteDataSourceImpl
         return response
             .map(ServiceProviderInvitationResponseModel.fromJson)
             .toList();
+      });
+
+  @override
+  FutureBool sendServiceProviderInvitation({
+    required String serviceProviderCompanyId,
+    required String email,
+  }) => SupabaseHandler.call(() async {
+    await _database.rpc(
+      functionName: 'send_service_provider_invitation',
+      params: {
+        'p_service_provider_company_id': serviceProviderCompanyId,
+        'p_email': email,
+      },
+    );
+    return true;
+  });
+
+  @override
+  FutureBool deleteServiceProviderInvitation(String invitationId) =>
+      SupabaseHandler.call(() async {
+        await _database.rpc(
+          functionName: 'delete_service_provider_invitation',
+          params: {'p_invitation_id': invitationId},
+        );
+        return true;
       });
 }
 

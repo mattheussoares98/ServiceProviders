@@ -33,4 +33,9 @@ abstract interface class ServiceProviderRepository {
   FutureList<ServiceProviderInvitationEntity> getServiceProviderInvitations(
     String serviceProviderCompanyId,
   );
+  FutureBool sendServiceProviderInvitation({
+    required String serviceProviderCompanyId,
+    required String email,
+  });
+  FutureBool deleteServiceProviderInvitation(String invitationId);
 }

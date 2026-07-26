@@ -110,4 +110,17 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
       serviceProviderCompanyId,
     ),
   );
+
+  @override
+  FutureBool sendServiceProviderInvitation({
+    required String serviceProviderCompanyId,
+    required String email,
+  }) => _remoteDataSource.sendServiceProviderInvitation(
+    serviceProviderCompanyId: serviceProviderCompanyId,
+    email: email,
+  );
+
+  @override
+  FutureBool deleteServiceProviderInvitation(String invitationId) =>
+      _remoteDataSource.deleteServiceProviderInvitation(invitationId);
 }

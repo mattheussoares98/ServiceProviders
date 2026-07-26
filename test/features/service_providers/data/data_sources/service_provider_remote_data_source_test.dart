@@ -388,4 +388,61 @@ void main() {
       expect(result, isA<FailureState<dynamic>>());
     });
   });
+
+  group('sendServiceProviderInvitation', () {
+    test(
+      'should return SuccessState(true) when rpc call is successful',
+      () async {
+        when(
+          () => mockDatabase.rpc(
+            functionName: any(named: 'functionName'),
+            params: any(named: 'params'),
+          ),
+        ).thenAnswer((_) async => 'some-invitation-id');
+
+        final result = await dataSource.sendServiceProviderInvitation(
+          serviceProviderCompanyId: tInvitationEntity.serviceProviderCompanyId,
+          email: tInvitationEntity.email,
+        );
+
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockDatabase.rpc(
+            functionName: 'send_service_provider_invitation',
+            params: {
+              'p_service_provider_company_id':
+                  tInvitationEntity.serviceProviderCompanyId,
+              'p_email': tInvitationEntity.email,
+            },
+          ),
+        ).called(1);
+      },
+    );
+  });
+
+  group('deleteServiceProviderInvitation', () {
+    test(
+      'should return SuccessState(true) when rpc call is successful',
+      () async {
+        when(
+          () => mockDatabase.rpc(
+            functionName: any(named: 'functionName'),
+            params: any(named: 'params'),
+          ),
+        ).thenAnswer((_) async => true);
+
+        final result = await dataSource.deleteServiceProviderInvitation(
+          tInvitationEntity.id,
+        );
+
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockDatabase.rpc(
+            functionName: 'delete_service_provider_invitation',
+            params: {'p_invitation_id': tInvitationEntity.id},
+          ),
+        ).called(1);
+      },
+    );
+  });
 }

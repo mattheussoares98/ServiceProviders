@@ -283,4 +283,47 @@ void main() {
       expect(result, isA<FailureState<dynamic>>());
     });
   });
+
+  group('sendServiceProviderInvitation', () {
+    test('should return true when remote call succeeds', () async {
+      when(
+        () => mockRemoteDataSource.sendServiceProviderInvitation(
+          serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+          email: any(named: 'email'),
+        ),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.sendServiceProviderInvitation(
+        serviceProviderCompanyId: tInvitationEntity.serviceProviderCompanyId,
+        email: tInvitationEntity.email,
+      );
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockRemoteDataSource.sendServiceProviderInvitation(
+          serviceProviderCompanyId: tInvitationEntity.serviceProviderCompanyId,
+          email: tInvitationEntity.email,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('deleteServiceProviderInvitation', () {
+    test('should return true when remote call succeeds', () async {
+      when(
+        () => mockRemoteDataSource.deleteServiceProviderInvitation(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.deleteServiceProviderInvitation(
+        tInvitationEntity.id,
+      );
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockRemoteDataSource.deleteServiceProviderInvitation(
+          tInvitationEntity.id,
+        ),
+      ).called(1);
+    });
+  });
 }
