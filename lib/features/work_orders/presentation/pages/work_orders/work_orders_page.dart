@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_ic
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orders/widgets/orders_items.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orders/widgets/oders_items/orders_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/widgets/work_order_filter_sheet.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
