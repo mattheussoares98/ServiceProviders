@@ -8925,6 +8925,547 @@ class ServiceProviderProfilesCompanion
   }
 }
 
+class $ServiceProviderInvitationsTable extends ServiceProviderInvitations
+    with
+        TableInfo<$ServiceProviderInvitationsTable, ServiceProviderInvitation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServiceProviderInvitationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serviceProviderCompanyIdMeta =
+      const VerificationMeta('serviceProviderCompanyId');
+  @override
+  late final GeneratedColumn<String> serviceProviderCompanyId =
+      GeneratedColumn<String>(
+        'service_provider_company_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES service_provider_companies (id) ON DELETE CASCADE',
+        ),
+      );
+  static const VerificationMeta _inviteTokenMeta = const VerificationMeta(
+    'inviteToken',
+  );
+  @override
+  late final GeneratedColumn<String> inviteToken = GeneratedColumn<String>(
+    'invite_token',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _acceptedAtMeta = const VerificationMeta(
+    'acceptedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> acceptedAt = GeneratedColumn<DateTime>(
+    'accepted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+    'expires_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    email,
+    serviceProviderCompanyId,
+    inviteToken,
+    status,
+    createdAt,
+    acceptedAt,
+    expiresAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'service_provider_invitations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ServiceProviderInvitation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
+    if (data.containsKey('service_provider_company_id')) {
+      context.handle(
+        _serviceProviderCompanyIdMeta,
+        serviceProviderCompanyId.isAcceptableOrUnknown(
+          data['service_provider_company_id']!,
+          _serviceProviderCompanyIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_serviceProviderCompanyIdMeta);
+    }
+    if (data.containsKey('invite_token')) {
+      context.handle(
+        _inviteTokenMeta,
+        inviteToken.isAcceptableOrUnknown(
+          data['invite_token']!,
+          _inviteTokenMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('accepted_at')) {
+      context.handle(
+        _acceptedAtMeta,
+        acceptedAt.isAcceptableOrUnknown(data['accepted_at']!, _acceptedAtMeta),
+      );
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServiceProviderInvitation map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServiceProviderInvitation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      )!,
+      serviceProviderCompanyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_provider_company_id'],
+      )!,
+      inviteToken: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}invite_token'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      acceptedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}accepted_at'],
+      ),
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expires_at'],
+      ),
+    );
+  }
+
+  @override
+  $ServiceProviderInvitationsTable createAlias(String alias) {
+    return $ServiceProviderInvitationsTable(attachedDatabase, alias);
+  }
+}
+
+class ServiceProviderInvitation extends DataClass
+    implements Insertable<ServiceProviderInvitation> {
+  final String id;
+  final String email;
+  final String serviceProviderCompanyId;
+  final String? inviteToken;
+  final String status;
+  final DateTime createdAt;
+  final DateTime? acceptedAt;
+  final DateTime? expiresAt;
+  const ServiceProviderInvitation({
+    required this.id,
+    required this.email,
+    required this.serviceProviderCompanyId,
+    this.inviteToken,
+    required this.status,
+    required this.createdAt,
+    this.acceptedAt,
+    this.expiresAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['email'] = Variable<String>(email);
+    map['service_provider_company_id'] = Variable<String>(
+      serviceProviderCompanyId,
+    );
+    if (!nullToAbsent || inviteToken != null) {
+      map['invite_token'] = Variable<String>(inviteToken);
+    }
+    map['status'] = Variable<String>(status);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || acceptedAt != null) {
+      map['accepted_at'] = Variable<DateTime>(acceptedAt);
+    }
+    if (!nullToAbsent || expiresAt != null) {
+      map['expires_at'] = Variable<DateTime>(expiresAt);
+    }
+    return map;
+  }
+
+  ServiceProviderInvitationsCompanion toCompanion(bool nullToAbsent) {
+    return ServiceProviderInvitationsCompanion(
+      id: Value(id),
+      email: Value(email),
+      serviceProviderCompanyId: Value(serviceProviderCompanyId),
+      inviteToken: inviteToken == null && nullToAbsent
+          ? const Value.absent()
+          : Value(inviteToken),
+      status: Value(status),
+      createdAt: Value(createdAt),
+      acceptedAt: acceptedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(acceptedAt),
+      expiresAt: expiresAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiresAt),
+    );
+  }
+
+  factory ServiceProviderInvitation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServiceProviderInvitation(
+      id: serializer.fromJson<String>(json['id']),
+      email: serializer.fromJson<String>(json['email']),
+      serviceProviderCompanyId: serializer.fromJson<String>(
+        json['serviceProviderCompanyId'],
+      ),
+      inviteToken: serializer.fromJson<String?>(json['inviteToken']),
+      status: serializer.fromJson<String>(json['status']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      acceptedAt: serializer.fromJson<DateTime?>(json['acceptedAt']),
+      expiresAt: serializer.fromJson<DateTime?>(json['expiresAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'email': serializer.toJson<String>(email),
+      'serviceProviderCompanyId': serializer.toJson<String>(
+        serviceProviderCompanyId,
+      ),
+      'inviteToken': serializer.toJson<String?>(inviteToken),
+      'status': serializer.toJson<String>(status),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'acceptedAt': serializer.toJson<DateTime?>(acceptedAt),
+      'expiresAt': serializer.toJson<DateTime?>(expiresAt),
+    };
+  }
+
+  ServiceProviderInvitation copyWith({
+    String? id,
+    String? email,
+    String? serviceProviderCompanyId,
+    Value<String?> inviteToken = const Value.absent(),
+    String? status,
+    DateTime? createdAt,
+    Value<DateTime?> acceptedAt = const Value.absent(),
+    Value<DateTime?> expiresAt = const Value.absent(),
+  }) => ServiceProviderInvitation(
+    id: id ?? this.id,
+    email: email ?? this.email,
+    serviceProviderCompanyId:
+        serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+    inviteToken: inviteToken.present ? inviteToken.value : this.inviteToken,
+    status: status ?? this.status,
+    createdAt: createdAt ?? this.createdAt,
+    acceptedAt: acceptedAt.present ? acceptedAt.value : this.acceptedAt,
+    expiresAt: expiresAt.present ? expiresAt.value : this.expiresAt,
+  );
+  ServiceProviderInvitation copyWithCompanion(
+    ServiceProviderInvitationsCompanion data,
+  ) {
+    return ServiceProviderInvitation(
+      id: data.id.present ? data.id.value : this.id,
+      email: data.email.present ? data.email.value : this.email,
+      serviceProviderCompanyId: data.serviceProviderCompanyId.present
+          ? data.serviceProviderCompanyId.value
+          : this.serviceProviderCompanyId,
+      inviteToken: data.inviteToken.present
+          ? data.inviteToken.value
+          : this.inviteToken,
+      status: data.status.present ? data.status.value : this.status,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      acceptedAt: data.acceptedAt.present
+          ? data.acceptedAt.value
+          : this.acceptedAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderInvitation(')
+          ..write('id: $id, ')
+          ..write('email: $email, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('inviteToken: $inviteToken, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('acceptedAt: $acceptedAt, ')
+          ..write('expiresAt: $expiresAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    email,
+    serviceProviderCompanyId,
+    inviteToken,
+    status,
+    createdAt,
+    acceptedAt,
+    expiresAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServiceProviderInvitation &&
+          other.id == this.id &&
+          other.email == this.email &&
+          other.serviceProviderCompanyId == this.serviceProviderCompanyId &&
+          other.inviteToken == this.inviteToken &&
+          other.status == this.status &&
+          other.createdAt == this.createdAt &&
+          other.acceptedAt == this.acceptedAt &&
+          other.expiresAt == this.expiresAt);
+}
+
+class ServiceProviderInvitationsCompanion
+    extends UpdateCompanion<ServiceProviderInvitation> {
+  final Value<String> id;
+  final Value<String> email;
+  final Value<String> serviceProviderCompanyId;
+  final Value<String?> inviteToken;
+  final Value<String> status;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> acceptedAt;
+  final Value<DateTime?> expiresAt;
+  final Value<int> rowid;
+  const ServiceProviderInvitationsCompanion({
+    this.id = const Value.absent(),
+    this.email = const Value.absent(),
+    this.serviceProviderCompanyId = const Value.absent(),
+    this.inviteToken = const Value.absent(),
+    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.acceptedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ServiceProviderInvitationsCompanion.insert({
+    required String id,
+    required String email,
+    required String serviceProviderCompanyId,
+    this.inviteToken = const Value.absent(),
+    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.acceptedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       email = Value(email),
+       serviceProviderCompanyId = Value(serviceProviderCompanyId);
+  static Insertable<ServiceProviderInvitation> custom({
+    Expression<String>? id,
+    Expression<String>? email,
+    Expression<String>? serviceProviderCompanyId,
+    Expression<String>? inviteToken,
+    Expression<String>? status,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? acceptedAt,
+    Expression<DateTime>? expiresAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (email != null) 'email': email,
+      if (serviceProviderCompanyId != null)
+        'service_provider_company_id': serviceProviderCompanyId,
+      if (inviteToken != null) 'invite_token': inviteToken,
+      if (status != null) 'status': status,
+      if (createdAt != null) 'created_at': createdAt,
+      if (acceptedAt != null) 'accepted_at': acceptedAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ServiceProviderInvitationsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? email,
+    Value<String>? serviceProviderCompanyId,
+    Value<String?>? inviteToken,
+    Value<String>? status,
+    Value<DateTime>? createdAt,
+    Value<DateTime?>? acceptedAt,
+    Value<DateTime?>? expiresAt,
+    Value<int>? rowid,
+  }) {
+    return ServiceProviderInvitationsCompanion(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      serviceProviderCompanyId:
+          serviceProviderCompanyId ?? this.serviceProviderCompanyId,
+      inviteToken: inviteToken ?? this.inviteToken,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      acceptedAt: acceptedAt ?? this.acceptedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (serviceProviderCompanyId.present) {
+      map['service_provider_company_id'] = Variable<String>(
+        serviceProviderCompanyId.value,
+      );
+    }
+    if (inviteToken.present) {
+      map['invite_token'] = Variable<String>(inviteToken.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (acceptedAt.present) {
+      map['accepted_at'] = Variable<DateTime>(acceptedAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServiceProviderInvitationsCompanion(')
+          ..write('id: $id, ')
+          ..write('email: $email, ')
+          ..write('serviceProviderCompanyId: $serviceProviderCompanyId, ')
+          ..write('inviteToken: $inviteToken, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('acceptedAt: $acceptedAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SlaPoliciesTable extends SlaPolicies
     with TableInfo<$SlaPoliciesTable, SlaPolicy> {
   @override
@@ -17774,6 +18315,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ServiceProviderCompaniesTable(this);
   late final $ServiceProviderProfilesTable serviceProviderProfiles =
       $ServiceProviderProfilesTable(this);
+  late final $ServiceProviderInvitationsTable serviceProviderInvitations =
+      $ServiceProviderInvitationsTable(this);
   late final $SlaPoliciesTable slaPolicies = $SlaPoliciesTable(this);
   late final $SectorsTable sectors = $SectorsTable(this);
   late final $WorkOrdersTable workOrders = $WorkOrdersTable(this);
@@ -17852,6 +18395,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_spp_auth_user',
     'CREATE INDEX idx_spp_auth_user ON service_provider_profiles (auth_user_id)',
   );
+  late final Index idxSpInvitationsCompany = Index(
+    'idx_sp_invitations_company',
+    'CREATE INDEX idx_sp_invitations_company ON service_provider_invitations (service_provider_company_id)',
+  );
+  late final Index idxSpInvitationsEmail = Index(
+    'idx_sp_invitations_email',
+    'CREATE INDEX idx_sp_invitations_email ON service_provider_invitations (email)',
+  );
   late final Index idxWorkOrdersCompany = Index(
     'idx_work_orders_company',
     'CREATE INDEX idx_work_orders_company ON work_orders (company_id)',
@@ -17927,6 +18478,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     maintenancePlans,
     serviceProviderCompanies,
     serviceProviderProfiles,
+    serviceProviderInvitations,
     slaPolicies,
     sectors,
     workOrders,
@@ -17954,6 +18506,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxSpcCompany,
     idxSppCompany,
     idxSppAuthUser,
+    idxSpInvitationsCompany,
+    idxSpInvitationsEmail,
     idxWorkOrdersCompany,
     idxWorkOrdersStatus,
     idxWorkOrdersAssigned,
@@ -18127,6 +18681,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [
         TableUpdate('service_provider_profiles', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'service_provider_companies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('service_provider_invitations', kind: UpdateKind.delete),
       ],
     ),
     WritePropagation(
@@ -28118,6 +28681,38 @@ final class $$ServiceProviderCompaniesTableReferences
     );
   }
 
+  static MultiTypedResultKey<
+    $ServiceProviderInvitationsTable,
+    List<ServiceProviderInvitation>
+  >
+  _serviceProviderInvitationsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.serviceProviderInvitations,
+    aliasName:
+        'service_provider_companies__id__service_provider_invitations__service_provider_company_id',
+  );
+
+  $$ServiceProviderInvitationsTableProcessedTableManager
+  get serviceProviderInvitationsRefs {
+    final manager =
+        $$ServiceProviderInvitationsTableTableManager(
+          $_db,
+          $_db.serviceProviderInvitations,
+        ).filter(
+          (f) => f.serviceProviderCompanyId.id.sqlEquals(
+            $_itemColumn<String>('id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _serviceProviderInvitationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
   _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workOrders,
@@ -28237,6 +28832,33 @@ class $$ServiceProviderCompaniesTableFilterComposer
               }) => $$ServiceProviderProfilesTableFilterComposer(
                 $db: $db,
                 $table: $db.serviceProviderProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> serviceProviderInvitationsRefs(
+    Expression<bool> Function($$ServiceProviderInvitationsTableFilterComposer f)
+    f,
+  ) {
+    final $$ServiceProviderInvitationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderInvitations,
+          getReferencedColumn: (t) => t.serviceProviderCompanyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderInvitationsTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderInvitations,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -28450,6 +29072,35 @@ class $$ServiceProviderCompaniesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> serviceProviderInvitationsRefs<T extends Object>(
+    Expression<T> Function(
+      $$ServiceProviderInvitationsTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$ServiceProviderInvitationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.serviceProviderInvitations,
+          getReferencedColumn: (t) => t.serviceProviderCompanyId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderInvitationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderInvitations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> workOrdersRefs<T extends Object>(
     Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
   ) {
@@ -28492,6 +29143,7 @@ class $$ServiceProviderCompaniesTableTableManager
           PrefetchHooks Function({
             bool companyId,
             bool serviceProviderProfilesRefs,
+            bool serviceProviderInvitationsRefs,
             bool workOrdersRefs,
           })
         > {
@@ -28585,12 +29237,15 @@ class $$ServiceProviderCompaniesTableTableManager
               ({
                 companyId = false,
                 serviceProviderProfilesRefs = false,
+                serviceProviderInvitationsRefs = false,
                 workOrdersRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (serviceProviderProfilesRefs) db.serviceProviderProfiles,
+                    if (serviceProviderInvitationsRefs)
+                      db.serviceProviderInvitations,
                     if (workOrdersRefs) db.workOrders,
                   ],
                   addJoins:
@@ -28651,6 +29306,28 @@ class $$ServiceProviderCompaniesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (serviceProviderInvitationsRefs)
+                        await $_getPrefetchedData<
+                          ServiceProviderCompany,
+                          $ServiceProviderCompaniesTable,
+                          ServiceProviderInvitation
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$ServiceProviderCompaniesTableReferences
+                                  ._serviceProviderInvitationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ServiceProviderCompaniesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).serviceProviderInvitationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.serviceProviderCompanyId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (workOrdersRefs)
                         await $_getPrefetchedData<
                           ServiceProviderCompany,
@@ -28696,6 +29373,7 @@ typedef $$ServiceProviderCompaniesTableProcessedTableManager =
       PrefetchHooks Function({
         bool companyId,
         bool serviceProviderProfilesRefs,
+        bool serviceProviderInvitationsRefs,
         bool workOrdersRefs,
       })
     >;
@@ -29224,6 +29902,419 @@ typedef $$ServiceProviderProfilesTableProcessedTableManager =
         bool serviceProviderCompanyId,
         bool workOrdersRefs,
       })
+    >;
+typedef $$ServiceProviderInvitationsTableCreateCompanionBuilder =
+    ServiceProviderInvitationsCompanion Function({
+      required String id,
+      required String email,
+      required String serviceProviderCompanyId,
+      Value<String?> inviteToken,
+      Value<String> status,
+      Value<DateTime> createdAt,
+      Value<DateTime?> acceptedAt,
+      Value<DateTime?> expiresAt,
+      Value<int> rowid,
+    });
+typedef $$ServiceProviderInvitationsTableUpdateCompanionBuilder =
+    ServiceProviderInvitationsCompanion Function({
+      Value<String> id,
+      Value<String> email,
+      Value<String> serviceProviderCompanyId,
+      Value<String?> inviteToken,
+      Value<String> status,
+      Value<DateTime> createdAt,
+      Value<DateTime?> acceptedAt,
+      Value<DateTime?> expiresAt,
+      Value<int> rowid,
+    });
+
+final class $$ServiceProviderInvitationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ServiceProviderInvitationsTable,
+          ServiceProviderInvitation
+        > {
+  $$ServiceProviderInvitationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ServiceProviderCompaniesTable _serviceProviderCompanyIdTable(
+    _$AppDatabase db,
+  ) => db.serviceProviderCompanies.createAlias(
+    'service_provider_invitations__service_provider_company_id__service_provider_companies__id',
+  );
+
+  $$ServiceProviderCompaniesTableProcessedTableManager
+  get serviceProviderCompanyId {
+    final $_column = $_itemColumn<String>('service_provider_company_id')!;
+
+    final manager = $$ServiceProviderCompaniesTableTableManager(
+      $_db,
+      $_db.serviceProviderCompanies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _serviceProviderCompanyIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ServiceProviderInvitationsTableFilterComposer
+    extends Composer<_$AppDatabase, $ServiceProviderInvitationsTable> {
+  $$ServiceProviderInvitationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get inviteToken => $composableBuilder(
+    column: $table.inviteToken,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get acceptedAt => $composableBuilder(
+    column: $table.acceptedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ServiceProviderCompaniesTableFilterComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableFilterComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$ServiceProviderInvitationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ServiceProviderInvitationsTable> {
+  $$ServiceProviderInvitationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get inviteToken => $composableBuilder(
+    column: $table.inviteToken,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get acceptedAt => $composableBuilder(
+    column: $table.acceptedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ServiceProviderCompaniesTableOrderingComposer get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableOrderingComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$ServiceProviderInvitationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ServiceProviderInvitationsTable> {
+  $$ServiceProviderInvitationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get inviteToken => $composableBuilder(
+    column: $table.inviteToken,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get acceptedAt => $composableBuilder(
+    column: $table.acceptedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  $$ServiceProviderCompaniesTableAnnotationComposer
+  get serviceProviderCompanyId {
+    final $$ServiceProviderCompaniesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.serviceProviderCompanyId,
+          referencedTable: $db.serviceProviderCompanies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ServiceProviderCompaniesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.serviceProviderCompanies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$ServiceProviderInvitationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ServiceProviderInvitationsTable,
+          ServiceProviderInvitation,
+          $$ServiceProviderInvitationsTableFilterComposer,
+          $$ServiceProviderInvitationsTableOrderingComposer,
+          $$ServiceProviderInvitationsTableAnnotationComposer,
+          $$ServiceProviderInvitationsTableCreateCompanionBuilder,
+          $$ServiceProviderInvitationsTableUpdateCompanionBuilder,
+          (
+            ServiceProviderInvitation,
+            $$ServiceProviderInvitationsTableReferences,
+          ),
+          ServiceProviderInvitation,
+          PrefetchHooks Function({bool serviceProviderCompanyId})
+        > {
+  $$ServiceProviderInvitationsTableTableManager(
+    _$AppDatabase db,
+    $ServiceProviderInvitationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ServiceProviderInvitationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ServiceProviderInvitationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ServiceProviderInvitationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> email = const Value.absent(),
+                Value<String> serviceProviderCompanyId = const Value.absent(),
+                Value<String?> inviteToken = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> acceptedAt = const Value.absent(),
+                Value<DateTime?> expiresAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderInvitationsCompanion(
+                id: id,
+                email: email,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                inviteToken: inviteToken,
+                status: status,
+                createdAt: createdAt,
+                acceptedAt: acceptedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String email,
+                required String serviceProviderCompanyId,
+                Value<String?> inviteToken = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> acceptedAt = const Value.absent(),
+                Value<DateTime?> expiresAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServiceProviderInvitationsCompanion.insert(
+                id: id,
+                email: email,
+                serviceProviderCompanyId: serviceProviderCompanyId,
+                inviteToken: inviteToken,
+                status: status,
+                createdAt: createdAt,
+                acceptedAt: acceptedAt,
+                expiresAt: expiresAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ServiceProviderInvitationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({serviceProviderCompanyId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (serviceProviderCompanyId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.serviceProviderCompanyId,
+                                referencedTable:
+                                    $$ServiceProviderInvitationsTableReferences
+                                        ._serviceProviderCompanyIdTable(db),
+                                referencedColumn:
+                                    $$ServiceProviderInvitationsTableReferences
+                                        ._serviceProviderCompanyIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ServiceProviderInvitationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ServiceProviderInvitationsTable,
+      ServiceProviderInvitation,
+      $$ServiceProviderInvitationsTableFilterComposer,
+      $$ServiceProviderInvitationsTableOrderingComposer,
+      $$ServiceProviderInvitationsTableAnnotationComposer,
+      $$ServiceProviderInvitationsTableCreateCompanionBuilder,
+      $$ServiceProviderInvitationsTableUpdateCompanionBuilder,
+      (ServiceProviderInvitation, $$ServiceProviderInvitationsTableReferences),
+      ServiceProviderInvitation,
+      PrefetchHooks Function({bool serviceProviderCompanyId})
     >;
 typedef $$SlaPoliciesTableCreateCompanionBuilder =
     SlaPoliciesCompanion Function({
@@ -38204,6 +39295,12 @@ class $AppDatabaseManager {
       $$ServiceProviderProfilesTableTableManager(
         _db,
         _db.serviceProviderProfiles,
+      );
+  $$ServiceProviderInvitationsTableTableManager
+  get serviceProviderInvitations =>
+      $$ServiceProviderInvitationsTableTableManager(
+        _db,
+        _db.serviceProviderInvitations,
       );
   $$SlaPoliciesTableTableManager get slaPolicies =>
       $$SlaPoliciesTableTableManager(_db, _db.slaPolicies);

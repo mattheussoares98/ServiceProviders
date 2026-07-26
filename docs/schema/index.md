@@ -40,6 +40,7 @@ erDiagram
     Companies ||--o{ WorkOrderPauseRequests : has
     Companies ||--o{ PauseReasons : has
     Companies ||--o{ Sectors : has
+    Companies ||--o{ ServiceProviderCompanies : owns
 
     PermissionGroups ||--o{ UserProfiles : governs
     Locations ||--o{ Areas : contains
@@ -72,6 +73,8 @@ erDiagram
     PauseReasons ||--o{ WorkOrderPauseRequests : classifies
     Sectors ||--o{ WorkOrderPauseRequests : classifies
     MaintenancePlans ||--o{ WorkOrders : generates
+    ServiceProviderCompanies ||--o{ ServiceProviderProfiles : employs
+    ServiceProviderCompanies ||--o{ ServiceProviderInvitations : invites
 
 ```
 
@@ -104,6 +107,9 @@ erDiagram
 | 21 | pause_reasons | [pause_reasons.md](pause_reasons.md) |
 | 22 | sectors | [sectors.md](sectors.md) |
 | 23 | work_order_observations | [work_order_observations.md](work_order_observations.md) |
+| 24 | service_provider_companies | [service_provider_companies.md](service_provider_companies.md) |
+| 25 | service_provider_profiles | [service_provider_profiles.md](service_provider_profiles.md) |
+| 26 | service_provider_invitations | [service_provider_invitations.md](service_provider_invitations.md) |
 
 
 

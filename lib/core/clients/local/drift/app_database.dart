@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/pause_reasons_tab
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/permission_groups_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sectors_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_invitations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_profiles_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sla_policies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sync_audit_logs_table.dart';
@@ -49,6 +50,7 @@ part 'app_database.g.dart';
     MaintenancePlans,
     ServiceProviderCompanies,
     ServiceProviderProfiles,
+    ServiceProviderInvitations,
     WorkOrders,
     Tasks,
     Attachments,
@@ -69,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -159,6 +161,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(workOrders, workOrders.completionReason);
         await m.addColumn(workOrders, workOrders.completionResponsibility);
         await m.addColumn(workOrders, workOrders.completionSectorId);
+      }
+      if (from < 16) {
+        await m.createTable(serviceProviderInvitations);
       }
     },
   );
