@@ -78,7 +78,7 @@ class BaseButton extends StatelessWidget {
           ? CupertinoButton(
               onPressed: tapCallback,
               color: color ?? AppColors.primary,
-              disabledColor: color ?? AppColors.primary,
+              disabledColor: context.theme.disabledColor,
               padding: EdgeInsets.zero,
               borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               child: Center(child: childWidget),
