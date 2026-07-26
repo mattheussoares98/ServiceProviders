@@ -109,21 +109,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         },
         child: BlocBuilder<ConfigurationsCubit, ConfigurationsState>(
           builder: (context, state) {
-            return MaterialApp.router(
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('pt', 'BR')],
-              locale: const Locale('pt', 'BR'), // Forces PT/BR as default
-              debugShowCheckedModeBanner: false,
-              title: AppConfigUtil.I.appTitle,
-              theme: lightTheme,
-              darkTheme: darkTheme,
-              themeMode: state.themeMode,
-              routerDelegate: NavigationUtil.I.routerDelegate,
-              routeInformationParser: NavigationUtil.I.routeInformationParser,
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: FocusScope.of(context).unfocus,
+              child: MaterialApp.router(
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [Locale('pt', 'BR')],
+                locale: const Locale('pt', 'BR'), // Forces PT/BR as default
+                debugShowCheckedModeBanner: false,
+                title: AppConfigUtil.I.appTitle,
+                theme: lightTheme,
+                darkTheme: darkTheme,
+                themeMode: state.themeMode,
+                routerDelegate: NavigationUtil.I.routerDelegate,
+                routeInformationParser: NavigationUtil.I.routeInformationParser,
+              ),
             );
           },
         ),
