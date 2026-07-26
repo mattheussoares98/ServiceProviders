@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -14,6 +15,9 @@ class MockGetServiceProviderCompaniesUseCase extends Mock
 
 class MockGetServiceProviderProfilesUseCase extends Mock
     implements GetServiceProviderProfilesUseCase {}
+
+class MockGetServiceProviderInvitationsUseCase extends Mock
+    implements GetServiceProviderInvitationsUseCase {}
 
 class MockCreateServiceProviderCompanyUseCase extends Mock
     implements CreateServiceProviderCompanyUseCase {}
@@ -32,6 +36,7 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
+  late MockGetServiceProviderInvitationsUseCase mockGetInvitations;
   late MockCreateServiceProviderCompanyUseCase mockCreateCompany;
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
@@ -42,6 +47,7 @@ void main() {
   setUp(() {
     mockGetCompanies = MockGetServiceProviderCompaniesUseCase();
     mockGetProfiles = MockGetServiceProviderProfilesUseCase();
+    mockGetInvitations = MockGetServiceProviderInvitationsUseCase();
     mockCreateCompany = MockCreateServiceProviderCompanyUseCase();
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
@@ -51,6 +57,7 @@ void main() {
     useCases = ServiceProvidersCubitUseCases(
       getCompanies: mockGetCompanies,
       getProfiles: mockGetProfiles,
+      getInvitations: mockGetInvitations,
       createCompany: mockCreateCompany,
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
@@ -62,6 +69,7 @@ void main() {
   test('ServiceProvidersCubitUseCases retains injected use cases', () {
     expect(useCases.getCompanies, equals(mockGetCompanies));
     expect(useCases.getProfiles, equals(mockGetProfiles));
+    expect(useCases.getInvitations, equals(mockGetInvitations));
     expect(useCases.createCompany, equals(mockCreateCompany));
     expect(useCases.updateCompany, equals(mockUpdateCompany));
     expect(useCases.createProfile, equals(mockCreateProfile));

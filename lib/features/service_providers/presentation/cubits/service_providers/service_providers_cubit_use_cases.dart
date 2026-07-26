@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -12,6 +13,7 @@ class ServiceProvidersCubitUseCases {
   ServiceProvidersCubitUseCases({
     required this.getCompanies,
     required this.getProfiles,
+    required this.getInvitations,
     required this.createCompany,
     required this.updateCompany,
     required this.createProfile,
@@ -21,6 +23,7 @@ class ServiceProvidersCubitUseCases {
 
   final GetServiceProviderCompaniesUseCase getCompanies;
   final GetServiceProviderProfilesUseCase getProfiles;
+  final GetServiceProviderInvitationsUseCase getInvitations;
   final CreateServiceProviderCompanyUseCase createCompany;
   final UpdateServiceProviderCompanyUseCase updateCompany;
   final CreateServiceProviderProfileUseCase createProfile;

@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -28,6 +29,9 @@ class MockGetServiceProviderCompaniesUseCase extends Mock
 class MockGetServiceProviderProfilesUseCase extends Mock
     implements GetServiceProviderProfilesUseCase {}
 
+class MockGetServiceProviderInvitationsUseCase extends Mock
+    implements GetServiceProviderInvitationsUseCase {}
+
 class MockCreateServiceProviderCompanyUseCase extends Mock
     implements CreateServiceProviderCompanyUseCase {}
 
@@ -45,6 +49,7 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
+  late MockGetServiceProviderInvitationsUseCase mockGetInvitations;
   late MockCreateServiceProviderCompanyUseCase mockCreateCompany;
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
@@ -57,6 +62,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
+    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
     registerFallbackValue(
       CreateUpdateServiceProviderCompanyRoute(serviceProviderCompanyId: '1'),
     );
@@ -65,6 +71,7 @@ void main() {
   setUp(() {
     mockGetCompanies = MockGetServiceProviderCompaniesUseCase();
     mockGetProfiles = MockGetServiceProviderProfilesUseCase();
+    mockGetInvitations = MockGetServiceProviderInvitationsUseCase();
     mockCreateCompany = MockCreateServiceProviderCompanyUseCase();
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
@@ -77,6 +84,7 @@ void main() {
     useCases = ServiceProvidersCubitUseCases(
       getCompanies: mockGetCompanies,
       getProfiles: mockGetProfiles,
+      getInvitations: mockGetInvitations,
       createCompany: mockCreateCompany,
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
@@ -172,11 +180,16 @@ void main() {
       );
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'selectCompany(id) should fetch profiles and update profiles map',
+        'selectCompany(id) should fetch profiles and invitations in parallel and update maps',
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
               data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          when(() => mockGetInvitations.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: EntityFactory.makeServiceProviderInvitationEntityList(),
             ),
           );
           return cubit;
@@ -195,7 +208,74 @@ void main() {
           ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1),
+              .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
+              .having(
+                (s) => s.invitations['comp-1']?.length,
+                'invitations count',
+                3,
+              ),
+        ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'selectCompany(id) should emit loadingError when getProfiles fails',
+        build: () {
+          when(
+            () => mockGetProfiles.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Profile error'));
+          when(() => mockGetInvitations.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.selectCompany('comp-1'),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.selectedCompanyId,
+            'selectedCompanyId',
+            'comp-1',
+          ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Profile error'),
+        ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'selectCompany(id) should emit loadingError when getInvitations fails',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          when(
+            () => mockGetInvitations.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Invite error'));
+          return cubit;
+        },
+        act: (cubit) => cubit.selectCompany('comp-1'),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.selectedCompanyId,
+            'selectedCompanyId',
+            'comp-1',
+          ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Invite error'),
         ],
       );
     });
