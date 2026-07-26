@@ -19,6 +19,10 @@ class BaseCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final disabledColor = onChanged == null
+        ? WidgetStatePropertyAll(context.theme.disabledColor)
+        : null;
+
     Widget child = Transform.scale(
       scale: scale,
       child: context.isCupertino
@@ -26,19 +30,24 @@ class BaseCheckbox extends StatelessWidget {
               value: value,
               activeColor: context.colorScheme.primary,
               onChanged: onChanged,
+              fillColor: disabledColor,
             )
           : Checkbox(
               value: value,
               onChanged: onChanged,
               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              fillColor: disabledColor,
             ),
     );
 
     if (title != null) {
-      final textColor = value
+      final textColor = onChanged == null
+          ? context.theme.disabledColor
+          : value
           ? context.colorScheme.primary
           : context.colorScheme.onSurface;
+
       child = GestureDetector(
         onTap: onChanged != null ? () => onChanged!(!value) : null,
         behavior: HitTestBehavior.opaque,
