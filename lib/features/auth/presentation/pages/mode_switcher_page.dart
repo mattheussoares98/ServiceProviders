@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
@@ -19,60 +18,57 @@ class ModeSwitcherPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ModeSwitcherCubit>(
-      create: (context) => GetIt.I<ModeSwitcherCubit>()..loadCurrentMode(),
-      child: BaseScaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            BaseText.title('Como deseja acessar?'.hardcoded),
-            gapH8,
-            BaseText(
-              'Sua conta possui acesso de funcionário interno e de prestador de serviços'
-                  .hardcoded,
-              textAlign: TextAlign.center,
-            ),
-            gapH48,
-            BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
-              builder: (context, state) {
-                final cubit = context.read<ModeSwitcherCubit>();
-                final isLoading = state.status == StateStatus.loading;
+    return BaseScaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BaseText.title('Como deseja acessar?'.hardcoded),
+          gapH8,
+          BaseText(
+            'Sua conta possui acesso de funcionário interno e de prestador de serviços'
+                .hardcoded,
+            textAlign: TextAlign.center,
+          ),
+          gapH48,
+          BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
+            builder: (context, state) {
+              final cubit = context.read<ModeSwitcherCubit>();
+              final isLoading = state.status == StateStatus.loading;
 
-                return Column(
-                  children: [
-                    _ModeCard(
-                      title: 'Funcionário da obra'.hardcoded,
-                      description:
-                          'Gerencie obras, ordens de serviço, ativos, locais e equipes'
-                              .hardcoded,
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.business_outlined,
-                        cupertinoIcon: CupertinoIcons.building_2_fill,
-                      ),
-                      isSelected: state.selectedMode == AppMode.internal,
-                      isDisabled: isLoading,
-                      onTap: () => cubit.selectMode(AppMode.internal),
+              return Column(
+                children: [
+                  _ModeCard(
+                    title: 'Funcionário da obra'.hardcoded,
+                    description:
+                        'Gerencie obras, ordens de serviço, ativos, locais e equipes'
+                            .hardcoded,
+                    platformIcon: const PlatformIcon(
+                      materialIcon: Icons.business_outlined,
+                      cupertinoIcon: CupertinoIcons.building_2_fill,
                     ),
-                    const SizedBox(height: 20),
-                    _ModeCard(
-                      title: 'Prestador de serviços'.hardcoded,
-                      description:
-                          'Acesse e atenda ordens de serviço externas da sua empresa'
-                              .hardcoded,
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.handyman_outlined,
-                        cupertinoIcon: CupertinoIcons.hammer,
-                      ),
-                      isSelected: state.selectedMode == AppMode.provider,
-                      isDisabled: isLoading,
-                      onTap: () => cubit.selectMode(AppMode.provider),
+                    isSelected: state.selectedMode == AppMode.internal,
+                    isDisabled: isLoading,
+                    onTap: () => cubit.selectMode(AppMode.internal),
+                  ),
+                  const SizedBox(height: 20),
+                  _ModeCard(
+                    title: 'Prestador de serviços'.hardcoded,
+                    description:
+                        'Acesse e atenda ordens de serviço externas da sua empresa'
+                            .hardcoded,
+                    platformIcon: const PlatformIcon(
+                      materialIcon: Icons.handyman_outlined,
+                      cupertinoIcon: CupertinoIcons.hammer,
                     ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
+                    isSelected: state.selectedMode == AppMode.provider,
+                    isDisabled: isLoading,
+                    onTap: () => cubit.selectMode(AppMode.provider),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }

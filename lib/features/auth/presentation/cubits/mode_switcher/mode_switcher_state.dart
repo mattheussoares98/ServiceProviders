@@ -4,16 +4,19 @@ class ModeSwitcherState extends Equatable {
   const ModeSwitcherState({
     this.status = StateStatus.initial,
     this.selectedMode,
+    this.canSwitchMode = false,
     this.errorMessage,
   });
 
   final StateStatus status;
   final AppMode? selectedMode;
+  final bool canSwitchMode;
   final String? errorMessage;
 
   ModeSwitcherState copyWith({
     StateStatus? status,
     AppMode? selectedMode,
+    bool? canSwitchMode,
     String? errorMessage,
     bool? annulSelectedMode,
     bool? annulErrorMessage,
@@ -23,6 +26,7 @@ class ModeSwitcherState extends Equatable {
       selectedMode: annulSelectedMode == true
           ? null
           : selectedMode ?? this.selectedMode,
+      canSwitchMode: canSwitchMode ?? this.canSwitchMode,
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
@@ -30,5 +34,5 @@ class ModeSwitcherState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, selectedMode, errorMessage];
+  List<Object?> get props => [status, selectedMode, canSwitchMode, errorMessage];
 }
