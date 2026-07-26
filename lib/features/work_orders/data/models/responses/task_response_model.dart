@@ -3,7 +3,9 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 
 class TaskResponseModel extends TaskEntity
-    implements DataConvertible<TaskEntity> {
+        //TODO change all Responsemodel to only Model and fix the AI rules
+        implements
+        DataConvertible<TaskEntity> {
   const TaskResponseModel({
     required super.id,
     required super.workOrderId,
