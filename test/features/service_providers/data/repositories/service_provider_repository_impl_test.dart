@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_profile_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/repositories/service_provider_repository_impl.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/repositories/service_provider_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';

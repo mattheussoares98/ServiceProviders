@@ -1,12 +1,12 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/service_provider_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_profile_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/service_provider_repository.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/repositories/service_provider_repository.dart';
 
 @LazySingleton(as: ServiceProviderRepository)
 final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {

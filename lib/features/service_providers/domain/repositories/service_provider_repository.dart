@@ -1,6 +1,6 @@
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
 abstract interface class ServiceProviderRepository {
   FutureList<ServiceProviderCompanyEntity> getServiceProviderCompanies(
