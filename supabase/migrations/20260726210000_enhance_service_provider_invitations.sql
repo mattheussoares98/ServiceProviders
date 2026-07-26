@@ -50,7 +50,7 @@ BEGIN
   VALUES (
     p_email,
     p_service_provider_company_id,
-    p_invite_token,
+    COALESCE(p_invite_token, gen_random_uuid()::text),
     'pending',
     v_expires_at
   )
@@ -100,3 +100,24 @@ BEGIN
   RETURN v_invitation_id;
 END;
 $$;
+
+-- Trigger to automatically create an invitation upon service provider company creation
+CREATE OR REPLACE FUNCTION public.auto_invite_service_provider_company()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.contact_email IS NOT NULL AND LENGTH(TRIM(NEW.contact_email)) > 0 THEN
+    PERFORM public.create_service_provider_invitation(
+      NEW.contact_email,
+      NEW.id,
+      gen_random_uuid()::text
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS tr_auto_invite_sp_company ON public.service_provider_companies;
+CREATE TRIGGER tr_auto_invite_sp_company
+  AFTER INSERT ON public.service_provider_companies
+  FOR EACH ROW
+  EXECUTE FUNCTION public.auto_invite_service_provider_company();
