@@ -2,6 +2,8 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/string_validator.dart';
 
 class DddValidator implements StringValidator {
+  DddValidator({this.isRequired = true});
+  final bool isRequired;
   @override
   String get errorMessage => 'DDD inválido'.hardcoded;
 
@@ -74,7 +76,10 @@ class DddValidator implements StringValidator {
 
   @override
   bool isValid(String? value) {
-    if (value == null || value.length != 2) {
+    if (value?.isEmpty ?? true) {
+      return !isRequired;
+    }
+    if (value?.length != 2) {
       return false;
     }
     // The value must be in our set of valid DDDs.
