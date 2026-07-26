@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/docume
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -151,6 +152,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     String? companyId,
     String? contactEmail,
     String? contactPhone,
+    bool sendInvite = false,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final user = _useCases.getSessionUser();
@@ -184,6 +186,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      if (sendInvite &&
+          contactEmail != null &&
+          contactEmail.trim().isNotEmpty) {
+        await _useCases.sendInvitation.call(
+          SendServiceProviderInvitationParams(
+            serviceProviderCompanyId: company.id,
+            email: contactEmail.trim(),
+          ),
+        );
+      }
+
       await loadCompanies(
         company.companyId,
         forceRefresh: true,
@@ -252,6 +265,95 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         emit(
           state.copyWith(status: StateStatus.loaded, profiles: updatedProfiles),
         );
+      }
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: result.message,
+        ),
+      );
+      showErrorToast(result.message);
+      return false;
+    }
+  }
+
+  Future<bool> sendInvitation({
+    required String serviceProviderCompanyId,
+    required String email,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final result = await _useCases.sendInvitation.call(
+      SendServiceProviderInvitationParams(
+        serviceProviderCompanyId: serviceProviderCompanyId,
+        email: email,
+      ),
+    );
+
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      final fetchResult = await _useCases.getInvitations.call(
+        serviceProviderCompanyId,
+      );
+      if (fetchResult is SuccessState<List<ServiceProviderInvitationEntity>>) {
+        final updatedInvitations =
+            Map<String, List<ServiceProviderInvitationEntity>>.from(
+              state.invitations,
+            );
+        updatedInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
+        emit(
+          state.copyWith(
+            status: StateStatus.loaded,
+            invitations: updatedInvitations,
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: StateStatus.loaded));
+      }
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: result.message,
+        ),
+      );
+      showErrorToast(result.message);
+      return false;
+    }
+  }
+
+  Future<bool> deleteInvitation({
+    required String invitationId,
+    required String serviceProviderCompanyId,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final result = await _useCases.deleteInvitation.call(invitationId);
+
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      final fetchResult = await _useCases.getInvitations.call(
+        serviceProviderCompanyId,
+      );
+      if (fetchResult is SuccessState<List<ServiceProviderInvitationEntity>>) {
+        final updatedInvitations =
+            Map<String, List<ServiceProviderInvitationEntity>>.from(
+              state.invitations,
+            );
+        updatedInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
+        emit(
+          state.copyWith(
+            status: StateStatus.loaded,
+            invitations: updatedInvitations,
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: StateStatus.loaded));
       }
       return true;
     } else {

@@ -9,9 +9,11 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/docume
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
@@ -32,6 +34,12 @@ class MockGetServiceProviderProfilesUseCase extends Mock
 class MockGetServiceProviderInvitationsUseCase extends Mock
     implements GetServiceProviderInvitationsUseCase {}
 
+class MockSendServiceProviderInvitationUseCase extends Mock
+    implements SendServiceProviderInvitationUseCase {}
+
+class MockDeleteServiceProviderInvitationUseCase extends Mock
+    implements DeleteServiceProviderInvitationUseCase {}
+
 class MockCreateServiceProviderCompanyUseCase extends Mock
     implements CreateServiceProviderCompanyUseCase {}
 
@@ -50,6 +58,8 @@ void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
   late MockGetServiceProviderInvitationsUseCase mockGetInvitations;
+  late MockSendServiceProviderInvitationUseCase mockSendInvitation;
+  late MockDeleteServiceProviderInvitationUseCase mockDeleteInvitation;
   late MockCreateServiceProviderCompanyUseCase mockCreateCompany;
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
@@ -64,6 +74,12 @@ void main() {
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
     registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
     registerFallbackValue(
+      const SendServiceProviderInvitationParams(
+        serviceProviderCompanyId: 'comp-1',
+        email: 'test@email.com',
+      ),
+    );
+    registerFallbackValue(
       CreateUpdateServiceProviderCompanyRoute(serviceProviderCompanyId: '1'),
     );
   });
@@ -72,6 +88,8 @@ void main() {
     mockGetCompanies = MockGetServiceProviderCompaniesUseCase();
     mockGetProfiles = MockGetServiceProviderProfilesUseCase();
     mockGetInvitations = MockGetServiceProviderInvitationsUseCase();
+    mockSendInvitation = MockSendServiceProviderInvitationUseCase();
+    mockDeleteInvitation = MockDeleteServiceProviderInvitationUseCase();
     mockCreateCompany = MockCreateServiceProviderCompanyUseCase();
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
@@ -85,6 +103,8 @@ void main() {
       getCompanies: mockGetCompanies,
       getProfiles: mockGetProfiles,
       getInvitations: mockGetInvitations,
+      sendInvitation: mockSendInvitation,
+      deleteInvitation: mockDeleteInvitation,
       createCompany: mockCreateCompany,
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
@@ -426,6 +446,106 @@ void main() {
         verify: (_) {
           verify(() => mockCreateProfile.call(any())).called(1);
           verify(() => mockGetProfiles.call('comp-1')).called(1);
+        },
+      );
+    });
+
+    group('sendInvitation', () {
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'sendInvitation success should send invitation, fetch updated invitations, and emit loaded state',
+        build: () {
+          when(
+            () => mockSendInvitation.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetInvitations.call('comp-1')).thenAnswer(
+            (_) async => SuccessState(
+              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.sendInvitation(
+          serviceProviderCompanyId: 'comp-1',
+          email: 'test@email.com',
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.invitations['comp-1']?.length,
+                'invitations count',
+                3,
+              ),
+        ],
+        verify: (_) {
+          verify(() => mockSendInvitation.call(any())).called(1);
+          verify(() => mockGetInvitations.call('comp-1')).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'sendInvitation failure should emit savingError state',
+        build: () {
+          when(() => mockSendInvitation.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Error sending invite'),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.sendInvitation(
+          serviceProviderCompanyId: 'comp-1',
+          email: 'test@email.com',
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Error sending invite',
+              ),
+        ],
+      );
+    });
+
+    group('deleteInvitation', () {
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'deleteInvitation success should revoke invitation, fetch updated invitations, and emit loaded state',
+        build: () {
+          when(
+            () => mockDeleteInvitation.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetInvitations.call('comp-1')).thenAnswer(
+            (_) async => const SuccessState(data: []),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteInvitation(
+          invitationId: 'inv-1',
+          serviceProviderCompanyId: 'comp-1',
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.invitations['comp-1'], 'invitations', isEmpty),
+        ],
+        verify: (_) {
+          verify(() => mockDeleteInvitation.call('inv-1')).called(1);
+          verify(() => mockGetInvitations.call('comp-1')).called(1);
         },
       );
     });
