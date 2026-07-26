@@ -73,13 +73,14 @@ class WorkOrderBottomActions extends StatelessWidget {
               child: PrimaryButton(
                 text: 'Solicitar conclusão'.hardcoded,
                 onTap: () async {
-                  final result = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => RequestCompletionDialog(
+                  final result = await showModalPage<bool>(
+                    RequestCompletionDialog(
                       companyId: workOrder.companyId,
                       workOrderId: workOrder.id,
                       currentUserId: currentUserId,
                     ),
+                    context,
+                    useDraggable: false,
                   );
                   if (result == true && context.mounted) {
                     unawaited(

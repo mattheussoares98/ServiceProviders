@@ -20,7 +20,7 @@ class ModeSwitcherPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ModeSwitcherCubit>(
-      create: (context) => GetIt.I<ModeSwitcherCubit>(),
+      create: (context) => GetIt.I<ModeSwitcherCubit>()..loadCurrentMode(),
       child: BaseScaffold(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

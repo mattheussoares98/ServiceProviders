@@ -15,6 +15,14 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
 
   final LocalStorageClient _localStorageClient;
 
+  void loadCurrentMode() {
+    final savedMode = _localStorageClient.getSelectedMode();
+    final currentMode = AppMode.fromName(savedMode);
+    if (currentMode != null) {
+      emit(state.copyWith(selectedMode: currentMode));
+    }
+  }
+
   Future<void> selectMode(AppMode mode) async {
     emit(state.copyWith(status: StateStatus.loading, selectedMode: mode));
 

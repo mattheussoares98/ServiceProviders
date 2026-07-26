@@ -35,6 +35,21 @@ void main() {
 
   group('ModeSwitcherCubit', () {
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
+      'loadCurrentMode should load saved mode from local storage',
+      build: () {
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn('provider');
+        return cubit;
+      },
+      act: (cubit) => cubit.loadCurrentMode(),
+      expect: () => [const ModeSwitcherState(selectedMode: AppMode.provider)],
+      verify: (_) {
+        verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+      },
+    );
+
+    blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'selectMode should save mode and navigate to HomeRoute when "internal" is selected',
       build: () {
         when(
