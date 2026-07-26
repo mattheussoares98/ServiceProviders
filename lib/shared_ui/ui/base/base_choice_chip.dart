@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/selectable_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
-/// PERFORMANCE: This widget chooses between a Segmented Control and a Wrap
-/// layout based on available width to prevent text overflow and unreadable labels.
-class DefaultChoiceChip<T extends SelectableItem<T>> extends StatelessWidget {
-  const DefaultChoiceChip({
+/// PERFORMANCE: Choice chips layout rendered inside a Wrap widget.
+class BaseChoiceChip<T> extends StatelessWidget {
+  const BaseChoiceChip({
     super.key,
     required this.items,
-    required this.selectedValue,
     required this.onChanged,
+    required this.itemLabelBuilder,
+    this.itemColorBuilder,
     this.allowNullSelection = false,
+    required this.selections,
   });
+
   final List<T> items;
-  final T? selectedValue;
+  final List<T> selections;
   //error because of the dart version
   // ignore: unsafe_variance
   final ValueChanged<T> onChanged;
+  final String Function(T item) itemLabelBuilder;
+  final Color? Function(T item)? itemColorBuilder;
   final bool allowNullSelection;
 
   @override
@@ -31,19 +34,22 @@ class DefaultChoiceChip<T extends SelectableItem<T>> extends StatelessWidget {
         runSpacing: Sizes.p8,
         alignment: WrapAlignment.center,
         children: items.map((item) {
-          final isSelected = item.value == selectedValue;
+          final isSelected = selections.contains(item);
+          final color =
+              itemColorBuilder?.call(item) ?? theme.colorScheme.primary;
+
           return ChoiceChip(
             key: ValueKey(item),
-            label: BaseText(item.name),
+            label: BaseText(itemLabelBuilder(item)),
             selected: isSelected,
             onSelected: (selected) {
               if (allowNullSelection) {
-                onChanged(item.value);
+                onChanged(item);
               } else if (selected) {
-                onChanged(item.value);
+                onChanged(item);
               }
             },
-            selectedColor: item.color ?? theme.colorScheme.primary,
+            selectedColor: color,
             labelStyle: TextStyle(
               color: isSelected ? Colors.white : theme.colorScheme.onSurface,
             ),
