@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cu
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/users_and_permissions_page/widgets/permission_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -23,8 +24,12 @@ class Groups extends StatelessWidget {
             child: BaseText('Nenhum grupo de permissão cadastrado'.hardcoded),
           );
         }
-        return ListView.builder(
+
+        permissionGroups.sort((a, b) => a.name.compareTo(b.name));
+        return ResponsiveListFlow(
           itemCount: permissionGroups.length,
+          maxItemWidth: 150,
+          useMultiColumnWhenMobile: true,
           padding: const EdgeInsets.all(Sizes.p16),
           itemBuilder: (context, index) {
             final group = permissionGroups[index];
@@ -37,7 +42,7 @@ class Groups extends StatelessWidget {
               onTap: () => context
                   .read<UsersCubit>()
                   .navigateToEditGroupPermissions(group),
-              platformIcon: const PlatformIcon(
+              leading: const PlatformIcon(
                 materialIcon: Icons.security,
                 cupertinoIcon: CupertinoIcons.shield_lefthalf_fill,
               ),

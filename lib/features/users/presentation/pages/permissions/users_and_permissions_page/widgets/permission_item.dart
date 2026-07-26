@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -12,12 +13,12 @@ class PermissionItem extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
-    required this.platformIcon,
+    required this.leading,
   });
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
-  final PlatformIcon platformIcon;
+  final Widget leading;
 
   @override
   Widget build(BuildContext context) {
@@ -30,28 +31,26 @@ class PermissionItem extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: canEditUsers ? onTap : null,
-        child: Padding(
-          padding: const EdgeInsets.all(Sizes.p8),
-          child: Row(
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: Sizes.p8),
-                child: PlatformIcon(
-                  materialIcon: Icons.person,
-                  cupertinoIcon: CupertinoIcons.person,
+      child: Padding(
+        padding: const EdgeInsets.all(Sizes.p8),
+        child: Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            leading,
+            gapH12,
+            BaseText.title(title),
+            BaseText(subtitle),
+            Align(
+              alignment: .centerRight,
+              child: BaseIconButton(
+                onPressed: canEditUsers ? onTap : null,
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.edit,
+                  cupertinoIcon: CupertinoIcons.pencil,
                 ),
               ),
-              gapW12,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [BaseText.title(title), BaseText(subtitle)],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
