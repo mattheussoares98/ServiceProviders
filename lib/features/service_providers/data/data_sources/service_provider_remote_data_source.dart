@@ -4,8 +4,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
 
 abstract interface class ServiceProviderRemoteDataSource {
   FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
