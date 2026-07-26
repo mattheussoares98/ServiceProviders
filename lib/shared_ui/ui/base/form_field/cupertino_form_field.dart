@@ -45,7 +45,6 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
       final isKeyboardOpen = context.read<KeyboardVisibilityCubit>().state;
 
       if (hasFocus && isKeyboardOpen && isNumeric) {
-        //TODO test this on an iOS device
         debugPrint('show');
         _showOverlay();
       } else if (!hasFocus) {
