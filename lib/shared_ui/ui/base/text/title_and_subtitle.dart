@@ -48,7 +48,7 @@ class TitleAndSubtitle extends StatelessWidget {
 
     final isNullOrEmpty = subtitle == null || subtitle!.isEmpty;
 
-    final titleWidget = BaseText.caption(
+    final titleWidget = BaseText(
       title.toUpperCase() + (icon == null ? ': ' : ''),
       color: titleColor ?? colorScheme.onSurface.withValues(alpha: 0.55),
       fontWeight: FontWeight.w600,
