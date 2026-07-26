@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 class BaseCheckbox extends StatelessWidget {
   const BaseCheckbox({
     super.key,
-    this.scale = .85,
+    this.scale = 1.5,
     required this.value,
     this.onChanged,
     this.title,
@@ -46,7 +46,7 @@ class BaseCheckbox extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             child,
-            gapW8,
+            gapW12,
             BaseText(title!, color: textColor, fontWeight: FontWeight.w500),
           ],
         ),
