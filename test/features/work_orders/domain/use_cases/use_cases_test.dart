@@ -8,8 +8,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_c
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
@@ -26,8 +24,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pau
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -36,7 +32,6 @@ import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockWorkOrdersRepository mockRepository;
-  late MockServiceProviderRepository mockServiceProviderRepository;
   late MockSlaRepository mockSlaRepository;
   late MockPauseRepository mockPauseRepository;
 
@@ -49,11 +44,6 @@ void main() {
   late ReviewWorkOrderChangeRequestUseCase reviewWorkOrderChangeRequestUseCase;
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
 
-  late CreateServiceProviderCompanyUseCase createServiceProviderCompanyUseCase;
-  late UpdateServiceProviderCompanyUseCase updateServiceProviderCompanyUseCase;
-  late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
-  late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
-
   late GetSlaPoliciesUseCase getSlaPoliciesUseCase;
   late GetSlaPolicyByIdUseCase getSlaPolicyByIdUseCase;
   late CreateSlaPolicyUseCase createSlaPolicyUseCase;
@@ -64,7 +54,6 @@ void main() {
   late CancelPauseUseCase cancelPauseUseCase;
   late RequestCompletionUseCase requestCompletionUseCase;
   late ReviewCompletionUseCase reviewCompletionUseCase;
-
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
@@ -91,7 +80,6 @@ void main() {
 
   setUp(() {
     mockRepository = MockWorkOrdersRepository();
-    mockServiceProviderRepository = MockServiceProviderRepository();
     mockSlaRepository = MockSlaRepository();
     mockPauseRepository = MockPauseRepository();
 
@@ -118,19 +106,6 @@ void main() {
     );
     updateWorkOrderUseCase = UpdateWorkOrderUseCase(
       workOrdersRepository: mockRepository,
-    );
-
-    createServiceProviderCompanyUseCase = CreateServiceProviderCompanyUseCase(
-      serviceProviderRepository: mockServiceProviderRepository,
-    );
-    updateServiceProviderCompanyUseCase = UpdateServiceProviderCompanyUseCase(
-      serviceProviderRepository: mockServiceProviderRepository,
-    );
-    createServiceProviderProfileUseCase = CreateServiceProviderProfileUseCase(
-      serviceProviderRepository: mockServiceProviderRepository,
-    );
-    updateServiceProviderProfileUseCase = UpdateServiceProviderProfileUseCase(
-      serviceProviderRepository: mockServiceProviderRepository,
     );
 
     getSlaPoliciesUseCase = GetSlaPoliciesUseCase(
@@ -164,7 +139,6 @@ void main() {
       pauseRepository: mockPauseRepository,
     );
   });
-
 
   group('CreateWorkOrderChangeRequestUseCase', () {
     final tChangeRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
@@ -525,86 +499,6 @@ void main() {
     });
   });
 
-  group('CreateServiceProviderCompanyUseCase', () {
-    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
-
-    test('should return true on success', () async {
-      when(
-        () => mockServiceProviderRepository.createServiceProviderCompany(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      final result = await createServiceProviderCompanyUseCase(tCompany);
-
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(
-        () => mockServiceProviderRepository.createServiceProviderCompany(
-          tCompany,
-        ),
-      ).called(1);
-    });
-  });
-
-  group('UpdateServiceProviderCompanyUseCase', () {
-    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
-
-    test('should return true on success', () async {
-      when(
-        () => mockServiceProviderRepository.updateServiceProviderCompany(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      final result = await updateServiceProviderCompanyUseCase(tCompany);
-
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(
-        () => mockServiceProviderRepository.updateServiceProviderCompany(
-          tCompany,
-        ),
-      ).called(1);
-    });
-  });
-
-  group('CreateServiceProviderProfileUseCase', () {
-    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
-
-    test('should return true on success', () async {
-      when(
-        () => mockServiceProviderRepository.createServiceProviderProfile(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      final result = await createServiceProviderProfileUseCase(tProfile);
-
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(
-        () => mockServiceProviderRepository.createServiceProviderProfile(
-          tProfile,
-        ),
-      ).called(1);
-    });
-  });
-
-  group('UpdateServiceProviderProfileUseCase', () {
-    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
-
-    test('should return true on success', () async {
-      when(
-        () => mockServiceProviderRepository.updateServiceProviderProfile(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-
-      final result = await updateServiceProviderProfileUseCase(tProfile);
-
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(
-        () => mockServiceProviderRepository.updateServiceProviderProfile(
-          tProfile,
-        ),
-      ).called(1);
-    });
-  });
-
   group('GetSlaPoliciesUseCase', () {
     final tCompanyId = faker.guid.guid();
     final tSlaPolicies = EntityFactory.makeSlaPolicyEntityList();
@@ -770,16 +664,20 @@ void main() {
   group('RequestCompletionUseCase', () {
     final tRequest = EntityFactory.makePauseRequestEntity();
 
-    test('should call requestPause on pauseRepository and return true on success', () async {
-      when(() => mockPauseRepository.requestPause(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should call requestPause on pauseRepository and return true on success',
+      () async {
+        when(
+          () => mockPauseRepository.requestPause(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await requestCompletionUseCase(tRequest);
+        final result = await requestCompletionUseCase(tRequest);
 
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(() => mockPauseRepository.requestPause(tRequest)).called(1);
-    });
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(() => mockPauseRepository.requestPause(tRequest)).called(1);
+      },
+    );
   });
 
   group('ReviewCompletionUseCase', () {
@@ -790,29 +688,31 @@ void main() {
       reviewObservation: 'Approved completion',
     );
 
-    test('should call reviewPause on pauseRepository and return true on success', () async {
-      when(
-        () => mockPauseRepository.reviewPause(
-          id: any(named: 'id'),
-          status: any(named: 'status'),
-          reviewedById: any(named: 'reviewedById'),
-          reviewObservation: any(named: 'reviewObservation'),
-        ),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should call reviewPause on pauseRepository and return true on success',
+      () async {
+        when(
+          () => mockPauseRepository.reviewPause(
+            id: any(named: 'id'),
+            status: any(named: 'status'),
+            reviewedById: any(named: 'reviewedById'),
+            reviewObservation: any(named: 'reviewObservation'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await reviewCompletionUseCase(tParams);
+        final result = await reviewCompletionUseCase(tParams);
 
-      expect(result, isA<SuccessState<bool>>());
-      expect(result.data, true);
-      verify(
-        () => mockPauseRepository.reviewPause(
-          id: tParams.id,
-          status: tParams.status,
-          reviewedById: tParams.reviewedById,
-          reviewObservation: tParams.reviewObservation,
-        ),
-      ).called(1);
-    });
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockPauseRepository.reviewPause(
+            id: tParams.id,
+            status: tParams.status,
+            reviewedById: tParams.reviewedById,
+            reviewObservation: tParams.reviewObservation,
+          ),
+        ).called(1);
+      },
+    );
   });
 }
-

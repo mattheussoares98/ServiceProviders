@@ -18,7 +18,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_ca
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/login_page.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';

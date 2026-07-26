@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
