@@ -35,4 +35,32 @@ void main() {
       expect(sut.errorMessage, 'Por favor, insira um e-mail válido'.hardcoded);
     });
   });
+
+  group('EmailValidator isRequired false', () {
+    setUp(() {
+      sut = EmailValidator(isRequired: false);
+    });
+
+    test(
+      'Should return true for a valid email and error message should be null',
+      () {
+        final validEmail = faker.internet.email();
+        expect(sut.isValid(validEmail), true);
+      },
+    );
+
+    test('Should return false for an invalid email and set error message', () {
+      final invalidEmail = faker.lorem.word();
+      expect(sut.isValid(invalidEmail), false);
+      expect(sut.errorMessage, 'Por favor, insira um e-mail válido'.hardcoded);
+    });
+
+    test('Should return true for an empty string', () {
+      expect(sut.isValid(''), true);
+    });
+
+    test('Should return true for a null value', () {
+      expect(sut.isValid(null), true);
+    });
+  });
 }
