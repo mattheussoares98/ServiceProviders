@@ -85,3 +85,8 @@ const String kEditGroupPermissionsPath = 'edit-group';
 
 const String kEditUserPermissionsRoute = 'EditUserPermissionsRoute';
 const String kEditUserPermissionsPath = 'edit-user';
+
+// Service Providers
+const String kCreateServiceProviderCompanyRoute = 'CreateServiceProviderCompanyRoute';
+const String kCreateServiceProviderCompanyPath = 'create-service-provider-company';
+
