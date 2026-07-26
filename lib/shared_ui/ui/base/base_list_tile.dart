@@ -19,6 +19,7 @@ class BaseListTile extends StatelessWidget {
     this.padding,
     this.tileColor,
     this.borderRadius,
+    this.trailing,
   });
 
   final String title;
@@ -28,6 +29,7 @@ class BaseListTile extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Color? tileColor;
   final BorderRadius? borderRadius;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class BaseListTile extends StatelessWidget {
 
     if (PlatformUtil.isCupertino) {
       Widget tile = CupertinoListTile(
+        trailing: trailing,
         padding: padding,
         title: BaseText(title),
         leading: leadingWidget,
@@ -58,6 +61,7 @@ class BaseListTile extends StatelessWidget {
       return tile;
     } else {
       return ListTile(
+        trailing: trailing,
         contentPadding: padding,
         title: BaseText(title),
         leading: leadingWidget,
