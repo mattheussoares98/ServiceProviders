@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -50,7 +50,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
                   ),
                   if (onRetry != null) ...[
                     gapH16,
-                    PrimaryButton(
+                    BaseButton(
                       color: Colors.red,
                       onTap: onRetry,
                       text: 'Tentar novamente'.hardcoded,

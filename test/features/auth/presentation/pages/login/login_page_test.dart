@@ -23,8 +23,8 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -173,8 +173,8 @@ void main() {
     expect($('Login'), findsOne);
     expect($('Senha'), findsOne);
     final enabledButton = $(
-      PrimaryButton,
-    ).which<PrimaryButton>((b) => b.onTap != null);
+      BaseButton,
+    ).which<BaseButton>((b) => b.onTap != null);
     expect(enabledButton, findsOneWidget);
     expect($(BaseTextButton), findsNWidgets(1));
     expect($(PlatformIcon), findsOneWidget);
@@ -187,7 +187,7 @@ void main() {
 
     // Use the login cubit's login method in the login_button widget.
     // Tap the login button using standard Flutter test
-    await $.tester.tap(find.byType(PrimaryButton));
+    await $.tester.tap(find.byType(BaseButton));
     await $.pumpAndSettle();
 
     verifyNever(() => mockNavigationClient.replaceAllRoute(any()));

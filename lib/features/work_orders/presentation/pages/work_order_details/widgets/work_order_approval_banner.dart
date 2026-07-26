@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_completion_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_pause_dialog.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -113,7 +113,7 @@ class WorkOrderApprovalBanner extends HookWidget {
             gapH12,
             Align(
               alignment: Alignment.centerRight,
-              child: PrimaryButton(
+              child: BaseButton(
                 text: isPauseApproval
                     ? 'Revisar Pausa'.hardcoded
                     : 'Revisar Conclusão'.hardcoded,

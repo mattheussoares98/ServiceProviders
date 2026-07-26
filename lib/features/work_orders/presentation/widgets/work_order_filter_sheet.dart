@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -206,13 +206,9 @@ class _WorkOrderFilterSheetState extends State<WorkOrderFilterSheet> {
                     ),
                     items: [
                       DropdownMenuItem(child: Text('Todos os tipos'.hardcoded)),
-                      ...WorkOrderType.values
-                          .map(
-                            (t) => DropdownMenuItem(
-                              value: t,
-                              child: Text(t.label),
-                            ),
-                          ),
+                      ...WorkOrderType.values.map(
+                        (t) => DropdownMenuItem(value: t, child: Text(t.label)),
+                      ),
                     ],
                     onChanged: (v) => setState(() => _type = v),
                   ),
@@ -283,10 +279,7 @@ class _WorkOrderFilterSheetState extends State<WorkOrderFilterSheet> {
                   ),
                   const SizedBox(width: Sizes.p12),
                   Expanded(
-                    child: PrimaryButton(
-                      onTap: _apply,
-                      text: 'Aplicar'.hardcoded,
-                    ),
+                    child: BaseButton(onTap: _apply, text: 'Aplicar'.hardcoded),
                   ),
                 ],
               ),

@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/pages/configurations/widgets/configuration_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
@@ -23,7 +23,7 @@ class DangerZoneCard extends StatelessWidget {
       title: 'Zona de Perigo'.hardcoded,
       subtitle:
           'Ações irreversíveis para a sua conta e dados locais.'.hardcoded,
-      actionWidget: PrimaryButton(
+      actionWidget: BaseButton(
         onTap: () => _showConfirmationDialog(context),
         text: 'Limpar Cache do Aplicativo'.hardcoded,
       ),

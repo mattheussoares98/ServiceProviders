@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 
 class InviteButton extends StatelessWidget {
   const InviteButton({
@@ -25,7 +25,7 @@ class InviteButton extends StatelessWidget {
     final permissionGroups = context.select(
       (UsersCubit cubit) => cubit.state.permissionGroups,
     );
-    return PrimaryButton(
+    return BaseButton(
       text: 'Convidar'.hardcoded,
       onTap: permissionGroups.isEmpty
           ? null

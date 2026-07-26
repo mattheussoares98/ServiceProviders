@@ -10,8 +10,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({
+class BaseButton extends StatelessWidget {
+  const BaseButton({
     super.key,
     required this.onTap,
     required this.text,

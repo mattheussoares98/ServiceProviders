@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_pause_dialog.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -70,7 +70,7 @@ class WorkOrderBottomActions extends StatelessWidget {
             ),
             gapW12,
             Expanded(
-              child: PrimaryButton(
+              child: BaseButton(
                 text: 'Solicitar conclusão'.hardcoded,
                 onTap: () async {
                   final result = await showModalPage<bool>(
@@ -110,7 +110,7 @@ class WorkOrderBottomActions extends StatelessWidget {
             ),
           ],
         ),
-        child: PrimaryButton(
+        child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
           onTap: () async {
             final success = await context

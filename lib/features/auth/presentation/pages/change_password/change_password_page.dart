@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/auth/presentation/pages/change_password/
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -52,7 +52,7 @@ class ChangePasswordPage extends HookWidget {
                     (ChangePasswordCubit cubit) =>
                         cubit.state.status == StateStatus.loading,
                   );
-                  return PrimaryButton(
+                  return BaseButton(
                     isLoading: isLoading,
                     expandWidth: true,
                     onTap: () async {

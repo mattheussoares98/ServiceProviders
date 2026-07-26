@@ -21,8 +21,8 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
@@ -78,7 +78,7 @@ class CreateUpdateAssetPage extends HookWidget {
               '${locationsError ?? ''}\n${categoriesError ?? ''}\n${assetsError ?? ''}',
             ),
             gapH8,
-            PrimaryButton(
+            BaseButton(
               onTap: () {
                 if (locationsError?.isNotEmpty ?? false) {
                   context.read<LocationsCubit>().loadLocationsAndAreas();
@@ -294,7 +294,7 @@ class CreateUpdateAssetPage extends HookWidget {
                     ),
                   ),
                   Expanded(
-                    child: PrimaryButton(
+                    child: BaseButton(
                       onTap: submit,
                       width: Sizes.p120,
                       text: 'Salvar'.hardcoded,

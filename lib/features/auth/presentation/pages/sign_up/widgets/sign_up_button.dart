@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 
 class SignUpButton extends StatelessWidget {
   const SignUpButton({
@@ -24,7 +24,7 @@ class SignUpButton extends StatelessWidget {
       (SignUpCubit cubit) => cubit.state.status == StateStatus.loading,
     );
 
-    return PrimaryButton(
+    return BaseButton(
       isLoading: isLoading,
       expandWidth: true,
       onTap: () async {

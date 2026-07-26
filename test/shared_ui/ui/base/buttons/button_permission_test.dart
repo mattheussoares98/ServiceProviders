@@ -8,9 +8,9 @@ import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
@@ -55,11 +55,8 @@ void main() {
   final buttonCases = [
     ButtonTestCase(
       name: 'PrimaryButton',
-      builder: (permission) => PrimaryButton(
-        onTap: () {},
-        text: 'Test Button',
-        permission: permission,
-      ),
+      builder: (permission) =>
+          BaseButton(onTap: () {}, text: 'Test Button', permission: permission),
       finder: find.text('Test Button'),
     ),
     ButtonTestCase(

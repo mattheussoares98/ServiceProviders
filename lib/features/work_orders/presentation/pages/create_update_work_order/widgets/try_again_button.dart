@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -31,7 +31,7 @@ class TryAgainButton extends StatelessWidget {
               '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}',
             ),
             gapH32,
-            PrimaryButton(
+            BaseButton(
               onTap: () async {
                 await Future.wait([
                   if (assetsError?.isNotEmpty == true)

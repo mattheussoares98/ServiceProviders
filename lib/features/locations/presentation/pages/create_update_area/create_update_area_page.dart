@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/locations/presentation/pages/create_upda
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -94,7 +94,7 @@ class CreateUpdateAreaPage extends HookWidget {
             BlocSelector<LocationsCubit, LocationsState, bool>(
               selector: (state) => state.status == StateStatus.saving,
               builder: (_, loading) {
-                return PrimaryButton(
+                return BaseButton(
                   onTap: submit,
                   text: area == null ? 'Criar'.hardcoded : 'Salvar'.hardcoded,
                   isLoading: loading,

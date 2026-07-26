@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/cpf_cnpj_validator.dart';
@@ -65,7 +65,7 @@ class CreateCompanyPage extends HookWidget {
                       _submit(context, formKey, nameController, cnpjController),
                 ),
                 gapH24,
-                PrimaryButton(
+                BaseButton(
                   isLoading: isLoading,
                   expandWidth: true,
                   onTap: () =>
