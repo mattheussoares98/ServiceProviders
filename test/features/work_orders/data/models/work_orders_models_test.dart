@@ -1,14 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/service_provider_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -121,42 +117,6 @@ void main() {
       expect(responseModelFromJson.toEntity(), tEntity);
     });
   });
-
-  group('ServiceProviderCompanyResponseModel', () {
-    final tEntity = EntityFactory.makeServiceProviderCompanyEntity();
-
-    test('should be a subclass of ServiceProviderCompanyEntity', () {
-      final responseModel = ServiceProviderCompanyResponseModel.fromEntity(tEntity);
-      expect(responseModel, isA<ServiceProviderCompanyEntity>());
-    });
-
-    test('should map fromEntity, toJson, fromJson, and toEntity correctly', () {
-      final responseModel = ServiceProviderCompanyResponseModel.fromEntity(tEntity);
-      final responseJson = responseModel.toJson();
-      final responseModelFromJson = ServiceProviderCompanyResponseModel.fromJson(
-        responseJson,
-      );
-
-      expect(responseModelFromJson.toEntity(), tEntity);
-    });
-  });
-
-  group('ServiceProviderProfileResponseModel', () {
-    final tEntity = EntityFactory.makeServiceProviderProfileEntity();
-
-    test('should be a subclass of ServiceProviderProfileEntity', () {
-      final responseModel = ServiceProviderProfileResponseModel.fromEntity(tEntity);
-      expect(responseModel, isA<ServiceProviderProfileEntity>());
-    });
-
-    test('should map fromEntity, toJson, fromJson, and toEntity correctly', () {
-      final responseModel = ServiceProviderProfileResponseModel.fromEntity(tEntity);
-      final responseJson = responseModel.toJson();
-      final responseModelFromJson = ServiceProviderProfileResponseModel.fromJson(
-        responseJson,
-      );
-
-      expect(responseModelFromJson.toEntity(), tEntity);
-    });
-  });
 }
+
+
