@@ -85,6 +85,10 @@ class AppRouter extends RootStackRouter {
         ),
         //* Service Providers
         AutoRoute(
+          page: ServiceProvidersRoute.page,
+          path: kServiceProvidersPath,
+        ),
+        AutoRoute(
           page: CreateUpdateServiceProviderCompanyRoute.page,
           path:
               '$kCreateServiceProviderCompanyRoute/$kCreateServiceProviderCompanyPath',
