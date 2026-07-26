@@ -5,9 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
@@ -25,26 +26,34 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.da
 class CreateUpdateServiceProviderCompanyPage extends HookWidget {
   const CreateUpdateServiceProviderCompanyPage({
     super.key,
-    this.onCompanyChanged,
+    this.serviceProviderCompanyId,
+    this.cubit,
   });
 
-  final void Function(String value)? onCompanyChanged;
+  final String? serviceProviderCompanyId;
+  final ServiceProvidersCubit? cubit;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<ServiceProvidersCubit>(),
+    final sessionCompanyId = context.select(
+      (SessionCubit c) => c.state.user.companyId,
+    );
+
+    final effectiveCubit = cubit ?? GetIt.I<ServiceProvidersCubit>();
+
+    return BlocProvider.value(
+      value: effectiveCubit..loadCompanies(sessionCompanyId),
       child: _CreateServiceProviderCompanyView(
-        onCompanyChanged: onCompanyChanged,
+        serviceProviderCompanyId: serviceProviderCompanyId,
       ),
     );
   }
 }
 
 class _CreateServiceProviderCompanyView extends HookWidget {
-  const _CreateServiceProviderCompanyView({this.onCompanyChanged});
+  const _CreateServiceProviderCompanyView({this.serviceProviderCompanyId});
 
-  final void Function(String value)? onCompanyChanged;
+  final String? serviceProviderCompanyId;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +68,32 @@ class _CreateServiceProviderCompanyView extends HookWidget {
     final documentController = useTextEditingController();
     final documentFocusNode = useFocusNode();
     final documentType = useState<DocumentType>(DocumentType.cnpj);
+    final isInitialized = useState<bool>(false);
+
+    final isEdit =
+        serviceProviderCompanyId != null &&
+        serviceProviderCompanyId!.isNotEmpty;
+
+    final companies = context.select(
+      (ServiceProvidersCubit cubit) => cubit.state.companies,
+    );
+
+    useEffect(() {
+      if (isEdit && !isInitialized.value && companies.isNotEmpty) {
+        final company = companies.firstWhereOrNull(
+          (c) => c.id == serviceProviderCompanyId,
+        );
+        if (company != null) {
+          nameController.text = company.name;
+          emailController.text = company.contactEmail ?? '';
+          phoneController.text = company.contactPhone ?? '';
+          documentController.text = company.document;
+          documentType.value = company.documentType;
+          isInitialized.value = true;
+        }
+      }
+      return null;
+    }, [isEdit, companies, serviceProviderCompanyId]);
 
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
@@ -75,6 +110,7 @@ class _CreateServiceProviderCompanyView extends HookWidget {
       if (context.mounted) {
         final cubit = context.read<ServiceProvidersCubit>();
         final success = await cubit.saveCompany(
+          companyId: serviceProviderCompanyId,
           name: name,
           contactEmail: contactEmail,
           contactPhone: contactPhone,
@@ -82,12 +118,6 @@ class _CreateServiceProviderCompanyView extends HookWidget {
           documentType: docType,
         );
         if (success && context.mounted) {
-          final newCompany = cubit.state.companies.firstWhereOrNull(
-            (c) => c.name == name,
-          );
-          if (newCompany != null && onCompanyChanged != null) {
-            onCompanyChanged!(newCompany.id);
-          }
           Navigator.of(context).pop();
         }
       }
@@ -95,7 +125,9 @@ class _CreateServiceProviderCompanyView extends HookWidget {
 
     return BaseScaffold(
       appBar: BaseAppBar(
-        title: 'Novo prestador de serviço (empresa)'.hardcoded,
+        title: isEdit
+            ? 'Editar prestador de serviço'.hardcoded
+            : 'Novo prestador de serviço (empresa)'.hardcoded,
       ),
       body: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
@@ -140,9 +172,7 @@ class _CreateServiceProviderCompanyView extends HookWidget {
                     ),
                   ),
                 ],
-                onChanged: (val) {
-                  documentType.value = val;
-                },
+                onChanged: (val) => documentType.value = val,
               ),
               gapH12,
               BaseTextFormField(
@@ -168,7 +198,7 @@ class _CreateServiceProviderCompanyView extends HookWidget {
                   Flexible(
                     child: BaseTextButton(
                       text: 'Cancelar'.hardcoded,
-                      onPressed: () => context.maybePop(),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
                   gapW8,
