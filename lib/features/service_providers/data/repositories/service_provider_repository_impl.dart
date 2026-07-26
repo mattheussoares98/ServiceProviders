@@ -3,8 +3,10 @@ import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/repositories/service_provider_repository.dart';
 
@@ -94,5 +96,18 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
     ServiceProviderProfileEntity profile,
   ) => _remoteDataSource.updateServiceProviderProfile(
     ServiceProviderProfileResponseModel.fromEntity(profile),
+  );
+
+  @override
+  FutureList<ServiceProviderInvitationEntity> getServiceProviderInvitations(
+    String serviceProviderCompanyId,
+  ) => RepositoryHandler.fetchWithFallbackAndMapList<
+    ServiceProviderInvitationResponseModel,
+    ServiceProviderInvitationEntity
+  >(
+    isInternetConnected: _online,
+    remoteCallback: () => _remoteDataSource.getServiceProviderInvitations(
+      serviceProviderCompanyId,
+    ),
   );
 }

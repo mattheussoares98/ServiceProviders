@@ -2,9 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/repositories/service_provider_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -27,6 +29,12 @@ void main() {
         EntityFactory.makeServiceProviderProfileEntity(),
       ),
     );
+    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
+    registerFallbackValue(
+      ServiceProviderInvitationResponseModel.fromEntity(
+        EntityFactory.makeServiceProviderInvitationEntity(),
+      ),
+    );
   });
 
   setUp(() {
@@ -44,6 +52,11 @@ void main() {
   final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
   final tProfileModel = ServiceProviderProfileResponseModel.fromEntity(
     tProfileEntity,
+  );
+
+  final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
+  final tInvitationModel = ServiceProviderInvitationResponseModel.fromEntity(
+    tInvitationEntity,
   );
 
   group('getServiceProviderCompanies', () {
@@ -181,7 +194,8 @@ void main() {
       'should return SuccessState with domain profiles list when remote call succeeds',
       () async {
         when(
-          () => mockRemoteDataSource.getServiceProviderProfilesByAuthUser(any()),
+          () =>
+              mockRemoteDataSource.getServiceProviderProfilesByAuthUser(any()),
         ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
 
         final result = await repository.getServiceProviderProfilesByAuthUser(
@@ -224,6 +238,49 @@ void main() {
       );
 
       expect(result, const SuccessState(data: true));
+    });
+  });
+
+  group('getServiceProviderInvitations', () {
+    test(
+      'should return SuccessState with domain invitations list when remote call succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.getServiceProviderInvitations(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tInvitationModel]));
+
+        final result = await repository.getServiceProviderInvitations(
+          tInvitationEntity.serviceProviderCompanyId,
+        );
+
+        expect(
+          result,
+          isA<SuccessState<List<ServiceProviderInvitationEntity>>>(),
+        );
+        expect(
+          (result as SuccessState<List<ServiceProviderInvitationEntity>>)
+              .data!
+              .first,
+          tInvitationEntity,
+        );
+        verify(
+          () => mockRemoteDataSource.getServiceProviderInvitations(
+            tInvitationEntity.serviceProviderCompanyId,
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return FailureState when remote call fails', () async {
+      when(
+        () => mockRemoteDataSource.getServiceProviderInvitations(any()),
+      ).thenAnswer((_) async => FailureState(message: 'Error'));
+
+      final result = await repository.getServiceProviderInvitations(
+        tInvitationEntity.serviceProviderCompanyId,
+      );
+
+      expect(result, isA<FailureState<dynamic>>());
     });
   });
 }
