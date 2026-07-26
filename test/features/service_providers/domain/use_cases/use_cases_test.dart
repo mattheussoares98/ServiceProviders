@@ -1,8 +1,11 @@
+import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 
@@ -16,10 +19,12 @@ void main() {
   late UpdateServiceProviderCompanyUseCase updateServiceProviderCompanyUseCase;
   late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
   late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
+  late GetServiceProviderInvitationsUseCase getServiceProviderInvitationsUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
+    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
   });
 
   setUp(() {
@@ -35,6 +40,9 @@ void main() {
       serviceProviderRepository: mockServiceProviderRepository,
     );
     updateServiceProviderProfileUseCase = UpdateServiceProviderProfileUseCase(
+      serviceProviderRepository: mockServiceProviderRepository,
+    );
+    getServiceProviderInvitationsUseCase = GetServiceProviderInvitationsUseCase(
       serviceProviderRepository: mockServiceProviderRepository,
     );
   });
@@ -114,6 +122,27 @@ void main() {
       verify(
         () => mockServiceProviderRepository.updateServiceProviderProfile(
           tProfile,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('GetServiceProviderInvitationsUseCase', () {
+    final tCompanyId = faker.guid.guid();
+    final tList = EntityFactory.makeServiceProviderInvitationEntityList();
+
+    test('should return list of invitations on success', () async {
+      when(
+        () => mockServiceProviderRepository.getServiceProviderInvitations(any()),
+      ).thenAnswer((_) async => SuccessState(data: tList));
+
+      final result = await getServiceProviderInvitationsUseCase(tCompanyId);
+
+      expect(result, isA<SuccessState<List<ServiceProviderInvitationEntity>>>());
+      expect((result as SuccessState).data, tList);
+      verify(
+        () => mockServiceProviderRepository.getServiceProviderInvitations(
+          tCompanyId,
         ),
       ).called(1);
     });
