@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
@@ -41,7 +42,11 @@ mixin ClientMixin {
   /// Toast Message Service
   void showSuccessToast(String message) => ToastUtil.showSuccess(message);
 
-  void showErrorToast(String message) => ToastUtil.showError(message);
+  void showErrorToast(String? message) => ToastUtil.showError(
+    message ??
+        'Ocorreu um erro não esperado durante a última operação. Tente novamente em breve e se necessário, entre em contato com o suporte técnico'
+            .hardcoded,
+  );
 
   void showDataStateToast<T>(DataState<T> dataState, {String message = ''}) =>
       ToastUtil.showMessage(dataState, message: message);
