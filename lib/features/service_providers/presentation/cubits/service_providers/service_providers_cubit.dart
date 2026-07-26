@@ -1,17 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
 
-@injectable
+@injectable //TODO because it is being used inside the work order, we shouldn't dispose
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   ServiceProvidersCubit({required ServiceProvidersCubitUseCases useCases})
     : _useCases = useCases,

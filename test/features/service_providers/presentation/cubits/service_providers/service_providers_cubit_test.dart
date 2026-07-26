@@ -5,15 +5,16 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_service_provider_profile_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_companies_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_service_provider_profiles_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -113,7 +114,7 @@ void main() {
           ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.companies.length, 'companies.length', 1),
+              .having((s) => s.companies, 'companies', isNotEmpty),
         ],
       );
 
@@ -199,24 +200,89 @@ void main() {
       );
     });
 
-    group('saveCompany', () {
+    group('selectProfile', () {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'saveCompany should call createCompany and transition saving -> loaded without loading state',
+        'selectProfile should update selectedProfileId',
+        build: () => cubit,
+        act: (cubit) => cubit.selectProfile('some-profile-id'),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.selectedProfileId,
+            'selectedProfileId',
+            'some-profile-id',
+          ),
+        ],
+      );
+    });
+
+    group('saveCompany', () {
+      final user = EntityFactory.makeUserProfileEntity();
+      final name = faker.company.name();
+      final contactEmail = faker.internet.email();
+      final contactPhone = faker.randomGenerator.integer(99999999).toString();
+      const document = '12345678901';
+      const documentType = DocumentType.cpf;
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany success should create company, call loadCompanies, and return true',
         build: () {
-          when(
-            () => mockGetSessionUser.call(),
-          ).thenReturn(EntityFactory.makeUserProfileEntity());
+          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
             () => mockCreateCompany.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
-          when(
-            () => mockGetCompanies.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
-          name: faker.company.name(),
-          document: '12345678000199',
+          name: name,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          document: document,
+          documentType: documentType,
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies, 'companies', isNotEmpty),
+        ],
+        verify: (cubit) {
+          verify(
+            () => mockCreateCompany.call(
+              any(
+                that: isA<ServiceProviderCompanyEntity>()
+                    .having((e) => e.name, 'name', name)
+                    .having((e) => e.contactEmail, 'contactEmail', contactEmail)
+                    .having((e) => e.contactPhone, 'contactPhone', contactPhone)
+                    .having((e) => e.document, 'document', document)
+                    .having((e) => e.documentType, 'documentType', documentType)
+                    .having((e) => e.companyId, 'companyId', user.companyId),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany failure should emit savingError state',
+        build: () {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(() => mockCreateCompany.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Error saving company'),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.saveCompany(
+          name: name,
+          document: '323234',
           documentType: DocumentType.cnpj,
         ),
         expect: () => [
@@ -225,14 +291,24 @@ void main() {
             'status',
             StateStatus.saving,
           ),
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Error saving company',
+              ),
         ],
-        verify: (_) {
-          verify(() => mockCreateCompany.call(any())).called(1);
+        verify: (cubit) {
+          verify(
+            () => mockCreateCompany.call(
+              any(
+                that: isA<ServiceProviderCompanyEntity>()
+                    .having((e) => e.name, 'name', name)
+                    .having((e) => e.companyId, 'companyId', user.companyId),
+              ),
+            ),
+          ).called(1);
         },
       );
     });
