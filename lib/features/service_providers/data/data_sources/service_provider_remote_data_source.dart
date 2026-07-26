@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
 
 abstract interface class ServiceProviderRemoteDataSource {
@@ -32,6 +33,9 @@ abstract interface class ServiceProviderRemoteDataSource {
   FutureBool updateServiceProviderProfile(
     ServiceProviderProfileResponseModel request,
   );
+
+  FutureList<ServiceProviderInvitationResponseModel>
+  getServiceProviderInvitations(String serviceProviderCompanyId);
 }
 
 @LazySingleton(as: ServiceProviderRemoteDataSource)
@@ -148,6 +152,24 @@ final class ServiceProviderRemoteDataSourceImpl
     );
     return true;
   });
+
+  @override
+  FutureList<ServiceProviderInvitationResponseModel>
+  getServiceProviderInvitations(String serviceProviderCompanyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'service_provider_invitations',
+          filters: [
+            SupabaseFilter.eq(
+              'service_provider_company_id',
+              serviceProviderCompanyId,
+            ),
+          ],
+        );
+        return response
+            .map(ServiceProviderInvitationResponseModel.fromJson)
+            .toList();
+      });
 }
 
 final class _NotFoundException implements Exception {

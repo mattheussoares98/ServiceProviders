@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -31,6 +32,11 @@ void main() {
   final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
   final tProfileModel = ServiceProviderProfileResponseModel.fromEntity(
     tProfileEntity,
+  );
+
+  final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
+  final tInvitationModel = ServiceProviderInvitationResponseModel.fromEntity(
+    tInvitationEntity,
   );
 
   group('getServiceProviderCompanies', () {
@@ -330,5 +336,56 @@ void main() {
         expect(result, const SuccessState(data: true));
       },
     );
+  });
+
+  group('getServiceProviderInvitations', () {
+    test(
+      'should return SuccessState with list of invitation models when call to DB is successful',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tInvitationModel.toJson()]);
+
+        final result = await dataSource.getServiceProviderInvitations(
+          tInvitationEntity.serviceProviderCompanyId,
+        );
+
+        expect(
+          result,
+          isA<SuccessState<List<ServiceProviderInvitationResponseModel>>>(),
+        );
+        expect(
+          (result as SuccessState<List<ServiceProviderInvitationResponseModel>>)
+              .data!
+              .first
+              .id,
+          tInvitationEntity.id,
+        );
+        verify(
+          () => mockDatabase.selectList(
+            table: 'service_provider_invitations',
+            filters: any(named: 'filters'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return FailureState when DB call throws an exception', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenThrow(Exception('DB error'));
+
+      final result = await dataSource.getServiceProviderInvitations(
+        tInvitationEntity.serviceProviderCompanyId,
+      );
+
+      expect(result, isA<FailureState<dynamic>>());
+    });
   });
 }

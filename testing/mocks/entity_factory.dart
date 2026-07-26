@@ -22,6 +22,8 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/freque
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -610,6 +612,28 @@ abstract final class EntityFactory {
       makeWorkOrderObservationEntity(),
       makeWorkOrderObservationEntity(),
       makeWorkOrderObservationEntity(),
+    ];
+  }
+
+  // Service Provider Invitation
+  static ServiceProviderInvitationEntity makeServiceProviderInvitationEntity() {
+    return ServiceProviderInvitationEntity(
+      id: _makeId(),
+      email: _makeEmail(),
+      serviceProviderCompanyId: _makeId(),
+      inviteToken: _makeString(32),
+      status: ServiceProviderInvitationStatus.pending,
+      createdAt: _makeDateTime(),
+      expiresAt: _makeDateTime(),
+    );
+  }
+
+  static List<ServiceProviderInvitationEntity>
+  makeServiceProviderInvitationEntityList() {
+    return [
+      makeServiceProviderInvitationEntity(),
+      makeServiceProviderInvitationEntity(),
+      makeServiceProviderInvitationEntity(),
     ];
   }
 }
