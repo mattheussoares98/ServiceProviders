@@ -98,13 +98,11 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       emit(
         state.copyWith(
           status: StateStatus.loadingError,
-          errorMessage:
-              result.message ??
-              'Erro ao carregar técnicos do prestador'.hardcoded,
-
-          //TODO test how it is being showed in the UI
+          errorMessage: result.message,
         ),
+        //TODO test when it throws
       );
+      showErrorToast(result.message);
     }
   }
 
@@ -148,22 +146,20 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       await loadCompanies(company.companyId);
       return true;
     } else {
-      final errorMessage =
-          result.message ?? 'Erro ao salvar prestador de serviços'.hardcoded;
-
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: errorMessage,
+          errorMessage: result.message,
         ),
-      );
+      ); //TODO test when it throws
 
-      showErrorToast(errorMessage);
+      showErrorToast(result.message);
       return false;
     }
   }
 
   Future<bool> saveProfile(ServiceProviderProfileEntity profile) async {
+    //TODO test when it throws
     emit(state.copyWith(status: StateStatus.saving));
     final isUpdate =
         profile.id.isNotEmpty && state.profiles.any((e) => e.id == profile.id);
@@ -181,12 +177,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage:
-              result.message ?? 'Erro ao salvar técnico do prestador'.hardcoded,
-
-          //TODO test how it is being showed in the UI
+          errorMessage: result.message,
         ),
       );
+      showErrorToast(result.message);
       return false;
     }
   }

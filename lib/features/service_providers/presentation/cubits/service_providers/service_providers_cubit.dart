@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/service_provider_company_entity.dart';
@@ -45,16 +44,13 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         ),
       );
     } else {
-      final errorMessage =
-          result.message ??
-          'Erro ao carregar prestadores de serviços'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.loadingError,
-          errorMessage: errorMessage,
+          errorMessage: result.message,
         ),
       );
-      showErrorToast(errorMessage);
+      showErrorToast(result.message);
     }
   }
 
@@ -70,6 +66,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     emit(state.copyWith(selectedCompanyId: companyId, annulProfileId: true));
 
     if (state.profiles.containsKey(companyId)) {
+      //the profiles are already loaded
       return;
     }
 
@@ -90,15 +87,13 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(status: StateStatus.loaded, profiles: updatedProfiles),
       );
     } else {
-      final errorMessage =
-          result.message ?? 'Erro ao carregar técnicos do prestador'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.loadingError,
-          errorMessage: errorMessage,
+          errorMessage: result.message,
         ),
       );
-      showErrorToast(errorMessage);
+      showErrorToast(result.message);
     }
   }
 
@@ -157,15 +152,13 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       );
       return true;
     } else {
-      final errorMessage =
-          result.message ?? 'Erro ao salvar prestador de serviço'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: errorMessage,
+          errorMessage: result.message,
         ),
       );
-      showErrorToast(errorMessage);
+      showErrorToast(result.message);
       return false;
     }
   }
@@ -223,15 +216,13 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       }
       return true;
     } else {
-      final errorMessage =
-          result.message ?? 'Erro ao salvar perfil do técnico'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: errorMessage,
+          errorMessage: result.message,
         ),
       );
-      showErrorToast(errorMessage);
+      showErrorToast(result.message);
       return false;
     }
   }
