@@ -83,6 +83,12 @@ class AppRouter extends RootStackRouter {
           page: CreateUpdateWorkOrderRoute.page,
           path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
         ),
+        //* Service Providers
+        AutoRoute(
+          page: CreateUpdateServiceProviderCompanyRoute.page,
+          path:
+              '$kCreateServiceProviderCompanyRoute/$kCreateServiceProviderCompanyPath',
+        ),
       ],
     ),
   ];

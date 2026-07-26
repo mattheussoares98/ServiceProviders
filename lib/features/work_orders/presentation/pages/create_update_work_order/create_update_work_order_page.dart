@@ -13,7 +13,6 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -23,7 +22,6 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/service_
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_service_provider_company_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_sla_policy_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
@@ -313,33 +311,9 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: ServiceProviderCompanyDropdown(
-                selectedCompanyId: selectedServiceProviderCompanyId.value,
-                onChanged: onCompanyChanged,
-              ),
-            ),
-            gapW8,
-            BaseIconButton(
-              onPressed: () async {
-                await CreateServiceProviderCompanyDialog.show(
-                  context,
-                  onCompanyChanged: onCompanyChanged,
-                );
-              },
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.add,
-                cupertinoIcon: CupertinoIcons.add,
-              ),
-              permission: const ActionPermission.resource(
-                resource: ResourceType.serviceProviders,
-                action: PermissionAction.create,
-              ),
-            ),
-          ],
+        child: ServiceProviderCompanyDropdown(
+          selectedCompanyId: selectedServiceProviderCompanyId.value,
+          onChanged: onCompanyChanged,
         ),
       ),
       Padding(
