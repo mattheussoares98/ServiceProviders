@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widget
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/mode_switcher_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/service_providers_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
@@ -27,6 +28,7 @@ class HomeDrawer extends StatelessWidget {
           HomeDrawerHeader(),
           UserDrawerItem(),
           CompanyDrawerItem(),
+          ServiceProvidersDrawerItem(),
           HomeDrawerItem(),
           // ProfileDrawerItem(),
           PermissionsDrawerItem(),

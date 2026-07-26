@@ -38,6 +38,9 @@ void main() {
   setUpAll(() {
     registerFallbackValue(const LoginRoute());
     registerFallbackValue(
+      CreateUpdateServiceProviderCompanyRoute(serviceProviderCompanyId: '0'),
+    );
+    registerFallbackValue(
       const PickAttachmentParams(
         source: AttachmentSource.gallery,
         workOrderId: '',
@@ -147,7 +150,10 @@ void main() {
         ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
         when(
           () => mockUpdateUserAvatarUseCase.call(
-            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+            UpdateUserAvatarParams(
+              userProfile: tUser,
+              localPath: tAttachment.localPath!,
+            ),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
         return homeCubit;
@@ -172,7 +178,10 @@ void main() {
         ).called(1);
         verify(
           () => mockUpdateUserAvatarUseCase.call(
-            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+            UpdateUserAvatarParams(
+              userProfile: tUser,
+              localPath: tAttachment.localPath!,
+            ),
           ),
         ).called(1);
       },
@@ -234,7 +243,10 @@ void main() {
         ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
         when(
           () => mockUpdateUserAvatarUseCase.call(
-            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+            UpdateUserAvatarParams(
+              userProfile: tUser,
+              localPath: tAttachment.localPath!,
+            ),
           ),
         ).thenAnswer((_) async => FailureState(message: 'Upload error'));
         return homeCubit;
@@ -263,7 +275,10 @@ void main() {
         ).called(1);
         verify(
           () => mockUpdateUserAvatarUseCase.call(
-            UpdateUserAvatarParams(userProfile: tUser, localPath: tAttachment.localPath!),
+            UpdateUserAvatarParams(
+              userProfile: tUser,
+              localPath: tAttachment.localPath!,
+            ),
           ),
         ).called(1);
       },
