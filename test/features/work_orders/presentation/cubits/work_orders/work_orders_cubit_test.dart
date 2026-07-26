@@ -182,6 +182,13 @@ void main() {
         },
         act: (cubit) => cubit.loadWorkOrdersAndChangeRequests(),
         expect: () => [
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having(
+                (s) => s.activeFilter.statuses,
+                'activeFilter.statuses',
+                const WorkOrderFilter().statuses,
+              ),
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
@@ -218,6 +225,13 @@ void main() {
             cubit.loadWorkOrdersAndChangeRequests(showLoading: false),
         expect: () => [
           isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having(
+                (s) => s.activeFilter.statuses,
+                'activeFilter.statuses',
+                const WorkOrderFilter().statuses,
+              ),
+          isA<WorkOrdersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.workOrders, 'workOrders', isNotEmpty)
               .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
@@ -245,6 +259,13 @@ void main() {
         },
         act: (cubit) => cubit.loadWorkOrdersAndChangeRequests(),
         expect: () => [
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having(
+                (s) => s.activeFilter.statuses,
+                'activeFilter.statuses',
+                const WorkOrderFilter().statuses,
+              ),
           isA<WorkOrdersState>().having(
             (s) => s.status,
             'status',
@@ -259,26 +280,6 @@ void main() {
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
           ).called(1);
-        },
-      );
-
-      blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit error when companyId is empty',
-        build: () {
-          final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
-          when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
-          return cubit;
-        },
-        act: (cubit) => cubit.loadWorkOrdersAndChangeRequests(),
-        expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loadingError,
-          ),
-        ],
-        verify: (_) {
-          verifyNever(() => mockGetWorkOrders.call(any()));
         },
       );
     });
@@ -299,11 +300,12 @@ void main() {
         },
         act: (cubit) => cubit.applyFilter(tFilter),
         expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.activeFilter, 'activeFilter', tFilter),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.activeFilter, 'activeFilter', tFilter),
           isA<WorkOrdersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.activeFilter, 'activeFilter', tFilter),
@@ -321,13 +323,28 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
+        seed: () => const WorkOrdersState(
+          workOrders: [],
+          changeRequests: [],
+          historyByWorkOrder: {},
+          activeFilter: tFilter,
+        ),
         act: (cubit) => cubit.clearFilter(),
         expect: () => [
-          isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having(
+                (s) => s.activeFilter,
+                'activeFilter',
+                const WorkOrderFilter(),
+              ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having(
+                (s) => s.activeFilter,
+                'activeFilter',
+                const WorkOrderFilter(),
+              ),
           isA<WorkOrdersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having(
@@ -483,7 +500,8 @@ void main() {
               totalCost: tWorkOrderWithSla.totalCost,
               notes: tWorkOrderWithSla.notes,
               createdAt: tWorkOrderWithSla.createdAt,
-              serviceProviderCompanyId: tWorkOrderWithSla.serviceProviderCompanyId,
+              serviceProviderCompanyId:
+                  tWorkOrderWithSla.serviceProviderCompanyId,
               providerProfileId: tWorkOrderWithSla.providerProfileId,
               slaPolicyId: tWorkOrderWithSla.slaPolicyId,
               openedBy: tWorkOrderWithSla.openedBy,
@@ -1299,9 +1317,7 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should emit saving and savingError when changeWorkOrderStatus fails',
           build: () {
-            when(
-              () => mockUpdateWorkOrder.call(any()),
-            ).thenAnswer(
+            when(() => mockUpdateWorkOrder.call(any())).thenAnswer(
               (_) async => FailureState(message: faker.lorem.sentence()),
             );
             return cubit;

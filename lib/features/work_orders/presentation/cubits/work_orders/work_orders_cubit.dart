@@ -35,9 +35,10 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     bool showLoading = true,
     WorkOrderFilter? filter,
   }) async {
-    final user = _useCases.getSessionUser();
-
     final activeFilter = filter ?? state.activeFilter;
+
+    emit(state.copyWith(activeFilter: activeFilter));
+    final user = _useCases.getSessionUser();
 
     if (showLoading) {
       emit(state.copyWith(status: StateStatus.loading));
