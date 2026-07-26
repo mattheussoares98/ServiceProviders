@@ -63,6 +63,11 @@ class _ServiceProvidersBody extends StatelessWidget {
                         gapH8,
                         const Divider(),
                         gapH8,
+                        //TODO check whether it is possible to use sliver instead
+                        ServiceProvidersInvitationsItems(companyId: company.id),
+                        gapH8,
+                        const Divider(),
+                        gapH8,
                         ServiceProvidersProfilesItems(companyId: company.id),
                       ],
                     ),

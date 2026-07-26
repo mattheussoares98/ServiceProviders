@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/edit_service_provider_company_button.dart';
+import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/service_providers_invitations_items.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/service_providers_profiles_items.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
