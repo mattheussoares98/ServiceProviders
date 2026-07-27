@@ -80,8 +80,8 @@ serve(async (req) => {
       throw fetchErr
     }
 
-    // 4. Build redirect URL with token for the deeplink
-    const redirectUrl = `${appBaseUrl}/accept-sp-invite?token=${invitation.invite_token}&company_id=${service_provider_company_id}`
+    // 4. Build redirect URL for the deeplink/web app
+    const redirectUrl = `${appBaseUrl}/accept-invite`
 
     // 5. Send invite email via Supabase Auth (or generate magic link if user already exists in auth.users)
     const { data: existingUser } = await supabase

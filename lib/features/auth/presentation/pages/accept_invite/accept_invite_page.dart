@@ -77,19 +77,24 @@ class AcceptInvitePage extends HookWidget {
                       return Padding(
                         padding: const EdgeInsets.all(Sizes.p24),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            BaseText.titleMedium(
+                              'Convite aceito com sucesso!'.hardcoded,
+                              textAlign: TextAlign.center,
+                            ),
+                            gapH16,
                             BaseText.bodyLarge(
-                              'Sua conta já está ativa e vinculada. Deseja prosseguir para a tela inicial?'
-                                  .hardcoded,
+                              'Sua conta já está ativa e vinculada.'.hardcoded,
                               textAlign: TextAlign.center,
                             ),
                             gapH48,
                             BaseButton(
                               isLoading: isLoading,
                               expandWidth: true,
-                              onTap: cubit.navigateToHome,
-                              text: 'Prosseguir'.hardcoded,
+                              onTap: cubit.navigateToSplash,
+                              text: 'OK'.hardcoded,
                             ),
                           ],
                         ),

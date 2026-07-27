@@ -218,4 +218,8 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
   Future<void> navigateToHome() async {
     await replaceAllRoute(const HomeRoute());
   }
+
+  Future<void> navigateToSplash() async {
+    await replaceAllRoute(const SplashRoute());
+  }
 }
