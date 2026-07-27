@@ -9,11 +9,14 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
+import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
+  late MockInternetClient mockInternet;
   late MockServiceProviderRemoteDataSource mockRemoteDataSource;
+  late MockServiceProviderLocalDataSource mockLocalDataSource;
   late ServiceProviderRepositoryImpl repository;
 
   setUpAll(() {
@@ -38,9 +41,34 @@ void main() {
   });
 
   setUp(() {
+    mockInternet = MockInternetClient();
     mockRemoteDataSource = MockServiceProviderRemoteDataSource();
+    mockLocalDataSource = MockServiceProviderLocalDataSource();
+
+    when(() => mockInternet.isConnected).thenReturn(true);
+    when(
+      () => mockLocalDataSource.saveServiceProviderCompany(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.saveServiceProviderCompanies(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.saveServiceProviderProfile(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.saveServiceProviderProfiles(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.saveServiceProviderInvitations(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.deleteServiceProviderInvitation(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+
     repository = ServiceProviderRepositoryImpl(
+      internet: mockInternet,
       remoteDataSource: mockRemoteDataSource,
+      localDataSource: mockLocalDataSource,
     );
   });
 
@@ -61,7 +89,7 @@ void main() {
 
   group('getServiceProviderCompanies', () {
     test(
-      'should return SuccessState with domain list when remote call succeeds',
+      'should return SuccessState with domain list and save to local when online call succeeds',
       () async {
         when(
           () => mockRemoteDataSource.getServiceProviderCompanies(any()),
@@ -83,25 +111,41 @@ void main() {
             tCompanyEntity.companyId,
           ),
         ).called(1);
+        verify(
+          () => mockLocalDataSource.saveServiceProviderCompanies([tCompanyModel]),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when remote call fails', () async {
+    test('should fetch from local fallback when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
       when(
-        () => mockRemoteDataSource.getServiceProviderCompanies(any()),
-      ).thenAnswer((_) async => FailureState(message: 'Error'));
+        () => mockLocalDataSource.getServiceProviderCompanies(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tCompanyModel]));
 
       final result = await repository.getServiceProviderCompanies(
         tCompanyEntity.companyId,
       );
 
-      expect(result, isA<FailureState<dynamic>>());
+      expect(result, isA<SuccessState<List<ServiceProviderCompanyEntity>>>());
+      expect(
+        (result as SuccessState<List<ServiceProviderCompanyEntity>>)
+            .data!
+            .first,
+        tCompanyEntity,
+      );
+      verifyZeroInteractions(mockRemoteDataSource);
+      verify(
+        () => mockLocalDataSource.getServiceProviderCompanies(
+          tCompanyEntity.companyId,
+        ),
+      ).called(1);
     });
   });
 
   group('getServiceProviderCompanyById', () {
     test(
-      'should return SuccessState with domain entity when remote call succeeds',
+      'should return SuccessState with domain entity and save local when online call succeeds',
       () async {
         when(
           () => mockRemoteDataSource.getServiceProviderCompanyById(any()),
@@ -116,24 +160,33 @@ void main() {
           (result as SuccessState<ServiceProviderCompanyEntity>).data,
           tCompanyEntity,
         );
+        verify(
+          () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
+        ).called(1);
       },
     );
 
-    test('should return FailureState when remote call fails', () async {
+    test('should fetch from local fallback when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
       when(
-        () => mockRemoteDataSource.getServiceProviderCompanyById(any()),
-      ).thenAnswer((_) async => FailureState(message: 'Error'));
+        () => mockLocalDataSource.getServiceProviderCompanyById(any()),
+      ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
 
       final result = await repository.getServiceProviderCompanyById(
         tCompanyEntity.id,
       );
 
-      expect(result, isA<FailureState<dynamic>>());
+      expect(result, isA<SuccessState<ServiceProviderCompanyEntity>>());
+      expect(
+        (result as SuccessState<ServiceProviderCompanyEntity>).data,
+        tCompanyEntity,
+      );
+      verifyZeroInteractions(mockRemoteDataSource);
     });
   });
 
   group('createServiceProviderCompany', () {
-    test('should return true when creation succeeds', () async {
+    test('should return true and save to local when creation succeeds', () async {
       when(
         () => mockRemoteDataSource.createServiceProviderCompany(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
@@ -146,11 +199,28 @@ void main() {
       verify(
         () => mockRemoteDataSource.createServiceProviderCompany(tCompanyModel),
       ).called(1);
+      verify(
+        () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
+      ).called(1);
+    });
+
+    test('should save to local when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
+
+      final result = await repository.createServiceProviderCompany(
+        tCompanyEntity,
+      );
+
+      expect(result, const SuccessState(data: true));
+      verifyZeroInteractions(mockRemoteDataSource);
+      verify(
+        () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
+      ).called(1);
     });
   });
 
   group('updateServiceProviderCompany', () {
-    test('should return true when update succeeds', () async {
+    test('should return true and save to local when update succeeds', () async {
       when(
         () => mockRemoteDataSource.updateServiceProviderCompany(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
@@ -162,6 +232,9 @@ void main() {
       expect(result, const SuccessState(data: true));
       verify(
         () => mockRemoteDataSource.updateServiceProviderCompany(tCompanyModel),
+      ).called(1);
+      verify(
+        () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
       ).called(1);
     });
   });
@@ -185,8 +258,31 @@ void main() {
               .first,
           tProfileEntity,
         );
+        verify(
+          () => mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
+        ).called(1);
       },
     );
+
+    test('should fetch profiles from local fallback when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getServiceProviderProfiles(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
+
+      final result = await repository.getServiceProviderProfiles(
+        tProfileEntity.serviceProviderCompanyId,
+      );
+
+      expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
+      expect(
+        (result as SuccessState<List<ServiceProviderProfileEntity>>)
+            .data!
+            .first,
+        tProfileEntity,
+      );
+      verifyZeroInteractions(mockRemoteDataSource);
+    });
   });
 
   group('getServiceProviderProfilesByAuthUser', () {
@@ -214,7 +310,7 @@ void main() {
   });
 
   group('createServiceProviderProfile', () {
-    test('should return true when creation succeeds', () async {
+    test('should return true and save to local when creation succeeds', () async {
       when(
         () => mockRemoteDataSource.createServiceProviderProfile(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
@@ -224,11 +320,14 @@ void main() {
       );
 
       expect(result, const SuccessState(data: true));
+      verify(
+        () => mockLocalDataSource.saveServiceProviderProfile(tProfileModel),
+      ).called(1);
     });
   });
 
   group('updateServiceProviderProfile', () {
-    test('should return true when update succeeds', () async {
+    test('should return true and save to local when update succeeds', () async {
       when(
         () => mockRemoteDataSource.updateServiceProviderProfile(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
@@ -238,6 +337,9 @@ void main() {
       );
 
       expect(result, const SuccessState(data: true));
+      verify(
+        () => mockLocalDataSource.saveServiceProviderProfile(tProfileModel),
+      ).called(1);
     });
   });
 
@@ -264,23 +366,28 @@ void main() {
           tInvitationEntity,
         );
         verify(
-          () => mockRemoteDataSource.getServiceProviderInvitations(
-            tInvitationEntity.serviceProviderCompanyId,
-          ),
+          () => mockLocalDataSource.saveServiceProviderInvitations([
+            tInvitationModel,
+          ]),
         ).called(1);
       },
     );
 
-    test('should return FailureState when remote call fails', () async {
+    test('should fetch invitations from local fallback when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
       when(
-        () => mockRemoteDataSource.getServiceProviderInvitations(any()),
-      ).thenAnswer((_) async => FailureState(message: 'Error'));
+        () => mockLocalDataSource.getServiceProviderInvitations(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tInvitationModel]));
 
       final result = await repository.getServiceProviderInvitations(
         tInvitationEntity.serviceProviderCompanyId,
       );
 
-      expect(result, isA<FailureState<dynamic>>());
+      expect(
+        result,
+        isA<SuccessState<List<ServiceProviderInvitationEntity>>>(),
+      );
+      verifyZeroInteractions(mockRemoteDataSource);
     });
   });
 
@@ -309,7 +416,7 @@ void main() {
   });
 
   group('deleteServiceProviderInvitation', () {
-    test('should return true when remote call succeeds', () async {
+    test('should return true and delete from local when remote succeeds', () async {
       when(
         () => mockRemoteDataSource.deleteServiceProviderInvitation(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
@@ -320,7 +427,7 @@ void main() {
 
       expect(result, const SuccessState(data: true));
       verify(
-        () => mockRemoteDataSource.deleteServiceProviderInvitation(
+        () => mockLocalDataSource.deleteServiceProviderInvitation(
           tInvitationEntity.id,
         ),
       ).called(1);

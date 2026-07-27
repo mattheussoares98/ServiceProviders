@@ -1,6 +1,9 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
@@ -13,114 +16,197 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/repositories/se
 @LazySingleton(as: ServiceProviderRepository)
 final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
   const ServiceProviderRepositoryImpl({
+    required InternetClient internet,
     required ServiceProviderRemoteDataSource remoteDataSource,
-  }) : _remoteDataSource = remoteDataSource;
+    required ServiceProviderLocalDataSource localDataSource,
+  })  : _internet = internet,
+        _remoteDataSource = remoteDataSource,
+        _localDataSource = localDataSource;
 
+  final InternetClient _internet;
   final ServiceProviderRemoteDataSource _remoteDataSource;
-
-  // Provider mode is online-only in V2 — no local fallback.
-  static const bool _online = true;
+  final ServiceProviderLocalDataSource _localDataSource;
 
   @override
   FutureList<ServiceProviderCompanyEntity> getServiceProviderCompanies(
     String companyId,
-  ) => RepositoryHandler.fetchWithFallbackAndMapList<
-    ServiceProviderCompanyResponseModel,
-    ServiceProviderCompanyEntity
-  >(
-    isInternetConnected: _online,
-    remoteCallback: () =>
-        _remoteDataSource.getServiceProviderCompanies(companyId),
-  );
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+          ServiceProviderCompanyResponseModel, ServiceProviderCompanyEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () =>
+            _remoteDataSource.getServiceProviderCompanies(companyId),
+        localCallback: () =>
+            _localDataSource.getServiceProviderCompanies(companyId),
+        onRemoteSuccess: _localDataSource.saveServiceProviderCompanies,
+      );
 
   @override
   FutureData<ServiceProviderCompanyEntity> getServiceProviderCompanyById(
     String id,
-  ) => RepositoryHandler.fetchWithFallbackAndMap<
-    ServiceProviderCompanyResponseModel,
-    ServiceProviderCompanyEntity
-  >(
-    isInternetConnected: _online,
-    remoteCallback: () =>
-        _remoteDataSource.getServiceProviderCompanyById(id),
-  );
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMap<
+          ServiceProviderCompanyResponseModel, ServiceProviderCompanyEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () =>
+            _remoteDataSource.getServiceProviderCompanyById(id),
+        localCallback: () =>
+            _localDataSource.getServiceProviderCompanyById(id),
+        onRemoteSuccess: _localDataSource.saveServiceProviderCompany,
+      );
 
   @override
   FutureBool createServiceProviderCompany(
     ServiceProviderCompanyEntity company,
-  ) => _remoteDataSource.createServiceProviderCompany(
-    ServiceProviderCompanyResponseModel.fromEntity(company),
-  );
+  ) {
+    final model = ServiceProviderCompanyResponseModel.fromEntity(company);
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback: () => _localDataSource.saveServiceProviderCompany(model),
+      remoteCallback: () async {
+        final result =
+            await _remoteDataSource.createServiceProviderCompany(model);
+        if (result is SuccessState<bool> && result.data == true) {
+          await _localDataSource.saveServiceProviderCompany(model);
+          return const SuccessState(data: true);
+        }
+        return result;
+      },
+    );
+  }
 
   @override
   FutureBool updateServiceProviderCompany(
     ServiceProviderCompanyEntity company,
-  ) => _remoteDataSource.updateServiceProviderCompany(
-    ServiceProviderCompanyResponseModel.fromEntity(company),
-  );
+  ) {
+    final model = ServiceProviderCompanyResponseModel.fromEntity(company);
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback: () => _localDataSource.saveServiceProviderCompany(model),
+      remoteCallback: () async {
+        final result =
+            await _remoteDataSource.updateServiceProviderCompany(model);
+        if (result is SuccessState<bool> && result.data == true) {
+          await _localDataSource.saveServiceProviderCompany(model);
+          return const SuccessState(data: true);
+        }
+        return result;
+      },
+    );
+  }
 
   @override
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfiles(
     String serviceProviderCompanyId,
-  ) => RepositoryHandler.fetchWithFallbackAndMapList<
-    ServiceProviderProfileResponseModel,
-    ServiceProviderProfileEntity
-  >(
-    isInternetConnected: _online,
-    remoteCallback: () => _remoteDataSource.getServiceProviderProfiles(
-      serviceProviderCompanyId,
-    ),
-  );
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+          ServiceProviderProfileResponseModel, ServiceProviderProfileEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getServiceProviderProfiles(
+          serviceProviderCompanyId,
+        ),
+        localCallback: () => _localDataSource.getServiceProviderProfiles(
+          serviceProviderCompanyId,
+        ),
+        onRemoteSuccess: _localDataSource.saveServiceProviderProfiles,
+      );
 
   @override
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfilesByAuthUser(
     String authUserId,
-  ) => RepositoryHandler.fetchWithFallbackAndMapList<
-    ServiceProviderProfileResponseModel,
-    ServiceProviderProfileEntity
-  >(
-    isInternetConnected: _online,
-    remoteCallback: () =>
-        _remoteDataSource.getServiceProviderProfilesByAuthUser(authUserId),
-  );
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+          ServiceProviderProfileResponseModel, ServiceProviderProfileEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () =>
+            _remoteDataSource.getServiceProviderProfilesByAuthUser(authUserId),
+      );
 
   @override
   FutureBool createServiceProviderProfile(
     ServiceProviderProfileEntity profile,
-  ) => _remoteDataSource.createServiceProviderProfile(
-    ServiceProviderProfileResponseModel.fromEntity(profile),
-  );
+  ) {
+    final model = ServiceProviderProfileResponseModel.fromEntity(profile);
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback: () => _localDataSource.saveServiceProviderProfile(model),
+      remoteCallback: () async {
+        final result =
+            await _remoteDataSource.createServiceProviderProfile(model);
+        if (result is SuccessState<bool> && result.data == true) {
+          await _localDataSource.saveServiceProviderProfile(model);
+          return const SuccessState(data: true);
+        }
+        return result;
+      },
+    );
+  }
 
   @override
   FutureBool updateServiceProviderProfile(
     ServiceProviderProfileEntity profile,
-  ) => _remoteDataSource.updateServiceProviderProfile(
-    ServiceProviderProfileResponseModel.fromEntity(profile),
-  );
+  ) {
+    final model = ServiceProviderProfileResponseModel.fromEntity(profile);
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback: () => _localDataSource.saveServiceProviderProfile(model),
+      remoteCallback: () async {
+        final result =
+            await _remoteDataSource.updateServiceProviderProfile(model);
+        if (result is SuccessState<bool> && result.data == true) {
+          await _localDataSource.saveServiceProviderProfile(model);
+          return const SuccessState(data: true);
+        }
+        return result;
+      },
+    );
+  }
 
   @override
   FutureList<ServiceProviderInvitationEntity> getServiceProviderInvitations(
     String serviceProviderCompanyId,
-  ) => RepositoryHandler.fetchWithFallbackAndMapList<
-    ServiceProviderInvitationResponseModel,
-    ServiceProviderInvitationEntity
-  >(
-    isInternetConnected: _online,
-    remoteCallback: () => _remoteDataSource.getServiceProviderInvitations(
-      serviceProviderCompanyId,
-    ),
-  );
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+          ServiceProviderInvitationResponseModel,
+          ServiceProviderInvitationEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getServiceProviderInvitations(
+          serviceProviderCompanyId,
+        ),
+        localCallback: () => _localDataSource.getServiceProviderInvitations(
+          serviceProviderCompanyId,
+        ),
+        onRemoteSuccess: _localDataSource.saveServiceProviderInvitations,
+      );
 
   @override
   FutureBool sendServiceProviderInvitation({
     required String serviceProviderCompanyId,
     required String email,
-  }) => _remoteDataSource.sendServiceProviderInvitation(
-    serviceProviderCompanyId: serviceProviderCompanyId,
-    email: email,
-  );
+  }) =>
+      _remoteDataSource.sendServiceProviderInvitation(
+        serviceProviderCompanyId: serviceProviderCompanyId,
+        email: email,
+      );
 
   @override
   FutureBool deleteServiceProviderInvitation(String invitationId) =>
-      _remoteDataSource.deleteServiceProviderInvitation(invitationId);
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () =>
+            _localDataSource.deleteServiceProviderInvitation(invitationId),
+        remoteCallback: () async {
+          final result =
+              await _remoteDataSource.deleteServiceProviderInvitation(
+            invitationId,
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.deleteServiceProviderInvitation(
+              invitationId,
+            );
+            return const SuccessState(data: true);
+          }
+          return result;
+        },
+      );
 }

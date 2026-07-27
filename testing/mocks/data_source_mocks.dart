@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_lo
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
@@ -96,6 +97,9 @@ class MockConfigurationsLocalDataSource extends Mock
 
 class MockServiceProviderRemoteDataSource extends Mock
     implements ServiceProviderRemoteDataSource {}
+
+class MockServiceProviderLocalDataSource extends Mock
+    implements ServiceProviderLocalDataSource {}
 
 class MockSlaRemoteDataSource extends Mock implements SlaRemoteDataSource {}
 

@@ -13,7 +13,7 @@ import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
 
-@injectable //TODO because it is being used inside the work order, we shouldn't dispose
+@injectable
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   ServiceProvidersCubit({required ServiceProvidersCubitUseCases useCases})
     : _useCases = useCases,
