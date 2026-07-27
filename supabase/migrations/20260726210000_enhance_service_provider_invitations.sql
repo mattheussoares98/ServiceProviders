@@ -22,6 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_sp_invitations_token
   WHERE invite_token IS NOT NULL;
 
 -- Update helper function to support token generation and expiration
+DROP FUNCTION IF EXISTS public.create_service_provider_invitation(text, uuid);
 CREATE OR REPLACE FUNCTION public.create_service_provider_invitation(
   p_email TEXT,
   p_service_provider_company_id UUID,
