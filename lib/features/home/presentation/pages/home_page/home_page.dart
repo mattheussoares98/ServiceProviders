@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 
 @RoutePage()
 class HomePage extends HookWidget {
@@ -24,6 +25,9 @@ class HomePage extends HookWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeCubit>(create: (context) => GetIt.I<HomeCubit>()),
+        BlocProvider<SessionCubit>(
+          create: (context) => GetIt.I<SessionCubit>(),
+        ),
         BlocProvider<CompanyCubit>(
           create: (context) => GetIt.I<CompanyCubit>()..loadCompany(),
         ),
@@ -37,6 +41,9 @@ class HomePage extends HookWidget {
         BlocProvider<WorkOrdersCubit>(
           create: (context) =>
               GetIt.I<WorkOrdersCubit>()..loadWorkOrdersAndChangeRequests(),
+        ),
+        BlocProvider<UsersCubit>(
+          create: (context) => GetIt.I<UsersCubit>()..loadAll(),
         ),
         BlocProvider<CategoriesCubit>(
           create: (context) => GetIt.I<CategoriesCubit>()..loadCategories(),
