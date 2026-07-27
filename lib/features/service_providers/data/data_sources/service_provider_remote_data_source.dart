@@ -7,6 +7,8 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 
 abstract interface class ServiceProviderRemoteDataSource {
   FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
@@ -181,11 +183,12 @@ final class ServiceProviderRemoteDataSourceImpl
     required String serviceProviderCompanyId,
     required String email,
   }) => SupabaseHandler.call(() async {
-    await _database.rpc(
-      functionName: 'send_service_provider_invitation',
-      params: {
-        'p_service_provider_company_id': serviceProviderCompanyId,
-        'p_email': email,
+    await _database.invokeFunction(
+      'invite-service-provider',
+      method: HttpMethod.post,
+      body: {
+        'service_provider_company_id': serviceProviderCompanyId,
+        'email': email,
       },
     );
     return true;

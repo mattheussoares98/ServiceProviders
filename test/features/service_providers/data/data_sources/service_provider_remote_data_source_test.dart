@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/serv
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -373,32 +374,36 @@ void main() {
       },
     );
 
-    test('should return FailureState when DB call throws an exception', () async {
-      when(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenThrow(Exception('DB error'));
+    test(
+      'should return FailureState when DB call throws an exception',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('DB error'));
 
-      final result = await dataSource.getServiceProviderInvitations(
-        tInvitationEntity.serviceProviderCompanyId,
-      );
+        final result = await dataSource.getServiceProviderInvitations(
+          tInvitationEntity.serviceProviderCompanyId,
+        );
 
-      expect(result, isA<FailureState<dynamic>>());
-    });
+        expect(result, isA<FailureState<dynamic>>());
+      },
+    );
   });
 
   group('sendServiceProviderInvitation', () {
     test(
-      'should return SuccessState(true) when rpc call is successful',
+      'should return SuccessState(true) when invokeFunction call is successful',
       () async {
         when(
-          () => mockDatabase.rpc(
-            functionName: any(named: 'functionName'),
-            params: any(named: 'params'),
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            body: any(named: 'body'),
           ),
-        ).thenAnswer((_) async => 'some-invitation-id');
+        ).thenAnswer((_) async => const FunctionResponse(status: 200));
 
         final result = await dataSource.sendServiceProviderInvitation(
           serviceProviderCompanyId: tInvitationEntity.serviceProviderCompanyId,
@@ -407,17 +412,35 @@ void main() {
 
         expect(result, const SuccessState(data: true));
         verify(
-          () => mockDatabase.rpc(
-            functionName: 'send_service_provider_invitation',
-            params: {
-              'p_service_provider_company_id':
+          () => mockDatabase.invokeFunction(
+            'invite-service-provider',
+            method: HttpMethod.post,
+            body: {
+              'service_provider_company_id':
                   tInvitationEntity.serviceProviderCompanyId,
-              'p_email': tInvitationEntity.email,
+              'email': tInvitationEntity.email,
             },
           ),
         ).called(1);
       },
     );
+
+    test('should return FailureState when invokeFunction throws', () async {
+      when(
+        () => mockDatabase.invokeFunction(
+          any(),
+          method: any(named: 'method'),
+          body: any(named: 'body'),
+        ),
+      ).thenThrow(Exception('Já existe um convite pendente para este e-mail.'));
+
+      final result = await dataSource.sendServiceProviderInvitation(
+        serviceProviderCompanyId: tInvitationEntity.serviceProviderCompanyId,
+        email: tInvitationEntity.email,
+      );
+
+      expect(result, isA<FailureState<bool>>());
+    });
   });
 
   group('deleteServiceProviderInvitation', () {

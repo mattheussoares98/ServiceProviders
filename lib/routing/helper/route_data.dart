@@ -93,3 +93,6 @@ const String kServiceProvidersPath = 'service-providers';
 const String kCreateServiceProviderCompanyRoute = 'CreateServiceProviderCompanyRoute';
 const String kCreateServiceProviderCompanyPath = 'create-service-provider-company';
 
+// Accept service provider invite (email deeplink)
+const String kAcceptServiceProviderInviteRoute = 'AcceptServiceProviderInviteRoute';
+const String kAcceptServiceProviderInvitePath = '/accept-sp-invite';
