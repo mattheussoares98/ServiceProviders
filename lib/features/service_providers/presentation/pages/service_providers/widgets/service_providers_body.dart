@@ -19,6 +19,16 @@ class _ServiceProvidersBody extends StatelessWidget {
             final isSelected =
                 context.read<ServiceProvidersCubit>().state.selectedCompanyId ==
                 company.id;
+
+            final invitations = context
+                .read<ServiceProvidersCubit>()
+                .state
+                .invitations;
+            final hasPendingInvitation =
+                invitations[company.id]?.any(
+                  (inv) => inv.serviceProviderCompanyId == company.id,
+                ) ??
+                false;
             return Card(
               clipBehavior: Clip.antiAlias,
               child: ExpansionTile(
@@ -34,8 +44,17 @@ class _ServiceProvidersBody extends StatelessWidget {
                   }
                 },
                 title: BaseText.titleMedium(company.name),
-                subtitle: company.contactEmail != null
-                    ? BaseText.bodySmall(company.contactEmail!)
+                subtitle: company.contactEmail != null || hasPendingInvitation
+                    ? Column(
+                        mainAxisSize: .min,
+                        crossAxisAlignment: .start,
+                        children: [
+                          if (company.contactEmail != null)
+                            BaseText.bodySmall(company.contactEmail!),
+                          if (hasPendingInvitation)
+                            BaseText.bodySmall('Convite pendente'.hardcoded),
+                        ],
+                      )
                     : null,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
