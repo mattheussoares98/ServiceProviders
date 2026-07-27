@@ -458,7 +458,7 @@ void main() {
       );
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'saveCompany with sendInvite true and sendInvitation fails should emit savingError state and return false',
+        'saveCompany with sendInvite true and sendInvitation fails should emit savingError state',
         build: () {
           when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
@@ -506,6 +506,38 @@ void main() {
           verify(() => mockCreateCompany.call(any())).called(1);
           verify(() => mockSendInvitation.call(any())).called(1);
           verify(() => mockGetInvitations.call(any())).called(1);
+        },
+      );
+
+      test(
+        'saveCompany with sendInvite true should return true when company is saved even if sendInvitation fails',
+        () async {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(
+            () => mockCreateCompany.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockSendInvitation.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Invitation failure'),
+          );
+          when(
+            () => mockGetInvitations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
+
+          final result = await cubit.saveCompany(
+            name: name,
+            contactEmail: contactEmail,
+            contactPhone: contactPhone,
+            document: document,
+            documentType: documentType,
+            sendInvite: true,
+          );
+
+          expect(result, isTrue);
         },
       );
     });

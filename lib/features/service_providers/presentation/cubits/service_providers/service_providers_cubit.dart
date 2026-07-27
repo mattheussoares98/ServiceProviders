@@ -213,8 +213,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             errorMessage: sentInvitation?.message,
           ),
         );
-        showErrorToast(sentInvitation?.message);
-        return false;
+        showErrorToast(
+          'Erro para enviar o convite: ${sentInvitation?.message}',
+        );
       }
       return true;
     } else {
