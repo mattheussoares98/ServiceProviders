@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
@@ -25,6 +26,11 @@ class HomePage extends HookWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<HomeCubit>(create: (context) => GetIt.I<HomeCubit>()),
+        BlocProvider<ModeSwitcherCubit>(
+          lazy: false,
+          create: (context) =>
+              GetIt.I<ModeSwitcherCubit>()..checkEligibilityAndLoadMode(),
+        ),
         BlocProvider<SessionCubit>(
           create: (context) => GetIt.I<SessionCubit>(),
         ),
