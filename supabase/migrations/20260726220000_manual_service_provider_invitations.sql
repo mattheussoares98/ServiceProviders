@@ -27,6 +27,8 @@ BEGIN
 END;
 $$;
 
+GRANT EXECUTE ON FUNCTION public.send_service_provider_invitation(UUID, TEXT) TO authenticated, anon, service_role;
+
 -- Create RPC for revoking/deleting service provider invitations
 CREATE OR REPLACE FUNCTION public.delete_service_provider_invitation(
   p_invitation_id UUID
@@ -42,3 +44,6 @@ BEGIN
   RETURN FOUND;
 END;
 $$;
+
+GRANT EXECUTE ON FUNCTION public.delete_service_provider_invitation(UUID) TO authenticated, anon, service_role;
+
