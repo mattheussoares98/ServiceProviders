@@ -253,6 +253,12 @@ class _CreateServiceProviderCompanyView extends HookWidget {
                         ),
                         DddValidator(isRequired: false),
                       ]),
+                      onChanged: (value) {
+                        final isValid = DddValidator().isValid(value.trim());
+                        if (isValid) {
+                          phoneFocusNode.requestFocus();
+                        }
+                      },
                       onFieldSubmitted: (_) =>
                           FocusScope.of(context).requestFocus(phoneFocusNode),
                     ),
