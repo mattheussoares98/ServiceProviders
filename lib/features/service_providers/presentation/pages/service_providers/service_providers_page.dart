@@ -50,8 +50,10 @@ class _ServiceProvidersView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseScaffold(
       isScrollable: false,
-      onRefresh: () =>
-          context.read<ServiceProvidersCubit>().loadCompanies(companyId),
+      onRefresh: () => context.read<ServiceProvidersCubit>().loadCompanies(
+        companyId,
+        forceRefresh: true,
+      ),
       appBar: BaseAppBar(
         title: 'Prestadores de serviço'.hardcoded,
         actions: [
