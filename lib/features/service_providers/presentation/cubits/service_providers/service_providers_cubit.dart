@@ -186,15 +186,18 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      DataState<bool>? sentInvitation;
       if (sendInvite &&
           contactEmail != null &&
           contactEmail.trim().isNotEmpty) {
-        await _useCases.sendInvitation.call(
+        sentInvitation = await _useCases.sendInvitation.call(
           SendServiceProviderInvitationParams(
             serviceProviderCompanyId: company.id,
             email: contactEmail.trim(),
           ),
         );
+
+        await _useCases.getInvitations.call(company.id);
       }
 
       await loadCompanies(
@@ -202,6 +205,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         forceRefresh: true,
         emitLoading: false,
       );
+
+      if (sentInvitation is FailureState) {
+        emit(
+          state.copyWith(
+            status: StateStatus.savingError,
+            errorMessage: sentInvitation?.message,
+          ),
+        );
+        showErrorToast(sentInvitation?.message);
+        return false;
+      }
       return true;
     } else {
       emit(

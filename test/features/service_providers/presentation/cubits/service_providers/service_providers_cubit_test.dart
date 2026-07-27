@@ -411,6 +411,103 @@ void main() {
           ).called(1);
         },
       );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany with sendInvite true and sendInvitation succeeds should call sendInvitation and getInvitations',
+        build: () {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(
+            () => mockCreateCompany.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSendInvitation.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetInvitations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.saveCompany(
+          name: name,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          document: document,
+          documentType: documentType,
+          sendInvite: true,
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies, 'companies', isNotEmpty),
+        ],
+        verify: (cubit) {
+          verify(() => mockCreateCompany.call(any())).called(1);
+          verify(() => mockSendInvitation.call(any())).called(1);
+          verify(() => mockGetInvitations.call(any())).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'saveCompany with sendInvite true and sendInvitation fails should emit savingError state and return false',
+        build: () {
+          when(() => mockGetSessionUser.call()).thenReturn(user);
+          when(
+            () => mockCreateCompany.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockSendInvitation.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Invitation failure'),
+          );
+          when(
+            () => mockGetInvitations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.saveCompany(
+          name: name,
+          contactEmail: contactEmail,
+          contactPhone: contactPhone,
+          document: document,
+          documentType: documentType,
+          sendInvite: true,
+        ),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies, 'companies', isNotEmpty),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Invitation failure',
+              ),
+        ],
+        verify: (cubit) {
+          verify(() => mockCreateCompany.call(any())).called(1);
+          verify(() => mockSendInvitation.call(any())).called(1);
+          verify(() => mockGetInvitations.call(any())).called(1);
+        },
+      );
     });
 
     group('saveProfile', () {
@@ -524,9 +621,9 @@ void main() {
           when(
             () => mockDeleteInvitation.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetInvitations.call('comp-1')).thenAnswer(
-            (_) async => const SuccessState(data: []),
-          );
+          when(
+            () => mockGetInvitations.call('comp-1'),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
         act: (cubit) => cubit.deleteInvitation(
