@@ -89,6 +89,20 @@ abstract final class ErrorHandler {
         error: exception.toString(),
         statusCode: exception.code?.toInt(),
       );
+    } on FunctionException catch (exception, stackTrace) {
+      _debugError(exception, stackTrace);
+
+      final isMap = exception.details is Map;
+      final containsError = (exception.details as Map).containsKey('error');
+      final message = isMap && containsError
+          ? (exception.details as Map)['error']
+          : exception.details;
+
+      return FailureState<T>(
+        message: message?.toString(),
+        error: exception.toString(),
+        statusCode: exception.status,
+      );
     } catch (error, stackTrace) {
       _debugError(error, stackTrace);
 
