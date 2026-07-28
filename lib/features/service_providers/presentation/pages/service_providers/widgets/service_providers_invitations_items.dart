@@ -48,7 +48,7 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
 
                 if (!hasPending && hasEmail) {
                   return BaseTextButton(
-                    text: 'Convidar por E-mail'.hardcoded,
+                    text: 'Convidar por e-mail'.hardcoded,
                     onPressed: () {
                       context.read<ServiceProvidersCubit>().sendInvitation(
                         serviceProviderCompanyId: companyId,

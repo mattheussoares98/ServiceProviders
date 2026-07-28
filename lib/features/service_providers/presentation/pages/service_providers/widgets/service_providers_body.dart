@@ -29,9 +29,10 @@ class _ServiceProvidersBody extends StatelessWidget {
                   (inv) => inv.serviceProviderCompanyId == company.id,
                 ) ??
                 false;
-            final isLoadingCompany = context.select<ServiceProvidersCubit, bool>(
-              (cubit) => cubit.state.loadingCompanyIds.contains(company.id),
-            );
+            final isLoadingCompany = context
+                .select<ServiceProvidersCubit, bool>(
+                  (cubit) => cubit.state.loadingCompanyIds.contains(company.id),
+                );
 
             return Card(
               clipBehavior: Clip.antiAlias,
@@ -61,11 +62,8 @@ class _ServiceProvidersBody extends StatelessWidget {
                         ],
                       )
                     : null,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    EditServiceProviderCompanyButton(companyId: company.id),
-                  ],
+                leading: EditServiceProviderCompanyButton(
+                  companyId: company.id,
                 ),
                 children: [
                   Padding(
