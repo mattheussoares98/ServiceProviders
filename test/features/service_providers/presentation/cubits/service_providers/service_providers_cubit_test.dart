@@ -200,7 +200,7 @@ void main() {
       );
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'selectCompany(id) should fetch profiles and invitations in parallel, set loadingCompanyIds, and update maps',
+        'selectCompany(id) should fetch profiles and invitations in parallel, set loadingCompanyIds, update maps and clean invitations',
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
@@ -219,12 +219,14 @@ void main() {
           isA<ServiceProvidersState>()
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
               .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.invitations, 'invitations', isEmpty)
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
               }),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
+              .having((s) => s.invitations, 'invitations', isNotEmpty)
               .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
               .having(
                 (s) => s.invitations['comp-1']?.length,

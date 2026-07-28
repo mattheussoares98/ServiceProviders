@@ -30,9 +30,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       return;
     }
 
-    if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
-    }
+    emit(
+      state.copyWith(
+        status: emitLoading ? StateStatus.loading : null,
+        invitations: {},
+      ),
+    );
 
     final result = await _useCases.getCompanies.call(companyId);
 
