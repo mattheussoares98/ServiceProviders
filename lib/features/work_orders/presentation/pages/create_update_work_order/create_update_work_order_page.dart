@@ -385,23 +385,13 @@ class _CreateUpdatePage extends HookWidget {
             gapW8,
             BaseIconButton(
               onPressed: () async {
-                final result = await CreateSlaPolicyDialog.show(context);
                 //TODO should save in the CreateSlaPolicyDialog to avoid losing the data then it throws
-                if (result != null && context.mounted) {
-                  final cubit = context.read<SlaPoliciesCubit>();
-                  final success = await cubit.saveSlaPolicy(
-                    name: result.name,
-                    targetHours: result.targetHours,
-                    appliesTo: result.appliesTo,
-                  );
-                  if (success && context.mounted) {
-                    final newPolicy = cubit.state.slaPolicies.firstWhereOrNull(
-                      (p) => p.name == result.name,
-                    );
-                    if (newPolicy != null) {
-                      selectedSlaPolicyId.value = newPolicy.id;
-                    }
-                  }
+                final createdPolicy = await CreateSlaPolicyDialog.show(
+                  context,
+                  cubit: context.read<SlaPoliciesCubit>(),
+                );
+                if (createdPolicy != null && context.mounted) {
+                  selectedSlaPolicyId.value = createdPolicy.id;
                 }
               },
               platformIcon: const PlatformIcon(

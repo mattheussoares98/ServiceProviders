@@ -1,8 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
@@ -14,10 +17,22 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 class CreateSlaPolicyDialog extends HookWidget {
-  const CreateSlaPolicyDialog({super.key});
+  const CreateSlaPolicyDialog({this.cubit, super.key});
 
-  static Future<SlaPolicyEntity?> show(BuildContext context) {
-    return showModalPage(const CreateSlaPolicyDialog(), context);
+  final SlaPoliciesCubit? cubit;
+
+  static Future<SlaPolicyEntity?> show(
+    BuildContext context, {
+    SlaPoliciesCubit? cubit,
+  }) {
+    final effectiveCubit = cubit ?? context.read<SlaPoliciesCubit>();
+    return showModalPage(
+      BlocProvider.value(
+        value: effectiveCubit,
+        child: CreateSlaPolicyDialog(cubit: effectiveCubit),
+      ),
+      context,
+    );
   }
 
   @override
@@ -27,7 +42,12 @@ class CreateSlaPolicyDialog extends HookWidget {
     final hoursController = useTextEditingController();
     final hoursFocusNode = useFocusNode();
     final appliesTo = useState<SlaAppliesTo>(SlaAppliesTo.both);
+    final isSaving = useState<bool>(false);
     //TODO improve this widget
+
+    final activeCubit = cubit ?? context.read<SlaPoliciesCubit>();
+    //TODO improve this widget
+
     return Padding(
       padding: const EdgeInsets.all(Sizes.p8),
       child: Form(
@@ -64,7 +84,9 @@ class CreateSlaPolicyDialog extends HookWidget {
                     ),
                   )
                   .toList(),
-              onChanged: (val) => appliesTo.value = val,
+              onChanged: (val) {
+                appliesTo.value = val;
+              },
             ),
             gapH12,
             Row(
@@ -80,20 +102,25 @@ class CreateSlaPolicyDialog extends HookWidget {
                 Flexible(
                   child: BaseButton(
                     text: 'Salvar'.hardcoded,
-                    onTap: () {
+                    isLoading: isSaving.value,
+                    onTap: () async {
                       if (formKey.currentState?.validate() != true) return;
                       final targetHours =
                           int.tryParse(hoursController.text) ?? 0;
-                      final entity = SlaPolicyEntity(
-                        id: '',
-                        companyId: '',
+                      isSaving.value = true;
+                      final success = await activeCubit.saveSlaPolicy(
                         name: nameController.text.trim(),
                         targetHours: targetHours,
                         appliesTo: appliesTo.value,
-                        createdAt: DateTime.now(),
-                        updatedAt: DateTime.now(),
                       );
-                      Navigator.of(context).pop(entity);
+                      isSaving.value = false;
+                      if (success && context.mounted) {
+                        final createdPolicy = activeCubit.state.slaPolicies
+                            .firstWhereOrNull(
+                              (p) => p.name == nameController.text.trim(),
+                            );
+                        Navigator.of(context).pop(createdPolicy);
+                      }
                     },
                   ),
                 ),
