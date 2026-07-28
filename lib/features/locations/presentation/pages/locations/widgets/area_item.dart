@@ -25,23 +25,6 @@ class AreaItem extends StatelessWidget {
 
     return Row(
       children: [
-        if (ScreenUtil.I.width > 200) ...[
-          const PlatformIcon(
-            materialIcon: Icons.room,
-            cupertinoIcon: CupertinoIcons.location,
-          ),
-          gapW12,
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              BaseText.titleMedium(area.name),
-              gapH4,
-              BaseText.bodySmall(areaSubtitle),
-            ],
-          ),
-        ),
         FittedBox(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
@@ -62,6 +45,23 @@ class AreaItem extends StatelessWidget {
             ),
           ),
         ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              BaseText.titleMedium(area.name),
+              gapH4,
+              BaseText.bodySmall(areaSubtitle),
+            ],
+          ),
+        ),
+        if (ScreenUtil.I.width > 200) ...[
+          const PlatformIcon(
+            isSmall: true,
+            materialIcon: Icons.room,
+            cupertinoIcon: CupertinoIcons.location,
+          ),
+        ],
       ],
     );
   }

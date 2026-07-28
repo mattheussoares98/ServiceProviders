@@ -30,10 +30,9 @@ class LocationCard extends StatelessWidget {
 
     return Card(
       child: ExpansionTile(
-        initiallyExpanded: true,
         title: Center(child: BaseText.titleMedium(location.name)),
         subtitle: addressText.isNotEmpty ? BaseText(addressText) : null,
-        trailing: FittedBox(
+        leading: FittedBox(
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [EditLocationButton(location: location)],
