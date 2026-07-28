@@ -26,6 +26,26 @@ class BaseSegmentedButtons<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (items.length == 1) {
+      final singleItem = items.first;
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Sizes.p16,
+          vertical: Sizes.p8,
+        ),
+        decoration: BoxDecoration(
+          color:
+              itemColorBuilder?.call(singleItem) ?? context.theme.primaryColor,
+          borderRadius: BorderRadius.circular(Sizes.p8),
+        ),
+        child: BaseText(itemLabelBuilder(singleItem), color: Colors.white),
+      );
+    }
+
     // Find the index of the selected value
     final selectedIndex = items.indexOf(selectedValue as T);
     final fallbackIndex = items.isNotEmpty ? 0 : -1;
