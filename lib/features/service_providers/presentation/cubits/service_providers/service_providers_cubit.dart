@@ -65,17 +65,24 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       return;
     }
 
-    emit(state.copyWith(selectedCompanyId: companyId, annulProfileId: true));
-
     if (state.profiles.containsKey(companyId) &&
         state.invitations.containsKey(companyId)) {
       // Both profiles and invitations are already loaded for this company
+      emit(state.copyWith(selectedCompanyId: companyId, annulProfileId: true));
       return;
     }
 
-    if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
-    }
+    final updatedLoadingIds = Set<String>.from(state.loadingCompanyIds)
+      ..add(companyId);
+
+    emit(
+      state.copyWith(
+        selectedCompanyId: companyId,
+        annulProfileId: true,
+        status: emitLoading ? StateStatus.loading : null,
+        loadingCompanyIds: updatedLoadingIds,
+      ),
+    );
 
     final results = await Future.wait([
       _useCases.getProfiles.call(companyId),
@@ -83,6 +90,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     ]);
 
     if (isClosed) return;
+
+    final finishedLoadingIds = Set<String>.from(state.loadingCompanyIds)
+      ..remove(companyId);
 
     final profilesResult =
         results[0] as DataState<List<ServiceProviderProfileEntity>>;
@@ -94,6 +104,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.loadingError,
           errorMessage: profilesResult.message,
+          loadingCompanyIds: finishedLoadingIds,
         ),
       );
       showErrorToast(profilesResult.message);
@@ -106,6 +117,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           status: StateStatus.loadingError,
           errorMessage: invitationsResult.message,
+          loadingCompanyIds: finishedLoadingIds,
         ),
       );
       showErrorToast(invitationsResult.message);
@@ -133,6 +145,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         status: StateStatus.loaded,
         profiles: updatedProfiles,
         invitations: updatedInvitations,
+        loadingCompanyIds: finishedLoadingIds,
       ),
     );
   }

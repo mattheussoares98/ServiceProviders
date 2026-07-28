@@ -200,7 +200,7 @@ void main() {
       );
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'selectCompany(id) should fetch profiles and invitations in parallel and update maps',
+        'selectCompany(id) should fetch profiles and invitations in parallel, set loadingCompanyIds, and update maps',
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
@@ -216,18 +216,50 @@ void main() {
         },
         act: (cubit) => cubit.selectCompany('comp-1'),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.selectedCompanyId,
-            'selectedCompanyId',
-            'comp-1',
-          ),
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
+                'comp-1',
+              }),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
+              .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
+              .having(
+                (s) => s.invitations['comp-1']?.length,
+                'invitations count',
+                3,
+              ),
+        ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'selectCompany(id) with emitLoading: false should track loadingCompanyIds without setting status to loading',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          when(() => mockGetInvitations.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.selectCompany('comp-1', emitLoading: false),
+        expect: () => [
+          isA<ServiceProvidersState>()
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
+              .having((s) => s.status, 'status', StateStatus.initial)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
+                'comp-1',
+              }),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
               .having(
                 (s) => s.invitations['comp-1']?.length,
@@ -252,18 +284,15 @@ void main() {
         },
         act: (cubit) => cubit.selectCompany('comp-1'),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.selectedCompanyId,
-            'selectedCompanyId',
-            'comp-1',
-          ),
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
+                'comp-1',
+              }),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Profile error'),
         ],
       );
@@ -283,18 +312,15 @@ void main() {
         },
         act: (cubit) => cubit.selectCompany('comp-1'),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.selectedCompanyId,
-            'selectedCompanyId',
-            'comp-1',
-          ),
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
+                'comp-1',
+              }),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Invite error'),
         ],
       );

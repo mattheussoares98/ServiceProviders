@@ -29,6 +29,10 @@ class _ServiceProvidersBody extends StatelessWidget {
                   (inv) => inv.serviceProviderCompanyId == company.id,
                 ) ??
                 false;
+            final isLoadingCompany = context.select<ServiceProvidersCubit, bool>(
+              (cubit) => cubit.state.loadingCompanyIds.contains(company.id),
+            );
+
             return Card(
               clipBehavior: Clip.antiAlias,
               child: ExpansionTile(
@@ -38,6 +42,7 @@ class _ServiceProvidersBody extends StatelessWidget {
                   if (expanded) {
                     context.read<ServiceProvidersCubit>().selectCompany(
                       company.id,
+                      emitLoading: false,
                     );
                   } else {
                     context.read<ServiceProvidersCubit>().selectCompany(null);
@@ -82,12 +87,20 @@ class _ServiceProvidersBody extends StatelessWidget {
                         gapH8,
                         const Divider(),
                         gapH8,
-                        //TODO check whether it is possible to use sliver instead
-                        ServiceProvidersInvitationsItems(companyId: company.id),
-                        gapH8,
-                        const Divider(),
-                        gapH8,
-                        ServiceProvidersProfilesItems(companyId: company.id),
+                        if (isLoadingCompany)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: Sizes.p16),
+                            child: Center(child: LoadingCircle()),
+                          )
+                        else ...[
+                          ServiceProvidersInvitationsItems(
+                            companyId: company.id,
+                          ),
+                          gapH8,
+                          const Divider(),
+                          gapH8,
+                          ServiceProvidersProfilesItems(companyId: company.id),
+                        ],
                       ],
                     ),
                   ),

@@ -5,6 +5,7 @@ class ServiceProvidersState extends BaseState {
     required this.companies,
     required this.profiles,
     this.invitations = const {},
+    this.loadingCompanyIds = const {},
     this.selectedCompanyId,
     this.selectedProfileId,
     super.status = StateStatus.initial,
@@ -15,6 +16,7 @@ class ServiceProvidersState extends BaseState {
     : companies = const [],
       profiles = const {},
       invitations = const {},
+      loadingCompanyIds = const {},
       selectedCompanyId = null,
       selectedProfileId = null,
       super(status: StateStatus.initial, errorMessage: '');
@@ -22,6 +24,7 @@ class ServiceProvidersState extends BaseState {
   final List<ServiceProviderCompanyEntity> companies;
   final Map<String, List<ServiceProviderProfileEntity>> profiles;
   final Map<String, List<ServiceProviderInvitationEntity>> invitations;
+  final Set<String> loadingCompanyIds;
   final String? selectedCompanyId;
   final String? selectedProfileId;
 
@@ -29,6 +32,7 @@ class ServiceProvidersState extends BaseState {
     List<ServiceProviderCompanyEntity>? companies,
     Map<String, List<ServiceProviderProfileEntity>>? profiles,
     Map<String, List<ServiceProviderInvitationEntity>>? invitations,
+    Set<String>? loadingCompanyIds,
     String? selectedCompanyId,
     String? selectedProfileId,
     StateStatus? status,
@@ -40,6 +44,7 @@ class ServiceProvidersState extends BaseState {
       companies: companies ?? this.companies,
       profiles: profiles ?? this.profiles,
       invitations: invitations ?? this.invitations,
+      loadingCompanyIds: loadingCompanyIds ?? this.loadingCompanyIds,
       selectedCompanyId: annulCompanyId
           ? null
           : selectedCompanyId ?? this.selectedCompanyId,
@@ -56,6 +61,7 @@ class ServiceProvidersState extends BaseState {
     companies,
     profiles,
     invitations,
+    loadingCompanyIds,
     selectedCompanyId,
     selectedProfileId,
     status,
