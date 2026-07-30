@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
@@ -27,12 +29,16 @@ class MockUpdateUserProfileUseCase extends Mock
 class MockGetUserProfileByIdUseCase extends Mock
     implements GetUserProfileByIdUseCase {}
 
+class MockSaveSelectedModeUseCase extends Mock
+    implements SaveSelectedModeUseCase {}
+
 void main() {
   late MockChangePasswordUseCase mockChangePassword;
   late MockUpdateUserProfileUseCase mockUpdateUserProfile;
   late MockGetUserProfileByIdUseCase mockGetUserProfileById;
   late MockSetSessionUseCase mockSetSession;
   late MockSaveUserDataUseCase mockSaveUserData;
+  late MockSaveSelectedModeUseCase mockSaveSelectedMode;
   late MockSupabaseAuthClient mockAuthClient;
   late MockNavigationClient mockNavigationClient;
   late AcceptInviteCubit cubit;
@@ -41,6 +47,7 @@ void main() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makeUserDataEntity());
     registerFallbackValue(const HomeRoute());
+    registerFallbackValue(const ProviderHomeRoute());
   });
 
   setUp(() {
@@ -49,10 +56,13 @@ void main() {
     mockGetUserProfileById = MockGetUserProfileByIdUseCase();
     mockSetSession = MockSetSessionUseCase();
     mockSaveUserData = MockSaveUserDataUseCase();
+    mockSaveSelectedMode = MockSaveSelectedModeUseCase();
     mockAuthClient = MockSupabaseAuthClient();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(() => mockSaveSelectedMode.call(any())).thenAnswer((_) async {});
 
     final useCases = AcceptInviteCubitUseCases(
       changePassword: mockChangePassword,
@@ -60,6 +70,7 @@ void main() {
       getUserProfileById: mockGetUserProfileById,
       setSession: mockSetSession,
       saveUserData: mockSaveUserData,
+      saveSelectedMode: mockSaveSelectedMode,
     );
 
     cubit = AcceptInviteCubit(useCases: useCases, authClient: mockAuthClient);
@@ -98,50 +109,43 @@ void main() {
         verify(() => mockGetUserProfileById.call(userId)).called(1);
       });
 
-      test(
-        'listens to onAuthStateChange and loads profile on event with session',
-        () async {
-          final userId = faker.guid.guid();
-          final profile = EntityFactory.makeUserProfileEntity();
-          final controller = StreamController<AuthState>();
+      test('listens to auth state changes when session arrives', () async {
+        final controller = StreamController<AuthState>();
+        final userId = faker.guid.guid();
+        final profile = EntityFactory.makeUserProfileEntity();
 
-          when(() => mockAuthClient.currentSession).thenReturn(null);
-          when(
-            () => mockAuthClient.onAuthStateChange,
-          ).thenAnswer((_) => controller.stream);
-          when(
-            () => mockGetUserProfileById.call(userId),
-          ).thenAnswer((_) async => SuccessState(data: profile));
+        when(() => mockAuthClient.currentSession).thenReturn(null);
+        when(
+          () => mockAuthClient.onAuthStateChange,
+        ).thenAnswer((_) => controller.stream);
+        when(
+          () => mockGetUserProfileById.call(userId),
+        ).thenAnswer((_) async => SuccessState(data: profile));
 
-          cubit.initialize();
+        cubit.initialize();
 
-          expect(cubit.state.status, StateStatus.loading);
-
-          verifyNever(() => mockGetUserProfileById.call(any()));
-
-          controller.add(
-            AuthState(
-              AuthChangeEvent.signedIn,
-              Session(
-                accessToken: faker.jwt.valid(),
-                tokenType: 'bearer',
-                user: User(
-                  id: userId,
-                  appMetadata: const {},
-                  userMetadata: const {},
-                  aud: 'authenticated',
-                  createdAt: DateTime.now().toIso8601String(),
-                ),
+        controller.add(
+          AuthState(
+            AuthChangeEvent.signedIn,
+            Session(
+              accessToken: faker.jwt.valid(),
+              tokenType: 'bearer',
+              user: User(
+                id: userId,
+                appMetadata: const {},
+                userMetadata: const {},
+                aud: 'authenticated',
+                createdAt: DateTime.now().toIso8601String(),
               ),
             ),
-          );
+          ),
+        );
 
-          await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
 
-          verify(() => mockGetUserProfileById.call(userId)).called(1);
-          await controller.close();
-        },
-      );
+        verify(() => mockGetUserProfileById.call(userId)).called(1);
+        await controller.close();
+      });
     });
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
@@ -191,10 +195,25 @@ void main() {
     );
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
-      'loadProfile should emit loadingError on failure',
+      'loadProfile should create fallback profile when user is not found in user_profiles',
       build: () {
+        final userId = faker.guid.guid();
+        when(() => mockAuthClient.currentSession).thenReturn(
+          Session(
+            accessToken: faker.jwt.valid(),
+            tokenType: 'bearer',
+            user: User(
+              id: userId,
+              email: faker.internet.email(),
+              appMetadata: const {},
+              userMetadata: const {},
+              aud: 'authenticated',
+              createdAt: DateTime.now().toIso8601String(),
+            ),
+          ),
+        );
         when(() => mockGetUserProfileById.call(any())).thenAnswer(
-          (_) async => FailureState(message: 'Error loading profile'),
+          (_) async => FailureState(message: 'Usuário não encontrado'),
         );
         return cubit;
       },
@@ -206,12 +225,8 @@ void main() {
           StateStatus.loading,
         ),
         isA<AcceptInviteState>()
-            .having((s) => s.status, 'status', StateStatus.loadingError)
-            .having(
-              (s) => s.errorMessage,
-              'errorMessage',
-              'Error loading profile',
-            ),
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.userProfile, 'userProfile', isNotNull),
       ],
     );
 
@@ -325,7 +340,13 @@ void main() {
 
     group('Navigation', () {
       blocTest<AcceptInviteCubit, AcceptInviteState>(
-        'navigateToHome should replaceAll with HomeRoute',
+        'navigateToHome should replaceAll with ProviderHomeRoute and save provider mode when companyId is empty',
+        seed: () => AcceptInviteState(
+          status: StateStatus.loaded,
+          userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+            companyId: '',
+          ),
+        ),
         build: () {
           when(
             () => mockNavigationClient.replaceAllRoute(any()),
@@ -335,7 +356,53 @@ void main() {
         act: (cubit) => cubit.navigateToHome(),
         expect: () => <AcceptInviteState>[],
         verify: (_) {
-          verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+          verify(
+            () => mockSaveSelectedMode.call(AppMode.provider.name),
+          ).called(1);
+          verify(
+            () =>
+                mockNavigationClient.replaceAllRoute(const ProviderHomeRoute()),
+          ).called(1);
+        },
+      );
+
+      blocTest<AcceptInviteCubit, AcceptInviteState>(
+        'navigateToHome should replaceAll with HomeRoute when companyId is not empty',
+        seed: () => AcceptInviteState(
+          status: StateStatus.loaded,
+          userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+            companyId: faker.guid.guid(),
+          ),
+        ),
+        build: () {
+          when(
+            () => mockNavigationClient.replaceAllRoute(any()),
+          ).thenAnswer((_) async {});
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToHome(),
+        expect: () => <AcceptInviteState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
+          ).called(1);
+        },
+      );
+
+      blocTest<AcceptInviteCubit, AcceptInviteState>(
+        'navigateToSplash should replaceAll with SplashRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.replaceAllRoute(any()),
+          ).thenAnswer((_) async {});
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToSplash(),
+        expect: () => <AcceptInviteState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.replaceAllRoute(const SplashRoute()),
+          ).called(1);
         },
       );
     });

@@ -6,7 +6,9 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -26,6 +28,7 @@ class AcceptInviteCubitUseCases {
     required this.getUserProfileById,
     required this.setSession,
     required this.saveUserData,
+    required this.saveSelectedMode,
   });
 
   final ChangePasswordUseCase changePassword;
@@ -33,6 +36,7 @@ class AcceptInviteCubitUseCases {
   final GetUserProfileByIdUseCase getUserProfileById;
   final SetSessionUseCase setSession;
   final SaveUserDataUseCase saveUserData;
+  final SaveSelectedModeUseCase saveSelectedMode;
 }
 
 @injectable
@@ -148,13 +152,37 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
         state.copyWith(status: StateStatus.loaded, userProfile: dataState.data),
       );
     } else {
-      showDataStateToast(dataState);
-      emit(
-        state.copyWith(
-          status: StateStatus.loadingError,
-          errorMessage: dataState.message,
-        ),
-      );
+      final sessionUser = _authClient.currentSession?.user;
+      if (sessionUser != null) {
+        final fallbackProfile = UserProfileEntity(
+          id: sessionUser.id,
+          createdAt: sessionUser.createdAt.toDateTime() ?? DateTime.now(),
+          updatedAt: sessionUser.updatedAt?.toDateTime() ?? DateTime.now(),
+          companyId: '',
+          permissionGroupId: '',
+          name:
+              (sessionUser.userMetadata?['name'] as String?) ??
+              sessionUser.email?.split('@')[0] ??
+              '',
+          email: sessionUser.email ?? '',
+          isActive: false,
+          isAdmin: false,
+        );
+        emit(
+          state.copyWith(
+            status: StateStatus.loaded,
+            userProfile: fallbackProfile,
+          ),
+        );
+      } else {
+        showDataStateToast(dataState);
+        emit(
+          state.copyWith(
+            status: StateStatus.loadingError,
+            errorMessage: dataState.message,
+          ),
+        );
+      }
     }
   }
 
@@ -185,18 +213,18 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       return false;
     }
 
-    // 2. Update the user profile (name and set active)
+    // 2. Update the user profile (name and set active) if company user
     final updatedProfile = profile.copyWith(name: name, isActive: true);
 
-    final updateProfileResult = await _useCases.updateUserProfile.call(
-      updatedProfile,
-    );
-    if (isClosed) return false;
-
-    if (updateProfileResult is! SuccessState) {
-      showDataStateToast(updateProfileResult);
-      emit(state.copyWith(status: StateStatus.loaded));
-      return false;
+    if (profile.companyId.isNotEmpty) {
+      final updateProfileResult =
+          await _useCases.updateUserProfile.call(updatedProfile);
+      if (isClosed) return false;
+      if (updateProfileResult is! SuccessState) {
+        showDataStateToast(updateProfileResult);
+        emit(state.copyWith(status: StateStatus.loaded));
+        return false;
+      }
     }
 
     // 3. Update the session with the new user profile details
@@ -216,7 +244,13 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
   }
 
   Future<void> navigateToHome() async {
-    await replaceAllRoute(const HomeRoute());
+    final profile = state.userProfile;
+    if (profile != null && profile.companyId.isEmpty) {
+      await _useCases.saveSelectedMode.call(AppMode.provider.name);
+      await replaceAllRoute(const ProviderHomeRoute());
+    } else {
+      await replaceAllRoute(const HomeRoute());
+    }
   }
 
   Future<void> navigateToSplash() async {
