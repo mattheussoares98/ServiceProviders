@@ -34,7 +34,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
 
     final result = await _useCases.getCompanies.call(companyId);
-
+    //TODO should reload the pending invites for the selected company when it is forcing refresh
     if (isClosed) return;
 
     if (result is SuccessState<List<ServiceProviderCompanyEntity>>) {
