@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
@@ -344,6 +345,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       } else {
         emit(state.copyWith(status: StateStatus.loaded));
       }
+      showSuccessToast('Convite enviado com sucesso!'.hardcoded);
       return true;
     } else {
       emit(
