@@ -41,14 +41,17 @@ final class AuthRepositoryImpl implements AuthRepository {
       ),
       onRemoteSuccess: (data) {
         final profile = data.user;
-        if (profile.id.isEmpty || profile.companyId.isEmpty) {
+        if (profile.id.isEmpty) {
           return Future.value(
             FailureState<Object?>(
               message: 'Perfil de usuário não encontrado.'.hardcoded,
             ),
           );
         }
-        return _usersLocalDataSource.saveUserProfile(profile);
+        if (profile.companyId.isNotEmpty) {
+          return _usersLocalDataSource.saveUserProfile(profile);
+        }
+        return Future.value(const SuccessState(data: true));
       },
     );
   }

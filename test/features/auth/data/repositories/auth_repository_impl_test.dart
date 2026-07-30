@@ -77,6 +77,9 @@ void main() {
   final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
   final tUserProfileModel = UserProfileResponseModel.fromEntity(tUser);
   final tIncompleteUserDataModel = UserDataResponseModel.fromEntity(
+    tUserData.copyWith(user: tUser.copyWith(id: '')),
+  );
+  final tProviderUserDataModel = UserDataResponseModel.fromEntity(
     tUserData.copyWith(user: tUser.copyWith(companyId: '')),
   );
   final tUserDataModelWithProfile = UserDataResponseModel(
@@ -164,7 +167,7 @@ void main() {
     });
 
     test(
-      'should return FailureState when login response has no user profile',
+      'should return FailureState when login response has empty user id',
       () async {
         // Arrange
         when(() => mockInternetClient.isConnected).thenReturn(true);
@@ -181,6 +184,25 @@ void main() {
         verifyNever(
           () => mockAuthRemoteDataSource.getCurrentUserProfile(any()),
         );
+        verifyZeroInteractions(mockUsersLocalDataSource);
+      },
+    );
+
+    test(
+      'should return SuccessState when login response has empty companyId (Service Provider)',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockAuthRemoteDataSource.login(any()),
+        ).thenAnswer((_) async => SuccessState(data: tProviderUserDataModel));
+
+        // Act
+        final result = await repository.login(tAuthentication);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataEntity>>());
+        verify(() => mockAuthRemoteDataSource.login(any())).called(1);
         verifyZeroInteractions(mockUsersLocalDataSource);
       },
     );
