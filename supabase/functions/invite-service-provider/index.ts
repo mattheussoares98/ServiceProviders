@@ -110,9 +110,10 @@ serve(async (req) => {
     }
 
     if (emailError) {
-      console.error('Erro ao enviar e-mail de convite:', emailError.message)
+      console.error('Erro ao enviar e-mail de convite:', emailError)
+      const errorMessage = emailError.message || emailError.error_description || (typeof emailError === 'object' ? JSON.stringify(emailError) : String(emailError))
       return new Response(
-        JSON.stringify({ error: `Erro ao disparar e-mail via SMTP: ${emailError.message}` }),
+        JSON.stringify({ error: `Erro ao disparar e-mail via SMTP: ${errorMessage}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -122,8 +123,9 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    const catchMessage = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error))
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: catchMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

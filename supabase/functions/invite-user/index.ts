@@ -61,8 +61,9 @@ serve(async (req) => {
     )
 
     if (inviteErr) {
+      const inviteMsg = inviteErr.message || inviteErr.error_description || (typeof inviteErr === 'object' ? JSON.stringify(inviteErr) : String(inviteErr))
       return new Response(
-        JSON.stringify({ error: `Erro ao convidar usuário: ${inviteErr.message}` }),
+        JSON.stringify({ error: `Erro ao convidar usuário: ${inviteMsg}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -83,8 +84,9 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    const catchMsg = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error))
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: catchMsg }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
