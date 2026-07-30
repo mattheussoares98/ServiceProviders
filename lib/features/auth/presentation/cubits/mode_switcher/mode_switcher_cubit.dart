@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit_use_cases.dart';
@@ -12,13 +11,10 @@ part 'mode_switcher_state.dart';
 @injectable
 class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
   ModeSwitcherCubit({
-    required LocalStorageClient localStorageClient,
     required ModeSwitcherCubitUseCases useCases,
-  })  : _localStorageClient = localStorageClient,
-        _useCases = useCases,
+  })  : _useCases = useCases,
         super(const ModeSwitcherState());
 
-  final LocalStorageClient _localStorageClient;
   final ModeSwitcherCubitUseCases _useCases;
 
   Future<void> checkEligibilityAndLoadMode() async {
@@ -37,7 +33,7 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
 
     final canSwitch = hasInternalProfile && hasProviderProfile;
 
-    final savedMode = _localStorageClient.getSelectedMode();
+    final savedMode = _useCases.getSelectedMode.call();
     final currentMode = AppMode.fromName(savedMode);
 
     emit(
@@ -52,7 +48,7 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
     emit(state.copyWith(status: StateStatus.loading, selectedMode: mode));
 
     try {
-      await _localStorageClient.saveSelectedMode(mode.name);
+      await _useCases.saveSelectedMode.call(mode.name);
       emit(state.copyWith(status: StateStatus.loaded));
 
       if (mode == AppMode.provider) {

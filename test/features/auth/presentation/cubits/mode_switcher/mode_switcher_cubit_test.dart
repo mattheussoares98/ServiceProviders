@@ -5,6 +5,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
@@ -21,14 +23,21 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 class MockGetServiceProviderProfilesByAuthUserUseCase extends Mock
     implements GetServiceProviderProfilesByAuthUserUseCase {}
 
+class MockSaveSelectedModeUseCase extends Mock
+    implements SaveSelectedModeUseCase {}
+
+class MockGetSelectedModeUseCase extends Mock
+    implements GetSelectedModeUseCase {}
+
 final locator = GetIt.I;
 
 void main() {
-  late MockLocalStorageClient mockLocalStorageClient;
   late MockNavigationClient mockNavigationClient;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetServiceProviderProfilesByAuthUserUseCase
   mockGetServiceProviderProfilesByAuthUser;
+  late MockSaveSelectedModeUseCase mockSaveSelectedMode;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
   late ModeSwitcherCubit cubit;
 
   setUpAll(() {
@@ -36,11 +45,12 @@ void main() {
   });
 
   setUp(() {
-    mockLocalStorageClient = MockLocalStorageClient();
     mockNavigationClient = MockNavigationClient();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetServiceProviderProfilesByAuthUser =
         MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockSaveSelectedMode = MockSaveSelectedModeUseCase();
+    mockGetSelectedMode = MockGetSelectedModeUseCase();
 
     locator.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -48,12 +58,11 @@ void main() {
       getSessionUser: mockGetSessionUser,
       getServiceProviderProfilesByAuthUser:
           mockGetServiceProviderProfilesByAuthUser,
+      saveSelectedMode: mockSaveSelectedMode,
+      getSelectedMode: mockGetSelectedMode,
     );
 
-    cubit = ModeSwitcherCubit(
-      localStorageClient: mockLocalStorageClient,
-      useCases: useCases,
-    );
+    cubit = ModeSwitcherCubit(useCases: useCases);
   });
 
   tearDown(locator.reset);
@@ -73,9 +82,7 @@ void main() {
             data: [EntityFactory.makeServiceProviderProfileEntity()],
           ),
         );
-        when(
-          () => mockLocalStorageClient.getSelectedMode(),
-        ).thenReturn('provider');
+        when(() => mockGetSelectedMode.call()).thenReturn('provider');
         return cubit;
       },
       act: (cubit) => cubit.checkEligibilityAndLoadMode(),
@@ -86,7 +93,7 @@ void main() {
         ),
       ],
       verify: (_) {
-        verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+        verify(() => mockGetSelectedMode.call()).called(1);
       },
     );
 
@@ -100,9 +107,7 @@ void main() {
         when(
           () => mockGetServiceProviderProfilesByAuthUser.call(user.id),
         ).thenAnswer((_) async => const SuccessState(data: []));
-        when(
-          () => mockLocalStorageClient.getSelectedMode(),
-        ).thenReturn('internal');
+        when(() => mockGetSelectedMode.call()).thenReturn('internal');
         return cubit;
       },
       act: (cubit) => cubit.checkEligibilityAndLoadMode(),
@@ -112,9 +117,7 @@ void main() {
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'selectMode should save mode and navigate to HomeRoute when "internal" is selected',
       build: () {
-        when(
-          () => mockLocalStorageClient.saveSelectedMode(any()),
-        ).thenAnswer((_) async {});
+        when(() => mockSaveSelectedMode.call(any())).thenAnswer((_) async {});
         return cubit;
       },
       act: (cubit) => cubit.selectMode(AppMode.internal),
@@ -129,9 +132,7 @@ void main() {
         ),
       ],
       verify: (_) {
-        verify(
-          () => mockLocalStorageClient.saveSelectedMode('internal'),
-        ).called(1);
+        verify(() => mockSaveSelectedMode.call('internal')).called(1);
         verify(
           () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
         ).called(1);
@@ -141,9 +142,7 @@ void main() {
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'selectMode should save mode and navigate to ProviderHomeRoute when "provider" is selected',
       build: () {
-        when(
-          () => mockLocalStorageClient.saveSelectedMode(any()),
-        ).thenAnswer((_) async {});
+        when(() => mockSaveSelectedMode.call(any())).thenAnswer((_) async {});
         return cubit;
       },
       act: (cubit) => cubit.selectMode(AppMode.provider),
@@ -158,9 +157,7 @@ void main() {
         ),
       ],
       verify: (_) {
-        verify(
-          () => mockLocalStorageClient.saveSelectedMode('provider'),
-        ).called(1);
+        verify(() => mockSaveSelectedMode.call('provider')).called(1);
         verify(
           () => mockNavigationClient.replaceAllRoute(const ProviderHomeRoute()),
         ).called(1);
