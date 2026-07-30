@@ -90,15 +90,10 @@ class _ServiceProvidersBody extends StatelessWidget {
                             padding: EdgeInsets.symmetric(vertical: Sizes.p16),
                             child: Center(child: LoadingCircle()),
                           )
-                        else ...[
+                        else
                           ServiceProvidersInvitationsItems(
                             companyId: company.id,
                           ),
-                          gapH8,
-                          const Divider(),
-                          gapH8,
-                          ServiceProvidersProfilesItems(companyId: company.id),
-                        ],
                       ],
                     ),
                   ),
