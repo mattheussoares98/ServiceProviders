@@ -1,8 +1,8 @@
 enum ServiceProviderInvitationStatus {
-  pending('pending', 'Pendente'),
-  accepted('accepted', 'Aceito'),
-  rejected('rejected', 'Rejeitado'),
-  expired('expired', 'Expirado');
+  pending('pending', 'Convite pendente'),
+  accepted('accepted', 'Convite aceito'),
+  rejected('rejected', 'Convite rejeitado'),
+  expired('expired', 'Convite expirado');
 
   const ServiceProviderInvitationStatus(this.value, this.label);
   final String value;
