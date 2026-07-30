@@ -159,6 +159,11 @@ void main() {
         act: (cubit) =>
             cubit.loadCompanies(faker.guid.guid(), emitLoading: false),
         expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.initial,
+          ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.companies.length, 'companies.length', 1),
