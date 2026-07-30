@@ -213,18 +213,17 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       return false;
     }
 
-    // 2. Update the user profile (name and set active) if company user
+    // 2. Update the user profile (name and set active)
     final updatedProfile = profile.copyWith(name: name, isActive: true);
 
-    if (profile.companyId.isNotEmpty) {
-      final updateProfileResult =
-          await _useCases.updateUserProfile.call(updatedProfile);
-      if (isClosed) return false;
-      if (updateProfileResult is! SuccessState) {
-        showDataStateToast(updateProfileResult);
-        emit(state.copyWith(status: StateStatus.loaded));
-        return false;
-      }
+    final updateProfileResult = await _useCases.updateUserProfile.call(
+      updatedProfile,
+    );
+    if (isClosed) return false;
+    if (updateProfileResult is! SuccessState) {
+      showDataStateToast(updateProfileResult);
+      emit(state.copyWith(status: StateStatus.loaded));
+      return false;
     }
 
     // 3. Update the session with the new user profile details
