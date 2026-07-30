@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/extensions/service_provider_extensions.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -48,7 +48,9 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                BaseText.title('Usuários e Convites'.hardcoded),
+                Expanded(
+                  child: BaseText.title('Usuários e convites'.hardcoded),
+                ),
                 if (!hasPending && !hasAccepted && hasEmail)
                   BaseTextButton(
                     text: 'Convidar por e-mail'.hardcoded,
@@ -68,59 +70,42 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
               )
             else ...[
               // Render Profiles (Active Users)
-              ...profiles.map(
-                (profile) => BaseListTile(
-                  title: profile.name,
-                  subtitle: profile.email,
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.person,
-                    cupertinoIcon: CupertinoIcons.person,
-                    color: Colors.green,
-                  ),
-                  trailing: Chip(
-                    backgroundColor: Colors.green.shade50,
-                    label: BaseText.bodySmall(
-                      'Ativo'.hardcoded,
-                      color: Colors.green.shade800,
-                    ),
-                  ),
-                ),
-              ),
-              // Render Invitations (Pending/Accepted/Expired)
-              ...invitations
-                  .where(
-                    (inv) => !profiles.any(
-                      (p) => p.email.toLowerCase() == inv.email.toLowerCase(),
-                    ),
-                  )
-                  .map((invitation) {
-                    final isPending =
-                        invitation.status ==
-                        ServiceProviderInvitationStatus.pending;
+              ...profiles.map((profile) {
+                final correspondingInvitation = invitations.firstWhereOrNull(
+                  (e) => e.email == profile.email,
+                );
+                final isPendingInvitation =
+                    correspondingInvitation?.status ==
+                    ServiceProviderInvitationStatus.pending;
 
-                    return BaseListTile(
-                      title: invitation.email,
-                      subtitle: invitation.acceptedAt != null
-                          ? 'Aceito em ${invitation.acceptedAt!.day.toString().padLeft(2, '0')}/${invitation.acceptedAt!.month.toString().padLeft(2, '0')}/${invitation.acceptedAt!.year}'
-                                .hardcoded
-                          : 'Enviado em ${invitation.createdAt.day.toString().padLeft(2, '0')}/${invitation.createdAt.month.toString().padLeft(2, '0')}/${invitation.createdAt.year}'
-                                .hardcoded,
-                      platformIcon: invitation.status.platformIcon.copyWith(
-                        color: invitation.status.color,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                return Column(
+                  crossAxisAlignment: .end,
+                  children: [
+                    Row(
+                      crossAxisAlignment: .end,
+                      children: [
+                        PlatformIcon(
+                          materialIcon: Icons.person,
+                          cupertinoIcon: CupertinoIcons.person,
+                          color: correspondingInvitation?.status.color,
+                        ),
+                        gapW8,
+                        Expanded(child: BaseText.title(profile.name)),
+                      ],
+                    ),
+                    if (correspondingInvitation != null)
+                      Row(
+                        mainAxisAlignment: .end,
                         children: [
-                          Chip(
-                            backgroundColor: invitation.status.color.withValues(
-                              alpha: 0.1,
-                            ),
-                            label: BaseText.bodySmall(
-                              invitation.status.label,
-                              color: invitation.status.color,
-                            ),
+                          BaseText.caption(
+                            correspondingInvitation
+                                .status
+                                .label, //TODO should show the correct
+                            color: correspondingInvitation.status.color,
+                            fontWeight: FontWeight.bold,
+                            fontStyle: .italic,
                           ),
-                          if (isPending) ...[
+                          if (isPendingInvitation) ...[
                             gapW8,
                             BaseIconButton(
                               platformIcon: const PlatformIcon(
@@ -128,20 +113,25 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
                                 cupertinoIcon: CupertinoIcons.delete,
                                 color: Colors.red,
                               ),
+                              permission: const ResourceActionPermission(
+                                resource: ResourceType.serviceProviders,
+                                action: PermissionAction.delete,
+                              ),
                               onPressed: () {
                                 context
                                     .read<ServiceProvidersCubit>()
                                     .deleteInvitation(
-                                      invitationId: invitation.id,
+                                      invitationId: correspondingInvitation.id,
                                       serviceProviderCompanyId: companyId,
-                                    );
+                                    ); //TODO should reload the invitations
                               },
                             ),
                           ],
                         ],
                       ),
-                    );
-                  }),
+                  ],
+                );
+              }),
             ],
           ],
         );
