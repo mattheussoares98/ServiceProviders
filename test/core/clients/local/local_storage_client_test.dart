@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -151,6 +152,71 @@ void main() {
       expect(dbSessions.single.id, secondSession.user.id);
       expect(localStorageClient.getUserSession(), secondSession);
     });
+
+    test(
+      'init restores userSession for Service Provider when user profile is absent in userProfiles table',
+      () async {
+        final providerSession = UserDataEntity(
+          user: EntityFactory.makeUserProfileEntity().copyWith(
+            companyId: '',
+            isActive: true,
+          ),
+          accessToken: faker.jwt.valid(),
+          refreshToken: faker.jwt.valid(),
+        );
+
+        await localStorageClient.saveUserSession(providerSession);
+
+        final secondClient = LocalStorageClientImpl(database: database);
+        await secondClient.init();
+
+        final restored = secondClient.getUserSession();
+        expect(restored, isNotNull);
+        expect(restored!.user.id, providerSession.user.id);
+        expect(restored.user.companyId, '');
+        expect(restored.user.name, providerSession.user.name);
+        expect(restored.user.email, providerSession.user.email);
+        expect(restored.accessToken, providerSession.accessToken);
+        expect(restored.refreshToken, providerSession.refreshToken);
+      },
+    );
+
+    test(
+      'init restores userSession when user profile exists in userProfiles table',
+      () async {
+        final userProfile = EntityFactory.makeUserProfileEntity();
+        final userSession = UserDataEntity(
+          user: userProfile,
+          accessToken: faker.jwt.valid(),
+          refreshToken: faker.jwt.valid(),
+        );
+
+        await localStorageClient.saveUserSession(userSession);
+        // Save user profile in local database table
+        await database
+            .into(database.userProfiles)
+            .insert(
+              UserProfilesCompanion.insert(
+                id: userProfile.id,
+                companyId: userProfile.companyId,
+                name: userProfile.name,
+                email: userProfile.email,
+                createdAt: Value(DateTime.now()),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+
+        final secondClient = LocalStorageClientImpl(database: database);
+        await secondClient.init();
+
+        final restored = secondClient.getUserSession();
+        expect(restored, isNotNull);
+        expect(restored!.user.id, userProfile.id);
+        expect(restored.user.companyId, userProfile.companyId);
+        expect(restored.user.name, userProfile.name);
+        expect(restored.accessToken, userSession.accessToken);
+      },
+    );
   });
 
   group('LocalStorageClientImpl — Global operations', () {

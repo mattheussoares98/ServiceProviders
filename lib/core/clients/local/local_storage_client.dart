@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 abstract interface class LocalStorageClient {
   Future<void> saveThemeMode(String themeMode);
@@ -59,12 +60,22 @@ final class LocalStorageClientImpl implements LocalStorageClient {
           await (_database.select(_database.userProfiles)
                 ..where((t) => t.id.equals(session.id) & t.deletedAt.isNull()))
               .getSingleOrNull();
-      if (profile == null) {
-        return;
-      }
+
+      final userEntity = profile != null
+          ? UserProfileResponseModel.fromDb(profile).toEntity()
+          : UserProfileEntity(
+              id: session.id,
+              companyId: '',
+              name: session.name,
+              email: session.email,
+              isActive: session.isActive,
+              isAdmin: false,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
 
       _userSession = UserDataEntity(
-        user: UserProfileResponseModel.fromDb(profile).toEntity(),
+        user: userEntity,
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
       );
@@ -106,10 +117,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
     await _database
         .into(_database.appSettings)
         .insertOnConflictUpdate(
-          AppSettingsCompanion(
-            id: const Value(1),
-            selectedMode: Value(mode),
-          ),
+          AppSettingsCompanion(id: const Value(1), selectedMode: Value(mode)),
         );
   }
 
