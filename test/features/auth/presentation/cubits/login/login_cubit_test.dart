@@ -100,6 +100,9 @@ void main() {
       () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
     ).thenAnswer((_) async => const SuccessState(data: []));
     when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(null);
+    when(
+      () => mockLocalStorageClient.saveSelectedMode(any()),
+    ).thenAnswer((_) async {});
   });
 
   tearDown(locator.reset);

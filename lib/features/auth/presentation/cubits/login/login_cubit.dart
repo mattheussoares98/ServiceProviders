@@ -86,8 +86,10 @@ class LoginCubit extends BaseCubit<LoginState> {
           await replaceAllRoute(const ModeSwitcherRoute());
         }
       } else if (hasProviderProfile) {
+        await _localStorageClient.saveSelectedMode(AppMode.provider.name);
         await replaceAllRoute(const ProviderHomeRoute());
       } else {
+        await _localStorageClient.saveSelectedMode(AppMode.internal.name);
         await replaceAllRoute(const HomeRoute());
       }
     }
