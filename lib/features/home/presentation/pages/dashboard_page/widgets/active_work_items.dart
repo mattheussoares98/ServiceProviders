@@ -23,11 +23,12 @@ class ActiveWorkItems extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    const height = 105.0;
     Widget child;
     if (context.screenType == ScreenType.compact ||
         context.screenType == ScreenType.phone) {
       child = SizedBox(
-        height: 105,
+        height: height,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: activeWorkOrders.length,
@@ -35,7 +36,7 @@ class ActiveWorkItems extends StatelessWidget {
             final workOrder = activeWorkOrders[index];
             return SizedBox(
               width: 300,
-              height: 105,
+              height: height,
               child: Padding(
                 padding: const EdgeInsets.only(right: Sizes.p8),
                 child: ActiveStopwatchCard(
@@ -55,7 +56,7 @@ class ActiveWorkItems extends StatelessWidget {
           children: activeWorkOrders.map((workOrder) {
             return SizedBox(
               width: 300,
-              height: 105,
+              height: height,
               child: ActiveStopwatchCard(
                 workOrder: workOrder,
                 onTap: () => cubit.navigateToWorkOrderDetails(workOrder.id),

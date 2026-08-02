@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_approval_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_execution_timer_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
@@ -117,6 +118,9 @@ class _WorkOrderDetails extends HookWidget {
                       pauseCubit.loadPauseRequests(workOrder.id);
                     },
                   ),
+                ),
+                SliverToBoxAdapter(
+                  child: WorkOrderExecutionTimerCard(workOrder: workOrder),
                 ),
                 InfoItems(workOrder: workOrder),
                 Attachments(

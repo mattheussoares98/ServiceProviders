@@ -1,16 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/formatted_duration_timer_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class ActiveStopwatchCard extends HookWidget {
+class ActiveStopwatchCard extends StatelessWidget {
   const ActiveStopwatchCard({
     super.key,
     required this.workOrder,
@@ -24,42 +23,6 @@ class ActiveStopwatchCard extends HookWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final isDark = theme.brightness == Brightness.dark;
-    // Local state to force rebuild every second and display current duration
-    final elapsedSeconds = useState<int>(0);
-
-    useEffect(() {
-      final startedAt = workOrder.startedAt;
-      if (startedAt == null) return null;
-
-      // Update helper
-      void updateTimer() {
-        final diff = DateTime.now().difference(startedAt);
-        elapsedSeconds.value = diff.inSeconds;
-      }
-
-      updateTimer();
-      final timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        updateTimer();
-      });
-
-      return timer.cancel;
-    }, [workOrder.startedAt]);
-
-    String formatDuration(int totalSeconds) {
-      int baseSeconds = totalSeconds;
-      if (totalSeconds < 0) baseSeconds = 0;
-      final hours = baseSeconds ~/ 3600;
-      final minutes = (baseSeconds % 3600) ~/ 60;
-      final seconds = baseSeconds % 60;
-
-      final hoursStr = hours.toString().padLeft(2, '0');
-      final minutesStr = minutes.toString().padLeft(2, '0');
-      final secondsStr = seconds.toString().padLeft(2, '0');
-
-      return '$hoursStr:$minutesStr:$secondsStr';
-    }
-
-    final durationText = formatDuration(elapsedSeconds.value);
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -87,37 +50,27 @@ class ActiveStopwatchCard extends HookWidget {
           child: Padding(
             padding: const EdgeInsets.all(Sizes.p8),
             child: Column(
-              mainAxisAlignment: .spaceEvenly,
               children: [
-                Flexible(
-                  child: BaseText.title(
-                    workOrder.title,
-                    maxLines: 2,
-                    textAlign: .center,
-                  ),
+                BaseText.title(
+                  workOrder.title,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                 ),
-                Row(
-                  mainAxisAlignment: .spaceBetween,
-                  children: [
-                    Expanded(
-                      child: BaseRichText(
-                        color: workOrder.priority.color,
-                        maxLines: 2,
-                        texts: [
-                          BaseText('Prioridade '.hardcoded),
-                          BaseText(workOrder.priority.label.toLowerCase()),
-                        ],
-                      ),
-                    ),
-                    gapW12,
-                    Flexible(
-                      child: BaseText.title(
-                        durationText,
-                        color: Colors.amber.shade800,
-                        maxLines: 2,
-                      ),
-                    ),
+                BaseRichText(
+                  color: workOrder.priority.color,
+                  maxLines: 2,
+                  texts: [
+                    BaseText('Prioridade '.hardcoded),
+                    BaseText(workOrder.priority.label.toLowerCase()),
                   ],
+                ),
+                FittedBox(
+                  child: FormattedDurationTimerText(
+                    startedAt: workOrder.startedAt,
+                    initialAccumulatedSeconds: workOrder.netActiveDuration ?? 0,
+                    isRunning: workOrder.status == WorkOrderStatus.inProgress,
+                    color: Colors.amber.shade800,
+                  ),
                 ),
               ],
             ),
