@@ -68,6 +68,7 @@ final class SessionRepositoryImpl implements SessionRepository {
     await _localDataSource.saveUserData(
       UserDataResponseModel.fromEntity(cleanedUser),
     );
+    await _localDataSource.clearSelectedMode();
     await _auth.logout();
   }
 }

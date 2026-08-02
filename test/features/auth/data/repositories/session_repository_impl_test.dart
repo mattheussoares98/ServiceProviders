@@ -186,6 +186,9 @@ void main() {
           () => mockSessionLocalDataSource.getUserData(),
         ).thenAnswer((_) async => userDataResponse);
         when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+        when(
+          () => mockSessionLocalDataSource.clearSelectedMode(),
+        ).thenAnswer((_) async {});
         final mockSession = MockSession();
         when(() => mockSession.accessToken).thenReturn('');
         when(
@@ -210,6 +213,7 @@ void main() {
             UserDataResponseModel.fromEntity(cleanedUser),
           ),
         ).called(1);
+        verify(() => mockSessionLocalDataSource.clearSelectedMode()).called(1);
 
         expect(sessionRepository.isLoggedIn, isFalse);
         expect(sessionRepository.userData, equals(cleanedUser));
@@ -220,6 +224,9 @@ void main() {
           UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
         );
         when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+        when(
+          () => mockSessionLocalDataSource.clearSelectedMode(),
+        ).thenAnswer((_) async {});
         final mockSession = MockSession();
         when(() => mockSession.accessToken).thenReturn('');
         when(
