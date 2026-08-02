@@ -74,20 +74,32 @@ class BaseAppBar extends StatelessWidget implements PreferredSizeWidget {
     Widget? appBarTitleWidget;
 
     if (showLeading) {
-      leadingWidget =
-          leading ??
-          BaseIconButton(
-            onPressed: () => Navigator.maybePop(
-              context,
-            ), //!only method that queries the widget tree for active
-            //!PopScopes (to check if canPop is false) before actually popping
-            platformIcon: PlatformIcon(
-              materialIcon: Icons.arrow_back,
-              cupertinoIcon: CupertinoIcons.back,
-              size: 20,
-              color: context.colorScheme.onSurface,
-            ),
-          );
+      if (leading != null) {
+        leadingWidget = leading;
+      } else if (Scaffold.maybeOf(context)?.hasDrawer ?? false) {
+        leadingWidget = BaseIconButton(
+          onPressed: () => Scaffold.of(context).openDrawer(),
+          platformIcon: PlatformIcon(
+            materialIcon: Icons.menu,
+            cupertinoIcon: CupertinoIcons.bars,
+            size: 20,
+            color: context.colorScheme.onSurface,
+          ),
+        );
+      } else {
+        leadingWidget = BaseIconButton(
+          onPressed: () => Navigator.maybePop(
+            context,
+          ), //!only method that queries the widget tree for active
+          //!PopScopes (to check if canPop is false) before actually popping
+          platformIcon: PlatformIcon(
+            materialIcon: Icons.arrow_back,
+            cupertinoIcon: CupertinoIcons.back,
+            size: 20,
+            color: context.colorScheme.onSurface,
+          ),
+        );
+      }
     }
 
     if (title.isNotEmpty || titleWidget != null || subtitle != null) {
