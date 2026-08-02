@@ -20,6 +20,9 @@ class FormattedDurationTimerText extends StatefulWidget {
   final Color? color;
   final FontWeight fontWeight;
 
+  static String formatDuration(Duration duration) =>
+      _FormattedDurationTimerTextState.formatDuration(duration);
+
   @override
   State<FormattedDurationTimerText> createState() =>
       _FormattedDurationTimerTextState();
