@@ -21,12 +21,17 @@ class WorkOrderStatusDropdown extends StatelessWidget {
       label: 'Status *'.hardcoded,
       selectedItem: selectedStatus,
       showLabelAtTopLeft: true,
-      items: WorkOrderStatus.values.map((s) {
-        return DropdownMenuItem<WorkOrderStatus>(
-          value: s,
-          child: BaseText(s.label),
-        );
-      }).toList(),
+      items:
+          WorkOrderStatus.values.map((s) {
+            return DropdownMenuItem<WorkOrderStatus>(
+              value: s,
+              child: BaseText(s.label),
+            );
+          }).toList()..removeWhere(
+            (e) =>
+                e.value == WorkOrderStatus.pendingConclusionApproval ||
+                e.value == WorkOrderStatus.pendingPauseApproval,
+          ),
       onChanged: onChanged,
     );
   }
