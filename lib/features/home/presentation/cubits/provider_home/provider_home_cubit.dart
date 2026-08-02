@@ -18,6 +18,6 @@ class ProviderHomeCubit extends BaseCubit<ProviderHomeState> {
   Future<void> logout() async {
     await _useCases.logOut.call();
     unawaited(_useCases.clearLocalAttachments.call());
-    await replaceAllRoute(const LoginRoute());
+    await replaceAllRoute(const SplashRoute());
   }
 }
