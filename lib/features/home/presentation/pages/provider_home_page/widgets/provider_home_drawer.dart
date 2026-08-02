@@ -4,8 +4,8 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
-class ServiceProviderHomeDrawer extends StatelessWidget {
-  const ServiceProviderHomeDrawer({super.key});
+class ProviderHomeDrawer extends StatelessWidget {
+  const ProviderHomeDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
