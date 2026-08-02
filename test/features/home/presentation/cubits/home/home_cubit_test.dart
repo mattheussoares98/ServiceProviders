@@ -37,6 +37,8 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(const LoginRoute());
+    registerFallbackValue(const ChecklistsRoute());
+    registerFallbackValue(const MaintenancePlansRoute());
     registerFallbackValue(
       CreateUpdateServiceProviderCompanyRoute(serviceProviderCompanyId: '0'),
     );
@@ -124,6 +126,30 @@ void main() {
         verify(
           () =>
               mockNavigationClient.pushRoute(const UsersAndPermissionsRoute()),
+        ).called(1);
+      },
+    );
+
+    blocTest<HomeCubit, HomeState>(
+      'navigateToChecklists should push ChecklistsRoute',
+      build: () => homeCubit,
+      act: (cubit) => cubit.navigateToChecklists(),
+      expect: () => <HomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const ChecklistsRoute()),
+        ).called(1);
+      },
+    );
+
+    blocTest<HomeCubit, HomeState>(
+      'navigateToMaintenancePlans should push MaintenancePlansRoute',
+      build: () => homeCubit,
+      act: (cubit) => cubit.navigateToMaintenancePlans(),
+      expect: () => <HomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const MaintenancePlansRoute()),
         ).called(1);
       },
     );
