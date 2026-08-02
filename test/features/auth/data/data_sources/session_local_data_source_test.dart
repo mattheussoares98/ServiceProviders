@@ -79,5 +79,20 @@ void main() {
         ).called(1);
       });
     });
+
+    group('clearSelectedMode', () {
+      test('should call saveSelectedMode(null)', () async {
+        // Arrange
+        when(
+          () => mockLocalStorageClient.saveSelectedMode(null),
+        ).thenAnswer((_) async {});
+
+        // Act
+        await sessionLocalDataSource.clearSelectedMode();
+
+        // Assert
+        verify(() => mockLocalStorageClient.saveSelectedMode(null)).called(1);
+      });
+    });
   });
 }
