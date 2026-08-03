@@ -121,6 +121,15 @@ class AppRouter extends RootStackRouter {
           page: CreateUpdateCategoryRoute.page,
           path: '$kCreateUpdateCategoryRoute/$kCreateUpdateCategoryPath',
         ),
+        //* SLA Policies
+        AutoRoute(
+          page: SlaPoliciesRoute.page,
+          path: kSlaPoliciesPath,
+        ),
+        AutoRoute(
+          page: CreateUpdateSlaPolicyRoute.page,
+          path: '$kCreateUpdateSlaPolicyRoute/$kCreateUpdateSlaPolicyPath',
+        ),
       ],
     ),
   ];

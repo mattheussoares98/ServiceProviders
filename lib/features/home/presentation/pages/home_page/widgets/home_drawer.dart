@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widget
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/sectors_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/service_providers_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/sla_policies_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/widgets/mode_switcher_drawer_item.dart';
@@ -34,6 +35,7 @@ class HomeDrawer extends StatelessWidget {
           CompanyDrawerItem(),
           SectorsDrawerItem(),
           CategoriesDrawerItem(),
+          SlaPoliciesDrawerItem(),
           MaintenancePlansDrawerItem(),
           ServiceProvidersDrawerItem(),
 

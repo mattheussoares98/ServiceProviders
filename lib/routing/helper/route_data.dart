@@ -119,3 +119,10 @@ const String kCategoriesPath = 'categories';
 const String kCreateUpdateCategoryRoute = 'CreateUpdateCategoryRoute';
 const String kCreateUpdateCategoryPath = 'create-update-category';
 
+// SLA Policies
+const String kSlaPoliciesRoute = 'SlaPoliciesRoute';
+const String kSlaPoliciesPath = 'sla-policies';
+
+const String kCreateUpdateSlaPolicyRoute = 'CreateUpdateSlaPolicyRoute';
+const String kCreateUpdateSlaPolicyPath = 'create-update-sla-policy';
+
