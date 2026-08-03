@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_response_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_response_answer_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_response_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 
@@ -22,6 +23,12 @@ abstract interface class ChecklistsLocalDataSource {
   FutureList<ChecklistItemResponseModel> getItemsByTemplate(String templateId);
   FutureBool saveItem(ChecklistItemResponseModel item);
   FutureBool deleteItem(String id);
+
+  // Execution Responses
+  FutureList<ChecklistResponseAnswerModel> getResponsesByWorkOrder(
+    String workOrderId,
+  );
+  FutureBool saveResponse(ChecklistResponseAnswerModel response);
 }
 
 @LazySingleton(as: ChecklistsLocalDataSource)
@@ -66,28 +73,28 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureData<ChecklistTemplateResponseModel> getTemplateById(String id) {
     return ErrorHandler.execute(() async {
-      final t =
+      final item =
           await (_database.select(_database.checklistTemplates)
                 ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
               .getSingleOrNull();
 
-      if (t != null) {
-        return SuccessState(
-          data: ChecklistTemplateResponseModel(
-            id: t.id,
-            companyId: t.companyId,
-            name: t.name,
-            description: t.description,
-            categoryId: t.categoryId,
-            createdAt: t.createdAt,
-            updatedAt: t.updatedAt,
-            deletedAt: t.deletedAt,
-          ),
+      if (item == null) {
+        return FailureState(
+          message: 'Template de checklist não encontrado'.hardcoded,
         );
       }
 
-      return FailureState<ChecklistTemplateResponseModel>(
-        message: 'Checklist template not found'.hardcoded,
+      return SuccessState(
+        data: ChecklistTemplateResponseModel(
+          id: item.id,
+          companyId: item.companyId,
+          name: item.name,
+          description: item.description,
+          categoryId: item.categoryId,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          deletedAt: item.deletedAt,
+        ),
       );
     });
   }
@@ -116,18 +123,9 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureBool deleteTemplate(String id) {
     return ErrorHandler.execute(() async {
-      final now = DateTime.now();
-
-      // Soft delete template
       await (_database.update(_database.checklistTemplates)
             ..where((t) => t.id.equals(id)))
-          .write(ChecklistTemplatesCompanion(deletedAt: Value(now)));
-
-      // Soft delete linked items
-      await (_database.update(_database.checklistItems)
-            ..where((t) => t.templateId.equals(id)))
-          .write(ChecklistItemsCompanion(deletedAt: Value(now)));
-
+          .write(ChecklistTemplatesCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
@@ -140,31 +138,29 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   FutureList<ChecklistItemResponseModel> getItemsByTemplate(String templateId) {
     return ErrorHandler.execute(() async {
       final list =
-          await (_database.select(_database.checklistItems)
-                ..where(
-                  (t) => t.templateId.equals(templateId) & t.deletedAt.isNull(),
-                )
-                ..orderBy([(t) => OrderingTerm(expression: t.sortOrder)]))
+          await (_database.select(_database.checklistItems)..where(
+                (t) => t.templateId.equals(templateId) & t.deletedAt.isNull(),
+              ))
               .get();
 
       return SuccessState(
         data: list
             .map(
-              (item) => ChecklistItemResponseModel(
-                id: item.id,
-                templateId: item.templateId,
-                companyId: item.companyId,
-                label: item.label,
-                type: ChecklistItemType.fromCode(item.type),
-                isRequired: item.isRequired,
-                options: item.options != null
-                    ? (jsonDecode(item.options!) as List)
+              (t) => ChecklistItemResponseModel(
+                id: t.id,
+                templateId: t.templateId,
+                companyId: t.companyId,
+                label: t.label,
+                type: ChecklistItemType.fromCode(t.type),
+                isRequired: t.isRequired,
+                options: t.options != null
+                    ? (jsonDecode(t.options!) as List)
                           .map((e) => e.toString())
                           .toList()
                     : null,
-                sortOrder: item.sortOrder,
-                createdAt: item.createdAt,
-                deletedAt: item.deletedAt,
+                sortOrder: t.sortOrder,
+                createdAt: t.createdAt,
+                deletedAt: t.deletedAt,
               ),
             )
             .toList(),
@@ -203,6 +199,55 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
       await (_database.update(_database.checklistItems)
             ..where((t) => t.id.equals(id)))
           .write(ChecklistItemsCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  // ============================================
+  // Execution Responses
+  // ============================================
+
+  @override
+  FutureList<ChecklistResponseAnswerModel> getResponsesByWorkOrder(
+    String workOrderId,
+  ) {
+    return ErrorHandler.execute(() async {
+      final list = await (_database.select(
+        _database.tasks,
+      )..where((t) => t.workOrderId.equals(workOrderId))).get();
+
+      return SuccessState(
+        data: list
+            .map(
+              (t) => ChecklistResponseAnswerModel(
+                id: t.id,
+                workOrderId: t.workOrderId,
+                checklistItemId: t.title,
+                booleanValue: t.isCompleted,
+                createdAt: t.createdAt,
+                updatedAt: t.updatedAt,
+              ),
+            )
+            .toList(),
+      );
+    });
+  }
+
+  @override
+  FutureBool saveResponse(ChecklistResponseAnswerModel response) {
+    return ErrorHandler.execute(() async {
+      await _database
+          .into(_database.tasks)
+          .insertOnConflictUpdate(
+            TasksCompanion(
+              id: Value(response.id),
+              workOrderId: Value(response.workOrderId),
+              title: Value(response.checklistItemId),
+              isCompleted: Value(response.booleanValue ?? false),
+              createdAt: Value(response.createdAt),
+              updatedAt: Value(response.updatedAt),
+            ),
+          );
       return const SuccessState(data: true);
     });
   }

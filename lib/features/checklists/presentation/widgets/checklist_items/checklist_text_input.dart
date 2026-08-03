@@ -10,8 +10,8 @@ class ChecklistTextInput extends HookWidget {
   });
 
   final ChecklistItemEntity item;
-  final ChecklistItemResponseEntity? response;
-  final ValueChanged<ChecklistItemResponseEntity> onChanged;
+  final ChecklistResponseAnswerEntity? response;
+  final ValueChanged<ChecklistResponseAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class ChecklistTextInput extends HookWidget {
       onChanged: (val) {
         final current =
             response ??
-            ChecklistItemResponseEntity.empty(checklistItemId: item.id);
+            ChecklistResponseAnswerEntity.empty(checklistItemId: item.id);
         onChanged(current.copyWith(textValue: val));
       },
     );

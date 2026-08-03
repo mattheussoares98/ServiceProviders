@@ -10,8 +10,8 @@ class ChecklistPhotoInput extends StatelessWidget {
   });
 
   final ChecklistItemEntity item;
-  final ChecklistItemResponseEntity? response;
-  final ValueChanged<ChecklistItemResponseEntity> onChanged;
+  final ChecklistResponseAnswerEntity? response;
+  final ValueChanged<ChecklistResponseAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {

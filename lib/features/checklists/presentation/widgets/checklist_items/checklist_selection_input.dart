@@ -10,8 +10,8 @@ class ChecklistSelectionInput extends StatelessWidget {
   });
 
   final ChecklistItemEntity item;
-  final ChecklistItemResponseEntity? response;
-  final ValueChanged<ChecklistItemResponseEntity> onChanged;
+  final ChecklistResponseAnswerEntity? response;
+  final ValueChanged<ChecklistResponseAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class ChecklistSelectionInput extends StatelessWidget {
       items: dropdownItems,
       selectedItem: response?.selectedOption,
       onChanged: (val) {
-        final current = response ?? ChecklistItemResponseEntity.empty(checklistItemId: item.id);
+        final current = response ?? ChecklistResponseAnswerEntity.empty(checklistItemId: item.id);
         onChanged(current.copyWith(selectedOption: val));
       },
     );

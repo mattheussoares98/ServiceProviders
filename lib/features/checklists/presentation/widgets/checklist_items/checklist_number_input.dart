@@ -10,12 +10,14 @@ class ChecklistNumberInput extends HookWidget {
   });
 
   final ChecklistItemEntity item;
-  final ChecklistItemResponseEntity? response;
-  final ValueChanged<ChecklistItemResponseEntity> onChanged;
+  final ChecklistResponseAnswerEntity? response;
+  final ValueChanged<ChecklistResponseAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final initialText = response?.numberValue != null ? response!.numberValue.toString() : '';
+    final initialText = response?.numberValue != null
+        ? response!.numberValue.toString()
+        : '';
     final controller = useTextEditingController(text: initialText);
 
     return BaseTextFormField(
@@ -24,13 +26,10 @@ class ChecklistNumberInput extends HookWidget {
       keyboardType: TextInputType.number,
       onChanged: (val) {
         final numVal = double.tryParse(val);
-        final current = response ?? ChecklistItemResponseEntity.empty(checklistItemId: item.id);
-        onChanged(
-          current.copyWith(
-            numberValue: numVal,
-            annulNumberValue: numVal == null,
-          ),
-        );
+        final current =
+            response ??
+            ChecklistResponseAnswerEntity.empty(checklistItemId: item.id);
+        onChanged(current.copyWith(numberValue: numVal));
       },
     );
   }

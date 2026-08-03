@@ -5,8 +5,10 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_response_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_response_answer_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_response_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_response_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/repositories/checklists_repository.dart';
 
@@ -70,4 +72,22 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
 
   @override
   FutureBool deleteItem(String id) => _localDataSource.deleteItem(id);
+
+  @override
+  FutureList<ChecklistResponseAnswerEntity> getResponsesByWorkOrder(
+    String workOrderId,
+  ) =>
+      RepositoryHandler.fetchFromLocalAndMapList<
+        ChecklistResponseAnswerModel,
+        ChecklistResponseAnswerEntity
+      >(
+        localCallback: () =>
+            _localDataSource.getResponsesByWorkOrder(workOrderId),
+      );
+
+  @override
+  FutureBool saveResponse(ChecklistResponseAnswerEntity response) =>
+      _localDataSource.saveResponse(
+        ChecklistResponseAnswerModel.fromEntity(response),
+      );
 }
