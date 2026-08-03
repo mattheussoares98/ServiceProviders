@@ -2,14 +2,17 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:uuid/uuid.dart';
 
 part 'pause_workflow_state.dart';
 
@@ -76,7 +79,35 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
-  Future<bool> requestPause(PauseRequestEntity request) async {
+  Future<bool> requestPause({
+    required String companyId,
+    required String workOrderId,
+    required String requestedById,
+    PauseResponsibility responsibility = PauseResponsibility.provider,
+    String? reasonId,
+    String? customReason,
+    String? observation,
+    String? sectorId,
+    bool affectsSla = true,
+  }) async {
+    final now = DateTime.now();
+    final request = PauseRequestEntity(
+      id: const Uuid().v4(),
+      companyId: companyId,
+      workOrderId: workOrderId,
+      requestedById: requestedById,
+      reasonId: reasonId,
+      customReason: customReason,
+      observation: observation,
+      responsibility: responsibility,
+      sectorId: sectorId,
+      status: PauseRequestStatus.pending,
+      pausedAt: now,
+      affectsSla: affectsSla,
+      createdAt: now,
+      updatedAt: now,
+    );
+
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.requestPause(request);
     if (isClosed) return false;
@@ -154,7 +185,33 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
-  Future<bool> requestCompletion(PauseRequestEntity request) async {
+  Future<bool> requestCompletion({
+    required String companyId,
+    required String workOrderId,
+    required String requestedById,
+    required String customReason,
+    PauseResponsibility responsibility = PauseResponsibility.provider,
+    String? observation,
+    String? sectorId,
+  }) async {
+    final now = DateTime.now();
+    final request = PauseRequestEntity(
+      id: const Uuid().v4(),
+      companyId: companyId,
+      workOrderId: workOrderId,
+      requestedById: requestedById,
+      eventType: PauseEventType.completion,
+      customReason: customReason,
+      observation: observation,
+      responsibility: responsibility,
+      sectorId: sectorId,
+      status: PauseRequestStatus.pending,
+      pausedAt: now,
+      affectsSla: false,
+      createdAt: now,
+      updatedAt: now,
+    );
+
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.requestCompletion(request);
     if (isClosed) return false;

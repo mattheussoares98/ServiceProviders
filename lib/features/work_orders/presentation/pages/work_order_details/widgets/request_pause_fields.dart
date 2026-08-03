@@ -4,8 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -15,7 +13,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:uuid/uuid.dart';
 
 class RequestPauseFields extends HookWidget {
   //TODO review this entire page
@@ -143,9 +140,7 @@ class RequestPauseFields extends HookWidget {
                     BaseButton(
                       text: 'Confirmar'.hardcoded,
                       onTap: () async {
-                        final now = DateTime.now();
-                        final pauseRequest = PauseRequestEntity(
-                          id: const Uuid().v4(), //TODO move to the cubit
+                        final success = await cubit.requestPause(
                           companyId: companyId,
                           workOrderId: workOrderId,
                           requestedById: currentUserId,
@@ -159,14 +154,7 @@ class RequestPauseFields extends HookWidget {
                               : observationController.text.trim(),
                           responsibility: selectedResponsibility.value,
                           sectorId: selectedSectorId.value,
-                          status: PauseRequestStatus.pending,
-                          pausedAt: now,
-                          affectsSla: true,
-                          createdAt: now,
-                          updatedAt: now,
                         );
-
-                        final success = await cubit.requestPause(pauseRequest);
                         if (success && context.mounted) {
                           Navigator.of(context).pop(true);
                         }

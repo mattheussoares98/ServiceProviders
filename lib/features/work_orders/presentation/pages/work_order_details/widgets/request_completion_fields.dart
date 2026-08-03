@@ -3,9 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
@@ -14,7 +11,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:uuid/uuid.dart';
 
 class RequestCompletionFields extends HookWidget {
   const RequestCompletionFields({
@@ -128,28 +124,16 @@ class RequestCompletionFields extends HookWidget {
                         return;
                       }
 
-                      final now = DateTime.now();
-                      final completionRequest = PauseRequestEntity(
-                        id: const Uuid().v4(), // TODO Move to the cubit
+                      final success = await cubit.requestCompletion(
                         companyId: companyId,
                         workOrderId: workOrderId,
                         requestedById: currentUserId,
-                        eventType: PauseEventType.completion,
                         customReason: reasonController.text.trim(),
+                        responsibility: selectedResponsibility.value,
+                        sectorId: selectedSectorId.value,
                         observation: observationController.text.trim().isEmpty
                             ? null
                             : observationController.text.trim(),
-                        responsibility: selectedResponsibility.value,
-                        sectorId: selectedSectorId.value,
-                        status: PauseRequestStatus.pending,
-                        pausedAt: now,
-                        affectsSla: false,
-                        createdAt: now,
-                        updatedAt: now,
-                      );
-
-                      final success = await cubit.requestCompletion(
-                        completionRequest,
                       );
                       if (success && context.mounted) {
                         Navigator.of(context).pop(true);

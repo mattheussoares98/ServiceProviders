@@ -232,8 +232,6 @@ void main() {
     });
 
     group('requestPause', () {
-      final tRequest = EntityFactory.makePauseRequestEntity();
-
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving, loaded, loading, loaded when request succeeds',
         build: () {
@@ -246,7 +244,11 @@ void main() {
           );
           return cubit;
         },
-        act: (cubit) => cubit.requestPause(tRequest),
+        act: (cubit) => cubit.requestPause(
+          companyId: 'company-id',
+          workOrderId: 'wo-id',
+          requestedById: 'user-id',
+        ),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,
@@ -277,7 +279,11 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Request failed'));
           return cubit;
         },
-        act: (cubit) => cubit.requestPause(tRequest),
+        act: (cubit) => cubit.requestPause(
+          companyId: 'company-id',
+          workOrderId: 'wo-id',
+          requestedById: 'user-id',
+        ),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,
@@ -290,6 +296,7 @@ void main() {
         ],
       );
     });
+
 
     group('cancelPause', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
@@ -381,8 +388,6 @@ void main() {
     });
 
     group('requestCompletion', () {
-      final tRequest = EntityFactory.makePauseRequestEntity();
-
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving, loaded, loading, loaded when completion request succeeds',
         build: () {
@@ -395,7 +400,12 @@ void main() {
           );
           return cubit;
         },
-        act: (cubit) => cubit.requestCompletion(tRequest),
+        act: (cubit) => cubit.requestCompletion(
+          companyId: 'company-id',
+          workOrderId: 'wo-id',
+          requestedById: 'user-id',
+          customReason: 'Concluído com sucesso',
+        ),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,
@@ -426,7 +436,12 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Completion failed'));
           return cubit;
         },
-        act: (cubit) => cubit.requestCompletion(tRequest),
+        act: (cubit) => cubit.requestCompletion(
+          companyId: 'company-id',
+          workOrderId: 'wo-id',
+          requestedById: 'user-id',
+          customReason: 'Concluído com sucesso',
+        ),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,
@@ -443,6 +458,7 @@ void main() {
         ],
       );
     });
+
 
     group('reviewCompletion', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
