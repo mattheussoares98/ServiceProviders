@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,7 @@ class SlaPoliciesPage extends StatelessWidget {
                 CreateUpdateSlaPolicyRoute(),
               );
               if (result == true && context.mounted) {
-                context.read<SlaPoliciesCubit>().loadSlaPolicies();
+                unawaited(context.read<SlaPoliciesCubit>().loadSlaPolicies());
               }
             },
             platformIcon: const PlatformIcon(
@@ -49,71 +51,82 @@ class SlaPoliciesPage extends StatelessWidget {
           ),
         ],
       ),
-      body: BaseStateView<SlaPoliciesCubit, SlaPoliciesState, List<SlaPolicyEntity>>(
-        dataSelector: (state) => state.slaPolicies,
-        onRetry: () => context.read<SlaPoliciesCubit>().loadSlaPolicies(),
-        builder: (context, policies) {
-          if (policies.isEmpty) {
-            return Center(
-              child: BaseText.bodyMedium('Nenhuma política de SLA cadastrada'.hardcoded),
-            );
-          }
+      body:
+          BaseStateView<
+            SlaPoliciesCubit,
+            SlaPoliciesState,
+            List<SlaPolicyEntity>
+          >(
+            dataSelector: (state) => state.slaPolicies,
+            onRetry: () => context.read<SlaPoliciesCubit>().loadSlaPolicies(),
+            builder: (context, policies) {
+              if (policies.isEmpty) {
+                return Center(
+                  child: BaseText.bodyMedium(
+                    'Nenhuma política de SLA cadastrada'.hardcoded,
+                  ),
+                );
+              }
 
-          return ResponsiveListFlow(
-            itemCount: policies.length,
-            itemBuilder: (context, index) {
-              final policy = policies[index];
-              return Card(
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.timer_outlined),
-                  ),
-                  title: BaseText.titleMedium(policy.name),
-                  subtitle: BaseText.bodySmall(
-                    '${policy.targetHours}h (${policy.appliesTo.label})',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BaseIconButton(
-                        permission: const ActionPermission.resource(
-                          resource: ResourceType.workOrders,
-                          action: PermissionAction.update,
-                        ),
-                        onPressed: () async {
-                          final result = await context.router.push(
-                            CreateUpdateSlaPolicyRoute(slaPolicy: policy),
-                          );
-                          if (result == true && context.mounted) {
-                            context.read<SlaPoliciesCubit>().loadSlaPolicies();
-                          }
-                        },
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.edit_outlined,
-                          cupertinoIcon: CupertinoIcons.pencil,
-                        ),
+              return ResponsiveListFlow(
+                itemCount: policies.length,
+                itemBuilder: (context, index) {
+                  final policy = policies[index];
+                  return Card(
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        child: Icon(Icons.timer_outlined),
                       ),
-                      BaseIconButton(
-                        permission: const ActionPermission.resource(
-                          resource: ResourceType.workOrders,
-                          action: PermissionAction.delete,
-                        ),
-                        onPressed: () => context
-                            .read<SlaPoliciesCubit>()
-                            .deleteSlaPolicy(policy.id),
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.delete_outline,
-                          cupertinoIcon: CupertinoIcons.trash,
-                        ),
+                      title: BaseText.titleMedium(policy.name),
+                      subtitle: BaseText.bodySmall(
+                        '${policy.targetHours}h (${policy.appliesTo.label})',
                       ),
-                    ],
-                  ),
-                ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          BaseIconButton(
+                            permission: const ActionPermission.resource(
+                              resource: ResourceType.workOrders,
+                              action: PermissionAction.update,
+                            ),
+                            onPressed: () async {
+                              final result = await context.router.push(
+                                CreateUpdateSlaPolicyRoute(slaPolicy: policy),
+                              );
+                              if (result == true && context.mounted) {
+                                unawaited(
+                                  context
+                                      .read<SlaPoliciesCubit>()
+                                      .loadSlaPolicies(),
+                                );
+                              }
+                            },
+                            platformIcon: const PlatformIcon(
+                              materialIcon: Icons.edit_outlined,
+                              cupertinoIcon: CupertinoIcons.pencil,
+                            ),
+                          ),
+                          BaseIconButton(
+                            permission: const ActionPermission.resource(
+                              resource: ResourceType.workOrders,
+                              action: PermissionAction.delete,
+                            ),
+                            onPressed: () => context
+                                .read<SlaPoliciesCubit>()
+                                .deleteSlaPolicy(policy.id),
+                            platformIcon: const PlatformIcon(
+                              materialIcon: Icons.delete_outline,
+                              cupertinoIcon: CupertinoIcons.trash,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }

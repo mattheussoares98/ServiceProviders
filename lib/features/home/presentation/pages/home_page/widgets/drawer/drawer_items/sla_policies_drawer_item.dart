@@ -14,7 +14,7 @@ class SlaPoliciesDrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!context.hasPermission(
-      ActionPermission(
+      const ActionPermission.resource(
         resource: ResourceType.workOrders,
         action: PermissionAction.read,
       ),

@@ -7,8 +7,10 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_sla_policy_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_sla_policy_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';

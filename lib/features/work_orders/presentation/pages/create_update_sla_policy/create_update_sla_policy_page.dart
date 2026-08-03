@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
@@ -48,12 +47,12 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
       final hours = int.tryParse(hoursController.text.trim()) ?? 0;
 
       final success = await context.read<SlaPoliciesCubit>().saveSlaPolicy(
-            id: slaPolicy?.id,
-            name: nameController.text.trim(),
-            targetHours: hours,
-            appliesTo: appliesToState.value,
-            createdAt: slaPolicy?.createdAt,
-          );
+        id: slaPolicy?.id,
+        name: nameController.text.trim(),
+        targetHours: hours,
+        appliesTo: appliesToState.value,
+        createdAt: slaPolicy?.createdAt,
+      );
 
       if (success && context.mounted) {
         Navigator.of(context).pop(true);
@@ -96,9 +95,9 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
                 textInputAction: TextInputAction.done,
               ),
               gapH16,
-              BaseDropdown<SlaAppliesTo>(
-                labelText: 'Aplica-se a'.hardcoded,
-                value: appliesToState.value,
+              BaseDropDown<SlaAppliesTo>(
+                label: 'Aplica-se a'.hardcoded,
+                selectedItem: appliesToState.value,
                 items: SlaAppliesTo.values
                     .map(
                       (item) => DropdownMenuItem(
@@ -108,7 +107,7 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
                     )
                     .toList(),
                 onChanged: (val) {
-                  if (val != null) appliesToState.value = val;
+                  appliesToState.value = val;
                 },
               ),
               gapH24,
