@@ -105,3 +105,17 @@ const String kChecklistsPath = 'checklists';
 const String kMaintenancePlansRoute = 'MaintenancePlansRoute';
 const String kMaintenancePlansPath = 'maintenance-plans';
 
+// Sectors
+const String kSectorsRoute = 'SectorsRoute';
+const String kSectorsPath = 'sectors';
+
+const String kCreateUpdateSectorRoute = 'CreateUpdateSectorRoute';
+const String kCreateUpdateSectorPath = 'create-update-sector';
+
+// Categories
+const String kCategoriesRoute = 'CategoriesRoute';
+const String kCategoriesPath = 'categories';
+
+const String kCreateUpdateCategoryRoute = 'CreateUpdateCategoryRoute';
+const String kCreateUpdateCategoryPath = 'create-update-category';
+
