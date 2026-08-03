@@ -10,6 +10,8 @@ abstract interface class SlaRemoteDataSource {
   FutureList<SlaPolicyModel> getSlaPolicies(String companyId);
   FutureData<SlaPolicyModel> getSlaPolicyById(String id);
   FutureBool createSlaPolicy(SlaPolicyModel model);
+  FutureBool updateSlaPolicy(SlaPolicyModel model);
+  FutureVoid deleteSlaPolicy(String id);
 }
 
 @LazySingleton(as: SlaRemoteDataSource)
@@ -56,6 +58,27 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
           values: model.toJson(),
         );
         return true;
+      });
+
+  @override
+  FutureBool updateSlaPolicy(SlaPolicyModel model) =>
+      SupabaseHandler.call(() async {
+        await _database.update(
+          table: 'sla_policies',
+          values: model.toJson(),
+          filters: [SupabaseFilter.eq('id', model.id)],
+        );
+        return true;
+      });
+
+  @override
+  FutureVoid deleteSlaPolicy(String id) =>
+      SupabaseHandler.voidCall(() async {
+        await _database.update(
+          table: 'sla_policies',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
       });
 }
 

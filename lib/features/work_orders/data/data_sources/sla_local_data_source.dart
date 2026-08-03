@@ -12,6 +12,7 @@ abstract interface class SlaLocalDataSource {
   FutureList<SlaPolicyModel> getSlaPolicies(String companyId);
   FutureData<SlaPolicyModel> getSlaPolicyById(String id);
   FutureBool saveSlaPolicy(SlaPolicyModel slaPolicy);
+  FutureBool deleteSlaPolicy(String id);
 }
 
 @LazySingleton(as: SlaLocalDataSource)
@@ -87,6 +88,16 @@ final class SlaLocalDataSourceImpl implements SlaLocalDataSource {
               deletedAt: Value(slaPolicy.deletedAt),
             ),
           );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deleteSlaPolicy(String id) {
+    return ErrorHandler.execute(() async {
+      final now = DateTime.now();
+      await (_database.update(_database.slaPolicies)..where((t) => t.id.equals(id)))
+          .write(SlaPoliciesCompanion(deletedAt: Value(now)));
       return const SuccessState(data: true);
     });
   }
