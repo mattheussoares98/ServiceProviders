@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
@@ -41,6 +42,8 @@ class MockRequestCompletionUseCase extends Mock
 class MockReviewCompletionUseCase extends Mock
     implements ReviewCompletionUseCase {}
 
+class MockGetSectorsUseCase extends Mock implements GetSectorsUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -52,6 +55,7 @@ void main() {
   late MockGetPauseRequestsUseCase mockGetPauseRequests;
   late MockRequestCompletionUseCase mockRequestCompletion;
   late MockReviewCompletionUseCase mockReviewCompletion;
+  late MockGetSectorsUseCase mockGetSectors;
   late MockNavigationClient mockNavigationClient;
 
   late PauseWorkflowCubit cubit;
@@ -76,7 +80,6 @@ void main() {
     );
   });
 
-
   setUp(() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockRequestPause = MockRequestPauseUseCase();
@@ -86,6 +89,7 @@ void main() {
     mockGetPauseRequests = MockGetPauseRequestsUseCase();
     mockRequestCompletion = MockRequestCompletionUseCase();
     mockReviewCompletion = MockReviewCompletionUseCase();
+    mockGetSectors = MockGetSectorsUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -102,6 +106,7 @@ void main() {
       getPauseRequests: mockGetPauseRequests,
       requestCompletion: mockRequestCompletion,
       reviewCompletion: mockReviewCompletion,
+      getSectors: mockGetSectors,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -110,6 +115,45 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('PauseWorkflowCubit Tests', () {
+    group('loadSectors', () {
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit updated sectors when getSectors succeeds',
+        build: () {
+          final tSectors = EntityFactory.makeSectorEntityList();
+          when(
+            () => mockGetSectors.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tSectors));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadSectors('company-id'),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.sectors,
+            'sectors',
+            hasLength(3),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockGetSectors.call('company-id')).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should not emit state when getSectors fails',
+        build: () {
+          when(
+            () => mockGetSectors.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadSectors('company-id'),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verify(() => mockGetSectors.call('company-id')).called(1);
+        },
+      );
+    });
+
     group('loadPauseReasons', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit loading and loaded when reasons fetch succeeds',
@@ -391,7 +435,11 @@ void main() {
           ),
           isA<PauseWorkflowState>()
               .having((s) => s.status, 'status', StateStatus.savingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Completion failed'),
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Completion failed',
+              ),
         ],
       );
     });
@@ -442,4 +490,3 @@ void main() {
     });
   });
 }
-

@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
@@ -19,6 +20,7 @@ class PauseWorkflowCubitUseCases {
     required this.reviewCompletion,
     required this.getPauseReasons,
     required this.getPauseRequests,
+    required this.getSectors,
   });
 
   final GetSessionUserUseCase getSessionUser;
@@ -29,5 +31,7 @@ class PauseWorkflowCubitUseCases {
   final ReviewCompletionUseCase reviewCompletion;
   final GetPauseReasonsUseCase getPauseReasons;
   final GetPauseRequestsUseCase getPauseRequests;
+  final GetSectorsUseCase getSectors;
 }
+
 

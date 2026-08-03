@@ -7,8 +7,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_dialog.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_pause_dialog.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_fields.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_pause_fields.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
@@ -49,7 +49,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                 text: 'Pausar'.hardcoded,
                 onTap: () async {
                   final result = await showModalPage<bool>(
-                    RequestPauseDialog(
+                    RequestPauseFields(
                       companyId: workOrder.companyId,
                       workOrderId: workOrder.id,
                       currentUserId: currentUserId,
@@ -74,7 +74,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                 text: 'Solicitar conclusão'.hardcoded,
                 onTap: () async {
                   final result = await showModalPage<bool>(
-                    RequestCompletionDialog(
+                    RequestCompletionFields(
                       companyId: workOrder.companyId,
                       workOrderId: workOrder.id,
                       currentUserId: currentUserId,

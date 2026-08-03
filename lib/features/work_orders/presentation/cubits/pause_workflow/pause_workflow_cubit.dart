@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
@@ -40,6 +41,15 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
+    }
+  }
+
+  Future<void> loadSectors(String companyId) async {
+    final result = await _useCases.getSectors(companyId);
+    if (isClosed) return;
+
+    if (result is SuccessState<List<SectorEntity>>) {
+      emit(state.copyWith(sectors: result.data ?? []));
     }
   }
 
