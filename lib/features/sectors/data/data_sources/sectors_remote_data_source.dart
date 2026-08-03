@@ -8,6 +8,8 @@ import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_res
 abstract interface class SectorsRemoteDataSource {
   FutureList<SectorResponseModel> getSectors(String companyId);
   FutureData<SectorResponseModel> createSector(SectorResponseModel request);
+  FutureData<SectorResponseModel> updateSector(SectorResponseModel request);
+  FutureVoid deleteSector(String id);
 }
 
 @LazySingleton(as: SectorsRemoteDataSource)
@@ -39,5 +41,25 @@ final class SectorsRemoteDataSourceImpl implements SectorsRemoteDataSource {
           values: request.toJson(),
         );
         return SectorResponseModel.fromJson(response.first);
+      });
+
+  @override
+  FutureData<SectorResponseModel> updateSector(SectorResponseModel request) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.update(
+          table: 'sectors',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return SectorResponseModel.fromJson(response.first);
+      });
+
+  @override
+  FutureVoid deleteSector(String id) => SupabaseHandler.voidCall(() async {
+        await _database.update(
+          table: 'sectors',
+          values: {'deleted_at': DateTime.now().toIso8601String()},
+          filters: [SupabaseFilter.eq('id', id)],
+        );
       });
 }

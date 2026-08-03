@@ -4,4 +4,6 @@ import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.da
 abstract interface class SectorsRepository {
   FutureList<SectorEntity> getSectors(String companyId);
   FutureBool createSector(SectorEntity sector);
+  FutureBool updateSector(SectorEntity sector);
+  FutureBool deleteSector(String id);
 }

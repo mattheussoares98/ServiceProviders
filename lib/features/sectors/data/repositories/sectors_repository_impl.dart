@@ -56,4 +56,47 @@ final class SectorsRepositoryImpl implements SectorsRepository {
           );
         },
       );
+
+  @override
+  FutureBool updateSector(SectorEntity sector) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource
+            .saveSector(SectorResponseModel.fromEntity(sector)),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.updateSector(
+            SectorResponseModel.fromEntity(sector),
+          );
+          if (result is SuccessState<SectorResponseModel>) {
+            await _localDataSource.saveSector(result.data!);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
+
+  @override
+  FutureBool deleteSector(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.deleteSector(id),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deleteSector(id);
+          if (result is SuccessState<void>) {
+            await _localDataSource.deleteSector(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 }

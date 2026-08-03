@@ -58,10 +58,12 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     }
   }
 
-  Future<bool> saveSector(SectorEntity sector) async {
+  Future<bool> saveSector(SectorEntity sector, {bool isUpdate = false}) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final result = await _useCases.createSector(sector);
+    final result = isUpdate
+        ? await _useCases.updateSector(sector)
+        : await _useCases.createSector(sector);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
@@ -73,6 +75,27 @@ class SectorsCubit extends BaseCubit<SectorsState> {
           result.message ?? 'Erro ao salvar setor'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
+  Future<bool> deleteSector(String id, String companyId) async {
+    emit(state.copyWith(status: StateStatus.deleting));
+
+    final result = await _useCases.deleteSector(id);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      await loadSectors(companyId, emitLoading: false);
+      return true;
+    } else {
+      final message =
+          result.message ?? 'Erro ao excluir setor'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;

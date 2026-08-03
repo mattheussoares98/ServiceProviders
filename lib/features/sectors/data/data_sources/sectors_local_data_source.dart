@@ -10,6 +10,7 @@ abstract interface class SectorsLocalDataSource {
   FutureList<SectorResponseModel> getSectors(String companyId);
   FutureBool saveSector(SectorResponseModel sector);
   FutureBool saveSectors(List<SectorResponseModel> sectors);
+  FutureBool deleteSector(String id);
 }
 
 @LazySingleton(as: SectorsLocalDataSource)
@@ -82,6 +83,16 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
               .toList(),
         );
       });
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deleteSector(String id) {
+    return ErrorHandler.execute(() async {
+      final now = DateTime.now();
+      await (_database.update(_database.sectors)..where((t) => t.id.equals(id)))
+          .write(SectorsCompanion(deletedAt: Value(now)));
       return const SuccessState(data: true);
     });
   }
