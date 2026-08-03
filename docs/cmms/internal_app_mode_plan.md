@@ -9,16 +9,19 @@ All features, workflows, permissions, UI components, and automated tests for **I
 
 ## Internal Mode Roadmap & Milestones
 
-### Milestone 1.1: Work Order Execution & Checklist Completion
+### Milestone 1.1: Work Order Execution (Core MVP)
 - **Work Order Details & Execution**:
   - Execution timer (`FormattedDurationTimerText`) with real-time ticking, adaptive unit formatting (months, weeks, days, hours, minutes, seconds), and `RepaintBoundary` performance isolation.
   - Photo and document attachments per Work Order.
   - Digital sign-off upon completion.
-- **Checklist Responses**:
+- **Checklist Responses [ON HOLD - Deferred]**:
+  - *Status: ON HOLD (Will resume when explicitly requested for future versions).*
   - Dynamic rendering of checklist items inside Work Order execution.
   - Item-level attachments, pass/fail status, numeric readings, and mandatory field validation.
 
-### Milestone 1.2: Checklists & Maintenance Plans Modules
+### Milestone 1.2: Checklists & Maintenance Plans Modules [ON HOLD - Deferred]
+> ⚠️ **Status: ON HOLD** — Template management, standalone checklists, and automated maintenance plans are deferred for future releases and not required for v1.
+
 - **Checklists Module (`lib/features/checklists`)**:
   - Route checklist screens (`/checklists`, `/checklists/create_update`) in `lib/routing/routes.dart`.
   - Add Checklists drawer item (`ChecklistsDrawerItem`) to `HomeDrawer`.
@@ -27,6 +30,7 @@ All features, workflows, permissions, UI components, and automated tests for **I
   - Route maintenance plan screens (`/maintenance_plans`, `/maintenance_plans/create_update`) in `lib/routing/routes.dart`.
   - Add Maintenance Plans drawer item (`MaintenancePlansDrawerItem`) to `HomeDrawer`.
   - Implement periodic scheduling triggers (time-based & meter-based) and automated Work Order generation.
+
 
 ### Milestone 1.3: Inventory & Spare Parts Control
 - **Spare Parts Catalog & Stock Levels**:
