@@ -55,7 +55,6 @@ class WorkOrderBottomActions extends StatelessWidget {
                       currentUserId: currentUserId,
                     ),
                     context,
-                    useDraggable: false,
                   );
 
                   if (result == true && context.mounted) {
@@ -80,7 +79,6 @@ class WorkOrderBottomActions extends StatelessWidget {
                       currentUserId: currentUserId,
                     ),
                     context,
-                    useDraggable: false,
                   );
                   if (result == true && context.mounted) {
                     unawaited(

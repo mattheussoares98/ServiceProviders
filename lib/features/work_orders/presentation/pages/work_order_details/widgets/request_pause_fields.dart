@@ -77,7 +77,6 @@ class RequestPauseFields extends HookWidget {
           return BaseScaffold(
             body: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 BaseText.titleMedium(
                   'Solicitar pausa'.hardcoded,

@@ -62,7 +62,6 @@ class RequestCompletionFields extends HookWidget {
 
           return Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               BaseText.titleMedium(
                 'Solicitar conclusão'.hardcoded,
