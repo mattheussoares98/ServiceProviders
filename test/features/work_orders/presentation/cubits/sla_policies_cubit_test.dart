@@ -27,6 +27,12 @@ class MockGetSlaPolicyByIdUseCase extends Mock
 class MockCreateSlaPolicyUseCase extends Mock
     implements CreateSlaPolicyUseCase {}
 
+class MockUpdateSlaPolicyUseCase extends Mock
+    implements UpdateSlaPolicyUseCase {}
+
+class MockDeleteSlaPolicyUseCase extends Mock
+    implements DeleteSlaPolicyUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -34,6 +40,8 @@ void main() {
   late MockGetSlaPoliciesUseCase mockGetSlaPolicies;
   late MockGetSlaPolicyByIdUseCase mockGetSlaPolicyById;
   late MockCreateSlaPolicyUseCase mockCreateSlaPolicy;
+  late MockUpdateSlaPolicyUseCase mockUpdateSlaPolicy;
+  late MockDeleteSlaPolicyUseCase mockDeleteSlaPolicy;
   late MockNavigationClient mockNavigationClient;
 
   late SlaPoliciesCubit cubit;
@@ -48,6 +56,8 @@ void main() {
     mockGetSlaPolicies = MockGetSlaPoliciesUseCase();
     mockGetSlaPolicyById = MockGetSlaPolicyByIdUseCase();
     mockCreateSlaPolicy = MockCreateSlaPolicyUseCase();
+    mockUpdateSlaPolicy = MockUpdateSlaPolicyUseCase();
+    mockDeleteSlaPolicy = MockDeleteSlaPolicyUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -60,6 +70,8 @@ void main() {
       getSlaPolicies: mockGetSlaPolicies,
       getSlaPolicyById: mockGetSlaPolicyById,
       createSlaPolicy: mockCreateSlaPolicy,
+      updateSlaPolicy: mockUpdateSlaPolicy,
+      deleteSlaPolicy: mockDeleteSlaPolicy,
     );
 
     cubit = SlaPoliciesCubit(useCases: useCases);
@@ -230,14 +242,18 @@ void main() {
       );
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should emit saving and savingError when creation fails',
+        'should emit saving and loaded when updating policy succeeds',
         build: () {
           when(
-            () => mockCreateSlaPolicy.call(any()),
-          ).thenAnswer((_) async => FailureState(message: 'Error creating'));
+            () => mockUpdateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
           return cubit;
         },
         act: (cubit) => cubit.saveSlaPolicy(
+          id: tPolicy.id,
           name: tPolicy.name,
           targetHours: tPolicy.targetHours,
           appliesTo: tPolicy.appliesTo,
@@ -248,25 +264,57 @@ void main() {
             'status',
             StateStatus.saving,
           ),
-          isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error creating'),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
-          verify(
-            () => mockCreateSlaPolicy.call(
-              any(
-                that: predicate<SlaPolicyEntity>(
-                  (p) =>
-                      p.name == tPolicy.name &&
-                      p.targetHours == tPolicy.targetHours &&
-                      p.appliesTo == tPolicy.appliesTo &&
-                      p.companyId == tUserProfile.companyId &&
-                      p.id.isNotEmpty,
-                ),
-              ),
-            ),
-          ).called(1);
+          verify(() => mockUpdateSlaPolicy.call(any())).called(1);
+        },
+      );
+    });
+
+    group('deleteSlaPolicy', () {
+      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should emit deleting and loaded when deletion succeeds',
+        build: () {
+          when(
+            () => mockDeleteSlaPolicy.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteSlaPolicy(tPolicy.id),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.deleting,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockDeleteSlaPolicy.call(tPolicy.id)).called(1);
         },
       );
     });

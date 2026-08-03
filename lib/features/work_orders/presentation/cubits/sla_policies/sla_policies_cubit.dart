@@ -64,23 +64,28 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   }
 
   Future<bool> saveSlaPolicy({
+    String? id,
     required String name,
     required int targetHours,
     required SlaAppliesTo appliesTo,
+    DateTime? createdAt,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final user = _useCases.getSessionUser();
     final now = DateTime.now();
+    final isEditing = id != null;
     final policy = SlaPolicyEntity(
-      id: const Uuid().v4(),
+      id: id ?? const Uuid().v4(),
       companyId: user.companyId,
       name: name,
       targetHours: targetHours,
       appliesTo: appliesTo,
-      createdAt: now,
+      createdAt: createdAt ?? now,
       updatedAt: now,
     );
-    final result = await _useCases.createSlaPolicy(policy);
+    final result = isEditing
+        ? await _useCases.updateSlaPolicy(policy)
+        : await _useCases.createSlaPolicy(policy);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
@@ -88,11 +93,30 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       await loadSlaPolicies(emitLoading: false);
       return true;
     } else {
-      //TODO test this
       final message =
-          result.message ?? 'Erro ao criar política de SLA'.hardcoded;
+          result.message ?? 'Erro ao salvar política de SLA'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
+  Future<bool> deleteSlaPolicy(String id) async {
+    emit(state.copyWith(status: StateStatus.deleting));
+    final result = await _useCases.deleteSlaPolicy(id);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      await loadSlaPolicies(emitLoading: false);
+      return true;
+    } else {
+      final message =
+          result.message ?? 'Erro ao excluir política de SLA'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
