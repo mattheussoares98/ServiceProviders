@@ -61,4 +61,36 @@ final class SlaRepositoryImpl implements SlaRepository {
           SlaPolicyModel.fromEntity(policy),
         ),
       );
+
+  @override
+  FutureBool updateSlaPolicy(SlaPolicyEntity policy) =>
+      RepositoryHandler.fetchWithFallback(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.updateSlaPolicy(
+          SlaPolicyModel.fromEntity(policy),
+        ),
+        localCallback: () => _localDataSource.saveSlaPolicy(
+          SlaPolicyModel.fromEntity(policy),
+        ),
+      );
+
+  @override
+  FutureBool deleteSlaPolicy(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.deleteSlaPolicy(id),
+        remoteCallback: () async {
+          final result = await _remoteDataSource.deleteSlaPolicy(id);
+          if (result is SuccessState<void>) {
+            await _localDataSource.deleteSlaPolicy(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
 }
