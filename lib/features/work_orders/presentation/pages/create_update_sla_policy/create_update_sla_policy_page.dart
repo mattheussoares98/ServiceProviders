@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
@@ -28,7 +29,6 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
   const CreateUpdateSlaPolicyPage({super.key, this.slaPolicy});
 
   final SlaPolicyEntity? slaPolicy;
-  //TODO test this page
   @override
   Widget build(BuildContext context) {
     observeLoading(
@@ -72,31 +72,39 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
             ? 'Editando política de SLA'.hardcoded
             : 'Criando política de SLA'.hardcoded,
         actions: [
-          BaseIconButton(
-            permission: const ActionPermission.resource(
-              resource: ResourceType.workOrders,
-              action: PermissionAction.delete,
+          if (isEditing)
+            BaseIconButton(
+              permission: const ActionPermission.resource(
+                resource: ResourceType.workOrders,
+                action: PermissionAction.delete,
+              ),
+              onPressed: () async {
+                final proceed = await showAlertDialog(
+                  context: context,
+                  title: 'Atenção!'.hardcoded,
+                  contentText:
+                      'Tem certeza que deseja excluir a política "${slaPolicy!.name}"?'
+                          .hardcoded,
+                  defaultActionText: 'Sim'.hardcoded,
+                  cancelActionText: 'Não'.hardcoded,
+                );
+
+                if (context.mounted && proceed == true) {
+                  final succeeds = await context
+                      .read<SlaPoliciesCubit>()
+                      .deleteSlaPolicy(slaPolicy!.id);
+
+                  if (succeeds && context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                }
+              },
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.delete_outline,
+                cupertinoIcon: CupertinoIcons.trash,
+                color: Colors.red,
+              ),
             ),
-            onPressed: () {
-              showAlertDialog(
-                context: context,
-                title: 'Atenção!'.hardcoded,
-                contentText:
-                    'Tem certeza que deseja excluir a política "${slaPolicy!.name}"?'
-                        .hardcoded,
-                defaultActionText: 'Sim'.hardcoded,
-                cancelActionText: 'Não'.hardcoded,
-                onOkPressed: () => context
-                    .read<SlaPoliciesCubit>()
-                    .deleteSlaPolicy(slaPolicy!.id),
-              );
-            },
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.delete_outline,
-              cupertinoIcon: CupertinoIcons.trash,
-              color: Colors.red,
-            ),
-          ),
         ],
       ),
       body: Form(
@@ -129,6 +137,8 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
             BaseDropDown<SlaAppliesTo>(
               label: 'Aplica-se a'.hardcoded,
               selectedItem: appliesToState.value,
+              showLabelAtTopLeft: true,
+              hint: BaseText('Aplica-se a'.hardcoded),
               items: SlaAppliesTo.values
                   .map(
                     (item) =>
@@ -152,10 +162,25 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
                 ),
                 gapW12,
                 Expanded(
-                  child: BaseButton(
-                    onTap: submit,
-                    width: Sizes.p120,
-                    text: 'Salvar'.hardcoded,
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([
+                      nameController,
+                      hoursController,
+                    ]),
+                    builder: (context, _) {
+                      final nameHasChanged =
+                          nameController.text.trim() !=
+                          (slaPolicy?.name.trim() ?? '');
+                      final hoursHasChanged =
+                          hoursController.text.trim() !=
+                          (slaPolicy?.targetHours.toString().trim() ?? '');
+                      final hasChanged = nameHasChanged || hoursHasChanged;
+                      return BaseButton(
+                        onTap: hasChanged ? submit : null,
+                        width: Sizes.p120,
+                        text: 'Salvar'.hardcoded,
+                      );
+                    },
                   ),
                 ),
               ],
