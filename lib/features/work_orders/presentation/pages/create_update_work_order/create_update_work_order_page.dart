@@ -14,15 +14,14 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/create_sla_policy_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
@@ -384,15 +383,8 @@ class _CreateUpdatePage extends HookWidget {
             ),
             gapW8,
             BaseIconButton(
-              onPressed: () async {
-                //TODO should save in the CreateSlaPolicyDialog to avoid losing the data then it throws
-                final createdPolicy = await CreateSlaPolicyDialog.show(
-                  context,
-                  cubit: context.read<SlaPoliciesCubit>(),
-                );
-                if (createdPolicy != null && context.mounted) {
-                  selectedSlaPolicyId.value = createdPolicy.id;
-                }
+              onPressed: () {
+                context.read<WorkOrdersCubit>().navigateToCreateSlaPolicy();
               },
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.add,

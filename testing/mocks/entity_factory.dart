@@ -26,6 +26,8 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
@@ -36,8 +38,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
@@ -650,10 +650,6 @@ abstract final class EntityFactory {
   }
 
   static List<SectorEntity> makeSectorEntityList() {
-    return [
-      makeSectorEntity(),
-      makeSectorEntity(),
-      makeSectorEntity(),
-    ];
+    return [makeSectorEntity(), makeSectorEntity(), makeSectorEntity()];
   }
 }
