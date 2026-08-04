@@ -210,9 +210,15 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       notes: notes?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
       serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
       providerProfileId: providerProfileId?.trimToNull(),
       slaPolicyId: slaPolicyId,
+      slaDeadlineAt: null,
+      netActiveDuration: null,
+      completionReason: null,
+      completionResponsibility: null,
+      completionSectorId: null,
       openedBy: openedBy,
     );
 

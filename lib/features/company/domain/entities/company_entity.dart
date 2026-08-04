@@ -4,12 +4,12 @@ class CompanyEntity extends Equatable {
   const CompanyEntity({
     required this.id,
     required this.name,
-    this.cnpj,
-    this.logoUrl,
+    required this.cnpj,
+    required this.logoUrl,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

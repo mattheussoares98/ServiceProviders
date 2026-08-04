@@ -155,6 +155,9 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       final sessionUser = _authClient.currentSession?.user;
       if (sessionUser != null) {
         final fallbackProfile = UserProfileEntity(
+          avatarUrl: null,
+          deletedAt: null,
+          phone: null,
           id: sessionUser.id,
           createdAt: sessionUser.createdAt.toDateTime() ?? DateTime.now(),
           updatedAt: sessionUser.updatedAt?.toDateTime() ?? DateTime.now(),

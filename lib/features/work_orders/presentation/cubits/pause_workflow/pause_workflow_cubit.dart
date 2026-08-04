@@ -106,6 +106,9 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       affectsSla: affectsSla,
       createdAt: now,
       updatedAt: now,
+      resumedAt: null,
+      reviewObservation: null,
+      reviewedById: null,
     );
 
     emit(state.copyWith(status: StateStatus.saving));
@@ -210,6 +213,10 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       affectsSla: false,
       createdAt: now,
       updatedAt: now,
+      reasonId: null,
+      resumedAt: null,
+      reviewObservation: null,
+      reviewedById: null,
     );
 
     emit(state.copyWith(status: StateStatus.saving));

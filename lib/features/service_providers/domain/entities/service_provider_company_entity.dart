@@ -8,12 +8,12 @@ class ServiceProviderCompanyEntity extends Equatable {
     required this.name,
     required this.documentType,
     required this.document,
-    this.contactEmail,
-    this.contactPhone,
+    required this.contactEmail,
+    required this.contactPhone,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

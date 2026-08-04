@@ -6,14 +6,14 @@ class TaskEntity extends Equatable {
     required this.workOrderId,
     required this.companyId,
     required this.title,
-    this.description,
+    required this.description,
     required this.isCompleted,
-    this.completedAt,
-    this.completedById,
+    required this.completedAt,
+    required this.completedById,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -31,19 +31,19 @@ class TaskEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        workOrderId,
-        companyId,
-        title,
-        description,
-        isCompleted,
-        completedAt,
-        completedById,
-        sortOrder,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    workOrderId,
+    companyId,
+    title,
+    description,
+    isCompleted,
+    completedAt,
+    completedById,
+    sortOrder,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   TaskEntity copyWith({
     String? id,
@@ -68,10 +68,16 @@ class TaskEntity extends Equatable {
       workOrderId: workOrderId ?? this.workOrderId,
       companyId: companyId ?? this.companyId,
       title: title ?? this.title,
-      description: annulDescription == true ? null : description ?? this.description,
+      description: annulDescription == true
+          ? null
+          : description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
-      completedAt: annulCompletedAt == true ? null : completedAt ?? this.completedAt,
-      completedById: annulCompletedById == true ? null : completedById ?? this.completedById,
+      completedAt: annulCompletedAt == true
+          ? null
+          : completedAt ?? this.completedAt,
+      completedById: annulCompletedById == true
+          ? null
+          : completedById ?? this.completedById,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

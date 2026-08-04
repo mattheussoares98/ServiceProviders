@@ -174,6 +174,8 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       final list = rows.map((row) {
         final order = row.readTable(_database.workOrders);
         return WorkOrderResponseModel(
+          providerProfileId: null,
+          serviceProviderCompanyId: null,
           id: order.id,
           companyId: order.companyId,
           assetId: order.assetId,
@@ -200,6 +202,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           deletedAt: order.deletedAt,
           attachments: attachmentsByWorkOrder[order.id] ?? const [],
           slaPolicyId: order.slaPolicyId,
+          slaDeadlineAt: order.slaDeadlineAt,
+          slaBreached: order.slaBreached ?? false,
+          netActiveDuration: order.netActiveDuration,
           completionReason: order.completionReason,
           completionResponsibility: order.completionResponsibility != null
               ? PauseResponsibility.fromValue(order.completionResponsibility!)
@@ -258,6 +263,8 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       final order = row.readTable(_database.workOrders);
       final model = WorkOrderResponseModel(
+        providerProfileId: null,
+        serviceProviderCompanyId: null,
         id: order.id,
         companyId: order.companyId,
         assetId: order.assetId,
@@ -284,6 +291,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         deletedAt: order.deletedAt,
         attachments: attachments,
         slaPolicyId: order.slaPolicyId,
+        slaDeadlineAt: order.slaDeadlineAt,
+        slaBreached: order.slaBreached ?? false,
+        netActiveDuration: order.netActiveDuration,
         completionReason: order.completionReason,
         completionResponsibility: order.completionResponsibility != null
             ? PauseResponsibility.fromValue(order.completionResponsibility!)

@@ -10,7 +10,7 @@ class SlaPolicyEntity extends Equatable {
     required this.appliesTo,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

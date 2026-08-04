@@ -959,6 +959,7 @@ void main() {
               serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
               providerProfileId: tWorkOrder.providerProfileId,
               openedBy: tWorkOrder.openedBy,
+              slaPolicyId: tWorkOrder.slaPolicyId,
             );
 
             expect(result, isFalse);
@@ -1040,6 +1041,7 @@ void main() {
             serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
             providerProfileId: tWorkOrder.providerProfileId,
             openedBy: tWorkOrder.openedBy,
+            slaPolicyId: tWorkOrder.slaPolicyId,
           ),
           expect: () => [
             isA<WorkOrdersState>().having(

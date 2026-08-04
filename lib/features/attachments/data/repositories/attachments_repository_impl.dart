@@ -472,11 +472,14 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       fileName: originalName,
       fileType: fileType,
       localPath: localPath,
+      remoteUrl: null,
       fileSizeBytes: finalSize,
       isCompressed: isCompressed,
       uploadStatus: UploadStatus.pending,
       createdAt: DateTime.now(),
+      deletedAt: null,
       originalPath: contentHash,
+      lastAccessedAt: null,
     );
 
     return SuccessState(data: entity);

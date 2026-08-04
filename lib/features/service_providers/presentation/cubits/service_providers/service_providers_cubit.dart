@@ -186,6 +186,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       isActive: existingCompany?.isActive ?? true,
       createdAt: existingCompany?.createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
 
     final DataState<bool> result;

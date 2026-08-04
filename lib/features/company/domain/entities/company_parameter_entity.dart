@@ -8,7 +8,7 @@ class CompanyParameterEntity extends Equatable {
     required this.maxOfflinePendingRequests,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -21,12 +21,12 @@ class CompanyParameterEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        maxOfflineDurationHours,
-        maxOfflinePendingRequests,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    maxOfflineDurationHours,
+    maxOfflinePendingRequests,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 }

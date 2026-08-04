@@ -4,11 +4,11 @@ class ServiceProviderProfileEntity extends Equatable {
   //TODO move to serviceProvider feature
   const ServiceProviderProfileEntity({
     required this.id,
-    this.authUserId,
+    required this.authUserId,
     required this.serviceProviderCompanyId,
     required this.name,
     required this.email,
-    this.phone,
+    required this.phone,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,

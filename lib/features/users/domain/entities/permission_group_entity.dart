@@ -10,7 +10,7 @@ class PermissionGroupEntity extends Equatable {
     required this.workOrders,
     required this.isDefault,
     required this.createdAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

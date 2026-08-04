@@ -7,7 +7,7 @@ class SectorEntity extends Equatable {
     required this.name,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -38,11 +38,11 @@ class SectorEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 }

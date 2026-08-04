@@ -6,11 +6,11 @@ class AreaEntity extends Equatable {
     required this.locationId,
     required this.companyId,
     required this.name,
-    this.floor,
-    this.description,
+    required this.floor,
+    required this.description,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -25,16 +25,16 @@ class AreaEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        locationId,
-        companyId,
-        name,
-        floor,
-        description,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    locationId,
+    companyId,
+    name,
+    floor,
+    description,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   AreaEntity copyWith({
     String? id,
@@ -56,7 +56,9 @@ class AreaEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
       floor: annulFloor == true ? null : floor ?? this.floor,
-      description: annulDescription == true ? null : description ?? this.description,
+      description: annulDescription == true
+          ? null
+          : description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

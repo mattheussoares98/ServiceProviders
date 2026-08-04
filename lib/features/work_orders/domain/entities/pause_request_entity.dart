@@ -8,18 +8,18 @@ class PauseRequestEntity extends Equatable {
     required this.id,
     required this.companyId,
     required this.workOrderId,
-    this.requestedById,
+    required this.requestedById,
     this.eventType = PauseEventType.pause,
-    this.reasonId,
-    this.customReason,
-    this.observation,
+    required this.reasonId,
+    required this.customReason,
+    required this.observation,
     required this.responsibility,
-    this.sectorId,
+    required this.sectorId,
     required this.status,
     required this.pausedAt,
-    this.resumedAt,
-    this.reviewedById,
-    this.reviewObservation,
+    required this.resumedAt,
+    required this.reviewedById,
+    required this.reviewObservation,
     required this.affectsSla,
     required this.createdAt,
     required this.updatedAt,
@@ -103,7 +103,9 @@ class PauseRequestEntity extends Equatable {
           : requestedById ?? this.requestedById,
       eventType: eventType ?? this.eventType,
       reasonId: annulReasonId == true ? null : reasonId ?? this.reasonId,
-      customReason: annulCustomReason == true ? null : customReason ?? this.customReason,
+      customReason: annulCustomReason == true
+          ? null
+          : customReason ?? this.customReason,
       observation: annulObservation == true
           ? null
           : observation ?? this.observation,
@@ -124,4 +126,3 @@ class PauseRequestEntity extends Equatable {
     );
   }
 }
-

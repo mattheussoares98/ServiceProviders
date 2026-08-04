@@ -83,6 +83,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       appliesTo: appliesTo,
       createdAt: createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
     final result = isEditing
         ? await _useCases.updateSlaPolicy(policy)

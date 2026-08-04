@@ -4,15 +4,15 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_or
 
 class UserWorkOrdersPermissionOverrideEntity extends Equatable {
   const UserWorkOrdersPermissionOverrideEntity({
-    this.readScope,
-    this.create,
-    this.updateScope,
-    this.delete,
-    this.changeStatus,
-    this.reassign,
-    this.approvePause,
-    this.approveCompletion,
-    this.deleteObservation,
+    required this.readScope,
+    required this.create,
+    required this.updateScope,
+    required this.delete,
+    required this.changeStatus,
+    required this.reassign,
+    required this.approvePause,
+    required this.approveCompletion,
+    required this.deleteObservation,
   });
 
   const UserWorkOrdersPermissionOverrideEntity.empty()

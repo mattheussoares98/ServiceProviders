@@ -33,6 +33,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
@@ -68,6 +69,7 @@ abstract final class EntityFactory {
   static String _makeEmail() => faker.internet.email();
   static String _makePassword() => faker.internet.password();
   static String _makePersonName() => faker.person.name();
+  static String _makeUrl() => faker.internet.httpsUrl();
   // Category
   static CategoryEntity makeCategoryEntity() {
     return CategoryEntity(
@@ -77,6 +79,7 @@ abstract final class EntityFactory {
       description: _makePhrase(),
       color: _makeString(7),
       createdAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -100,6 +103,7 @@ abstract final class EntityFactory {
       number: _makeInt(100, min: 1).toString(),
       neighborhood: _makeWord(),
       postalCode: _makeString(8),
+      deletedAt: null,
     );
   }
 
@@ -118,6 +122,7 @@ abstract final class EntityFactory {
       description: _makePhrase(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -141,6 +146,12 @@ abstract final class EntityFactory {
       notes: _makePhrase(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      categoryId: _makeId(),
+      warrantyExpiration: _makeDateTime(),
+      deletedAt: null,
+      installDate: _makeDateTime(),
+      parentAssetId: _makeId(),
+      revisionForecast: _makeDateTime(),
     );
   }
 
@@ -164,16 +175,26 @@ abstract final class EntityFactory {
       status: WorkOrderStatus.open,
       type: WorkOrderType.corrective,
       scheduledDate: _makeDateTime(),
+      startedAt: _makeDateTime(),
+      completedAt: _makeDateTime(),
       estimatedDuration: _makeInt(120),
+      actualDuration: _makeInt(90),
       laborCost: _makeDouble(),
       partsCost: _makeDouble(),
       totalCost: _makeDouble(),
       notes: _makePhrase(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
       attachments: makeAttachmentEntityList(),
       serviceProviderCompanyId: _makeId(),
       providerProfileId: _makeId(),
+      slaPolicyId: _makeId(),
+      slaDeadlineAt: _makeDateTime(),
+      netActiveDuration: _makeInt(60),
+      completionReason: _makePhrase(),
+      completionResponsibility: PauseResponsibility.shared,
+      completionSectorId: _makeId(),
     );
   }
 
@@ -197,6 +218,9 @@ abstract final class EntityFactory {
       sortOrder: _makeInt(10),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      completedAt: null,
+      completedById: null,
+      deletedAt: null,
     );
   }
 
@@ -216,6 +240,9 @@ abstract final class EntityFactory {
       status: ChangeRequestStatus.pending,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
+      rejectionReason: null,
+      reviewedById: null,
     );
   }
 
@@ -259,6 +286,8 @@ abstract final class EntityFactory {
       description: _makePhrase(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      categoryId: null,
+      deletedAt: null,
     );
   }
 
@@ -281,6 +310,8 @@ abstract final class EntityFactory {
       isRequired: false,
       sortOrder: _makeInt(10),
       createdAt: _makeDateTime(),
+      deletedAt: null,
+      options: null,
     );
   }
 
@@ -302,6 +333,7 @@ abstract final class EntityFactory {
       isActive: true,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -317,6 +349,9 @@ abstract final class EntityFactory {
       isAdmin: false,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      avatarUrl: _makeUrl(),
+      deletedAt: null,
+      permissionGroupId: _makeId(),
     );
   }
 
@@ -334,6 +369,7 @@ abstract final class EntityFactory {
       id: _makeId(),
       companyId: _makeId(),
       name: _makeWord(),
+      deletedAt: null,
       permissions: const {
         ResourceType.attachments: {
           PermissionAction.create,
@@ -368,6 +404,16 @@ abstract final class EntityFactory {
       isActive: true,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      assetId: _makeId(),
+      checklistTemplateId: _makeId(),
+      assignedToId: _makeId(),
+      dayOfMonth: _makeInt(30),
+      dayOfWeek: _makeInt(7),
+      monthOfYear: _makeInt(12),
+      deletedAt: null,
+      lastGeneratedAt: _makeDateTime(),
+      locationId: _makeId(),
+      nextDueDate: _makeDateTime(),
     );
   }
 
@@ -388,9 +434,15 @@ abstract final class EntityFactory {
       uploadedById: _makeId(),
       fileName: '${_makeWord()}.jpg',
       fileType: FileType.image,
+      localPath: _makePhrase(),
+      remoteUrl: _makeUrl(),
+      fileSizeBytes: _makeInt(1024),
       isCompressed: false,
       uploadStatus: UploadStatus.pending,
       createdAt: _makeDateTime(),
+      deletedAt: null,
+      originalPath: _makePhrase(),
+      lastAccessedAt: null,
     );
   }
 
@@ -489,6 +541,7 @@ abstract final class EntityFactory {
       isActive: true,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -535,6 +588,7 @@ abstract final class EntityFactory {
       appliesTo: SlaAppliesTo.both,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -555,6 +609,7 @@ abstract final class EntityFactory {
       isActive: true,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 
@@ -583,6 +638,10 @@ abstract final class EntityFactory {
       affectsSla: true,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      resumedAt: _makeDateTime(),
+      reviewObservation: _makeId(),
+      reviewedById: _makeId(),
+      eventType: PauseEventType.values[_makeInt(PauseEventType.values.length)],
     );
   }
 
@@ -626,6 +685,7 @@ abstract final class EntityFactory {
       status: ServiceProviderInvitationStatus.pending,
       createdAt: _makeDateTime(),
       expiresAt: _makeDateTime(),
+      acceptedAt: _makeDateTime(),
     );
   }
 
@@ -646,6 +706,7 @@ abstract final class EntityFactory {
       name: _makeWord(),
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
+      deletedAt: null,
     );
   }
 

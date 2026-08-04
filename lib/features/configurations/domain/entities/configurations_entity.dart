@@ -4,7 +4,7 @@ class ConfigurationsEntity extends Equatable {
   const ConfigurationsEntity({
     required this.pushNotificationsEnabled,
     required this.themeMode,
-    this.systemNotificationsEnabled = true,
+    required this.systemNotificationsEnabled,
   });
 
   final bool pushNotificationsEnabled;
@@ -27,8 +27,8 @@ class ConfigurationsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        pushNotificationsEnabled,
-        themeMode,
-        systemNotificationsEnabled,
-      ];
+    pushNotificationsEnabled,
+    themeMode,
+    systemNotificationsEnabled,
+  ];
 }

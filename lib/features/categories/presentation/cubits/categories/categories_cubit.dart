@@ -64,6 +64,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       description: description?.trimToNull(),
       color: color?.trimToNull(),
       createdAt: createdAt ?? now,
+      deletedAt: null,
     );
 
     final result = isUpdate
@@ -119,7 +120,9 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     }
   }
 
-  Future<void> navigateToCreateUpdateCategory({CategoryEntity? category}) async {
+  Future<void> navigateToCreateUpdateCategory({
+    CategoryEntity? category,
+  }) async {
     await pushRoute(CreateUpdateCategoryRoute(category: category));
     await loadCategories(emitLoading: false);
   }

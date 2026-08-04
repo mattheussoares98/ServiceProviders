@@ -8,7 +8,7 @@ class UserInvitationEntity extends Equatable {
     required this.companyId,
     required this.permissionGroupId,
     required this.name,
-    this.confirmationSentAt,
+    required this.confirmationSentAt,
   });
 
   final String id;

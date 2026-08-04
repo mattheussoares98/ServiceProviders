@@ -5,11 +5,11 @@ class ChecklistTemplateEntity extends Equatable {
     required this.id,
     required this.companyId,
     required this.name,
-    this.description,
-    this.categoryId,
+    required this.description,
+    required this.categoryId,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -23,15 +23,15 @@ class ChecklistTemplateEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        description,
-        categoryId,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    description,
+    categoryId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 
   ChecklistTemplateEntity copyWith({
     String? id,
@@ -50,8 +50,12 @@ class ChecklistTemplateEntity extends Equatable {
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
       name: name ?? this.name,
-      description: annulDescription == true ? null : description ?? this.description,
-      categoryId: annulCategoryId == true ? null : categoryId ?? this.categoryId,
+      description: annulDescription == true
+          ? null
+          : description ?? this.description,
+      categoryId: annulCategoryId == true
+          ? null
+          : categoryId ?? this.categoryId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

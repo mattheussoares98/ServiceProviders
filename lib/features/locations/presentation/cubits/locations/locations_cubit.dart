@@ -116,6 +116,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       isActive: true,
       createdAt: createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
 
     final dataState = isUpdate
@@ -185,6 +186,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       description: description?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
 
     final dataState = isUpdate

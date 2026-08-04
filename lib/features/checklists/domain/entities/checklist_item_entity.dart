@@ -9,10 +9,10 @@ class ChecklistItemEntity extends Equatable {
     required this.label,
     required this.type,
     required this.isRequired,
-    this.options,
+    required this.options,
     required this.sortOrder,
     required this.createdAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

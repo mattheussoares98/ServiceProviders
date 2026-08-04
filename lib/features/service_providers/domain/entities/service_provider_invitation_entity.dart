@@ -6,11 +6,11 @@ class ServiceProviderInvitationEntity extends Equatable {
     required this.id,
     required this.email,
     required this.serviceProviderCompanyId,
-    this.inviteToken,
+    required this.inviteToken,
     required this.status,
     required this.createdAt,
-    this.acceptedAt,
-    this.expiresAt,
+    required this.acceptedAt,
+    required this.expiresAt,
   });
 
   final String id;

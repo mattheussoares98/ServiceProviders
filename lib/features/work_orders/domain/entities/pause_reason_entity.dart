@@ -8,7 +8,7 @@ class PauseReasonEntity extends Equatable {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;
@@ -21,12 +21,12 @@ class PauseReasonEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        companyId,
-        name,
-        isActive,
-        createdAt,
-        updatedAt,
-        deletedAt,
-      ];
+    id,
+    companyId,
+    name,
+    isActive,
+    createdAt,
+    updatedAt,
+    deletedAt,
+  ];
 }

@@ -6,11 +6,11 @@ class ChecklistResponseAnswerEntity extends Equatable {
     required this.id,
     required this.workOrderId,
     required this.checklistItemId,
-    this.booleanValue,
-    this.textValue,
-    this.numberValue,
-    this.photoUrl,
-    this.selectedOption,
+    required this.booleanValue,
+    required this.textValue,
+    required this.numberValue,
+    required this.photoUrl,
+    required this.selectedOption,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -25,6 +25,11 @@ class ChecklistResponseAnswerEntity extends Equatable {
       checklistItemId: checklistItemId,
       createdAt: now,
       updatedAt: now,
+      booleanValue: null,
+      numberValue: null,
+      photoUrl: null,
+      selectedOption: null,
+      textValue: null,
     );
   }
 

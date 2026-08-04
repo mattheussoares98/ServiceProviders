@@ -7,8 +7,8 @@ class WorkOrderHistoryEntity extends Equatable {
     required this.companyId,
     required this.userId,
     required this.action,
-    this.oldValue,
-    this.newValue,
+    required this.oldValue,
+    required this.newValue,
     required this.createdAt,
   });
 
@@ -23,15 +23,15 @@ class WorkOrderHistoryEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        workOrderId,
-        companyId,
-        userId,
-        action,
-        oldValue,
-        newValue,
-        createdAt,
-      ];
+    id,
+    workOrderId,
+    companyId,
+    userId,
+    action,
+    oldValue,
+    newValue,
+    createdAt,
+  ];
 
   WorkOrderHistoryEntity copyWith({
     String? id,

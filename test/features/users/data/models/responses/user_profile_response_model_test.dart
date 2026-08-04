@@ -25,6 +25,10 @@ void main() {
               updateScope: WorkOrderUpdateScope.own,
               delete: false,
               changeStatus: true,
+              approveCompletion: null,
+              approvePause: null,
+              deleteObservation: null,
+              reassign: null,
             ),
           ),
         );

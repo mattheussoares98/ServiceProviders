@@ -85,6 +85,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         configurations: const ConfigurationsEntity(
           pushNotificationsEnabled: true,
           themeMode: 'system',
+          systemNotificationsEnabled: true,
         ),
         status: StateStatus.loaded,
       ),

@@ -10,15 +10,15 @@ class AttachmentEntity extends Equatable {
     required this.uploadedById,
     required this.fileName,
     required this.fileType,
-    this.localPath,
-    this.remoteUrl,
-    this.fileSizeBytes,
+    required this.localPath,
+    required this.remoteUrl,
+    required this.fileSizeBytes,
     required this.isCompressed,
     required this.uploadStatus,
     required this.createdAt,
-    this.deletedAt,
-    this.originalPath,
-    this.lastAccessedAt,
+    required this.deletedAt,
+    required this.originalPath,
+    required this.lastAccessedAt,
   });
 
   final String id;
@@ -95,8 +95,12 @@ class AttachmentEntity extends Equatable {
       uploadStatus: uploadStatus ?? this.uploadStatus,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
-      originalPath: annulOriginalPath == true ? null : originalPath ?? this.originalPath,
-      lastAccessedAt: annulLastAccessedAt == true ? null : lastAccessedAt ?? this.lastAccessedAt,
+      originalPath: annulOriginalPath == true
+          ? null
+          : originalPath ?? this.originalPath,
+      lastAccessedAt: annulLastAccessedAt == true
+          ? null
+          : lastAccessedAt ?? this.lastAccessedAt,
     );
   }
 }

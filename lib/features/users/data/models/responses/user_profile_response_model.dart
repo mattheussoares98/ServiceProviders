@@ -280,6 +280,7 @@ class UserProfileResponseModel extends UserProfileEntity
           reassign: reassign,
           approvePause: approvePause,
           approveCompletion: approveCompletion,
+          deleteObservation: null,
         );
       }
     }

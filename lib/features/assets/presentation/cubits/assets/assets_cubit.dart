@@ -90,6 +90,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       notes: notes?.trimToNull(),
       createdAt: createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
 
     final result = isUpdate

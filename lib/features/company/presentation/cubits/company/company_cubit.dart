@@ -46,6 +46,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       isActive: true,
       createdAt: now,
       updatedAt: now,
+      deletedAt: null,
+      logoUrl: null,
     );
 
     final dataState = await _useCases.createCompany(company);

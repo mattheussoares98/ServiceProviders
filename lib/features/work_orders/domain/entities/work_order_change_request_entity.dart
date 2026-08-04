@@ -11,11 +11,11 @@ class WorkOrderChangeRequestEntity extends Equatable {
     required this.changeType,
     required this.changeData,
     required this.status,
-    this.reviewedById,
-    this.rejectionReason,
+    required this.reviewedById,
+    required this.rejectionReason,
     required this.createdAt,
     required this.updatedAt,
-    this.deletedAt,
+    required this.deletedAt,
   });
 
   final String id;

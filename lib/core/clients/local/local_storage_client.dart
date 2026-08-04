@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 abstract interface class LocalStorageClient {
@@ -72,6 +73,13 @@ final class LocalStorageClientImpl implements LocalStorageClient {
               isAdmin: false,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
+              avatarUrl: null,
+              deletedAt: null,
+              permissionGroupId: null,
+              permissions: const {},
+              phone: null,
+              workOrdersPermissionOverrides:
+                  const UserWorkOrdersPermissionOverrideEntity.empty(),
             );
 
       _userSession = UserDataEntity(

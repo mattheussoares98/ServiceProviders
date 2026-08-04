@@ -82,6 +82,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       name: name.trim(),
       createdAt: existingSector?.createdAt ?? now,
       updatedAt: now,
+      deletedAt: null,
     );
 
     final result = isUpdate

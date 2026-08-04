@@ -8,11 +8,12 @@ class ConfigurationsState extends BaseState {
   });
 
   const ConfigurationsState.initial()
-      : configurations = const ConfigurationsEntity(
-          pushNotificationsEnabled: true,
-          themeMode: 'system',
-        ),
-        super(status: StateStatus.initial, errorMessage: '');
+    : configurations = const ConfigurationsEntity(
+        pushNotificationsEnabled: true,
+        themeMode: 'system',
+        systemNotificationsEnabled: true,
+      ),
+      super(status: StateStatus.initial, errorMessage: '');
 
   final ConfigurationsEntity configurations;
 
