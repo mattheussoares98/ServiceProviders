@@ -42,16 +42,20 @@ class BaseListTile extends StatelessWidget {
     );
 
     if (PlatformUtil.isCupertino) {
-      Widget tile = CupertinoListTile(
-        trailing: trailing,
-        padding: padding,
-        title: BaseText(title),
-        leading: leadingWidget,
-        subtitle: subtitle != null
-            ? BaseText(subtitle!, maxLines: subtitleMaxLines)
-            : null,
-        onTap: onTap,
-        backgroundColor: Colors.transparent,
+      Widget tile = LayoutBuilder(
+        builder: (context, constraints) {
+          return CupertinoListTile(
+            trailing: constraints.maxWidth > 150 ? trailing : null,
+            padding: padding,
+            title: BaseText(title),
+            leading: constraints.maxWidth > 150 ? leadingWidget : null,
+            subtitle: subtitle != null
+                ? BaseText(subtitle!, maxLines: subtitleMaxLines)
+                : null,
+            onTap: onTap,
+            backgroundColor: Colors.transparent,
+          );
+        },
       );
       if (tileColor != null || borderRadius != null) {
         tile = Container(
