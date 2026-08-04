@@ -57,9 +57,10 @@ final class SlaRepositoryImpl implements SlaRepository {
         remoteCallback: () => _remoteDataSource.createSlaPolicy(
           SlaPolicyModel.fromEntity(policy),
         ),
-        localCallback: () => _localDataSource.saveSlaPolicy(
-          SlaPolicyModel.fromEntity(policy),
-        ),
+        localCallback: () =>
+            _localDataSource.saveSlaPolicy(SlaPolicyModel.fromEntity(policy)),
+        onRemoteSuccess: (_) =>
+            _localDataSource.saveSlaPolicy(SlaPolicyModel.fromEntity(policy)),
       );
 
   @override
@@ -69,9 +70,10 @@ final class SlaRepositoryImpl implements SlaRepository {
         remoteCallback: () => _remoteDataSource.updateSlaPolicy(
           SlaPolicyModel.fromEntity(policy),
         ),
-        localCallback: () => _localDataSource.saveSlaPolicy(
-          SlaPolicyModel.fromEntity(policy),
-        ),
+        localCallback: () =>
+            _localDataSource.saveSlaPolicy(SlaPolicyModel.fromEntity(policy)),
+        onRemoteSuccess: (_) =>
+            _localDataSource.saveSlaPolicy(SlaPolicyModel.fromEntity(policy)),
       );
 
   @override

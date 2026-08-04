@@ -133,10 +133,14 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, true);
         verify(
-          () => mockRemoteDataSource.createSlaPolicy(tSlaPolicyModel),
+          () => mockRemoteDataSource.createSlaPolicy(
+            SlaPolicyModel.fromEntity(tSlaPolicyEntity),
+          ),
         ).called(1);
         verify(
-          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+          () => mockLocalDataSource.saveSlaPolicy(
+            SlaPolicyModel.fromEntity(tSlaPolicyEntity),
+          ),
         ).called(1);
       },
     );
@@ -156,6 +160,114 @@ void main() {
         verifyNever(() => mockRemoteDataSource.createSlaPolicy(any()));
         verify(
           () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+      },
+    );
+  });
+
+  group('updateSlaPolicy', () {
+    test(
+      'should update policy remotely and locally when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.updateSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.saveSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateSlaPolicy(tSlaPolicyEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.updateSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should update policy locally only when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateSlaPolicy(tSlaPolicyEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verifyNever(() => mockRemoteDataSource.updateSlaPolicy(any()));
+        verify(
+          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
+      },
+    );
+  });
+
+  group('deleteSlaPolicy', () {
+    test(
+      'should delete policy remotely and locally when internet is connected and remote succeeds',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+        when(
+          () => mockLocalDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteSlaPolicy(tSlaPolicyEntity.id);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.deleteSlaPolicy(tSlaPolicyEntity.id),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyEntity.id),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return failure and not delete locally when remote fails',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Failed to delete'));
+
+        final result = await repository.deleteSlaPolicy(tSlaPolicyEntity.id);
+
+        expect(result, isA<FailureState<bool>>());
+        verify(
+          () => mockRemoteDataSource.deleteSlaPolicy(tSlaPolicyEntity.id),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.deleteSlaPolicy(any()));
+      },
+    );
+
+    test(
+      'should delete policy locally only when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteSlaPolicy(tSlaPolicyEntity.id);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verifyNever(() => mockRemoteDataSource.deleteSlaPolicy(any()));
+        verify(
+          () => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyEntity.id),
         ).called(1);
       },
     );
