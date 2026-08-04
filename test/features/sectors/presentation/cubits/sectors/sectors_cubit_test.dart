@@ -1,20 +1,24 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
+
+class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockGetSectorsUseCase extends Mock implements GetSectorsUseCase {}
 
@@ -27,18 +31,22 @@ class MockDeleteSectorUseCase extends Mock implements DeleteSectorUseCase {}
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSectorsUseCase mockGetSectors;
   late MockCreateSectorUseCase mockCreateSector;
   late MockUpdateSectorUseCase mockUpdateSector;
   late MockDeleteSectorUseCase mockDeleteSector;
   late MockNavigationClient mockNavigationClient;
+  late UserProfileEntity tUserProfile;
   late SectorsCubit cubit;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeSectorEntity());
+    registerFallbackValue(CreateUpdateSectorRoute());
   });
 
   setUp(() {
+    mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetSectors = MockGetSectorsUseCase();
     mockCreateSector = MockCreateSectorUseCase();
     mockUpdateSector = MockUpdateSectorUseCase();
@@ -47,11 +55,15 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
+    tUserProfile = EntityFactory.makeUserProfileEntity();
+    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+
     final useCases = SectorsCubitUseCases(
       getSectors: mockGetSectors,
       createSector: mockCreateSector,
       updateSector: mockUpdateSector,
       deleteSector: mockDeleteSector,
+      getSessionUser: mockGetSessionUser,
     );
 
     cubit = SectorsCubit(useCases: useCases);
@@ -60,7 +72,6 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('SectorsCubit Tests', () {
-    final tCompanyId = faker.guid.guid();
     final tSector = EntityFactory.makeSectorEntity();
     final tSectors = EntityFactory.makeSectorEntityList();
 
@@ -73,7 +84,7 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: tSectors));
           return cubit;
         },
-        act: (cubit) => cubit.loadSectors(tCompanyId),
+        act: (cubit) => cubit.loadSectors(),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -85,7 +96,7 @@ void main() {
               .having((s) => s.sectors, 'sectors', isNotEmpty),
         ],
         verify: (_) {
-          verify(() => mockGetSectors.call(tCompanyId)).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -97,7 +108,7 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Error'));
           return cubit;
         },
-        act: (cubit) => cubit.loadSectors(tCompanyId),
+        act: (cubit) => cubit.loadSectors(),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -156,7 +167,7 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
           return cubit;
         },
-        act: (cubit) => cubit.saveSector(tSector),
+        act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -175,12 +186,13 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockCreateSector.call(tSector)).called(1);
+          verify(() => mockCreateSector.call(any())).called(1);
         },
       );
 
       blocTest<SectorsCubit, SectorsState>(
         'should emit saving and loaded when updating sector succeeds',
+        seed: () => SectorsState(sectors: [tSector]),
         build: () {
           when(
             () => mockUpdateSector.call(any()),
@@ -190,7 +202,7 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
           return cubit;
         },
-        act: (cubit) => cubit.saveSector(tSector, isUpdate: true),
+        act: (cubit) => cubit.saveSector(id: tSector.id, name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -202,14 +214,9 @@ void main() {
             'status',
             StateStatus.loaded,
           ),
-          isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
         ],
         verify: (_) {
-          verify(() => mockUpdateSector.call(tSector)).called(1);
+          verify(() => mockUpdateSector.call(any())).called(1);
         },
       );
 
@@ -221,7 +228,7 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Save failed'));
           return cubit;
         },
-        act: (cubit) => cubit.saveSector(tSector),
+        act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -247,7 +254,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteSector(tSector.id, tCompanyId),
+        act: (cubit) => cubit.deleteSector(tSector.id),
         expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
@@ -259,6 +266,29 @@ void main() {
             'status',
             StateStatus.loaded,
           ),
+        ],
+        verify: (_) {
+          verify(() => mockDeleteSector.call(tSector.id)).called(1);
+        },
+      );
+    });
+
+    group('navigateToCreateUpdateSector', () {
+      blocTest<SectorsCubit, SectorsState>(
+        'should push route with sector and reload sectors on completion',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateSectorRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          when(
+            () => mockGetSectors.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateSector(sector: tSector),
+        expect: () => [
           isA<SectorsState>().having(
             (s) => s.status,
             'status',
@@ -266,7 +296,43 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockDeleteSector.call(tSector.id)).called(1);
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateSectorRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
+        },
+      );
+
+      blocTest<SectorsCubit, SectorsState>(
+        'should push route without sector and reload sectors on completion',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateSectorRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          when(
+            () => mockGetSectors.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateSector(),
+        expect: () => [
+          isA<SectorsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateSectorRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
     });

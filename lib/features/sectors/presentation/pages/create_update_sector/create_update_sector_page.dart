@@ -1,22 +1,26 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
-import 'package:uuid/uuid.dart';
 
 @RoutePage()
 class CreateUpdateSectorPage extends HookWidget {
@@ -37,19 +41,9 @@ class CreateUpdateSectorPage extends HookWidget {
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
-      final companyId = context.read<SessionCubit>().state.user.companyId;
-      final now = DateTime.now();
-      final newOrUpdatedSector = SectorEntity(
-        id: sector?.id ?? const Uuid().v4(),
-        companyId: companyId,
-        name: nameController.text.trim(),
-        createdAt: sector?.createdAt ?? now,
-        updatedAt: now,
-      );
-
       final success = await context.read<SectorsCubit>().saveSector(
-        newOrUpdatedSector,
-        isUpdate: sector != null,
+        id: sector?.id,
+        name: nameController.text,
       );
 
       if (success && context.mounted) {
@@ -58,51 +52,80 @@ class CreateUpdateSectorPage extends HookWidget {
     }
 
     final isEditing = sector != null;
-
+    //TODO test this page
     return BaseScaffold(
       appBar: BaseAppBar(
         title: isEditing
             ? 'Editando setor'.hardcoded
             : 'Criando setor'.hardcoded,
+        actions: [
+          if (sector != null)
+            BaseIconButton(
+              onPressed: () {
+                showAlertDialog(
+                  context: context,
+                  title: 'Atenção!'.hardcoded,
+                  contentText:
+                      'Deseja realmente excluir o setor "${sector!.name}"?'
+                          .hardcoded,
+                  defaultActionText: 'Sim'.hardcoded,
+                  cancelActionText: 'Não'.hardcoded,
+                  onOkPressed: () =>
+                      context.read<SectorsCubit>().deleteSector(sector!.id),
+                );
+              },
+              permission: const ActionPermission.resource(
+                resource: ResourceType.sectors,
+                action: PermissionAction.delete,
+              ),
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.delete,
+                cupertinoIcon: CupertinoIcons.delete,
+                color: Colors.red,
+              ),
+            ),
+        ],
       ),
       body: Form(
         key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              BaseTextFormField(
-                labelText: 'Nome do Setor *'.hardcoded,
-                hintText: 'Ex: Manutenção'.hardcoded,
-                controller: nameController,
-                validator: FormValidators.compose([NonEmptyValidator()]),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => submit(),
-              ),
-              gapH24,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: BaseTextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      text: 'Cancelar'.hardcoded,
-                      color: Colors.red,
-                    ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            BaseTextFormField(
+              labelText: 'Nome do setor *'.hardcoded,
+              hintText: 'Ex: manutenção'.hardcoded,
+              controller: nameController,
+              validator: FormValidators.compose([
+                NonEmptyValidator(),
+                MinLengthValidator(3),
+              ]),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => submit(),
+            ),
+            gapH24,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: BaseTextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    text: 'Cancelar'.hardcoded,
+                    color: Colors.red,
                   ),
-                  Expanded(
-                    child: BaseButton(
-                      onTap: submit,
-                      width: Sizes.p120,
-                      text: 'Salvar'.hardcoded,
-                    ),
+                ),
+                gapW12,
+                Expanded(
+                  child: BaseButton(
+                    onTap: submit,
+                    width: Sizes.p120,
+                    text: 'Salvar'.hardcoded,
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

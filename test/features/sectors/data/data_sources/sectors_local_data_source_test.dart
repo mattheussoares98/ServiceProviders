@@ -23,7 +23,9 @@ void main() {
   });
 
   Future<void> insertCompany(String companyId) async {
-    await database.into(database.companies).insert(
+    await database
+        .into(database.companies)
+        .insert(
           CompaniesCompanion.insert(
             id: companyId,
             name: faker.company.name(),
@@ -79,11 +81,37 @@ void main() {
         expect(list.first.id, tSectorModel.id);
       });
 
-      test('should return empty list if no sectors exist for company', () async {
-        final result = await dataSource.getSectors('non-existent-company');
+      test(
+        'should return empty list if no sectors exist for company',
+        () async {
+          final result = await dataSource.getSectors('non-existent-company');
 
-        expect(result, isA<SuccessState<List<SectorResponseModel>>>());
-        expect((result as SuccessState<List<SectorResponseModel>>).data, isEmpty);
+          expect(result, isA<SuccessState<List<SectorResponseModel>>>());
+          expect(
+            (result as SuccessState<List<SectorResponseModel>>).data,
+            isEmpty,
+          );
+        },
+      );
+    });
+
+    group('deleteSector', () {
+      test('should mark sector as deleted successfully', () async {
+        await insertCompany(tSectorModel.companyId);
+        await dataSource.saveSector(tSectorModel);
+
+        final result = await dataSource.deleteSector(tSectorModel.id);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+
+        final remainingSectors = await dataSource.getSectors(
+          tSectorModel.companyId,
+        );
+        expect(
+          (remainingSectors as SuccessState<List<SectorResponseModel>>).data,
+          isEmpty,
+        );
       });
     });
   });

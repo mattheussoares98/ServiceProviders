@@ -4,7 +4,9 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/repositories/sectors_repository.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -14,6 +16,8 @@ void main() {
   late MockSectorsRepository mockRepository;
   late GetSectorsUseCase getSectorsUseCase;
   late CreateSectorUseCase createSectorUseCase;
+  late UpdateSectorUseCase updateSectorUseCase;
+  late DeleteSectorUseCase deleteSectorUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeSectorEntity());
@@ -23,6 +27,12 @@ void main() {
     mockRepository = MockSectorsRepository();
     getSectorsUseCase = GetSectorsUseCase(sectorsRepository: mockRepository);
     createSectorUseCase = CreateSectorUseCase(
+      sectorsRepository: mockRepository,
+    );
+    updateSectorUseCase = UpdateSectorUseCase(
+      sectorsRepository: mockRepository,
+    );
+    deleteSectorUseCase = DeleteSectorUseCase(
       sectorsRepository: mockRepository,
     );
   });
@@ -90,6 +100,68 @@ void main() {
       expect(result, isA<FailureState<bool>>());
       expect((result as FailureState<bool>).message, tError);
       verify(() => mockRepository.createSector(tSector)).called(1);
+    });
+  });
+
+  group('UpdateSectorUseCase Tests', () {
+    test('should call updateSector on repository with sector entity', () async {
+      final tSector = EntityFactory.makeSectorEntity();
+
+      when(
+        () => mockRepository.updateSector(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await updateSectorUseCase(tSector);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect((result as SuccessState<bool>).data, isTrue);
+      verify(() => mockRepository.updateSector(tSector)).called(1);
+    });
+
+    test('should return FailureState when update fails', () async {
+      final tSector = EntityFactory.makeSectorEntity();
+      const tError = 'Error updating sector';
+
+      when(
+        () => mockRepository.updateSector(any()),
+      ).thenAnswer((_) async => FailureState(message: tError));
+
+      final result = await updateSectorUseCase(tSector);
+
+      expect(result, isA<FailureState<bool>>());
+      expect((result as FailureState<bool>).message, tError);
+      verify(() => mockRepository.updateSector(tSector)).called(1);
+    });
+  });
+
+  group('DeleteSectorUseCase Tests', () {
+    test('should call deleteSector on repository with sector id', () async {
+      final tSectorId = EntityFactory.makeSectorEntity().id;
+
+      when(
+        () => mockRepository.deleteSector(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await deleteSectorUseCase(tSectorId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect((result as SuccessState<bool>).data, isTrue);
+      verify(() => mockRepository.deleteSector(tSectorId)).called(1);
+    });
+
+    test('should return FailureState when deletion fails', () async {
+      final tSectorId = EntityFactory.makeSectorEntity().id;
+      const tError = 'Error deleting sector';
+
+      when(
+        () => mockRepository.deleteSector(any()),
+      ).thenAnswer((_) async => FailureState(message: tError));
+
+      final result = await deleteSectorUseCase(tSectorId);
+
+      expect(result, isA<FailureState<bool>>());
+      expect((result as FailureState<bool>).message, tError);
+      verify(() => mockRepository.deleteSector(tSectorId)).called(1);
     });
   });
 }

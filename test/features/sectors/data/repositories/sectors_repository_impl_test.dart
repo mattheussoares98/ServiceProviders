@@ -85,5 +85,110 @@ void main() {
       );
       verify(() => mockLocalDataSource.getSectors(tSector.companyId)).called(1);
     });
+
+    group('updateSector', () {
+      final tSector = EntityFactory.makeSectorEntity();
+      final tModel = SectorResponseModel.fromEntity(tSector);
+
+      test(
+        'calls remote update and saves locally when connected and remote succeeds',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateSector(any()),
+          ).thenAnswer((_) async => SuccessState(data: tModel));
+          when(
+            () => mockLocalDataSource.saveSector(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.updateSector(tSector);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect((result as SuccessState<bool>).data, isTrue);
+          verify(() => mockRemoteDataSource.updateSector(any())).called(1);
+          verify(() => mockLocalDataSource.saveSector(tModel)).called(1);
+        },
+      );
+
+      test(
+        'returns FailureState when connected but remote update fails',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateSector(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
+
+          final result = await repository.updateSector(tSector);
+
+          expect(result, isA<FailureState<bool>>());
+          expect((result as FailureState<bool>).message, 'Error');
+        },
+      );
+
+      test('calls local save when disconnected', () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.saveSector(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.updateSector(tSector);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockLocalDataSource.saveSector(any())).called(1);
+      });
+    });
+
+    group('deleteSector', () {
+      final tSectorId = EntityFactory.makeSectorEntity().id;
+
+      test(
+        'calls remote delete and deletes locally when connected and remote succeeds',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteSector(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(
+            () => mockLocalDataSource.deleteSector(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.deleteSector(tSectorId);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect((result as SuccessState<bool>).data, isTrue);
+          verify(() => mockRemoteDataSource.deleteSector(tSectorId)).called(1);
+          verify(() => mockLocalDataSource.deleteSector(tSectorId)).called(1);
+        },
+      );
+
+      test(
+        'returns FailureState when connected but remote delete fails',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.deleteSector(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
+
+          final result = await repository.deleteSector(tSectorId);
+
+          expect(result, isA<FailureState<bool>>());
+          expect((result as FailureState<bool>).message, 'Error');
+        },
+      );
+
+      test('calls local delete when disconnected', () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.deleteSector(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.deleteSector(tSectorId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockLocalDataSource.deleteSector(tSectorId)).called(1);
+      });
+    });
   });
 }

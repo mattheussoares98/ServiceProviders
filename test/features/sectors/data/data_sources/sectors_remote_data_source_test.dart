@@ -66,5 +66,86 @@ void main() {
         tSectorModel.id,
       );
     });
+
+    group('updateSector', () {
+      test('returns SuccessState when update succeeds', () async {
+        final tSectorModel = SectorResponseModel.fromEntity(
+          EntityFactory.makeSectorEntity(),
+        );
+        final jsonList = [tSectorModel.toJson()];
+
+        when(
+          () => mockDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => jsonList);
+
+        final result = await dataSource.updateSector(tSectorModel);
+
+        expect(result, isA<SuccessState<SectorResponseModel>>());
+        expect(
+          (result as SuccessState<SectorResponseModel>).data?.id,
+          tSectorModel.id,
+        );
+      });
+
+      test('returns FailureState when update fails', () async {
+        final tSectorModel = SectorResponseModel.fromEntity(
+          EntityFactory.makeSectorEntity(),
+        );
+
+        when(
+          () => mockDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('Update error'));
+
+        final result = await dataSource.updateSector(tSectorModel);
+
+        expect(result, isA<FailureState<SectorResponseModel>>());
+      });
+    });
+
+    group('deleteSector', () {
+      test('returns SuccessState when delete succeeds', () async {
+        final tSectorModel = SectorResponseModel.fromEntity(
+          EntityFactory.makeSectorEntity(),
+        );
+
+        when(
+          () => mockDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tSectorModel.toJson()]);
+
+        final result = await dataSource.deleteSector(tSectorModel.id);
+
+        expect(result, isA<SuccessState<void>>());
+      });
+
+      test('returns FailureState when delete fails', () async {
+        final tSectorModel = SectorResponseModel.fromEntity(
+          EntityFactory.makeSectorEntity(),
+        );
+
+        when(
+          () => mockDatabaseClient.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('Delete error'));
+
+        final result = await dataSource.deleteSector(tSectorModel.id);
+
+        expect(result, isA<FailureState<void>>());
+      });
+    });
   });
 }

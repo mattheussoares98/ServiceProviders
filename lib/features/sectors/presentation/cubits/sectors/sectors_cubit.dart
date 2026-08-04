@@ -3,19 +3,23 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:uuid/uuid.dart';
 
 part 'sectors_state.dart';
 
 @injectable
 class SectorsCubit extends BaseCubit<SectorsState> {
   SectorsCubit({required SectorsCubitUseCases useCases})
-      : _useCases = useCases,
-        super(const SectorsState.initial());
+    : _useCases = useCases,
+      super(const SectorsState.initial());
 
   final SectorsCubitUseCases _useCases;
 
-  Future<void> loadSectors(String companyId, {bool emitLoading = true}) async {
+  Future<void> loadSectors({bool emitLoading = true}) async {
+    final companyId = _useCases.getSessionUser().companyId;
+
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
@@ -32,8 +36,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
         ),
       );
     } else {
-      final message =
-          result.message ?? 'Erro ao carregar setores'.hardcoded;
+      final message = result.message ?? 'Erro ao carregar setores'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
@@ -47,9 +50,10 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       return;
     }
 
-    final sector = state.sectors
-        .cast<SectorEntity?>()
-        .firstWhere((e) => e?.id == id, orElse: () => null);
+    final sector = state.sectors.cast<SectorEntity?>().firstWhere(
+      (e) => e?.id == id,
+      orElse: () => null,
+    );
 
     if (sector != null) {
       emit(state.copyWith(selectedSector: sector));
@@ -58,8 +62,27 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     }
   }
 
-  Future<bool> saveSector(SectorEntity sector, {bool isUpdate = false}) async {
+  Future<bool> saveSector({String? id, required String name}) async {
     emit(state.copyWith(status: StateStatus.saving));
+
+    final isUpdate = id != null;
+    final now = DateTime.now();
+    final companyId = _useCases.getSessionUser().companyId;
+
+    final existingSector = isUpdate
+        ? state.sectors.cast<SectorEntity?>().firstWhere(
+            (e) => e?.id == id,
+            orElse: () => null,
+          )
+        : null;
+
+    final sector = SectorEntity(
+      id: id ?? const Uuid().v4(),
+      companyId: companyId,
+      name: name.trim(),
+      createdAt: existingSector?.createdAt ?? now,
+      updatedAt: now,
+    );
 
     final result = isUpdate
         ? await _useCases.updateSector(sector)
@@ -68,11 +91,10 @@ class SectorsCubit extends BaseCubit<SectorsState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
-      await loadSectors(sector.companyId, emitLoading: false);
+      await loadSectors(emitLoading: false);
       return true;
     } else {
-      final message =
-          result.message ?? 'Erro ao salvar setor'.hardcoded;
+      final message = result.message ?? 'Erro ao salvar setor'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
       );
@@ -81,7 +103,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     }
   }
 
-  Future<bool> deleteSector(String id, String companyId) async {
+  Future<bool> deleteSector(String id) async {
     emit(state.copyWith(status: StateStatus.deleting));
 
     final result = await _useCases.deleteSector(id);
@@ -89,16 +111,20 @@ class SectorsCubit extends BaseCubit<SectorsState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
-      await loadSectors(companyId, emitLoading: false);
+      await loadSectors(emitLoading: false);
       return true;
     } else {
-      final message =
-          result.message ?? 'Erro ao excluir setor'.hardcoded;
+      final message = result.message ?? 'Erro ao excluir setor'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
     }
+  }
+
+  Future<void> navigateToCreateUpdateSector({SectorEntity? sector}) async {
+    await pushRoute(CreateUpdateSectorRoute(sector: sector));
+    await loadSectors(emitLoading: false);
   }
 }
