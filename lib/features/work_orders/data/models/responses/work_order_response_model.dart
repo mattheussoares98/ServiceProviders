@@ -38,6 +38,7 @@ class WorkOrderResponseModel extends WorkOrderEntity
     super.attachments,
     super.serviceProviderCompanyId,
     super.providerProfileId,
+    super.slaPolicyId,
     super.openedBy,
     super.completionReason,
     super.completionResponsibility,
@@ -73,6 +74,7 @@ class WorkOrderResponseModel extends WorkOrderEntity
         attachments: entity.attachments,
         serviceProviderCompanyId: entity.serviceProviderCompanyId,
         providerProfileId: entity.providerProfileId,
+        slaPolicyId: entity.slaPolicyId,
         openedBy: entity.openedBy,
         completionReason: entity.completionReason,
         completionResponsibility: entity.completionResponsibility,
@@ -126,6 +128,7 @@ class WorkOrderResponseModel extends WorkOrderEntity
         serviceProviderCompanyId:
             json['service_provider_company_id'] as String?,
         providerProfileId: json['provider_profile_id'] as String?,
+        slaPolicyId: json['sla_policy_id'] as String?,
         openedBy:
             AppMode.fromName(json['opened_by'] as String?) ?? AppMode.internal,
         completionReason: json['completion_reason'] as String?,
@@ -165,6 +168,7 @@ class WorkOrderResponseModel extends WorkOrderEntity
     'deleted_at': deletedAt?.toUtc().toIso8601String(),
     'service_provider_company_id': serviceProviderCompanyId,
     'provider_profile_id': providerProfileId,
+    'sla_policy_id': slaPolicyId,
     'opened_by': openedBy.name,
     'completion_reason': completionReason,
     'completion_responsibility': completionResponsibility?.value,
@@ -200,10 +204,10 @@ class WorkOrderResponseModel extends WorkOrderEntity
     attachments: attachments,
     serviceProviderCompanyId: serviceProviderCompanyId,
     providerProfileId: providerProfileId,
+    slaPolicyId: slaPolicyId,
     openedBy: openedBy,
     completionReason: completionReason,
     completionResponsibility: completionResponsibility,
     completionSectorId: completionSectorId,
   );
 }
-

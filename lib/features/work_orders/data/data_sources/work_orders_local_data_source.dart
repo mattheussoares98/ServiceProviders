@@ -199,6 +199,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           updatedAt: order.updatedAt,
           deletedAt: order.deletedAt,
           attachments: attachmentsByWorkOrder[order.id] ?? const [],
+          slaPolicyId: order.slaPolicyId,
           completionReason: order.completionReason,
           completionResponsibility: order.completionResponsibility != null
               ? PauseResponsibility.fromValue(order.completionResponsibility!)
@@ -282,6 +283,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         updatedAt: order.updatedAt,
         deletedAt: order.deletedAt,
         attachments: attachments,
+        slaPolicyId: order.slaPolicyId,
         completionReason: order.completionReason,
         completionResponsibility: order.completionResponsibility != null
             ? PauseResponsibility.fromValue(order.completionResponsibility!)
@@ -324,6 +326,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               createdAt: Value(workOrder.createdAt),
               updatedAt: Value(workOrder.updatedAt),
               deletedAt: Value(workOrder.deletedAt),
+              slaPolicyId: Value(workOrder.slaPolicyId),
               completionReason: Value(workOrder.completionReason),
               completionResponsibility: Value(
                 workOrder.completionResponsibility?.value,
