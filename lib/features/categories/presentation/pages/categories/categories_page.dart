@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
@@ -15,11 +14,11 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
-  //TODO test this page
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -27,7 +26,6 @@ class CategoriesPage extends StatelessWidget {
       isScrollable: false,
       appBar: BaseAppBar(
         title: 'Categorias'.hardcoded,
-        leading: const OpenDrawerIconButton(),
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
@@ -57,36 +55,50 @@ class CategoriesPage extends StatelessWidget {
                 );
               }
 
+              categories.sort(
+                (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+              );
+
               return ResponsiveListFlow(
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
-                  return BaseListTile(
-                    title: category.name,
-                    subtitle: category.description,
-                    platformIcon: const PlatformIcon(
-                      materialIcon: Icons.list,
-                      cupertinoIcon: CupertinoIcons.list_bullet,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        BaseIconButton(
-                          permission: const ActionPermission.resource(
-                            resource: ResourceType.categories,
-                            action: PermissionAction.update,
-                          ),
-                          onPressed: () => context
-                              .read<CategoriesCubit>()
-                              .navigateToCreateUpdateCategory(
-                                category: category,
-                              ),
-                          platformIcon: const PlatformIcon(
-                            materialIcon: Icons.edit_outlined,
-                            cupertinoIcon: CupertinoIcons.pencil,
-                          ),
+                  return Card(
+                    clipBehavior: .hardEdge,
+                    child: InkWell(
+                      onTap: () => context
+                          .read<CategoriesCubit>()
+                          .navigateToCreateUpdateCategory(category: category),
+                      child: BaseListTile(
+                        title: category.name,
+                        subtitle: category.description,
+                        subtitleMaxLines: 5,
+                        padding: const EdgeInsets.all(Sizes.p8),
+                        platformIcon: const PlatformIcon(
+                          materialIcon: Icons.list,
+                          cupertinoIcon: CupertinoIcons.list_bullet,
                         ),
-                      ],
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            BaseIconButton(
+                              permission: const ActionPermission.resource(
+                                resource: ResourceType.categories,
+                                action: PermissionAction.update,
+                              ),
+                              onPressed: () => context
+                                  .read<CategoriesCubit>()
+                                  .navigateToCreateUpdateCategory(
+                                    category: category,
+                                  ),
+                              platformIcon: const PlatformIcon(
+                                materialIcon: Icons.edit_outlined,
+                                cupertinoIcon: CupertinoIcons.pencil,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },

@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
@@ -27,7 +26,6 @@ class SectorsPage extends StatelessWidget {
       isScrollable: false,
       appBar: BaseAppBar(
         title: 'Setores'.hardcoded,
-        leading: const OpenDrawerIconButton(),
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
@@ -53,45 +51,45 @@ class SectorsPage extends StatelessWidget {
             );
           }
 
+          sectors.sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+          );
+
           return ResponsiveListFlow(
             itemCount: sectors.length,
             itemBuilder: (context, index) {
               final sector = sectors[index];
-              return BaseListTile(
-                platformIcon: const PlatformIcon(
-                  materialIcon: Icons.domain,
-                  cupertinoIcon: CupertinoIcons.building_2_fill,
-                ),
-                title: sector.name,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    BaseIconButton(
-                      permission: const ActionPermission.resource(
-                        resource: ResourceType.sectors,
-                        action: PermissionAction.update,
-                      ),
-                      onPressed: () => context
-                          .read<SectorsCubit>()
-                          .navigateToCreateUpdateSector(sector: sector),
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.edit_outlined,
-                        cupertinoIcon: CupertinoIcons.pencil,
-                      ),
+              return Card(
+                clipBehavior: .hardEdge,
+                child: InkWell(
+                  onTap: () => context
+                      .read<SectorsCubit>()
+                      .navigateToCreateUpdateSector(sector: sector),
+                  child: BaseListTile(
+                    platformIcon: const PlatformIcon(
+                      materialIcon: Icons.category,
+                      cupertinoIcon: CupertinoIcons.square_grid_2x2,
                     ),
-                    BaseIconButton(
-                      permission: const ActionPermission.resource(
-                        resource: ResourceType.sectors,
-                        action: PermissionAction.delete,
-                      ),
-                      onPressed: () =>
-                          context.read<SectorsCubit>().deleteSector(sector.id),
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.delete_outline,
-                        cupertinoIcon: CupertinoIcons.trash,
-                      ),
+                    title: sector.name,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BaseIconButton(
+                          permission: const ActionPermission.resource(
+                            resource: ResourceType.sectors,
+                            action: PermissionAction.update,
+                          ),
+                          onPressed: () => context
+                              .read<SectorsCubit>()
+                              .navigateToCreateUpdateSector(sector: sector),
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.edit_outlined,
+                            cupertinoIcon: CupertinoIcons.pencil,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },

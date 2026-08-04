@@ -47,12 +47,12 @@ class CreateUpdateSectorPage extends HookWidget {
       );
 
       if (success && context.mounted) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop();
       }
     }
 
     final isEditing = sector != null;
-    //TODO test this page
+
     return BaseScaffold(
       appBar: BaseAppBar(
         title: isEditing
@@ -71,6 +71,7 @@ class CreateUpdateSectorPage extends HookWidget {
                   defaultActionText: 'Sim'.hardcoded,
                   cancelActionText: 'Não'.hardcoded,
                   onOkPressed: () =>
+                      //TODO should return a bool value and close the page on success
                       context.read<SectorsCubit>().deleteSector(sector!.id),
                 );
               },
@@ -117,10 +118,18 @@ class CreateUpdateSectorPage extends HookWidget {
                 ),
                 gapW12,
                 Expanded(
-                  child: BaseButton(
-                    onTap: submit,
-                    width: Sizes.p120,
-                    text: 'Salvar'.hardcoded,
+                  child: AnimatedBuilder(
+                    animation: nameController,
+                    builder: (context, child) {
+                      final hasChanged =
+                          nameController.text.trim() !=
+                          (sector?.name.trim() ?? '');
+                      return BaseButton(
+                        onTap: hasChanged ? submit : null,
+                        width: Sizes.p120,
+                        text: 'Salvar'.hardcoded,
+                      );
+                    },
                   ),
                 ),
               ],

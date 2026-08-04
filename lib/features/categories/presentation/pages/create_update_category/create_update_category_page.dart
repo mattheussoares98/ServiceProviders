@@ -27,7 +27,6 @@ class CreateUpdateCategoryPage extends HookWidget {
   const CreateUpdateCategoryPage({super.key, this.category});
 
   final CategoryEntity? category;
-  //TODO test this page
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +54,7 @@ class CreateUpdateCategoryPage extends HookWidget {
       );
 
       if (success && context.mounted) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop();
       }
     }
 
@@ -83,6 +82,7 @@ class CreateUpdateCategoryPage extends HookWidget {
                   defaultActionText: 'Sim'.hardcoded,
                   cancelActionText: 'Não'.hardcoded,
                   onOkPressed: () => context
+                      //TODO should return a bool value and close the page on success
                       .read<CategoriesCubit>()
                       .deleteCategory(category!.id),
                 );
@@ -105,6 +105,7 @@ class CreateUpdateCategoryPage extends HookWidget {
               labelText: 'Nome da categoria *'.hardcoded,
               hintText: 'Ex: elétrica'.hardcoded,
               controller: nameController,
+              maxLength: 100,
               validator: FormValidators.compose([
                 NonEmptyValidator(),
                 MinLengthValidator(3),
@@ -121,6 +122,8 @@ class CreateUpdateCategoryPage extends HookWidget {
               focusNode: descriptionFocusNode,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => submit(),
+              maxLength: 500,
+              maxLines: 10,
             ),
             gapH24,
             Row(
@@ -135,7 +138,24 @@ class CreateUpdateCategoryPage extends HookWidget {
                 ),
                 gapW12,
                 Expanded(
-                  child: BaseButton(onTap: submit, text: 'Salvar'.hardcoded),
+                  child: AnimatedBuilder(
+                    animation: Listenable.merge([
+                      nameController,
+                      descriptionController,
+                    ]),
+                    builder: (context, child) {
+                      final hasChanges =
+                          nameController.text.trim() !=
+                              (category?.name.trim() ?? '') ||
+                          descriptionController.text.trim() !=
+                              (category?.description?.trim() ?? '');
+
+                      return BaseButton(
+                        onTap: hasChanges ? submit : null,
+                        text: 'Salvar'.hardcoded,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

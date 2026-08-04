@@ -15,8 +15,8 @@ class SectorsDrawerItem extends StatelessWidget {
       onTap: context.read<HomeCubit>().navigateToSectors,
       title: 'Setores'.hardcoded,
       platformIcon: const PlatformIcon(
-        materialIcon: Icons.domain,
-        cupertinoIcon: CupertinoIcons.building_2_fill,
+        materialIcon: Icons.category,
+        cupertinoIcon: CupertinoIcons.square_grid_2x2,
       ),
     );
   }
