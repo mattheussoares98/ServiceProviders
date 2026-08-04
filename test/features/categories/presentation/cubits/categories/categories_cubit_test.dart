@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categorie
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -44,6 +45,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCategoryEntity());
+    registerFallbackValue(CreateUpdateCategoryRoute());
   });
 
   setUp(() {
@@ -127,10 +129,18 @@ void main() {
           when(
             () => mockGetSessionUser.call(),
           ).thenReturn(tUserProfile.copyWith(companyId: ''));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error message'));
           return cubit;
         },
         act: (cubit) => cubit.loadCategories(),
         expect: () => [
+          isA<CategoriesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.loadingError)
               .having((s) => s.categories, 'categories', isEmpty),
@@ -251,11 +261,17 @@ void main() {
       );
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit error status when companyId is empty on save',
+        'should emit error status when create returns false on save',
         build: () {
           when(
             () => mockGetSessionUser.call(),
           ).thenReturn(tUserProfile.copyWith(companyId: ''));
+          when(
+            () => mockCreateCategory.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: false));
+          when(
+            () => mockGetCategories.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tCategory]));
           return cubit;
         },
         act: (cubit) async {
@@ -351,6 +367,30 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],
       );
+    });
+
+    group('navigateToCreateUpdateCategory', () {
+      test('should push route and load categories', () async {
+        when(
+          () => mockNavigationClient.pushRoute<CreateUpdateCategoryRouteArgs>(
+            any(),
+          ),
+        ).thenAnswer((_) async {
+          return null;
+        });
+        when(
+          () => mockGetCategories.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tCategory]));
+
+        await cubit.navigateToCreateUpdateCategory(category: tCategory);
+
+        verify(
+          () => mockNavigationClient.pushRoute<CreateUpdateCategoryRouteArgs>(
+            any(),
+          ),
+        ).called(1);
+        verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+      });
     });
   });
 }

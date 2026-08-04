@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -116,5 +117,10 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       );
       showErrorToast(message);
     }
+  }
+
+  Future<void> navigateToCreateUpdateCategory({CategoryEntity? category}) async {
+    await pushRoute(CreateUpdateCategoryRoute(category: category));
+    await loadCategories(emitLoading: false);
   }
 }
