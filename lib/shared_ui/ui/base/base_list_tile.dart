@@ -20,6 +20,7 @@ class BaseListTile extends StatelessWidget {
     this.tileColor,
     this.borderRadius,
     this.trailing,
+    this.subtitleMaxLines,
   });
 
   final String title;
@@ -30,6 +31,7 @@ class BaseListTile extends StatelessWidget {
   final Color? tileColor;
   final BorderRadius? borderRadius;
   final Widget? trailing;
+  final int? subtitleMaxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,9 @@ class BaseListTile extends StatelessWidget {
         padding: padding,
         title: BaseText(title),
         leading: leadingWidget,
-        subtitle: subtitle != null ? BaseText(subtitle!) : null,
+        subtitle: subtitle != null
+            ? BaseText(subtitle!, maxLines: subtitleMaxLines)
+            : null,
         onTap: onTap,
         backgroundColor: Colors.transparent,
       );
