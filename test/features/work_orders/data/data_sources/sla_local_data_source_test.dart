@@ -23,7 +23,9 @@ void main() {
   });
 
   Future<void> insertCompany(String companyId) async {
-    await database.into(database.companies).insert(
+    await database
+        .into(database.companies)
+        .insert(
           CompaniesCompanion.insert(
             id: companyId,
             name: faker.company.name(),
@@ -52,7 +54,9 @@ void main() {
         await insertCompany(tSlaPolicyModel.companyId);
         await dataSource.saveSlaPolicy(tSlaPolicyModel);
 
-        final result = await dataSource.getSlaPolicies(tSlaPolicyModel.companyId);
+        final result = await dataSource.getSlaPolicies(
+          tSlaPolicyModel.companyId,
+        );
 
         expect(result, isA<SuccessState<List<SlaPolicyModel>>>());
         final list = (result as SuccessState<List<SlaPolicyModel>>).data!;
@@ -60,12 +64,17 @@ void main() {
         expect(list.first.id, tSlaPolicyModel.id);
       });
 
-      test('should return empty list if no SLA policies exist for company', () async {
-        final result = await dataSource.getSlaPolicies(tSlaPolicyModel.companyId);
+      test(
+        'should return empty list if no SLA policies exist for company',
+        () async {
+          final result = await dataSource.getSlaPolicies(
+            tSlaPolicyModel.companyId,
+          );
 
-        expect(result, isA<SuccessState<List<SlaPolicyModel>>>());
-        expect((result as SuccessState<List<SlaPolicyModel>>).data, isEmpty);
-      });
+          expect(result, isA<SuccessState<List<SlaPolicyModel>>>());
+          expect((result as SuccessState<List<SlaPolicyModel>>).data, isEmpty);
+        },
+      );
     });
 
     group('getSlaPolicyById', () {
@@ -76,13 +85,36 @@ void main() {
         final result = await dataSource.getSlaPolicyById(tSlaPolicyModel.id);
 
         expect(result, isA<SuccessState<SlaPolicyModel>>());
-        expect((result as SuccessState<SlaPolicyModel>).data!.id, tSlaPolicyModel.id);
+        expect(
+          (result as SuccessState<SlaPolicyModel>).data!.id,
+          tSlaPolicyModel.id,
+        );
       });
 
-      test('should return FailureState when SLA policy does not exist', () async {
-        final result = await dataSource.getSlaPolicyById('non-existent-id');
+      test(
+        'should return FailureState when SLA policy does not exist',
+        () async {
+          final result = await dataSource.getSlaPolicyById('non-existent-id');
 
-        expect(result, isA<FailureState<SlaPolicyModel>>());
+          expect(result, isA<FailureState<SlaPolicyModel>>());
+        },
+      );
+    });
+
+    group('deleteSlaPolicy', () {
+      test('should soft delete SLA policy by updating deletedAt', () async {
+        await insertCompany(tSlaPolicyModel.companyId);
+        await dataSource.saveSlaPolicy(tSlaPolicyModel);
+
+        final deleteResult = await dataSource.deleteSlaPolicy(
+          tSlaPolicyModel.id,
+        );
+
+        expect(deleteResult, isA<SuccessState<bool>>());
+        expect((deleteResult as SuccessState<bool>).data, true);
+
+        final getResult = await dataSource.getSlaPolicyById(tSlaPolicyModel.id);
+        expect(getResult, isA<FailureState<SlaPolicyModel>>());
       });
     });
   });
