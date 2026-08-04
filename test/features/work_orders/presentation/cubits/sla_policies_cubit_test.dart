@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_sla_
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -51,6 +52,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeSlaPolicyEntity());
+    registerFallbackValue(CreateUpdateSlaPolicyRoute());
   });
 
   setUp(() {
@@ -317,6 +319,97 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteSlaPolicy.call(tPolicy.id)).called(1);
+        },
+      );
+    });
+
+    group('navigateToCreateUpdateSlaPolicy', () {
+      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should push route and reload SLA policies when push returns true',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).thenAnswer((_) async => true);
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.navigateToCreateUpdateSlaPolicy(slaPolicy: tPolicy),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).called(1);
+          verify(
+            () => mockGetSlaPolicies.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should push route without slaPolicy parameter and reload SLA policies when push returns true',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).thenAnswer((_) async => true);
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateSlaPolicy(),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<SlaPoliciesState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).called(1);
+          verify(
+            () => mockGetSlaPolicies.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should push route and NOT reload SLA policies when push returns false or null',
+        build: () {
+          when(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToCreateUpdateSlaPolicy(),
+        expect: () => <SlaPoliciesState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
+          ).called(1);
+          verifyNever(() => mockGetSlaPolicies.call(any()));
         },
       );
     });

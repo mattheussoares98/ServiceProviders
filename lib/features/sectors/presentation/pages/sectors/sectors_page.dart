@@ -57,44 +57,41 @@ class SectorsPage extends StatelessWidget {
             itemCount: sectors.length,
             itemBuilder: (context, index) {
               final sector = sectors[index];
-              return Card(
-                child: BaseListTile(
-                  platformIcon: const PlatformIcon(
-                    materialIcon: Icons.domain,
-                    cupertinoIcon: CupertinoIcons.building_2_fill,
-                  ),
-                  title: sector.name,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BaseIconButton(
-                        permission: const ActionPermission.resource(
-                          resource: ResourceType.sectors,
-                          action: PermissionAction.update,
-                        ),
-                        onPressed: () => context
-                            .read<SectorsCubit>()
-                            .navigateToCreateUpdateSector(sector: sector),
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.edit_outlined,
-                          cupertinoIcon: CupertinoIcons.pencil,
-                        ),
+              return BaseListTile(
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.domain,
+                  cupertinoIcon: CupertinoIcons.building_2_fill,
+                ),
+                title: sector.name,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    BaseIconButton(
+                      permission: const ActionPermission.resource(
+                        resource: ResourceType.sectors,
+                        action: PermissionAction.update,
                       ),
-                      BaseIconButton(
-                        permission: const ActionPermission.resource(
-                          resource: ResourceType.sectors,
-                          action: PermissionAction.delete,
-                        ),
-                        onPressed: () => context
-                            .read<SectorsCubit>()
-                            .deleteSector(sector.id),
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.delete_outline,
-                          cupertinoIcon: CupertinoIcons.trash,
-                        ),
+                      onPressed: () => context
+                          .read<SectorsCubit>()
+                          .navigateToCreateUpdateSector(sector: sector),
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.edit_outlined,
+                        cupertinoIcon: CupertinoIcons.pencil,
                       ),
-                    ],
-                  ),
+                    ),
+                    BaseIconButton(
+                      permission: const ActionPermission.resource(
+                        resource: ResourceType.sectors,
+                        action: PermissionAction.delete,
+                      ),
+                      onPressed: () =>
+                          context.read<SectorsCubit>().deleteSector(sector.id),
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.delete_outline,
+                        cupertinoIcon: CupertinoIcons.trash,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },

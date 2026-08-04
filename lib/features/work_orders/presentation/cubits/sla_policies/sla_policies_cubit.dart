@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -120,6 +121,17 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       );
       showErrorToast(message);
       return false;
+    }
+  }
+
+  Future<void> navigateToCreateUpdateSlaPolicy({
+    SlaPolicyEntity? slaPolicy,
+  }) async {
+    final result = await pushRoute<dynamic>(
+      CreateUpdateSlaPolicyRoute(slaPolicy: slaPolicy),
+    );
+    if (result == true) {
+      await loadSlaPolicies();
     }
   }
 }

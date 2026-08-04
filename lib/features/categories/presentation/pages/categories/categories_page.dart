@@ -61,34 +61,32 @@ class CategoriesPage extends StatelessWidget {
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
                   final category = categories[index];
-                  return Card(
-                    child: BaseListTile(
-                      title: category.name,
-                      subtitle: category.description,
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.list,
-                        cupertinoIcon: CupertinoIcons.list_bullet,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          BaseIconButton(
-                            permission: const ActionPermission.resource(
-                              resource: ResourceType.categories,
-                              action: PermissionAction.update,
-                            ),
-                            onPressed: () => context
-                                .read<CategoriesCubit>()
-                                .navigateToCreateUpdateCategory(
-                                  category: category,
-                                ),
-                            platformIcon: const PlatformIcon(
-                              materialIcon: Icons.edit_outlined,
-                              cupertinoIcon: CupertinoIcons.pencil,
-                            ),
+                  return BaseListTile(
+                    title: category.name,
+                    subtitle: category.description,
+                    platformIcon: const PlatformIcon(
+                      materialIcon: Icons.list,
+                      cupertinoIcon: CupertinoIcons.list_bullet,
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BaseIconButton(
+                          permission: const ActionPermission.resource(
+                            resource: ResourceType.categories,
+                            action: PermissionAction.update,
                           ),
-                        ],
-                      ),
+                          onPressed: () => context
+                              .read<CategoriesCubit>()
+                              .navigateToCreateUpdateCategory(
+                                category: category,
+                              ),
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.edit_outlined,
+                            cupertinoIcon: CupertinoIcons.pencil,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },
