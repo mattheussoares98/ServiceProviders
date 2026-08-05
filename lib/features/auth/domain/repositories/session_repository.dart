@@ -7,4 +7,6 @@ abstract interface class SessionRepository {
   Future<void> checkForUserCredential();
   set setUserData(UserDataEntity model);
   Future<void> logout();
+  String? getSelectedMode();
+  String? getSelectedCompanyId();
 }

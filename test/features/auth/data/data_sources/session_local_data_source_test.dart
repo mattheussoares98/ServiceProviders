@@ -94,5 +94,33 @@ void main() {
         verify(() => mockLocalStorageClient.saveSelectedMode(null)).called(1);
       });
     });
+
+    group('getSelectedMode', () {
+      test('should call getSelectedMode on LocalStorageClient', () {
+        // Arrange
+        when(() => mockLocalStorageClient.getSelectedMode()).thenReturn('provider');
+
+        // Act
+        final result = sessionLocalDataSource.getSelectedMode();
+
+        // Assert
+        expect(result, equals('provider'));
+        verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+      });
+    });
+
+    group('getSelectedCompanyId', () {
+      test('should call getSelectedCompanyId on LocalStorageClient', () {
+        // Arrange
+        when(() => mockLocalStorageClient.getSelectedCompanyId()).thenReturn('company_123');
+
+        // Act
+        final result = sessionLocalDataSource.getSelectedCompanyId();
+
+        // Assert
+        expect(result, equals('company_123'));
+        verify(() => mockLocalStorageClient.getSelectedCompanyId()).called(1);
+      });
+    });
   });
 }

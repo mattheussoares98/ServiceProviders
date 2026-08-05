@@ -3,7 +3,6 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 abstract interface class LocalStorageClient {
@@ -13,6 +12,8 @@ abstract interface class LocalStorageClient {
   bool getPushNotifications();
   Future<void> saveSelectedMode(String? mode);
   String? getSelectedMode();
+  Future<void> saveSelectedCompanyId(String companyId);
+  String? getSelectedCompanyId();
   Future<void> saveUserSession(UserDataEntity userSession);
   UserDataEntity? getUserSession();
   Future<void> clearUserSession();
@@ -41,6 +42,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   String _themeMode = 'system';
   bool _pushNotificationsEnabled = true;
   String? _selectedMode;
+  String? _selectedCompanyId;
   UserDataEntity? _userSession;
 
   Future<void> init() async {
@@ -51,6 +53,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
       _themeMode = setting.themeMode;
       _pushNotificationsEnabled = setting.pushNotificationsEnabled;
       _selectedMode = setting.selectedMode;
+      _selectedCompanyId = setting.selectedCompanyId;
     }
 
     final session = await (_database.select(
@@ -76,10 +79,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
               avatarUrl: null,
               deletedAt: null,
               permissionGroupId: null,
-              permissions: const {},
               phone: null,
-              workOrdersPermissionOverrides:
-                  const UserWorkOrdersPermissionOverrideEntity.empty(),
             );
 
       _userSession = UserDataEntity(
@@ -133,6 +133,22 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   String? getSelectedMode() => _selectedMode;
 
   @override
+  Future<void> saveSelectedCompanyId(String companyId) async {
+    _selectedCompanyId = companyId;
+    await _database
+        .into(_database.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion(
+            id: const Value(1),
+            selectedCompanyId: Value(companyId),
+          ),
+        );
+  }
+
+  @override
+  String? getSelectedCompanyId() => _selectedCompanyId;
+
+  @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
     _userSession = userSession;
     await _database.transaction(() async {
@@ -166,6 +182,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
     _themeMode = 'system';
     _pushNotificationsEnabled = false;
     _selectedMode = null;
+    _selectedCompanyId = null;
     _userSession = null;
     await _database.transaction(() async {
       await _database.delete(_database.appSettings).go();

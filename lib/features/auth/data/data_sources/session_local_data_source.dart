@@ -8,6 +8,10 @@ abstract interface class SessionLocalDataSource {
   Future<void> saveUserData(UserDataResponseModel userData);
 
   Future<void> clearSelectedMode();
+
+  String? getSelectedMode();
+
+  String? getSelectedCompanyId();
 }
 
 @LazySingleton(as: SessionLocalDataSource)
@@ -33,5 +37,11 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   Future<void> clearSelectedMode() async {
     await _localStorageClient.saveSelectedMode(null);
   }
+
+  @override
+  String? getSelectedMode() => _localStorageClient.getSelectedMode();
+
+  @override
+  String? getSelectedCompanyId() => _localStorageClient.getSelectedCompanyId();
 }
 

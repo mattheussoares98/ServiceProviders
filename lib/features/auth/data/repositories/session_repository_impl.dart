@@ -71,4 +71,10 @@ final class SessionRepositoryImpl implements SessionRepository {
     await _localDataSource.clearSelectedMode();
     await _auth.logout();
   }
+
+  @override
+  String? getSelectedMode() => _localDataSource.getSelectedMode();
+
+  @override
+  String? getSelectedCompanyId() => _localDataSource.getSelectedCompanyId();
 }

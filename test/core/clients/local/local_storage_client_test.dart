@@ -83,6 +83,35 @@ void main() {
     });
   });
 
+  group('LocalStorageClientImpl — Selected Company ID', () {
+    test('getSelectedCompanyId defaults to null', () {
+      expect(localStorageClient.getSelectedCompanyId(), isNull);
+    });
+
+    test('saveSelectedCompanyId persists value and updates cache', () async {
+      final companyId = faker.guid.guid();
+      await localStorageClient.saveSelectedCompanyId(companyId);
+
+      expect(localStorageClient.getSelectedCompanyId(), companyId);
+
+      // Check database
+      final dbValue = await (database.select(
+        database.appSettings,
+      )..where((t) => t.id.equals(1))).getSingleOrNull();
+      expect(dbValue?.selectedCompanyId, companyId);
+    });
+
+    test('init restores selectedCompanyId from database', () async {
+      final companyId = faker.guid.guid();
+      await localStorageClient.saveSelectedCompanyId(companyId);
+
+      final secondClient = LocalStorageClientImpl(database: database);
+      await secondClient.init();
+
+      expect(secondClient.getSelectedCompanyId(), companyId);
+    });
+  });
+
   group('LocalStorageClientImpl — User Session', () {
     test('getUserSession returns null initially', () {
       expect(localStorageClient.getUserSession(), isNull);
@@ -229,12 +258,14 @@ void main() {
 
       await localStorageClient.saveThemeMode('dark');
       await localStorageClient.saveSelectedMode('provider');
+      await localStorageClient.saveSelectedCompanyId(faker.guid.guid());
       await localStorageClient.saveUserSession(userSession);
 
       await localStorageClient.clearAll();
 
       expect(localStorageClient.getThemeMode(), 'system');
       expect(localStorageClient.getSelectedMode(), isNull);
+      expect(localStorageClient.getSelectedCompanyId(), isNull);
       expect(localStorageClient.getUserSession(), isNull);
 
       final dbSettings = await database.select(database.appSettings).get();

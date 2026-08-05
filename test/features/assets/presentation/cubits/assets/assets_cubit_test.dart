@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_c
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/get_categories_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
@@ -42,6 +43,9 @@ class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
 
 class MockGetCategoriesUseCase extends Mock implements GetCategoriesUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -52,6 +56,7 @@ void main() {
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
   late MockNavigationClient mockNavigationClient;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
 
   late AssetsCubit cubit;
   late UserProfileEntity tUserProfile;
@@ -69,6 +74,7 @@ void main() {
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -82,6 +88,7 @@ void main() {
       createAsset: mockCreateAsset,
       updateAsset: mockUpdateAsset,
       deleteAsset: mockDeleteAsset,
+      getActiveCompanyId: mockGetActiveCompanyId,
     );
 
     cubit = AssetsCubit(useCases: useCases);

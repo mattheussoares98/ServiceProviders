@@ -20,13 +20,13 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   final AssetsCubitUseCases _useCases;
 
   Future<void> loadAssets({bool emitLoading = true}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getAssets(user.companyId);
+    final result = await _useCases.getAssets(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<AssetEntity>>) {
@@ -69,7 +69,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
     final isUpdate = id != null;
     final now = DateTime.now();
-    final companyId = _useCases.getSessionUser().companyId;
+    final companyId = _useCases.getActiveCompanyId();
 
     final asset = AssetEntity(
       id: id ?? const Uuid().v4(),
