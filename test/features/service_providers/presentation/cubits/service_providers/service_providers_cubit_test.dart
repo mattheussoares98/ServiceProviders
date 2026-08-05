@@ -322,6 +322,93 @@ void main() {
       );
     });
 
+    group('ensureProfilesLoaded', () {
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'should fetch and store profiles when not yet cached',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.ensureProfilesLoaded(companyId),
+        expect: () => [
+          isA<ServiceProvidersState>()
+              .having(
+                (s) => s.profiles.containsKey(companyId),
+                'profiles contains companyId',
+                isTrue,
+              )
+              .having(
+                (s) => s.profiles[companyId]?.length,
+                'profiles count',
+                1,
+              ),
+        ],
+        verify: (_) {
+          verify(() => mockGetProfiles.call(companyId)).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'should not call getProfiles when profiles are already cached',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          return cubit;
+        },
+        seed: () => const ServiceProvidersState.initial().copyWith(
+          profiles: {
+            companyId: [EntityFactory.makeServiceProviderProfileEntity()],
+          },
+        ),
+        act: (cubit) => cubit.ensureProfilesLoaded(companyId),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verifyNever(() => mockGetProfiles.call(any()));
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'should not emit any state when getProfiles fails',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => FailureState(message: faker.lorem.sentence()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.ensureProfilesLoaded(companyId),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verify(() => mockGetProfiles.call(companyId)).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'should not affect selectedCompanyId, selectedProfileId or invitations',
+        build: () {
+          when(() => mockGetProfiles.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [EntityFactory.makeServiceProviderProfileEntity()],
+            ),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.ensureProfilesLoaded(companyId),
+        expect: () => [
+          isA<ServiceProvidersState>()
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', isNull)
+              .having((s) => s.selectedProfileId, 'selectedProfileId', isNull)
+              .having((s) => s.invitations, 'invitations', isEmpty),
+        ],
+      );
+    });
+
     group('saveCompany', () {
       final user = EntityFactory.makeUserProfileEntity();
       final name = faker.company.name();

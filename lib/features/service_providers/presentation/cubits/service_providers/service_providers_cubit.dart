@@ -157,6 +157,22 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     }
   }
 
+  /// Loads profiles for [companyId] only if they are not already cached.
+  /// Does not affect selection state or invitations — safe to call for read-only display.
+  Future<void> ensureProfilesLoaded(String companyId) async {
+    if (state.profiles.containsKey(companyId)) return;
+
+    final result = await _useCases.getProfiles.call(companyId);
+    if (isClosed) return;
+
+    if (result is SuccessState<List<ServiceProviderProfileEntity>>) {
+      final updatedProfiles =
+          Map<String, List<ServiceProviderProfileEntity>>.from(state.profiles);
+      updatedProfiles[companyId] = result.data ?? [];
+      emit(state.copyWith(profiles: updatedProfiles));
+    }
+  }
+
   Future<bool> saveCompany({
     required String name,
     required String document,
