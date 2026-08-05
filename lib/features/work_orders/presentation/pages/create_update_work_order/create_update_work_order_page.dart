@@ -76,10 +76,6 @@ class CreateUpdateWorkOrderPage extends HookWidget {
             ),
             BlocProvider(
               create: (context) =>
-                  GetIt.I<ServiceProvidersCubit>()..loadCompanies(),
-            ),
-            BlocProvider(
-              create: (context) =>
                   GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
             ),
           ],
