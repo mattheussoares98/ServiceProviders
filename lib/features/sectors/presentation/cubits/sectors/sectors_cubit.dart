@@ -18,7 +18,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   final SectorsCubitUseCases _useCases;
 
   Future<void> loadSectors({bool emitLoading = true}) async {
-    final companyId = _useCases.getSessionUser().companyId;
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -67,7 +67,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
 
     final isUpdate = id != null;
     final now = DateTime.now();
-    final companyId = _useCases.getSessionUser().companyId;
+    final companyId = _useCases.getActiveCompanyId();
 
     final existingSector = isUpdate
         ? state.sectors.cast<SectorEntity?>().firstWhere(

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/invite_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
@@ -17,6 +18,9 @@ import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockInviteUserUseCase extends Mock implements InviteUserUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -24,8 +28,10 @@ void main() {
   late MockInviteUserUseCase mockInviteUserUseCase;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late MockNavigationClient mockNavigationClient;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late String email;
   late String groupId;
+  late String companyId;
 
   setUpAll(() {
     registerFallbackValue(
@@ -37,13 +43,15 @@ void main() {
     mockInviteUserUseCase = MockInviteUserUseCase();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     email = faker.internet.email();
     groupId = faker.guid.guid();
+    companyId = faker.guid.guid();
 
     final useCases = InviteUserCubitUseCases(
-      getSessionUser: mockGetSessionUserUseCase,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
       inviteUser: mockInviteUserUseCase,
     );
     cubit = InviteUserCubit(useCases: useCases);
@@ -59,13 +67,12 @@ void main() {
       'emits [loading, loaded] on successful invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(
-            companyId: 'company-id-123',
-          ),
+          EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
         );
         when(
           () => mockInviteUserUseCase(any()),
         ).thenAnswer((_) async => SuccessState.nil);
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn(companyId);
         return cubit;
       },
       act: (c) async =>
@@ -74,7 +81,7 @@ void main() {
         () => mockInviteUserUseCase(
           InviteUserParams(
             email: email,
-            companyId: 'company-id-123',
+            companyId: companyId,
             groupId: groupId,
           ),
         ),
@@ -97,13 +104,13 @@ void main() {
       'emits [loading, loaded] with errorMessage on failed invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(
-            companyId: 'company-id-123',
-          ),
+          EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
         );
         when(() => mockInviteUserUseCase(any())).thenAnswer(
           (_) async => FailureState(message: 'Error sending invite'),
         );
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn(companyId);
+
         return cubit;
       },
       act: (c) async =>
@@ -112,7 +119,7 @@ void main() {
         () => mockInviteUserUseCase(
           InviteUserParams(
             email: email,
-            companyId: 'company-id-123',
+            companyId: companyId,
             groupId: groupId,
           ),
         ),
@@ -140,6 +147,8 @@ void main() {
         when(
           () => mockInviteUserUseCase(any()),
         ).thenAnswer((_) async => FailureState(message: 'Error'));
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
+
         return cubit;
       },
       act: (c) async =>

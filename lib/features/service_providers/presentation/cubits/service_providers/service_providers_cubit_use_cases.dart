@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
@@ -22,7 +22,7 @@ class ServiceProvidersCubitUseCases {
     required this.updateCompany,
     required this.createProfile,
     required this.updateProfile,
-    required this.getSessionUser,
+    required this.getActiveCompanyId,
   });
 
   final GetServiceProviderCompaniesUseCase getCompanies;
@@ -34,5 +34,5 @@ class ServiceProvidersCubitUseCases {
   final UpdateServiceProviderCompanyUseCase updateCompany;
   final CreateServiceProviderProfileUseCase createProfile;
   final UpdateServiceProviderProfileUseCase updateProfile;
-  final GetSessionUserUseCase getSessionUser;
+  final GetActiveCompanyIdUseCase getActiveCompanyId;
 }

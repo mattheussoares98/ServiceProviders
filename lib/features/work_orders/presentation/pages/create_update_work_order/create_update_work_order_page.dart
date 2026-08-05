@@ -68,7 +68,6 @@ class CreateUpdateWorkOrderPage extends HookWidget {
 
     return Builder(
       builder: (context) {
-        final sessionUser = context.read<SessionCubit>().state.user;
         return MultiBlocProvider(
           providers: [
             BlocProvider(
@@ -77,8 +76,7 @@ class CreateUpdateWorkOrderPage extends HookWidget {
             ),
             BlocProvider(
               create: (context) =>
-                  GetIt.I<ServiceProvidersCubit>()
-                    ..loadCompanies(sessionUser.companyId),
+                  GetIt.I<ServiceProvidersCubit>()..loadCompanies(),
             ),
             BlocProvider(
               create: (context) =>

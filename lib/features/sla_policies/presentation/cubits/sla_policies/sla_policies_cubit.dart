@@ -19,13 +19,13 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   final SlaPoliciesCubitUseCases _useCases;
 
   Future<void> loadSlaPolicies({bool emitLoading = true}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getSlaPolicies(user.companyId);
+    final result = await _useCases.getSlaPolicies(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<SlaPolicyEntity>>) {
@@ -72,12 +72,12 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     DateTime? createdAt,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
     final now = DateTime.now();
     final isEditing = id != null;
     final policy = SlaPolicyEntity(
       id: id ?? const Uuid().v4(),
-      companyId: user.companyId,
+      companyId: companyId,
       name: name,
       targetHours: targetHours,
       appliesTo: appliesTo,

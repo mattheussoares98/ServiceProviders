@@ -25,13 +25,13 @@ class UsersCubit extends BaseCubit<UsersState> {
   // ============================================
 
   Future<void> loadUsers({bool emitLoading = true}) async {
-    final sessionUser = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getUsers(sessionUser.companyId);
+    final result = await _useCases.getUsers(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<UserProfileEntity>>) {
@@ -52,13 +52,13 @@ class UsersCubit extends BaseCubit<UsersState> {
   }
 
   Future<void> loadPermissionGroups({bool emitLoading = true}) async {
-    final sessionUser = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getPermissionGroups(sessionUser.companyId);
+    final result = await _useCases.getPermissionGroups(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<PermissionGroupEntity>>) {
@@ -80,13 +80,13 @@ class UsersCubit extends BaseCubit<UsersState> {
   }
 
   Future<void> loadInvitations({bool emitLoading = true}) async {
-    final sessionUser = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getPendingInvitations(sessionUser.companyId);
+    final result = await _useCases.getPendingInvitations(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<UserInvitationEntity>>) {

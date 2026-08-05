@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -24,6 +25,9 @@ class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 void main() {
   setUpAll(() {
     registerFallbackValue(CreateUpdateWorkOrderRoute());
@@ -34,6 +38,7 @@ void main() {
   late MockGetWorkOrdersUseCase mockGetWorkOrdersUseCase;
   late MockGetAssetsUseCase mockGetAssetsUseCase;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockNavigationClient mockNavigationClient;
 
   late DashboardCubitUseCases useCases;
@@ -43,14 +48,18 @@ void main() {
     mockGetWorkOrdersUseCase = MockGetWorkOrdersUseCase();
     mockGetAssetsUseCase = MockGetAssetsUseCase();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('company_id');
 
     useCases = DashboardCubitUseCases(
       getWorkOrders: mockGetWorkOrdersUseCase,
       getAssets: mockGetAssetsUseCase,
       getSessionUser: mockGetSessionUserUseCase,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
 
     cubit = DashboardCubit(useCases: useCases);
@@ -71,6 +80,7 @@ void main() {
         when(
           () => mockGetSessionUserUseCase.call(),
         ).thenReturn(UserProfileEntity.empty());
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -97,6 +107,9 @@ void main() {
           companyId: '',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(profile);
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(profile.companyId);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -126,6 +139,9 @@ void main() {
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userData.user.companyId);
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
         return cubit;
       },
@@ -153,6 +169,9 @@ void main() {
           () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => FailureState(message: 'Error assets'));
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userData.user.companyId);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -197,14 +216,15 @@ void main() {
         );
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
-        when(
-          () => mockGetWorkOrdersUseCase.call(any()),
-        ).thenAnswer(
+        when(() => mockGetWorkOrdersUseCase.call(any())).thenAnswer(
           (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
         );
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => SuccessState(data: [asset1, asset2, asset3]));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userData.user.companyId);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -258,14 +278,15 @@ void main() {
         );
 
         when(() => mockGetSessionUserUseCase.call()).thenReturn(userData.user);
-        when(
-          () => mockGetWorkOrdersUseCase.call(any()),
-        ).thenAnswer(
+        when(() => mockGetWorkOrdersUseCase.call(any())).thenAnswer(
           (_) async => SuccessState(data: [workOrder1, workOrder2, workOrder3]),
         );
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userData.user.companyId);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),
@@ -321,6 +342,9 @@ void main() {
         when(
           () => mockGetAssetsUseCase.call(userData.user.companyId),
         ).thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userData.user.companyId);
         return cubit;
       },
       act: (cubit) => cubit.loadDashboardData(),

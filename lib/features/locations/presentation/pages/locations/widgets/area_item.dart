@@ -34,7 +34,6 @@ class AreaItem extends StatelessWidget {
             onPressed: () {
               context.read<LocationsCubit>().navigateToCreateUpdateArea(
                 locationId: location.id,
-                companyId: location.companyId,
                 area: area,
               );
             },

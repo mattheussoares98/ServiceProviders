@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
@@ -12,6 +11,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachm
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -34,8 +34,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-
-class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockGetWorkOrdersUseCase extends Mock implements GetWorkOrdersUseCase {}
 
@@ -71,13 +69,16 @@ class MockDeleteAttachmentUseCase extends Mock
 class MockCreateAttachmentUseCase extends Mock
     implements CreateAttachmentUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetWorkOrdersUseCase mockGetWorkOrders;
   late MockCreateWorkOrderUseCase mockCreateWorkOrder;
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
@@ -113,7 +114,7 @@ void main() {
   });
 
   setUp(() {
-    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetWorkOrders = MockGetWorkOrdersUseCase();
     mockCreateWorkOrder = MockCreateWorkOrderUseCase();
     mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
@@ -132,7 +133,9 @@ void main() {
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
 
-    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+    when(
+      () => mockGetActiveCompanyId.call(),
+    ).thenReturn(tUserProfile.companyId);
     when(
       () => mockGetAttachments(any()),
     ).thenAnswer((_) async => const SuccessState(data: []));
@@ -144,7 +147,7 @@ void main() {
     ).thenAnswer((_) async => const SuccessState(data: true));
 
     final useCases = WorkOrdersCubitUseCases(
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyId,
       getWorkOrders: mockGetWorkOrders,
       createWorkOrder: mockCreateWorkOrder,
       updateWorkOrder: mockUpdateWorkOrder,

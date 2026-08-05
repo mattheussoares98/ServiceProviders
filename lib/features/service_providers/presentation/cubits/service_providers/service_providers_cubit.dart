@@ -22,8 +22,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
   final ServiceProvidersCubitUseCases _useCases;
 
-  Future<void> loadCompanies(
-    String companyId, {
+  Future<void> loadCompanies({
     bool forceRefresh = false,
     bool emitLoading = true,
   }) async {
@@ -33,6 +32,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
 
+    final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.getCompanies.call(companyId);
     //TODO should reload the pending invites for the selected company when it is forcing refresh
     if (isClosed) return;
@@ -161,23 +161,26 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required String name,
     required String document,
     required DocumentType documentType,
-    String? companyId,
+    String? serviceProviderCompanyId,
     String? contactEmail,
     String? contactPhone,
     bool sendInvite = false,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final user = _useCases.getSessionUser();
+    final activeCompanyId = _useCases.getActiveCompanyId();
     final now = DateTime.now();
 
-    final isUpdate = companyId != null && companyId.isNotEmpty;
+    final isUpdate =
+        serviceProviderCompanyId != null && serviceProviderCompanyId.isNotEmpty;
     final existingCompany = isUpdate
-        ? state.companies.firstWhereOrNull((c) => c.id == companyId)
+        ? state.companies.firstWhereOrNull(
+            (c) => c.id == serviceProviderCompanyId,
+          )
         : null;
 
     final company = ServiceProviderCompanyEntity(
-      id: companyId ?? const Uuid().v4(),
-      companyId: user.companyId,
+      id: serviceProviderCompanyId ?? const Uuid().v4(),
+      companyId: activeCompanyId,
       name: name,
       contactEmail: contactEmail,
       contactPhone: contactPhone,
@@ -213,11 +216,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         await _useCases.getInvitations.call(company.id);
       }
 
-      await loadCompanies(
-        company.companyId,
-        forceRefresh: true,
-        emitLoading: false,
-      );
+      await loadCompanies(forceRefresh: true, emitLoading: false);
 
       if (sentInvitation is FailureState) {
         emit(

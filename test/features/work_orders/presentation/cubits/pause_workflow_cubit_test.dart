@@ -98,7 +98,6 @@ void main() {
     when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
 
     final useCases = PauseWorkflowCubitUseCases(
-      getSessionUser: mockGetSessionUser,
       requestPause: mockRequestPause,
       cancelPause: mockCancelPause,
       reviewPause: mockReviewPause,
@@ -297,7 +296,6 @@ void main() {
       );
     });
 
-
     group('cancelPause', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving, loaded, loading, loaded when cancel succeeds',
@@ -458,7 +456,6 @@ void main() {
         ],
       );
     });
-
 
     group('reviewCompletion', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(

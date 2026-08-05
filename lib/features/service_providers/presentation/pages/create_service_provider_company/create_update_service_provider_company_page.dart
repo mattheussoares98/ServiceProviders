@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/docume
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -41,14 +40,10 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sessionCompanyId = context.select(
-      (SessionCubit c) => c.state.user.companyId,
-    );
-
     final effectiveCubit = cubit ?? GetIt.I<ServiceProvidersCubit>();
 
     return BlocProvider.value(
-      value: effectiveCubit..loadCompanies(sessionCompanyId),
+      value: effectiveCubit..loadCompanies(),
       child: _CreateServiceProviderCompanyView(
         serviceProviderCompanyId: serviceProviderCompanyId,
       ),
@@ -163,7 +158,7 @@ class _CreateServiceProviderCompanyView extends HookWidget {
       if (context.mounted) {
         final cubit = context.read<ServiceProvidersCubit>();
         final success = await cubit.saveCompany(
-          companyId: serviceProviderCompanyId,
+          serviceProviderCompanyId: serviceProviderCompanyId,
           name: name,
           contactEmail: contactEmail,
           contactPhone: contactPhone,

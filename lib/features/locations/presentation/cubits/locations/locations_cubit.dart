@@ -19,13 +19,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   final LocationsCubitUseCases _useCases;
 
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
 
     final results = await Future.wait([
-      _useCases.getLocations(user.companyId),
-      _useCases.getAreas(user.companyId),
+      _useCases.getLocations(companyId),
+      _useCases.getAreas(companyId),
     ]);
 
     if (isClosed) return;
@@ -68,7 +68,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
-  Future<void> loadAreas(String companyId) async {
+  Future<void> loadAreas() async {
+    final companyId = _useCases.getActiveCompanyId();
     final dataState = await _useCases.getAreas(companyId);
     if (isClosed) return;
 
@@ -86,7 +87,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   Future<bool> saveLocation({
     required String? id,
-    required String companyId,
     required String name,
     String? postalCode,
     String? address,
@@ -98,7 +98,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     DateTime? createdAt,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
-
+    final companyId = _useCases.getActiveCompanyId.call();
     final isUpdate = id != null;
     final now = DateTime.now();
 
@@ -166,14 +166,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   Future<bool> saveArea({
     required String? id,
     required String locationId,
-    required String companyId,
     required String name,
     String? floor,
     String? description,
     DateTime? createdAt,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
-
+    final companyId = _useCases.getActiveCompanyId.call();
     final isUpdate = id != null;
     final now = DateTime.now();
 
@@ -197,8 +196,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
-      final user = _useCases.getSessionUser();
-      await loadAreas(user.companyId);
+      await loadAreas();
       return true;
     } else {
       emit(
@@ -218,8 +216,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      final user = _useCases.getSessionUser();
-      await loadAreas(user.companyId);
+      await loadAreas();
       if (isClosed) return false;
       emit(state.copyWith(status: StateStatus.loaded));
 
@@ -238,13 +235,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   Future<void> navigateToCreateUpdateArea({
     required String locationId,
-    required String companyId,
     AreaEntity? area,
   }) async {
     await pushRoute(
       CreateUpdateAreaRoute(
         locationId: locationId,
-        companyId: companyId,
+        companyId: _useCases.getActiveCompanyId.call(),
         area: area,
       ),
     );

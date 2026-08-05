@@ -26,7 +26,8 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     emit(state.copyWith(status: StateStatus.loading, annulErrorMessage: true));
 
     final user = _useCases.getSessionUser.call();
-    if (user.id.isEmpty || user.companyId.isEmpty) {
+    final companyId = _useCases.getActiveCompanyId.call();
+    if (user.id.isEmpty || companyId.isEmpty) {
       emit(
         state.copyWith(
           status: StateStatus.loadingError,
@@ -35,8 +36,6 @@ class DashboardCubit extends BaseCubit<DashboardState> {
       );
       return;
     }
-
-    final companyId = user.companyId;
 
     // Run work orders and assets calls concurrently
     final results = await Future.wait([

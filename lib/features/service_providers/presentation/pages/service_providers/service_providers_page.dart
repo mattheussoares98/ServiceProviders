@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/se
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/edit_service_provider_company_button.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/service_providers_invitations_items.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -29,29 +28,22 @@ class ServiceProvidersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final companyId = context.select(
-      (SessionCubit cubit) => cubit.state.user.companyId,
-    );
-
     return BlocProvider(
       create: (context) =>
-          GetIt.I<ServiceProvidersCubit>()..loadCompanies(companyId),
-      child: _ServiceProvidersView(companyId: companyId),
+          GetIt.I<ServiceProvidersCubit>()..loadCompanies(),
+      child: const _ServiceProvidersView(),
     );
   }
 }
 
 class _ServiceProvidersView extends StatelessWidget {
-  const _ServiceProvidersView({required this.companyId});
-
-  final String companyId;
+  const _ServiceProvidersView();
 
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
       isScrollable: false,
       onRefresh: () => context.read<ServiceProvidersCubit>().loadCompanies(
-        companyId,
         forceRefresh: true,
       ),
       appBar: BaseAppBar(

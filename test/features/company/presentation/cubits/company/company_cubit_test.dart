@@ -27,6 +27,7 @@ void main() {
   late MockNavigationClient mockNavigationClient;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late MockGetCompanyUseCase mockGetCompanyUseCase;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late CompanyCubit companyCubit;
   late UserProfileEntity userSession;
 
@@ -39,6 +40,7 @@ void main() {
     mockNavigationClient = MockNavigationClient();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
     mockGetCompanyUseCase = MockGetCompanyUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
     userSession = EntityFactory.makeUserProfileEntity().copyWith(isAdmin: true);
 
@@ -61,6 +63,7 @@ void main() {
         createCompany: mockCreateCompanyUseCase,
         getSessionUser: mockGetSessionUserUseCase,
         getCompany: mockGetCompanyUseCase,
+        getActiveCompanyId: mockGetActiveCompanyIdUseCase,
       ),
     );
   });
@@ -166,6 +169,9 @@ void main() {
         when(
           () => mockGetCompanyUseCase.call(any()),
         ).thenAnswer((_) async => SuccessState(data: company));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userSession.companyId);
         return companyCubit;
       },
       act: (cubit) => cubit.loadCompany(),
@@ -187,6 +193,9 @@ void main() {
         when(() => mockGetCompanyUseCase.call(any())).thenAnswer(
           (_) async => FailureState<CompanyEntity>(message: 'Load failed'),
         );
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userSession.companyId);
         return companyCubit;
       },
       act: (cubit) => cubit.loadCompany(),
@@ -214,10 +223,16 @@ void main() {
         when(
           () => mockGetSessionUserUseCase.call(),
         ).thenAnswer((_) => userSession);
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
         return companyCubit;
       },
       act: (cubit) => cubit.loadCompany(),
       expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loading,
+        ),
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
@@ -237,6 +252,9 @@ void main() {
         when(
           () => mockGetCompanyUseCase.call(any(), forceRefresh: true),
         ).thenAnswer((_) async => const SuccessState(data: null));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(userSession.companyId);
         return companyCubit;
       },
       act: (cubit) => cubit.loadCompany(forceRefresh: true),

@@ -77,11 +77,12 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     await _useCases.pruneSandbox();
     
     final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.pickAttachment(
       PickAttachmentParams(
         source: source,
         workOrderId: _workOrderId,
-        companyId: user.companyId,
+        companyId: companyId,
         userId: user.id,
         onFilesPicked: (count) {
           emit(state.copyWith(processingCount: count));

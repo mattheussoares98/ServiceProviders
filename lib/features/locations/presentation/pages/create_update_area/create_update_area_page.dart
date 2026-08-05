@@ -50,7 +50,6 @@ class CreateUpdateAreaPage extends HookWidget {
       final succeeds = await context.read<LocationsCubit>().saveArea(
         id: area?.id,
         locationId: locationId,
-        companyId: companyId,
         name: nameController.text,
         floor: floorController.text,
         description: descController.text,

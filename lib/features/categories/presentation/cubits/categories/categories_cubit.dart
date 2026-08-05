@@ -18,13 +18,13 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
   final CategoriesCubitUseCases _useCases;
 
   Future<void> loadCategories({bool emitLoading = true}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }
 
-    final result = await _useCases.getCategories(user.companyId);
+    final result = await _useCases.getCategories(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<CategoryEntity>>) {
@@ -55,7 +55,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
 
     final isUpdate = id != null;
     final now = DateTime.now();
-    final companyId = _useCases.getSessionUser().companyId;
+    final companyId = _useCases.getActiveCompanyId();
 
     final category = CategoryEntity(
       id: id ?? const Uuid().v4(),

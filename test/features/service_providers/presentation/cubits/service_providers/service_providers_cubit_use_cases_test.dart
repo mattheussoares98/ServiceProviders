@@ -12,6 +12,8 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/updat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 
+import '../../../../categories/presentation/cubits/categories/categories_cubit_test.dart';
+
 class MockGetServiceProviderCompaniesUseCase extends Mock
     implements GetServiceProviderCompaniesUseCase {}
 
@@ -51,7 +53,7 @@ void main() {
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
   late MockUpdateServiceProviderProfileUseCase mockUpdateProfile;
-  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late ServiceProvidersCubitUseCases useCases;
 
   setUp(() {
@@ -64,7 +66,7 @@ void main() {
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
     mockUpdateProfile = MockUpdateServiceProviderProfileUseCase();
-    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
     useCases = ServiceProvidersCubitUseCases(
       getCompanies: mockGetCompanies,
@@ -76,7 +78,7 @@ void main() {
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
       updateProfile: mockUpdateProfile,
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
   });
 
@@ -90,6 +92,6 @@ void main() {
     expect(useCases.updateCompany, equals(mockUpdateCompany));
     expect(useCases.createProfile, equals(mockCreateProfile));
     expect(useCases.updateProfile, equals(mockUpdateProfile));
-    expect(useCases.getSessionUser, equals(mockGetSessionUser));
+    expect(useCases.getActiveCompanyId, equals(mockGetActiveCompanyIdUseCase));
   });
 }

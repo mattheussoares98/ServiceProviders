@@ -38,7 +38,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final activeFilter = filter ?? state.activeFilter;
 
     emit(state.copyWith(activeFilter: activeFilter));
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     if (showLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -46,9 +46,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
     final results = await Future.wait([
       _useCases.getWorkOrders(
-        GetWorkOrdersParams(companyId: user.companyId, filter: activeFilter),
+        GetWorkOrdersParams(companyId: companyId, filter: activeFilter),
       ),
-      _useCases.getChangeRequests(user.companyId),
+      _useCases.getChangeRequests(companyId),
     ]);
     if (isClosed) return;
 
@@ -93,13 +93,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     // isLoadingMore prevents duplicate concurrent requests for the same page
     // when multiple scroll trigger events fire within a short timeframe.
     if (!state.hasMorePages || state.isLoadingMore) return;
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(isLoadingMore: true));
 
     final dataState = await _useCases.getWorkOrders(
       GetWorkOrdersParams(
-        companyId: user.companyId,
+        companyId: companyId,
         filter: state.activeFilter,
         offset: state.workOrders.length,
       ),
@@ -170,9 +170,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final isUpdate = id != null && state.workOrders.any((e) => e.id == id);
+    final isUpdate = id != null;
     final now = DateTime.now();
-    final companyId = _useCases.getSessionUser().companyId;
+    final companyId = _useCases.getActiveCompanyId();
 
     final computedStartedAt =
         startedAt ?? (status == WorkOrderStatus.inProgress ? now : null);

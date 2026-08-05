@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -39,6 +40,9 @@ class MockOpenAttachmentUseCase extends Mock implements OpenAttachmentUseCase {}
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 class MockGetVideoThumbnailUseCase extends Mock
     implements GetVideoThumbnailUseCase {}
 
@@ -57,6 +61,7 @@ void main() {
   late MockDeleteAttachmentUseCase mockDeleteAttachment;
   late MockOpenAttachmentUseCase mockOpenAttachment;
   late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetVideoThumbnailUseCase mockGetVideoThumbnail;
   late MockPruneSandboxUseCase mockPruneSandbox;
   late MockGetSandboxSizeUseCase mockGetSandboxSize;
@@ -83,6 +88,7 @@ void main() {
     mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockOpenAttachment = MockOpenAttachmentUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetVideoThumbnail = MockGetVideoThumbnailUseCase();
     mockPruneSandbox = MockPruneSandboxUseCase();
     mockGetSandboxSize = MockGetSandboxSizeUseCase();
@@ -95,6 +101,7 @@ void main() {
     when(
       () => mockTouchLastAccessed(any()),
     ).thenAnswer((_) async => SuccessState.nil);
+    when(() => mockGetActiveCompanyId()).thenReturn('abc');
 
     useCases = AttachmentsCubitUseCases(
       getAttachments: mockGetAttachments,
@@ -103,6 +110,7 @@ void main() {
       deleteAttachment: mockDeleteAttachment,
       openAttachment: mockOpenAttachment,
       getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyId,
       getVideoThumbnail: mockGetVideoThumbnail,
       pruneSandbox: mockPruneSandbox,
       getSandboxSize: mockGetSandboxSize,

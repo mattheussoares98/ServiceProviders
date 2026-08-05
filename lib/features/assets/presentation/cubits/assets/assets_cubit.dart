@@ -22,6 +22,14 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   Future<void> loadAssets({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
 
+    if (companyId.isEmpty) {
+      showErrorToast(
+        'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
+      );
+      emit(state.copyWith(status: StateStatus.loadingError, assets: []));
+      return;
+    }
+
     if (emitLoading) {
       emit(state.copyWith(status: StateStatus.loading));
     }

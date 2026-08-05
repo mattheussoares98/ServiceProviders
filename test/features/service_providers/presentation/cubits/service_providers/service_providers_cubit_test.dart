@@ -4,18 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -24,35 +15,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-
-class MockGetServiceProviderCompaniesUseCase extends Mock
-    implements GetServiceProviderCompaniesUseCase {}
-
-class MockGetServiceProviderProfilesUseCase extends Mock
-    implements GetServiceProviderProfilesUseCase {}
-
-class MockGetServiceProviderInvitationsUseCase extends Mock
-    implements GetServiceProviderInvitationsUseCase {}
-
-class MockSendServiceProviderInvitationUseCase extends Mock
-    implements SendServiceProviderInvitationUseCase {}
-
-class MockDeleteServiceProviderInvitationUseCase extends Mock
-    implements DeleteServiceProviderInvitationUseCase {}
-
-class MockCreateServiceProviderCompanyUseCase extends Mock
-    implements CreateServiceProviderCompanyUseCase {}
-
-class MockUpdateServiceProviderCompanyUseCase extends Mock
-    implements UpdateServiceProviderCompanyUseCase {}
-
-class MockCreateServiceProviderProfileUseCase extends Mock
-    implements CreateServiceProviderProfileUseCase {}
-
-class MockUpdateServiceProviderProfileUseCase extends Mock
-    implements UpdateServiceProviderProfileUseCase {}
-
-class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
@@ -64,10 +27,11 @@ void main() {
   late MockUpdateServiceProviderCompanyUseCase mockUpdateCompany;
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
   late MockUpdateServiceProviderProfileUseCase mockUpdateProfile;
-  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late ServiceProvidersCubitUseCases useCases;
   late ServiceProvidersCubit cubit;
   late MockNavigationClient mockNavigationClient;
+  late String companyId;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -94,8 +58,10 @@ void main() {
     mockUpdateCompany = MockUpdateServiceProviderCompanyUseCase();
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
     mockUpdateProfile = MockUpdateServiceProviderProfileUseCase();
-    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockNavigationClient = MockNavigationClient();
+
+    companyId = faker.guid.guid();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -109,7 +75,7 @@ void main() {
       updateCompany: mockUpdateCompany,
       createProfile: mockCreateProfile,
       updateProfile: mockUpdateProfile,
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
 
     cubit = ServiceProvidersCubit(useCases: useCases);
@@ -131,9 +97,12 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadCompanies(faker.guid.guid()),
+        act: (cubit) => cubit.loadCompanies(),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -154,10 +123,12 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
           return cubit;
         },
-        act: (cubit) =>
-            cubit.loadCompanies(faker.guid.guid(), emitLoading: false),
+        act: (cubit) => cubit.loadCompanies(emitLoading: false),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -176,9 +147,12 @@ void main() {
           when(
             () => mockGetCompanies.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error loading'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadCompanies(faker.guid.guid()),
+        act: (cubit) => cubit.loadCompanies(),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -359,7 +333,6 @@ void main() {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'saveCompany success should create company, call loadCompanies, and return true',
         build: () {
-          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
             () => mockCreateCompany.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -368,6 +341,9 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(user.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
@@ -407,10 +383,12 @@ void main() {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'saveCompany failure should emit savingError state',
         build: () {
-          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(() => mockCreateCompany.call(any())).thenAnswer(
             (_) async => FailureState(message: 'Error saving company'),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(user.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
@@ -448,7 +426,6 @@ void main() {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'saveCompany with sendInvite true and sendInvitation succeeds should call sendInvitation and getInvitations',
         build: () {
-          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
             () => mockCreateCompany.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -463,6 +440,9 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(user.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
@@ -493,7 +473,6 @@ void main() {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'saveCompany with sendInvite true and sendInvitation fails should emit savingError state',
         build: () {
-          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
             () => mockCreateCompany.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -508,6 +487,9 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(user.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
@@ -545,7 +527,6 @@ void main() {
       test(
         'saveCompany with sendInvite true should return true when company is saved even if sendInvitation fails',
         () async {
-          when(() => mockGetSessionUser.call()).thenReturn(user);
           when(
             () => mockCreateCompany.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -560,6 +541,9 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(user.companyId);
 
           final result = await cubit.saveCompany(
             name: name,

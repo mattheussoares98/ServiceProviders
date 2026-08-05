@@ -18,7 +18,7 @@ import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 import '../../../../attachments/presentation/cubits/attachments/attachments_cubit_test.dart'
-    hide MockGetSessionUserUseCase;
+    hide MockGetActiveCompanyIdUseCase, MockGetSessionUserUseCase;
 
 class MockClearLocalAttachmentsUseCase extends Mock
     implements ClearLocalAttachmentsUseCase {}
@@ -32,6 +32,7 @@ void main() {
   late MockNavigationClient mockNavigationClient;
   late HomeCubit homeCubit;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockPickAttachmentUseCase mockpickAttachment;
   late MockUpdateUserAvatarUseCase mockUpdateUserAvatarUseCase;
 
@@ -63,6 +64,7 @@ void main() {
     mockClearLocalAttachmentsUseCase = MockClearLocalAttachmentsUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockpickAttachment = MockPickAttachmentUseCase();
     mockUpdateUserAvatarUseCase = MockUpdateUserAvatarUseCase();
 
@@ -72,11 +74,13 @@ void main() {
     when(
       () => mockClearLocalAttachmentsUseCase(),
     ).thenAnswer((_) async => SuccessState.nil);
+    when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('company_id');
 
     final useCases = HomeCubitUseCases(
       logOut: mockLogOutUseCase,
       clearLocalAttachments: mockClearLocalAttachmentsUseCase,
       getSessionUser: mockGetSessionUserUseCase,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
       pickAttachment: mockpickAttachment,
       updateUserAvatar: mockUpdateUserAvatarUseCase,
     );
@@ -167,6 +171,9 @@ void main() {
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenReturn(tUser);
         when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(tUser.companyId);
+        when(
           () => mockpickAttachment.call(
             PickAttachmentParams(
               source: AttachmentSource.gallery,
@@ -231,6 +238,9 @@ void main() {
             ),
           ),
         ).thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(tUser.companyId);
         return homeCubit;
       },
       act: (cubit) => cubit.changeAvatar(AttachmentSource.gallery),
@@ -278,6 +288,9 @@ void main() {
             ),
           ),
         ).thenAnswer((_) async => FailureState(message: 'Upload error'));
+        when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(tUser.companyId);
         return homeCubit;
       },
       act: (cubit) => cubit.changeAvatar(AttachmentSource.gallery),

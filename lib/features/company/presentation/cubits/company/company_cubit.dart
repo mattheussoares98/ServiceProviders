@@ -17,12 +17,12 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   final CompanyCubitUseCases _useCases;
 
   Future<void> loadCompany({bool forceRefresh = false}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(status: StateStatus.loading));
 
     final dataState = await _useCases.getCompany(
-      user.companyId,
+      companyId,
       forceRefresh: forceRefresh,
     );
     if (isClosed) return;

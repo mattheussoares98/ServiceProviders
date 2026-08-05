@@ -3,11 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
-import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
-import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
-import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -17,16 +12,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-
-class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
-
-class MockGetSectorsUseCase extends Mock implements GetSectorsUseCase {}
-
-class MockCreateSectorUseCase extends Mock implements CreateSectorUseCase {}
-
-class MockUpdateSectorUseCase extends Mock implements UpdateSectorUseCase {}
-
-class MockDeleteSectorUseCase extends Mock implements DeleteSectorUseCase {}
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +23,7 @@ void main() {
   late MockUpdateSectorUseCase mockUpdateSector;
   late MockDeleteSectorUseCase mockDeleteSector;
   late MockNavigationClient mockNavigationClient;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late UserProfileEntity tUserProfile;
   late SectorsCubit cubit;
 
@@ -52,6 +39,7 @@ void main() {
     mockUpdateSector = MockUpdateSectorUseCase();
     mockDeleteSector = MockDeleteSectorUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -63,7 +51,7 @@ void main() {
       createSector: mockCreateSector,
       updateSector: mockUpdateSector,
       deleteSector: mockDeleteSector,
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
 
     cubit = SectorsCubit(useCases: useCases);
@@ -82,6 +70,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tSectors));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadSectors(),
@@ -106,6 +97,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadSectors(),
@@ -165,6 +159,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveSector(name: tSector.name),
@@ -200,6 +197,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveSector(id: tSector.id, name: tSector.name),
@@ -226,6 +226,9 @@ void main() {
           when(
             () => mockCreateSector.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Save failed'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.saveSector(name: tSector.name),
@@ -252,6 +255,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.deleteSector(tSector.id),
@@ -285,6 +291,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.navigateToCreateUpdateSector(sector: tSector),
@@ -316,6 +325,9 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tSector]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
         act: (cubit) => cubit.navigateToCreateUpdateSector(),

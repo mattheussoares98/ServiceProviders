@@ -16,14 +16,14 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
   final InviteUserCubitUseCases _useCases;
 
   Future<bool> invite({required String email, required String groupId}) async {
-    final user = _useCases.getSessionUser();
+    final companyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(status: StateStatus.loading));
 
     final dataState = await _useCases.inviteUser(
       InviteUserParams(
         email: email,
-        companyId: user.companyId,
+        companyId: companyId,
         groupId: groupId,
       ),
     );

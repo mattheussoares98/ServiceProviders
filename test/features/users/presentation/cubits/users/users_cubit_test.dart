@@ -4,22 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/create_permission_group_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_permission_group_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_user_profile_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_pending_invitations_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_users_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -28,40 +16,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-
-class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
-
-class MockGetUsersUseCase extends Mock implements GetUsersUseCase {}
-
-class MockGetUserProfileByIdUseCase extends Mock
-    implements GetUserProfileByIdUseCase {}
-
-class MockUpdateUserProfileUseCase extends Mock
-    implements UpdateUserProfileUseCase {}
-
-class MockDeleteUserProfileUseCase extends Mock
-    implements DeleteUserProfileUseCase {}
-
-class MockGetPermissionGroupsUseCase extends Mock
-    implements GetPermissionGroupsUseCase {}
-
-class MockCreatePermissionGroupUseCase extends Mock
-    implements CreatePermissionGroupUseCase {}
-
-class MockUpdatePermissionGroupUseCase extends Mock
-    implements UpdatePermissionGroupUseCase {}
-
-class MockDeletePermissionGroupUseCase extends Mock
-    implements DeletePermissionGroupUseCase {}
-
-class MockGetPendingInvitationsUseCase extends Mock
-    implements GetPendingInvitationsUseCase {}
-
-class MockRevokeInvitationUseCase extends Mock
-    implements RevokeInvitationUseCase {}
-
-class MockResendInvitationUseCase extends Mock
-    implements ResendInvitationUseCase {}
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -79,6 +34,7 @@ void main() {
   late MockRevokeInvitationUseCase mockRevokeInvitation;
   late MockResendInvitationUseCase mockResendInvitation;
   late MockNavigationClient mockNavigationClient;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
 
   late UsersCubit cubit;
   late UserProfileEntity tSessionUser;
@@ -114,6 +70,7 @@ void main() {
     mockRevokeInvitation = MockRevokeInvitationUseCase();
     mockResendInvitation = MockResendInvitationUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -137,6 +94,7 @@ void main() {
       getPendingInvitations: mockGetPendingInvitations,
       revokeInvitation: mockRevokeInvitation,
       resendInvitation: mockResendInvitation,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
 
     cubit = UsersCubit(useCases: useCases);
@@ -153,6 +111,10 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tUsers));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
+
           return cubit;
         },
         act: (cubit) => cubit.loadUsers(),
@@ -181,6 +143,7 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error message'));
+          when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
           return cubit;
         },
         act: (cubit) => cubit.loadUsers(),
@@ -200,6 +163,9 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error message'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadUsers(),
@@ -224,6 +190,9 @@ void main() {
           when(
             () => mockGetPermissionGroups.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tGroups));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadPermissionGroups(),
@@ -251,6 +220,9 @@ void main() {
           when(
             () => mockGetPermissionGroups.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Group load failed'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadPermissionGroups(),
@@ -287,6 +259,9 @@ void main() {
           when(
             () => mockGetPendingInvitations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tInvitations));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadAll(),
@@ -320,6 +295,9 @@ void main() {
           when(
             () => mockGetPendingInvitations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tUserInvitation]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadInvitations(),
@@ -341,6 +319,9 @@ void main() {
           when(
             () => mockGetPendingInvitations.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error loading'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.loadInvitations(),
@@ -372,6 +353,9 @@ void main() {
           when(
             () => mockGetPendingInvitations.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.revokeInvitation(tUserInvitation.id),
@@ -444,6 +428,9 @@ void main() {
           when(
             () => mockGetPendingInvitations.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tUserInvitation]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) => cubit.resendInvitation(tUserInvitation),
@@ -513,6 +500,9 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tUserProfile]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) async {
@@ -606,6 +596,9 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tUserProfile]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) async {
@@ -704,6 +697,9 @@ void main() {
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
         act: (cubit) async =>
@@ -756,6 +752,9 @@ void main() {
             when(
               () => mockGetPermissionGroups.call(any()),
             ).thenAnswer((_) async => SuccessState(data: [tPermissionGroup]));
+            when(
+              () => mockGetActiveCompanyIdUseCase.call(),
+            ).thenReturn(tSessionUser.companyId);
             return cubit;
           },
           act: (cubit) async {
@@ -796,6 +795,9 @@ void main() {
             when(
               () => mockGetPermissionGroups.call(any()),
             ).thenAnswer((_) async => SuccessState(data: [tPermissionGroup]));
+            when(
+              () => mockGetActiveCompanyIdUseCase.call(),
+            ).thenReturn(tSessionUser.companyId);
             return cubit;
           },
           act: (cubit) async {
@@ -837,6 +839,9 @@ void main() {
             when(
               () => mockGetPermissionGroups.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetActiveCompanyIdUseCase.call(),
+            ).thenReturn(tSessionUser.companyId);
             return cubit;
           },
           act: (cubit) => cubit.deletePermissionGroup(tId),

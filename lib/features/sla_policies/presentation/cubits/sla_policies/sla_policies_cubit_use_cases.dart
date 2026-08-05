@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policies_use_case.dart';
@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla
 @LazySingleton()
 class SlaPoliciesCubitUseCases {
   const SlaPoliciesCubitUseCases({
-    required this.getSessionUser,
+    required this.getActiveCompanyId,
     required this.getSlaPolicies,
     required this.getSlaPolicyById,
     required this.createSlaPolicy,
@@ -17,7 +17,7 @@ class SlaPoliciesCubitUseCases {
     required this.deleteSlaPolicy,
   });
 
-  final GetSessionUserUseCase getSessionUser;
+  final GetActiveCompanyIdUseCase getActiveCompanyId;
   final GetSlaPoliciesUseCase getSlaPolicies;
   final GetSlaPolicyByIdUseCase getSlaPolicyById;
   final CreateSlaPolicyUseCase createSlaPolicy;

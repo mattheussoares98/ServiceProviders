@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/create_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_user_profile_use_case.dart';
@@ -16,6 +17,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profi
 class UsersCubitUseCases {
   const UsersCubitUseCases({
     required this.getSessionUser,
+    required this.getActiveCompanyId,
     required this.getUsers,
     required this.getUserProfileById,
     required this.updateUserProfile,
@@ -30,6 +32,7 @@ class UsersCubitUseCases {
   });
 
   final GetSessionUserUseCase getSessionUser;
+  final GetActiveCompanyIdUseCase getActiveCompanyId;
   final GetUsersUseCase getUsers;
   final GetUserProfileByIdUseCase getUserProfileById;
   final UpdateUserProfileUseCase updateUserProfile;

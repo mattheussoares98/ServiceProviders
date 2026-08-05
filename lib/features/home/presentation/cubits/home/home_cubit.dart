@@ -69,6 +69,7 @@ class HomeCubit extends BaseCubit<HomeState> {
 
   Future<void> changeAvatar(AttachmentSource source) async {
     final user = _useCases.getSessionUser.call();
+    final companyId = _useCases.getActiveCompanyId.call();
 
     emit(state.copyWith(status: StateStatus.saving));
 
@@ -76,7 +77,7 @@ class HomeCubit extends BaseCubit<HomeState> {
       PickAttachmentParams(
         source: source,
         workOrderId: 'avatar', // Dummy ID for R2 path prefix validation
-        companyId: user.companyId,
+        companyId: companyId,
         userId: user.id,
         multiple: false,
       ),

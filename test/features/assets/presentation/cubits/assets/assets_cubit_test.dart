@@ -13,7 +13,6 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_c
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/get_categories_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
@@ -24,6 +23,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
@@ -43,20 +43,16 @@ class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
 
 class MockGetCategoriesUseCase extends Mock implements GetCategoriesUseCase {}
 
-class MockGetActiveCompanyIdUseCase extends Mock
-    implements GetActiveCompanyIdUseCase {}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetAssetsUseCase mockGetAssets;
   late MockGetAssetByIdUseCase mockGetAssetById;
   late MockCreateAssetUseCase mockCreateAsset;
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
   late MockNavigationClient mockNavigationClient;
-  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
 
   late AssetsCubit cubit;
   late UserProfileEntity tUserProfile;
@@ -67,28 +63,28 @@ void main() {
   });
 
   setUp(() {
-    mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetAssets = MockGetAssetsUseCase();
     mockGetAssetById = MockGetAssetByIdUseCase();
     mockCreateAsset = MockCreateAssetUseCase();
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
     mockNavigationClient = MockNavigationClient();
-    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
-    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+    when(
+      () => mockGetActiveCompanyIdUseCase.call(),
+    ).thenReturn(tUserProfile.companyId);
 
     final useCases = AssetsCubitUseCases(
-      getSessionUser: mockGetSessionUser,
       getAssets: mockGetAssets,
       getAssetById: mockGetAssetById,
       createAsset: mockCreateAsset,
       updateAsset: mockUpdateAsset,
       deleteAsset: mockDeleteAsset,
-      getActiveCompanyId: mockGetActiveCompanyId,
+      getActiveCompanyId: mockGetActiveCompanyIdUseCase,
     );
 
     cubit = AssetsCubit(useCases: useCases);
@@ -172,20 +168,14 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit error when companyId is empty',
         build: () {
-          final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
-          when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
           when(
             () => mockGetAssets.call(''),
           ).thenAnswer((_) async => FailureState(message: 'Error'));
+          when(mockGetActiveCompanyIdUseCase.call).thenReturn('');
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
-          isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
@@ -522,8 +512,6 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit error and return false when companyId is empty on saveAsset',
         build: () {
-          final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
-          when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
           when(
             () => mockUpdateAsset.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error'));

@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/create_category_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/delete_category_use_case.dart';
@@ -29,10 +30,13 @@ class MockUpdateCategoryUseCase extends Mock implements UpdateCategoryUseCase {}
 
 class MockDeleteCategoryUseCase extends Mock implements DeleteCategoryUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetCategoriesUseCase mockGetCategories;
   late MockCreateCategoryUseCase mockCreateCategory;
   late MockUpdateCategoryUseCase mockUpdateCategory;
@@ -49,7 +53,7 @@ void main() {
   });
 
   setUp(() {
-    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetCategories = MockGetCategoriesUseCase();
     mockCreateCategory = MockCreateCategoryUseCase();
     mockUpdateCategory = MockUpdateCategoryUseCase();
@@ -60,10 +64,12 @@ void main() {
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
     tCategory = EntityFactory.makeCategoryEntity();
-    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+    when(
+      () => mockGetActiveCompanyId.call(),
+    ).thenReturn(tUserProfile.companyId);
 
     final useCases = CategoriesCubitUseCases(
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyId,
       getCategories: mockGetCategories,
       createCategory: mockCreateCategory,
       updateCategory: mockUpdateCategory,
@@ -127,9 +133,6 @@ void main() {
         'should emit error status when companyId is empty',
         build: () {
           when(
-            () => mockGetSessionUser.call(),
-          ).thenReturn(tUserProfile.copyWith(companyId: ''));
-          when(
             () => mockGetCategories.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error message'));
           return cubit;
@@ -173,7 +176,6 @@ void main() {
       blocTest<CategoriesCubit, CategoriesState>(
         'should emit saving, call createCategory and refresh on success',
         build: () {
-          when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
           when(
             () => mockCreateCategory.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -263,9 +265,6 @@ void main() {
       blocTest<CategoriesCubit, CategoriesState>(
         'should emit error status when create returns false on save',
         build: () {
-          when(
-            () => mockGetSessionUser.call(),
-          ).thenReturn(tUserProfile.copyWith(companyId: ''));
           when(
             () => mockCreateCategory.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: false));

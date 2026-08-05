@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_area_use_case.dart';
@@ -43,10 +44,13 @@ class MockUpdateAreaUseCase extends Mock implements UpdateAreaUseCase {}
 
 class MockDeleteAreaUseCase extends Mock implements DeleteAreaUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetLocationsUseCase mockGetLocations;
   late MockGetAreasUseCase mockGetAreas;
   late MockCreateLocationUseCase mockCreateLocation;
@@ -71,7 +75,7 @@ void main() {
   });
 
   setUp(() {
-    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetLocations = MockGetLocationsUseCase();
     mockGetAreas = MockGetAreasUseCase();
     mockCreateLocation = MockCreateLocationUseCase();
@@ -88,10 +92,12 @@ void main() {
     tLocations = EntityFactory.makeLocationEntityList();
     tAreas = EntityFactory.makeAreaEntityList();
 
-    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+    when(
+      () => mockGetActiveCompanyId.call(),
+    ).thenReturn(tUserProfile.companyId);
 
     final useCases = LocationsCubitUseCases(
-      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyId,
       getLocations: mockGetLocations,
       getAreas: mockGetAreas,
       createLocation: mockCreateLocation,
@@ -199,8 +205,7 @@ void main() {
       blocTest<LocationsCubit, LocationsState>(
         'should emit error when companyId is empty',
         build: () {
-          final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
-          when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
+          when(() => mockGetActiveCompanyId.call()).thenReturn('');
           when(
             () => mockGetLocations.call(''),
           ).thenAnswer((_) async => FailureState(message: 'Error'));
@@ -238,7 +243,7 @@ void main() {
           ).thenAnswer((_) async => SuccessState(data: tAreas));
           return cubit;
         },
-        act: (cubit) => cubit.loadAreas(tUserProfile.companyId),
+        act: (cubit) => cubit.loadAreas(),
         expect: () => [
           isA<LocationsState>()
               .having((s) => s.areasByLocation, 'areasByLocation', isNotEmpty)
@@ -257,7 +262,7 @@ void main() {
           );
           return cubit;
         },
-        act: (cubit) => cubit.loadAreas(tUserProfile.companyId),
+        act: (cubit) => cubit.loadAreas(),
         expect: () => <LocationsState>[],
         verify: (_) {
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
@@ -286,7 +291,6 @@ void main() {
           expect(
             await cubit.saveLocation(
               id: null,
-              companyId: tLocation.companyId,
               name: '${tLocation.name} ',
               postalCode: '${tLocation.postalCode} ',
               address: '${tLocation.address} ',
@@ -319,7 +323,7 @@ void main() {
                     .having(
                       (l) => l.companyId,
                       'companyId',
-                      tLocation.companyId,
+                      tUserProfile.companyId,
                     )
                     .having((l) => l.name, 'name', tLocation.name.trim())
                     .having(
@@ -365,7 +369,6 @@ void main() {
           expect(
             await cubit.saveLocation(
               id: null,
-              companyId: tLocation.companyId,
               name: tLocation.name,
               postalCode: tLocation.postalCode,
               address: tLocation.address,
@@ -414,7 +417,6 @@ void main() {
           expect(
             await cubit.saveLocation(
               id: tLocation.id,
-              companyId: tLocation.companyId,
               name: '${tLocation.name} ',
               postalCode: '${tLocation.postalCode} ',
               address: '${tLocation.address} ',
@@ -449,7 +451,7 @@ void main() {
                     .having(
                       (l) => l.companyId,
                       'companyId',
-                      tLocation.companyId,
+                      tUserProfile.companyId,
                     )
                     .having((l) => l.name, 'name', tLocation.name.trim())
                     .having(
@@ -500,7 +502,6 @@ void main() {
           expect(
             await cubit.saveLocation(
               id: tLocation.id,
-              companyId: tLocation.companyId,
               name: tLocation.name,
               postalCode: tLocation.postalCode,
               address: tLocation.address,
@@ -616,7 +617,6 @@ void main() {
             await cubit.saveArea(
               id: null,
               locationId: tArea.locationId,
-              companyId: tArea.companyId,
               name: '${tArea.name} ',
               floor: '${tArea.floor} ',
               description: '${tArea.description} ',
@@ -642,7 +642,11 @@ void main() {
               any(
                 that: isA<AreaEntity>()
                     .having((a) => a.locationId, 'locationId', tArea.locationId)
-                    .having((a) => a.companyId, 'companyId', tArea.companyId)
+                    .having(
+                      (a) => a.companyId,
+                      'companyId',
+                      tUserProfile.companyId,
+                    )
                     .having((a) => a.name, 'name', tArea.name.trim())
                     .having((a) => a.floor, 'floor', tArea.floor?.trim())
                     .having(
@@ -670,7 +674,6 @@ void main() {
             await cubit.saveArea(
               id: null,
               locationId: tArea.locationId,
-              companyId: tArea.companyId,
               name: '${tArea.name} ',
               floor: '${tArea.floor} ',
               description: '${tArea.description} ',
@@ -712,7 +715,6 @@ void main() {
             await cubit.saveArea(
               id: tArea.id,
               locationId: tArea.locationId,
-              companyId: tArea.companyId,
               name: '${tArea.name} ',
               floor: '${tArea.floor} ',
               description: '${tArea.description} ',
@@ -740,7 +742,11 @@ void main() {
                 that: isA<AreaEntity>()
                     .having((a) => a.id, 'id', tArea.id)
                     .having((a) => a.locationId, 'locationId', tArea.locationId)
-                    .having((a) => a.companyId, 'companyId', tArea.companyId)
+                    .having(
+                      (a) => a.companyId,
+                      'companyId',
+                      tUserProfile.companyId,
+                    )
                     .having((a) => a.name, 'name', tArea.name.trim())
                     .having((a) => a.floor, 'floor', tArea.floor?.trim())
                     .having(
@@ -769,7 +775,6 @@ void main() {
             await cubit.saveArea(
               id: tArea.id,
               locationId: tArea.locationId,
-              companyId: tArea.companyId,
               name: '${tArea.name} ',
               floor: '${tArea.floor} ',
               description: '${tArea.description} ',
@@ -879,11 +884,8 @@ void main() {
           ).thenAnswer((_) async => null);
           return cubit;
         },
-        act: (cubit) => cubit.navigateToCreateUpdateArea(
-          locationId: 'loc1',
-          companyId: 'comp1',
-          area: tArea,
-        ),
+        act: (cubit) =>
+            cubit.navigateToCreateUpdateArea(locationId: 'loc1', area: tArea),
         expect: () => <LocationsState>[],
         verify: (cubit) {
           verify(

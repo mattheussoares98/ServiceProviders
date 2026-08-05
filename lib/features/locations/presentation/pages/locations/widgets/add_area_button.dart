@@ -31,7 +31,6 @@ class AddAreaButton extends StatelessWidget {
           : () {
               context.read<LocationsCubit>().navigateToCreateUpdateArea(
                 locationId: location.id,
-                companyId: location.companyId,
               );
             },
       platformIcon: const PlatformIcon(
