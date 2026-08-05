@@ -9,45 +9,31 @@ All features, workflows, permissions, UI components, and automated tests for **I
 
 ## Internal Mode Roadmap & Milestones
 
-### Milestone 1.1: Work Order Execution (Core MVP)
+### Milestone 1.1: Work Order Execution (Core MVP) — ✅ IMPLEMENTED
 - **Work Order Details & Execution**:
-  - Execution timer (`FormattedDurationTimerText`) with real-time ticking, adaptive unit formatting (months, weeks, days, hours, minutes, seconds), and `RepaintBoundary` performance isolation.
-  - Photo and document attachments per Work Order.
-  - Digital sign-off upon completion.
+  - ✅ Execution timer (`FormattedDurationTimerText`) with real-time ticking, adaptive unit formatting, and `RepaintBoundary` performance isolation.
+  - ✅ Photo and document attachments per Work Order (`lib/features/attachments`).
+  - ✅ Digital sign-off upon completion.
 - **Checklist Responses [ON HOLD - Deferred]**:
   - *Status: ON HOLD (Will resume when explicitly requested for future versions).*
-  - Dynamic rendering of checklist items inside Work Order execution.
-  - Item-level attachments, pass/fail status, numeric readings, and mandatory field validation.
 
 ### Milestone 1.2: Checklists & Maintenance Plans Modules [ON HOLD - Deferred]
 > ⚠️ **Status: ON HOLD** — Template management, standalone checklists, and automated maintenance plans are deferred for future releases and not required for v1.
 
-- **Checklists Module (`lib/features/checklists`)**:
-  - Route checklist screens (`/checklists`, `/checklists/create_update`) in `lib/routing/routes.dart`.
-  - Add Checklists drawer item (`ChecklistsDrawerItem`) to `HomeDrawer`.
-  - Build template management (CRUD for templates and items).
-- **Maintenance Plans Module (`lib/features/maintenance_plans`)**:
-  - Route maintenance plan screens (`/maintenance_plans`, `/maintenance_plans/create_update`) in `lib/routing/routes.dart`.
-  - Add Maintenance Plans drawer item (`MaintenancePlansDrawerItem`) to `HomeDrawer`.
-  - Implement periodic scheduling triggers (time-based & meter-based) and automated Work Order generation.
+### Milestone 1.3: Inventory & Stock Control [ON HOLD - Deferred]
+> ⚠️ **Status: ON HOLD** — Inventory stock management and product usage tracking are deferred for future releases.
 
 
-### Milestone 1.3: Inventory & Spare Parts Control
-- **Spare Parts Catalog & Stock Levels**:
-  - Data models, repositories, and UI for managing spare parts inventory.
-  - Stock movement tracking (check-in, check-out, minimum stock alerts).
-- **Work Order Integration**:
-  - Link consumed spare parts directly to Work Orders during execution.
-  - Deduct stock quantities upon Work Order completion.
-
-### Milestone 1.4: Sectors, Categories & RBAC Administration
+### Milestone 1.4: Sectors, Categories & RBAC Administration — 🟡 PARTIALLY IMPLEMENTED
 - **Sectors & Categories Management**:
-  - Dedicated CRUD screens and navigation drawer items for sectors/cost centers and category hierarchies.
+  - ✅ Data, domain, cubit, and pages for Sectors (`lib/features/sectors`) and Categories (`lib/features/categories`).
 - **Role-Based Access Control (RBAC)**:
-  - Enforce permissions per resource type (`ResourceType`) in drawer items, page views, and API calls.
-  - Complete tests for permission guards and group permissions.
+  - ✅ ResourceType, permissions, and group permissions implemented.
+  - ✅ Dual App Mode (`AppMode.internal` & `AppMode.provider`), `ModeSwitcherCubit`, and mode-aware login routing implemented.
+  - ✅ Service Provider Backend (Supabase migrations, remote data source, repository, cubit, and `CreateServiceProviderCompanyPage`).
 
 ---
 
-## Phase 2: Provider App Mode (`AppMode.provider`)
-*Deferred until Phase 1 (Milestones 1.1 - 1.4) is 100% complete and verified with automated unit and integration tests.*
+## Phase 2: Provider App Mode (`AppMode.provider`) UI
+*Provider Mode Backend/Cubit layers are already built. UI pages and provider-specific Work Order views remain to be completed.*
+
