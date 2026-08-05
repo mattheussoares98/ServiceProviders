@@ -6,4 +6,5 @@ class AppSettings extends Table {
   BoolColumn get pushNotificationsEnabled =>
       boolean().withDefault(const Constant(false))();
   TextColumn get selectedMode => text().nullable()();
+  TextColumn get selectedCompanyId => text().nullable()();
 }

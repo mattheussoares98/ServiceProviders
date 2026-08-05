@@ -60,12 +60,25 @@ class $AppSettingsTable extends AppSettings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _selectedCompanyIdMeta = const VerificationMeta(
+    'selectedCompanyId',
+  );
+  @override
+  late final GeneratedColumn<String> selectedCompanyId =
+      GeneratedColumn<String>(
+        'selected_company_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     themeMode,
     pushNotificationsEnabled,
     selectedMode,
+    selectedCompanyId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -106,6 +119,15 @@ class $AppSettingsTable extends AppSettings
         ),
       );
     }
+    if (data.containsKey('selected_company_id')) {
+      context.handle(
+        _selectedCompanyIdMeta,
+        selectedCompanyId.isAcceptableOrUnknown(
+          data['selected_company_id']!,
+          _selectedCompanyIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -131,6 +153,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.string,
         data['${effectivePrefix}selected_mode'],
       ),
+      selectedCompanyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}selected_company_id'],
+      ),
     );
   }
 
@@ -145,11 +171,13 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
   final String themeMode;
   final bool pushNotificationsEnabled;
   final String? selectedMode;
+  final String? selectedCompanyId;
   const AppSetting({
     required this.id,
     required this.themeMode,
     required this.pushNotificationsEnabled,
     this.selectedMode,
+    this.selectedCompanyId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -162,6 +190,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     if (!nullToAbsent || selectedMode != null) {
       map['selected_mode'] = Variable<String>(selectedMode);
     }
+    if (!nullToAbsent || selectedCompanyId != null) {
+      map['selected_company_id'] = Variable<String>(selectedCompanyId);
+    }
     return map;
   }
 
@@ -173,6 +204,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       selectedMode: selectedMode == null && nullToAbsent
           ? const Value.absent()
           : Value(selectedMode),
+      selectedCompanyId: selectedCompanyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedCompanyId),
     );
   }
 
@@ -188,6 +222,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
         json['pushNotificationsEnabled'],
       ),
       selectedMode: serializer.fromJson<String?>(json['selectedMode']),
+      selectedCompanyId: serializer.fromJson<String?>(
+        json['selectedCompanyId'],
+      ),
     );
   }
   @override
@@ -200,6 +237,7 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
         pushNotificationsEnabled,
       ),
       'selectedMode': serializer.toJson<String?>(selectedMode),
+      'selectedCompanyId': serializer.toJson<String?>(selectedCompanyId),
     };
   }
 
@@ -208,12 +246,16 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     String? themeMode,
     bool? pushNotificationsEnabled,
     Value<String?> selectedMode = const Value.absent(),
+    Value<String?> selectedCompanyId = const Value.absent(),
   }) => AppSetting(
     id: id ?? this.id,
     themeMode: themeMode ?? this.themeMode,
     pushNotificationsEnabled:
         pushNotificationsEnabled ?? this.pushNotificationsEnabled,
     selectedMode: selectedMode.present ? selectedMode.value : this.selectedMode,
+    selectedCompanyId: selectedCompanyId.present
+        ? selectedCompanyId.value
+        : this.selectedCompanyId,
   );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
@@ -225,6 +267,9 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
       selectedMode: data.selectedMode.present
           ? data.selectedMode.value
           : this.selectedMode,
+      selectedCompanyId: data.selectedCompanyId.present
+          ? data.selectedCompanyId.value
+          : this.selectedCompanyId,
     );
   }
 
@@ -234,14 +279,20 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('pushNotificationsEnabled: $pushNotificationsEnabled, ')
-          ..write('selectedMode: $selectedMode')
+          ..write('selectedMode: $selectedMode, ')
+          ..write('selectedCompanyId: $selectedCompanyId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, themeMode, pushNotificationsEnabled, selectedMode);
+  int get hashCode => Object.hash(
+    id,
+    themeMode,
+    pushNotificationsEnabled,
+    selectedMode,
+    selectedCompanyId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -249,7 +300,8 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
           other.id == this.id &&
           other.themeMode == this.themeMode &&
           other.pushNotificationsEnabled == this.pushNotificationsEnabled &&
-          other.selectedMode == this.selectedMode);
+          other.selectedMode == this.selectedMode &&
+          other.selectedCompanyId == this.selectedCompanyId);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
@@ -257,23 +309,27 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<String> themeMode;
   final Value<bool> pushNotificationsEnabled;
   final Value<String?> selectedMode;
+  final Value<String?> selectedCompanyId;
   const AppSettingsCompanion({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.pushNotificationsEnabled = const Value.absent(),
     this.selectedMode = const Value.absent(),
+    this.selectedCompanyId = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.themeMode = const Value.absent(),
     this.pushNotificationsEnabled = const Value.absent(),
     this.selectedMode = const Value.absent(),
+    this.selectedCompanyId = const Value.absent(),
   });
   static Insertable<AppSetting> custom({
     Expression<int>? id,
     Expression<String>? themeMode,
     Expression<bool>? pushNotificationsEnabled,
     Expression<String>? selectedMode,
+    Expression<String>? selectedCompanyId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -281,6 +337,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       if (pushNotificationsEnabled != null)
         'push_notifications_enabled': pushNotificationsEnabled,
       if (selectedMode != null) 'selected_mode': selectedMode,
+      if (selectedCompanyId != null) 'selected_company_id': selectedCompanyId,
     });
   }
 
@@ -289,6 +346,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     Value<String>? themeMode,
     Value<bool>? pushNotificationsEnabled,
     Value<String?>? selectedMode,
+    Value<String?>? selectedCompanyId,
   }) {
     return AppSettingsCompanion(
       id: id ?? this.id,
@@ -296,6 +354,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
       pushNotificationsEnabled:
           pushNotificationsEnabled ?? this.pushNotificationsEnabled,
       selectedMode: selectedMode ?? this.selectedMode,
+      selectedCompanyId: selectedCompanyId ?? this.selectedCompanyId,
     );
   }
 
@@ -316,6 +375,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     if (selectedMode.present) {
       map['selected_mode'] = Variable<String>(selectedMode.value);
     }
+    if (selectedCompanyId.present) {
+      map['selected_company_id'] = Variable<String>(selectedCompanyId.value);
+    }
     return map;
   }
 
@@ -325,7 +387,8 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
           ..write('id: $id, ')
           ..write('themeMode: $themeMode, ')
           ..write('pushNotificationsEnabled: $pushNotificationsEnabled, ')
-          ..write('selectedMode: $selectedMode')
+          ..write('selectedMode: $selectedMode, ')
+          ..write('selectedCompanyId: $selectedCompanyId')
           ..write(')'))
         .toString();
   }
@@ -18980,6 +19043,7 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
       Value<String> themeMode,
       Value<bool> pushNotificationsEnabled,
       Value<String?> selectedMode,
+      Value<String?> selectedCompanyId,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
@@ -18987,6 +19051,7 @@ typedef $$AppSettingsTableUpdateCompanionBuilder =
       Value<String> themeMode,
       Value<bool> pushNotificationsEnabled,
       Value<String?> selectedMode,
+      Value<String?> selectedCompanyId,
     });
 
 class $$AppSettingsTableFilterComposer
@@ -19015,6 +19080,11 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<String> get selectedMode => $composableBuilder(
     column: $table.selectedMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get selectedCompanyId => $composableBuilder(
+    column: $table.selectedCompanyId,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -19047,6 +19117,11 @@ class $$AppSettingsTableOrderingComposer
     column: $table.selectedMode,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get selectedCompanyId => $composableBuilder(
+    column: $table.selectedCompanyId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -19071,6 +19146,11 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<String> get selectedMode => $composableBuilder(
     column: $table.selectedMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get selectedCompanyId => $composableBuilder(
+    column: $table.selectedCompanyId,
     builder: (column) => column,
   );
 }
@@ -19110,11 +19190,13 @@ class $$AppSettingsTableTableManager
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> pushNotificationsEnabled = const Value.absent(),
                 Value<String?> selectedMode = const Value.absent(),
+                Value<String?> selectedCompanyId = const Value.absent(),
               }) => AppSettingsCompanion(
                 id: id,
                 themeMode: themeMode,
                 pushNotificationsEnabled: pushNotificationsEnabled,
                 selectedMode: selectedMode,
+                selectedCompanyId: selectedCompanyId,
               ),
           createCompanionCallback:
               ({
@@ -19122,11 +19204,13 @@ class $$AppSettingsTableTableManager
                 Value<String> themeMode = const Value.absent(),
                 Value<bool> pushNotificationsEnabled = const Value.absent(),
                 Value<String?> selectedMode = const Value.absent(),
+                Value<String?> selectedCompanyId = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 id: id,
                 themeMode: themeMode,
                 pushNotificationsEnabled: pushNotificationsEnabled,
                 selectedMode: selectedMode,
+                selectedCompanyId: selectedCompanyId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
