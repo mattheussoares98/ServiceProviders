@@ -51,8 +51,13 @@ import 'package:uuid/uuid.dart';
 
 @RoutePage()
 class CreateUpdateWorkOrderPage extends HookWidget {
-  const CreateUpdateWorkOrderPage({super.key, this.workOrderId});
+  const CreateUpdateWorkOrderPage({
+    super.key,
+    this.workOrderId,
+    this.attachmentsCubit,
+  });
   final String? workOrderId;
+  final AttachmentsCubit? attachmentsCubit;
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +75,13 @@ class CreateUpdateWorkOrderPage extends HookWidget {
       builder: (context) {
         return MultiBlocProvider(
           providers: [
-            BlocProvider(
-              create: (context) =>
-                  GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
-            ),
+            if (attachmentsCubit != null)
+              BlocProvider.value(value: attachmentsCubit!)
+            else
+              BlocProvider(
+                create: (context) =>
+                    GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
+              ),
             BlocProvider(
               create: (context) =>
                   GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),

@@ -427,7 +427,10 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     AttachmentsCubit? attachmentsCubit,
   }) async {
     final result = await pushRoute<dynamic>(
-      CreateUpdateWorkOrderRoute(workOrderId: workOrderId),
+      CreateUpdateWorkOrderRoute(
+        workOrderId: workOrderId,
+        attachmentsCubit: attachmentsCubit,
+      ),
     );
     if (result == true && workOrderId != null) {
       //! very important to update the correct cubit that is being used in the previous screen

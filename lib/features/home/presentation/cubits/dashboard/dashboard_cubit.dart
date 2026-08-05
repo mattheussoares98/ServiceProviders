@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -119,8 +120,19 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     );
   }
 
-  Future<void> navigateToCreateUpdateWorkOrder([String? workOrderId]) async {
-    await pushRoute(CreateUpdateWorkOrderRoute(workOrderId: workOrderId));
+  Future<void> navigateToCreateUpdateWorkOrder([
+    String? workOrderId,
+    AttachmentsCubit? attachmentsCubit,
+  ]) async {
+    final result = await pushRoute<dynamic>(
+      CreateUpdateWorkOrderRoute(
+        workOrderId: workOrderId,
+        attachmentsCubit: attachmentsCubit,
+      ),
+    );
+    if (result == true && workOrderId != null) {
+      await attachmentsCubit?.init(workOrderId);
+    }
   }
 
   Future<void> navigateToWorkOrderDetails(String workOrderId) async {
