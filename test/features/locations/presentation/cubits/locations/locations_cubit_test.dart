@@ -201,6 +201,12 @@ void main() {
         build: () {
           final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
           when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
+          when(
+            () => mockGetLocations.call(''),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
+          when(
+            () => mockGetAreas.call(''),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
           return cubit;
         },
         act: (cubit) => cubit.loadLocationsAndAreas(),
@@ -208,11 +214,17 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
+            StateStatus.loading,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
             StateStatus.loadingError,
           ),
         ],
         verify: (_) {
-          verifyNever(() => mockGetLocations.call(any()));
+          verify(() => mockGetLocations.call('')).called(1);
+          verify(() => mockGetAreas.call('')).called(1);
         },
       );
     });

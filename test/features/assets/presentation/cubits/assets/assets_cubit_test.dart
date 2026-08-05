@@ -167,10 +167,18 @@ void main() {
         build: () {
           final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
           when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
+          when(
+            () => mockGetAssets.call(''),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
           return cubit;
         },
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
@@ -509,6 +517,9 @@ void main() {
         build: () {
           final emptyUser = tUserProfile.copyWith(annulCompanyId: true);
           when(() => mockGetSessionUser.call()).thenReturn(emptyUser);
+          when(
+            () => mockUpdateAsset.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
           return cubit;
         },
         act: (cubit) async {
@@ -536,8 +547,8 @@ void main() {
           ),
         ],
         verify: (_) {
+          verify(() => mockUpdateAsset.call(any())).called(1);
           verifyNever(() => mockCreateAsset.call(any()));
-          verifyNever(() => mockUpdateAsset.call(any()));
           verifyNever(() => mockGetAssets.call(any()));
         },
       );

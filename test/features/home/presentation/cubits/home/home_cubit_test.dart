@@ -89,8 +89,11 @@ void main() {
 
   group('HomeCubit', () {
     blocTest<HomeCubit, HomeState>(
-      'logout should call LogOutUseCase and replace route with LoginRoute',
+      'logout should call LogOutUseCase and replace route with SplashRoute',
       build: () {
+        when(
+          () => mockClearLocalAttachmentsUseCase.call(),
+        ).thenAnswer((_) async => SuccessState.nil);
         when(() => mockLogOutUseCase.call()).thenAnswer((_) async {});
         return homeCubit;
       },
@@ -100,7 +103,7 @@ void main() {
         verify(() => mockClearLocalAttachmentsUseCase.call()).called(1);
         verify(() => mockLogOutUseCase.call()).called(1);
         verify(
-          () => mockNavigationClient.replaceAllRoute(const LoginRoute()),
+          () => mockNavigationClient.replaceAllRoute(const SplashRoute()),
         ).called(1);
       },
     );

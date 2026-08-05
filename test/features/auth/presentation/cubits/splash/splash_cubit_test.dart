@@ -1,14 +1,17 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/external_mocks.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
@@ -24,12 +27,16 @@ void main() {
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockSupabaseAuthClient mockAuthClient;
   late SplashCubit cubit;
+  late MockNavigationClient mockNavigationClient;
 
   setUp(() {
     mockSessionRepository = MockSessionRepository();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockAuthClient = MockSupabaseAuthClient();
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     final useCases = SplashCubitUseCases(
       sessionRepository: mockSessionRepository,
@@ -39,6 +46,8 @@ void main() {
 
     cubit = SplashCubit(useCases: useCases, authClient: mockAuthClient);
   });
+
+  tearDown(GetIt.I.reset);
 
   group('SplashCubit', () {
     test('initial state should be SplashRouteTarget.initial', () {

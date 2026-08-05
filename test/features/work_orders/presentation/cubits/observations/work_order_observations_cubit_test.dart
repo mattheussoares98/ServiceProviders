@@ -1,14 +1,17 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
+import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 
 class MockGetWorkOrderObservationsUseCase extends Mock
@@ -25,6 +28,7 @@ void main() {
   late MockCreateWorkOrderObservationUseCase createUseCase;
   late MockDeleteWorkOrderObservationUseCase deleteUseCase;
   late WorkOrderObservationsCubitUseCases cubitUseCases;
+  late MockNavigationClient mockNavigationClient;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderObservationEntity());
@@ -39,7 +43,12 @@ void main() {
       createObservation: createUseCase,
       deleteObservation: deleteUseCase,
     );
+    mockNavigationClient = MockNavigationClient();
+
+    GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
   });
+
+  tearDown(GetIt.I.reset);
 
   blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
     'emits [loading, loaded] when fetchObservations succeeds',

@@ -8,6 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
@@ -18,6 +19,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widget
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -36,6 +38,8 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
 
 final locator = GetIt.I;
+
+class MockSplashCubit extends MockCubit<SplashState> implements SplashCubit {}
 
 class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
     implements ScreenObserverCubit {}
@@ -84,6 +88,13 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(const LoginRoute());
+    for (final resource in ResourceType.values) {
+      for (final action in PermissionAction.values) {
+        registerFallbackValue(
+          ActionPermission.resource(resource: resource, action: action),
+        );
+      }
+    }
   });
 
   setUp(() {
@@ -121,6 +132,7 @@ void main() {
       ),
     );
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockUsersCubit.hasActionPermission(any())).thenReturn(true);
 
     when(
       () => mockCompanyCubit.state,
@@ -167,6 +179,10 @@ void main() {
     ).thenReturn(SessionState(user: userProfile, isLoggedIn: true));
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
 
+    final mockSplashCubit = MockSplashCubit();
+    when(() => mockSplashCubit.state).thenReturn(const SplashState());
+    when(() => mockSplashCubit.stream).thenAnswer((_) => const Stream.empty());
+
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
@@ -178,7 +194,8 @@ void main() {
       ..registerFactory<WorkOrdersCubit>(() => mockWorkOrdersCubit)
       ..registerFactory<CategoriesCubit>(() => mockCategoriesCubit)
       ..registerFactory<UsersCubit>(() => mockUsersCubit)
-      ..registerFactory<SessionCubit>(() => mockSessionCubit);
+      ..registerFactory<SessionCubit>(() => mockSessionCubit)
+      ..registerFactory<SplashCubit>(() => mockSplashCubit);
 
     const screenDetails = ScreenDetails(
       logicalSize: Size(1920, 1280),

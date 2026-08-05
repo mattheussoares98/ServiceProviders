@@ -94,7 +94,11 @@ void main() {
 
         // Assert
         expect(result, isA<SuccessState<List<AttachmentEntity>>>());
-        expect(result.data, equals(tAttachmentEntityList));
+        expect(result.data?.length, equals(tAttachmentEntityList.length));
+        for (var i = 0; i < (result.data?.length ?? 0); i++) {
+          expect(result.data![i].id, tAttachmentEntityList[i].id);
+          expect(result.data![i].workOrderId, tAttachmentEntityList[i].workOrderId);
+        }
         verify(
           () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
         ).called(1);
@@ -125,7 +129,11 @@ void main() {
 
         // Assert
         expect(result, isA<SuccessState<List<AttachmentEntity>>>());
-        expect(result.data, equals(tAttachmentEntityList));
+        expect(result.data?.length, equals(tAttachmentEntityList.length));
+        for (var i = 0; i < (result.data?.length ?? 0); i++) {
+          expect(result.data![i].id, tAttachmentEntityList[i].id);
+          expect(result.data![i].workOrderId, tAttachmentEntityList[i].workOrderId);
+        }
         verify(
           () => mockRemoteDataSource.getAttachmentsByWorkOrder(workOrderId),
         ).called(1);

@@ -57,6 +57,7 @@ void main() {
           SectorResponseModel.fromEntity(
             EntityFactory.makeSectorEntity().copyWith(
               companyId: tSectorModel.companyId,
+              name: '${tSectorModel.name}_2',
             ),
           ),
         ];

@@ -69,20 +69,15 @@ void main() {
       'toggleGroupPermission updates localGroupPermissions',
       build: () => cubit..initGroup(tGroup),
       act: (c) => c.toggleGroupPermission(
-        ResourceType.attachments,
-        PermissionAction.delete,
+        ResourceType.assets,
+        PermissionAction.create,
         true,
       ),
       expect: () => [
         isA<PermissionsState>().having(
-          (s) => s.draftGroupPermissions[ResourceType.attachments],
+          (s) => s.draftGroupPermissions[ResourceType.assets],
           'actions list',
-          {
-            PermissionAction.create,
-            PermissionAction.read,
-            PermissionAction.update,
-            PermissionAction.delete,
-          },
+          {PermissionAction.create},
         ),
       ],
     );

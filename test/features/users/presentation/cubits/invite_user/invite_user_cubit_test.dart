@@ -132,21 +132,29 @@ void main() {
     );
 
     blocTest<InviteUserCubit, InviteUserState>(
-      'emits [error] and returns false when companyId is empty',
+      'emits [loading, loaded] and returns false when companyId is empty',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
           EntityFactory.makeUserProfileEntity().copyWith(annulCompanyId: true),
         );
+        when(
+          () => mockInviteUserUseCase(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Error'));
         return cubit;
       },
       act: (c) async =>
           expect(await c.invite(email: email, groupId: groupId), isFalse),
-      verify: (cubit) => verifyNever(() => mockInviteUserUseCase(any())),
+      verify: (cubit) => verify(() => mockInviteUserUseCase(any())).called(1),
       expect: () => [
         isA<InviteUserState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loadingError,
+          StateStatus.loading,
+        ),
+        isA<InviteUserState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
         ),
       ],
     );

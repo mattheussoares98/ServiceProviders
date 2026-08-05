@@ -18,6 +18,9 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String, dynamic>{});
     registerFallbackValue(<SupabaseFilter>[]);
+    for (final value in HttpMethod.values) {
+      registerFallbackValue(value);
+    }
   });
 
   setUp(() {
@@ -451,6 +454,7 @@ void main() {
           () => mockDatabase.rpc(
             functionName: any(named: 'functionName'),
             params: any(named: 'params'),
+            get: any(named: 'get'),
           ),
         ).thenAnswer((_) async => true);
 

@@ -90,6 +90,7 @@ class PermissionGroupModel extends PermissionGroupEntity
           final actions = <PermissionAction>{};
           for (final action in [
             PermissionAction.create,
+            PermissionAction.read,
             PermissionAction.update,
             PermissionAction.delete,
           ]) {

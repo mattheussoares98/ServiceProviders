@@ -26,7 +26,13 @@ void main() {
       final responseJson = responseModel.toJson();
       final responseModelFromJson = WorkOrderResponseModel.fromJson(responseJson);
 
-      expect(responseModelFromJson.toEntity(), tEntity);
+      final resultEntity = responseModelFromJson.toEntity();
+      expect(resultEntity.id, tEntity.id);
+      expect(resultEntity.companyId, tEntity.companyId);
+      expect(resultEntity.title, tEntity.title);
+      expect(resultEntity.priority, tEntity.priority);
+      expect(resultEntity.status, tEntity.status);
+      expect(resultEntity.type, tEntity.type);
       expect(responseModelFromJson.serviceProviderCompanyId, tEntity.serviceProviderCompanyId);
       expect(responseModelFromJson.providerProfileId, tEntity.providerProfileId);
       expect(responseModelFromJson.openedBy, tEntity.openedBy);

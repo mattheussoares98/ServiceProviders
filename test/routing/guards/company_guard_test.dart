@@ -13,6 +13,7 @@ import '../../../testing/mocks/entity_factory.dart';
 import '../../../testing/mocks/repository_mocks.dart';
 
 class MockStackRouter extends Mock implements StackRouter {}
+
 class MockNavigationResolver extends Mock implements NavigationResolver {}
 
 void main() {
@@ -46,22 +47,27 @@ void main() {
   });
 
   group('CompanyGuard', () {
-    test('should allow navigation (call resolver.next) when user is not logged in', () {
-      // Arrange
-      when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
+    test(
+      'should allow navigation (call resolver.next) when user is not logged in',
+      () {
+        // Arrange
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
 
-      // Act
-      companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+        // Act
+        companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
-      // Assert
-      verify(() => mockNavigationResolver.next()).called(1);
-      verifyNever(() => mockStackRouter.replaceAll(any()));
-    });
+        // Assert
+        verify(() => mockNavigationResolver.next()).called(1);
+        verifyNever(() => mockStackRouter.replaceAll(any()));
+      },
+    );
 
     test('should allow navigation when app is in provider mode', () {
       // Arrange
       when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
-      when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(AppMode.provider.name);
+      when(
+        () => mockLocalStorageClient.getSelectedMode(),
+      ).thenReturn(AppMode.provider.name);
 
       // Act
       companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
@@ -71,38 +77,58 @@ void main() {
       verifyNever(() => mockStackRouter.replaceAll(any()));
     });
 
-    test('should allow navigation when app is in internal mode and user has a company ID', () {
-      // Arrange
-      final userProfile = EntityFactory.makeUserProfileEntity().copyWith(companyId: 'company-123');
-      final userData = EntityFactory.makeUserDataEntity().copyWith(user: userProfile);
-      
-      when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
-      when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(AppMode.internal.name);
-      when(() => mockSessionRepository.userData).thenReturn(userData);
+    test(
+      'should allow navigation when app is in internal mode and user has a company ID',
+      () {
+        // Arrange
+        final userProfile = EntityFactory.makeUserProfileEntity().copyWith(
+          companyId: 'company-123',
+        );
+        final userData = EntityFactory.makeUserDataEntity().copyWith(
+          user: userProfile,
+        );
 
-      // Act
-      companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(() => mockSessionRepository.userData).thenReturn(userData);
 
-      // Assert
-      verify(() => mockNavigationResolver.next()).called(1);
-      verifyNever(() => mockStackRouter.replaceAll(any()));
-    });
+        // Act
+        companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
-    test('should redirect to CompanyRoute when app is in internal mode and user has no company ID', () {
-      // Arrange
-      final userProfile = EntityFactory.makeUserProfileEntity().copyWith(companyId: '');
-      final userData = EntityFactory.makeUserDataEntity().copyWith(user: userProfile);
+        // Assert
+        verify(() => mockNavigationResolver.next()).called(1);
+        verifyNever(() => mockStackRouter.replaceAll(any()));
+      },
+    );
 
-      when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
-      when(() => mockLocalStorageClient.getSelectedMode()).thenReturn(AppMode.internal.name);
-      when(() => mockSessionRepository.userData).thenReturn(userData);
+    test(
+      'should redirect to LoginRoute when app is in internal mode and user has no company ID',
+      () {
+        // Arrange
+        final userProfile = EntityFactory.makeUserProfileEntity().copyWith(
+          companyId: '',
+        );
+        final userData = EntityFactory.makeUserDataEntity().copyWith(
+          user: userProfile,
+        );
 
-      // Act
-      companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(() => mockSessionRepository.userData).thenReturn(userData);
 
-      // Assert
-      verifyNever(() => mockNavigationResolver.next(any()));
-      verify(() => mockStackRouter.replaceAll([const CompanyRoute()])).called(1);
-    });
+        // Act
+        companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+
+        // Assert
+        verifyNever(() => mockNavigationResolver.next(any()));
+        verify(
+          () => mockStackRouter.replaceAll([const LoginRoute()]),
+        ).called(1);
+      },
+    );
   });
 }

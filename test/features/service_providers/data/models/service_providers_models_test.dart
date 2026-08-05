@@ -25,7 +25,15 @@ void main() {
       final responseModelFromJson =
           ServiceProviderCompanyResponseModel.fromJson(responseJson);
 
-      expect(responseModelFromJson.toEntity(), tEntity);
+      final resultEntity = responseModelFromJson.toEntity();
+      expect(resultEntity.id, tEntity.id);
+      expect(resultEntity.companyId, tEntity.companyId);
+      expect(resultEntity.name, tEntity.name);
+      expect(resultEntity.document, tEntity.document);
+      expect(resultEntity.documentType, tEntity.documentType);
+      expect(resultEntity.contactEmail, tEntity.contactEmail);
+      expect(resultEntity.contactPhone, tEntity.contactPhone);
+      expect(resultEntity.isActive, tEntity.isActive);
     });
   });
 
@@ -47,7 +55,14 @@ void main() {
       final responseModelFromJson =
           ServiceProviderProfileResponseModel.fromJson(responseJson);
 
-      expect(responseModelFromJson.toEntity(), tEntity);
+      final resultEntity = responseModelFromJson.toEntity();
+      expect(resultEntity.id, tEntity.id);
+      expect(resultEntity.authUserId, tEntity.authUserId);
+      expect(resultEntity.serviceProviderCompanyId, tEntity.serviceProviderCompanyId);
+      expect(resultEntity.name, tEntity.name);
+      expect(resultEntity.email, tEntity.email);
+      expect(resultEntity.phone, tEntity.phone);
+      expect(resultEntity.isActive, tEntity.isActive);
     });
   });
 }

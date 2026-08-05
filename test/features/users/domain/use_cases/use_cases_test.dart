@@ -47,6 +47,7 @@ void main() {
     registerFallbackValue(
       const InviteUserParams(email: '', companyId: '', groupId: ''),
     );
+    registerFallbackValue(EntityFactory.makeUserDataEntity());
   });
 
   setUp(() {

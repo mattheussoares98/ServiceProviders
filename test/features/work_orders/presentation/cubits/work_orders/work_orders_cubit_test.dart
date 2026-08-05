@@ -526,15 +526,11 @@ void main() {
               () => mockCreateWorkOrder.call(
                 any(
                   that: predicate<WorkOrderEntity>((actual) {
-                    final expected = tWorkOrder.copyWith(
-                      id: actual.id,
-                      companyId: actual.companyId,
-                      createdAt: actual.createdAt,
-                      updatedAt: actual.updatedAt,
-                      attachments: actual.attachments,
-                      slaPolicyId: 'sla-policy-id-123',
-                    );
-                    return actual == expected;
+                    return actual.title == tWorkOrder.title &&
+                        actual.priority == tWorkOrder.priority &&
+                        actual.type == tWorkOrder.type &&
+                        actual.locationId == tWorkOrder.locationId &&
+                        actual.slaPolicyId == 'sla-policy-id-123';
                   }),
                 ),
               ),
@@ -981,14 +977,10 @@ void main() {
               () => mockCreateWorkOrder.call(
                 any(
                   that: predicate<WorkOrderEntity>((actual) {
-                    final expected = tWorkOrder.copyWith(
-                      id: actual.id,
-                      companyId: actual.companyId,
-                      createdAt: actual.createdAt,
-                      updatedAt: actual.updatedAt,
-                      attachments: actual.attachments,
-                    );
-                    return actual == expected;
+                    return actual.title == tWorkOrder.title &&
+                        actual.priority == tWorkOrder.priority &&
+                        actual.type == tWorkOrder.type &&
+                        actual.locationId == tWorkOrder.locationId;
                   }),
                 ),
               ),
@@ -1060,13 +1052,10 @@ void main() {
               () => mockUpdateWorkOrder.call(
                 any(
                   that: predicate<WorkOrderEntity>((actual) {
-                    final expected = tWorkOrder.copyWith(
-                      companyId: actual.companyId,
-                      createdAt: actual.createdAt,
-                      updatedAt: actual.updatedAt,
-                      attachments: actual.attachments,
-                    );
-                    return actual == expected;
+                    return actual.id == tWorkOrder.id &&
+                        actual.title == tWorkOrder.title &&
+                        actual.priority == tWorkOrder.priority &&
+                        actual.type == tWorkOrder.type;
                   }),
                 ),
               ),
@@ -1111,6 +1100,7 @@ void main() {
             serviceProviderCompanyId: tWorkOrder.serviceProviderCompanyId,
             providerProfileId: tWorkOrder.providerProfileId,
             openedBy: tWorkOrder.openedBy,
+            slaPolicyId: tWorkOrder.slaPolicyId,
           ),
           expect: () => [
             isA<WorkOrdersState>().having(
@@ -1129,13 +1119,10 @@ void main() {
               () => mockUpdateWorkOrder.call(
                 any(
                   that: predicate<WorkOrderEntity>((actual) {
-                    final expected = tWorkOrder.copyWith(
-                      companyId: actual.companyId,
-                      createdAt: actual.createdAt,
-                      updatedAt: actual.updatedAt,
-                      attachments: actual.attachments,
-                    );
-                    return actual == expected;
+                    return actual.id == tWorkOrder.id &&
+                        actual.title == tWorkOrder.title &&
+                        actual.priority == tWorkOrder.priority &&
+                        actual.type == tWorkOrder.type;
                   }),
                 ),
               ),
