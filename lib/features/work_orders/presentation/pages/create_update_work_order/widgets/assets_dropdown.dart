@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -13,17 +14,26 @@ class AssetsDropdown extends StatelessWidget {
     super.key,
     required this.selectedAssetId,
     required this.selectedLocationId,
+    required this.selectedAreaId,
     required this.onChanged,
+    required this.applyAssociatedAreaId,
   });
   final String? selectedAssetId;
   final String? selectedLocationId;
+  final String? selectedAreaId;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String?> applyAssociatedAreaId;
 
   @override
   Widget build(BuildContext context) {
     final areasIds = context
         .select<LocationsCubit, List<AreaEntity>?>((cubit) {
-          return cubit.state.areasByLocation[selectedLocationId];
+          final areas = cubit.state.areasByLocation[selectedLocationId];
+          if (selectedAreaId == null) {
+            return areas;
+          } else {
+            return [?areas?.firstWhereOrNull((e) => e.id == selectedAreaId)];
+          }
         })
         ?.map((e) => e.id);
     final filteredAssets = context.select<AssetsCubit, List<AssetEntity>>((
@@ -48,7 +58,14 @@ class AssetsDropdown extends StatelessWidget {
                 ? BaseText('Sem equipamentos cadastrados'.hardcoded)
                 : null),
       items: selectedLocationId == null ? null : assetDropdownItems,
-      onChanged: onChanged,
+      onChanged: (value) {
+        onChanged.call(value);
+
+        final respectiveAsset = filteredAssets.firstWhereOrNull(
+          (e) => e.id == value,
+        );
+        applyAssociatedAreaId.call(respectiveAsset?.areaId);
+      },
     );
   }
 }

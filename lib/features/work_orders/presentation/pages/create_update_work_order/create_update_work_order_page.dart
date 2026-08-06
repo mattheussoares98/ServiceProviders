@@ -21,6 +21,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/area_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
@@ -152,6 +153,7 @@ class _CreateUpdatePage extends HookWidget {
     final initialDescription = workOrder?.description ?? '';
     final initialDuration = workOrder?.estimatedDuration?.toString() ?? '';
     final initialLocationId = workOrder?.locationId;
+    final initialAreaId = workOrder?.areaId;
     final initialAssetId = workOrder?.assetId;
     final initialAssignedToId = workOrder?.assignedToId;
     final initialPriority = workOrder?.priority ?? Priority.medium;
@@ -166,6 +168,7 @@ class _CreateUpdatePage extends HookWidget {
     final descController = useTextEditingController(text: initialDescription);
     final durationController = useTextEditingController(text: initialDuration);
     final selectedLocationId = useState<String?>(initialLocationId);
+    final selectedAreaId = useState<String?>(initialAreaId);
     final selectedAssetId = useState<String?>(initialAssetId);
     final selectedAssignedToId = useState<String?>(initialAssignedToId);
     final selectedPriority = useState<Priority>(initialPriority);
@@ -208,6 +211,7 @@ class _CreateUpdatePage extends HookWidget {
           descController.text.trim() != initialDescription ||
           durationController.text.trim() != initialDuration ||
           selectedLocationId.value != initialLocationId ||
+          selectedAreaId.value != initialAreaId ||
           (selectedAssetId.value == '' ? null : selectedAssetId.value) !=
               initialAssetId ||
           (selectedAssignedToId.value == ''
@@ -253,6 +257,7 @@ class _CreateUpdatePage extends HookWidget {
       final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
         id: workOrderId,
         locationId: selectedLocationId.value!,
+        areaId: selectedAreaId.value,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
         assignedToId: selectedAssignedToId.value == ''
             ? null
@@ -360,6 +365,18 @@ class _CreateUpdatePage extends HookWidget {
           selectedId: selectedLocationId.value,
           onChanged: (val) {
             selectedLocationId.value = val;
+            selectedAreaId.value = null;
+            selectedAssetId.value = null;
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: AreaDropdown(
+          selectedAreaId: selectedAreaId.value,
+          selectedLocationId: selectedLocationId.value,
+          onChanged: (val) {
+            selectedAreaId.value = val;
             selectedAssetId.value = null;
           },
         ),
@@ -369,7 +386,13 @@ class _CreateUpdatePage extends HookWidget {
         child: AssetsDropdown(
           selectedAssetId: selectedAssetId.value,
           selectedLocationId: selectedLocationId.value,
-          onChanged: (val) => selectedAssetId.value = val,
+          selectedAreaId: selectedAreaId.value,
+          applyAssociatedAreaId: (val) {
+            selectedAreaId.value = val;
+          },
+          onChanged: (val) {
+            selectedAssetId.value = val;
+          },
         ),
       ),
       Padding(
