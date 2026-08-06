@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -68,9 +69,15 @@ class _WorkOrderDetails extends HookWidget {
   Widget build(BuildContext context) {
     final pauseCubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
     final sessionCubit = context.read<SessionCubit>();
+    final serviceProvidersCubit = context.read<ServiceProvidersCubit>();
 
     useEffect(() {
       pauseCubit.loadPauseRequests(workOrder.id);
+      if (workOrder.serviceProviderCompanyId != null) {
+        serviceProvidersCubit.ensureProfilesLoaded(
+          workOrder.serviceProviderCompanyId!,
+        );
+      }
       return null;
     }, [workOrder.id]);
 

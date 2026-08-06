@@ -8,14 +8,19 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class InfoItems extends StatelessWidget {
@@ -38,6 +43,15 @@ class InfoItems extends StatelessWidget {
       (cubit) =>
           cubit.state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
     );
+
+    final spCompanyId = workOrder.serviceProviderCompanyId;
+    final serviceProviderProfile = spCompanyId == null
+        ? null
+        : context.select<ServiceProvidersCubit, ServiceProviderProfileEntity?>(
+            (cubit) => cubit.state.profiles[spCompanyId]?.firstWhereOrNull(
+              (p) => p.id == workOrder.providerProfileId,
+            ),
+          );
 
     final items = [
       TitleAndSubtitle(
@@ -64,6 +78,42 @@ class InfoItems extends StatelessWidget {
           icon: const PlatformIcon(
             materialIcon: Icons.person_outline,
             cupertinoIcon: CupertinoIcons.person,
+          ),
+        ),
+      if (spCompanyId != null)
+        BaseStateView<
+          ServiceProvidersCubit,
+          ServiceProvidersState,
+          ServiceProviderCompanyEntity?
+        >(
+          dataSelector: (state) {
+            return state.companies.firstWhereOrNull((e) => e.id == spCompanyId);
+          },
+          builder: (context, serviceProviderCompany) {
+            if (serviceProviderCompany == null) {
+              return const SizedBox.shrink();
+            }
+            return TitleAndSubtitle(
+              backgroundColor: context.theme.secondaryHeaderColor.withAlpha(
+                100,
+              ),
+              title: 'Empresa prestadora do serviço'.hardcoded,
+              subtitle: serviceProviderCompany.name,
+              icon: const PlatformIcon(
+                materialIcon: Icons.business,
+                cupertinoIcon: CupertinoIcons.building_2_fill,
+              ),
+            );
+          },
+        ),
+      if (serviceProviderProfile != null)
+        TitleAndSubtitle(
+          backgroundColor: context.theme.secondaryHeaderColor.withAlpha(100),
+          title: 'Responsável da empresa prestadora'.hardcoded,
+          subtitle: serviceProviderProfile.name,
+          icon: const PlatformIcon(
+            materialIcon: Icons.person_pin_outlined,
+            cupertinoIcon: CupertinoIcons.person_badge_plus,
           ),
         ),
       if (location != null)
