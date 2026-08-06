@@ -67,6 +67,9 @@ void main() {
         hash: any(named: 'hash'),
       ),
     ).thenAnswer((_) async => const SuccessState(data: null));
+    when(
+      () => mockLocalDataSource.getAttachment(any()),
+    ).thenAnswer((_) async => const SuccessState(data: null));
   });
 
   final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
@@ -97,7 +100,10 @@ void main() {
         expect(result.data?.length, equals(tAttachmentEntityList.length));
         for (var i = 0; i < (result.data?.length ?? 0); i++) {
           expect(result.data![i].id, tAttachmentEntityList[i].id);
-          expect(result.data![i].workOrderId, tAttachmentEntityList[i].workOrderId);
+          expect(
+            result.data![i].workOrderId,
+            tAttachmentEntityList[i].workOrderId,
+          );
         }
         verify(
           () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
@@ -132,7 +138,10 @@ void main() {
         expect(result.data?.length, equals(tAttachmentEntityList.length));
         for (var i = 0; i < (result.data?.length ?? 0); i++) {
           expect(result.data![i].id, tAttachmentEntityList[i].id);
-          expect(result.data![i].workOrderId, tAttachmentEntityList[i].workOrderId);
+          expect(
+            result.data![i].workOrderId,
+            tAttachmentEntityList[i].workOrderId,
+          );
         }
         verify(
           () => mockRemoteDataSource.getAttachmentsByWorkOrder(workOrderId),
@@ -208,6 +217,58 @@ void main() {
         verify(() => mockLocalDataSource.saveAttachment(model1)).called(1);
         verify(() => mockLocalDataSource.deleteAttachment(model2.id)).called(1);
         verifyNever(() => mockLocalDataSource.deleteAttachment(model1.id));
+      },
+    );
+
+    test(
+      'getAttachmentsByWorkOrder should preserve existing localPath when syncing remote attachments',
+      () async {
+        // Arrange
+        final workOrderId = faker.guid.guid();
+        final attachmentId = faker.guid.guid();
+        final remoteModel = AttachmentResponseModel.fromEntity(
+          EntityFactory.makeAttachmentEntity().copyWith(
+            id: attachmentId,
+            workOrderId: workOrderId,
+            uploadStatus: UploadStatus.uploaded,
+            annulLocalPath: true,
+          ),
+        );
+        final existingLocalModel = remoteModel.copyWith(
+          localPath: 'local/path/file.jpg',
+        );
+
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).thenAnswer((_) async => SuccessState(data: [remoteModel]));
+        when(() => mockLocalDataSource.getAttachment(attachmentId)).thenAnswer(
+          (_) async => SuccessState(
+            data: AttachmentResponseModel.fromEntity(existingLocalModel),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+        ).thenAnswer(
+          (_) async => SuccessState(
+            data: [AttachmentResponseModel.fromEntity(existingLocalModel)],
+          ),
+        );
+
+        // Act
+        await repository.getAttachmentsByWorkOrder(workOrderId);
+
+        // Assert
+        verify(
+          () => mockLocalDataSource.saveAttachment(
+            AttachmentResponseModel.fromEntity(
+              remoteModel.copyWith(localPath: 'local/path/file.jpg'),
+            ),
+          ),
+        ).called(1);
       },
     );
 

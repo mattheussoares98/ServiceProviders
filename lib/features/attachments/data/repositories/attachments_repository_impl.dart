@@ -58,7 +58,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
         await Future.wait([
           for (final model in remoteModels)
-            _localDataSource.saveAttachment(model),
+            _saveRemoteModelPreservingLocalPath(model),
         ]);
 
         // Find and delete local attachments that were deleted remotely
@@ -92,6 +92,17 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     final models = localResult.data ?? <AttachmentResponseModel>[];
     final entities = await Future.wait(models.map(_toEntityWithResolvedPath));
     return SuccessState(data: entities);
+  }
+
+  Future<void> _saveRemoteModelPreservingLocalPath(
+    AttachmentResponseModel remoteModel,
+  ) async {
+    final existingResult = await _localDataSource.getAttachment(remoteModel.id);
+    await _localDataSource.saveAttachment(
+      AttachmentResponseModel.fromEntity(
+        remoteModel.copyWith(localPath: existingResult.data?.localPath),
+      ),
+    );
   }
 
   Future<AttachmentEntity> _toEntityWithResolvedPath(
@@ -388,21 +399,23 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   // Private helpers
   // ──────────────────────────────────────────
 
-  Future<List<PickedFile>?> _pickFiles(AttachmentSource source, {bool multiple = true}) =>
-      switch (source) {
-        // Camera picks always produce unique files — name is not meaningful
-        // for deduplication, so we reuse path as the name.
-        AttachmentSource.cameraPhoto => _fileService.takePhoto().then(
-          (path) =>
-              path != null ? [(path: path, name: path, bytes: null)] : null,
-        ),
-        AttachmentSource.cameraVideo => _fileService.recordVideo().then(
-          (path) =>
-              path != null ? [(path: path, name: path, bytes: null)] : null,
-        ),
-        AttachmentSource.gallery => _fileService.pickMediaFromGallery(multiple: multiple),
-        AttachmentSource.document => _fileService.pickDocuments(),
-      };
+  Future<List<PickedFile>?> _pickFiles(
+    AttachmentSource source, {
+    bool multiple = true,
+  }) => switch (source) {
+    // Camera picks always produce unique files — name is not meaningful
+    // for deduplication, so we reuse path as the name.
+    AttachmentSource.cameraPhoto => _fileService.takePhoto().then(
+      (path) => path != null ? [(path: path, name: path, bytes: null)] : null,
+    ),
+    AttachmentSource.cameraVideo => _fileService.recordVideo().then(
+      (path) => path != null ? [(path: path, name: path, bytes: null)] : null,
+    ),
+    AttachmentSource.gallery => _fileService.pickMediaFromGallery(
+      multiple: multiple,
+    ),
+    AttachmentSource.document => _fileService.pickDocuments(),
+  };
 
   Future<DataState<AttachmentEntity>> _prepareFile({
     required String originalPath,
