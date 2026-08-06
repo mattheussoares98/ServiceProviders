@@ -6,11 +6,14 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -39,9 +42,19 @@ class InfoItems extends StatelessWidget {
         (e) => e.id == workOrder.locationId,
       ),
     );
+    final area = context.select<LocationsCubit, AreaEntity?>(
+      (cubit) => cubit.state.allAreas.firstWhereOrNull(
+        (e) => e.id == workOrder.areaId,
+      ),
+    );
     final asset = context.select<AssetsCubit, AssetEntity?>(
       (cubit) =>
           cubit.state.assets.firstWhereOrNull((e) => e.id == workOrder.assetId),
+    );
+    final slaPolicy = context.select<SlaPoliciesCubit, SlaPolicyEntity?>(
+      (cubit) => cubit.state.slaPolicies.firstWhereOrNull(
+        (e) => e.id == workOrder.slaPolicyId,
+      ),
     );
 
     final spCompanyId = workOrder.serviceProviderCompanyId;
@@ -122,8 +135,18 @@ class InfoItems extends StatelessWidget {
           subtitle: location.name,
           messageIfSubtitleIsNull: 'Sem local definido'.hardcoded,
           icon: const PlatformIcon(
-            materialIcon: Icons.location_on_outlined,
+            materialIcon: Icons.location_city,
             cupertinoIcon: CupertinoIcons.location,
+          ),
+        ),
+      if (area != null)
+        TitleAndSubtitle(
+          title: 'Área'.hardcoded,
+          subtitle: area.name,
+          messageIfSubtitleIsNull: 'Sem área definida'.hardcoded,
+          icon: const PlatformIcon(
+            materialIcon: Icons.location_on,
+            cupertinoIcon: CupertinoIcons.location_solid,
           ),
         ),
       if (asset != null)
@@ -134,6 +157,18 @@ class InfoItems extends StatelessWidget {
           icon: const PlatformIcon(
             materialIcon: Icons.build_outlined,
             cupertinoIcon: CupertinoIcons.gear,
+          ),
+        ),
+      if (workOrder.slaPolicyId != null)
+        TitleAndSubtitle(
+          title: 'Política de SLA'.hardcoded,
+          subtitle: slaPolicy != null
+              ? '${slaPolicy.name} (${slaPolicy.targetHours}h)'
+              : null,
+          messageIfSubtitleIsNull: 'Sem SLA'.hardcoded,
+          icon: const PlatformIcon(
+            materialIcon: Icons.timer_outlined,
+            cupertinoIcon: CupertinoIcons.clock,
           ),
         ),
       Row(
