@@ -1,24 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+part of '../create_update_work_order_page.dart';
 
-class DescriptionField extends StatelessWidget {
-  const DescriptionField({
-    super.key,
-    required this.descController,
-    required this.descFocusNode,
-  });
+class _DescriptionField extends StatelessWidget {
+  const _DescriptionField({required this.controller});
 
-  final TextEditingController descController;
-  final FocusNode descFocusNode;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     return BaseTextFormField(
       labelText: 'Descrição (opcional)'.hardcoded,
       hintText: 'Ex: O equipamento do bloco B não liga'.hardcoded,
-      controller: descController,
-      focusNode: descFocusNode,
+      controller: controller,
       maxLength: 500,
       maxLines: 3,
       textInputAction: TextInputAction.newline,

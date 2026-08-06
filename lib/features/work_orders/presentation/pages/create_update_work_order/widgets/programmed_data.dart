@@ -1,20 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/get_new_date.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+part of '../create_update_work_order_page.dart';
 
-class ProgrammedData extends StatelessWidget {
-  const ProgrammedData({
-    required this.selectedScheduledDate,
-    required this.onChanged,
-    super.key,
-  });
-  final DateTime? selectedScheduledDate;
+class _ProgrammedData extends StatelessWidget {
+  const _ProgrammedData({required this.scheduledDate, required this.onChanged});
+  final DateTime? scheduledDate;
   final ValueChanged<DateTime?> onChanged;
 
   @override
@@ -34,7 +22,7 @@ class ProgrammedData extends StatelessWidget {
                 minimumDate: now,
                 maximumDate: now.add(const Duration(days: 365 * 10)),
                 context: context,
-                currentSelectedDate: selectedScheduledDate,
+                currentSelectedDate: scheduledDate,
               );
               if (newDate != null) {
                 onChanged(newDate);
@@ -50,15 +38,13 @@ class ProgrammedData extends StatelessWidget {
                 children: [
                   Expanded(
                     child: BaseText(
-                      selectedScheduledDate == null
+                      scheduledDate == null
                           ? 'Selecionar'.hardcoded
-                          : selectedScheduledDate!.formatDate(
-                              DateFormatType.yMMMMd,
-                            ),
+                          : scheduledDate!.formatDate(DateFormatType.yMMMMd),
                     ),
                   ),
                   if (screenWidth > 250) ...[
-                    if (selectedScheduledDate != null)
+                    if (scheduledDate != null)
                       BaseIconButton(
                         padding: EdgeInsets.zero,
                         platformIcon: const PlatformIcon(

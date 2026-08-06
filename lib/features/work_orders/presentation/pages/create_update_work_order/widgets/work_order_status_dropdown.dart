@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+part of '../create_update_work_order_page.dart';
 
-class WorkOrderStatusDropdown extends StatelessWidget {
-  const WorkOrderStatusDropdown({
-    super.key,
+class _WorkOrderStatusDropdown extends StatelessWidget {
+  const _WorkOrderStatusDropdown({
     required this.onChanged,
     required this.selectedStatus,
   });

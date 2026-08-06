@@ -1,16 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+part of '../create_update_work_order_page.dart';
 
-class LocationDropdown extends StatelessWidget {
-  const LocationDropdown({
-    super.key,
-    required this.selectedId,
-    required this.onChanged,
-  });
+class _LocationDropdown extends StatelessWidget {
+  const _LocationDropdown({required this.selectedId, required this.onChanged});
   final String? selectedId;
   final ValueChanged<String?>? onChanged;
 

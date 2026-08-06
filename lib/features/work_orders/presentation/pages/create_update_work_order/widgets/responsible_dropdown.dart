@@ -1,18 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+part of '../create_update_work_order_page.dart';
 
-class ResponsibleDropdown extends StatelessWidget {
-  const ResponsibleDropdown({
-    super.key,
+class _ResponsibleDropdown extends StatelessWidget {
+  const _ResponsibleDropdown({
     required this.onChanged,
-    required this.responsibleId,
+    required this.selectedId,
   });
-  final String? responsibleId;
+  final String? selectedId;
   final ValueChanged<String?> onChanged;
 
   @override
@@ -30,7 +23,7 @@ class ResponsibleDropdown extends StatelessWidget {
       key: const ValueKey('AssignedTo'),
       label: 'Responsável (opcional)'.hardcoded,
       showLabelAtTopLeft: true,
-      selectedItem: responsibleId,
+      selectedItem: selectedId,
       items: userDropdownItems,
       onChanged: onChanged,
     );

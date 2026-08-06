@@ -1,31 +1,27 @@
-import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
+part of '../create_update_work_order_page.dart';
 
-class DurationField extends StatelessWidget {
-  const DurationField({
-    super.key,
-    required this.durationController,
-    required this.durationFocusNode,
+class _DurationField extends StatelessWidget {
+  const _DurationField({
+    required this.controller,
     required this.onSubmit,
+    required this.descFocusNode,
   });
-  final TextEditingController durationController;
-  final FocusNode durationFocusNode;
+
+  final TextEditingController controller;
   final VoidCallback onSubmit;
+  final FocusNode descFocusNode;
 
   @override
   Widget build(BuildContext context) {
     return BaseTextFormField(
       labelText: 'Duração (min, opcional)'.hardcoded,
       hintText: 'Ex: 60'.hardcoded,
-      controller: durationController,
-      focusNode: durationFocusNode,
+      controller: controller,
+      focusNode: descFocusNode,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       textInputAction: TextInputAction.done,
-      onFieldSubmitted: (_) => onSubmit(),
       autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+      onFieldSubmitted: (_) => onSubmit.call(),
       validator: FormValidators.compose([
         NumberValidator(
           allowDecimal: false,

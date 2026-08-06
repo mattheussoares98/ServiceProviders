@@ -1,17 +1,7 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
-import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
-import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
-import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+part of '../create_update_work_order_page.dart';
 
-class AssetsDropdown extends StatelessWidget {
-  const AssetsDropdown({
-    super.key,
+class _AssetsDropdown extends StatelessWidget {
+  const _AssetsDropdown({
     required this.selectedAssetId,
     required this.selectedLocationId,
     required this.selectedAreaId,

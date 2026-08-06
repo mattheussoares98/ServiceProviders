@@ -1,19 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
-import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+part of '../create_update_work_order_page.dart';
 
-class TryAgainButton extends StatelessWidget {
-  const TryAgainButton({
+class _TryAgainButton extends StatelessWidget {
+  const _TryAgainButton({
     required this.assetsError,
     required this.locationsError,
     required this.usersError,
-    super.key,
   });
 
   final String? assetsError;

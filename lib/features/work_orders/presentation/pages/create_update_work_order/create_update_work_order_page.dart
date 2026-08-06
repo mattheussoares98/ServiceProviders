@@ -7,48 +7,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/area_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/assets_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/description_field.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/duration_field.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/location_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/priority_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/programmed_data.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/responsible_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_company_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/service_provider_profile_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/sla_policy_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/title_field.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/try_again_button.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_status_dropdown.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/create_update_work_order/widgets/work_order_type_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/get_new_date.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
 import 'package:uuid/uuid.dart';
+
+part './widgets/area_dropdown.dart';
+part './widgets/assets_dropdown.dart';
+part './widgets/description_field.dart';
+part './widgets/duration_field.dart';
+part './widgets/location_dropdown.dart';
+part './widgets/priority_dropdown.dart';
+part './widgets/programmed_data.dart';
+part './widgets/responsible_dropdown.dart';
+part './widgets/service_provider_company_dropdown.dart';
+part './widgets/service_provider_profile_dropdown.dart';
+part './widgets/sla_policy_dropdown.dart';
+part './widgets/title_field.dart';
+part './widgets/try_again_button.dart';
+part './widgets/work_order_status_dropdown.dart';
+part './widgets/work_order_type_dropdown.dart';
 
 @RoutePage()
 class CreateUpdateWorkOrderPage extends HookWidget {
@@ -142,7 +157,7 @@ class _CreateUpdatePage extends HookWidget {
     if (isLoading) {
       return const LoadingCircle();
     } else if (hasError) {
-      return TryAgainButton(
+      return _TryAgainButton(
         assetsError: assetsError,
         locationsError: locationsError,
         usersError: usersError,
@@ -167,6 +182,7 @@ class _CreateUpdatePage extends HookWidget {
     final titleController = useTextEditingController(text: initialTitle);
     final descController = useTextEditingController(text: initialDescription);
     final durationController = useTextEditingController(text: initialDuration);
+    final descFocusNode = useFocusNode();
     final selectedLocationId = useState<String?>(initialLocationId);
     final selectedAreaId = useState<String?>(initialAreaId);
     final selectedAssetId = useState<String?>(initialAssetId);
@@ -182,10 +198,6 @@ class _CreateUpdatePage extends HookWidget {
       initialProviderProfileId,
     );
     final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
-
-    final titleFocusNode = useFocusNode();
-    final descFocusNode = useFocusNode();
-    final durationFocusNode = useFocusNode();
 
     useEffect(() {
       if (initialServiceProviderCompanyId != null) {
@@ -228,12 +240,6 @@ class _CreateUpdatePage extends HookWidget {
           selectedSlaPolicyId.value != initialSlaPolicyId;
 
       return hasChanges;
-    }
-
-    void onCompanyChanged(String? val) {
-      selectedServiceProviderCompanyId.value = val;
-      selectedProviderProfileId.value = null;
-      context.read<ServiceProvidersCubit>().selectCompany(val);
     }
 
     Future<void> onSubmit() async {
@@ -296,38 +302,35 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     final items = [
-      TitleField(
-        titleController: titleController,
-        titleFocusNode: titleFocusNode,
-        descFocusNode: descFocusNode,
+      _TitleField(controller: titleController),
+      //TODO check whether it is changing the focus nodes correctly or not on a real device
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: _DescriptionField(controller: descController),
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: DescriptionField(
-          descController: descController,
-          descFocusNode: descFocusNode,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: ResponsibleDropdown(
+        child: _ResponsibleDropdown(
+          selectedId: selectedAssignedToId.value,
           onChanged: (val) => selectedAssignedToId.value = val,
-          responsibleId: selectedAssignedToId.value,
         ),
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: ServiceProviderCompanyDropdown(
+        child: _ServiceProviderCompanyDropdown(
           selectedCompanyId: selectedServiceProviderCompanyId.value,
-          onChanged: onCompanyChanged,
+          onChanged: (val) {
+            selectedServiceProviderCompanyId.value = val;
+            selectedProviderProfileId.value = null;
+          },
         ),
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: ServiceProviderProfileDropdown(
+        child: _ServiceProviderProfileDropdown(
+          companyId: selectedServiceProviderCompanyId.value,
           selectedProfileId: selectedProviderProfileId.value,
           onChanged: (val) => selectedProviderProfileId.value = val,
-          selectedCompanyId: selectedServiceProviderCompanyId.value,
         ),
       ),
       Padding(
@@ -335,16 +338,16 @@ class _CreateUpdatePage extends HookWidget {
         child: Row(
           children: [
             Expanded(
-              child: WorkOrderTypeDropdown(
-                onChanged: (v) => selectedType.value = v,
+              child: _WorkOrderTypeDropdown(
                 selectedType: selectedType.value,
+                onChanged: (v) => selectedType.value = v,
               ),
             ),
             gapW16,
             Expanded(
-              child: PriorityDropdown(
-                onChanged: (v) => selectedPriority.value = v,
+              child: _PriorityDropdown(
                 selectedPriority: selectedPriority.value,
+                onChanged: (v) => selectedPriority.value = v,
               ),
             ),
           ],
@@ -353,15 +356,15 @@ class _CreateUpdatePage extends HookWidget {
       if (workOrder != null) ...[
         Padding(
           padding: const EdgeInsets.only(top: Sizes.p8),
-          child: WorkOrderStatusDropdown(
-            onChanged: (v) => selectedStatus.value = v,
+          child: _WorkOrderStatusDropdown(
             selectedStatus: selectedStatus.value,
+            onChanged: (v) => selectedStatus.value = v,
           ),
         ),
       ],
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: LocationDropdown(
+        child: _LocationDropdown(
           selectedId: selectedLocationId.value,
           onChanged: (val) {
             selectedLocationId.value = val;
@@ -372,7 +375,7 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: AreaDropdown(
+        child: _AreaDropdown(
           selectedAreaId: selectedAreaId.value,
           selectedLocationId: selectedLocationId.value,
           onChanged: (val) {
@@ -383,7 +386,7 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: AssetsDropdown(
+        child: _AssetsDropdown(
           selectedAssetId: selectedAssetId.value,
           selectedLocationId: selectedLocationId.value,
           selectedAreaId: selectedAreaId.value,
@@ -401,7 +404,7 @@ class _CreateUpdatePage extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: SlaPolicyDropdown(
+              child: _SlaPolicyDropdown(
                 selectedSlaPolicyId: selectedSlaPolicyId.value,
                 onChanged: (val) => selectedSlaPolicyId.value = val,
               ),
@@ -426,16 +429,16 @@ class _CreateUpdatePage extends HookWidget {
             crossAxisAlignment: .stretch,
             children: [
               Expanded(
-                child: DurationField(
-                  durationController: durationController,
-                  durationFocusNode: durationFocusNode,
+                child: _DurationField(
+                  controller: durationController,
+                  descFocusNode: descFocusNode,
                   onSubmit: onSubmit,
                 ),
               ),
               gapW16,
               Expanded(
-                child: ProgrammedData(
-                  selectedScheduledDate: selectedScheduledDate.value,
+                child: _ProgrammedData(
+                  scheduledDate: selectedScheduledDate.value,
                   onChanged: (v) => selectedScheduledDate.value = v,
                 ),
               ),

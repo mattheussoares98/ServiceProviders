@@ -1,31 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+part of '../create_update_work_order_page.dart';
 
-class ServiceProviderProfileDropdown extends StatelessWidget {
-  const ServiceProviderProfileDropdown({
-    super.key,
+class _ServiceProviderProfileDropdown extends StatelessWidget {
+  const _ServiceProviderProfileDropdown({
     required this.onChanged,
     required this.selectedProfileId,
-    required this.selectedCompanyId,
+    required this.companyId,
   });
 
-  final String? selectedCompanyId;
+  final String? companyId;
   final String? selectedProfileId;
   final ValueChanged<String?> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    if (selectedCompanyId?.isEmpty ?? true) {
+    if (companyId?.isEmpty ?? true) {
       return const SizedBox.shrink();
     }
     final profiles = context
         .select<ServiceProvidersCubit, List<ServiceProviderProfileEntity>>(
-          (cubit) => cubit.state.profiles[selectedCompanyId!] ?? [],
+          (cubit) => cubit.state.profiles[companyId!] ?? [],
         );
 
     final dropdownItems = profiles
