@@ -10508,6 +10508,18 @@ class $WorkOrdersTable extends WorkOrders
       'REFERENCES locations (id) ON DELETE CASCADE',
     ),
   );
+  static const VerificationMeta _areaIdMeta = const VerificationMeta('areaId');
+  @override
+  late final GeneratedColumn<String> areaId = GeneratedColumn<String>(
+    'area_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES areas (id) ON DELETE SET NULL',
+    ),
+  );
   static const VerificationMeta _assignedToIdMeta = const VerificationMeta(
     'assignedToId',
   );
@@ -10870,6 +10882,7 @@ class $WorkOrdersTable extends WorkOrders
     companyId,
     assetId,
     locationId,
+    areaId,
     assignedToId,
     createdById,
     maintenancePlanId,
@@ -10939,6 +10952,12 @@ class $WorkOrdersTable extends WorkOrders
       );
     } else if (isInserting) {
       context.missing(_locationIdMeta);
+    }
+    if (data.containsKey('area_id')) {
+      context.handle(
+        _areaIdMeta,
+        areaId.isAcceptableOrUnknown(data['area_id']!, _areaIdMeta),
+      );
     }
     if (data.containsKey('assigned_to_id')) {
       context.handle(
@@ -11200,6 +11219,10 @@ class $WorkOrdersTable extends WorkOrders
         DriftSqlType.string,
         data['${effectivePrefix}location_id'],
       )!,
+      areaId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}area_id'],
+      ),
       assignedToId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}assigned_to_id'],
@@ -11334,6 +11357,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
   final String companyId;
   final String? assetId;
   final String locationId;
+  final String? areaId;
   final String? assignedToId;
   final String createdById;
   final String? maintenancePlanId;
@@ -11369,6 +11393,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     required this.companyId,
     this.assetId,
     required this.locationId,
+    this.areaId,
     this.assignedToId,
     required this.createdById,
     this.maintenancePlanId,
@@ -11409,6 +11434,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       map['asset_id'] = Variable<String>(assetId);
     }
     map['location_id'] = Variable<String>(locationId);
+    if (!nullToAbsent || areaId != null) {
+      map['area_id'] = Variable<String>(areaId);
+    }
     if (!nullToAbsent || assignedToId != null) {
       map['assigned_to_id'] = Variable<String>(assignedToId);
     }
@@ -11498,6 +11526,9 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ? const Value.absent()
           : Value(assetId),
       locationId: Value(locationId),
+      areaId: areaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(areaId),
       assignedToId: assignedToId == null && nullToAbsent
           ? const Value.absent()
           : Value(assignedToId),
@@ -11585,6 +11616,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       companyId: serializer.fromJson<String>(json['companyId']),
       assetId: serializer.fromJson<String?>(json['assetId']),
       locationId: serializer.fromJson<String>(json['locationId']),
+      areaId: serializer.fromJson<String?>(json['areaId']),
       assignedToId: serializer.fromJson<String?>(json['assignedToId']),
       createdById: serializer.fromJson<String>(json['createdById']),
       maintenancePlanId: serializer.fromJson<String?>(
@@ -11635,6 +11667,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       'companyId': serializer.toJson<String>(companyId),
       'assetId': serializer.toJson<String?>(assetId),
       'locationId': serializer.toJson<String>(locationId),
+      'areaId': serializer.toJson<String?>(areaId),
       'assignedToId': serializer.toJson<String?>(assignedToId),
       'createdById': serializer.toJson<String>(createdById),
       'maintenancePlanId': serializer.toJson<String?>(maintenancePlanId),
@@ -11677,6 +11710,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     String? companyId,
     Value<String?> assetId = const Value.absent(),
     String? locationId,
+    Value<String?> areaId = const Value.absent(),
     Value<String?> assignedToId = const Value.absent(),
     String? createdById,
     Value<String?> maintenancePlanId = const Value.absent(),
@@ -11712,6 +11746,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     companyId: companyId ?? this.companyId,
     assetId: assetId.present ? assetId.value : this.assetId,
     locationId: locationId ?? this.locationId,
+    areaId: areaId.present ? areaId.value : this.areaId,
     assignedToId: assignedToId.present ? assignedToId.value : this.assignedToId,
     createdById: createdById ?? this.createdById,
     maintenancePlanId: maintenancePlanId.present
@@ -11773,6 +11808,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
       locationId: data.locationId.present
           ? data.locationId.value
           : this.locationId,
+      areaId: data.areaId.present ? data.areaId.value : this.areaId,
       assignedToId: data.assignedToId.present
           ? data.assignedToId.value
           : this.assignedToId,
@@ -11847,6 +11883,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           ..write('companyId: $companyId, ')
           ..write('assetId: $assetId, ')
           ..write('locationId: $locationId, ')
+          ..write('areaId: $areaId, ')
           ..write('assignedToId: $assignedToId, ')
           ..write('createdById: $createdById, ')
           ..write('maintenancePlanId: $maintenancePlanId, ')
@@ -11887,6 +11924,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
     companyId,
     assetId,
     locationId,
+    areaId,
     assignedToId,
     createdById,
     maintenancePlanId,
@@ -11926,6 +11964,7 @@ class WorkOrder extends DataClass implements Insertable<WorkOrder> {
           other.companyId == this.companyId &&
           other.assetId == this.assetId &&
           other.locationId == this.locationId &&
+          other.areaId == this.areaId &&
           other.assignedToId == this.assignedToId &&
           other.createdById == this.createdById &&
           other.maintenancePlanId == this.maintenancePlanId &&
@@ -11963,6 +12002,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
   final Value<String> companyId;
   final Value<String?> assetId;
   final Value<String> locationId;
+  final Value<String?> areaId;
   final Value<String?> assignedToId;
   final Value<String> createdById;
   final Value<String?> maintenancePlanId;
@@ -11999,6 +12039,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     this.companyId = const Value.absent(),
     this.assetId = const Value.absent(),
     this.locationId = const Value.absent(),
+    this.areaId = const Value.absent(),
     this.assignedToId = const Value.absent(),
     this.createdById = const Value.absent(),
     this.maintenancePlanId = const Value.absent(),
@@ -12036,6 +12077,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     required String companyId,
     this.assetId = const Value.absent(),
     required String locationId,
+    this.areaId = const Value.absent(),
     this.assignedToId = const Value.absent(),
     required String createdById,
     this.maintenancePlanId = const Value.absent(),
@@ -12077,6 +12119,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Expression<String>? companyId,
     Expression<String>? assetId,
     Expression<String>? locationId,
+    Expression<String>? areaId,
     Expression<String>? assignedToId,
     Expression<String>? createdById,
     Expression<String>? maintenancePlanId,
@@ -12114,6 +12157,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
       if (companyId != null) 'company_id': companyId,
       if (assetId != null) 'asset_id': assetId,
       if (locationId != null) 'location_id': locationId,
+      if (areaId != null) 'area_id': areaId,
       if (assignedToId != null) 'assigned_to_id': assignedToId,
       if (createdById != null) 'created_by_id': createdById,
       if (maintenancePlanId != null) 'maintenance_plan_id': maintenancePlanId,
@@ -12156,6 +12200,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     Value<String>? companyId,
     Value<String?>? assetId,
     Value<String>? locationId,
+    Value<String?>? areaId,
     Value<String?>? assignedToId,
     Value<String>? createdById,
     Value<String?>? maintenancePlanId,
@@ -12193,6 +12238,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
       companyId: companyId ?? this.companyId,
       assetId: assetId ?? this.assetId,
       locationId: locationId ?? this.locationId,
+      areaId: areaId ?? this.areaId,
       assignedToId: assignedToId ?? this.assignedToId,
       createdById: createdById ?? this.createdById,
       maintenancePlanId: maintenancePlanId ?? this.maintenancePlanId,
@@ -12243,6 +12289,9 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
     }
     if (locationId.present) {
       map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (areaId.present) {
+      map['area_id'] = Variable<String>(areaId.value);
     }
     if (assignedToId.present) {
       map['assigned_to_id'] = Variable<String>(assignedToId.value);
@@ -12351,6 +12400,7 @@ class WorkOrdersCompanion extends UpdateCompanion<WorkOrder> {
           ..write('companyId: $companyId, ')
           ..write('assetId: $assetId, ')
           ..write('locationId: $locationId, ')
+          ..write('areaId: $areaId, ')
           ..write('assignedToId: $assignedToId, ')
           ..write('createdById: $createdById, ')
           ..write('maintenancePlanId: $maintenancePlanId, ')
@@ -18792,6 +18842,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'areas',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('work_orders', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'user_profiles',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -24313,6 +24370,24 @@ final class $$AreasTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$WorkOrdersTable, List<WorkOrder>>
+  _workOrdersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.workOrders,
+    aliasName: 'areas__id__work_orders__area_id',
+  );
+
+  $$WorkOrdersTableProcessedTableManager get workOrdersRefs {
+    final manager = $$WorkOrdersTableTableManager(
+      $_db,
+      $_db.workOrders,
+    ).filter((f) => f.areaId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_workOrdersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$AreasTableFilterComposer extends Composer<_$AppDatabase, $AreasTable> {
@@ -24420,6 +24495,31 @@ class $$AreasTableFilterComposer extends Composer<_$AppDatabase, $AreasTable> {
           }) => $$AssetsTableFilterComposer(
             $db: $db,
             $table: $db.assets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> workOrdersRefs(
+    Expression<bool> Function($$WorkOrdersTableFilterComposer f) f,
+  ) {
+    final $$WorkOrdersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.areaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableFilterComposer(
+            $db: $db,
+            $table: $db.workOrders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24623,6 +24723,31 @@ class $$AreasTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> workOrdersRefs<T extends Object>(
+    Expression<T> Function($$WorkOrdersTableAnnotationComposer a) f,
+  ) {
+    final $$WorkOrdersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.workOrders,
+      getReferencedColumn: (t) => t.areaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkOrdersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workOrders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AreasTableTableManager
@@ -24642,6 +24767,7 @@ class $$AreasTableTableManager
             bool locationId,
             bool companyId,
             bool assetsRefs,
+            bool workOrdersRefs,
           })
         > {
   $$AreasTableTableManager(_$AppDatabase db, $AreasTable table)
@@ -24710,10 +24836,18 @@ class $$AreasTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({locationId = false, companyId = false, assetsRefs = false}) {
+              ({
+                locationId = false,
+                companyId = false,
+                assetsRefs = false,
+                workOrdersRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
-                  explicitlyWatchedTables: [if (assetsRefs) db.assets],
+                  explicitlyWatchedTables: [
+                    if (assetsRefs) db.assets,
+                    if (workOrdersRefs) db.workOrders,
+                  ],
                   addJoins:
                       <
                         T extends TableManagerState<
@@ -24774,6 +24908,23 @@ class $$AreasTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (workOrdersRefs)
+                        await $_getPrefetchedData<Area, $AreasTable, WorkOrder>(
+                          currentTable: table,
+                          referencedTable: $$AreasTableReferences
+                              ._workOrdersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AreasTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).workOrdersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.areaId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -24794,7 +24945,12 @@ typedef $$AreasTableProcessedTableManager =
       $$AreasTableUpdateCompanionBuilder,
       (Area, $$AreasTableReferences),
       Area,
-      PrefetchHooks Function({bool locationId, bool companyId, bool assetsRefs})
+      PrefetchHooks Function({
+        bool locationId,
+        bool companyId,
+        bool assetsRefs,
+        bool workOrdersRefs,
+      })
     >;
 typedef $$CategoriesTableCreateCompanionBuilder =
     CategoriesCompanion Function({
@@ -31411,6 +31567,7 @@ typedef $$WorkOrdersTableCreateCompanionBuilder =
       required String companyId,
       Value<String?> assetId,
       required String locationId,
+      Value<String?> areaId,
       Value<String?> assignedToId,
       required String createdById,
       Value<String?> maintenancePlanId,
@@ -31449,6 +31606,7 @@ typedef $$WorkOrdersTableUpdateCompanionBuilder =
       Value<String> companyId,
       Value<String?> assetId,
       Value<String> locationId,
+      Value<String?> areaId,
       Value<String?> assignedToId,
       Value<String> createdById,
       Value<String?> maintenancePlanId,
@@ -31531,6 +31689,23 @@ final class $$WorkOrdersTableReferences
       $_db.locations,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_locationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $AreasTable _areaIdTable(_$AppDatabase db) =>
+      db.areas.createAlias('work_orders__area_id__areas__id');
+
+  $$AreasTableProcessedTableManager? get areaId {
+    final $_column = $_itemColumn<String>('area_id');
+    if ($_column == null) return null;
+    final manager = $$AreasTableTableManager(
+      $_db,
+      $_db.areas,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_areaIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -31990,6 +32165,29 @@ class $$WorkOrdersTableFilterComposer
           }) => $$LocationsTableFilterComposer(
             $db: $db,
             $table: $db.locations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AreasTableFilterComposer get areaId {
+    final $$AreasTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.areaId,
+      referencedTable: $db.areas,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AreasTableFilterComposer(
+            $db: $db,
+            $table: $db.areas,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -32514,6 +32712,29 @@ class $$WorkOrdersTableOrderingComposer
     return composer;
   }
 
+  $$AreasTableOrderingComposer get areaId {
+    final $$AreasTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.areaId,
+      referencedTable: $db.areas,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AreasTableOrderingComposer(
+            $db: $db,
+            $table: $db.areas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$UserProfilesTableOrderingComposer get assignedToId {
     final $$UserProfilesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -32839,6 +33060,29 @@ class $$WorkOrdersTableAnnotationComposer
           }) => $$LocationsTableAnnotationComposer(
             $db: $db,
             $table: $db.locations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AreasTableAnnotationComposer get areaId {
+    final $$AreasTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.areaId,
+      referencedTable: $db.areas,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AreasTableAnnotationComposer(
+            $db: $db,
+            $table: $db.areas,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -33184,6 +33428,7 @@ class $$WorkOrdersTableTableManager
             bool companyId,
             bool assetId,
             bool locationId,
+            bool areaId,
             bool assignedToId,
             bool createdById,
             bool maintenancePlanId,
@@ -33216,6 +33461,7 @@ class $$WorkOrdersTableTableManager
                 Value<String> companyId = const Value.absent(),
                 Value<String?> assetId = const Value.absent(),
                 Value<String> locationId = const Value.absent(),
+                Value<String?> areaId = const Value.absent(),
                 Value<String?> assignedToId = const Value.absent(),
                 Value<String> createdById = const Value.absent(),
                 Value<String?> maintenancePlanId = const Value.absent(),
@@ -33252,6 +33498,7 @@ class $$WorkOrdersTableTableManager
                 companyId: companyId,
                 assetId: assetId,
                 locationId: locationId,
+                areaId: areaId,
                 assignedToId: assignedToId,
                 createdById: createdById,
                 maintenancePlanId: maintenancePlanId,
@@ -33290,6 +33537,7 @@ class $$WorkOrdersTableTableManager
                 required String companyId,
                 Value<String?> assetId = const Value.absent(),
                 required String locationId,
+                Value<String?> areaId = const Value.absent(),
                 Value<String?> assignedToId = const Value.absent(),
                 required String createdById,
                 Value<String?> maintenancePlanId = const Value.absent(),
@@ -33326,6 +33574,7 @@ class $$WorkOrdersTableTableManager
                 companyId: companyId,
                 assetId: assetId,
                 locationId: locationId,
+                areaId: areaId,
                 assignedToId: assignedToId,
                 createdById: createdById,
                 maintenancePlanId: maintenancePlanId,
@@ -33371,6 +33620,7 @@ class $$WorkOrdersTableTableManager
                 companyId = false,
                 assetId = false,
                 locationId = false,
+                areaId = false,
                 assignedToId = false,
                 createdById = false,
                 maintenancePlanId = false,
@@ -33449,6 +33699,20 @@ class $$WorkOrdersTableTableManager
                                     referencedColumn:
                                         $$WorkOrdersTableReferences
                                             ._locationIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (areaId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.areaId,
+                                    referencedTable: $$WorkOrdersTableReferences
+                                        ._areaIdTable(db),
+                                    referencedColumn:
+                                        $$WorkOrdersTableReferences
+                                            ._areaIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -33707,6 +33971,7 @@ typedef $$WorkOrdersTableProcessedTableManager =
         bool companyId,
         bool assetId,
         bool locationId,
+        bool areaId,
         bool assignedToId,
         bool createdById,
         bool maintenancePlanId,

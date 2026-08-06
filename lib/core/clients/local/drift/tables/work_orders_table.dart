@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
@@ -27,6 +28,11 @@ class WorkOrders extends Table {
       text().nullable().references(Assets, #id, onDelete: KeyAction.setNull)();
   TextColumn get locationId =>
       text().references(Locations, #id, onDelete: KeyAction.cascade)();
+  TextColumn get areaId => text().nullable().references(
+    Areas,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get assignedToId => text().nullable().references(
     UserProfiles,
     #id,

@@ -15,5 +15,6 @@ Internal zones/rooms within a location.
 * **Soft Deletes**: Blocked if there are active assets or open work orders associated with the area:
   * Trigger: `tr_prevent_delete_areas_with_relations`
   * Active Assets Check: Blocked if any assets in the area have `deleted_at IS NULL`.
-  * Open Work Orders Check: Blocked if any work orders linked to assets in this area have `status != 'completed'` and `deleted_at IS NULL`.
+  * Open Work Orders Check (via asset): Blocked if any work orders linked to assets in this area have `status != 'completed'` and `deleted_at IS NULL`.
+  * Open Work Orders Check (direct): Blocked if any work orders with `area_id = this area` and `asset_id IS NULL` have `status != 'completed'` and `deleted_at IS NULL`.
 
