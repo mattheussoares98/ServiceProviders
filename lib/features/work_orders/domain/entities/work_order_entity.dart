@@ -12,6 +12,7 @@ class WorkOrderEntity extends Equatable {
     required this.companyId,
     required this.assetId,
     required this.locationId,
+    required this.areaId,
     required this.assignedToId,
     required this.createdById,
     required this.maintenancePlanId,
@@ -49,6 +50,7 @@ class WorkOrderEntity extends Equatable {
   final String companyId;
   final String? assetId;
   final String locationId;
+  final String? areaId;
   final String? assignedToId;
   final String createdById;
   final String? maintenancePlanId;
@@ -87,6 +89,7 @@ class WorkOrderEntity extends Equatable {
     companyId,
     assetId,
     locationId,
+    areaId,
     assignedToId,
     createdById,
     maintenancePlanId,
@@ -125,6 +128,7 @@ class WorkOrderEntity extends Equatable {
     String? companyId,
     String? assetId,
     String? locationId,
+    String? areaId,
     String? assignedToId,
     String? createdById,
     String? maintenancePlanId,
@@ -157,6 +161,7 @@ class WorkOrderEntity extends Equatable {
     PauseResponsibility? completionResponsibility,
     String? completionSectorId,
     bool? annulAssetId,
+    bool? annulAreaId,
     bool? annulAssignedToId,
     bool? annulMaintenancePlanId,
     bool? annulScheduledDate,
@@ -183,6 +188,7 @@ class WorkOrderEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       assetId: annulAssetId == true ? null : assetId ?? this.assetId,
       locationId: locationId ?? this.locationId,
+      areaId: annulAreaId == true ? null : areaId ?? this.areaId,
       assignedToId: annulAssignedToId == true
           ? null
           : assignedToId ?? this.assignedToId,

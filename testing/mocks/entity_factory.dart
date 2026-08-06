@@ -166,6 +166,7 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       assetId: _makeId(),
       locationId: _makeId(),
+      areaId: _makeId(),
       assignedToId: _makeId(),
       createdById: _makeId(),
       maintenancePlanId: _makeId(),
