@@ -61,9 +61,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (profilesResult is SuccessState<List<ServiceProviderProfileEntity>>) {
       final allProfiles = profilesResult.data ?? [];
       for (final profile in allProfiles) {
-        updatedProfiles
-            .putIfAbsent(profile.serviceProviderCompanyId, () => [])
-            .add(profile);
+        updatedProfiles.putIfAbsent(
+          profile.serviceProviderCompanyId,
+          () => [profile],
+        );
       }
     }
 
