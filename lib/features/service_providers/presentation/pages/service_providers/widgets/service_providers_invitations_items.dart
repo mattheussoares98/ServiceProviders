@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/extensions/service_provider_extensions.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -105,12 +106,21 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
                               action: PermissionAction.delete,
                             ),
                             onPressed: () {
-                              context
-                                  .read<ServiceProvidersCubit>()
-                                  .deleteInvitation(
-                                    invitationId: correspondingInvitation.id,
-                                    serviceProviderCompanyId: companyId,
-                                  ); //TODO should reload the invitations
+                              showAlertDialog(
+                                context: context,
+                                title: 'Atenção'.hardcoded,
+                                contentText:
+                                    'Tem certeza que deseja excluir o convite?'
+                                        .hardcoded,
+                                defaultActionText: 'Sim'.hardcoded,
+                                cancelActionText: 'Não'.hardcoded,
+                                onOkPressed: () => context
+                                    .read<ServiceProvidersCubit>()
+                                    .deleteInvitation(
+                                      invitationId: correspondingInvitation.id,
+                                      serviceProviderCompanyId: companyId,
+                                    ),
+                              );
                             },
                           ),
                         ],
