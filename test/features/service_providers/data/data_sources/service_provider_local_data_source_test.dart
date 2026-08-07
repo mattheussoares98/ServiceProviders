@@ -128,6 +128,26 @@ void main() {
         );
         expect(getResult.data?.first.name, tProfileModel.name);
       });
+
+      test(
+        'getServiceProviderProfilesByCompanyIds returns profiles matching list of company IDs',
+        () async {
+          await dataSource.saveServiceProviderCompany(tCompanyModel);
+          await dataSource.saveServiceProviderProfiles([tProfileModel]);
+
+          final getResult =
+              await dataSource.getServiceProviderProfilesByCompanyIds([
+                tProfileModel.serviceProviderCompanyId,
+              ]);
+
+          expect(
+            getResult,
+            isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+          );
+          expect(getResult.data?.length, 1);
+          expect(getResult.data?.first.id, tProfileModel.id);
+        },
+      );
     });
 
     group('Invitations', () {
