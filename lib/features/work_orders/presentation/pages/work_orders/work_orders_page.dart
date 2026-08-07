@@ -10,11 +10,12 @@ import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orders/widgets/oders_items/orders_items.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/widgets/work_order_filter_sheet.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/widgets/work_order_filters.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 
 @RoutePage()
 class WorkOrdersPage extends StatelessWidget {
@@ -34,15 +35,14 @@ class WorkOrdersPage extends StatelessWidget {
         actions: [
           BaseIconButton(
             onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                builder: (_) => WorkOrderFilterSheet(
+              showModalPage<void>(
+                WorkOrderFilters(
                   currentFilter: context
                       .read<WorkOrdersCubit>()
                       .state
                       .activeFilter,
                 ),
+                context,
               );
             },
             platformIcon: const PlatformIcon(
