@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
@@ -17,9 +18,14 @@ import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
+class MockGetServiceProviderProfilesByCompanyIdsUseCase extends Mock
+    implements GetServiceProviderProfilesByCompanyIdsUseCase {}
+
 void main() {
   late MockGetServiceProviderCompaniesUseCase mockGetCompanies;
   late MockGetServiceProviderProfilesUseCase mockGetProfiles;
+  late MockGetServiceProviderProfilesByCompanyIdsUseCase
+  mockGetProfilesByCompanyIds;
   late MockGetServiceProviderInvitationsUseCase mockGetInvitations;
   late MockSendServiceProviderInvitationUseCase mockSendInvitation;
   late MockDeleteServiceProviderInvitationUseCase mockDeleteInvitation;
@@ -51,6 +57,8 @@ void main() {
   setUp(() {
     mockGetCompanies = MockGetServiceProviderCompaniesUseCase();
     mockGetProfiles = MockGetServiceProviderProfilesUseCase();
+    mockGetProfilesByCompanyIds =
+        MockGetServiceProviderProfilesByCompanyIdsUseCase();
     mockGetInvitations = MockGetServiceProviderInvitationsUseCase();
     mockSendInvitation = MockSendServiceProviderInvitationUseCase();
     mockDeleteInvitation = MockDeleteServiceProviderInvitationUseCase();
@@ -68,6 +76,7 @@ void main() {
     useCases = ServiceProvidersCubitUseCases(
       getCompanies: mockGetCompanies,
       getProfiles: mockGetProfiles,
+      getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
       getInvitations: mockGetInvitations,
       sendInvitation: mockSendInvitation,
       deleteInvitation: mockDeleteInvitation,
@@ -153,6 +162,107 @@ void main() {
           return cubit;
         },
         act: (cubit) => cubit.loadCompanies(),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error loading'),
+        ],
+      );
+    });
+
+    group('loadCompaniesAndProfiles', () {
+      final comp1 = EntityFactory.makeServiceProviderCompanyEntity();
+      final comp2 = EntityFactory.makeServiceProviderCompanyEntity();
+      final profile1 = EntityFactory.makeServiceProviderProfileEntity()
+          .copyWith(serviceProviderCompanyId: comp1.id);
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'loadCompaniesAndProfiles should fetch companies and profiles in a single query and emit loaded',
+        build: () {
+          when(
+            () => mockGetCompanies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [comp1, comp2]));
+          when(
+            () => mockGetProfilesByCompanyIds.call([comp1.id, comp2.id]),
+          ).thenAnswer((_) async => SuccessState(data: [profile1]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadCompaniesAndProfiles(),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies.length, 'companies.length', 2)
+              .having(
+                (s) => s.profiles[comp1.id]?.length,
+                'comp1 profiles count',
+                1,
+              ),
+        ],
+        verify: (_) {
+          verify(() => mockGetCompanies.call(companyId)).called(1);
+          verify(
+            () => mockGetProfilesByCompanyIds.call([comp1.id, comp2.id]),
+          ).called(1);
+        },
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'loadCompaniesAndProfiles with emitLoading: false should not emit loading status',
+        build: () {
+          when(
+            () => mockGetCompanies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [comp1]));
+          when(
+            () => mockGetProfilesByCompanyIds.call([comp1.id]),
+          ).thenAnswer((_) async => SuccessState(data: [profile1]));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadCompaniesAndProfiles(emitLoading: false),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.initial,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.companies.length, 'companies.length', 1)
+              .having(
+                (s) => s.profiles[comp1.id]?.length,
+                'comp1 profiles count',
+                1,
+              ),
+        ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'loadCompaniesAndProfiles should emit loadingError on companies failure',
+        build: () {
+          when(
+            () => mockGetCompanies.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Error loading'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,

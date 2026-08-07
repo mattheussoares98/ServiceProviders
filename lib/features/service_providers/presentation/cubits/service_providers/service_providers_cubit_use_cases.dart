@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/creat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
@@ -15,6 +16,7 @@ class ServiceProvidersCubitUseCases {
   ServiceProvidersCubitUseCases({
     required this.getCompanies,
     required this.getProfiles,
+    required this.getProfilesByCompanyIds,
     required this.getInvitations,
     required this.sendInvitation,
     required this.deleteInvitation,
@@ -27,6 +29,7 @@ class ServiceProvidersCubitUseCases {
 
   final GetServiceProviderCompaniesUseCase getCompanies;
   final GetServiceProviderProfilesUseCase getProfiles;
+  final GetServiceProviderProfilesByCompanyIdsUseCase getProfilesByCompanyIds;
   final GetServiceProviderInvitationsUseCase getInvitations;
   final SendServiceProviderInvitationUseCase sendInvitation;
   final DeleteServiceProviderInvitationUseCase deleteInvitation;

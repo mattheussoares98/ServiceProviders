@@ -26,10 +26,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     bool forceRefresh = false,
     bool emitLoading = true,
   }) async {
+    //TODO delete this method and replace with loadCompaniesAndProfiles
     if (!forceRefresh && state.companies.isNotEmpty) {
       return;
     }
-
     emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
 
     final companyId = _useCases.getActiveCompanyId();
@@ -53,6 +53,61 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       );
       showErrorToast(result.message);
     }
+  }
+
+  Future<void> loadCompaniesAndProfiles({
+    bool forceRefresh = false,
+    bool emitLoading = true,
+  }) async {
+    //TODO test this method
+    if (!forceRefresh && state.companies.isNotEmpty) {
+      return;
+    }
+
+    emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
+
+    final companyId = _useCases.getActiveCompanyId();
+    final result = await _useCases.getCompanies.call(companyId);
+    if (isClosed) return;
+
+    if (result is FailureState<List<ServiceProviderCompanyEntity>>) {
+      emit(
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: result.message,
+        ),
+      );
+      showErrorToast(result.message);
+      return;
+    }
+
+    final companies =
+        (result as SuccessState<List<ServiceProviderCompanyEntity>>).data ?? [];
+    final companyIds = companies.map((c) => c.id).toList();
+
+    final profilesResult = await _useCases.getProfilesByCompanyIds.call(
+      companyIds,
+    );
+    if (isClosed) return;
+
+    final updatedProfiles =
+        Map<String, List<ServiceProviderProfileEntity>>.from(state.profiles);
+    if (profilesResult is SuccessState<List<ServiceProviderProfileEntity>>) {
+      final allProfiles = profilesResult.data ?? [];
+      for (final profile in allProfiles) {
+        updatedProfiles
+            .putIfAbsent(profile.serviceProviderCompanyId, () => [])
+            .add(profile);
+      }
+    }
+
+    emit(
+      state.copyWith(
+        status: StateStatus.loaded,
+        companies: companies,
+        profiles: updatedProfiles,
+      ),
+    );
   }
 
   Future<void> selectCompany(
