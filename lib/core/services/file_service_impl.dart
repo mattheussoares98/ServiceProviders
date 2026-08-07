@@ -52,6 +52,10 @@ final class FileServiceImpl implements FileService {
       _helper.copyFileToSandbox(sourcePath, fileName);
 
   @override
+  FutureString downloadUrlToSandbox(String url, String fileName) =>
+      _helper.downloadUrlToSandbox(url, fileName);
+
+  @override
   Future<int> getFileSizeBytes(String path) => _helper.getFileSizeBytes(path);
 
   @override

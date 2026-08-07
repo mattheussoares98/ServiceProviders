@@ -136,6 +136,12 @@ final class FileServiceWeb implements FileServicePlatformHelper {
   }
 
   @override
+  FutureString downloadUrlToSandbox(String url, String fileName) async {
+    // On Web, files are accessed remotely via remoteUrl or cached virtually.
+    return SuccessState(data: fileName);
+  }
+
+  @override
   Future<int> getFileSizeBytes(String path) async {
     return _webCache[path]?.length ?? 0;
   }

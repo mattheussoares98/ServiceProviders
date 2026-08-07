@@ -255,6 +255,38 @@ final class FileServiceMobile implements FileServicePlatformHelper {
   }
 
   @override
+  FutureString downloadUrlToSandbox(String url, String fileName) async {
+    try {
+      final destPath = await _sandboxPath(fileName);
+
+      // Skip download if already cached.
+      if (File(destPath).existsSync()) {
+        return SuccessState(data: destPath);
+      }
+
+      final uri = Uri.parse(url);
+      final nativeClient = HttpClient()..autoUncompress = true;
+      final request = await nativeClient.getUrl(uri);
+      final response = await request.close();
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        nativeClient.close(force: true);
+        return FailureState(
+          message: 'HTTP ${response.statusCode} ao baixar arquivo.'.hardcoded,
+        );
+      }
+
+      final sink = File(destPath).openWrite();
+      await response.pipe(sink);
+      nativeClient.close();
+
+      return SuccessState(data: destPath);
+    } catch (error) {
+      return FailureState(message: error.toString());
+    }
+  }
+
+  @override
   Future<int> getFileSizeBytes(String path) => File(path).length();
 
   @override

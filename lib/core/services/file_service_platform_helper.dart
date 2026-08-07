@@ -18,6 +18,7 @@ abstract interface class FileServicePlatformHelper {
   FutureString compressAndSaveVideo(String sourcePath);
   FutureString getOrCreateVideoThumbnail(String videoPath);
   FutureString copyFileToSandbox(String sourcePath, String fileName);
+  FutureString downloadUrlToSandbox(String url, String fileName);
   Future<int> getFileSizeBytes(String path);
   String getMimeType(String path);
   FutureBool deleteLocalFile(String path);

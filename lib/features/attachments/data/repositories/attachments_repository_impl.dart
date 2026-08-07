@@ -110,22 +110,70 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   ) async {
     final entity = model.toEntity();
     final localPath = entity.localPath;
-    if (localPath == null || localPath.isEmpty) {
-      return entity;
-    }
 
-    final resolvedPath = await _fileService.resolveSandboxPath(localPath);
-    if (resolvedPath != null && await _fileService.fileExists(resolvedPath)) {
-      // Touch lastAccessedAt asynchronously
-      await _localDataSource.touchLastAccessed(model.id);
-      return entity.copyWith(
-        localPath: resolvedPath,
-        lastAccessedAt: DateTime.now(),
+    // ── Case 1: already cached locally — verify file still exists ──────────
+    if (localPath != null && localPath.isNotEmpty) {
+      final resolvedPath = await _fileService.resolveSandboxPath(localPath);
+      if (resolvedPath != null && await _fileService.fileExists(resolvedPath)) {
+        // Touch lastAccessedAt asynchronously
+        await _localDataSource.touchLastAccessed(model.id);
+        return entity.copyWith(
+          localPath: resolvedPath,
+          lastAccessedAt: DateTime.now(),
+        );
+      }
+      // File record exists but the physical file is gone — clear the stale path
+      // and fall through to re-download if a remoteUrl is available.
+      await _localDataSource.saveAttachment(
+        AttachmentResponseModel.fromEntity(
+          entity.copyWith(annulLocalPath: true),
+        ),
       );
     }
 
-    // If file doesn't exist locally, clear localPath so UI uses remoteUrl
-    return entity.copyWith(annulLocalPath: true);
+    // ── Case 2: no local file — try to download from Cloudflare ────────────
+    final remoteUrl = entity.remoteUrl;
+    final isDownloadable =
+        entity.uploadStatus == UploadStatus.uploaded &&
+        remoteUrl != null &&
+        remoteUrl.isNotEmpty &&
+        // Videos are excluded: they can be 10-50 MB and are streamed instead.
+        entity.fileType != FileType.video;
+
+    if (!isDownloadable) {
+      return entity.copyWith(annulLocalPath: true);
+    }
+
+    // Derive a stable, unique filename from the attachment ID + remote extension.
+    final remoteExt = p.extension(Uri.parse(remoteUrl).path);
+    final cacheFileName = '${entity.id}$remoteExt';
+
+    final downloadResult = await _fileService.downloadUrlToSandbox(
+      remoteUrl,
+      cacheFileName,
+    );
+
+    if (downloadResult is! SuccessState<String>) {
+      // Download failed (network error, etc.) — UI will fall back to remoteUrl.
+      return entity.copyWith(annulLocalPath: true);
+    }
+
+    final absolutePath = downloadResult.data!;
+    final fileSizeBytes = await _fileService.getFileSizeBytes(absolutePath);
+
+    // Persist the new localPath so subsequent loads are fully offline.
+    await _localDataSource.saveAttachment(
+      AttachmentResponseModel.fromEntity(
+        entity.copyWith(localPath: cacheFileName, fileSizeBytes: fileSizeBytes),
+      ),
+    );
+    await _localDataSource.touchLastAccessed(model.id);
+
+    return entity.copyWith(
+      localPath: absolutePath,
+      fileSizeBytes: fileSizeBytes,
+      lastAccessedAt: DateTime.now(),
+    );
   }
 
   @override

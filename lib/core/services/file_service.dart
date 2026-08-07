@@ -67,6 +67,12 @@ abstract interface class FileService {
   /// Returns the absolute path of the copied file.
   FutureString copyFileToSandbox(String sourcePath, String fileName);
 
+  /// Downloads the file at [url] into the app's secure sandbox directory
+  /// using [fileName] as the destination file name.
+  ///
+  /// Returns the absolute path of the saved file.
+  FutureString downloadUrlToSandbox(String url, String fileName);
+
   /// Returns the size in bytes of the file at [path].
   Future<int> getFileSizeBytes(String path);
 

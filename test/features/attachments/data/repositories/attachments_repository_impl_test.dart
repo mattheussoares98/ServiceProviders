@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/repositories/attachments_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 
@@ -1121,5 +1122,193 @@ void main() {
         verify(() => mockLocalDataSource.saveAttachment(any())).called(2);
       },
     );
+
+    group('_toEntityWithResolvedPath - remote file caching', () {
+      // Shared test values — a stable ID and a URL whose extension we can assert.
+      final fileId = faker.guid.guid();
+      final remoteFileUrl =
+          'https://pub-${faker.guid.guid()}.r2.dev/attachments/$fileId.jpg';
+      final cacheFileName = '$fileId.jpg';
+      final absoluteCachedPath = '/docs/attachments/$cacheFileName';
+      final downloadedSize = faker.randomGenerator.integer(
+        1024 * 1024,
+        min: 1024,
+      );
+
+      setUp(() {
+        // These tests run offline so we only need the local data source.
+        when(() => mockInternet.isConnected).thenReturn(false);
+        // Default: file does NOT exist on disk (triggers the download path).
+        when(
+          () => fileService.fileExists(any()),
+        ).thenAnswer((_) async => false);
+        when(
+          () => fileService.downloadUrlToSandbox(any(), any()),
+        ).thenAnswer((_) async => SuccessState(data: absoluteCachedPath));
+        when(
+          () => fileService.getFileSizeBytes(absoluteCachedPath),
+        ).thenAnswer((_) async => downloadedSize);
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      });
+
+      test(
+        'downloads and caches remote image file when no local copy exists',
+        () async {
+          final workOrderId = faker.guid.guid();
+          final model = AttachmentResponseModel.fromEntity(
+            EntityFactory.makeAttachmentEntity().copyWith(
+              id: fileId,
+              remoteUrl: remoteFileUrl,
+              uploadStatus: UploadStatus.uploaded,
+              fileType: FileType.image,
+              annulLocalPath: true,
+            ),
+          );
+          when(
+            () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+          ).thenAnswer((_) async => SuccessState(data: [model]));
+
+          final result = await repository.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data?.first.localPath, absoluteCachedPath);
+          expect(result.data?.first.fileSizeBytes, downloadedSize);
+          verify(
+            () =>
+                fileService.downloadUrlToSandbox(remoteFileUrl, cacheFileName),
+          ).called(1);
+          verify(
+            () => fileService.getFileSizeBytes(absoluteCachedPath),
+          ).called(1);
+          verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+          verify(() => mockLocalDataSource.touchLastAccessed(fileId)).called(1);
+        },
+      );
+
+      test(
+        'does not download video files to prevent filling the sandbox with large files',
+        () async {
+          final workOrderId = faker.guid.guid();
+          final model = AttachmentResponseModel.fromEntity(
+            EntityFactory.makeAttachmentEntity().copyWith(
+              id: fileId,
+              remoteUrl: remoteFileUrl,
+              uploadStatus: UploadStatus.uploaded,
+              fileType: FileType.video,
+              annulLocalPath: true,
+            ),
+          );
+          when(
+            () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+          ).thenAnswer((_) async => SuccessState(data: [model]));
+
+          final result = await repository.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data?.first.localPath, isNull);
+          verifyNever(() => fileService.downloadUrlToSandbox(any(), any()));
+        },
+      );
+
+      test(
+        'does not download attachments that have not been fully uploaded yet',
+        () async {
+          final workOrderId = faker.guid.guid();
+          final model = AttachmentResponseModel.fromEntity(
+            EntityFactory.makeAttachmentEntity().copyWith(
+              id: fileId,
+              remoteUrl: remoteFileUrl,
+              uploadStatus: UploadStatus.pending,
+              fileType: FileType.image,
+              annulLocalPath: true,
+            ),
+          );
+          when(
+            () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+          ).thenAnswer((_) async => SuccessState(data: [model]));
+
+          final result = await repository.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data?.first.localPath, isNull);
+          verifyNever(() => fileService.downloadUrlToSandbox(any(), any()));
+        },
+      );
+
+      test(
+        'falls back to null localPath (using remoteUrl) when download fails',
+        () async {
+          when(
+            () => fileService.downloadUrlToSandbox(any(), any()),
+          ).thenAnswer((_) async => FailureState(message: 'Network error'));
+          final workOrderId = faker.guid.guid();
+          final model = AttachmentResponseModel.fromEntity(
+            EntityFactory.makeAttachmentEntity().copyWith(
+              id: fileId,
+              remoteUrl: remoteFileUrl,
+              uploadStatus: UploadStatus.uploaded,
+              fileType: FileType.image,
+              annulLocalPath: true,
+            ),
+          );
+          when(
+            () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+          ).thenAnswer((_) async => SuccessState(data: [model]));
+
+          final result = await repository.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data?.first.localPath, isNull);
+          verify(
+            () =>
+                fileService.downloadUrlToSandbox(remoteFileUrl, cacheFileName),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.saveAttachment(any()));
+        },
+      );
+
+      test(
+        'clears stale localPath in DB and re-downloads when the physical file is missing from disk',
+        () async {
+          final staleLocalPath = faker.lorem.word();
+          final workOrderId = faker.guid.guid();
+          final model = AttachmentResponseModel.fromEntity(
+            EntityFactory.makeAttachmentEntity().copyWith(
+              id: fileId,
+              remoteUrl: remoteFileUrl,
+              uploadStatus: UploadStatus.uploaded,
+              fileType: FileType.image,
+              localPath: staleLocalPath,
+            ),
+          );
+          when(
+            () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
+          ).thenAnswer((_) async => SuccessState(data: [model]));
+
+          final result = await repository.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data?.first.localPath, absoluteCachedPath);
+          // First saveAttachment clears the stale path, second saves the newly cached path.
+          verify(() => mockLocalDataSource.saveAttachment(any())).called(2);
+          verify(
+            () =>
+                fileService.downloadUrlToSandbox(remoteFileUrl, cacheFileName),
+          ).called(1);
+        },
+      );
+    });
   });
 }
