@@ -28,6 +28,10 @@ abstract interface class ServiceProviderLocalDataSource {
   FutureList<ServiceProviderProfileResponseModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
+  FutureList<ServiceProviderProfileResponseModel>
+  getServiceProviderProfilesByCompanyIds(
+    List<String> serviceProviderCompanyIds,
+  );
   FutureBool saveServiceProviderProfile(
     ServiceProviderProfileResponseModel profile,
   );
@@ -180,6 +184,41 @@ final class ServiceProviderLocalDataSourceImpl
       final query = _database.select(_database.serviceProviderProfiles)
         ..where(
           (t) => t.serviceProviderCompanyId.equals(serviceProviderCompanyId),
+        );
+      final rows = await query.get();
+
+      final list = rows
+          .map(
+            (row) => ServiceProviderProfileResponseModel(
+              id: row.id,
+              authUserId: row.authUserId,
+              serviceProviderCompanyId: row.serviceProviderCompanyId,
+              name: row.name,
+              email: row.email,
+              phone: row.phone,
+              isActive: row.isActive,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
+            ),
+          )
+          .toList();
+
+      return SuccessState(data: list);
+    });
+  }
+
+  @override
+  FutureList<ServiceProviderProfileResponseModel>
+  getServiceProviderProfilesByCompanyIds(
+    List<String> serviceProviderCompanyIds,
+  ) {
+    return ErrorHandler.execute(() async {
+      if (serviceProviderCompanyIds.isEmpty) {
+        return const SuccessState(data: []);
+      }
+      final query = _database.select(_database.serviceProviderProfiles)
+        ..where(
+          (t) => t.serviceProviderCompanyId.isIn(serviceProviderCompanyIds),
         );
       final rows = await query.get();
 
