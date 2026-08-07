@@ -29,7 +29,7 @@ class SlaPoliciesPage extends StatelessWidget {
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.workOrders,
+              resource: ResourceType.slaPolicies,
               action: PermissionAction.create,
             ),
             onPressed: () => context
