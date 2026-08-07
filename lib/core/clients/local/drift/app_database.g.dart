@@ -18500,6 +18500,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_spc_company',
     'CREATE INDEX idx_spc_company ON service_provider_companies (company_id)',
   );
+  late final Index idxSpcContactEmail = Index(
+    'idx_spc_contact_email',
+    'CREATE INDEX idx_spc_contact_email ON service_provider_companies (contact_email)',
+  );
   late final Index idxSppCompany = Index(
     'idx_spp_company',
     'CREATE INDEX idx_spp_company ON service_provider_profiles (service_provider_company_id)',
@@ -18507,6 +18511,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxSppAuthUser = Index(
     'idx_spp_auth_user',
     'CREATE INDEX idx_spp_auth_user ON service_provider_profiles (auth_user_id)',
+  );
+  late final Index idxSppEmail = Index(
+    'idx_spp_email',
+    'CREATE INDEX idx_spp_email ON service_provider_profiles (email)',
   );
   late final Index idxSpInvitationsCompany = Index(
     'idx_sp_invitations_company',
@@ -18617,8 +18625,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     assetsCompanySerialActiveIdx,
     idxMaintenancePlansCompany,
     idxSpcCompany,
+    idxSpcContactEmail,
     idxSppCompany,
     idxSppAuthUser,
+    idxSppEmail,
     idxSpInvitationsCompany,
     idxSpInvitationsEmail,
     idxWorkOrdersCompany,

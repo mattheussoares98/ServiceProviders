@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_
 
 @TableIndex(name: 'idx_spp_company', columns: {#serviceProviderCompanyId})
 @TableIndex(name: 'idx_spp_auth_user', columns: {#authUserId})
+@TableIndex(name: 'idx_spp_email', columns: {#email})
 class ServiceProviderProfiles extends Table {
   TextColumn get id => text()();
   TextColumn get authUserId => text().nullable()();

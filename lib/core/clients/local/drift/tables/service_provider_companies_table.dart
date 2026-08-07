@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 
 @TableIndex(name: 'idx_spc_company', columns: {#companyId})
+@TableIndex(name: 'idx_spc_contact_email', columns: {#contactEmail})
 class ServiceProviderCompanies extends Table {
   TextColumn get id => text()();
   TextColumn get companyId =>
