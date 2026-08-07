@@ -271,6 +271,55 @@ void main() {
     );
   });
 
+  group('getServiceProviderProfilesByCompanyIds', () {
+    test(
+      'should return SuccessState with list of profile models when successful',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tProfileModel.toJson()]);
+
+        final result =
+            await dataSource.getServiceProviderProfilesByCompanyIds([
+              tProfileEntity.serviceProviderCompanyId,
+            ]);
+
+        expect(
+          result,
+          isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+        );
+        expect(
+          (result as SuccessState<List<ServiceProviderProfileResponseModel>>)
+              .data!
+              .first
+              .id,
+          tProfileEntity.id,
+        );
+        verify(
+          () => mockDatabase.selectList(
+            table: 'service_provider_profiles',
+            filters: any(named: 'filters'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return empty list when passed empty company ids list', () async {
+      final result =
+          await dataSource.getServiceProviderProfilesByCompanyIds([]);
+
+      expect(
+        result,
+        isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+      );
+      expect((result as SuccessState).data, isEmpty);
+      verifyZeroInteractions(mockDatabase);
+    });
+  });
+
   group('getServiceProviderProfilesByAuthUser', () {
     test(
       'should return SuccessState with list of profile models when successful',
