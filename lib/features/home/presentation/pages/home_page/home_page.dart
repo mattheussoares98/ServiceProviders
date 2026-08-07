@@ -65,7 +65,7 @@ class HomePage extends HookWidget {
         ),
         BlocProvider(
           create: (context) =>
-              GetIt.I<ServiceProvidersCubit>()..loadCompanies(),
+              GetIt.I<ServiceProvidersCubit>()..loadCompaniesAndProfiles(),
         ),
       ],
       child: BlocSelector<UsersCubit, UsersState, StateStatus>(
