@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -21,9 +23,12 @@ void main() {
   late UpdateServiceProviderCompanyUseCase updateServiceProviderCompanyUseCase;
   late CreateServiceProviderProfileUseCase createServiceProviderProfileUseCase;
   late UpdateServiceProviderProfileUseCase updateServiceProviderProfileUseCase;
-  late GetServiceProviderInvitationsUseCase getServiceProviderInvitationsUseCase;
-  late SendServiceProviderInvitationUseCase sendServiceProviderInvitationUseCase;
-  late DeleteServiceProviderInvitationUseCase deleteServiceProviderInvitationUseCase;
+  late GetServiceProviderInvitationsUseCase
+  getServiceProviderInvitationsUseCase;
+  late SendServiceProviderInvitationUseCase
+  sendServiceProviderInvitationUseCase;
+  late DeleteServiceProviderInvitationUseCase
+  deleteServiceProviderInvitationUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -52,9 +57,10 @@ void main() {
     sendServiceProviderInvitationUseCase = SendServiceProviderInvitationUseCase(
       serviceProviderRepository: mockServiceProviderRepository,
     );
-    deleteServiceProviderInvitationUseCase = DeleteServiceProviderInvitationUseCase(
-      serviceProviderRepository: mockServiceProviderRepository,
-    );
+    deleteServiceProviderInvitationUseCase =
+        DeleteServiceProviderInvitationUseCase(
+          serviceProviderRepository: mockServiceProviderRepository,
+        );
   });
 
   group('CreateServiceProviderCompanyUseCase', () {
@@ -143,12 +149,16 @@ void main() {
 
     test('should return list of invitations on success', () async {
       when(
-        () => mockServiceProviderRepository.getServiceProviderInvitations(any()),
+        () =>
+            mockServiceProviderRepository.getServiceProviderInvitations(any()),
       ).thenAnswer((_) async => SuccessState(data: tList));
 
       final result = await getServiceProviderInvitationsUseCase(tCompanyId);
 
-      expect(result, isA<SuccessState<List<ServiceProviderInvitationEntity>>>());
+      expect(
+        result,
+        isA<SuccessState<List<ServiceProviderInvitationEntity>>>(),
+      );
       expect((result as SuccessState).data, tList);
       verify(
         () => mockServiceProviderRepository.getServiceProviderInvitations(
@@ -190,10 +200,14 @@ void main() {
 
     test('should return true on success', () async {
       when(
-        () => mockServiceProviderRepository.deleteServiceProviderInvitation(any()),
+        () => mockServiceProviderRepository.deleteServiceProviderInvitation(
+          any(),
+        ),
       ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await deleteServiceProviderInvitationUseCase(tInvitationId);
+      final result = await deleteServiceProviderInvitationUseCase(
+        tInvitationId,
+      );
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
@@ -201,6 +215,34 @@ void main() {
         () => mockServiceProviderRepository.deleteServiceProviderInvitation(
           tInvitationId,
         ),
+      ).called(1);
+    });
+  });
+
+  group('GetServiceProviderProfilesByCompanyIdsUseCase', () {
+    final tCompanyIds = [faker.guid.guid(), faker.guid.guid()];
+    final tProfiles = [EntityFactory.makeServiceProviderProfileEntity()];
+    late GetServiceProviderProfilesByCompanyIdsUseCase useCase;
+
+    setUp(() {
+      useCase = GetServiceProviderProfilesByCompanyIdsUseCase(
+        serviceProviderRepository: mockServiceProviderRepository,
+      );
+    });
+
+    test('should return list of profiles on success', () async {
+      when(
+        () => mockServiceProviderRepository
+            .getServiceProviderProfilesByCompanyIds(any()),
+      ).thenAnswer((_) async => SuccessState(data: tProfiles));
+
+      final result = await useCase(tCompanyIds);
+
+      expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
+      expect((result as SuccessState).data, tProfiles);
+      verify(
+        () => mockServiceProviderRepository
+            .getServiceProviderProfilesByCompanyIds(tCompanyIds),
       ).called(1);
     });
   });
