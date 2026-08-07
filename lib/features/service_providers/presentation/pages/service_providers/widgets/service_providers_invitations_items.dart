@@ -34,35 +34,16 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
         final hasPending = invitations.any(
           (i) => i.status == ServiceProviderInvitationStatus.pending,
         );
-        final hasAccepted =
-            invitations.any(
-              (i) => i.status == ServiceProviderInvitationStatus.accepted,
-            ) ||
-            profiles.isNotEmpty;
+        final hasAccepted = invitations.any(
+          (i) => i.status == ServiceProviderInvitationStatus.accepted,
+        );
         final hasEmail =
             company?.contactEmail != null && company!.contactEmail!.isNotEmpty;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: BaseText.title('Usuários e convites'.hardcoded),
-                ),
-                if (!hasPending && !hasAccepted && hasEmail)
-                  BaseTextButton(
-                    text: 'Convidar por e-mail'.hardcoded,
-                    onPressed: () {
-                      context.read<ServiceProvidersCubit>().sendInvitation(
-                        serviceProviderCompanyId: companyId,
-                        email: company.contactEmail!,
-                      );
-                    },
-                  ),
-              ],
-            ),
+            BaseText.title('Usuários e convites'.hardcoded),
             gapH8,
             ...profiles.map((profile) {
               final correspondingInvitation = invitations.firstWhereOrNull(
@@ -87,6 +68,20 @@ class ServiceProvidersInvitationsItems extends StatelessWidget {
                       Expanded(child: BaseText.title(profile.name)),
                     ],
                   ),
+                  if (!hasPending && !hasAccepted && hasEmail)
+                    BaseTextButton(
+                      permission: const ActionPermission.resource(
+                        resource: ResourceType.serviceProviders,
+                        action: PermissionAction.update,
+                      ),
+                      text: 'Convidar por e-mail'.hardcoded,
+                      onPressed: () {
+                        context.read<ServiceProvidersCubit>().sendInvitation(
+                          serviceProviderCompanyId: companyId,
+                          email: company.contactEmail!,
+                        );
+                      },
+                    ),
                   if (correspondingInvitation != null)
                     Row(
                       mainAxisAlignment: .end,
