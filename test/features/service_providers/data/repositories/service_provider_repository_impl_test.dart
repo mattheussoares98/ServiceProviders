@@ -285,6 +285,64 @@ void main() {
     });
   });
 
+  group('getServiceProviderProfilesByCompanyIds', () {
+    test(
+      'should return SuccessState with domain profiles list and save to local when online call succeeds',
+      () async {
+        final tCompanyIds = ['comp-1', 'comp-2'];
+        when(
+          () => mockRemoteDataSource.getServiceProviderProfilesByCompanyIds(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
+
+        final result = await repository.getServiceProviderProfilesByCompanyIds(
+          tCompanyIds,
+        );
+
+        expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
+        expect(
+          (result as SuccessState<List<ServiceProviderProfileEntity>>)
+              .data!
+              .first,
+          tProfileEntity,
+        );
+        verify(
+          () => mockRemoteDataSource.getServiceProviderProfilesByCompanyIds(
+            tCompanyIds,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
+        ).called(1);
+      },
+    );
+
+    test('should fetch profiles from local fallback when offline', () async {
+      final tCompanyIds = ['comp-1', 'comp-2'];
+      when(() => mockInternet.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
+
+      final result = await repository.getServiceProviderProfilesByCompanyIds(
+        tCompanyIds,
+      );
+
+      expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
+      expect(
+        (result as SuccessState<List<ServiceProviderProfileEntity>>)
+            .data!
+            .first,
+        tProfileEntity,
+      );
+      verifyZeroInteractions(mockRemoteDataSource);
+      verify(
+        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(
+          tCompanyIds,
+        ),
+      ).called(1);
+    });
+  });
+
   group('getServiceProviderProfilesByAuthUser', () {
     test(
       'should return SuccessState with domain profiles list when remote call succeeds',

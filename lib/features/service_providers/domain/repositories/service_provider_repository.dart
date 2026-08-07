@@ -20,6 +20,10 @@ abstract interface class ServiceProviderRepository {
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
+  FutureList<ServiceProviderProfileEntity>
+  getServiceProviderProfilesByCompanyIds(
+    List<String> serviceProviderCompanyIds,
+  );
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfilesByAuthUser(
     String authUserId,
   );
