@@ -73,6 +73,18 @@ abstract interface class HttpClient {
     Options? options,
     CancelToken? cancelToken,
   });
+
+  Future<Response<dynamic>> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    MapDynamic? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  });
 }
 
 @module
@@ -207,5 +219,28 @@ final class HttpClientImpl implements HttpClient {
     queryParameters: queryParameters,
     options: options,
     cancelToken: cancelToken,
+  );
+
+  @override
+  Future<Response<dynamic>> download(
+    String urlPath,
+    dynamic savePath, {
+    ProgressCallback? onReceiveProgress,
+    MapDynamic? queryParameters,
+    CancelToken? cancelToken,
+    bool deleteOnError = true,
+    String lengthHeader = Headers.contentLengthHeader,
+    Object? data,
+    Options? options,
+  }) => _dio.download(
+    urlPath,
+    savePath,
+    onReceiveProgress: onReceiveProgress,
+    queryParameters: queryParameters,
+    cancelToken: cancelToken,
+    deleteOnError: deleteOnError,
+    lengthHeader: lengthHeader,
+    data: data,
+    options: options,
   );
 }

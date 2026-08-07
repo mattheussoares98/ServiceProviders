@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -139,6 +140,33 @@ void main() {
 
       expect(result, response);
       verify(() => mockDio.delete<dynamic>('/test', data: {'e': 5})).called(1);
+    });
+
+    test('download calls Dio.download with correct arguments', () async {
+      final urlPath = faker.internet.httpsUrl();
+      final savePath = '/path/to/${faker.guid.guid()}.jpg';
+      final response = Response<dynamic>(
+        requestOptions: RequestOptions(path: urlPath),
+        statusCode: 200,
+      );
+      when(
+        () => mockDio.download(
+          any(),
+          any<dynamic>(),
+          onReceiveProgress: any(named: 'onReceiveProgress'),
+          queryParameters: any(named: 'queryParameters'),
+          cancelToken: any(named: 'cancelToken'),
+          deleteOnError: any(named: 'deleteOnError'),
+          lengthHeader: any(named: 'lengthHeader'),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((_) async => response);
+
+      final result = await httpClient.download(urlPath, savePath);
+
+      expect(result, response);
+      verify(() => mockDio.download(urlPath, savePath)).called(1);
     });
   });
 }
