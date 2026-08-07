@@ -22,44 +22,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
   final ServiceProvidersCubitUseCases _useCases;
 
-  Future<void> loadCompanies({
-    bool forceRefresh = false,
-    bool emitLoading = true,
-  }) async {
-    //TODO delete this method and replace with loadCompaniesAndProfiles
-    if (!forceRefresh && state.companies.isNotEmpty) {
-      return;
-    }
-    emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
-
-    final companyId = _useCases.getActiveCompanyId();
-    final result = await _useCases.getCompanies.call(companyId);
-    //TODO should reload the pending invites for the selected company when it is forcing refresh
-    if (isClosed) return;
-
-    if (result is SuccessState<List<ServiceProviderCompanyEntity>>) {
-      emit(
-        state.copyWith(
-          status: StateStatus.loaded,
-          companies: result.data ?? [],
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          status: StateStatus.loadingError,
-          errorMessage: result.message,
-        ),
-      );
-      showErrorToast(result.message);
-    }
-  }
-
   Future<void> loadCompaniesAndProfiles({
     bool forceRefresh = false,
     bool emitLoading = true,
   }) async {
-    //TODO test this method
     if (!forceRefresh && state.companies.isNotEmpty) {
       return;
     }
@@ -287,7 +253,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         await _useCases.getInvitations.call(company.id);
       }
 
-      await loadCompanies(forceRefresh: true, emitLoading: false);
+      await loadCompaniesAndProfiles(forceRefresh: true, emitLoading: false);
 
       if (sentInvitation is FailureState) {
         emit(
@@ -473,7 +439,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     await pushRoute(
       CreateUpdateServiceProviderCompanyRoute(
         serviceProviderCompanyId: serviceProviderCompanyId,
-        cubit: this,
       ),
     );
   }

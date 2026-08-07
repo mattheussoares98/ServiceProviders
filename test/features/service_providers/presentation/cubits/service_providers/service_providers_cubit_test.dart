@@ -97,7 +97,7 @@ void main() {
       expect(cubit.state, const ServiceProvidersState.initial());
     });
 
-    group('loadCompanies', () {
+    group('Load companies and profiles', () {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'loadCompanies should fetch companies and emit loaded',
         build: () {
@@ -109,9 +109,12 @@ void main() {
           when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(companyId);
+          when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.loadCompanies(),
+        act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -135,9 +138,12 @@ void main() {
           when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(companyId);
+          when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.loadCompanies(emitLoading: false),
+        act: (cubit) => cubit.loadCompaniesAndProfiles(emitLoading: false),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -161,7 +167,7 @@ void main() {
           ).thenReturn(companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadCompanies(),
+        act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
             (s) => s.status,
@@ -539,6 +545,10 @@ void main() {
             ),
           );
           when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+
+          when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(user.companyId);
           return cubit;
@@ -638,6 +648,9 @@ void main() {
             ),
           );
           when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(user.companyId);
           return cubit;
@@ -684,6 +697,9 @@ void main() {
               data: [EntityFactory.makeServiceProviderCompanyEntity()],
             ),
           );
+          when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(user.companyId);
@@ -741,6 +757,9 @@ void main() {
           when(
             () => mockGetActiveCompanyIdUseCase.call(),
           ).thenReturn(user.companyId);
+          when(
+            () => mockGetProfilesByCompanyIds.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
 
           final result = await cubit.saveCompany(
             name: name,

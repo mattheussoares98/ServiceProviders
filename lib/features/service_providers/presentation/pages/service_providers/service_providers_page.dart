@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
@@ -28,24 +27,11 @@ class ServiceProvidersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          GetIt.I<ServiceProvidersCubit>()..loadCompanies(),
-      child: const _ServiceProvidersView(),
-    );
-  }
-}
-
-class _ServiceProvidersView extends StatelessWidget {
-  const _ServiceProvidersView();
-
-  @override
-  Widget build(BuildContext context) {
     return BaseScaffold(
       isScrollable: false,
-      onRefresh: () => context.read<ServiceProvidersCubit>().loadCompanies(
-        forceRefresh: true,
-      ),
+      onRefresh: () => context
+          .read<ServiceProvidersCubit>()
+          .loadCompaniesAndProfiles(forceRefresh: true),
       appBar: BaseAppBar(
         title: 'Prestadores de serviço'.hardcoded,
         actions: [

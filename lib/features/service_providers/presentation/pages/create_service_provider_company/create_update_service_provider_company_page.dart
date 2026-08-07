@@ -3,7 +3,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -32,27 +31,7 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
   const CreateUpdateServiceProviderCompanyPage({
     super.key,
     this.serviceProviderCompanyId,
-    this.cubit,
   });
-
-  final String? serviceProviderCompanyId;
-  final ServiceProvidersCubit? cubit;
-
-  @override
-  Widget build(BuildContext context) {
-    final effectiveCubit = cubit ?? GetIt.I<ServiceProvidersCubit>();
-
-    return BlocProvider.value(
-      value: effectiveCubit..loadCompanies(),
-      child: _CreateServiceProviderCompanyView(
-        serviceProviderCompanyId: serviceProviderCompanyId,
-      ),
-    );
-  }
-}
-
-class _CreateServiceProviderCompanyView extends HookWidget {
-  const _CreateServiceProviderCompanyView({this.serviceProviderCompanyId});
 
   final String? serviceProviderCompanyId;
 
