@@ -53,10 +53,7 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
   @override
   FutureBool createSlaPolicy(SlaPolicyModel model) =>
       SupabaseHandler.call(() async {
-        await _database.insert(
-          table: 'sla_policies',
-          values: model.toJson(),
-        );
+        await _database.insert(table: 'sla_policies', values: model.toJson());
         return true;
       });
 
@@ -72,14 +69,13 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
       });
 
   @override
-  FutureVoid deleteSlaPolicy(String id) =>
-      SupabaseHandler.voidCall(() async {
-        await _database.update(
-          table: 'sla_policies',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-      });
+  FutureVoid deleteSlaPolicy(String id) => SupabaseHandler.voidCall(() async {
+    await _database.update(
+      table: 'sla_policies',
+      values: {'deleted_at': DateTime.now().toIso8601String()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+  });
 }
 
 final class _NotFoundException implements Exception {

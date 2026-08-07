@@ -98,10 +98,6 @@ class CreateUpdateWorkOrderPage extends HookWidget {
                 create: (context) =>
                     GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
               ),
-            BlocProvider(
-              create: (context) =>
-                  GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
-            ),
           ],
           child:
               BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
@@ -406,7 +402,9 @@ class _CreateUpdatePage extends HookWidget {
             Expanded(
               child: _SlaPolicyDropdown(
                 selectedSlaPolicyId: selectedSlaPolicyId.value,
-                onChanged: (val) => selectedSlaPolicyId.value = val,
+                onChanged: (val) {
+                  selectedSlaPolicyId.value = val;
+                },
               ),
             ),
             gapW8,
