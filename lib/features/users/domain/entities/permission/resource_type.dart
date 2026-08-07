@@ -1,15 +1,16 @@
 enum ResourceType {
-  attachments('attachments', 'Anexos'),
   assets('assets', 'Ativos'),
+  attachments('attachments', 'Anexos'),
   categories('categories', 'Categorias'),
   // checklists('checklists', 'Checklists'),
   locations('locations', 'Locais'),
-  workOrders('work_orders', 'Ordens de serviço'),
-  // maintenancePlans('maintenance_plans', 'Planos de manutenção'),
   // reports('reports', 'Relatórios'),
-  users('users', 'Usuários'),
+  // maintenancePlans('maintenance_plans', 'Planos de manutenção'),
+  sectors('sectors', 'Setores'),
   serviceProviders('service_providers', 'Prestadores de serviço'),
-  sectors('sectors', 'Setores');
+  slaPolicies('sla_policies', 'Políticas de SLA'),
+  users('users', 'Usuários'),
+  workOrders('work_orders', 'Ordens de serviço');
 
   const ResourceType(this.code, this.label);
   final String code;
