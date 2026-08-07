@@ -26,7 +26,9 @@ class _ServiceProvidersBody extends StatelessWidget {
                 .invitations;
             final hasPendingInvitation =
                 invitations[company.id]?.any(
-                  (inv) => inv.serviceProviderCompanyId == company.id,
+                  (inv) =>
+                      inv.serviceProviderCompanyId == company.id &&
+                      inv.status == ServiceProviderInvitationStatus.pending,
                 ) ??
                 false;
             final isLoadingCompany = context
@@ -58,7 +60,9 @@ class _ServiceProvidersBody extends StatelessWidget {
                           if (company.contactEmail != null)
                             BaseText.bodySmall(company.contactEmail!),
                           if (hasPendingInvitation)
-                            BaseText.bodySmall('Convite pendente'.hardcoded),
+                            BaseText.bodySmall(
+                              'Há convite(s) pendente(s)'.hardcoded,
+                            ),
                         ],
                       )
                     : null,
