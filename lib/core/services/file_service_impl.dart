@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
@@ -10,8 +11,10 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 /// to support both Mobile (iOS/Android) and Web platforms.
 @LazySingleton(as: FileService)
 final class FileServiceImpl implements FileService {
-  FileServiceImpl({required ImagePicker imagePicker})
-    : _helper = getPlatformHelper(imagePicker);
+  FileServiceImpl({
+    required ImagePicker imagePicker,
+    required HttpClient client,
+  }) : _helper = getPlatformHelper(imagePicker, client);
 
   final FileServicePlatformHelper _helper;
 

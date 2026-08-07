@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart' hide PickedFile;
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper_stub.dart'
     if (dart.library.js_util) 'file_service_platform_helper_web.dart'
@@ -26,5 +27,7 @@ abstract interface class FileServicePlatformHelper {
   Future<String?> resolveSandboxPath(String? localPath);
 }
 
-FileServicePlatformHelper getPlatformHelper(ImagePicker imagePicker) =>
-    createPlatformHelper(imagePicker);
+FileServicePlatformHelper getPlatformHelper(
+  ImagePicker imagePicker,
+  HttpClient client,
+) => createPlatformHelper(imagePicker, client);

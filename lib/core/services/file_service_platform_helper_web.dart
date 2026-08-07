@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart' hide PickedFile;
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
@@ -10,14 +11,19 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
-FileServicePlatformHelper createPlatformHelper(ImagePicker imagePicker) =>
-    FileServiceWeb(imagePicker: imagePicker);
+FileServicePlatformHelper createPlatformHelper(
+  ImagePicker imagePicker,
+  HttpClient client,
+) => FileServiceWeb(imagePicker: imagePicker, client: client);
 
 final class FileServiceWeb implements FileServicePlatformHelper {
-  FileServiceWeb({required ImagePicker imagePicker})
-    : _imagePicker = imagePicker;
+  FileServiceWeb({required ImagePicker imagePicker, required HttpClient client})
+    : _imagePicker = imagePicker,
+      _client = client;
 
   final ImagePicker _imagePicker;
+  // ignore: unused_field
+  final HttpClient _client;
 
   // In-memory cache to store file bytes on web since there's no native filesystem paths.
   final Map<String, Uint8List> _webCache = {};
@@ -188,7 +194,9 @@ final class FileServiceWeb implements FileServicePlatformHelper {
       try {
         final uri = Uri.tryParse(path);
         if (uri != null && uri.scheme.isNotEmpty) {
-          final filename = uri.path.isNotEmpty ? uri.pathSegments.last : uri.host;
+          final filename = uri.path.isNotEmpty
+              ? uri.pathSegments.last
+              : uri.host;
           ext = p.extension(filename).toLowerCase().replaceFirst('.', '');
         }
       } catch (_) {

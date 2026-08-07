@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_impl.dart';
+
+import '../../../testing/mocks/client_mocks.dart';
 
 class MockImagePicker extends Mock implements ImagePicker {}
 
@@ -23,6 +26,7 @@ class MockFlutterImageCompressValidator extends Mock
 void main() {
   final faker = Faker();
   late MockImagePicker mockImagePicker;
+  late MockHttpClient mockHttpClient;
   late FileServiceImpl service;
   late Directory tempDir;
   late bool urlLaunchSuccess;
@@ -39,7 +43,11 @@ void main() {
 
   setUp(() async {
     mockImagePicker = MockImagePicker();
-    service = FileServiceImpl(imagePicker: mockImagePicker);
+    mockHttpClient = MockHttpClient();
+    service = FileServiceImpl(
+      imagePicker: mockImagePicker,
+      client: mockHttpClient,
+    );
 
     tempDir = await Directory.systemTemp.createTemp('file_service_test_');
 
@@ -274,17 +282,20 @@ void main() {
       ]);
     });
 
-    test('returns null when user cancels single file pick (multiple = false)', () async {
-      when(
-        () => mockImagePicker.pickImage(
-          source: ImageSource.gallery,
-          imageQuality: 100,
-        ),
-      ).thenAnswer((_) async => null);
+    test(
+      'returns null when user cancels single file pick (multiple = false)',
+      () async {
+        when(
+          () => mockImagePicker.pickImage(
+            source: ImageSource.gallery,
+            imageQuality: 100,
+          ),
+        ).thenAnswer((_) async => null);
 
-      final result = await service.pickMediaFromGallery(multiple: false);
-      expect(result, isNull);
-    });
+        final result = await service.pickMediaFromGallery(multiple: false);
+        expect(result, isNull);
+      },
+    );
   });
 
   group('readFileAsBytes', () {
@@ -306,7 +317,10 @@ void main() {
     });
 
     test('returns false if file does not exist', () async {
-      expect(await service.fileExists('${tempDir.path}/nonexistent.txt'), isFalse);
+      expect(
+        await service.fileExists('${tempDir.path}/nonexistent.txt'),
+        isFalse,
+      );
     });
   });
 
@@ -448,6 +462,28 @@ void main() {
         final result = await service.openFile(file.path);
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
+      },
+    );
+  });
+
+  group('downloadUrlToSandbox', () {
+    test(
+      'downloads file via HttpClient and returns SuccessState(path)',
+      () async {
+        when(
+          () => mockHttpClient.download(any<String>(), any<dynamic>()),
+        ).thenAnswer(
+          (_) async =>
+              Response(requestOptions: RequestOptions(), statusCode: 200),
+        );
+
+        final url = faker.internet.httpsUrl();
+        final fileName = '${faker.guid.guid()}.jpg';
+        final result = await service.downloadUrlToSandbox(url, fileName);
+
+        expect(result, isA<SuccessState<String>>());
+        expect(result.data, contains('/attachments/$fileName'));
+        verify(() => mockHttpClient.download(url, any<dynamic>())).called(1);
       },
     );
   });

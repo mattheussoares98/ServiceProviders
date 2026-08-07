@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gal/gal.dart';
 import 'package:image_picker/image_picker.dart' hide PickedFile;
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
@@ -17,14 +18,20 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-FileServicePlatformHelper createPlatformHelper(ImagePicker imagePicker) =>
-    FileServiceMobile(imagePicker: imagePicker);
+FileServicePlatformHelper createPlatformHelper(
+  ImagePicker imagePicker,
+  HttpClient client,
+) => FileServiceMobile(imagePicker: imagePicker, client: client);
 
 final class FileServiceMobile implements FileServicePlatformHelper {
-  FileServiceMobile({required ImagePicker imagePicker})
-    : _imagePicker = imagePicker;
+  FileServiceMobile({
+    required ImagePicker imagePicker,
+    required HttpClient client,
+  }) : _imagePicker = imagePicker,
+       _client = client;
 
   final ImagePicker _imagePicker;
+  final HttpClient _client;
 
   // Compression constants
   static const _maxCompressedImageBytes = 1 * 1024 * 1024; // 1 MB
@@ -264,21 +271,14 @@ final class FileServiceMobile implements FileServicePlatformHelper {
         return SuccessState(data: destPath);
       }
 
-      final uri = Uri.parse(url);
-      final nativeClient = HttpClient()..autoUncompress = true;
-      final request = await nativeClient.getUrl(uri);
-      final response = await request.close();
+      final response = await _client.download(url, destPath);
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        nativeClient.close(force: true);
+      if (response.statusCode != null &&
+          (response.statusCode! < 200 || response.statusCode! >= 300)) {
         return FailureState(
           message: 'HTTP ${response.statusCode} ao baixar arquivo.'.hardcoded,
         );
       }
-
-      final sink = File(destPath).openWrite();
-      await response.pipe(sink);
-      nativeClient.close();
 
       return SuccessState(data: destPath);
     } catch (error) {
