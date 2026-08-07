@@ -28,6 +28,10 @@ abstract interface class ServiceProviderRemoteDataSource {
     String serviceProviderCompanyId,
   );
   FutureList<ServiceProviderProfileResponseModel>
+  getServiceProviderProfilesByCompanyIds(
+    List<String> serviceProviderCompanyIds,
+  );
+  FutureList<ServiceProviderProfileResponseModel>
   getServiceProviderProfilesByAuthUser(String authUserId);
   FutureBool createServiceProviderProfile(
     ServiceProviderProfileResponseModel request,
@@ -118,6 +122,24 @@ final class ServiceProviderRemoteDataSourceImpl
         SupabaseFilter.eq(
           'service_provider_company_id',
           serviceProviderCompanyId,
+        ),
+      ],
+    );
+    return response.map(ServiceProviderProfileResponseModel.fromJson).toList();
+  });
+
+  @override
+  FutureList<ServiceProviderProfileResponseModel>
+  getServiceProviderProfilesByCompanyIds(
+    List<String> serviceProviderCompanyIds,
+  ) => SupabaseHandler.call(() async {
+    if (serviceProviderCompanyIds.isEmpty) return [];
+    final response = await _database.selectList(
+      table: 'service_provider_profiles',
+      filters: [
+        SupabaseFilter.inList(
+          'service_provider_company_id',
+          serviceProviderCompanyIds,
         ),
       ],
     );
