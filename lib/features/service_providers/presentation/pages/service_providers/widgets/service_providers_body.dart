@@ -41,6 +41,9 @@ class _ServiceProvidersBody extends StatelessWidget {
               child: ExpansionTile(
                 key: ValueKey(company.id),
                 initiallyExpanded: isSelected,
+                enabled:
+                    company.invitationStatus ==
+                    ServiceProviderInvitationStatus.accepted,
                 onExpansionChanged: (expanded) {
                   if (expanded) {
                     context.read<ServiceProvidersCubit>().selectCompany(
@@ -52,20 +55,58 @@ class _ServiceProvidersBody extends StatelessWidget {
                   }
                 },
                 title: BaseText.titleMedium(company.name),
-                subtitle: company.contactEmail != null || hasPendingInvitation
-                    ? Column(
-                        mainAxisSize: .min,
-                        crossAxisAlignment: .start,
+                subtitle: Column(
+                  mainAxisSize: .min,
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    if (company.contactEmail?.isNotEmpty ?? false)
+                      Row(
                         children: [
-                          if (company.contactEmail != null)
-                            BaseText.bodySmall(company.contactEmail!),
-                          if (hasPendingInvitation)
-                            BaseText.bodySmall(
-                              'Há convite(s) pendente(s)'.hardcoded,
-                            ),
+                          Expanded(
+                            child: BaseText.bodySmall(company.contactEmail!),
+                          ),
+                          if (company.invitationStatus == null)
+                            BaseTextButton(
+                              text: 'Convidar'.hardcoded,
+                              platformIcon: const PlatformIcon(
+                                materialIcon: Icons.mail,
+                                cupertinoIcon: CupertinoIcons.mail,
+                              ),
+                              onPressed: () {
+                                showAlertDialog(
+                                  context: context,
+                                  title: 'Enviar convite'.hardcoded,
+                                  contentText:
+                                      'Deseja enviar o convite para ${company.contactEmail}?'
+                                          .hardcoded,
+                                  defaultActionText: 'Sim'.hardcoded,
+                                  cancelActionText: 'Não'.hardcoded,
+                                  onOkPressed: () {
+                                    //TODO send invitation
+                                  },
+                                );
+                              },
+                            )
+                          else if (company.invitationStatus !=
+                              ServiceProviderInvitationStatus.accepted)
+                            BaseText.caption(company.invitationStatus!.label),
                         ],
-                      )
-                    : null,
+                      ),
+                    if (hasPendingInvitation)
+                      BaseText.bodySmall('Há convite(s) pendente(s)'.hardcoded),
+                    if (company.contactPhone != null &&
+                        company.contactPhone!.isNotEmpty) ...[
+                      BaseText.bodyMedium(
+                        'Telefone: ${company.contactPhone}'.hardcoded,
+                      ),
+                      gapH8,
+                    ],
+                    TitleAndSubtitle(
+                      title: company.documentType.name.toUpperCase(),
+                      subtitle: company.document,
+                    ),
+                  ],
+                ),
                 leading: EditServiceProviderCompanyButton(
                   companyId: company.id,
                 ),
@@ -73,31 +114,20 @@ class _ServiceProvidersBody extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(Sizes.p8),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: .stretch,
                       children: [
-                        if (company.contactPhone != null &&
-                            company.contactPhone!.isNotEmpty) ...[
-                          BaseText.bodyMedium(
-                            'Telefone: ${company.contactPhone}'.hardcoded,
-                          ),
-                          gapH8,
-                        ],
-                        TitleAndSubtitle(
-                          title: company.documentType.name.toUpperCase(),
-                          subtitle: company.document,
-                        ),
-                        gapH8,
-                        const Divider(),
                         gapH8,
                         if (isLoadingCompany)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: Sizes.p16),
                             child: Center(child: LoadingCircle()),
                           )
-                        else
-                          ServiceProvidersInvitationsItems(
-                            companyId: company.id,
-                          ),
+                        else if (company.invitationStatus ==
+                            ServiceProviderInvitationStatus.accepted) ...[
+                          const Divider(),
+                          gapH8,
+                          ServiceProvidersInvitationsItems(company: company),
+                        ],
                       ],
                     ),
                   ),

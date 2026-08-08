@@ -22,24 +22,24 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/email_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 
 class ServiceProvidersInvitationsItems extends HookWidget {
-  const ServiceProvidersInvitationsItems({super.key, required this.companyId});
-  final String companyId;
+  const ServiceProvidersInvitationsItems({super.key, required this.company});
+  final ServiceProviderCompanyEntity company;
 
   @override
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
-    final company = context
-        .select<ServiceProvidersCubit, ServiceProviderCompanyEntity?>(
-          (cubit) =>
-              cubit.state.companies.firstWhereOrNull((c) => c.id == companyId),
-        );
+    final companyHasAcceptedInvite =
+        company.invitationStatus == ServiceProviderInvitationStatus.accepted;
+    if (!companyHasAcceptedInvite) {
+      return const SizedBox.shrink();
+    }
 
     return BlocBuilder<ServiceProvidersCubit, ServiceProvidersState>(
       builder: (context, state) {
-        final invitations = state.invitations[companyId] ?? [];
-        final profiles = state.profiles[companyId] ?? [];
+        final invitations = state.invitations[company.id] ?? [];
+        final profiles = state.profiles[company.id] ?? [];
 
         final hasPending = invitations.any(
           (i) => i.status == ServiceProviderInvitationStatus.pending,
@@ -48,7 +48,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
           (i) => i.status == ServiceProviderInvitationStatus.accepted,
         );
         final hasEmail =
-            company?.contactEmail != null && company!.contactEmail!.isNotEmpty;
+            company.contactEmail != null && company.contactEmail!.isNotEmpty;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +111,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                                   .read<ServiceProvidersCubit>()
                                                   .sendInvitation(
                                                     serviceProviderCompanyId:
-                                                        companyId,
+                                                        company.id,
                                                     email: emailController.text,
                                                   );
 
@@ -190,7 +190,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                   onOkPressed: () => context
                                       .read<ServiceProvidersCubit>()
                                       .sendInvitation(
-                                        serviceProviderCompanyId: companyId,
+                                        serviceProviderCompanyId: company.id,
                                         email: company.contactEmail!,
                                       ),
                                 );
@@ -235,7 +235,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                     .read<ServiceProvidersCubit>()
                                     .deleteInvitation(
                                       invitationId: correspondingInvitation.id,
-                                      serviceProviderCompanyId: companyId,
+                                      serviceProviderCompanyId: company.id,
                                     ),
                               );
                             },
