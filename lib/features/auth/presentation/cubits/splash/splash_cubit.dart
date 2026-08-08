@@ -12,18 +12,21 @@ class SplashCubit extends BaseCubit<SplashState> {
   SplashCubit({
     required SplashCubitUseCases useCases,
     required SupabaseAuthClient authClient,
-  })  : _useCases = useCases,
-        _authClient = authClient,
-        super(const SplashState());
+  }) : _useCases = useCases,
+       _authClient = authClient,
+       super(const SplashState());
 
   final SplashCubitUseCases _useCases;
   final SupabaseAuthClient _authClient;
 
-  void checkInitialRoute() {
-    // 1. If Supabase has an active session from an invite/magic link,
+  void checkInitialRoute({bool isInviteLink = false}) {
+    // 1. If Supabase has an active session (e.g. from an invite/magic link redirect),
     // but local user data is not set up yet -> route to AcceptInviteRoute
-    if (_authClient.currentSession != null &&
-        _useCases.sessionRepository.userData.user.id.isEmpty) {
+    final hasActiveInviteSession =
+        _authClient.currentSession != null &&
+        _useCases.sessionRepository.userData.user.id.isEmpty;
+
+    if (isInviteLink || hasActiveInviteSession) {
       emit(state.copyWith(target: SplashRouteTarget.acceptInvite));
       return;
     }

@@ -41,5 +41,6 @@ abstract interface class ServiceProviderRepository {
     required String serviceProviderCompanyId,
     required String email,
   });
+  FutureBool acceptServiceProviderInvitation(String email);
   FutureBool deleteServiceProviderInvitation(String invitationId);
 }

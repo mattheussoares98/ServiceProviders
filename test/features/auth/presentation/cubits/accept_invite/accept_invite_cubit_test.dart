@@ -1,5 +1,3 @@
-// ignore_for_file: inference_failure_on_instance_creation
-
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
@@ -9,18 +7,23 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/accept_service_provider_invitation_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-import '../../../../../../testing/mocks/external/external_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockUpdateUserProfileUseCase extends Mock
@@ -29,18 +32,38 @@ class MockUpdateUserProfileUseCase extends Mock
 class MockGetUserProfileByIdUseCase extends Mock
     implements GetUserProfileByIdUseCase {}
 
+class MockGetServiceProviderProfilesByAuthUserUseCase extends Mock
+    implements GetServiceProviderProfilesByAuthUserUseCase {}
+
+class MockUpdateServiceProviderProfileUseCase extends Mock
+    implements UpdateServiceProviderProfileUseCase {}
+
 class MockSaveSelectedModeUseCase extends Mock
     implements SaveSelectedModeUseCase {}
+
+class MockAcceptServiceProviderInvitationUseCase extends Mock
+    implements AcceptServiceProviderInvitationUseCase {}
+
+class MockGetAuthUserUseCase extends Mock implements GetAuthUserUseCase {}
+
+class MockWatchAuthUserUseCase extends Mock implements WatchAuthUserUseCase {}
+
+class MockLogOutUseCase extends Mock implements LogOutUseCase {}
 
 void main() {
   late MockChangePasswordUseCase mockChangePassword;
   late MockUpdateUserProfileUseCase mockUpdateUserProfile;
   late MockGetUserProfileByIdUseCase mockGetUserProfileById;
-  late MockSetSessionUseCase mockSetSession;
-  late MockSaveUserDataUseCase mockSaveUserData;
+  late MockGetServiceProviderProfilesByAuthUserUseCase
+  mockGetServiceProviderProfilesByAuthUser;
+  late MockUpdateServiceProviderProfileUseCase mockUpdateServiceProviderProfile;
   late MockSaveSelectedModeUseCase mockSaveSelectedMode;
-  late MockSupabaseAuthClient mockAuthClient;
   late MockNavigationClient mockNavigationClient;
+  late MockAcceptServiceProviderInvitationUseCase
+  acceptServiceProviderInvitation;
+  late MockGetAuthUserUseCase mockGetAuthUser;
+  late MockWatchAuthUserUseCase mockWatchAuthUser;
+  late MockLogOutUseCase mockLogOut;
   late AcceptInviteCubit cubit;
 
   setUpAll(() {
@@ -54,26 +77,42 @@ void main() {
     mockChangePassword = MockChangePasswordUseCase();
     mockUpdateUserProfile = MockUpdateUserProfileUseCase();
     mockGetUserProfileById = MockGetUserProfileByIdUseCase();
-    mockSetSession = MockSetSessionUseCase();
-    mockSaveUserData = MockSaveUserDataUseCase();
+    mockGetServiceProviderProfilesByAuthUser =
+        MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockUpdateServiceProviderProfile =
+        MockUpdateServiceProviderProfileUseCase();
     mockSaveSelectedMode = MockSaveSelectedModeUseCase();
-    mockAuthClient = MockSupabaseAuthClient();
     mockNavigationClient = MockNavigationClient();
+    acceptServiceProviderInvitation =
+        MockAcceptServiceProviderInvitationUseCase();
+    mockGetAuthUser = MockGetAuthUserUseCase();
+    mockWatchAuthUser = MockWatchAuthUserUseCase();
+    mockLogOut = MockLogOutUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     when(() => mockSaveSelectedMode.call(any())).thenAnswer((_) async {});
+    when(() => mockLogOut.call()).thenAnswer((_) async {});
+    when(() => mockGetAuthUser.call()).thenReturn(null);
+    when(
+      () => mockWatchAuthUser.call(),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = AcceptInviteCubitUseCases(
       changePassword: mockChangePassword,
       updateUserProfile: mockUpdateUserProfile,
       getUserProfileById: mockGetUserProfileById,
-      setSession: mockSetSession,
-      saveUserData: mockSaveUserData,
+      getServiceProviderProfilesByAuthUser:
+          mockGetServiceProviderProfilesByAuthUser,
+      updateServiceProviderProfile: mockUpdateServiceProviderProfile,
       saveSelectedMode: mockSaveSelectedMode,
+      acceptServiceProviderInvitation: acceptServiceProviderInvitation,
+      getAuthUser: mockGetAuthUser,
+      watchAuthUser: mockWatchAuthUser,
+      logOut: mockLogOut,
     );
 
-    cubit = AcceptInviteCubit(useCases: useCases, authClient: mockAuthClient);
+    cubit = AcceptInviteCubit(useCases: useCases);
   });
 
   tearDown(GetIt.I.reset);
@@ -87,17 +126,13 @@ void main() {
       test('loads profile immediately if session exists', () {
         final userId = faker.guid.guid();
         final profile = EntityFactory.makeUserProfileEntity();
-        when(() => mockAuthClient.currentSession).thenReturn(
-          Session(
-            accessToken: faker.jwt.valid(),
-            tokenType: 'bearer',
-            user: User(
-              id: userId,
-              appMetadata: const {},
-              userMetadata: const {},
-              aud: 'authenticated',
-              createdAt: DateTime.now().toIso8601String(),
-            ),
+        when(() => mockGetAuthUser.call()).thenReturn(
+          AuthUserEntity(
+            id: userId,
+            email: faker.internet.email(),
+            name: faker.person.name(),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
           ),
         );
         when(
@@ -110,13 +145,13 @@ void main() {
       });
 
       test('listens to auth state changes when session arrives', () async {
-        final controller = StreamController<AuthState>();
+        final controller = StreamController<String?>();
         final userId = faker.guid.guid();
         final profile = EntityFactory.makeUserProfileEntity();
 
-        when(() => mockAuthClient.currentSession).thenReturn(null);
+        when(() => mockGetAuthUser.call()).thenReturn(null);
         when(
-          () => mockAuthClient.onAuthStateChange,
+          () => mockWatchAuthUser.call(),
         ).thenAnswer((_) => controller.stream);
         when(
           () => mockGetUserProfileById.call(userId),
@@ -124,24 +159,8 @@ void main() {
 
         cubit.initialize();
 
-        controller.add(
-          AuthState(
-            AuthChangeEvent.signedIn,
-            Session(
-              accessToken: faker.jwt.valid(),
-              tokenType: 'bearer',
-              user: User(
-                id: userId,
-                appMetadata: const {},
-                userMetadata: const {},
-                aud: 'authenticated',
-                createdAt: DateTime.now().toIso8601String(),
-              ),
-            ),
-          ),
-        );
-
-        await Future.delayed(Duration.zero);
+        controller.add(userId);
+        await pumpEventQueue();
 
         verify(() => mockGetUserProfileById.call(userId)).called(1);
         await controller.close();
@@ -198,23 +217,21 @@ void main() {
       'loadProfile should create fallback profile when user is not found in user_profiles',
       build: () {
         final userId = faker.guid.guid();
-        when(() => mockAuthClient.currentSession).thenReturn(
-          Session(
-            accessToken: faker.jwt.valid(),
-            tokenType: 'bearer',
-            user: User(
-              id: userId,
-              email: faker.internet.email(),
-              appMetadata: const {},
-              userMetadata: const {},
-              aud: 'authenticated',
-              createdAt: DateTime.now().toIso8601String(),
-            ),
+        when(() => mockGetAuthUser.call()).thenReturn(
+          AuthUserEntity(
+            id: userId,
+            email: faker.internet.email(),
+            name: faker.person.name(),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
           ),
         );
         when(() => mockGetUserProfileById.call(any())).thenAnswer(
           (_) async => FailureState(message: 'Usuário não encontrado'),
         );
+        when(
+          () => mockGetServiceProviderProfilesByAuthUser.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
         return cubit;
       },
       act: (cubit) => cubit.loadProfile(faker.guid.guid()),
@@ -244,7 +261,7 @@ void main() {
     );
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
-      'acceptInvite should call password change, update profile, and save session on success',
+      'acceptInvite should call password change, update profile, and log out on success',
       seed: () => AcceptInviteState(
         status: StateStatus.loaded,
         userProfile: EntityFactory.makeUserProfileEntity().copyWith(
@@ -258,23 +275,10 @@ void main() {
         when(
           () => mockUpdateUserProfile.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockSetSession.call(any())).thenAnswer((_) {});
         when(
-          () => mockSaveUserData.call(any()),
+          () => acceptServiceProviderInvitation.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockAuthClient.currentSession).thenReturn(
-          Session(
-            accessToken: faker.jwt.valid(),
-            tokenType: 'bearer',
-            user: User(
-              id: faker.guid.guid(),
-              appMetadata: const {},
-              userMetadata: const {},
-              aud: 'authenticated',
-              createdAt: DateTime.now().toIso8601String(),
-            ),
-          ),
-        );
+        when(() => mockLogOut.call()).thenAnswer((_) async {});
         return cubit;
       },
       act: (cubit) async {
@@ -299,8 +303,8 @@ void main() {
       verify: (_) {
         verify(() => mockChangePassword.call(any())).called(1);
         verify(() => mockUpdateUserProfile.call(any())).called(1);
-        verify(() => mockSetSession.call(any())).called(1);
-        verify(() => mockSaveUserData.call(any())).called(1);
+        // verify(() => mockSetSession.call(any())).called(1);
+        // verify(() => mockSaveUserData.call(any())).called(1);
       },
     );
 

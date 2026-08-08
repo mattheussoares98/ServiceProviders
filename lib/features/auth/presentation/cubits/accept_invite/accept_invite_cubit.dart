@@ -2,21 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/accept_service_provider_invitation_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'accept_invite_state.dart';
 
@@ -26,31 +28,36 @@ class AcceptInviteCubitUseCases {
     required this.changePassword,
     required this.updateUserProfile,
     required this.getUserProfileById,
-    required this.setSession,
-    required this.saveUserData,
+    required this.getServiceProviderProfilesByAuthUser,
+    required this.updateServiceProviderProfile,
+    required this.acceptServiceProviderInvitation,
     required this.saveSelectedMode,
+    required this.getAuthUser,
+    required this.watchAuthUser,
+    required this.logOut,
   });
 
   final ChangePasswordUseCase changePassword;
   final UpdateUserProfileUseCase updateUserProfile;
   final GetUserProfileByIdUseCase getUserProfileById;
-  final SetSessionUseCase setSession;
-  final SaveUserDataUseCase saveUserData;
+  final GetServiceProviderProfilesByAuthUserUseCase
+  getServiceProviderProfilesByAuthUser;
+  final UpdateServiceProviderProfileUseCase updateServiceProviderProfile;
+  final AcceptServiceProviderInvitationUseCase acceptServiceProviderInvitation;
   final SaveSelectedModeUseCase saveSelectedMode;
+  final GetAuthUserUseCase getAuthUser;
+  final WatchAuthUserUseCase watchAuthUser;
+  final LogOutUseCase logOut;
 }
 
 @injectable
 class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
-  AcceptInviteCubit({
-    required AcceptInviteCubitUseCases useCases,
-    required SupabaseAuthClient authClient,
-  }) : _useCases = useCases,
-       _authClient = authClient,
-       super(const AcceptInviteState.empty());
+  AcceptInviteCubit({required AcceptInviteCubitUseCases useCases})
+    : _useCases = useCases,
+      super(const AcceptInviteState.empty());
 
   final AcceptInviteCubitUseCases _useCases;
-  final SupabaseAuthClient _authClient;
-  StreamSubscription<AuthState>? _authSubscription;
+  StreamSubscription<String?>? _authSubscription;
 
   void initialize() {
     // ── Sync fragment check (must be first, before any await/microtask) ──────
@@ -90,7 +97,7 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     }
     // ─────────────────────────────────────────────────────────────────────────
 
-    final userId = _authClient.currentSession?.user.id;
+    final userId = _useCases.getAuthUser.call()?.id;
     if (userId != null) {
       loadProfile(userId);
       return;
@@ -106,8 +113,7 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     emit(state.copyWith(status: StateStatus.loading));
     bool sessionReceived = false;
 
-    _authSubscription = _authClient.onAuthStateChange.listen((data) {
-      final newUserId = data.session?.user.id;
+    _authSubscription = _useCases.watchAuthUser.call().listen((newUserId) {
       if (newUserId != null) {
         sessionReceived = true;
         loadProfile(newUserId);
@@ -151,41 +157,71 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       emit(
         state.copyWith(status: StateStatus.loaded, userProfile: dataState.data),
       );
+      return;
+    }
+
+    // Try fetching Service Provider profile
+    final spState = await _useCases.getServiceProviderProfilesByAuthUser.call(
+      id,
+    );
+    if (isClosed) return;
+
+    if (spState is SuccessState<List<ServiceProviderProfileEntity>> &&
+        (spState.data?.isNotEmpty ?? false)) {
+      final sp = spState.data!.first;
+      final spProfileAsUser = UserProfileEntity(
+        avatarUrl: null,
+        deletedAt: null,
+        phone: sp.phone,
+        id: sp.authUserId ?? id,
+        createdAt: sp.createdAt,
+        updatedAt: sp.updatedAt,
+        companyId: '', // Empty companyId indicates Service Provider
+        permissionGroupId: '',
+        name: sp.name,
+        email: sp.email,
+        isActive: sp.isActive,
+        isAdmin: false,
+      );
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          userProfile: spProfileAsUser,
+        ),
+      );
+      return;
+    }
+
+    final authUser = _useCases.getAuthUser.call();
+    if (authUser != null) {
+      final fallbackProfile = UserProfileEntity(
+        avatarUrl: null,
+        deletedAt: null,
+        phone: null,
+        id: authUser.id,
+        createdAt: authUser.createdAt,
+        updatedAt: authUser.updatedAt,
+        companyId: '',
+        permissionGroupId: '',
+        name: authUser.name,
+        email: authUser.email,
+        isActive: false,
+        isAdmin: false,
+      );
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          userProfile: fallbackProfile,
+        ),
+      );
     } else {
-      final sessionUser = _authClient.currentSession?.user;
-      if (sessionUser != null) {
-        final fallbackProfile = UserProfileEntity(
-          avatarUrl: null,
-          deletedAt: null,
-          phone: null,
-          id: sessionUser.id,
-          createdAt: sessionUser.createdAt.toDateTime() ?? DateTime.now(),
-          updatedAt: sessionUser.updatedAt?.toDateTime() ?? DateTime.now(),
-          companyId: '',
-          permissionGroupId: '',
-          name:
-              (sessionUser.userMetadata?['name'] as String?) ??
-              sessionUser.email?.split('@')[0] ??
-              '',
-          email: sessionUser.email ?? '',
-          isActive: false,
-          isAdmin: false,
-        );
-        emit(
-          state.copyWith(
-            status: StateStatus.loaded,
-            userProfile: fallbackProfile,
-          ),
-        );
-      } else {
-        showDataStateToast(dataState);
-        emit(
-          state.copyWith(
-            status: StateStatus.loadingError,
-            errorMessage: dataState.message,
-          ),
-        );
-      }
+      showDataStateToast(dataState);
+      emit(
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: dataState.message,
+        ),
+      );
     }
   }
 
@@ -219,29 +255,50 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     // 2. Update the user profile (name and set active)
     final updatedProfile = profile.copyWith(name: name, isActive: true);
 
-    final updateProfileResult = await _useCases.updateUserProfile.call(
-      updatedProfile,
-    );
-    if (isClosed) return false;
-    if (updateProfileResult is! SuccessState) {
-      showDataStateToast(updateProfileResult);
-      emit(state.copyWith(status: StateStatus.loaded));
-      return false;
+    // If companyId is empty, this is a service provider user
+    if (profile.companyId.isEmpty) {
+      final spProfilesState = await _useCases
+          .getServiceProviderProfilesByAuthUser
+          .call(profile.id);
+      if (isClosed) return false;
+      if (spProfilesState is SuccessState<List<ServiceProviderProfileEntity>> &&
+          (spProfilesState.data?.isNotEmpty ?? false)) {
+        final spProfile = spProfilesState.data!.first.copyWith(
+          name: name,
+          isActive: true,
+        );
+        final updateSpResult = await _useCases.updateServiceProviderProfile
+            .call(spProfile);
+        if (isClosed) return false;
+        if (updateSpResult is! SuccessState) {
+          showDataStateToast(updateSpResult);
+          emit(state.copyWith(status: StateStatus.loaded));
+          return false;
+        }
+      }
+    } else {
+      final updateProfileResult = await _useCases.updateUserProfile.call(
+        updatedProfile,
+      );
+      if (isClosed) return false;
+      if (updateProfileResult is! SuccessState) {
+        showDataStateToast(updateProfileResult);
+        emit(state.copyWith(status: StateStatus.loaded));
+        return false;
+      }
     }
 
-    // 3. Update the session with the new user profile details
-    final session = _authClient.currentSession;
-    final userData = UserDataEntity(
-      user: updatedProfile,
-      accessToken: session?.accessToken ?? '',
-      refreshToken: session?.refreshToken ?? '',
-    );
+    // 3. Mark the invitation as accepted
+    await _useCases.acceptServiceProviderInvitation.call(profile.email);
 
-    _useCases.setSession.call(userData);
-    await _useCases.saveUserData.call(userData);
-
+    // 4. Sign out the temporary invite session and navigate to login.
+    //    The invite link creates a one-time Supabase session that must NOT
+    //    be persisted. We call logOut use case here so there is no stale
+    //    session left — the splash cubit will correctly route to login,
+    //    forcing the user to log in with the password they just set.
     showSuccessToast('Cadastro concluído com sucesso!'.hardcoded);
     emit(state.copyWith(status: StateStatus.loaded));
+    await _useCases.logOut.call();
     return true;
   }
 
@@ -253,6 +310,12 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     } else {
       await replaceAllRoute(const HomeRoute());
     }
+  }
+
+  // Navigate to login — used after a successful invite acceptance
+  // (the invite session has been signed out, the user must log in fresh).
+  Future<void> navigateToLogin() async {
+    await replaceAllRoute(const LoginRoute());
   }
 
   Future<void> navigateToSplash() async {

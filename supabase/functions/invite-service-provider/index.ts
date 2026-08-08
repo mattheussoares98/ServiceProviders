@@ -29,32 +29,7 @@ serve(async (req) => {
 
     const trimmedEmail = email.trim().toLowerCase()
 
-    // 1. Check if a valid pending invitation already exists
-    const { data: existingInvitation, error: invitationErr } = await supabase
-      .from('service_provider_invitations')
-      .select('id, status, expires_at')
-      .eq('email', trimmedEmail)
-      .eq('service_provider_company_id', service_provider_company_id)
-      .eq('status', 'pending')
-      .maybeSingle()
-
-    if (invitationErr) {
-      throw invitationErr
-    }
-
-    if (existingInvitation) {
-      const expiresAt = existingInvitation.expires_at ? new Date(existingInvitation.expires_at) : null
-      const isStillValid = expiresAt === null || expiresAt > new Date()
-
-      if (isStillValid) {
-        return new Response(
-          JSON.stringify({ error: 'Já existe um convite pendente para este e-mail.' }),
-          { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-    }
-
-    // 2. Upsert the invitation record via the DB function
+    // 1. Upsert the invitation record via the DB function
     const { data: invitationId, error: rpcError } = await supabase.rpc(
       'create_service_provider_invitation',
       {
@@ -84,29 +59,33 @@ serve(async (req) => {
     const redirectUrl = `${appBaseUrl}/accept-invite`
 
     // 5. Send invite email via Supabase Auth (or generate magic link if user already exists in auth.users)
-    const { data: existingUser } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('email', trimmedEmail)
-      .maybeSingle()
-
     let emailError = null;
 
-    if (!existingUser) {
-      // User doesn't exist yet -> send standard Auth invite email via SMTP
-      const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(
-        trimmedEmail,
-        { redirectTo: redirectUrl }
-      )
-      emailError = inviteErr
-    } else {
-      // User already exists -> generate link / magic link email redirecting to SP acceptance page
-      const { error: linkErr } = await supabase.auth.admin.generateLink({
-        type: 'magiclink',
-        email: trimmedEmail,
-        options: { redirectTo: redirectUrl }
-      })
-      emailError = linkErr
+    const { error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(
+      trimmedEmail,
+      { redirectTo: redirectUrl }
+    )
+
+    if (inviteErr) {
+      const errStr = (inviteErr.message || JSON.stringify(inviteErr)).toLowerCase();
+      const isAlreadyRegistered =
+        errStr.includes('already been registered') ||
+        errStr.includes('already registered') ||
+        inviteErr.status === 422 ||
+        inviteErr.code === 'email_exists';
+
+      if (isAlreadyRegistered) {
+        // User already exists in auth.users -> send OTP / magic link email via SMTP/Resend redirecting to /accept-invite
+        const { error: otpErr } = await supabase.auth.signInWithOtp({
+          email: trimmedEmail,
+          options: {
+            emailRedirectTo: redirectUrl,
+          },
+        })
+        emailError = otpErr
+      } else {
+        emailError = inviteErr
+      }
     }
 
     if (emailError) {

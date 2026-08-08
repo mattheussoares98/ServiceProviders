@@ -46,6 +46,7 @@ abstract interface class ServiceProviderRemoteDataSource {
     required String serviceProviderCompanyId,
     required String email,
   });
+  FutureBool acceptServiceProviderInvitation(String email);
   FutureBool deleteServiceProviderInvitation(String invitationId);
 }
 
@@ -215,6 +216,16 @@ final class ServiceProviderRemoteDataSourceImpl
     );
     return true;
   });
+
+  @override
+  FutureBool acceptServiceProviderInvitation(String email) =>
+      SupabaseHandler.call(() async {
+        await _database.rpc(
+          functionName: 'accept_service_provider_invitation',
+          params: {'p_email': email},
+        );
+        return true;
+      });
 
   @override
   FutureBool deleteServiceProviderInvitation(String invitationId) =>

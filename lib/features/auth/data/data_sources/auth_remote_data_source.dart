@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,6 +21,9 @@ abstract interface class AuthRemoteDataSource {
   FutureVoid resetPassword(String email);
   FutureVoid changePassword(String newPassword);
   bool checkAuth();
+  AuthUserEntity? get currentAuthUser;
+  Stream<String?> get authUserIdStream;
+  Future<void> logout();
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -87,6 +91,29 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   bool checkAuth() => _supabaseAuth.currentSession != null;
+
+  @override
+  AuthUserEntity? get currentAuthUser {
+    final user = _supabaseAuth.currentSession?.user;
+    if (user == null) return null;
+    return AuthUserEntity(
+      id: user.id,
+      email: user.email ?? '',
+      name:
+          (user.userMetadata?['name'] as String?) ??
+          user.email?.split('@')[0] ??
+          '',
+      createdAt: user.createdAt.toDateTime() ?? DateTime.now(),
+      updatedAt: user.updatedAt?.toDateTime() ?? DateTime.now(),
+    );
+  }
+
+  @override
+  Stream<String?> get authUserIdStream =>
+      _supabaseAuth.onAuthStateChange.map((data) => data.session?.user.id);
+
+  @override
+  Future<void> logout() => _supabaseAuth.logout();
 
   Future<UserProfileResponseModel> _getUserProfile(String? userId) async {
     if (userId == null || userId.isEmpty) {

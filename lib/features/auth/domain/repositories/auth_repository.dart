@@ -1,5 +1,6 @@
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 
@@ -11,4 +12,7 @@ abstract interface class AuthRepository {
   FutureBool saveUserData(UserDataEntity userData);
   FutureData<UserDataEntity> getUserData();
   bool checkAuth();
+  AuthUserEntity? get currentAuthUser;
+  Stream<String?> get authUserIdStream;
+  Future<void> logout();
 }

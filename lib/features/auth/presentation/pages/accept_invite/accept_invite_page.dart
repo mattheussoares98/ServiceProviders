@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
-import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/accept_invite/accept_invite_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -65,13 +64,7 @@ class AcceptInvitePage extends HookWidget {
                   UserProfileEntity?
                 >(
                   dataSelector: (state) => state.userProfile,
-                  onRetry: () {
-                    final userId =
-                        GetIt.I<SupabaseAuthClient>().currentSession?.user.id;
-                    if (userId != null) {
-                      cubit.loadProfile(userId);
-                    }
-                  },
+                  onRetry: cubit.initialize,
                   builder: (context, userProfile) {
                     if (userProfile != null && userProfile.isActive) {
                       return Padding(
@@ -93,7 +86,7 @@ class AcceptInvitePage extends HookWidget {
                             BaseButton(
                               isLoading: isLoading,
                               expandWidth: true,
-                              onTap: cubit.navigateToSplash,
+                              onTap: cubit.navigateToLogin,
                               text: 'OK'.hardcoded,
                             ),
                           ],
@@ -191,7 +184,7 @@ class AcceptInvitePage extends HookWidget {
                                   password: passwordController.text,
                                 );
                                 if (success) {
-                                  await cubit.navigateToHome();
+                                  await cubit.navigateToLogin();
                                 }
                               },
                             ),
@@ -209,7 +202,7 @@ class AcceptInvitePage extends HookWidget {
                                   password: passwordController.text,
                                 );
                                 if (success) {
-                                  await cubit.navigateToHome();
+                                  await cubit.navigateToLogin();
                                 }
                               },
                               text: 'Ativar minha conta'.hardcoded,

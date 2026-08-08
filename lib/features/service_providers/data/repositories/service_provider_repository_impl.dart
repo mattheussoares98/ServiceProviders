@@ -211,6 +211,10 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
       );
 
   @override
+  FutureBool acceptServiceProviderInvitation(String email) =>
+      _remoteDataSource.acceptServiceProviderInvitation(email);
+
+  @override
   FutureBool deleteServiceProviderInvitation(String invitationId) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
@@ -231,3 +235,4 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
         },
       );
 }
+

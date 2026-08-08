@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
@@ -86,4 +87,13 @@ final class AuthRepositoryImpl implements AuthRepository {
 
   @override
   bool checkAuth() => _remoteDataSource.checkAuth();
+
+  @override
+  AuthUserEntity? get currentAuthUser => _remoteDataSource.currentAuthUser;
+
+  @override
+  Stream<String?> get authUserIdStream => _remoteDataSource.authUserIdStream;
+
+  @override
+  Future<void> logout() => _remoteDataSource.logout();
 }
