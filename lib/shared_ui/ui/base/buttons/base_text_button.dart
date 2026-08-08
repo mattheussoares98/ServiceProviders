@@ -27,6 +27,7 @@ class BaseTextButton extends HookWidget {
     this.platformIcon,
     this.minWidthToShowIcon = 110.0,
     this.permission,
+    this.iconAlignment = IconAlignment.start,
   });
   final FutureOr<void> Function()? onPressed;
   final String text;
@@ -41,6 +42,7 @@ class BaseTextButton extends HookWidget {
   final PlatformIcon? platformIcon;
   final double minWidthToShowIcon;
   final ActionPermission? permission;
+  final IconAlignment? iconAlignment;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,15 @@ class BaseTextButton extends HookWidget {
         if (showIcon) {
           childWidget = Row(
             mainAxisSize: MainAxisSize.min,
-            children: [platformIcon!, gapW8, childWidget],
+            children: [
+              if (iconAlignment == null ||
+                  iconAlignment == IconAlignment.start) ...[
+                platformIcon!,
+                gapW8,
+              ],
+              childWidget,
+              if (iconAlignment == IconAlignment.end) ...[gapW8, platformIcon!],
+            ],
           );
         }
 
@@ -100,6 +110,7 @@ class BaseTextButton extends HookWidget {
             padding: padding,
             visualDensity: visualDensity,
             elevation: elevation,
+            iconAlignment: iconAlignment,
           ),
           child: childWidget,
         );
