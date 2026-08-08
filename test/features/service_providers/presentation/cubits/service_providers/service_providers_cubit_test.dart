@@ -259,6 +259,39 @@ void main() {
       );
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'loadCompaniesAndProfiles should emit loaded status with error message when getProfilesByCompanyIds fails',
+        build: () {
+          when(
+            () => mockGetCompanies.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [comp1, comp2]));
+          when(
+            () => mockGetProfilesByCompanyIds.call([comp1.id, comp2.id]),
+          ).thenAnswer(
+            (_) async => FailureState(message: 'Error fetching profiles'),
+          );
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadCompaniesAndProfiles(),
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Error fetching profiles',
+              ),
+        ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
         'loadCompaniesAndProfiles should emit loadingError on companies failure',
         build: () {
           when(

@@ -55,6 +55,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     final profilesResult = await _useCases.getProfilesByCompanyIds.call(
       companyIds,
     );
+
+    if (profilesResult is FailureState<List<ServiceProviderProfileEntity>>) {
+      emit(
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: profilesResult.message,
+        ),
+      );
+      return;
+    }
+
     if (isClosed) return;
 
     final updatedProfiles =
