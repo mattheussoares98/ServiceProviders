@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -16,6 +17,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/cpf_cnpj_validator.dart';
@@ -25,6 +27,12 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
+
+part 'widgets/cpf_cnpj_field.dart';
+part 'widgets/ddd_and_phone_fields.dart';
+part 'widgets/document_dropdown.dart';
+part 'widgets/name_and_email_fields.dart';
+part 'widgets/send_email_invitation_checkbox.dart';
 
 @RoutePage()
 class CreateUpdateServiceProviderCompanyPage extends HookWidget {
@@ -164,139 +172,32 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              BaseTextFormField(
-                labelText: 'Nome *'.hardcoded,
-                controller: nameController,
-                validator: FormValidators.compose([
-                  NonEmptyValidator(),
-                  MinLengthValidator(3),
-                ]),
-                autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                onFieldSubmitted: (_) =>
-                    FocusScope.of(context).requestFocus(emailFocusNode),
-              ),
-              gapH12,
-              BaseTextFormField(
-                labelText: 'E-mail de contato'.hardcoded,
-                controller: emailController,
-                focusNode: emailFocusNode,
-                keyboardType: TextInputType.emailAddress,
-                validator: FormValidators.compose([
-                  EmailValidator(isRequired: false),
-                ]),
-                autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                onFieldSubmitted: (_) =>
-                    FocusScope.of(context).requestFocus(dddFocusNode),
+              _NameAndEmailFields(
+                nameController: nameController,
+                emailController: emailController,
+                emailFocusNode: emailFocusNode,
+                dddFocusNode: dddFocusNode,
               ),
               gapH8,
-              ValueListenableBuilder(
-                valueListenable: emailController,
-                builder: (context, value, child) {
-                  final isValid = EmailValidator().isValid(value.text.trim());
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: BaseCheckbox(
-                        value: isValid && sendInvite.value,
-                        title: 'Enviar convite de acesso por e-mail'.hardcoded,
-                        onChanged: isValid
-                            ? (val) => sendInvite.value = val ?? false
-                            : null,
-                      ),
-                    ),
-                  );
-                },
+              _SendEmailInvitationCheckbox(
+                emailController: emailController,
+                sendInvite: sendInvite,
               ),
               gapH12,
-              Row(
-                children: [
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'DDD'.hardcoded,
-                      controller: dddController,
-                      focusNode: dddFocusNode,
-                      keyboardType: TextInputType.number,
-                      maxLength: 2,
-                      autovalidateMode:
-                          AutovalidateMode.onUserInteractionIfError,
-                      validator: FormValidators.compose([
-                        NumberValidator(
-                          allowDecimal: false,
-                          allowEmptyValue: true,
-                        ),
-                        DddValidator(isRequired: false),
-                      ]),
-                      onChanged: (value) {
-                        final isValid = DddValidator().isValid(value.trim());
-                        if (isValid) {
-                          phoneFocusNode.requestFocus();
-                        }
-                      },
-                      onFieldSubmitted: (_) =>
-                          FocusScope.of(context).requestFocus(phoneFocusNode),
-                    ),
-                  ),
-                  gapW8,
-                  Expanded(
-                    flex: 4,
-                    child: BaseTextFormField(
-                      labelText: 'Telefone de contato'.hardcoded,
-                      controller: phoneController,
-                      focusNode: phoneFocusNode,
-                      keyboardType: TextInputType.number,
-                      maxLength: 9,
-                      autovalidateMode:
-                          AutovalidateMode.onUserInteractionIfError,
-                      onFieldSubmitted: (_) => FocusScope.of(
-                        context,
-                      ).requestFocus(documentFocusNode),
-                      validator: FormValidators.compose([
-                        NumberValidator(
-                          allowDecimal: false,
-                          allowEmptyValue: true,
-                        ),
-                      ]),
-                    ),
-                  ),
-                ],
+              _DddAndPhoneFields(
+                dddController: dddController,
+                dddFocusNode: dddFocusNode,
+                phoneController: phoneController,
+                phoneFocusNode: phoneFocusNode,
+                documentFocusNode: documentFocusNode,
               ),
               gapH12,
-              BaseDropDown<DocumentType>(
-                selectedItem: documentType.value,
-                label: 'Tipo de documento'.hardcoded,
-                items: [
-                  DropdownMenuItem(
-                    value: DocumentType.cpf,
-                    child: BaseText(
-                      DocumentType.cpf.name.toUpperCase().hardcoded,
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: DocumentType.cnpj,
-                    child: BaseText(
-                      DocumentType.cnpj.name.toUpperCase().hardcoded,
-                    ),
-                  ),
-                ],
-                onChanged: (val) => documentType.value = val,
-              ),
+              _DocumentDropdown(documentType: documentType),
               gapH12,
-              BaseTextFormField(
-                labelText: documentType.value == DocumentType.cpf
-                    ? 'CPF'.hardcoded
-                    : 'CNPJ'.hardcoded,
-                controller: documentController,
-                focusNode: documentFocusNode,
-                keyboardType: TextInputType.number,
-                maxLength: documentType.value == DocumentType.cpf ? 11 : 14,
-                autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                validator: FormValidators.compose([
-                  CpfCnpjValidator(
-                    validateOnlyCnpj: documentType.value == DocumentType.cnpj,
-                    validateOnlyCpf: documentType.value == DocumentType.cpf,
-                  ),
-                ]),
+              _CpfCnpjField(
+                documentType: documentType,
+                documentController: documentController,
+                documentFocusNode: documentFocusNode,
               ),
               gapH24,
               Row(
