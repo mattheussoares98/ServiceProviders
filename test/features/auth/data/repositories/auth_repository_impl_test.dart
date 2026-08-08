@@ -388,49 +388,4 @@ void main() {
       },
     );
   });
-
-  group('checkAuth', () {
-    test('should call remoteDataSource.checkAuth and return its result', () {
-      // Arrange
-      when(() => mockAuthRemoteDataSource.checkAuth()).thenReturn(true);
-
-      // Act
-      final result = repository.checkAuth();
-
-      // Assert
-      expect(result, isTrue);
-      verify(() => mockAuthRemoteDataSource.checkAuth()).called(1);
-    });
-  });
-
-  group('currentAuthUser', () {
-    test('should return remoteDataSource.currentAuthUser', () {
-      final tAuthUser = EntityFactory.makeAuthUserEntity();
-      when(() => mockAuthRemoteDataSource.currentAuthUser).thenReturn(tAuthUser);
-
-      final result = repository.currentAuthUser;
-      expect(result, equals(tAuthUser));
-      verify(() => mockAuthRemoteDataSource.currentAuthUser).called(1);
-    });
-  });
-
-  group('authUserIdStream', () {
-    test('should return remoteDataSource.authUserIdStream', () {
-      final stream = Stream<String?>.value(faker.guid.guid());
-      when(() => mockAuthRemoteDataSource.authUserIdStream).thenAnswer((_) => stream);
-
-      final result = repository.authUserIdStream;
-      expect(result, equals(stream));
-      verify(() => mockAuthRemoteDataSource.authUserIdStream).called(1);
-    });
-  });
-
-  group('logout', () {
-    test('should call remoteDataSource.logout', () async {
-      when(() => mockAuthRemoteDataSource.logout()).thenAnswer((_) async {});
-
-      await repository.logout();
-      verify(() => mockAuthRemoteDataSource.logout()).called(1);
-    });
-  });
 }

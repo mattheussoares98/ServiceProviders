@@ -45,9 +45,9 @@ void main() {
     watchSessionUseCase = WatchSessionUseCase(
       sessionRepository: mockSessionRepository,
     );
-    getAuthUserUseCase = GetAuthUserUseCase(authRepository: mockAuthRepository);
+    getAuthUserUseCase = GetAuthUserUseCase(sessionRepository: mockSessionRepository);
     watchAuthUserUseCase = WatchAuthUserUseCase(
-      authRepository: mockAuthRepository,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -246,28 +246,28 @@ void main() {
     });
 
     group('GetAuthUserUseCase', () {
-      test('should return currentAuthUser from authRepository', () {
+      test('should return currentAuthUser from sessionRepository', () {
         final tAuthUser = EntityFactory.makeAuthUserEntity();
-        when(() => mockAuthRepository.currentAuthUser).thenReturn(tAuthUser);
+        when(() => mockSessionRepository.currentAuthUser).thenReturn(tAuthUser);
 
         final result = getAuthUserUseCase();
 
         expect(result, equals(tAuthUser));
-        verify(() => mockAuthRepository.currentAuthUser).called(1);
+        verify(() => mockSessionRepository.currentAuthUser).called(1);
       });
     });
 
     group('WatchAuthUserUseCase', () {
-      test('should return authUserIdStream from authRepository', () {
+      test('should return authUserIdStream from sessionRepository', () {
         final stream = Stream<String?>.value(faker.guid.guid());
         when(
-          () => mockAuthRepository.authUserIdStream,
+          () => mockSessionRepository.authUserIdStream,
         ).thenAnswer((_) => stream);
 
         final result = watchAuthUserUseCase();
 
         expect(result, equals(stream));
-        verify(() => mockAuthRepository.authUserIdStream).called(1);
+        verify(() => mockSessionRepository.authUserIdStream).called(1);
       });
     });
   });

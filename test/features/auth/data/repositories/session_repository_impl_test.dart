@@ -246,5 +246,54 @@ void main() {
         await sessionRepository.logout();
       });
     });
+
+    group('currentAuthUser', () {
+      test('should return null when session is null', () {
+        when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
+        expect(sessionRepository.currentAuthUser, isNull);
+      });
+
+      test('should return AuthUserEntity when session is present', () {
+        final mockUser = MockUser();
+        final mockSession = MockSession();
+        final userId = faker.guid.guid();
+        final email = faker.internet.email();
+        final name = faker.person.name();
+        final nowStr = DateTime.now().toIso8601String();
+
+        when(() => mockUser.id).thenReturn(userId);
+        when(() => mockUser.email).thenReturn(email);
+        when(() => mockUser.userMetadata).thenReturn({'name': name});
+        when(() => mockUser.createdAt).thenReturn(nowStr);
+        when(() => mockUser.updatedAt).thenReturn(nowStr);
+        when(() => mockSession.user).thenReturn(mockUser);
+        when(() => mockSupabaseAuthClient.currentSession).thenReturn(mockSession);
+
+        final result = sessionRepository.currentAuthUser;
+        expect(result, isNotNull);
+        expect(result?.id, userId);
+        expect(result?.email, email);
+        expect(result?.name, name);
+      });
+    });
+
+    group('authUserIdStream', () {
+      test('should map AuthState stream to user id stream', () async {
+        final userId = faker.guid.guid();
+        final mockUser = MockUser();
+        final mockSession = MockSession();
+        when(() => mockUser.id).thenReturn(userId);
+        when(() => mockSession.user).thenReturn(mockUser);
+
+        final authState = AuthState(AuthChangeEvent.signedIn, mockSession);
+
+        when(
+          () => mockSupabaseAuthClient.onAuthStateChange,
+        ).thenAnswer((_) => Stream.value(authState));
+
+        final stream = sessionRepository.authUserIdStream;
+        expect(await stream.first, userId);
+      });
+    });
   });
 }
