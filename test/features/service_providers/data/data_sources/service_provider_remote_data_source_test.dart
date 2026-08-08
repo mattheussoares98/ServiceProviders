@@ -521,4 +521,28 @@ void main() {
       },
     );
   });
+
+  group('acceptServiceProviderInvitation', () {
+    test('should return SuccessState(true) when rpc call is successful', () async {
+      when(
+        () => mockDatabase.rpc(
+          functionName: any(named: 'functionName'),
+          params: any(named: 'params'),
+          get: any(named: 'get'),
+        ),
+      ).thenAnswer((_) async => true);
+
+      final result = await dataSource.acceptServiceProviderInvitation(
+        tInvitationEntity.email,
+      );
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockDatabase.rpc(
+          functionName: 'accept_service_provider_invitation',
+          params: {'p_email': tInvitationEntity.email},
+        ),
+      ).called(1);
+    });
+  });
 }

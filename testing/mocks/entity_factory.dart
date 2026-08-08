@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.da
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
@@ -470,6 +471,16 @@ abstract final class EntityFactory {
       user: makeUserProfileEntity(),
       accessToken: faker.jwt.valid(),
       refreshToken: faker.jwt.valid(),
+    );
+  }
+
+  static AuthUserEntity makeAuthUserEntity() {
+    return AuthUserEntity(
+      id: _makeId(),
+      email: _makeEmail(),
+      name: _makePersonName(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
     );
   }
 

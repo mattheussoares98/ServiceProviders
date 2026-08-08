@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/accept_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
@@ -29,6 +30,8 @@ void main() {
   sendServiceProviderInvitationUseCase;
   late DeleteServiceProviderInvitationUseCase
   deleteServiceProviderInvitationUseCase;
+  late AcceptServiceProviderInvitationUseCase
+  acceptServiceProviderInvitationUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -60,6 +63,10 @@ void main() {
     deleteServiceProviderInvitationUseCase =
         DeleteServiceProviderInvitationUseCase(
           serviceProviderRepository: mockServiceProviderRepository,
+        );
+    acceptServiceProviderInvitationUseCase =
+        AcceptServiceProviderInvitationUseCase(
+          repository: mockServiceProviderRepository,
         );
   });
 
@@ -243,6 +250,26 @@ void main() {
       verify(
         () => mockServiceProviderRepository
             .getServiceProviderProfilesByCompanyIds(tCompanyIds),
+      ).called(1);
+    });
+  });
+
+  group('AcceptServiceProviderInvitationUseCase', () {
+    final tEmail = faker.internet.email();
+
+    test('should return true on success', () async {
+      when(
+        () => mockServiceProviderRepository.acceptServiceProviderInvitation(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await acceptServiceProviderInvitationUseCase(tEmail);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockServiceProviderRepository.acceptServiceProviderInvitation(
+          tEmail,
+        ),
       ).called(1);
     });
   });

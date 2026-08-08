@@ -4,9 +4,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -22,6 +24,8 @@ void main() {
   late ChangePasswordUseCase changePasswordUseCase;
   late SaveUserDataUseCase saveUserDataUseCase;
   late WatchSessionUseCase watchSessionUseCase;
+  late GetAuthUserUseCase getAuthUserUseCase;
+  late WatchAuthUserUseCase watchAuthUserUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAuthentication());
@@ -40,6 +44,10 @@ void main() {
     saveUserDataUseCase = SaveUserDataUseCase(mockAuthRepository);
     watchSessionUseCase = WatchSessionUseCase(
       sessionRepository: mockSessionRepository,
+    );
+    getAuthUserUseCase = GetAuthUserUseCase(authRepository: mockAuthRepository);
+    watchAuthUserUseCase = WatchAuthUserUseCase(
+      authRepository: mockAuthRepository,
     );
   });
 
@@ -234,6 +242,32 @@ void main() {
 
         expect(result, equals(stream));
         verify(() => mockSessionRepository.sessionStream).called(1);
+      });
+    });
+
+    group('GetAuthUserUseCase', () {
+      test('should return currentAuthUser from authRepository', () {
+        final tAuthUser = EntityFactory.makeAuthUserEntity();
+        when(() => mockAuthRepository.currentAuthUser).thenReturn(tAuthUser);
+
+        final result = getAuthUserUseCase();
+
+        expect(result, equals(tAuthUser));
+        verify(() => mockAuthRepository.currentAuthUser).called(1);
+      });
+    });
+
+    group('WatchAuthUserUseCase', () {
+      test('should return authUserIdStream from authRepository', () {
+        final stream = Stream<String?>.value(faker.guid.guid());
+        when(
+          () => mockAuthRepository.authUserIdStream,
+        ).thenAnswer((_) => stream);
+
+        final result = watchAuthUserUseCase();
+
+        expect(result, equals(stream));
+        verify(() => mockAuthRepository.authUserIdStream).called(1);
       });
     });
   });

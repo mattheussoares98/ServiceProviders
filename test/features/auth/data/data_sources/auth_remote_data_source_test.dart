@@ -405,4 +405,75 @@ void main() {
       expect(result, isFalse);
     });
   });
+
+  group('currentAuthUser', () {
+    test('should return null when session is null', () {
+      when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
+      expect(dataSource.currentAuthUser, isNull);
+    });
+
+    test('should return AuthUserEntity when session is present', () {
+      final userId = faker.guid.guid();
+      final email = faker.internet.email();
+      final name = faker.person.name();
+      final nowStr = DateTime.now().toIso8601String();
+
+      when(() => mockSupabaseAuthClient.currentSession).thenReturn(
+        Session(
+          accessToken: faker.jwt.valid(),
+          tokenType: 'bearer',
+          user: User(
+            id: userId,
+            email: email,
+            appMetadata: const {},
+            userMetadata: {'name': name},
+            aud: 'authenticated',
+            createdAt: nowStr,
+            updatedAt: nowStr,
+          ),
+        ),
+      );
+
+      final result = dataSource.currentAuthUser;
+      expect(result, isNotNull);
+      expect(result?.id, userId);
+      expect(result?.email, email);
+      expect(result?.name, name);
+    });
+  });
+
+  group('authUserIdStream', () {
+    test('should map AuthState stream to user id stream', () async {
+      final userId = faker.guid.guid();
+      final authState = AuthState(
+        AuthChangeEvent.signedIn,
+        Session(
+          accessToken: faker.jwt.valid(),
+          tokenType: 'bearer',
+          user: User(
+            id: userId,
+            appMetadata: const {},
+            userMetadata: const {},
+            aud: 'authenticated',
+            createdAt: DateTime.now().toIso8601String(),
+          ),
+        ),
+      );
+
+      when(
+        () => mockSupabaseAuthClient.onAuthStateChange,
+      ).thenAnswer((_) => Stream.value(authState));
+
+      final stream = dataSource.authUserIdStream;
+      expect(await stream.first, userId);
+    });
+  });
+
+  group('logout', () {
+    test('should call supabaseAuth.logout', () async {
+      when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+      await dataSource.logout();
+      verify(() => mockSupabaseAuthClient.logout()).called(1);
+    });
+  });
 }

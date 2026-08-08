@@ -491,4 +491,23 @@ void main() {
       ).called(1);
     });
   });
+
+  group('acceptServiceProviderInvitation', () {
+    test('should return true when remote call succeeds', () async {
+      when(
+        () => mockRemoteDataSource.acceptServiceProviderInvitation(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.acceptServiceProviderInvitation(
+        tInvitationEntity.email,
+      );
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockRemoteDataSource.acceptServiceProviderInvitation(
+          tInvitationEntity.email,
+        ),
+      ).called(1);
+    });
+  });
 }

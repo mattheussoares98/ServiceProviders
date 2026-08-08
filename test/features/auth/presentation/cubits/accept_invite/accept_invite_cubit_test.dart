@@ -71,6 +71,7 @@ void main() {
     registerFallbackValue(EntityFactory.makeUserDataEntity());
     registerFallbackValue(const HomeRoute());
     registerFallbackValue(const ProviderHomeRoute());
+    registerFallbackValue(const LoginRoute());
   });
 
   setUp(() {
@@ -303,8 +304,8 @@ void main() {
       verify: (_) {
         verify(() => mockChangePassword.call(any())).called(1);
         verify(() => mockUpdateUserProfile.call(any())).called(1);
-        // verify(() => mockSetSession.call(any())).called(1);
-        // verify(() => mockSaveUserData.call(any())).called(1);
+        verify(() => acceptServiceProviderInvitation.call(any())).called(1);
+        verify(() => mockLogOut.call()).called(1);
       },
     );
 
@@ -389,6 +390,23 @@ void main() {
         verify: (_) {
           verify(
             () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
+          ).called(1);
+        },
+      );
+
+      blocTest<AcceptInviteCubit, AcceptInviteState>(
+        'navigateToLogin should replaceAll with LoginRoute',
+        build: () {
+          when(
+            () => mockNavigationClient.replaceAllRoute(any()),
+          ).thenAnswer((_) async {});
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToLogin(),
+        expect: () => <AcceptInviteState>[],
+        verify: (_) {
+          verify(
+            () => mockNavigationClient.replaceAllRoute(const LoginRoute()),
           ).called(1);
         },
       );
