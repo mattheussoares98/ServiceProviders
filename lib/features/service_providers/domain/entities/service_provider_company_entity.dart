@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 
 class ServiceProviderCompanyEntity extends Equatable {
   const ServiceProviderCompanyEntity({
@@ -11,6 +12,7 @@ class ServiceProviderCompanyEntity extends Equatable {
     required this.contactEmail,
     required this.contactPhone,
     required this.isActive,
+    required this.invitationStatus,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -24,6 +26,7 @@ class ServiceProviderCompanyEntity extends Equatable {
   final String? contactEmail;
   final String? contactPhone;
   final bool isActive;
+  final ServiceProviderInvitationStatus? invitationStatus;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -38,6 +41,7 @@ class ServiceProviderCompanyEntity extends Equatable {
     contactEmail,
     contactPhone,
     isActive,
+    invitationStatus,
     createdAt,
     updatedAt,
     deletedAt,
@@ -52,11 +56,13 @@ class ServiceProviderCompanyEntity extends Equatable {
     String? contactEmail,
     String? contactPhone,
     bool? isActive,
+    ServiceProviderInvitationStatus? invitationStatus,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
     bool? annulContactEmail,
     bool? annulContactPhone,
+    bool? annulInvitationStatus,
     bool? annulDeletedAt,
   }) {
     return ServiceProviderCompanyEntity(
@@ -72,6 +78,9 @@ class ServiceProviderCompanyEntity extends Equatable {
           ? null
           : contactPhone ?? this.contactPhone,
       isActive: isActive ?? this.isActive,
+      invitationStatus: annulInvitationStatus == true
+          ? null
+          : invitationStatus ?? this.invitationStatus,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

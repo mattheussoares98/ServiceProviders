@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
@@ -580,7 +581,12 @@ void main() {
                     .having((e) => e.contactPhone, 'contactPhone', contactPhone)
                     .having((e) => e.document, 'document', document)
                     .having((e) => e.documentType, 'documentType', documentType)
-                    .having((e) => e.companyId, 'companyId', user.companyId),
+                    .having((e) => e.companyId, 'companyId', user.companyId)
+                    .having(
+                      (e) => e.invitationStatus,
+                      'invitationStatus',
+                      isNull,
+                    ),
               ),
             ),
           ).called(1);
@@ -674,7 +680,17 @@ void main() {
               .having((s) => s.companies, 'companies', isNotEmpty),
         ],
         verify: (cubit) {
-          verify(() => mockCreateCompany.call(any())).called(1);
+          verify(
+            () => mockCreateCompany.call(
+              any(
+                that: isA<ServiceProviderCompanyEntity>().having(
+                  (e) => e.invitationStatus,
+                  'invitationStatus',
+                  ServiceProviderInvitationStatus.pending,
+                ),
+              ),
+            ),
+          ).called(1);
           verify(() => mockSendInvitation.call(any())).called(1);
           verify(() => mockGetInvitations.call(any())).called(1);
         },

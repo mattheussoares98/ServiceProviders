@@ -13,6 +13,7 @@ class ServiceProviderCompanies extends Table {
   TextColumn get contactEmail => text().nullable()();
   TextColumn get contactPhone => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  TextColumn get invitationStatus => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -20,3 +21,4 @@ class ServiceProviderCompanies extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+

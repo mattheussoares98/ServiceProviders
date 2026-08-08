@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,21 +17,20 @@ class ServiceProvidersProfilesItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasPendingInvite = context.select<ServiceProvidersCubit, bool>(
-      (cubit) =>
-          cubit.state.invitations[companyId]?.any(
-            (inv) => inv.status == ServiceProviderInvitationStatus.pending,
-          ) ??
-          false,
-    );
+    final isInvitePending = context.select<ServiceProvidersCubit, bool>((cubit) {
+      final company = cubit.state.companies.firstWhereOrNull(
+        (c) => c.id == companyId,
+      );
+      return company?.invitationStatus != ServiceProviderInvitationStatus.accepted &&
+          company?.invitationStatus != null;
+    });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         BaseText.title('Técnicos'.hardcoded),
         gapH8,
-        if (hasPendingInvite) ...[
-          //TODO read and test this
+        if (isInvitePending) ...[
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(Sizes.p12),

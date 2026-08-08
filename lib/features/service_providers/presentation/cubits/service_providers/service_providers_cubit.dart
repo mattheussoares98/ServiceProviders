@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
@@ -227,7 +228,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       isActive: existingCompany?.isActive ?? true,
       createdAt: existingCompany?.createdAt ?? now,
       updatedAt: now,
-      deletedAt: null,
+      deletedAt: existingCompany?.deletedAt,
+      invitationStatus: sendInvite
+          ? ServiceProviderInvitationStatus.pending
+          : existingCompany?.invitationStatus,
     );
 
     final DataState<bool> result;

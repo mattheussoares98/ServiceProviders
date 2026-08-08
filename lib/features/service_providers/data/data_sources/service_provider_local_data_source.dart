@@ -75,6 +75,11 @@ final class ServiceProviderLocalDataSourceImpl
               contactEmail: row.contactEmail,
               contactPhone: row.contactPhone,
               isActive: row.isActive,
+              invitationStatus: row.invitationStatus != null
+                  ? ServiceProviderInvitationStatus.fromString(
+                      row.invitationStatus!,
+                    )
+                  : null,
               createdAt: row.createdAt,
               updatedAt: row.updatedAt,
               deletedAt: row.deletedAt,
@@ -110,6 +115,9 @@ final class ServiceProviderLocalDataSourceImpl
         contactEmail: row.contactEmail,
         contactPhone: row.contactPhone,
         isActive: row.isActive,
+        invitationStatus: row.invitationStatus != null
+            ? ServiceProviderInvitationStatus.fromString(row.invitationStatus!)
+            : null,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         deletedAt: row.deletedAt,
@@ -136,6 +144,7 @@ final class ServiceProviderLocalDataSourceImpl
               contactEmail: Value(company.contactEmail),
               contactPhone: Value(company.contactPhone),
               isActive: Value(company.isActive),
+              invitationStatus: Value(company.invitationStatus?.value),
               createdAt: Value(company.createdAt),
               updatedAt: Value(company.updatedAt),
               deletedAt: Value(company.deletedAt),
@@ -164,6 +173,7 @@ final class ServiceProviderLocalDataSourceImpl
                   contactEmail: Value(company.contactEmail),
                   contactPhone: Value(company.contactPhone),
                   isActive: Value(company.isActive),
+                  invitationStatus: Value(company.invitationStatus?.value),
                   createdAt: Value(company.createdAt),
                   updatedAt: Value(company.updatedAt),
                   deletedAt: Value(company.deletedAt),

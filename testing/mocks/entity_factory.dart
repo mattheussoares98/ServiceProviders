@@ -551,6 +551,7 @@ abstract final class EntityFactory {
       contactEmail: _makeEmail(),
       contactPhone: _makeInt(99999999, min: 10000000).toString(),
       isActive: true,
+      invitationStatus: ServiceProviderInvitationStatus.accepted,
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
       deletedAt: null,

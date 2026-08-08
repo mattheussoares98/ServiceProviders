@@ -14,6 +14,7 @@ Stores third-party service provider companies associated with a tenant company.
 | `contact_email` | VARCHAR(255) | YES | NULL | Contact email address |
 | `contact_phone` | VARCHAR(30) | YES | NULL | Contact phone number |
 | `is_active` | BOOLEAN | NO | `true` | Active status flag |
+| `invitation_status` | VARCHAR(20) | YES | NULL | Status of invitation (`pending`, `accepted`, `rejected`, `expired`) |
 | `created_at` | TIMESTAMPTZ | NO | `now()` | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | NO | `now()` | Last update timestamp |
 | `deleted_at` | TIMESTAMPTZ | YES | `NULL` | Soft delete timestamp |
@@ -34,6 +35,8 @@ Table name: `service_provider_companies_table`
 | `contact_email` | `TextColumn` (nullable) | Contact email |
 | `contact_phone` | `TextColumn` (nullable) | Contact phone |
 | `is_active` | `BoolColumn` | Active status |
+| `invitation_status` | `TextColumn` (nullable) | Invitation status |
 | `created_at` | `DateTimeColumn` | Creation timestamp |
 | `updated_at` | `DateTimeColumn` | Update timestamp |
 | `deleted_at` | `DateTimeColumn` (nullable) | Soft delete timestamp |
+

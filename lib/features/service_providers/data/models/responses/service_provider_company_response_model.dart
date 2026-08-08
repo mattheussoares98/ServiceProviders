@@ -2,6 +2,7 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 
 class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     implements DataConvertible<ServiceProviderCompanyEntity> {
@@ -11,12 +12,13 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     required super.name,
     required super.document,
     required super.documentType,
-    super.contactEmail,
-    super.contactPhone,
+    required super.contactEmail,
+    required super.contactPhone,
     required super.isActive,
+    required super.invitationStatus,
     required super.createdAt,
     required super.updatedAt,
-    super.deletedAt,
+    required super.deletedAt,
   });
 
   factory ServiceProviderCompanyResponseModel.fromEntity(
@@ -30,6 +32,7 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     contactEmail: entity.contactEmail,
     contactPhone: entity.contactPhone,
     isActive: entity.isActive,
+    invitationStatus: entity.invitationStatus,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     deletedAt: entity.deletedAt,
@@ -45,6 +48,11 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
         contactEmail: json['contact_email'] as String?,
         contactPhone: json['contact_phone'] as String?,
         isActive: json['is_active'] as bool? ?? true,
+        invitationStatus: json['invitation_status'] != null
+            ? ServiceProviderInvitationStatus.fromString(
+                json['invitation_status'] as String,
+              )
+            : null,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : DateTime.now(),
@@ -66,6 +74,7 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     'contact_email': contactEmail,
     'contact_phone': contactPhone,
     'is_active': isActive,
+    'invitation_status': invitationStatus?.value,
     'created_at': createdAt.toUtc().toIso8601String(),
     'updated_at': updatedAt.toUtc().toIso8601String(),
     'deleted_at': deletedAt?.toUtc().toIso8601String(),
@@ -81,6 +90,7 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     contactEmail: contactEmail,
     contactPhone: contactPhone,
     isActive: isActive,
+    invitationStatus: invitationStatus,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
