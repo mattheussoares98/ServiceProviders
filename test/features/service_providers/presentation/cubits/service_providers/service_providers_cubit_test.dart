@@ -830,11 +830,23 @@ void main() {
 
     group('sendInvitation', () {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'sendInvitation success should send invitation, fetch updated invitations, and emit loaded state',
+        'sendInvitation success should send invitation, fetch updated invitations, reload companies, and emit loaded state',
         build: () {
           when(
             () => mockSendInvitation.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn('active-comp-1');
+          when(() => mockGetCompanies.call('active-comp-1')).thenAnswer(
+            (_) async => SuccessState(
+              data: [
+                EntityFactory.makeServiceProviderCompanyEntity().copyWith(
+                  invitationStatus: ServiceProviderInvitationStatus.pending,
+                ),
+              ],
+            ),
+          );
           when(() => mockGetInvitations.call('comp-1')).thenAnswer(
             (_) async => SuccessState(
               data: EntityFactory.makeServiceProviderInvitationEntityList(),
@@ -852,6 +864,11 @@ void main() {
             'status',
             StateStatus.saving,
           ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.companies.first.invitationStatus,
+            'invitationStatus',
+            ServiceProviderInvitationStatus.pending,
+          ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having(
@@ -862,6 +879,8 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockSendInvitation.call(any())).called(1);
+          verify(() => mockGetActiveCompanyIdUseCase.call()).called(1);
+          verify(() => mockGetCompanies.call('active-comp-1')).called(1);
           verify(() => mockGetInvitations.call('comp-1')).called(1);
         },
       );
@@ -897,11 +916,17 @@ void main() {
 
     group('deleteInvitation', () {
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
-        'deleteInvitation success should revoke invitation, fetch updated invitations, and emit loaded state',
+        'deleteInvitation success should revoke invitation, fetch updated invitations, reload companies, and emit loaded state',
         build: () {
           when(
             () => mockDeleteInvitation.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn('active-comp-1');
+          when(
+            () => mockGetCompanies.call('active-comp-1'),
+          ).thenAnswer((_) async => const SuccessState(data: []));
           when(
             () => mockGetInvitations.call('comp-1'),
           ).thenAnswer((_) async => const SuccessState(data: []));
@@ -923,6 +948,8 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteInvitation.call('inv-1')).called(1);
+          verify(() => mockGetActiveCompanyIdUseCase.call()).called(1);
+          verify(() => mockGetCompanies.call('active-comp-1')).called(1);
           verify(() => mockGetInvitations.call('comp-1')).called(1);
         },
       );

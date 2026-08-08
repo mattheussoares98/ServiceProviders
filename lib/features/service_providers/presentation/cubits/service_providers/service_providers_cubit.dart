@@ -364,6 +364,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final activeCompanyId = _useCases.getActiveCompanyId.call();
+      if (activeCompanyId.isNotEmpty) {
+        final companiesResult = await _useCases.getCompanies.call(
+          activeCompanyId,
+        );
+        if (companiesResult
+            is SuccessState<List<ServiceProviderCompanyEntity>>) {
+          emit(state.copyWith(companies: companiesResult.data ?? []));
+        }
+      }
+
       final fetchResult = await _useCases.getInvitations.call(
         serviceProviderCompanyId,
       );
@@ -407,6 +418,17 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final activeCompanyId = _useCases.getActiveCompanyId.call();
+      if (activeCompanyId.isNotEmpty) {
+        final companiesResult = await _useCases.getCompanies.call(
+          activeCompanyId,
+        );
+        if (companiesResult
+            is SuccessState<List<ServiceProviderCompanyEntity>>) {
+          emit(state.copyWith(companies: companiesResult.data ?? []));
+        }
+      }
+
       final fetchResult = await _useCases.getInvitations.call(
         serviceProviderCompanyId,
       );
