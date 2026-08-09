@@ -40,7 +40,6 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
-      showErrorToast(message);
     }
   }
 
