@@ -38,7 +38,10 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
         if (company.contactEmail?.isNotEmpty ?? false)
           BaseRichText(
             texts: [
-              BaseText(company.contactEmail!),
+              BaseText(
+                company.contactEmail!,
+                color: company.invitationStatus?.color,
+              ),
               gapW8,
               if (company.invitationStatus == null)
                 BaseTextButton(

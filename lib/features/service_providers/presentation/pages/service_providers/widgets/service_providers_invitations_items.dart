@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/email_validator.dart';
@@ -76,8 +77,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
+            BaseRichText(
+              texts: [
                 BaseText.title('Usuários e convites'.hardcoded),
                 BlocSelector<
                   ServiceProvidersCubit,
@@ -86,65 +87,61 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                 >(
                   selector: (state) => state.status == StateStatus.saving,
                   builder: (context, isLoading) {
-                    return Align(
-                      alignment: .centerRight,
-                      child: BaseIconButton(
-                        platformIcon: const PlatformIcon(
-                          materialIcon: Icons.add,
-                          cupertinoIcon: CupertinoIcons.add,
-                        ),
-                        permission: const ActionPermission.resource(
-                          resource: ResourceType.serviceProviders,
-                          action: PermissionAction.update,
-                        ),
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                showModalPage<void>(
-                                  Padding(
-                                    padding: const EdgeInsets.all(Sizes.p16),
-                                    child: Form(
-                                      key: formKey,
-                                      child: Column(
-                                        mainAxisSize: .min,
-                                        crossAxisAlignment: .stretch,
-                                        children: [
-                                          BaseText.headline(
-                                            'Convidar novo prestador'.hardcoded,
-                                            textAlign: .center,
-                                          ),
-                                          gapH32,
-                                          BaseTextFormField(
-                                            controller: emailController,
-                                            labelText: 'E-mail'.hardcoded,
-                                            hintText: 'E-mail'.hardcoded,
-                                            validator: FormValidators.compose([
-                                              EmailValidator(),
-                                            ]),
-                                            onFieldSubmitted: (_) =>
-                                                sendInvitation(),
-                                          ),
-                                          gapH32,
-                                          BaseTextButton(
-                                            onPressed: sendInvitation,
-                                            text: 'Convidar'.hardcoded,
-                                          ),
-                                          const SizedBox(height: 300),
-                                        ],
-                                      ),
+                    return BaseIconButton(
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.add,
+                        cupertinoIcon: CupertinoIcons.add,
+                      ),
+                      permission: const ActionPermission.resource(
+                        resource: ResourceType.serviceProviders,
+                        action: PermissionAction.update,
+                      ),
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              showModalPage<void>(
+                                Padding(
+                                  padding: const EdgeInsets.all(Sizes.p16),
+                                  child: Form(
+                                    key: formKey,
+                                    child: Column(
+                                      mainAxisSize: .min,
+                                      crossAxisAlignment: .stretch,
+                                      children: [
+                                        BaseText.headline(
+                                          'Convidar novo prestador'.hardcoded,
+                                          textAlign: .center,
+                                        ),
+                                        gapH32,
+                                        BaseTextFormField(
+                                          controller: emailController,
+                                          labelText: 'E-mail'.hardcoded,
+                                          hintText: 'E-mail'.hardcoded,
+                                          validator: FormValidators.compose([
+                                            EmailValidator(),
+                                          ]),
+                                          onFieldSubmitted: (_) =>
+                                              sendInvitation(),
+                                        ),
+                                        gapH32,
+                                        BaseTextButton(
+                                          onPressed: sendInvitation,
+                                          text: 'Convidar'.hardcoded,
+                                        ),
+                                        const SizedBox(height: 300),
+                                      ],
                                     ),
                                   ),
-                                  context,
-                                  useDraggable: false,
-                                );
-                              },
-                      ),
+                                ),
+                                context,
+                                useDraggable: false,
+                              );
+                            },
                     );
                   },
                 ),
               ],
             ),
-            gapH8,
             ...profiles.map((profile) {
               final correspondingInvitation = invitations.firstWhereOrNull(
                 (e) => e.email == profile.email,
@@ -157,15 +154,61 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                 crossAxisAlignment: .stretch,
                 children: [
                   Row(
-                    crossAxisAlignment: .end,
                     children: [
-                      PlatformIcon(
-                        materialIcon: Icons.person,
-                        cupertinoIcon: CupertinoIcons.person,
-                        color: correspondingInvitation?.status.color,
+                      Expanded(
+                        child: BaseRichText(
+                          texts: [
+                            Column(
+                              children: [
+                                PlatformIcon(
+                                  materialIcon: Icons.person,
+                                  cupertinoIcon: CupertinoIcons.person,
+                                  color: correspondingInvitation?.status.color,
+                                ),
+                                if (correspondingInvitation != null)
+                                  BaseText.caption(
+                                    correspondingInvitation.status.label,
+                                    color: correspondingInvitation.status.color,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: .italic,
+                                  ),
+                              ],
+                            ),
+                            gapW8,
+                            BaseText.title(profile.name),
+                          ],
+                        ),
                       ),
-                      gapW8,
-                      Expanded(child: BaseText.title(profile.name)),
+                      if (correspondingInvitation != null &&
+                          isPendingInvitation)
+                        BaseIconButton(
+                          platformIcon: const PlatformIcon(
+                            materialIcon: Icons.delete_outline,
+                            cupertinoIcon: CupertinoIcons.delete,
+                            color: Colors.red,
+                          ),
+                          permission: const ResourceActionPermission(
+                            resource: ResourceType.serviceProviders,
+                            action: PermissionAction.delete,
+                          ),
+                          onPressed: () {
+                            showAlertDialog(
+                              context: context,
+                              title: 'Atenção'.hardcoded,
+                              contentText:
+                                  'Tem certeza que deseja excluir o convite?'
+                                      .hardcoded,
+                              defaultActionText: 'Sim'.hardcoded,
+                              cancelActionText: 'Não'.hardcoded,
+                              onOkPressed: () => context
+                                  .read<ServiceProvidersCubit>()
+                                  .deleteInvitation(
+                                    invitationId: correspondingInvitation.id,
+                                    serviceProviderCompanyId: company.id,
+                                  ),
+                            );
+                          },
+                        ),
                     ],
                   ),
                   if (!hasPending && !hasAccepted && hasEmail)
@@ -207,49 +250,6 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                           ],
                         );
                       },
-                    ),
-                  if (correspondingInvitation != null)
-                    Row(
-                      mainAxisAlignment: .end,
-                      children: [
-                        BaseText.caption(
-                          correspondingInvitation.status.label,
-                          color: correspondingInvitation.status.color,
-                          fontWeight: FontWeight.bold,
-                          fontStyle: .italic,
-                        ),
-                        if (isPendingInvitation) ...[
-                          gapW8,
-                          BaseIconButton(
-                            platformIcon: const PlatformIcon(
-                              materialIcon: Icons.delete_outline,
-                              cupertinoIcon: CupertinoIcons.delete,
-                              color: Colors.red,
-                            ),
-                            permission: const ResourceActionPermission(
-                              resource: ResourceType.serviceProviders,
-                              action: PermissionAction.delete,
-                            ),
-                            onPressed: () {
-                              showAlertDialog(
-                                context: context,
-                                title: 'Atenção'.hardcoded,
-                                contentText:
-                                    'Tem certeza que deseja excluir o convite?'
-                                        .hardcoded,
-                                defaultActionText: 'Sim'.hardcoded,
-                                cancelActionText: 'Não'.hardcoded,
-                                onOkPressed: () => context
-                                    .read<ServiceProvidersCubit>()
-                                    .deleteInvitation(
-                                      invitationId: correspondingInvitation.id,
-                                      serviceProviderCompanyId: company.id,
-                                    ),
-                              );
-                            },
-                          ),
-                        ],
-                      ],
                     ),
                 ],
               );
