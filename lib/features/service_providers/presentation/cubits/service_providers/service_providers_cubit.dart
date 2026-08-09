@@ -115,10 +115,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       state.copyWith(
         selectedCompanyId: companyId,
         annulProfileId: true,
-        sections: withSection(
-          ServiceProviderSection.selectCompany,
-          StateStatus.loading,
-        ),
+        sections: emitLoading
+            ? withSection(
+                ServiceProviderSection.selectCompany,
+                StateStatus.loading,
+              )
+            : null,
         loadingCompanyIds: updatedLoadingIds,
       ),
     );
@@ -141,15 +143,16 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (profilesResult is FailureState<List<ServiceProviderProfileEntity>>) {
       emit(
         state.copyWith(
-          sections: withSection(
-            ServiceProviderSection.selectCompany,
-            StateStatus.loadingError,
-          ),
+          sections: emitLoading
+              ? withSection(
+                  ServiceProviderSection.selectCompany,
+                  StateStatus.loadingError,
+                )
+              : null,
           errorMessage: profilesResult.message,
           loadingCompanyIds: finishedLoadingIds,
         ),
       );
-      showErrorToast(profilesResult.message);
       return;
     }
 
@@ -165,7 +168,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           loadingCompanyIds: finishedLoadingIds,
         ),
       );
-      showErrorToast(invitationsResult.message);
       return;
     }
 
@@ -187,7 +189,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     emit(
       state.copyWith(
-        status: StateStatus.loaded,
         sections: withSection(
           ServiceProviderSection.selectCompany,
           StateStatus.loaded,
