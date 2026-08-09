@@ -88,17 +88,20 @@ void main() {
   });
 
   group('SaveThemeModeUseCase', () {
-    test('should return SuccessState when theme mode save is successful', () async {
-      final tMode = faker.lorem.word();
-      when(
-        () => mockRepository.saveThemeMode(tMode),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return SuccessState when theme mode save is successful',
+      () async {
+        final tMode = faker.lorem.word();
+        when(
+          () => mockRepository.saveThemeMode(tMode),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await saveThemeModeUseCase(tMode);
+        final result = await saveThemeModeUseCase(tMode);
 
-      expect(result, const SuccessState(data: true));
-      verify(() => mockRepository.saveThemeMode(tMode)).called(1);
-    });
+        expect(result, const SuccessState(data: true));
+        verify(() => mockRepository.saveThemeMode(tMode)).called(1);
+      },
+    );
 
     test('should return FailureState when theme mode save fails', () async {
       final tMode = faker.lorem.word();
@@ -115,16 +118,19 @@ void main() {
   });
 
   group('ClearAppCacheUseCase', () {
-    test('should return SuccessState when clearing app cache is successful', () async {
-      when(
-        () => mockRepository.clearAppCache(),
-      ).thenAnswer((_) async => const SuccessState(data: null));
+    test(
+      'should return SuccessState when clearing app cache is successful',
+      () async {
+        when(
+          () => mockRepository.clearAppCache(),
+        ).thenAnswer((_) async => SuccessState.nil);
 
-      final result = await clearAppCacheUseCase();
+        final result = await clearAppCacheUseCase();
 
-      expect(result, const SuccessState(data: null));
-      verify(() => mockRepository.clearAppCache()).called(1);
-    });
+        expect(result, const SuccessState(data: null));
+        verify(() => mockRepository.clearAppCache()).called(1);
+      },
+    );
 
     test('should return FailureState when clearing app cache fails', () async {
       final tMessage = faker.lorem.sentence();
