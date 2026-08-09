@@ -15,14 +15,19 @@ class _TryAgainButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final error = <String>[];
+    if (assetsError?.isNotEmpty == true) error.add(assetsError!);
+    if (locationsError?.isNotEmpty == true) error.add(locationsError!);
+    if (usersError?.isNotEmpty == true) error.add(usersError!);
+    if (categoriesError?.isNotEmpty == true) error.add(categoriesError!);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
         child: Column(
+          mainAxisAlignment: .center,
           children: [
-            BaseText.error(
-              '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}\n${categoriesError ?? ''}',
-            ),
+            BaseText.error(error.join('\n')),
             gapH32,
             BaseButton(
               onTap: () async {
