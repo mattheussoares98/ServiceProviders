@@ -11,6 +11,7 @@ class UsersState extends BaseState {
     this.resendingInvitationIds = const {},
     super.status = StateStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const UsersState.initial()
@@ -52,6 +53,7 @@ class UsersState extends BaseState {
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, StateStatus>? sections,
   }) {
     return UsersState(
       users: users ?? this.users,
@@ -67,6 +69,7 @@ class UsersState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -81,5 +84,6 @@ class UsersState extends BaseState {
     resendingInvitationIds,
     status,
     errorMessage,
+    sections,
   ];
 }

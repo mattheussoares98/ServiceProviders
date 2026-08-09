@@ -117,7 +117,7 @@ void main() {
 
           return cubit;
         },
-        act: (cubit) => cubit.loadUsers(),
+        act: (cubit) async => expect(await cubit.loadUsers(), isTrue),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,
@@ -146,7 +146,7 @@ void main() {
           when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
           return cubit;
         },
-        act: (cubit) => cubit.loadUsers(),
+        act: (cubit) async => expect(await cubit.loadUsers(), isFalse),
         expect: () => [
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loading)
@@ -168,7 +168,7 @@ void main() {
           ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadUsers(),
+        act: (cubit) async => expect(await cubit.loadUsers(), isFalse),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,
@@ -195,7 +195,8 @@ void main() {
           ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadPermissionGroups(),
+        act: (cubit) async =>
+            expect(await cubit.loadPermissionGroups(), isTrue),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,
@@ -225,7 +226,8 @@ void main() {
           ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadPermissionGroups(),
+        act: (cubit) async =>
+            expect(await cubit.loadPermissionGroups(), isFalse),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,
@@ -245,7 +247,7 @@ void main() {
 
     group('loadAll', () {
       blocTest<UsersCubit, UsersState>(
-        'should emit loading, load users, load permission groups, and load invitations',
+        'should emit section loading, load users, permission groups, invitations, and set section loaded',
         build: () {
           final tUsers = EntityFactory.makeUserProfileEntityList();
           final tGroups = EntityFactory.makePermissionGroupEntityList();
@@ -267,8 +269,8 @@ void main() {
         act: (cubit) => cubit.loadAll(),
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
             StateStatus.loading,
           ),
           isA<UsersState>()
@@ -284,6 +286,99 @@ void main() {
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.invitations, 'invitations', isNotEmpty),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
+            StateStatus.loaded,
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit loadingError section state when any sub-method fails',
+        build: () {
+          final tGroups = EntityFactory.makePermissionGroupEntityList();
+          final tInvitations = EntityFactory.makeUserInvitationEntityList();
+          when(() => mockGetUsers.call(any())).thenAnswer(
+            (_) async => FailureState(message: 'Error loading users'),
+          );
+          when(
+            () => mockGetPermissionGroups.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tGroups));
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tInvitations));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAll(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
+            StateStatus.loading,
+          ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Error loading users',
+              ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.permissionGroups,
+                'permissionGroups',
+                isNotEmpty,
+              ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.invitations, 'invitations', isNotEmpty),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
+            StateStatus.loadingError,
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'should emit loadingError section state when an uncaught exception is thrown',
+        build: () {
+          when(
+            () => mockGetUsers.call(any()),
+          ).thenThrow(Exception('Unexpected failure'));
+          when(
+            () => mockGetPermissionGroups.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetPendingInvitations.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tSessionUser.companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAll(),
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.initial,
+          ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
+            StateStatus.loading,
+          ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.loadAll],
+            'sections[loadAll]',
+            StateStatus.loadingError,
+          ),
         ],
       );
     });
@@ -300,7 +395,7 @@ void main() {
           ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadInvitations(),
+        act: (cubit) async => expect(await cubit.loadInvitations(), isTrue),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,
@@ -324,7 +419,7 @@ void main() {
           ).thenReturn(tSessionUser.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadInvitations(),
+        act: (cubit) async => expect(await cubit.loadInvitations(), isFalse),
         expect: () => [
           isA<UsersState>().having(
             (s) => s.status,

@@ -8,15 +8,15 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/m
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/error_page.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 
 @RoutePage()
 class HomePage extends HookWidget {
@@ -68,22 +68,21 @@ class HomePage extends HookWidget {
               GetIt.I<ServiceProvidersCubit>()..loadCompaniesAndProfiles(),
         ),
       ],
-      child: BlocSelector<UsersCubit, UsersState, StateStatus>(
-        selector: (state) => state.status,
-        builder: (context, status) {
-          if (status == StateStatus.loadingError) {
-            return const ErrorPage();
-          }
-
-          if (status == StateStatus.loading || status == StateStatus.initial) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          return HeroControllerScope(
-            controller: controller,
-            child: const AutoRouter(),
+      child: Builder(
+        builder: (context) {
+          return BaseScaffold(
+            isScrollable: false,
+            body: BaseStateView<UsersCubit, UsersState, UsersState>(
+              sectionKey: UsersSections.loadAll,
+              dataSelector: (state) => state,
+              onRetry: () => context.read<UsersCubit>().loadAll(),
+              builder: (context, state) {
+                return HeroControllerScope(
+                  controller: controller,
+                  child: const AutoRouter(),
+                );
+              },
+            ),
           );
         },
       ),

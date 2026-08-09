@@ -9,8 +9,11 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'users_state.dart';
+
+enum UsersSections implements SectionKey { loadAll }
 
 @injectable
 class UsersCubit extends BaseCubit<UsersState> {
@@ -24,7 +27,7 @@ class UsersCubit extends BaseCubit<UsersState> {
   // Load Operations
   // ============================================
 
-  Future<void> loadUsers({bool emitLoading = true}) async {
+  Future<bool> loadUsers({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
@@ -32,7 +35,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
 
     final result = await _useCases.getUsers(companyId);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<List<UserProfileEntity>>) {
       emit(
@@ -42,16 +45,18 @@ class UsersCubit extends BaseCubit<UsersState> {
           annulErrorMessage: true,
         ),
       );
+      return true;
     } else {
       final message = result.message ?? 'Erro ao carregar usuários'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
+      return false;
     }
   }
 
-  Future<void> loadPermissionGroups({bool emitLoading = true}) async {
+  Future<bool> loadPermissionGroups({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
@@ -59,7 +64,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
 
     final result = await _useCases.getPermissionGroups(companyId);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<List<PermissionGroupEntity>>) {
       emit(
@@ -69,6 +74,7 @@ class UsersCubit extends BaseCubit<UsersState> {
           annulErrorMessage: true,
         ),
       );
+      return true;
     } else {
       final message =
           result.message ?? 'Erro ao carregar grupos de permissão'.hardcoded;
@@ -76,10 +82,11 @@ class UsersCubit extends BaseCubit<UsersState> {
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
+      return false;
     }
   }
 
-  Future<void> loadInvitations({bool emitLoading = true}) async {
+  Future<bool> loadInvitations({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
@@ -87,7 +94,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     }
 
     final result = await _useCases.getPendingInvitations(companyId);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<List<UserInvitationEntity>>) {
       emit(
@@ -97,25 +104,56 @@ class UsersCubit extends BaseCubit<UsersState> {
           annulErrorMessage: true,
         ),
       );
+      return true;
     } else {
       final message = result.message ?? 'Erro ao carregar convites'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
+      return false;
     }
   }
 
   Future<void> loadAll({bool emitLoading = true}) async {
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(UsersSections.loadAll, StateStatus.loading),
+        ),
+      );
     }
 
-    await Future.wait([
-      loadUsers(emitLoading: false),
-      loadPermissionGroups(emitLoading: false),
-      loadInvitations(emitLoading: false),
-    ]);
+    try {
+      final results = await Future.wait([
+        loadUsers(emitLoading: false),
+        loadPermissionGroups(emitLoading: false),
+        loadInvitations(emitLoading: false),
+      ]);
+
+      if (isClosed) return;
+
+      final hasError = results.any((success) => !success);
+
+      emit(
+        state.copyWith(
+          sections: withSection(
+            UsersSections.loadAll,
+            hasError ? StateStatus.loadingError : StateStatus.loaded,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            UsersSections.loadAll,
+            StateStatus.loadingError,
+          ),
+        ),
+      );
+    }
   }
 
   Future<bool> revokeInvitation(String id) async {
