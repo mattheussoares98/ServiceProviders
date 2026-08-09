@@ -11,6 +11,8 @@ abstract interface class ConfigurationsLocalDataSource {
   FutureData<ConfigurationsResponseModel> getConfigurations();
   FutureBool savePushNotifications(bool enabled);
   FutureBool saveConfigurations(ConfigurationsEntity configurations);
+  FutureBool saveThemeMode(String themeMode);
+  FutureVoid clearAll();
 }
 
 @LazySingleton(as: ConfigurationsLocalDataSource)
@@ -62,4 +64,16 @@ final class ConfigurationsLocalDataSourceImpl
         await _localDatabase.saveThemeMode(configurations.themeMode);
         return const SuccessState(data: true);
       });
+
+  @override
+  FutureBool saveThemeMode(String themeMode) => ErrorHandler.execute(() async {
+    await _localDatabase.saveThemeMode(themeMode);
+    return const SuccessState(data: true);
+  });
+
+  @override
+  FutureVoid clearAll() => ErrorHandler.execute(() async {
+    await _localDatabase.clearAll();
+    return SuccessState.nil;
+  });
 }

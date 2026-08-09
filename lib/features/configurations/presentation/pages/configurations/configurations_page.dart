@@ -16,19 +16,10 @@ class ConfigurationsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lifecycleState = useAppLifecycleState();
-
     useEffect(() {
       context.read<ConfigurationsCubit>().loadConfigurations();
       return null;
     }, []);
-
-    useEffect(() {
-      if (lifecycleState == AppLifecycleState.resumed) {
-        context.read<ConfigurationsCubit>().loadConfigurations();
-      }
-      return null;
-    }, [lifecycleState]);
 
     return const BaseScaffold(
       appBar: BaseAppBar(title: 'Configurações'),

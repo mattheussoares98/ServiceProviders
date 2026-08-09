@@ -6,6 +6,10 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/clear_app_cache_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_theme_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -15,12 +19,22 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
-import '../../../../../../testing/mocks/use_case_mocks.dart';
+
+class MockSaveConfigurationsUseCase extends Mock
+    implements SaveConfigurationsUseCase {}
+
+class MockSaveThemeModeUseCase extends Mock implements SaveThemeModeUseCase {}
+
+class MockGetConfigurationsUseCase extends Mock
+    implements GetConfigurationsUseCase {}
+
+class MockClearAppCacheUseCase extends Mock implements ClearAppCacheUseCase {}
 
 void main() {
   late MockGetConfigurationsUseCase mockGetConfigurations;
   late MockSaveConfigurationsUseCase mockSaveConfigurations;
-  late MockLocalStorageClient mockLocalStorageClient;
+  late MockSaveThemeModeUseCase mockSaveThemeMode;
+  late MockClearAppCacheUseCase mockClearAppCache;
   late MockNavigationClient mockNavigationClient;
   late ConfigurationsCubit cubit;
 
@@ -32,22 +46,20 @@ void main() {
   setUp(() {
     mockGetConfigurations = MockGetConfigurationsUseCase();
     mockSaveConfigurations = MockSaveConfigurationsUseCase();
-    mockLocalStorageClient = MockLocalStorageClient();
+    mockSaveThemeMode = MockSaveThemeModeUseCase();
+    mockClearAppCache = MockClearAppCacheUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    when(() => mockLocalStorageClient.getThemeMode()).thenReturn('system');
-
     final useCases = ConfigurationsCubitUseCases(
       getConfigurations: mockGetConfigurations,
       saveConfigurations: mockSaveConfigurations,
+      saveThemeMode: mockSaveThemeMode,
+      clearAppCache: mockClearAppCache,
     );
 
-    cubit = ConfigurationsCubit(
-      useCases: useCases,
-      localStorageClient: mockLocalStorageClient,
-    );
+    cubit = ConfigurationsCubit(useCases: useCases);
   });
 
   tearDown(GetIt.I.reset);
@@ -169,8 +181,8 @@ void main() {
       'should emit [loading, loaded] with updated theme mode when updateThemeMode succeeds',
       build: () {
         when(
-          () => mockLocalStorageClient.saveThemeMode(any()),
-        ).thenAnswer((_) async => {});
+          () => mockSaveThemeMode.call('dark'),
+        ).thenAnswer((_) async => const SuccessState(data: true));
         return cubit;
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
@@ -185,7 +197,7 @@ void main() {
             .having((s) => s.configurations.themeMode, 'themeMode', 'dark'),
       ],
       verify: (_) {
-        verify(() => mockLocalStorageClient.saveThemeMode('dark')).called(1);
+        verify(() => mockSaveThemeMode.call('dark')).called(1);
       },
     );
   });
@@ -195,8 +207,8 @@ void main() {
       'should emit [loading, loaded] after clearing cache and redirect to LoginRoute',
       build: () {
         when(
-          () => mockLocalStorageClient.clearAll(),
-        ).thenAnswer((_) async => {});
+          () => mockClearAppCache.call(),
+        ).thenAnswer((_) async => SuccessState.nil);
         return cubit;
       },
       act: (cubit) => cubit.clearAppCache(),
@@ -216,7 +228,7 @@ void main() {
             .having((s) => s.configurations.themeMode, 'themeMode', 'system'),
       ],
       verify: (_) {
-        verify(() => mockLocalStorageClient.clearAll()).called(1);
+        verify(() => mockClearAppCache.call()).called(1);
         verify(
           () => mockNavigationClient.replaceAllRoute(const LoginRoute()),
         ).called(1);

@@ -73,4 +73,41 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
           );
         },
       );
+
+  @override
+  FutureBool saveThemeMode(String themeMode) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.saveThemeMode(themeMode),
+        remoteCallback: () async {
+          final userId = _sessionRepository.userData.user.id;
+
+          final localConfigResult = await _localDataSource.getConfigurations();
+          final pushEnabled = localConfigResult.data?.pushNotificationsEnabled ?? true;
+
+          final result = await _remoteDataSource.saveConfigurations(
+            userId: userId,
+            pushNotificationsEnabled: pushEnabled,
+            themeMode: themeMode,
+          );
+
+          if (result is SuccessState<void>) {
+            await _localDataSource.saveThemeMode(themeMode);
+            return const SuccessState(data: true);
+          }
+
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
+
+  @override
+  FutureVoid clearAppCache() async {
+    await _sessionRepository.logout();
+    return _localDataSource.clearAll();
+  }
 }

@@ -4,4 +4,6 @@ import 'package:o_jogo_da_obra/features/configurations/domain/entities/configura
 abstract interface class ConfigurationsRepository {
   FutureData<ConfigurationsEntity> getConfigurations();
   FutureBool savePushNotifications(bool enabled);
+  FutureBool saveThemeMode(String themeMode);
+  FutureVoid clearAppCache();
 }
