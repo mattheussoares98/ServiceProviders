@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/service_providers/presentation/extension
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -30,13 +31,18 @@ class ServiceProvidersInvitationsItems extends HookWidget {
     final emailController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
-    final companyHasAcceptedInvite =
-        company.invitationStatus == ServiceProviderInvitationStatus.accepted;
-    if (!companyHasAcceptedInvite) {
+    if (company.invitationStatus != ServiceProviderInvitationStatus.accepted) {
       return const SizedBox.shrink();
     }
 
-    return BlocBuilder<ServiceProvidersCubit, ServiceProvidersState>(
+    return BaseStateView<
+      ServiceProvidersCubit,
+      ServiceProvidersState,
+      ServiceProvidersState
+    >(
+      onRetry: () =>
+          context.read<ServiceProvidersCubit>().selectCompany(company.id),
+      dataSelector: (state) => state,
       builder: (context, state) {
         final invitations = state.invitations[company.id] ?? [];
         final profiles = state.profiles[company.id] ?? [];
