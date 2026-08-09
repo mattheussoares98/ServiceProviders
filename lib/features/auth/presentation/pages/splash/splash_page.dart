@@ -34,7 +34,10 @@ class SplashPage extends StatelessWidget {
               break;
           }
         },
-        child: const BaseScaffold(body: Center(child: LoadingCircle())),
+        child: const BaseScaffold(
+          isScrollable: false,
+          body: Center(child: LoadingCircle()),
+        ),
       ),
     );
   }
