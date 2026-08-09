@@ -26,6 +26,7 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
         invitations[company.id]?.any(
           (inv) =>
               inv.serviceProviderCompanyId == company.id &&
+              inv.email != company.contactEmail &&
               inv.status == ServiceProviderInvitationStatus.pending,
         ) ??
         false;
