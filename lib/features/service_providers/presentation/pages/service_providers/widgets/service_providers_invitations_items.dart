@@ -65,15 +65,6 @@ class ServiceProvidersInvitationsItems extends HookWidget {
         final invitations = state.invitations[company.id] ?? [];
         final profiles = state.profiles[company.id] ?? [];
 
-        final hasPending = invitations.any(
-          (i) => i.status == ServiceProviderInvitationStatus.pending,
-        );
-        final hasAccepted = invitations.any(
-          (i) => i.status == ServiceProviderInvitationStatus.accepted,
-        );
-        final hasEmail =
-            company.contactEmail != null && company.contactEmail!.isNotEmpty;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -85,7 +76,9 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                   ServiceProvidersState,
                   bool
                 >(
-                  selector: (state) => state.status == StateStatus.saving,
+                  selector: (state) =>
+                      state.sections[ServiceProviderSection.selectCompany] ==
+                      StateStatus.loading,
                   builder: (context, isLoading) {
                     return BaseIconButton(
                       platformIcon: const PlatformIcon(
@@ -146,9 +139,21 @@ class ServiceProvidersInvitationsItems extends HookWidget {
               final correspondingInvitation = invitations.firstWhereOrNull(
                 (e) => e.email == profile.email,
               );
+
+              final isSameEmail =
+                  (company.contactEmail?.isNotEmpty ?? false) &&
+                  profile.email == company.contactEmail;
+
               final isPendingInvitation =
                   correspondingInvitation?.status ==
                   ServiceProviderInvitationStatus.pending;
+
+              final isAcceptedInvitation =
+                  correspondingInvitation?.status ==
+                  ServiceProviderInvitationStatus.accepted;
+
+              final shouldShowSendInvitation =
+                  !isSameEmail && !isPendingInvitation && !isAcceptedInvitation;
 
               return Column(
                 crossAxisAlignment: .stretch,
@@ -211,7 +216,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                         ),
                     ],
                   ),
-                  if (!hasPending && !hasAccepted && hasEmail)
+                  if (shouldShowSendInvitation)
                     BlocSelector<
                       ServiceProvidersCubit,
                       ServiceProvidersState,
