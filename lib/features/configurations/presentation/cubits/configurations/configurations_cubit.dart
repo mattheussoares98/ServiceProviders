@@ -14,7 +14,9 @@ part 'configurations_state.dart';
 class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
   ConfigurationsCubit({required ConfigurationsCubitUseCases useCases})
     : _useCases = useCases,
-      super(const ConfigurationsState.initial());
+      super(const ConfigurationsState.initial()) {
+    loadConfigurations();
+  }
 
   final ConfigurationsCubitUseCases _useCases;
 
