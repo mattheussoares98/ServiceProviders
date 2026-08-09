@@ -485,8 +485,9 @@ class _CreateUpdatePage extends HookWidget {
               assetsError: assetsError,
               locationsError: locationsError,
               usersError: usersError,
-              categoriesError: categoriesError,
-            ) //TODO check whether this is the best solution or not to handle these errors and treat each different cubit error to state they are working correctly
+              categoriesError:
+                  categoriesError, //TODO test what happens when it throws
+            )
           : Form(
               key: formKey,
               child: CustomScrollView(
