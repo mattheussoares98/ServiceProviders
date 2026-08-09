@@ -35,6 +35,22 @@ class ServiceProvidersInvitationsItems extends HookWidget {
       return const SizedBox.shrink();
     }
 
+    Future<void> sendInvitation() async {
+      if (formKey.currentState?.validate() != true) {
+        return;
+      }
+      final succeeds = await context
+          .read<ServiceProvidersCubit>()
+          .sendInvitation(
+            serviceProviderCompanyId: company.id,
+            email: emailController.text,
+          );
+
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+
     return BaseStateView<
       ServiceProvidersCubit,
       ServiceProvidersState,
@@ -105,27 +121,12 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                             validator: FormValidators.compose([
                                               EmailValidator(),
                                             ]),
+                                            onFieldSubmitted: (_) =>
+                                                sendInvitation(),
                                           ),
                                           gapH32,
                                           BaseTextButton(
-                                            onPressed: () async {
-                                              if (formKey.currentState
-                                                      ?.validate() !=
-                                                  true) {
-                                                return;
-                                              }
-                                              final succeeds = await context
-                                                  .read<ServiceProvidersCubit>()
-                                                  .sendInvitation(
-                                                    serviceProviderCompanyId:
-                                                        company.id,
-                                                    email: emailController.text,
-                                                  );
-
-                                              if (succeeds && context.mounted) {
-                                                Navigator.of(context).pop();
-                                              }
-                                            },
+                                            onPressed: sendInvitation,
                                             text: 'Convidar'.hardcoded,
                                           ),
                                           const SizedBox(height: 300),
