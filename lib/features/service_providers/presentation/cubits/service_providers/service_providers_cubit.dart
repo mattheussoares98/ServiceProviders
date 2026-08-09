@@ -34,7 +34,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       return;
     }
 
-    emit(state.copyWith(status: emitLoading ? StateStatus.loading : null));
+    emit(
+      state.copyWith(
+        status: emitLoading ? StateStatus.loading : null,
+        annulCompanyId: forceRefresh,
+      ),
+    );
 
     final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.getCompanies.call(companyId);
@@ -88,6 +93,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         status: StateStatus.loaded,
         companies: companies,
         profiles: updatedProfiles,
+        invitations: forceRefresh ? const {} : state.invitations,
       ),
     );
   }

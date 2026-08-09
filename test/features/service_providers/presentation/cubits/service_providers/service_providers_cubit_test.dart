@@ -202,21 +202,27 @@ void main() {
           ).thenReturn(companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadCompaniesAndProfiles(),
+        seed: () => const ServiceProvidersState.initial().copyWith(
+          selectedCompanyId: comp1.id,
+          invitations: {
+            comp1.id: [EntityFactory.makeServiceProviderInvitationEntity()],
+          },
+        ),
+        act: (cubit) => cubit.loadCompaniesAndProfiles(forceRefresh: true),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
+          isA<ServiceProvidersState>()
+              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', isNull),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.companies.length, 'companies.length', 2)
+              .having((s) => s.selectedCompanyId, 'selectedCompanyId', isNull)
               .having(
                 (s) => s.profiles[comp1.id]?.length,
                 'comp1 profiles count',
                 1,
-              ),
+              )
+              .having((s) => s.invitations, 'invitations', isEmpty),
         ],
         verify: (_) {
           verify(() => mockGetCompanies.call(companyId)).called(1);
