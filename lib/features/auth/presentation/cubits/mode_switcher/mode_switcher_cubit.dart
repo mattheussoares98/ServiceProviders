@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
@@ -10,10 +9,9 @@ part 'mode_switcher_state.dart';
 
 @injectable
 class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
-  ModeSwitcherCubit({
-    required ModeSwitcherCubitUseCases useCases,
-  })  : _useCases = useCases,
-        super(const ModeSwitcherState());
+  ModeSwitcherCubit({required ModeSwitcherCubitUseCases useCases})
+    : _useCases = useCases,
+      super(const ModeSwitcherState());
 
   final ModeSwitcherCubitUseCases _useCases;
 
@@ -23,8 +21,9 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
 
     bool hasProviderProfile = false;
     if (user.id.isNotEmpty) {
-      final providerProfilesState =
-          await _useCases.getServiceProviderProfilesByAuthUser.call(user.id);
+      final providerProfilesState = await _useCases
+          .getServiceProviderProfilesByAuthUser
+          .call(user.id);
       if (providerProfilesState is SuccessState &&
           providerProfilesState.data != null) {
         hasProviderProfile = providerProfilesState.data!.isNotEmpty;
@@ -36,12 +35,7 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
     final savedMode = _useCases.getSelectedMode.call();
     final currentMode = AppMode.fromName(savedMode);
 
-    emit(
-      state.copyWith(
-        canSwitchMode: canSwitch,
-        selectedMode: currentMode,
-      ),
-    );
+    emit(state.copyWith(canSwitchMode: canSwitch, selectedMode: currentMode));
   }
 
   Future<void> selectMode(AppMode mode) async {

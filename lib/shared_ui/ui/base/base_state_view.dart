@@ -15,6 +15,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
     required this.builder,
     this.onRetry,
     this.isSliver = false,
+    this.sectionKey,
   });
 
   final D Function(S state) dataSelector;
@@ -22,18 +23,42 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
   final VoidCallback? onRetry;
   final bool isSliver;
 
+  /// When provided, this view reacts only to [BaseState.sections]\[sectionKey]
+  /// instead of the global [BaseState.status].
+  ///
+  /// This allows independent loading/error states for sub-sections of a page:
+  /// an error in one section does not affect widgets using a different key or
+  /// no key at all.
+  final SectionKey? sectionKey;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<C, S>(
-      //!It automatically searches for the nearest Cubit with type C
       builder: (context, state) {
-        if (state.status == StateStatus.loading) {
+        final sectionStatus =
+            sectionKey != null ? state.sections[sectionKey!] : null;
+
+        final isLoading = sectionStatus != null
+            ? sectionStatus == StateStatus.loading
+            : state.status == StateStatus.loading;
+
+        if (isLoading) {
           return isSliver
               ? const SliverToBoxAdapter(child: LoadingCircle())
               : const LoadingCircle();
         }
 
-        if (state.status == StateStatus.loadingError) {
+        final hasError = sectionStatus != null
+            ? sectionStatus == StateStatus.loadingError
+            : state.status == StateStatus.loadingError;
+
+        if (hasError) {
+          // For section errors, the cubit always calls showErrorToast(message)
+          // and also stores the last error in state.errorMessage as a fallback.
+          final errorMessage = state.errorMessage?.isNotEmpty == true
+              ? state.errorMessage!
+              : 'Ocorreu um erro não esperado. Tente novamente'.hardcoded;
+
           final Widget errorWidget = Center(
             child: Padding(
               padding: const EdgeInsets.all(Sizes.p16),
@@ -42,9 +67,7 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   BaseText(
-                    state.errorMessage ??
-                        'Ocorreu um erro não esperado. Tente novamente'
-                            .hardcoded,
+                    errorMessage,
                     color: Colors.red,
                     fontStyle: FontStyle.italic,
                   ),
@@ -64,7 +87,6 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
           if (isSliver) {
             return SliverToBoxAdapter(child: errorWidget);
           }
-
           return errorWidget;
         }
 

@@ -1,7 +1,7 @@
 part of 'screen_observer_cubit.dart';
 
 /// Holds state related to screen layout changes.
-class ScreenObserverState extends Equatable {
+class ScreenObserverState extends BaseState {
   const ScreenObserverState({
     required this.width,
     required this.height,

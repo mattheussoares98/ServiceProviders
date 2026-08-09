@@ -1,17 +1,16 @@
 part of 'mode_switcher_cubit.dart';
 
-class ModeSwitcherState extends Equatable {
+class ModeSwitcherState extends BaseState {
   const ModeSwitcherState({
-    this.status = StateStatus.initial,
+    super.status = StateStatus.initial,
     this.selectedMode,
     this.canSwitchMode = false,
-    this.errorMessage,
+    super.errorMessage,
+    super.sections = const {},
   });
 
-  final StateStatus status;
   final AppMode? selectedMode;
   final bool canSwitchMode;
-  final String? errorMessage;
 
   ModeSwitcherState copyWith({
     StateStatus? status,
@@ -34,5 +33,10 @@ class ModeSwitcherState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, selectedMode, canSwitchMode, errorMessage];
+  List<Object?> get props => [
+    status,
+    selectedMode,
+    canSwitchMode,
+    errorMessage,
+  ];
 }

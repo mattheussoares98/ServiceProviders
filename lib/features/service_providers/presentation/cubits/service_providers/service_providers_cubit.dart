@@ -11,9 +11,12 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
+
+enum ServiceProviderSection implements SectionKey { selectCompany }
 
 @injectable
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
@@ -112,7 +115,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       state.copyWith(
         selectedCompanyId: companyId,
         annulProfileId: true,
-        status: emitLoading ? StateStatus.loading : null,
+        sections: withSection(
+          ServiceProviderSection.selectCompany,
+          StateStatus.loading,
+        ),
         loadingCompanyIds: updatedLoadingIds,
       ),
     );
@@ -135,7 +141,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (profilesResult is FailureState<List<ServiceProviderProfileEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          sections: withSection(
+            ServiceProviderSection.selectCompany,
+            StateStatus.loadingError,
+          ),
           errorMessage: profilesResult.message,
           loadingCompanyIds: finishedLoadingIds,
         ),
@@ -148,7 +157,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         is FailureState<List<ServiceProviderInvitationEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          sections: withSection(
+            ServiceProviderSection.selectCompany,
+            StateStatus.loadingError,
+          ),
           errorMessage: invitationsResult.message,
           loadingCompanyIds: finishedLoadingIds,
         ),
@@ -176,6 +188,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     emit(
       state.copyWith(
         status: StateStatus.loaded,
+        sections: withSection(
+          ServiceProviderSection.selectCompany,
+          StateStatus.loaded,
+        ),
         profiles: updatedProfiles,
         invitations: updatedInvitations,
         loadingCompanyIds: finishedLoadingIds,

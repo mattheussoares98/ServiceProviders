@@ -1,4 +1,3 @@
-import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';

@@ -347,13 +347,21 @@ void main() {
         expect: () => [
           isA<ServiceProvidersState>()
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
-              .having((s) => s.status, 'status', StateStatus.loading)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loading,
+              )
               .having((s) => s.invitations, 'invitations', isEmpty)
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
               }),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loaded,
+              )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.invitations, 'invitations', isNotEmpty)
               .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
@@ -417,12 +425,20 @@ void main() {
         expect: () => [
           isA<ServiceProvidersState>()
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
-              .having((s) => s.status, 'status', StateStatus.loading)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loading,
+              )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
               }),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loadingError,
+              )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Profile error'),
         ],
@@ -445,12 +461,20 @@ void main() {
         expect: () => [
           isA<ServiceProvidersState>()
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', 'comp-1')
-              .having((s) => s.status, 'status', StateStatus.loading)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loading,
+              )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
               }),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.sections[ServiceProviderSection.selectCompany],
+                'selectCompany status',
+                StateStatus.loadingError,
+              )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Invite error'),
         ],

@@ -40,6 +40,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
       ServiceProvidersState,
       ServiceProvidersState
     >(
+      sectionKey: ServiceProviderSection.selectCompany,
       onRetry: () =>
           context.read<ServiceProvidersCubit>().selectCompany(company.id),
       dataSelector: (state) => state,

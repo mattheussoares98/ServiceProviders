@@ -1,6 +1,5 @@
 import 'dart:developer' as console;
 
-import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';

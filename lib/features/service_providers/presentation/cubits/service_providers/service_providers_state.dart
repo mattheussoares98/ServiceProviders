@@ -10,6 +10,7 @@ class ServiceProvidersState extends BaseState {
     this.selectedProfileId,
     super.status = StateStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const ServiceProvidersState.initial()
@@ -33,6 +34,7 @@ class ServiceProvidersState extends BaseState {
     Map<String, List<ServiceProviderProfileEntity>>? profiles,
     Map<String, List<ServiceProviderInvitationEntity>>? invitations,
     Set<String>? loadingCompanyIds,
+    Map<SectionKey, StateStatus>? sections,
     String? selectedCompanyId,
     String? selectedProfileId,
     StateStatus? status,
@@ -45,6 +47,7 @@ class ServiceProvidersState extends BaseState {
       profiles: profiles ?? this.profiles,
       invitations: invitations ?? this.invitations,
       loadingCompanyIds: loadingCompanyIds ?? this.loadingCompanyIds,
+      sections: sections ?? this.sections,
       selectedCompanyId: annulCompanyId
           ? null
           : selectedCompanyId ?? this.selectedCompanyId,
@@ -62,6 +65,7 @@ class ServiceProvidersState extends BaseState {
     profiles,
     invitations,
     loadingCompanyIds,
+    sections,
     selectedCompanyId,
     selectedProfileId,
     status,
