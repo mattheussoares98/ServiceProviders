@@ -122,7 +122,7 @@ void main() {
 
   group('togglePushNotifications', () {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
-      'should emit [loading, loaded] with updated preference when toggle succeeds',
+      'should emit [loaded] with updated preference immediately when toggle is called',
       build: () {
         when(
           () => mockSaveConfigurations.call(true),
@@ -131,11 +131,6 @@ void main() {
       },
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
-        isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<ConfigurationsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having(
@@ -148,37 +143,11 @@ void main() {
         verify(() => mockSaveConfigurations.call(true)).called(1);
       },
     );
-
-    blocTest<ConfigurationsCubit, ConfigurationsState>(
-      'should emit [loading, error] when toggle fails',
-      build: () {
-        when(
-          () => mockSaveConfigurations.call(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Failed to save'));
-        return cubit;
-      },
-      act: (cubit) => cubit.togglePushNotifications(false),
-      expect: () => [
-        isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
-        isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loadingError,
-        ),
-      ],
-      verify: (_) {
-        verify(() => mockSaveConfigurations.call(false)).called(1);
-      },
-    );
   });
 
   group('updateThemeMode', () {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
-      'should emit [loading, loaded] with updated theme mode when updateThemeMode succeeds',
+      'should emit [loaded] with updated theme mode immediately when updateThemeMode is called',
       build: () {
         when(
           () => mockSaveThemeMode.call('dark'),
@@ -187,11 +156,6 @@ void main() {
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
       expect: () => [
-        isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<ConfigurationsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.configurations.themeMode, 'themeMode', 'dark'),

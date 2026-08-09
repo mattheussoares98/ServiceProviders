@@ -41,9 +41,9 @@ class NotificationsToggle extends StatelessWidget {
                   if (!systemEnabled && isMobile) {
                     await openAppSettings();
                   } else {
-                    await context
-                        .read<ConfigurationsCubit>()
-                        .togglePushNotifications(enabled);
+                    context.read<ConfigurationsCubit>().togglePushNotifications(
+                      enabled,
+                    );
                   }
                 },
               ),

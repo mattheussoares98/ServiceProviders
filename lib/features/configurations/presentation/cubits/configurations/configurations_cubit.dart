@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -10,10 +12,9 @@ part 'configurations_state.dart';
 
 @injectable
 class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
-  ConfigurationsCubit({
-    required ConfigurationsCubitUseCases useCases,
-  }) : _useCases = useCases,
-       super(const ConfigurationsState.initial());
+  ConfigurationsCubit({required ConfigurationsCubitUseCases useCases})
+    : _useCases = useCases,
+      super(const ConfigurationsState.initial());
 
   final ConfigurationsCubitUseCases _useCases;
 
@@ -34,36 +35,26 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
     }
   }
 
-  Future<void> togglePushNotifications(bool enabled) async {
-    emit(state.copyWith(status: StateStatus.loading));
-    final result = await _useCases.saveConfigurations(enabled);
-    if (result is SuccessState<bool> && result.data == true) {
-      emit(
-        state.copyWith(
-          configurations: state.configurations.copyWith(
-            pushNotificationsEnabled: enabled,
-          ),
-          status: StateStatus.loaded,
+  void togglePushNotifications(bool enabled) {
+    emit(
+      state.copyWith(
+        configurations: state.configurations.copyWith(
+          pushNotificationsEnabled: enabled,
         ),
-      );
-    } else {
-      emit(state.copyWith(status: StateStatus.loadingError));
-    }
+        status: StateStatus.loaded,
+      ),
+    );
+    unawaited(_useCases.saveConfigurations(enabled));
   }
 
-  Future<void> updateThemeMode(ThemeMode mode) async {
-    emit(state.copyWith(status: StateStatus.loading));
-    final result = await _useCases.saveThemeMode(mode.name);
-    if (result is SuccessState<bool> && result.data == true) {
-      emit(
-        state.copyWith(
-          configurations: state.configurations.copyWith(themeMode: mode.name),
-          status: StateStatus.loaded,
-        ),
-      );
-    } else {
-      emit(state.copyWith(status: StateStatus.loadingError));
-    }
+  void updateThemeMode(ThemeMode mode) {
+    emit(
+      state.copyWith(
+        configurations: state.configurations.copyWith(themeMode: mode.name),
+        status: StateStatus.loaded,
+      ),
+    );
+    unawaited(_useCases.saveThemeMode(mode.name));
   }
 
   Future<void> clearAppCache() async {

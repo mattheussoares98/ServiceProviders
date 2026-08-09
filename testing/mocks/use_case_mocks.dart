@@ -12,8 +12,6 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.d
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
-import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_configurations_use_case.dart';
-import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
@@ -66,12 +64,6 @@ class MockGetActiveCompanyIdUseCase extends Mock
 class MockWatchSessionUseCase extends Mock implements WatchSessionUseCase {}
 
 class MockGetCompanyUseCase extends Mock implements GetCompanyUseCase {}
-
-class MockGetConfigurationsUseCase extends Mock
-    implements GetConfigurationsUseCase {}
-
-class MockSaveConfigurationsUseCase extends Mock
-    implements SaveConfigurationsUseCase {}
 
 class MockGetServiceProviderProfilesByAuthUserUseCase extends Mock
     implements GetServiceProviderProfilesByAuthUserUseCase {}
