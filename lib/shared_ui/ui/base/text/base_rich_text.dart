@@ -12,7 +12,7 @@ class BaseRichText extends StatelessWidget {
     this.color,
   });
 
-  final List<BaseText> texts;
+  final List<Widget> texts;
   final TextAlign? textAlign;
   final TextOverflow? overflow;
   final int? maxLines;
@@ -23,17 +23,25 @@ class BaseRichText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text.rich(
       TextSpan(
-        children: texts.map((baseText) {
-          return TextSpan(
-            text: baseText.text,
-            style: TextStyle(
-              color: baseText.color ?? color,
-              fontSize: baseText.textType.size,
-              fontWeight: baseText.fontWeight,
-              decoration: baseText.decoration,
-              fontStyle: baseText.fontStyle,
-              decorationColor: baseText.decorationColor,
-            ),
+        children: texts.map<InlineSpan>((widget) {
+          if (widget is BaseText) {
+            return TextSpan(
+              text: widget.text,
+              style: TextStyle(
+                color: widget.color ?? color,
+                fontSize: widget.textType.size,
+                fontWeight: widget.fontWeight,
+                decoration: widget.decoration,
+                fontStyle: widget.fontStyle,
+                decorationColor: widget.decorationColor,
+              ),
+            );
+          } else if (widget is InlineSpan) {
+            return widget as InlineSpan;
+          }
+          return WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: widget,
           );
         }).toList(),
       ),

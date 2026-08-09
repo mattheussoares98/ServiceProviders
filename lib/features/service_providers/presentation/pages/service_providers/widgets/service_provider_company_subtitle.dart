@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/service_providers/presentation/extension
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -34,56 +35,44 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
       crossAxisAlignment: .stretch,
       children: [
         if (company.contactEmail?.isNotEmpty ?? false)
-          RichText(
-            text: TextSpan(
-              children: [
-                WidgetSpan(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: Sizes.p8),
-                    child: BaseText(company.contactEmail!),
+          BaseRichText(
+            texts: [
+              BaseText(company.contactEmail!),
+              gapW8,
+              if (company.invitationStatus == null)
+                BaseTextButton(
+                  text: 'Convidar'.hardcoded,
+                  platformIcon: const PlatformIcon(
+                    materialIcon: Icons.mail,
+                    cupertinoIcon: CupertinoIcons.mail,
                   ),
-                ),
-                if (company.invitationStatus == null)
-                  WidgetSpan(
-                    child: BaseTextButton(
-                      text: 'Convidar'.hardcoded,
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.mail,
-                        cupertinoIcon: CupertinoIcons.mail,
-                      ),
-                      onPressed: () {
-                        showAlertDialog(
-                          context: context,
-                          title: 'Enviar convite'.hardcoded,
-                          contentText:
-                              'Deseja enviar o convite para ${company.contactEmail}?\n\n'
-                                      'Após aceitar o convite, o prestador conseguirá manipular ordens de serviço atreladas a ele'
-                                  .hardcoded,
-                          defaultActionText: 'Sim'.hardcoded,
-                          cancelActionText: 'Não'.hardcoded,
-                          onOkPressed: () {
-                            context
-                                .read<ServiceProvidersCubit>()
-                                .sendInvitation(
-                                  serviceProviderCompanyId: company.id,
-                                  email: company.contactEmail!,
-                                );
-                          },
+                  onPressed: () {
+                    showAlertDialog(
+                      context: context,
+                      title: 'Enviar convite'.hardcoded,
+                      contentText:
+                          'Deseja enviar o convite para ${company.contactEmail}?\n\n'
+                                  'Após aceitar o convite, o prestador conseguirá manipular ordens de serviço atreladas a ele'
+                              .hardcoded,
+                      defaultActionText: 'Sim'.hardcoded,
+                      cancelActionText: 'Não'.hardcoded,
+                      onOkPressed: () {
+                        context.read<ServiceProvidersCubit>().sendInvitation(
+                          serviceProviderCompanyId: company.id,
+                          email: company.contactEmail!,
                         );
                       },
-                    ),
-                  )
-                else if (company.invitationStatus !=
-                    ServiceProviderInvitationStatus.accepted)
-                  WidgetSpan(
-                    child: BaseText(
-                      'Convite ${company.invitationStatus!.label.toLowerCase()}'
-                          .hardcoded,
-                      color: company.invitationStatus!.color,
-                    ),
-                  ),
-              ],
-            ),
+                    );
+                  },
+                )
+              else if (company.invitationStatus !=
+                  ServiceProviderInvitationStatus.accepted)
+                BaseText(
+                  'Convite ${company.invitationStatus!.label.toLowerCase()}'
+                      .hardcoded,
+                  color: company.invitationStatus!.color,
+                ),
+            ],
           ),
 
         if (hasPendingInvitation)
