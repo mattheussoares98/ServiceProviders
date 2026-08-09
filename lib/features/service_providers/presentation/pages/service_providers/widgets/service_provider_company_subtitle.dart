@@ -38,7 +38,7 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
         if (company.contactEmail?.isNotEmpty ?? false)
           BaseRichText(
             texts: [
-              BaseText(
+              BaseText.title(
                 company.contactEmail!,
                 color: company.invitationStatus?.color,
               ),
@@ -83,7 +83,10 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
           BaseText.bodySmall('Há convite(s) pendente(s)'.hardcoded),
         if (company.contactPhone != null &&
             company.contactPhone!.isNotEmpty) ...[
-          BaseText.bodyMedium('Telefone: ${company.contactPhone}'.hardcoded),
+          TitleAndSubtitle(
+            title: 'Telefone'.hardcoded,
+            subtitle: company.contactPhone,
+          ),
         ],
         TitleAndSubtitle(
           title: company.documentType.name.toUpperCase(),
