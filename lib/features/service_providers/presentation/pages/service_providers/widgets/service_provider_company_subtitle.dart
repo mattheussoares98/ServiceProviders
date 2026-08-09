@@ -33,56 +33,58 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
       mainAxisSize: .min,
       crossAxisAlignment: .stretch,
       children: [
-        RichText(
-          text: TextSpan(
-            children: [
-              if (company.contactEmail?.isNotEmpty ?? false)
+        if (company.contactEmail?.isNotEmpty ?? false)
+          RichText(
+            text: TextSpan(
+              children: [
                 WidgetSpan(
                   child: Padding(
                     padding: const EdgeInsets.only(right: Sizes.p8),
                     child: BaseText(company.contactEmail!),
                   ),
                 ),
-              if (company.invitationStatus == null)
-                WidgetSpan(
-                  child: BaseTextButton(
-                    text: 'Convidar'.hardcoded,
-                    platformIcon: const PlatformIcon(
-                      materialIcon: Icons.mail,
-                      cupertinoIcon: CupertinoIcons.mail,
+                if (company.invitationStatus == null)
+                  WidgetSpan(
+                    child: BaseTextButton(
+                      text: 'Convidar'.hardcoded,
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.mail,
+                        cupertinoIcon: CupertinoIcons.mail,
+                      ),
+                      onPressed: () {
+                        showAlertDialog(
+                          context: context,
+                          title: 'Enviar convite'.hardcoded,
+                          contentText:
+                              'Deseja enviar o convite para ${company.contactEmail}?\n\n'
+                                      'Após aceitar o convite, o prestador conseguirá manipular ordens de serviço atreladas a ele'
+                                  .hardcoded,
+                          defaultActionText: 'Sim'.hardcoded,
+                          cancelActionText: 'Não'.hardcoded,
+                          onOkPressed: () {
+                            context
+                                .read<ServiceProvidersCubit>()
+                                .sendInvitation(
+                                  serviceProviderCompanyId: company.id,
+                                  email: company.contactEmail!,
+                                );
+                          },
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      showAlertDialog(
-                        context: context,
-                        title: 'Enviar convite'.hardcoded,
-                        contentText:
-                            'Deseja enviar o convite para ${company.contactEmail}?\n\n'
-                                    'Após aceitar o convite, o prestador conseguirá manipular ordens de serviço atreladas a ele'
-                                .hardcoded,
-                        defaultActionText: 'Sim'.hardcoded,
-                        cancelActionText: 'Não'.hardcoded,
-                        onOkPressed: () {
-                          context.read<ServiceProvidersCubit>().sendInvitation(
-                            serviceProviderCompanyId: company.id,
-                            email: company.contactEmail!,
-                          );
-                        },
-                      );
-                    },
+                  )
+                else if (company.invitationStatus !=
+                    ServiceProviderInvitationStatus.accepted)
+                  WidgetSpan(
+                    child: BaseText(
+                      'Convite ${company.invitationStatus!.label.toLowerCase()}'
+                          .hardcoded,
+                      color: company.invitationStatus!.color,
+                    ),
                   ),
-                )
-              else if (company.invitationStatus !=
-                  ServiceProviderInvitationStatus.accepted)
-                WidgetSpan(
-                  child: BaseText(
-                    'Convite ${company.invitationStatus!.label.toLowerCase()}'
-                        .hardcoded,
-                    color: company.invitationStatus!.color,
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
 
         if (hasPendingInvitation)
           BaseText.bodySmall('Há convite(s) pendente(s)'.hardcoded),

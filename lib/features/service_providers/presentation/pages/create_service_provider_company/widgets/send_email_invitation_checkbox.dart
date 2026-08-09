@@ -31,7 +31,7 @@ class _SendEmailInvitationCheckbox extends StatelessWidget {
               triggerMode: .tap,
               showDuration: const Duration(seconds: 3),
               message:
-                  'Essa opção deve ser utilizada quando você quiser permitir que o prestador de serviço consiga acessar o aplicativo e fazer alterações nas ordens de serviço'
+                  'Essa opção deve ser utilizada quando você quiser permitir que o prestador de serviço consiga acessar o aplicativo e fazer alterações nas ordens de serviço em que ele seja o responsável'
                       .hardcoded,
               child: const PlatformIcon(
                 materialIcon: Icons.info,
