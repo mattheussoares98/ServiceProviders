@@ -61,6 +61,7 @@ class WorkOrdersPage extends StatelessWidget {
               final categoriesHasError = context.select<CategoriesCubit, bool>(
                 (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
               );
+              //TODO check what we should do when any above cubit has error
               return BaseIconButton(
                 permission: const ActionPermission.resource(
                   resource: ResourceType.workOrders,
