@@ -52,6 +52,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
       }
     }
 
+    //TODO test inviting new users. I can't because my SMTP only sends e-mail to the e-mail owner
     return BaseStateView<
       ServiceProvidersCubit,
       ServiceProvidersState,
