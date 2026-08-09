@@ -365,8 +365,7 @@ void main() {
         'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute',
         build: () {
           when(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).thenAnswer((_) async => null);
           return cubit;
         },
@@ -374,8 +373,7 @@ void main() {
         expect: () => <DashboardState>[],
         verify: (_) {
           verify(
-            () => mockNavigationClient
-                .pushRoute<CreateUpdateWorkOrderRouteArgs>(any()),
+            () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).called(1);
         },
       );
