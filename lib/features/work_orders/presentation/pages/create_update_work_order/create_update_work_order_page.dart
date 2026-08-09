@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -143,22 +144,18 @@ class _CreateUpdatePage extends HookWidget {
       (UsersCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
     );
+    final (categoriesError, categoriesLoading) = context.select(
+      (CategoriesCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
 
-    final isLoading = assetsLoading || locationsLoading || usersLoading;
+    final isLoading =
+        assetsLoading || locationsLoading || usersLoading || categoriesLoading;
     final hasError =
+        categoriesError?.isNotEmpty == true ||
         assetsError?.isNotEmpty == true ||
         locationsError?.isNotEmpty == true ||
         usersError?.isNotEmpty == true;
-
-    if (isLoading) {
-      return const LoadingCircle();
-    } else if (hasError) {
-      return _TryAgainButton(
-        assetsError: assetsError,
-        locationsError: locationsError,
-        usersError: usersError,
-      );
-    }
 
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
@@ -445,6 +442,7 @@ class _CreateUpdatePage extends HookWidget {
         ),
       ),
     ];
+
     return BaseScaffold(
       isScrollable: false,
       onPopInvokedWithResult: () async {
@@ -470,33 +468,43 @@ class _CreateUpdatePage extends HookWidget {
             ? 'Criando ordem de serviço'.hardcoded
             : 'Editando ordem de serviço'.hardcoded,
         actions: [
-          BaseIconButton(
-            onPressed: onSubmit,
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.save,
-              cupertinoIcon: CupertinoIcons.check_mark,
+          if (!isLoading && !hasError)
+            BaseIconButton(
+              onPressed: onSubmit,
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.save,
+                cupertinoIcon: CupertinoIcons.check_mark,
+              ),
             ),
-          ),
         ],
       ),
-      body: Form(
-        key: formKey,
-        child: CustomScrollView(
-          slivers: [
-            ResponsiveListFlow(
-              isSliver: true,
-              maxItemWidth: ScreenType.phone.maxWidth,
-              padding: EdgeInsets.zero,
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return item;
-              },
+      body: isLoading
+          ? const LoadingCircle()
+          : hasError
+          ? _TryAgainButton(
+              assetsError: assetsError,
+              locationsError: locationsError,
+              usersError: usersError,
+              categoriesError: categoriesError,
+            ) //TODO check whether this is the best solution or not to handle these errors and treat each different cubit error to state they are working correctly
+          : Form(
+              key: formKey,
+              child: CustomScrollView(
+                slivers: [
+                  ResponsiveListFlow(
+                    isSliver: true,
+                    maxItemWidth: ScreenType.phone.maxWidth,
+                    padding: EdgeInsets.zero,
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      return item;
+                    },
+                  ),
+                  Attachments(workOrderId: workOrderId, isEditing: true),
+                ],
+              ),
             ),
-            Attachments(workOrderId: workOrderId, isEditing: true),
-          ],
-        ),
-      ),
     );
   }
 }

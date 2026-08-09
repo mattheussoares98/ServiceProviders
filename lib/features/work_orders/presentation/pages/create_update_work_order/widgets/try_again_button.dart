@@ -5,11 +5,13 @@ class _TryAgainButton extends StatelessWidget {
     required this.assetsError,
     required this.locationsError,
     required this.usersError,
+    required this.categoriesError,
   });
 
   final String? assetsError;
   final String? locationsError;
   final String? usersError;
+  final String? categoriesError;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class _TryAgainButton extends StatelessWidget {
         child: Column(
           children: [
             BaseText.error(
-              '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}',
+              '${assetsError ?? ''}\n${locationsError ?? ''}\n${usersError ?? ''}\n${categoriesError ?? ''}',
             ),
             gapH32,
             BaseButton(
@@ -31,6 +33,8 @@ class _TryAgainButton extends StatelessWidget {
                     context.read<LocationsCubit>().loadLocationsAndAreas(),
                   if (usersError?.isNotEmpty == true)
                     context.read<UsersCubit>().loadUsers(),
+                  if (categoriesError?.isNotEmpty == true)
+                    context.read<CategoriesCubit>().loadCategories(),
                 ]);
               },
               text: 'Tentar novamente'.hardcoded,
