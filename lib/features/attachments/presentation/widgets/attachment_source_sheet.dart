@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -49,7 +50,7 @@ class AttachmentSourceSheet extends StatelessWidget {
             gapH16,
             Center(child: BaseText.titleMedium('Adicionar anexo'.hardcoded)),
             gapH16,
-            if (!kIsWeb) ...[
+            if (PlatformUtil.isMobile) ...[
               BaseListTile(
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.camera_alt_outlined,
