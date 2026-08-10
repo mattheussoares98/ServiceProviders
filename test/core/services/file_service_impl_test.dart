@@ -47,6 +47,7 @@ void main() {
       registerFallbackValue(fileType);
     }
     registerFallbackValue(CompressFormat.webp);
+    registerFallbackValue(CompressFormat.jpeg);
   });
 
   setUp(() async {
@@ -483,35 +484,67 @@ void main() {
   });
 
   group('compressAndSaveImage', () {
-    test('skips compression if webp and size is already small', () async {
-      final source = File('${tempDir.path}/source.webp');
-      await source.writeAsBytes(
-        List.filled(100, 0),
-      ); // 100 bytes is small (< 1MB)
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    test(
+      'copies file directly to sandbox on desktop platforms without compression',
+      () async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        final source = File('${tempDir.path}/source.png');
+        await source.writeAsBytes(List.filled(2 * 1024 * 1024, 0));
+
+        final result = await service.compressAndSaveImage(source.path);
+        expect(result, isA<SuccessState<String>>());
+        expect(result.data, contains('/attachments/'));
+        expect(result.data, endsWith('.png'));
+        expect(File(result.data!).existsSync(), isTrue);
+      },
+    );
+
+    test('compresses to webp on Android', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final source = File('${tempDir.path}/source.jpg');
+      await source.writeAsBytes(List.filled(2 * 1024 * 1024, 0)); // 2MB
 
       final result = await service.compressAndSaveImage(source.path);
       expect(result, isA<SuccessState<String>>());
       expect(result.data, contains('/attachments/'));
       expect(result.data, endsWith('.webp'));
-      expect(File(result.data!).existsSync(), isTrue);
     });
 
-    test(
-      'performs compression if image is not webp or exceeds limit',
-      () async {
-        final source = File('${tempDir.path}/source.jpg');
-        await source.writeAsBytes(List.filled(2 * 1024 * 1024, 0)); // 2MB
+    test('compresses to webp on iOS', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final source = File('${tempDir.path}/source.jpg');
+      await source.writeAsBytes(List.filled(2 * 1024 * 1024, 0)); // 2MB
 
-        final result = await service.compressAndSaveImage(source.path);
-        expect(result, isA<SuccessState<String>>());
-        expect(result.data, contains('/attachments/'));
-        expect(result.data, endsWith('.webp'));
-      },
-    );
+      final result = await service.compressAndSaveImage(source.path);
+      expect(result, isA<SuccessState<String>>());
+      expect(result.data, contains('/attachments/'));
+      expect(result.data, endsWith('.webp'));
+    });
   });
 
   group('compressAndSaveVideo', () {
-    test('executes compression and returns SuccessState(path)', () async {
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    test('copies video directly to sandbox on desktop platforms', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      final source = File('${tempDir.path}/source.mov');
+      await source.writeAsBytes(List.filled(5 * 1024 * 1024, 0));
+
+      final result = await service.compressAndSaveVideo(source.path);
+      expect(result, isA<SuccessState<String>>());
+      expect(result.data, contains('/attachments/'));
+      expect(result.data, endsWith('.mov'));
+      expect(File(result.data!).existsSync(), isTrue);
+    });
+
+    test('executes compression on mobile platform (Android)', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
       final source = File('${tempDir.path}/source.mov');
       await source.writeAsBytes(List.filled(5 * 1024 * 1024, 0));
 

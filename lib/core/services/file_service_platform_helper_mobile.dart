@@ -137,10 +137,18 @@ final class FileServiceMobile implements FileServicePlatformHelper {
   @override
   FutureString compressAndSaveImage(String sourcePath) async {
     try {
+      final ext = p.extension(sourcePath).toLowerCase().replaceFirst('.', '');
+
+      // Image compression is only enabled for mobile devices (Android & iOS).
+      if (!PlatformUtil.isMobile) {
+        final destPath = await _sandboxPath('${_uuid()}.$ext');
+        await File(sourcePath).copy(destPath);
+        return SuccessState(data: destPath);
+      }
+
       final sourceFile = File(sourcePath);
       final sourceSize = await sourceFile.length();
 
-      final ext = p.extension(sourcePath).toLowerCase().replaceFirst('.', '');
       final isAlreadySmall = sourceSize <= _maxCompressedImageBytes;
       final isAlreadyOptimalFormat = ext == 'webp';
 
@@ -197,6 +205,15 @@ final class FileServiceMobile implements FileServicePlatformHelper {
   @override
   FutureString compressAndSaveVideo(String sourcePath) async {
     try {
+      final ext = p.extension(sourcePath).toLowerCase().replaceFirst('.', '');
+
+      // Video compression is only enabled for mobile devices (Android & iOS).
+      if (!PlatformUtil.isMobile) {
+        final destPath = await _sandboxPath('${_uuid()}.$ext');
+        await File(sourcePath).copy(destPath);
+        return SuccessState(data: destPath);
+      }
+
       final destPath = await _sandboxPath('${_uuid()}.mp4');
 
       final command =
