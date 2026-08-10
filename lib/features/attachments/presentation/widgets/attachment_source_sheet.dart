@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
@@ -89,9 +88,9 @@ class AttachmentSourceSheet extends StatelessWidget {
                 cupertinoIcon: CupertinoIcons.paperclip,
               ),
               title: 'Selecionar arquivo'.hardcoded,
-              subtitle: kIsWeb
-                  ? 'PDF, word, excel, imagens e vídeos'.hardcoded
-                  : 'PDF, word, excel'.hardcoded,
+              subtitle: PlatformUtil.isMobile
+                  ? 'PDF, word, excel'.hardcoded
+                  : 'PDF, word, excel, imagens e vídeos'.hardcoded,
               onTap: () => Navigator.of(context).pop(AttachmentSource.document),
             ),
           ],

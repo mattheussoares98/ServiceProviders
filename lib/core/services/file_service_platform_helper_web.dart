@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
@@ -92,10 +93,24 @@ final class FileServiceWeb implements FileServicePlatformHelper {
 
   @override
   Future<List<PickedFile>?> pickDocuments() async {
+    final allowedExtensions = PlatformUtil.isMobile
+        ? ['pdf', 'docx', 'xlsx']
+        : [
+            'pdf',
+            'docx',
+            'xlsx',
+            'jpg',
+            'jpeg',
+            'png',
+            'webp',
+            'heic',
+            'mp4',
+            'mov',
+          ];
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'docx', 'xlsx'],
+      allowedExtensions: allowedExtensions,
     );
     if (result == null || result.files.isEmpty) return null;
 

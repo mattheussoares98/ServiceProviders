@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress_platform_interface/flutter_image_compress_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,21 +13,28 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_impl.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../../../testing/mocks/client_mocks.dart';
 
 class MockImagePicker extends Mock implements ImagePicker {}
 
 class MockFlutterImageCompressPlatform extends Mock
+    with MockPlatformInterfaceMixin
     implements FlutterImageCompressPlatform {}
 
 class MockFlutterImageCompressValidator extends Mock
     implements FlutterImageCompressValidator {}
 
+class MockFilePicker extends Mock
+    with MockPlatformInterfaceMixin
+    implements FilePicker {}
+
 void main() {
   final faker = Faker();
   late MockImagePicker mockImagePicker;
   late MockHttpClient mockHttpClient;
+  late MockFilePicker mockFilePicker;
   late FileServiceImpl service;
   late Directory tempDir;
   late bool urlLaunchSuccess;
@@ -44,6 +52,8 @@ void main() {
   setUp(() async {
     mockImagePicker = MockImagePicker();
     mockHttpClient = MockHttpClient();
+    mockFilePicker = MockFilePicker();
+    FilePicker.platform = mockFilePicker;
     service = FileServiceImpl(
       imagePicker: mockImagePicker,
       client: mockHttpClient,
@@ -296,6 +306,100 @@ void main() {
         expect(result, isNull);
       },
     );
+  });
+
+  group('pickDocuments', () {
+    tearDown(() {
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    test(
+      'restricts allowedExtensions to document types only on mobile platform',
+      () async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        final fileName = faker.lorem.word();
+        final filePath = '${tempDir.path}/$fileName';
+        when(
+          () => mockFilePicker.pickFiles(
+            allowMultiple: any(named: 'allowMultiple'),
+            type: any(named: 'type'),
+            allowedExtensions: any(named: 'allowedExtensions'),
+          ),
+        ).thenAnswer(
+          (_) async => FilePickerResult([
+            PlatformFile(name: fileName, path: filePath, size: 100),
+          ]),
+        );
+
+        final result = await service.pickDocuments();
+
+        expect(result, [(path: filePath, name: fileName, bytes: null)]);
+        verify(
+          () => mockFilePicker.pickFiles(
+            allowMultiple: true,
+            type: FileType.custom,
+            allowedExtensions: ['pdf', 'docx', 'xlsx'],
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'expands allowedExtensions to include images and videos on macOS/desktop platform',
+      () async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        final fileName = faker.lorem.word();
+        final filePath = '${tempDir.path}/$fileName';
+        when(
+          () => mockFilePicker.pickFiles(
+            allowMultiple: any(named: 'allowMultiple'),
+            type: any(named: 'type'),
+            allowedExtensions: any(named: 'allowedExtensions'),
+          ),
+        ).thenAnswer(
+          (_) async => FilePickerResult([
+            PlatformFile(name: fileName, path: filePath, size: 100),
+          ]),
+        );
+
+        final result = await service.pickDocuments();
+
+        expect(result, [(path: filePath, name: fileName, bytes: null)]);
+        verify(
+          () => mockFilePicker.pickFiles(
+            allowMultiple: true,
+            type: FileType.custom,
+            allowedExtensions: [
+              'pdf',
+              'docx',
+              'xlsx',
+              'jpg',
+              'jpeg',
+              'png',
+              'webp',
+              'heic',
+              'mp4',
+              'mov',
+            ],
+          ),
+        ).called(1);
+      },
+    );
+
+    test('returns null when user cancels document picker', () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      when(
+        () => mockFilePicker.pickFiles(
+          allowMultiple: any(named: 'allowMultiple'),
+          type: any(named: 'type'),
+          allowedExtensions: any(named: 'allowedExtensions'),
+        ),
+      ).thenAnswer((_) async => null);
+
+      final result = await service.pickDocuments();
+
+      expect(result, isNull);
+    });
   });
 
   group('readFileAsBytes', () {
