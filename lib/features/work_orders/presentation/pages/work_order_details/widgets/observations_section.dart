@@ -111,29 +111,42 @@ class ObservationsSection extends HookWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              BaseIconButton(
-                                onPressed: () {
-                                  showAlertDialog(
-                                    context: context,
-                                    title: 'Excluir observação'.hardcoded,
-                                    contentText:
-                                        'Deseja realmente excluir a observação?'
-                                            .hardcoded,
-                                    cancelActionText: 'Não'.hardcoded,
-                                    defaultActionText: 'Sim'.hardcoded,
-                                    onOkPressed: () =>
-                                        cubit.deleteObservation(item.id),
+                              BlocSelector<
+                                WorkOrderObservationsCubit,
+                                WorkOrderObservationsState,
+                                bool
+                              >(
+                                selector: (state) =>
+                                    state.sections[WorkOrderObservationsSection
+                                        .deleteObservation] ==
+                                    StateStatus.deleting,
+                                builder: (context, isDeleting) {
+                                  return BaseIconButton(
+                                    isLoading: isDeleting,
+                                    onPressed: () {
+                                      showAlertDialog(
+                                        context: context,
+                                        title: 'Excluir observação'.hardcoded,
+                                        contentText:
+                                            'Deseja realmente excluir a observação?'
+                                                .hardcoded,
+                                        cancelActionText: 'Não'.hardcoded,
+                                        defaultActionText: 'Sim'.hardcoded,
+                                        onOkPressed: () =>
+                                            cubit.deleteObservation(item.id),
+                                      );
+                                    },
+                                    permission:
+                                        const ActionPermission.workOrderSubAction(
+                                          WorkOrderSubAction.deleteObservation,
+                                        ),
+                                    platformIcon: const PlatformIcon(
+                                      materialIcon: Icons.delete_outline,
+                                      cupertinoIcon: CupertinoIcons.trash,
+                                      color: Colors.red,
+                                    ),
                                   );
                                 },
-                                permission:
-                                    const ActionPermission.workOrderSubAction(
-                                      WorkOrderSubAction.deleteObservation,
-                                    ),
-                                platformIcon: const PlatformIcon(
-                                  materialIcon: Icons.delete_outline,
-                                  cupertinoIcon: CupertinoIcons.trash,
-                                  color: Colors.red,
-                                ),
                               ),
                             ],
                           ),
