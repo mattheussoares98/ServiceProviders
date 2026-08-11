@@ -42,34 +42,38 @@ final class WorkOrderObservationsRepositoryImpl
   @override
   FutureData<WorkOrderObservationEntity> createObservation(
     WorkOrderObservationEntity observation,
-  ) async {
+  ) {
     final model = WorkOrderObservationModel.fromEntity(observation);
-    if (_internet.isConnected) {
-      final remoteResult = await _remoteDataSource.createObservation(model);
-      if (remoteResult is SuccessState<WorkOrderObservationModel>) {
-        if (remoteResult.data != null) {
-          await _localDataSource.saveObservation(remoteResult.data!);
-          return SuccessState(data: remoteResult.data!.toEntity());
+    return RepositoryHandler.fetchWithFallbackAndMap<
+      WorkOrderObservationModel,
+      WorkOrderObservationEntity
+    >(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () => _remoteDataSource.createObservation(model),
+      onRemoteSuccess: (data) async {
+        await _localDataSource.saveObservation(data);
+        return const SuccessState(data: true);
+      },
+      localCallback: () async {
+        final result = await _localDataSource.saveObservation(model);
+        if (result is SuccessState) {
+          return SuccessState(data: model);
         }
-      }
-    }
-    // Fallback to local save when offline or remote failed
-    await _localDataSource.saveObservation(model);
-    return SuccessState(data: model.toEntity());
+        return FailureState(message: (result as FailureState).message);
+      },
+    );
   }
 
   @override
-  FutureBool deleteObservation(String observationId) async {
-    if (_internet.isConnected) {
-      final remoteResult = await _remoteDataSource.deleteObservation(
-        observationId,
-      );
-      if (remoteResult is SuccessState<bool>) {
+  FutureBool deleteObservation(String observationId) {
+    return RepositoryHandler.fetchWithFallback(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () => _remoteDataSource.deleteObservation(observationId),
+      onRemoteSuccess: (data) async {
         await _localDataSource.deleteObservation(observationId);
         return const SuccessState(data: true);
-      }
-    }
-    await _localDataSource.deleteObservation(observationId);
-    return const SuccessState(data: true);
+      },
+      localCallback: () => _localDataSource.deleteObservation(observationId),
+    );
   }
 }
