@@ -255,6 +255,7 @@ class _CreateUpdatePage extends HookWidget {
 
       final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
         id: workOrderId,
+        isEditing: workOrder != null,
         locationId: selectedLocationId.value!,
         areaId: selectedAreaId.value,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
@@ -487,7 +488,7 @@ class _CreateUpdatePage extends HookWidget {
                       return item;
                     },
                   ),
-                  Attachments(workOrderId: workOrderId, isEditing: true),
+                  const Attachments(isEditing: true),
                 ],
               ),
             ),

@@ -17,7 +17,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:uuid/uuid.dart';
 
 part 'work_orders_state.dart';
 
@@ -141,7 +140,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   }
 
   Future<bool> saveWorkOrder({
-    required String? id,
+    required String id,
+    required bool isEditing,
     String? assetId,
     required String locationId,
     String? assignedToId,
@@ -171,7 +171,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final isUpdate = id != null;
     final now = DateTime.now();
     final companyId = _useCases.getActiveCompanyId();
 
@@ -188,7 +187,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
 
     final workOrder = WorkOrderEntity(
-      id: id ?? const Uuid().v4(),
+      id: id,
       companyId: companyId,
       assetId: assetId?.trimToNull(),
       locationId: locationId,
@@ -224,7 +223,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       openedBy: openedBy,
     );
 
-    final dataState = isUpdate
+    final dataState = isEditing
         ? await _useCases.updateWorkOrder(workOrder)
         : await _useCases.createWorkOrder(workOrder);
     if (isClosed) return false;

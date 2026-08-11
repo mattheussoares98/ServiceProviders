@@ -482,7 +482,8 @@ void main() {
               slaPolicyId: 'sla-policy-id-123',
             );
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrderWithSla.assetId,
               locationId: tWorkOrderWithSla.locationId,
               assignedToId: tWorkOrderWithSla.assignedToId,
@@ -558,7 +559,8 @@ void main() {
           },
           act: (cubit) async {
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               createdById: tWorkOrder.createdById,
@@ -641,7 +643,8 @@ void main() {
           },
           act: (cubit) async {
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -702,7 +705,8 @@ void main() {
             );
 
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -776,7 +780,8 @@ void main() {
             );
 
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -826,7 +831,8 @@ void main() {
             );
 
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -882,7 +888,8 @@ void main() {
           },
           act: (cubit) async {
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -934,7 +941,8 @@ void main() {
           },
           act: (cubit) async {
             final result = await cubit.saveWorkOrder(
-              id: null,
+              id: tWorkOrder.id,
+              isEditing: false,
               assetId: tWorkOrder.assetId,
               locationId: tWorkOrder.locationId,
               assignedToId: tWorkOrder.assignedToId,
@@ -1013,6 +1021,7 @@ void main() {
           },
           act: (cubit) => cubit.saveWorkOrder(
             id: tWorkOrder.id,
+            isEditing: true,
             assetId: tWorkOrder.assetId,
             locationId: tWorkOrder.locationId,
             assignedToId: tWorkOrder.assignedToId,
@@ -1080,6 +1089,7 @@ void main() {
           },
           act: (cubit) => cubit.saveWorkOrder(
             id: tWorkOrder.id,
+            isEditing: true,
             assetId: tWorkOrder.assetId,
             locationId: tWorkOrder.locationId,
             assignedToId: tWorkOrder.assignedToId,
@@ -1153,6 +1163,7 @@ void main() {
           },
           act: (cubit) => cubit.saveWorkOrder(
             id: tWorkOrder.id,
+            isEditing: true,
             locationId: tWorkOrder.locationId,
             createdById: tWorkOrder.createdById,
             title: tWorkOrder.title,
@@ -1192,6 +1203,7 @@ void main() {
           },
           act: (cubit) => cubit.saveWorkOrder(
             id: tWorkOrder.id,
+            isEditing: true,
             locationId: tWorkOrder.locationId,
             createdById: tWorkOrder.createdById,
             title: tWorkOrder.title,
@@ -1236,6 +1248,7 @@ void main() {
           },
           act: (cubit) => cubit.saveWorkOrder(
             id: tWorkOrder.id,
+            isEditing: true,
             locationId: tWorkOrder.locationId,
             createdById: tWorkOrder.createdById,
             title: tWorkOrder.title,
