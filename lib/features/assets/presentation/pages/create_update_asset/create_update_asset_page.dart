@@ -68,14 +68,19 @@ class CreateUpdateAssetPage extends HookWidget {
 
     if (loadingCategories || loadingLocations || loadingAssets) {
       return const Center(child: LoadingCircle());
-    } else if ((locationsError?.isNotEmpty ?? false) ||
+    }
+    final hasError =
+        (locationsError?.isNotEmpty ?? false) ||
         (categoriesError?.isNotEmpty ?? false) ||
-        (assetsError?.isNotEmpty ?? false)) {
-      return Center(
+        (assetsError?.isNotEmpty ?? false);
+
+    Widget? errorWidget;
+    if (hasError) {
+      errorWidget = Center(
         child: Column(
           children: [
             BaseText.error(
-              '${locationsError ?? ''}\n${categoriesError ?? ''}\n${assetsError ?? ''}',
+              [?locationsError, ?categoriesError, ?assetsError].join('\n'),
             ),
             gapH8,
             BaseButton(
@@ -164,148 +169,152 @@ class CreateUpdateAssetPage extends HookWidget {
             : 'Editando equipamento'.hardcoded,
         actions: [DeleteAssetButton(assetId: asset?.id)],
       ),
-      body: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AssetNameField(
-                nameController: nameController,
-                nameFocusNode: nameFocusNode,
-                codeFocusNode: codeFocusNode,
-              ),
-              gapH16,
-              LocationDropdown(
-                selectedLocationId: selectedLocationId.value,
-                onChangeArea: (val) => selectedAreaId.value = val,
-                onChangeLocation: (val) => selectedLocationId.value = val,
-              ),
-              gapH16,
-              AreaDropdown(
-                selectedLocationId: selectedLocationId.value,
-                selectedAreaId: selectedAreaId.value,
-                onChanged: (value) => selectedAreaId.value = value,
-              ),
-              gapH16,
-              CategoryDropdown(
-                selectedCategoryId: selectedCategoryId.value,
-                onChanged: (value) => selectedCategoryId.value = value,
-              ),
-              gapH16,
-              ParentAssetDropdown(
-                onChanged: (value) => selectedParentAssetId.value = value,
-                selectedParentAssetId: selectedParentAssetId.value,
-                selectedAreaId: selectedAreaId.value,
-                currentAssetId: asset?.id,
-              ),
-              gapH16,
-              Row(
+      body:
+          errorWidget ??
+          Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: StatusDropdown(
-                      selectedStatus: selectedStatus.value,
-                      onChanged: (val) => selectedStatus.value = val,
-                    ),
+                  AssetNameField(
+                    nameController: nameController,
+                    nameFocusNode: nameFocusNode,
+                    codeFocusNode: codeFocusNode,
                   ),
-                  gapW16,
-                  Expanded(
-                    child: CriticalityDropdown(
-                      selectedCriticality: selectedCriticality.value,
-                      onChanged: (val) => selectedCriticality.value = val,
-                    ),
+                  gapH16,
+                  LocationDropdown(
+                    selectedLocationId: selectedLocationId.value,
+                    onChangeArea: (val) => selectedAreaId.value = val,
+                    onChangeLocation: (val) => selectedLocationId.value = val,
+                  ),
+                  gapH16,
+                  AreaDropdown(
+                    selectedLocationId: selectedLocationId.value,
+                    selectedAreaId: selectedAreaId.value,
+                    onChanged: (value) => selectedAreaId.value = value,
+                  ),
+                  gapH16,
+                  CategoryDropdown(
+                    selectedCategoryId: selectedCategoryId.value,
+                    onChanged: (value) => selectedCategoryId.value = value,
+                  ),
+                  gapH16,
+                  ParentAssetDropdown(
+                    onChanged: (value) => selectedParentAssetId.value = value,
+                    selectedParentAssetId: selectedParentAssetId.value,
+                    selectedAreaId: selectedAreaId.value,
+                    currentAssetId: asset?.id,
+                  ),
+                  gapH16,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: StatusDropdown(
+                          selectedStatus: selectedStatus.value,
+                          onChanged: (val) => selectedStatus.value = val,
+                        ),
+                      ),
+                      gapW16,
+                      Expanded(
+                        child: CriticalityDropdown(
+                          selectedCriticality: selectedCriticality.value,
+                          onChanged: (val) => selectedCriticality.value = val,
+                        ),
+                      ),
+                    ],
+                  ),
+                  gapH16,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: BaseTextFormField(
+                          labelText: 'Código (opcional)'.hardcoded,
+                          hintText: 'Ex: AC-001'.hardcoded,
+                          controller: codeController,
+                          focusNode: codeFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              manufacturerFocusNode.requestFocus(),
+                        ),
+                      ),
+                      gapW16,
+                      Expanded(
+                        child: BaseTextFormField(
+                          labelText: 'Fabricante (opcional)'.hardcoded,
+                          hintText: 'Ex: Carrier'.hardcoded,
+                          controller: manufacturerController,
+                          focusNode: manufacturerFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              modelFocusNode.requestFocus(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  gapH16,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: BaseTextFormField(
+                          labelText: 'Modelo (opcional)'.hardcoded,
+                          hintText: 'Ex: Split 12k'.hardcoded,
+                          controller: modelController,
+                          focusNode: modelFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              serialNumberFocusNode.requestFocus(),
+                        ),
+                      ),
+                      gapW16,
+                      Expanded(
+                        child: BaseTextFormField(
+                          labelText: 'Nº série (opcional)'.hardcoded,
+                          hintText: 'Ex: 12345678X'.hardcoded,
+                          controller: serialNumberController,
+                          focusNode: serialNumberFocusNode,
+                          textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) =>
+                              notesFocusNode.requestFocus(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  gapH16,
+                  BaseTextFormField(
+                    labelText: 'Observações (opcional)'.hardcoded,
+                    hintText: 'Ex: Aparelho com vazamento'.hardcoded,
+                    controller: notesController,
+                    focusNode: notesFocusNode,
+                    maxLines: 3,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => submit(),
+                  ),
+                  gapH16,
+                  Row(
+                    mainAxisAlignment: .spaceBetween,
+                    children: [
+                      Flexible(
+                        child: BaseTextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          text: 'Cancelar'.hardcoded,
+                          color: Colors.red,
+                        ),
+                      ),
+                      Expanded(
+                        child: BaseButton(
+                          onTap: submit,
+                          width: Sizes.p120,
+                          text: 'Salvar'.hardcoded,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              gapH16,
-              Row(
-                children: [
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Código (opcional)'.hardcoded,
-                      hintText: 'Ex: AC-001'.hardcoded,
-                      controller: codeController,
-                      focusNode: codeFocusNode,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) =>
-                          manufacturerFocusNode.requestFocus(),
-                    ),
-                  ),
-                  gapW16,
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Fabricante (opcional)'.hardcoded,
-                      hintText: 'Ex: Carrier'.hardcoded,
-                      controller: manufacturerController,
-                      focusNode: manufacturerFocusNode,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) => modelFocusNode.requestFocus(),
-                    ),
-                  ),
-                ],
-              ),
-              gapH16,
-              Row(
-                children: [
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Modelo (opcional)'.hardcoded,
-                      hintText: 'Ex: Split 12k'.hardcoded,
-                      controller: modelController,
-                      focusNode: modelFocusNode,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) =>
-                          serialNumberFocusNode.requestFocus(),
-                    ),
-                  ),
-                  gapW16,
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Nº série (opcional)'.hardcoded,
-                      hintText: 'Ex: 12345678X'.hardcoded,
-                      controller: serialNumberController,
-                      focusNode: serialNumberFocusNode,
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) => notesFocusNode.requestFocus(),
-                    ),
-                  ),
-                ],
-              ),
-              gapH16,
-              BaseTextFormField(
-                labelText: 'Observações (opcional)'.hardcoded,
-                hintText: 'Ex: Aparelho com vazamento'.hardcoded,
-                controller: notesController,
-                focusNode: notesFocusNode,
-                maxLines: 3,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => submit(),
-              ),
-              gapH16,
-              Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Flexible(
-                    child: BaseTextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      text: 'Cancelar'.hardcoded,
-                      color: Colors.red,
-                    ),
-                  ),
-                  Expanded(
-                    child: BaseButton(
-                      onTap: submit,
-                      width: Sizes.p120,
-                      text: 'Salvar'.hardcoded,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 }
