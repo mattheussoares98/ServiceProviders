@@ -41,8 +41,7 @@ class UsersAndPermissionsPage extends HookWidget {
           );
           return BaseScaffold(
             isScrollable: false,
-            onRefresh: () =>
-                context.read<UsersCubit>().loadAll(emitLoading: false),
+            onRefresh: () => context.read<UsersCubit>().loadAll(),
             appBar: BaseAppBar(title: 'Permissões'.hardcoded),
             body: [
               const Users(),

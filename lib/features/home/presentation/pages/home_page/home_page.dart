@@ -8,15 +8,17 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/m
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/error_page.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 
 @RoutePage()
 class HomePage extends HookWidget {
@@ -72,11 +74,25 @@ class HomePage extends HookWidget {
         builder: (context) {
           return BaseScaffold(
             isScrollable: false,
-            body: BaseStateView<UsersCubit, UsersState, UsersState>(
-              sectionKey: UsersSections.loadAll,
-              dataSelector: (state) => state,
-              onRetry: () => context.read<UsersCubit>().loadAll(),
+            body: BlocBuilder<UsersCubit, UsersState>(
               builder: (context, state) {
+                final sectionStatus = state.sections[UsersSections.loadAll];
+                final isLoading = sectionStatus != null
+                    ? sectionStatus == StateStatus.loading
+                    : state.status == StateStatus.loading;
+                final hasError = sectionStatus != null
+                    ? sectionStatus == StateStatus.loadingError
+                    : state.status == StateStatus.loadingError;
+
+                if (state.users.isEmpty && state.permissionGroups.isEmpty) {
+                  if (isLoading) {
+                    return const LoadingCircle();
+                  }
+                  if (hasError) {
+                    return const ErrorPage();
+                  }
+                }
+
                 return HeroControllerScope(
                   controller: controller,
                   child: const AutoRouter(),

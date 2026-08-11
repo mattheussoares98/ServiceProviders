@@ -18,7 +18,8 @@ class Users extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseStateView<UsersCubit, UsersState, List<UserProfileEntity>>(
       dataSelector: (state) => state.users,
-      onRetry: () => context.read<UsersCubit>().loadAll(emitLoading: false),
+      onRetry: () => context.read<UsersCubit>().loadAll(),
+      sectionKey: UsersSections.loadAll,
       builder: (context, users) {
         if (users.isEmpty) {
           return Center(child: BaseText('Nenhum usuário cadastrado'.hardcoded));
