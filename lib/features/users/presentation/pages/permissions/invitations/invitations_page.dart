@@ -25,7 +25,7 @@ class InvitationsPage extends StatelessWidget {
         if (invitations.isEmpty) {
           return Center(child: BaseText('Nenhum convite pendente'.hardcoded));
         }
-        //TODO test this page
+
         return ListView.builder(
           itemCount: invitations.length,
           padding: const EdgeInsets.all(Sizes.p16),
