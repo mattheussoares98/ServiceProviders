@@ -169,41 +169,39 @@ class ObservationsSection extends HookWidget {
           SliverToBoxAdapter(
             child: Form(
               key: formKey,
-              child: Column(
-                children: [
-                  BaseTextFormField(
-                    controller: textController,
-                    hintText: 'Adicionar uma observação...'.hardcoded,
-                    maxLines: 8,
-                    maxLength: 2000,
-                    autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                    validator: FormValidators.compose([
-                      NonEmptyValidator(),
-                      MinLengthValidator(10),
-                    ]),
+              child:
+                  BlocSelector<
+                    WorkOrderObservationsCubit,
+                    WorkOrderObservationsState,
+                    bool
+                  >(
+                    selector: (state) => state.status == StateStatus.saving,
+                    builder: (context, isSubmitting) {
+                      return Column(
+                        children: [
+                          BaseTextFormField(
+                            controller: textController,
+                            hintText: 'Adicionar uma observação...'.hardcoded,
+                            maxLines: 8,
+                            maxLength: 2000,
+                            enabled: !isSubmitting,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteractionIfError,
+                            validator: FormValidators.compose([
+                              NonEmptyValidator(),
+                              MinLengthValidator(10),
+                            ]),
+                          ),
+                          gapH8,
+                          BaseButton(
+                            text: 'Adicionar observação'.hardcoded,
+                            isLoading: isSubmitting,
+                            onTap: onSubmit,
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  gapH8,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child:
-                        BlocSelector<
-                          WorkOrderObservationsCubit,
-                          WorkOrderObservationsState,
-                          bool
-                        >(
-                          selector: (state) =>
-                              state.status == StateStatus.saving,
-                          builder: (context, isSubmitting) {
-                            return BaseButton(
-                              text: 'Adicionar observação'.hardcoded,
-                              isLoading: isSubmitting,
-                              onTap: onSubmit,
-                            );
-                          },
-                        ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

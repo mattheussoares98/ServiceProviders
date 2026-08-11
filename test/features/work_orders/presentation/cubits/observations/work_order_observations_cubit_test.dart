@@ -96,6 +96,66 @@ void main() {
   final tObs = EntityFactory.makeWorkOrderObservationEntity();
 
   blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+    'emits [saving, loaded] when createObservation succeeds',
+    build: () {
+      final createdObs = EntityFactory.makeWorkOrderObservationEntity();
+      when(
+        () => createUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: createdObs));
+      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+    },
+    seed: () => WorkOrderObservationsState(
+      status: StateStatus.loaded,
+      observations: [tObs],
+    ),
+    act: (cubit) => cubit.createObservation(
+      companyId: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      authorId: faker.guid.guid(),
+      authorName: faker.person.name(),
+      content: faker.lorem.sentence(),
+    ),
+    expect: () => [
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.status,
+        'status',
+        StateStatus.saving,
+      ),
+      isA<WorkOrderObservationsState>()
+          .having((s) => s.status, 'status', StateStatus.loaded)
+          .having((s) => s.observations.length, 'observations length', 2),
+    ],
+  );
+
+  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+    'emits [saving, savingError] when createObservation fails',
+    build: () {
+      final errorMsg = faker.lorem.sentence();
+      when(
+        () => createUseCase.call(any()),
+      ).thenAnswer((_) async => FailureState(message: errorMsg));
+      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+    },
+    act: (cubit) => cubit.createObservation(
+      companyId: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
+      authorId: faker.guid.guid(),
+      authorName: faker.person.name(),
+      content: faker.lorem.sentence(),
+    ),
+    expect: () => [
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.status,
+        'status',
+        StateStatus.saving,
+      ),
+      isA<WorkOrderObservationsState>()
+          .having((s) => s.status, 'status', StateStatus.savingError)
+          .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+    ],
+  );
+
+  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
     'emits section loading then loaded when deleteObservation succeeds',
     build: () {
       when(

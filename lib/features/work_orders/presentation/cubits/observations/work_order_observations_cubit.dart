@@ -56,6 +56,7 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
       updatedAt: DateTime.now(),
     );
 
+    emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.createObservation(newObservation);
     switch (result) {
       case SuccessState(:final data):
