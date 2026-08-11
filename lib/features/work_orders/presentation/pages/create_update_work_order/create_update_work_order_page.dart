@@ -393,28 +393,12 @@ class _CreateUpdatePage extends HookWidget {
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: _SlaPolicyDropdown(
-                selectedSlaPolicyId: selectedSlaPolicyId.value,
-                onChanged: (val) {
-                  selectedSlaPolicyId.value = val;
-                },
-              ),
-            ),
-            gapW8,
-            BaseIconButton(
-              onPressed: () {
-                context.read<WorkOrdersCubit>().navigateToCreateSlaPolicy();
-              },
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.add,
-                cupertinoIcon: CupertinoIcons.add,
-              ),
-            ),
-          ],
+        child: _SlaPolicyDropdown(
+          selectedSlaPolicyId: selectedSlaPolicyId.value,
+          onChanged: (val) {
+            selectedSlaPolicyId.value = val;
+            durationController.clear();
+          },
         ),
       ),
       IntrinsicHeight(
@@ -427,7 +411,8 @@ class _CreateUpdatePage extends HookWidget {
                 child: _DurationField(
                   controller: durationController,
                   descFocusNode: descFocusNode,
-                  onSubmit: onSubmit,
+                  onSubmit: selectedSlaPolicyId.value == null ? onSubmit : null,
+                  enabled: selectedSlaPolicyId.value == null,
                 ),
               ),
               gapW16,

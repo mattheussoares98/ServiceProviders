@@ -23,10 +23,12 @@ class _SlaPolicyDropdown extends StatelessWidget {
         }).toList();
 
         return BaseDropDown<String>(
+          showLabelAtTopLeft: true,
           label: 'Política de SLA'.hardcoded,
           hint: BaseText.bodyMedium('Nenhuma (sem SLA)'.hardcoded),
           items: dropdownItems,
           selectedItem: selectedSlaPolicyId,
+          onClear: () => onChanged(null),
           onChanged: onChanged,
         );
       },
