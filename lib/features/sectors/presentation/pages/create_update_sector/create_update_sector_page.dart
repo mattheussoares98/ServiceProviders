@@ -70,9 +70,15 @@ class CreateUpdateSectorPage extends HookWidget {
                           .hardcoded,
                   defaultActionText: 'Sim'.hardcoded,
                   cancelActionText: 'Não'.hardcoded,
-                  onOkPressed: () =>
-                      //TODO should return a bool value and close the page on success
-                      context.read<SectorsCubit>().deleteSector(sector!.id),
+                  onOkPressed: () async {
+                    final succeeds = await context
+                        .read<SectorsCubit>()
+                        .deleteSector(sector!.id);
+
+                    if (succeeds && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 );
               },
               permission: const ActionPermission.resource(
