@@ -85,7 +85,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     }
   }
 
-  Future<void> deleteCategory(String id) async {
+  Future<bool> deleteCategory(String id) async {
     emit(
       state.copyWith(
         status: StateStatus.deleting,
@@ -94,11 +94,11 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     );
 
     final result = await _useCases.deleteCategory(id);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
       await loadCategories(emitLoading: false);
-      if (isClosed) return;
+      if (isClosed) return false;
 
       emit(
         state.copyWith(
@@ -106,6 +106,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
           deletingIds: {...state.deletingIds}..remove(id),
         ),
       );
+      return true;
     } else {
       final message = result.message ?? 'Erro ao excluir categoria'.hardcoded;
       emit(
@@ -116,6 +117,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
         ),
       );
       showErrorToast(message);
+      return false;
     }
   }
 

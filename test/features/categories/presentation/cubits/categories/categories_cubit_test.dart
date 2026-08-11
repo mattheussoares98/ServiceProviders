@@ -331,7 +331,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteCategory(tId),
+        act: (cubit) async => expect(await cubit.deleteCategory(tId), isTrue),
         expect: () => [
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.deleting)
@@ -355,7 +355,7 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Delete failed'));
           return cubit;
         },
-        act: (cubit) => cubit.deleteCategory(tId),
+        act: (cubit) async => expect(await cubit.deleteCategory(tId), isFalse),
         expect: () => [
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.deleting)

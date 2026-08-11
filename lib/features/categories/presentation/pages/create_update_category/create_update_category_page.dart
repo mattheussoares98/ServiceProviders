@@ -81,10 +81,15 @@ class CreateUpdateCategoryPage extends HookWidget {
                           .hardcoded,
                   defaultActionText: 'Sim'.hardcoded,
                   cancelActionText: 'Não'.hardcoded,
-                  onOkPressed: () => context
-                      //TODO should return a bool value and close the page on success
-                      .read<CategoriesCubit>()
-                      .deleteCategory(category!.id),
+                  onOkPressed: () async {
+                    final succeeds = await context
+                        .read<CategoriesCubit>()
+                        .deleteCategory(category!.id);
+
+                    if (succeeds && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 );
               },
               platformIcon: const PlatformIcon(
