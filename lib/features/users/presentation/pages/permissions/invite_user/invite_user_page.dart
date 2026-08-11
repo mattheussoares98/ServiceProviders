@@ -33,7 +33,7 @@ class InviteUserPage extends HookWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                BaseText.headline('Convidar Usuário'.hardcoded),
+                BaseText.headline('Convidar usuário'.hardcoded),
                 BaseText(
                   'Envie um convite por e-mail para vincular um novo colaborador à sua empresa.'
                       .hardcoded,
