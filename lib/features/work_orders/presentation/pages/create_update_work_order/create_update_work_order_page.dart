@@ -14,7 +14,6 @@ import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
-import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -144,15 +143,8 @@ class _CreateUpdatePage extends HookWidget {
       (UsersCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
     );
-    final (categoriesError, categoriesLoading) = context.select(
-      (CategoriesCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
-    );
-
-    final isLoading =
-        assetsLoading || locationsLoading || usersLoading || categoriesLoading;
+    final isLoading = assetsLoading || locationsLoading || usersLoading;
     final hasError =
-        categoriesError?.isNotEmpty == true ||
         assetsError?.isNotEmpty == true ||
         locationsError?.isNotEmpty == true ||
         usersError?.isNotEmpty == true;
@@ -471,8 +463,6 @@ class _CreateUpdatePage extends HookWidget {
               assetsError: assetsError,
               locationsError: locationsError,
               usersError: usersError,
-              categoriesError:
-                  categoriesError, //TODO test what happens when it throws
             )
           : Form(
               key: formKey,

@@ -5,13 +5,11 @@ class _TryAgainButton extends StatelessWidget {
     required this.assetsError,
     required this.locationsError,
     required this.usersError,
-    required this.categoriesError,
   });
 
   final String? assetsError;
   final String? locationsError;
   final String? usersError;
-  final String? categoriesError;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +17,6 @@ class _TryAgainButton extends StatelessWidget {
     if (assetsError?.isNotEmpty == true) error.add(assetsError!);
     if (locationsError?.isNotEmpty == true) error.add(locationsError!);
     if (usersError?.isNotEmpty == true) error.add(usersError!);
-    if (categoriesError?.isNotEmpty == true) error.add(categoriesError!);
 
     return Center(
       child: Padding(
@@ -38,8 +35,6 @@ class _TryAgainButton extends StatelessWidget {
                     context.read<LocationsCubit>().loadLocationsAndAreas(),
                   if (usersError?.isNotEmpty == true)
                     context.read<UsersCubit>().loadUsers(),
-                  if (categoriesError?.isNotEmpty == true)
-                    context.read<CategoriesCubit>().loadCategories(),
                 ]);
               },
               text: 'Tentar novamente'.hardcoded,
