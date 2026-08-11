@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -20,6 +22,7 @@ class BaseDropDown<T> extends StatelessWidget {
     this.showLabelAtTopLeft = false,
     this.isSimple = false,
     this.adviceMessage,
+    this.onClear,
     super.key,
   });
   final void Function(T)? onChanged;
@@ -32,6 +35,7 @@ class BaseDropDown<T> extends StatelessWidget {
   final bool showLabelAtTopLeft;
   final bool isSimple;
   final String? adviceMessage;
+  final VoidCallback? onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +66,13 @@ class BaseDropDown<T> extends StatelessWidget {
             ),
           )
         : null;
+
+    final bool canClear = selectedItem != null && onClear != null;
+
+    void handleClear(FormFieldState<T> state) {
+      state.didChange(null);
+      onClear?.call();
+    }
 
     if (PlatformUtil.isCupertino && !isSimple) {
       final double screenWidth = MediaQuery.sizeOf(context).width;
@@ -167,7 +178,18 @@ class BaseDropDown<T> extends StatelessWidget {
                                         ),
                                   ),
                           ),
-                          if (screenWidth > 300)
+                          if (canClear)
+                            BaseIconButton(
+                              platformIcon: const PlatformIcon(
+                                materialIcon: Icons.clear,
+                                cupertinoIcon:
+                                    CupertinoIcons.clear_circled_solid,
+                                color: Colors.red,
+                              ),
+                              padding: EdgeInsets.zero,
+                              onPressed: () => handleClear(state),
+                            )
+                          else if (screenWidth > 300)
                             const Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: Sizes.p16,
@@ -235,6 +257,17 @@ class BaseDropDown<T> extends StatelessWidget {
                         isExpanded: true,
                         alignment: Alignment.center,
                         iconSize: 17,
+                        icon: canClear
+                            ? BaseIconButton(
+                                platformIcon: const PlatformIcon(
+                                  materialIcon: Icons.clear,
+                                  cupertinoIcon: CupertinoIcons.clear,
+                                  color: Colors.red,
+                                ),
+                                padding: EdgeInsets.zero,
+                                onPressed: () => handleClear(state),
+                              )
+                            : null,
                         onTap: adviceMessage == null
                             ? null
                             : () {
