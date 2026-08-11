@@ -130,11 +130,7 @@ class _WorkOrderDetails extends HookWidget {
                   child: WorkOrderExecutionTimerCard(workOrder: workOrder),
                 ),
                 InfoItems(workOrder: workOrder),
-                Attachments(
-                  workOrderId: workOrder.id,
-                  isEditing: false,
-                  padding: EdgeInsets.zero,
-                ),
+                const Attachments(isEditing: false, padding: EdgeInsets.zero),
                 ObservationsSection(
                   workOrderId: workOrder.id,
                   companyId: workOrder.companyId,

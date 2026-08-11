@@ -18,13 +18,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class Attachments extends StatelessWidget {
-  const Attachments({
-    super.key,
-    required this.workOrderId,
-    required this.isEditing,
-    this.padding,
-  });
-  final String workOrderId;
+  const Attachments({super.key, required this.isEditing, this.padding});
   final bool isEditing;
   final EdgeInsetsGeometry? padding;
 
