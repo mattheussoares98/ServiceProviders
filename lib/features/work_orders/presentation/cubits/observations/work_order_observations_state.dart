@@ -6,22 +6,25 @@ class WorkOrderObservationsState extends BaseState {
     super.status = StateStatus.initial,
     this.observations = const [],
     super.errorMessage,
+    super.sections,
   });
 
   final List<WorkOrderObservationEntity> observations;
 
   @override
-  List<Object?> get props => [status, observations, errorMessage];
+  List<Object?> get props => [status, observations, errorMessage, sections];
 
   WorkOrderObservationsState copyWith({
     StateStatus? status,
     List<WorkOrderObservationEntity>? observations,
     String? errorMessage,
+    Map<SectionKey, StateStatus>? sections,
   }) {
     return WorkOrderObservationsState(
       status: status ?? this.status,
       observations: observations ?? this.observations,
       errorMessage: errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 }

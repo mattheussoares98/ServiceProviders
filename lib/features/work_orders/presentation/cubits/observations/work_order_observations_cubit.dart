@@ -4,8 +4,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
+
+enum WorkOrderObservationsSection implements SectionKey { deleteObservation }
 
 @injectable
 class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
@@ -79,6 +81,15 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   }
 
   Future<bool> deleteObservation(String observationId) async {
+    emit(
+      state.copyWith(
+        sections: withSection(
+          WorkOrderObservationsSection.deleteObservation,
+          StateStatus.deleting,
+        ),
+      ),
+    );
+
     final result = await _useCases.deleteObservation(observationId);
     switch (result) {
       case SuccessState():
@@ -86,7 +97,14 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
             .where((obs) => obs.id != observationId)
             .toList();
         emit(
-          state.copyWith(status: StateStatus.loaded, observations: updatedList),
+          state.copyWith(
+            status: StateStatus.loaded,
+            observations: updatedList,
+            sections: withSection(
+              WorkOrderObservationsSection.deleteObservation,
+              StateStatus.loaded,
+            ),
+          ),
         );
         return true;
       case FailureState(:final message):
@@ -94,10 +112,23 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
           state.copyWith(
             status: StateStatus.deletingError,
             errorMessage: message,
+            sections: withSection(
+              WorkOrderObservationsSection.deleteObservation,
+              StateStatus.deletingError,
+            ),
           ),
         );
+        showErrorToast(message);
         return false;
       case LoadingState():
+        emit(
+          state.copyWith(
+            sections: withSection(
+              WorkOrderObservationsSection.deleteObservation,
+              StateStatus.loaded,
+            ),
+          ),
+        );
         return false;
     }
   }

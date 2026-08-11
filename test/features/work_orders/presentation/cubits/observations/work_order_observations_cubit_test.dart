@@ -92,4 +92,64 @@ void main() {
           .having((s) => s.errorMessage, 'errorMessage', 'Erro ao carregar'),
     ],
   );
+
+  final tObs = EntityFactory.makeWorkOrderObservationEntity();
+
+  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+    'emits section loading then loaded when deleteObservation succeeds',
+    build: () {
+      when(
+        () => deleteUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+    },
+    seed: () => WorkOrderObservationsState(
+      status: StateStatus.loaded,
+      observations: [tObs],
+    ),
+    act: (cubit) => cubit.deleteObservation(tObs.id),
+    expect: () => [
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+        'deleteObservation section',
+        StateStatus.deleting,
+      ),
+      isA<WorkOrderObservationsState>()
+          .having(
+            (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+            'deleteObservation section',
+            StateStatus.loaded,
+          )
+          .having((s) => s.observations, 'observations', isEmpty),
+    ],
+  );
+
+  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+    'emits section loading then deletingError when deleteObservation fails',
+    build: () {
+      when(
+        () => deleteUseCase.call(any()),
+      ).thenAnswer((_) async => FailureState(message: 'Erro ao excluir'));
+      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+    },
+    seed: () => WorkOrderObservationsState(
+      status: StateStatus.loaded,
+      observations: [tObs],
+    ),
+    act: (cubit) => cubit.deleteObservation(tObs.id),
+    expect: () => [
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+        'deleteObservation section',
+        StateStatus.deleting,
+      ),
+      isA<WorkOrderObservationsState>()
+          .having(
+            (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+            'deleteObservation section',
+            StateStatus.deletingError,
+          )
+          .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
+    ],
+  );
 }
