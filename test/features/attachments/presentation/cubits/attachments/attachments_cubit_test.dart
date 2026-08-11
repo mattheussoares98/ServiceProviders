@@ -134,9 +134,9 @@ void main() {
         when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.init(tWorkOrderId),
+      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
         isA<AttachmentsState>().having(
           (s) => s.status,
@@ -162,9 +162,9 @@ void main() {
         when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => FailureState(message: 'Error fetching'));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.init(tWorkOrderId),
+      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
         isA<AttachmentsState>().having(
           (s) => s.status,
@@ -204,10 +204,10 @@ void main() {
             data: [tPickedFile.copyWith(uploadStatus: UploadStatus.uploaded)],
           );
         });
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.init(tWorkOrderId);
+        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
         await cubit.uploadPending();
       },
@@ -266,10 +266,10 @@ void main() {
         when(
           () => mockDeleteAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.init(tWorkOrderId);
+        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
       skip: 2, // Skip initial loading/loaded from init
@@ -293,10 +293,10 @@ void main() {
         when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.init(tWorkOrderId);
+        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
       skip: 2, // Skip initial loading/loaded from init
@@ -338,9 +338,9 @@ void main() {
             data: [tAttachment.copyWith(uploadStatus: UploadStatus.uploaded)],
           );
         });
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.init(tWorkOrderId),
+      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
         isA<AttachmentsState>().having(
           (s) => s.status,
@@ -380,7 +380,7 @@ void main() {
     blocTest<AttachmentsCubit, AttachmentsState>(
       'adds ID to pendingDeletions and removes from attachments list',
       build: () {
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       seed: () => AttachmentsState(
         status: StateStatus.loaded,
@@ -411,7 +411,7 @@ void main() {
         when(
           () => mockOpenAttachment(any()),
         ).thenAnswer((_) async => SuccessState.nil);
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) => cubit.openAttachment(tAttachment),
       expect: () => <AttachmentsState>[],
@@ -438,9 +438,9 @@ void main() {
         when(
           () => mockGetVideoThumbnail(any()),
         ).thenAnswer((_) async => const SuccessState(data: 'thumb_path.jpg'));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.init(tWorkOrderId),
+      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
         isA<AttachmentsState>().having(
           (s) => s.status,
@@ -476,10 +476,10 @@ void main() {
         when(
           () => mockPickAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.init(tWorkOrderId);
+        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
       verify: (_) {
@@ -494,7 +494,7 @@ void main() {
         when(
           () => mockOpenAttachment(any()),
         ).thenAnswer((_) async => SuccessState.nil);
-        return AttachmentsCubit(useCases: useCases);
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) => cubit.openAttachment(tAttachment),
       verify: (_) {

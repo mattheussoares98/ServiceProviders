@@ -286,7 +286,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       }
 
       if (attachmentsCubit != null) {
-        await attachmentsCubit.init(workOrder.id);
+        await attachmentsCubit.refreshAttachments();
       }
 
       await loadWorkOrdersAndChangeRequests(showLoading: false);
@@ -436,7 +436,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (result == true && workOrderId != null) {
       //! very important to update the correct cubit that is being used in the previous screen
       //!since using getIt.get<AttachmentsCubit>() would get a new instance every time
-      await attachmentsCubit?.init(workOrderId);
+      await attachmentsCubit?.refreshAttachments();
     }
   }
 

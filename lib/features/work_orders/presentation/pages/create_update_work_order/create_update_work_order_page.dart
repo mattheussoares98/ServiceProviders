@@ -97,7 +97,7 @@ class CreateUpdateWorkOrderPage extends HookWidget {
             else
               BlocProvider(
                 create: (context) =>
-                    GetIt.I<AttachmentsCubit>()..init(currentWorkOrderId),
+                    GetIt.I<AttachmentsCubit>(param1: currentWorkOrderId),
               ),
           ],
           child:
@@ -290,7 +290,7 @@ class _CreateUpdatePage extends HookWidget {
         Navigator.of(context).pop(true);
       } else {
         if (context.mounted) {
-          unawaited(context.read<AttachmentsCubit>().init(workOrderId));
+          unawaited(context.read<AttachmentsCubit>().refreshAttachments());
         }
       }
     }

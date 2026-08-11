@@ -15,19 +15,19 @@ part 'attachments_state.dart';
 
 @injectable
 class AttachmentsCubit extends BaseCubit<AttachmentsState> {
-  AttachmentsCubit({required AttachmentsCubitUseCases useCases})
-    : _useCases = useCases,
-      super(const AttachmentsState.empty());
-
-  final AttachmentsCubitUseCases _useCases;
-  late String _workOrderId;
-
-  Future<void> init(String workOrderId) async {
-    _workOrderId = workOrderId;
-    await _refreshAttachments();
+  AttachmentsCubit({
+    required AttachmentsCubitUseCases useCases,
+    @factoryParam required String workOrderId,
+  }) : _useCases = useCases,
+       _workOrderId = workOrderId,
+       super(const AttachmentsState.empty()) {
+    refreshAttachments();
   }
 
-  Future<void> _refreshAttachments() async {
+  final AttachmentsCubitUseCases _useCases;
+  final String _workOrderId;
+
+  Future<void> refreshAttachments() async {
     emit(state.copyWith(status: StateStatus.loading));
     final result = await _useCases.getAttachments(_workOrderId);
     if (isClosed) return;
@@ -75,7 +75,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   Future<void> pickAttachment(AttachmentSource source) async {
     // Prune the sandbox before picking new files to prevent storage overflow
     await _useCases.pruneSandbox();
-    
+
     final user = _useCases.getSessionUser();
     final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.pickAttachment(
@@ -160,7 +160,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(uploadingIds: doneSet));
-      await _refreshAttachments();
+      await refreshAttachments();
       return true;
     } else {
       final updatedList = state.attachments.map((item) {

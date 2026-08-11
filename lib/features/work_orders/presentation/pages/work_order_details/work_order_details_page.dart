@@ -37,7 +37,7 @@ class WorkOrderDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GetIt.I<AttachmentsCubit>()..init(workOrderId),
+      create: (context) => GetIt.I<AttachmentsCubit>(param1: workOrderId),
       child: BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
         selector: (state) =>
             state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),

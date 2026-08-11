@@ -124,15 +124,12 @@ class DashboardCubit extends BaseCubit<DashboardState> {
     String? workOrderId,
     AttachmentsCubit? attachmentsCubit,
   ]) async {
-    final result = await pushRoute<dynamic>(
+    await pushRoute<dynamic>(
       CreateUpdateWorkOrderRoute(
         workOrderId: workOrderId,
         attachmentsCubit: attachmentsCubit,
       ),
     );
-    if (result == true && workOrderId != null) {
-      await attachmentsCubit?.init(workOrderId);
-    }
   }
 
   Future<void> navigateToWorkOrderDetails(String workOrderId) async {

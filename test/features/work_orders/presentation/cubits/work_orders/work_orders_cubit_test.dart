@@ -695,7 +695,7 @@ void main() {
           act: (cubit) async {
             final mockAttachmentsCubit = MockAttachmentsCubit();
             when(
-              () => mockAttachmentsCubit.init(any()),
+              mockAttachmentsCubit.refreshAttachments,
             ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               const AttachmentsState(
@@ -770,7 +770,7 @@ void main() {
               uploadStatus: UploadStatus.pending,
             );
             when(
-              () => mockAttachmentsCubit.init(any()),
+              mockAttachmentsCubit.refreshAttachments,
             ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               AttachmentsState(
@@ -1574,7 +1574,7 @@ void main() {
             () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).called(1);
           // Verify init is never called on our mock attachments cubit
-          verifyNever(() => tAttachmentsCubitFailure.init(any()));
+          verifyNever(() => tAttachmentsCubitFailure.refreshAttachments());
         },
       );
 
@@ -1584,7 +1584,11 @@ void main() {
         'navigateToCreateUpdateWorkOrder should push CreateUpdateWorkOrderRoute and init attachmentsCubit if result is true',
         build: () {
           tAttachmentsCubit = MockAttachmentsCubit();
-          when(() => tAttachmentsCubit.init(any())).thenAnswer((_) async {});
+          when(() => tAttachmentsCubit.refreshAttachments()).thenAnswer((
+            _,
+          ) async {
+            return;
+          });
           when(
             () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).thenAnswer((_) async => true);
@@ -1601,7 +1605,7 @@ void main() {
           verify(
             () => mockNavigationClient.pushRoute<dynamic>(any()),
           ).called(1);
-          verify(() => tAttachmentsCubit.init('work-order-id')).called(1);
+          verify(() => tAttachmentsCubit.refreshAttachments()).called(1);
         },
       );
 
