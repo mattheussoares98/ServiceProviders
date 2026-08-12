@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class DefaultSwitch extends StatelessWidget {
-  const DefaultSwitch({
+class BaseSwitch extends StatelessWidget {
+  const BaseSwitch({
     super.key,
     this.title,
     required this.value,

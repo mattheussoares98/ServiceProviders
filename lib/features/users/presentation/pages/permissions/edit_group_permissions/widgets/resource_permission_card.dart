@@ -66,7 +66,7 @@ class _Item extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasPermission = allowedPermissions.contains(action);
 
-    return DefaultSwitch(
+    return BaseSwitch(
       title: action.label,
       value: hasPermission,
       onChanged: isAdminGroup

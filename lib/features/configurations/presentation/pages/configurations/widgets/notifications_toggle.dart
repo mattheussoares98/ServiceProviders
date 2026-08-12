@@ -33,7 +33,7 @@ class NotificationsToggle extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DefaultSwitch(
+              BaseSwitch(
                 title: 'Receber alertas e atualizações de ordens de serviço'
                     .hardcoded,
                 value: systemEnabled && pushEnabled,
