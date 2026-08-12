@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
-import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_response_answer_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/chip/base_choice_chip.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -29,8 +29,8 @@ class ChecklistItemTile extends StatelessWidget {
   });
 
   final ChecklistItemEntity item;
-  final ChecklistResponseAnswerEntity? response;
-  final ValueChanged<ChecklistResponseAnswerEntity> onChanged;
+  final ChecklistAnswerEntity? response;
+  final ValueChanged<ChecklistAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {

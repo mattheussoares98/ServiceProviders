@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -126,7 +126,7 @@ void main() {
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       attachments: const [],
     );
-    final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
     test(
       'should save a work order and successfully retrieve it by companyId and by id',
@@ -168,10 +168,7 @@ void main() {
         );
 
         // Assert Get List
-        expect(
-          getListResult,
-          isA<SuccessState<List<WorkOrderResponseModel>>>(),
-        );
+        expect(getListResult, isA<SuccessState<List<WorkOrderModel>>>());
         expect(getListResult.data, hasLength(1));
         expect(getListResult.data!.first.id, tWorkOrderModel.id);
         expect(getListResult.data!.first.companyId, tWorkOrderModel.companyId);
@@ -183,7 +180,7 @@ void main() {
         );
 
         // Assert Get Single
-        expect(getSingleResult, isA<SuccessState<WorkOrderResponseModel>>());
+        expect(getSingleResult, isA<SuccessState<WorkOrderModel>>());
         expect(getSingleResult.data!.id, tWorkOrderModel.id);
         expect(getSingleResult.data!.companyId, tWorkOrderModel.companyId);
         expect(getSingleResult.data!.title, tWorkOrderModel.title);
@@ -197,7 +194,7 @@ void main() {
         final result = await dataSource.getWorkOrderById(faker.guid.guid());
 
         // Assert
-        expect(result, isA<FailureState<WorkOrderResponseModel>>());
+        expect(result, isA<FailureState<WorkOrderModel>>());
         expect(result.message, 'Work order not found');
       },
     );
@@ -230,17 +227,14 @@ void main() {
         final getListResult = await dataSource.getWorkOrders(
           tWorkOrderModel.companyId,
         );
-        expect(
-          getListResult,
-          isA<SuccessState<List<WorkOrderResponseModel>>>(),
-        );
+        expect(getListResult, isA<SuccessState<List<WorkOrderModel>>>());
         expect(getListResult.data, isEmpty);
 
         // Act: Get single
         final getSingleResult = await dataSource.getWorkOrderById(
           tWorkOrderModel.id,
         );
-        expect(getSingleResult, isA<FailureState<WorkOrderResponseModel>>());
+        expect(getSingleResult, isA<FailureState<WorkOrderModel>>());
       },
     );
 
@@ -273,12 +267,9 @@ void main() {
         );
 
         // Assert
-        expect(
-          getListResult,
-          isA<SuccessState<List<WorkOrderResponseModel>>>(),
-        );
+        expect(getListResult, isA<SuccessState<List<WorkOrderModel>>>());
         expect(getListResult.data, isEmpty);
-        expect(getSingleResult, isA<FailureState<WorkOrderResponseModel>>());
+        expect(getSingleResult, isA<FailureState<WorkOrderModel>>());
       },
     );
 
@@ -293,7 +284,7 @@ void main() {
           title: 'Manutenção de teste',
           scheduledDate: DateTime(2026, 7, 15),
         );
-        final modelMatch = WorkOrderResponseModel.fromEntity(baseEntity);
+        final modelMatch = WorkOrderModel.fromEntity(baseEntity);
 
         await insertDependencies(
           companyId: modelMatch.companyId,
@@ -318,7 +309,7 @@ void main() {
               ),
             );
 
-        final modelNonMatch = WorkOrderResponseModel.fromEntity(
+        final modelNonMatch = WorkOrderModel.fromEntity(
           baseEntity.copyWith(
             id: faker.guid.guid(),
             title: 'Outro titulo',
@@ -368,12 +359,12 @@ void main() {
 
   group('WorkOrdersLocalDataSourceImpl - Tasks', () {
     final tTaskEntity = EntityFactory.makeTaskEntity();
-    final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);
+    final tTaskModel = TaskModel.fromEntity(tTaskEntity);
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tTaskModel.workOrderId,
       attachments: const [],
     );
-    final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
     test(
       'should save a task, retrieve active tasks by workOrderId, and soft delete it',
@@ -399,7 +390,7 @@ void main() {
         final getListResult = await dataSource.getTasksByWorkOrder(
           tTaskModel.workOrderId,
         );
-        expect(getListResult, isA<SuccessState<List<TaskResponseModel>>>());
+        expect(getListResult, isA<SuccessState<List<TaskModel>>>());
         expect(getListResult.data, hasLength(1));
         expect(getListResult.data!.first, equals(tTaskModel));
 
@@ -419,14 +410,12 @@ void main() {
 
   group('WorkOrdersLocalDataSourceImpl - Change Requests', () {
     final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
-    final tChangeModel = WorkOrderChangeRequestResponseModel.fromEntity(
-      tChangeEntity,
-    );
+    final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tChangeModel.workOrderId,
       attachments: const [],
     );
-    final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
     test(
       'should save a change request, retrieve active requests, and review it',
@@ -454,7 +443,7 @@ void main() {
         );
         expect(
           getListResult,
-          isA<SuccessState<List<WorkOrderChangeRequestResponseModel>>>(),
+          isA<SuccessState<List<WorkOrderChangeRequestModel>>>(),
         );
         expect(getListResult.data, hasLength(1));
         expect(getListResult.data!.first, equals(tChangeModel));
@@ -497,14 +486,12 @@ void main() {
 
   group('WorkOrdersLocalDataSourceImpl - History', () {
     final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
-    final tHistoryModel = WorkOrderHistoryResponseModel.fromEntity(
-      tHistoryEntity,
-    );
+    final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
     final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
       id: tHistoryModel.workOrderId,
       attachments: const [],
     );
-    final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
     test('should save and retrieve work order history logs', () async {
       // Arrange
@@ -528,10 +515,7 @@ void main() {
       final getListResult = await dataSource.getWorkOrderHistory(
         tHistoryModel.workOrderId,
       );
-      expect(
-        getListResult,
-        isA<SuccessState<List<WorkOrderHistoryResponseModel>>>(),
-      );
+      expect(getListResult, isA<SuccessState<List<WorkOrderHistoryModel>>>());
       expect(getListResult.data, hasLength(1));
       expect(getListResult.data!.first, equals(tHistoryModel));
     });

@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
-import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -16,7 +16,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      CategoryResponseModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryModel.fromEntity(EntityFactory.makeCategoryEntity()),
     );
     registerFallbackValue(
       CategoryRequestModel.fromEntity(EntityFactory.makeCategoryEntity()),
@@ -29,14 +29,14 @@ void main() {
   });
 
   final tEntity = EntityFactory.makeCategoryEntity();
-  final tModel = CategoryResponseModel.fromEntity(tEntity);
+  final tModel = CategoryModel.fromEntity(tEntity);
   final tRequest = CategoryRequestModel.fromEntity(tEntity);
   final tCompanyId = faker.guid.guid();
 
   group('CategoriesRemoteDataSourceImpl', () {
     group('getCategories', () {
       test(
-        'should return SuccessState<List<CategoryResponseModel>> on success',
+        'should return SuccessState<List<CategoryModel>> on success',
         () async {
           when(
             () => mockDatabase.selectList(
@@ -47,7 +47,7 @@ void main() {
 
           final result = await dataSource.getCategories(tCompanyId);
 
-          expect(result, isA<SuccessState<List<CategoryResponseModel>>>());
+          expect(result, isA<SuccessState<List<CategoryModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tModel.id);
           verify(
@@ -64,55 +64,49 @@ void main() {
     });
 
     group('createCategory', () {
-      test(
-        'should return SuccessState<CategoryResponseModel> on success',
-        () async {
-          when(
-            () => mockDatabase.insert(
-              table: any(named: 'table'),
-              values: any(named: 'values'),
-            ),
-          ).thenAnswer((_) async => [tModel.toJson()]);
+      test('should return SuccessState<CategoryModel> on success', () async {
+        when(
+          () => mockDatabase.insert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          ),
+        ).thenAnswer((_) async => [tModel.toJson()]);
 
-          final result = await dataSource.createCategory(tRequest);
+        final result = await dataSource.createCategory(tRequest);
 
-          expect(result, isA<SuccessState<CategoryResponseModel>>());
-          expect(result.data!.id, tModel.id);
-          verify(
-            () => mockDatabase.insert(
-              table: 'categories',
-              values: tRequest.toJson(),
-            ),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<CategoryModel>>());
+        expect(result.data!.id, tModel.id);
+        verify(
+          () => mockDatabase.insert(
+            table: 'categories',
+            values: tRequest.toJson(),
+          ),
+        ).called(1);
+      });
     });
 
     group('updateCategory', () {
-      test(
-        'should return SuccessState<CategoryResponseModel> on success',
-        () async {
-          when(
-            () => mockDatabase.update(
-              table: any(named: 'table'),
-              values: any(named: 'values'),
-              filters: any(named: 'filters'),
-            ),
-          ).thenAnswer((_) async => [tModel.toJson()]);
+      test('should return SuccessState<CategoryModel> on success', () async {
+        when(
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tModel.toJson()]);
 
-          final result = await dataSource.updateCategory(tRequest);
+        final result = await dataSource.updateCategory(tRequest);
 
-          expect(result, isA<SuccessState<CategoryResponseModel>>());
-          expect(result.data!.id, tModel.id);
-          verify(
-            () => mockDatabase.update(
-              table: 'categories',
-              values: tRequest.toJson(),
-              filters: [SupabaseFilter.eq('id', tRequest.id)],
-            ),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<CategoryModel>>());
+        expect(result.data!.id, tModel.id);
+        verify(
+          () => mockDatabase.update(
+            table: 'categories',
+            values: tRequest.toJson(),
+            filters: [SupabaseFilter.eq('id', tRequest.id)],
+          ),
+        ).called(1);
+      });
     });
 
     group('deleteCategory', () {

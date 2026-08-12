@@ -7,7 +7,7 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final tEntity = EntityFactory.makeAssetEntity();
 
-  group('AssetResponseModel', () {
+  group('AssetModel', () {
     test('should be a subclass of AssetEntity', () {
       final model = AssetModel.fromEntity(tEntity);
       expect(model, isA<AssetEntity>());

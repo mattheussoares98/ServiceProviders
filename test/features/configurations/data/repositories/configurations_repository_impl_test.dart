@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/repositories/configurations_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
 
@@ -22,9 +22,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeConfigurationsEntity());
     registerFallbackValue(
-      ConfigurationsResponseModel.fromEntity(
-        EntityFactory.makeConfigurationsEntity(),
-      ),
+      ConfigurationsModel.fromEntity(EntityFactory.makeConfigurationsEntity()),
     );
   });
 
@@ -47,7 +45,7 @@ void main() {
       () async {
         final tUserId = faker.guid.guid();
         final tEntity = EntityFactory.makeConfigurationsEntity();
-        final tModel = ConfigurationsResponseModel.fromEntity(tEntity);
+        final tModel = ConfigurationsModel.fromEntity(tEntity);
         final tUser = EntityFactory.makeUserProfileEntity().copyWith(
           id: tUserId,
         );
@@ -98,7 +96,7 @@ void main() {
 
     test('should fallback to local configurations when offline', () async {
       final tEntity = EntityFactory.makeConfigurationsEntity();
-      final tModel = ConfigurationsResponseModel.fromEntity(tEntity);
+      final tModel = ConfigurationsModel.fromEntity(tEntity);
 
       when(() => mockInternetClient.isConnected).thenReturn(false);
       when(
@@ -120,7 +118,7 @@ void main() {
         final tUserId = faker.guid.guid();
         final tEnabled = faker.randomGenerator.boolean();
         final tEntity = EntityFactory.makeConfigurationsEntity();
-        final tModel = ConfigurationsResponseModel.fromEntity(tEntity);
+        final tModel = ConfigurationsModel.fromEntity(tEntity);
         final tUser = EntityFactory.makeUserProfileEntity().copyWith(
           id: tUserId,
         );
@@ -166,7 +164,7 @@ void main() {
       final tUserId = faker.guid.guid();
       final tEnabled = faker.randomGenerator.boolean();
       final tEntity = EntityFactory.makeConfigurationsEntity();
-      final tModel = ConfigurationsResponseModel.fromEntity(tEntity);
+      final tModel = ConfigurationsModel.fromEntity(tEntity);
       final tUser = EntityFactory.makeUserProfileEntity().copyWith(id: tUserId);
       final tSession = UserDataEntity(
         user: tUser,

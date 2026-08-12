@@ -3,10 +3,10 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_da
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 
 abstract interface class ConfigurationsRemoteDataSource {
-  FutureData<ConfigurationsResponseModel> getConfigurations(String userId);
+  FutureData<ConfigurationsModel> getConfigurations(String userId);
   FutureVoid saveConfigurations({
     required String userId,
     required bool pushNotificationsEnabled,
@@ -24,19 +24,19 @@ final class ConfigurationsRemoteDataSourceImpl
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureData<ConfigurationsResponseModel> getConfigurations(String userId) =>
+  FutureData<ConfigurationsModel> getConfigurations(String userId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'user_configurations',
           filters: [SupabaseFilter.eq('user_id', userId)],
         );
         if (response == null) {
-          return const ConfigurationsResponseModel(
+          return const ConfigurationsModel(
             pushNotificationsEnabled: true,
             themeMode: 'system',
           );
         }
-        return ConfigurationsResponseModel.fromJson(response);
+        return ConfigurationsModel.fromJson(response);
       });
 
   @override
@@ -44,16 +44,15 @@ final class ConfigurationsRemoteDataSourceImpl
     required String userId,
     required bool pushNotificationsEnabled,
     required String themeMode,
-  }) =>
-      SupabaseHandler.voidCall(() async {
-        await _database.upsert(
-          table: 'user_configurations',
-          values: {
-            'user_id': userId,
-            'push_notifications_enabled': pushNotificationsEnabled,
-            'theme_mode': themeMode,
-            'updated_at': DateTime.now().toIso8601String(),
-          },
-        );
-      });
+  }) => SupabaseHandler.voidCall(() async {
+    await _database.upsert(
+      table: 'user_configurations',
+      values: {
+        'user_id': userId,
+        'push_notifications_enabled': pushNotificationsEnabled,
+        'theme_mode': themeMode,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+    );
+  });
 }

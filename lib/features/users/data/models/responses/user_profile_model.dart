@@ -7,9 +7,9 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class UserProfileResponseModel extends UserProfileEntity
+class UserProfileModel extends UserProfileEntity
     implements DataConvertible<UserProfileEntity> {
-  const UserProfileResponseModel({
+  const UserProfileModel({
     required super.id,
     required super.companyId,
     required super.name,
@@ -26,8 +26,8 @@ class UserProfileResponseModel extends UserProfileEntity
     super.workOrdersPermissionOverrides,
   });
 
-  factory UserProfileResponseModel.fromEntity(UserProfileEntity entity) =>
-      UserProfileResponseModel(
+  factory UserProfileModel.fromEntity(UserProfileEntity entity) =>
+      UserProfileModel(
         id: entity.id,
         companyId: entity.companyId,
         name: entity.name,
@@ -44,9 +44,9 @@ class UserProfileResponseModel extends UserProfileEntity
         workOrdersPermissionOverrides: entity.workOrdersPermissionOverrides,
       );
 
-  factory UserProfileResponseModel.fromDb(UserProfile db) {
+  factory UserProfileModel.fromDb(UserProfile db) {
     final parsed = _parsePermissions(db.permissions);
-    return UserProfileResponseModel(
+    return UserProfileModel(
       id: db.id,
       companyId: db.companyId,
       name: db.name,
@@ -64,10 +64,10 @@ class UserProfileResponseModel extends UserProfileEntity
     );
   }
 
-  factory UserProfileResponseModel.fromSupabase(AuthResponse response) {
+  factory UserProfileModel.fromSupabase(AuthResponse response) {
     final now = DateTime.now();
 
-    return UserProfileResponseModel(
+    return UserProfileModel(
       id: response.user!.id,
       companyId: '',
       name: response.user!.userMetadata?['name'] as String? ?? '',
@@ -79,11 +79,11 @@ class UserProfileResponseModel extends UserProfileEntity
     );
   }
 
-  factory UserProfileResponseModel.fromServiceProviderJson(
+  factory UserProfileModel.fromServiceProviderJson(
     MapDynamic json,
     String authUserId,
   ) {
-    return UserProfileResponseModel(
+    return UserProfileModel(
       id: authUserId,
       companyId: '',
       name: json['name'] as String? ?? '',
@@ -100,9 +100,9 @@ class UserProfileResponseModel extends UserProfileEntity
     );
   }
 
-  factory UserProfileResponseModel.fromJson(MapDynamic json) {
+  factory UserProfileModel.fromJson(MapDynamic json) {
     final parsed = _parsePermissions(json['permissions']);
-    return UserProfileResponseModel(
+    return UserProfileModel(
       id: json['id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',
       name: json['name'] as String? ?? '',

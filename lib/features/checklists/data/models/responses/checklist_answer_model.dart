@@ -1,10 +1,10 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_response_answer_entity.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 
-class ChecklistResponseAnswerModel extends ChecklistResponseAnswerEntity
-    implements DataConvertible<ChecklistResponseAnswerEntity> {
-  const ChecklistResponseAnswerModel({
+class ChecklistAnswerModel extends ChecklistAnswerEntity
+    implements DataConvertible<ChecklistAnswerEntity> {
+  const ChecklistAnswerModel({
     required super.id,
     required super.workOrderId,
     required super.checklistItemId,
@@ -17,10 +17,8 @@ class ChecklistResponseAnswerModel extends ChecklistResponseAnswerEntity
     required super.updatedAt,
   });
 
-  factory ChecklistResponseAnswerModel.fromEntity(
-    ChecklistResponseAnswerEntity entity,
-  ) {
-    return ChecklistResponseAnswerModel(
+  factory ChecklistAnswerModel.fromEntity(ChecklistAnswerEntity entity) {
+    return ChecklistAnswerModel(
       id: entity.id,
       workOrderId: entity.workOrderId,
       checklistItemId: entity.checklistItemId,
@@ -34,8 +32,8 @@ class ChecklistResponseAnswerModel extends ChecklistResponseAnswerEntity
     );
   }
 
-  factory ChecklistResponseAnswerModel.fromJson(MapDynamic json) {
-    return ChecklistResponseAnswerModel(
+  factory ChecklistAnswerModel.fromJson(MapDynamic json) {
+    return ChecklistAnswerModel(
       id: json['id'] as String? ?? '',
       workOrderId: json['work_order_id'] as String? ?? '',
       checklistItemId: json['checklist_item_id'] as String? ?? '',
@@ -70,8 +68,8 @@ class ChecklistResponseAnswerModel extends ChecklistResponseAnswerEntity
   }
 
   @override
-  ChecklistResponseAnswerEntity toEntity() {
-    return ChecklistResponseAnswerEntity(
+  ChecklistAnswerEntity toEntity() {
+    return ChecklistAnswerEntity(
       id: id,
       workOrderId: workOrderId,
       checklistItemId: checklistItemId,

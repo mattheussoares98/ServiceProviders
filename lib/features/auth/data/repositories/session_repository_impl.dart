@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/session_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 
@@ -87,9 +87,7 @@ final class SessionRepositoryImpl implements SessionRepository {
     );
     _userData = cleanedUser;
     _sessionController.add(cleanedUser);
-    await _localDataSource.saveUserData(
-      UserDataResponseModel.fromEntity(cleanedUser),
-    );
+    await _localDataSource.saveUserData(UserDataModel.fromEntity(cleanedUser));
     await _localDataSource.clearSelectedMode();
     await _auth.logout();
   }

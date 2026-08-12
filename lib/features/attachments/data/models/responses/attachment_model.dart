@@ -5,9 +5,9 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.da
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:path/path.dart' as p;
 
-class AttachmentResponseModel extends AttachmentEntity
+class AttachmentModel extends AttachmentEntity
     implements DataConvertible<AttachmentEntity> {
-  const AttachmentResponseModel({
+  const AttachmentModel({
     required super.id,
     required super.workOrderId,
     required super.companyId,
@@ -25,8 +25,8 @@ class AttachmentResponseModel extends AttachmentEntity
     super.lastAccessedAt,
   });
 
-  factory AttachmentResponseModel.fromEntity(AttachmentEntity entity) =>
-      AttachmentResponseModel(
+  factory AttachmentModel.fromEntity(AttachmentEntity entity) =>
+      AttachmentModel(
         id: entity.id,
         workOrderId: entity.workOrderId,
         companyId: entity.companyId,
@@ -46,34 +46,33 @@ class AttachmentResponseModel extends AttachmentEntity
         lastAccessedAt: entity.lastAccessedAt,
       );
 
-  factory AttachmentResponseModel.fromJson(MapDynamic json) =>
-      AttachmentResponseModel(
-        id: json['id'] as String? ?? '',
-        workOrderId: json['work_order_id'] as String? ?? '',
-        companyId: json['company_id'] as String? ?? '',
-        uploadedById: json['uploaded_by_id'] as String? ?? '',
-        fileName: json['file_name'] as String? ?? '',
-        fileType: FileType.fromCode(json['file_type'] as String? ?? 'document'),
-        localPath: json['local_path'] != null
-            ? p.basename(json['local_path'] as String)
-            : null,
-        remoteUrl: _sanitizeRemoteUrl(json['remote_url'] as String?),
-        fileSizeBytes: json['file_size_bytes'] as int?,
-        isCompressed: json['is_compressed'] as bool? ?? false,
-        uploadStatus: UploadStatus.fromCode(
-          json['upload_status'] as String? ?? 'pending',
-        ),
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        deletedAt: json['deleted_at'] != null
-            ? DateTime.parse(json['deleted_at'] as String)
-            : null,
-        originalPath: json['original_path'] as String?,
-        lastAccessedAt: json['last_accessed_at'] != null
-            ? DateTime.parse(json['last_accessed_at'] as String)
-            : null,
-      );
+  factory AttachmentModel.fromJson(MapDynamic json) => AttachmentModel(
+    id: json['id'] as String? ?? '',
+    workOrderId: json['work_order_id'] as String? ?? '',
+    companyId: json['company_id'] as String? ?? '',
+    uploadedById: json['uploaded_by_id'] as String? ?? '',
+    fileName: json['file_name'] as String? ?? '',
+    fileType: FileType.fromCode(json['file_type'] as String? ?? 'document'),
+    localPath: json['local_path'] != null
+        ? p.basename(json['local_path'] as String)
+        : null,
+    remoteUrl: _sanitizeRemoteUrl(json['remote_url'] as String?),
+    fileSizeBytes: json['file_size_bytes'] as int?,
+    isCompressed: json['is_compressed'] as bool? ?? false,
+    uploadStatus: UploadStatus.fromCode(
+      json['upload_status'] as String? ?? 'pending',
+    ),
+    createdAt: json['created_at'] != null
+        ? DateTime.parse(json['created_at'] as String)
+        : DateTime.now(),
+    deletedAt: json['deleted_at'] != null
+        ? DateTime.parse(json['deleted_at'] as String)
+        : null,
+    originalPath: json['original_path'] as String?,
+    lastAccessedAt: json['last_accessed_at'] != null
+        ? DateTime.parse(json['last_accessed_at'] as String)
+        : null,
+  );
 
   @override
   MapDynamic toJson() => {

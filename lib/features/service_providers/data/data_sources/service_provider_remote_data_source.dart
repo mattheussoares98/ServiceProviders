@@ -4,44 +4,37 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 abstract interface class ServiceProviderRemoteDataSource {
-  FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompanies(
     String companyId,
   );
-  FutureData<ServiceProviderCompanyResponseModel> getServiceProviderCompanyById(
+  FutureData<ServiceProviderCompanyModel> getServiceProviderCompanyById(
     String id,
   );
-  FutureBool createServiceProviderCompany(
-    ServiceProviderCompanyResponseModel request,
-  );
-  FutureBool updateServiceProviderCompany(
-    ServiceProviderCompanyResponseModel request,
-  );
+  FutureBool createServiceProviderCompany(ServiceProviderCompanyModel request);
+  FutureBool updateServiceProviderCompany(ServiceProviderCompanyModel request);
 
-  FutureList<ServiceProviderProfileResponseModel> getServiceProviderProfiles(
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
-  FutureList<ServiceProviderProfileResponseModel>
+  FutureList<ServiceProviderProfileModel>
   getServiceProviderProfilesByCompanyIds(
     List<String> serviceProviderCompanyIds,
   );
-  FutureList<ServiceProviderProfileResponseModel>
-  getServiceProviderProfilesByAuthUser(String authUserId);
-  FutureBool createServiceProviderProfile(
-    ServiceProviderProfileResponseModel request,
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfilesByAuthUser(
+    String authUserId,
   );
-  FutureBool updateServiceProviderProfile(
-    ServiceProviderProfileResponseModel request,
-  );
+  FutureBool createServiceProviderProfile(ServiceProviderProfileModel request);
+  FutureBool updateServiceProviderProfile(ServiceProviderProfileModel request);
 
-  FutureList<ServiceProviderInvitationResponseModel>
-  getServiceProviderInvitations(String serviceProviderCompanyId);
+  FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
+    String serviceProviderCompanyId,
+  );
   FutureBool sendServiceProviderInvitation({
     required String serviceProviderCompanyId,
     required String email,
@@ -60,7 +53,7 @@ final class ServiceProviderRemoteDataSourceImpl
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompanies(
     String companyId,
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectList(
@@ -70,11 +63,11 @@ final class ServiceProviderRemoteDataSourceImpl
         SupabaseFilter.eq('is_active', true),
       ],
     );
-    return response.map(ServiceProviderCompanyResponseModel.fromJson).toList();
+    return response.map(ServiceProviderCompanyModel.fromJson).toList();
   });
 
   @override
-  FutureData<ServiceProviderCompanyResponseModel> getServiceProviderCompanyById(
+  FutureData<ServiceProviderCompanyModel> getServiceProviderCompanyById(
     String id,
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectOne(
@@ -87,12 +80,12 @@ final class ServiceProviderRemoteDataSourceImpl
     if (response == null) {
       throw _NotFoundException('Prestador de serviço não encontrado'.hardcoded);
     }
-    return ServiceProviderCompanyResponseModel.fromJson(response);
+    return ServiceProviderCompanyModel.fromJson(response);
   });
 
   @override
   FutureBool createServiceProviderCompany(
-    ServiceProviderCompanyResponseModel request,
+    ServiceProviderCompanyModel request,
   ) => SupabaseHandler.call(() async {
     await _database.insert(
       table: 'service_provider_companies',
@@ -103,7 +96,7 @@ final class ServiceProviderRemoteDataSourceImpl
 
   @override
   FutureBool updateServiceProviderCompany(
-    ServiceProviderCompanyResponseModel request,
+    ServiceProviderCompanyModel request,
   ) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'service_provider_companies',
@@ -114,7 +107,7 @@ final class ServiceProviderRemoteDataSourceImpl
   });
 
   @override
-  FutureList<ServiceProviderProfileResponseModel> getServiceProviderProfiles(
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectList(
@@ -126,11 +119,11 @@ final class ServiceProviderRemoteDataSourceImpl
         ),
       ],
     );
-    return response.map(ServiceProviderProfileResponseModel.fromJson).toList();
+    return response.map(ServiceProviderProfileModel.fromJson).toList();
   });
 
   @override
-  FutureList<ServiceProviderProfileResponseModel>
+  FutureList<ServiceProviderProfileModel>
   getServiceProviderProfilesByCompanyIds(
     List<String> serviceProviderCompanyIds,
   ) => SupabaseHandler.call(() async {
@@ -144,25 +137,23 @@ final class ServiceProviderRemoteDataSourceImpl
         ),
       ],
     );
-    return response.map(ServiceProviderProfileResponseModel.fromJson).toList();
+    return response.map(ServiceProviderProfileModel.fromJson).toList();
   });
 
   @override
-  FutureList<ServiceProviderProfileResponseModel>
-  getServiceProviderProfilesByAuthUser(String authUserId) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'service_provider_profiles',
-          filters: [SupabaseFilter.eq('auth_user_id', authUserId)],
-        );
-        return response
-            .map(ServiceProviderProfileResponseModel.fromJson)
-            .toList();
-      });
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfilesByAuthUser(
+    String authUserId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'service_provider_profiles',
+      filters: [SupabaseFilter.eq('auth_user_id', authUserId)],
+    );
+    return response.map(ServiceProviderProfileModel.fromJson).toList();
+  });
 
   @override
   FutureBool createServiceProviderProfile(
-    ServiceProviderProfileResponseModel request,
+    ServiceProviderProfileModel request,
   ) => SupabaseHandler.call(() async {
     await _database.insert(
       table: 'service_provider_profiles',
@@ -173,7 +164,7 @@ final class ServiceProviderRemoteDataSourceImpl
 
   @override
   FutureBool updateServiceProviderProfile(
-    ServiceProviderProfileResponseModel request,
+    ServiceProviderProfileModel request,
   ) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'service_provider_profiles',
@@ -184,22 +175,20 @@ final class ServiceProviderRemoteDataSourceImpl
   });
 
   @override
-  FutureList<ServiceProviderInvitationResponseModel>
-  getServiceProviderInvitations(String serviceProviderCompanyId) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'service_provider_invitations',
-          filters: [
-            SupabaseFilter.eq(
-              'service_provider_company_id',
-              serviceProviderCompanyId,
-            ),
-          ],
-        );
-        return response
-            .map(ServiceProviderInvitationResponseModel.fromJson)
-            .toList();
-      });
+  FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
+    String serviceProviderCompanyId,
+  ) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'service_provider_invitations',
+      filters: [
+        SupabaseFilter.eq(
+          'service_provider_company_id',
+          serviceProviderCompanyId,
+        ),
+      ],
+    );
+    return response.map(ServiceProviderInvitationModel.fromJson).toList();
+  });
 
   @override
   FutureBool sendServiceProviderInvitation({

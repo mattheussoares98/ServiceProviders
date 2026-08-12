@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -35,7 +35,7 @@ void main() {
   }
 
   final tPlanEntity = EntityFactory.makeMaintenancePlanEntity();
-  final tPlanModel = MaintenancePlanResponseModel.fromEntity(tPlanEntity);
+  final tPlanModel = MaintenancePlanModel.fromEntity(tPlanEntity);
 
   group('MaintenancePlansLocalDataSourceImpl', () {
     test(
@@ -55,10 +55,7 @@ void main() {
         final getResult = await dataSource.getPlans(tPlanModel.companyId);
 
         // Assert Get List
-        expect(
-          getResult,
-          isA<SuccessState<List<MaintenancePlanResponseModel>>>(),
-        );
+        expect(getResult, isA<SuccessState<List<MaintenancePlanModel>>>());
         expect(getResult.data, hasLength(1));
         expect(getResult.data!.first, equals(tPlanModel));
 
@@ -66,10 +63,7 @@ void main() {
         final getSingleResult = await dataSource.getPlanById(tPlanModel.id);
 
         // Assert Get Single
-        expect(
-          getSingleResult,
-          isA<SuccessState<MaintenancePlanResponseModel>>(),
-        );
+        expect(getSingleResult, isA<SuccessState<MaintenancePlanModel>>());
         expect(getSingleResult.data, equals(tPlanModel));
       },
     );
@@ -79,7 +73,7 @@ void main() {
       final result = await dataSource.getPlanById(faker.guid.guid());
 
       // Assert
-      expect(result, isA<FailureState<MaintenancePlanResponseModel>>());
+      expect(result, isA<FailureState<MaintenancePlanModel>>());
     });
 
     test(
@@ -100,20 +94,14 @@ void main() {
         final getResult = await dataSource.getPlans(tPlanModel.companyId);
 
         // Assert Get: Should be empty
-        expect(
-          getResult,
-          isA<SuccessState<List<MaintenancePlanResponseModel>>>(),
-        );
+        expect(getResult, isA<SuccessState<List<MaintenancePlanModel>>>());
         expect(getResult.data, isEmpty);
 
         // Act: Get Single
         final getSingleResult = await dataSource.getPlanById(tPlanModel.id);
 
         // Assert Get Single: Should be failure
-        expect(
-          getSingleResult,
-          isA<FailureState<MaintenancePlanResponseModel>>(),
-        );
+        expect(getSingleResult, isA<FailureState<MaintenancePlanModel>>());
       },
     );
   });

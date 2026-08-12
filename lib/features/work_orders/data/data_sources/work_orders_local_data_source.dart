@@ -4,13 +4,13 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
@@ -21,26 +21,24 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 
 abstract interface class WorkOrdersLocalDataSource {
   // Work Orders
-  FutureList<WorkOrderResponseModel> getWorkOrders(
+  FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
     int pageSize = 20,
     int offset = 0,
   });
-  FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
-  FutureBool saveWorkOrder(WorkOrderResponseModel workOrder);
+  FutureData<WorkOrderModel> getWorkOrderById(String id);
+  FutureBool saveWorkOrder(WorkOrderModel workOrder);
   FutureBool deleteWorkOrder(String id);
 
   // Tasks
-  FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId);
-  FutureBool saveTask(TaskResponseModel task);
+  FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
+  FutureBool saveTask(TaskModel task);
   FutureBool deleteTask(String id);
 
   // Change Requests
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
-    String companyId,
-  );
-  FutureBool saveChangeRequest(WorkOrderChangeRequestResponseModel request);
+  FutureList<WorkOrderChangeRequestModel> getChangeRequests(String companyId);
+  FutureBool saveChangeRequest(WorkOrderChangeRequestModel request);
   FutureBool reviewChangeRequest({
     required String id,
     required String status,
@@ -49,10 +47,8 @@ abstract interface class WorkOrdersLocalDataSource {
   });
 
   // History
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
-    String workOrderId,
-  );
-  FutureBool saveWorkOrderHistory(WorkOrderHistoryResponseModel history);
+  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId);
+  FutureBool saveWorkOrderHistory(WorkOrderHistoryModel history);
 }
 
 @LazySingleton(as: WorkOrdersLocalDataSource)
@@ -67,7 +63,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<WorkOrderResponseModel> getWorkOrders(
+  FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
     int pageSize = 20,
@@ -148,9 +144,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         ..where((t) => t.workOrderId.isIn(orderIds) & t.deletedAt.isNull());
       final attachmentsRows = await attachmentsQuery.get();
 
-      final attachmentsByWorkOrder = <String, List<AttachmentResponseModel>>{};
+      final attachmentsByWorkOrder = <String, List<AttachmentModel>>{};
       for (final row in attachmentsRows) {
-        final attachment = AttachmentResponseModel(
+        final attachment = AttachmentModel(
           id: row.id,
           workOrderId: row.workOrderId,
           companyId: row.companyId,
@@ -173,7 +169,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       final list = rows.map((row) {
         final order = row.readTable(_database.workOrders);
-        return WorkOrderResponseModel(
+        return WorkOrderModel(
           providerProfileId: null,
           serviceProviderCompanyId: null,
           id: order.id,
@@ -219,7 +215,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureData<WorkOrderResponseModel> getWorkOrderById(String id) {
+  FutureData<WorkOrderModel> getWorkOrderById(String id) {
     return ErrorHandler.execute(() async {
       final query =
           _database.select(_database.workOrders).join([
@@ -243,7 +239,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       final attachmentsRows = await attachmentsQuery.get();
       final attachments = attachmentsRows
           .map(
-            (t) => AttachmentResponseModel(
+            (t) => AttachmentModel(
               id: t.id,
               workOrderId: t.workOrderId,
               companyId: t.companyId,
@@ -263,7 +259,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           .toList();
 
       final order = row.readTable(_database.workOrders);
-      final model = WorkOrderResponseModel(
+      final model = WorkOrderModel(
         providerProfileId: null,
         serviceProviderCompanyId: null,
         id: order.id,
@@ -308,7 +304,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureBool saveWorkOrder(WorkOrderResponseModel workOrder) {
+  FutureBool saveWorkOrder(WorkOrderModel workOrder) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.workOrders)
@@ -389,7 +385,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) {
+  FutureList<TaskModel> getTasksByWorkOrder(String workOrderId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(
         _database.tasks,
@@ -398,7 +394,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       final list = rows
           .map(
-            (row) => TaskResponseModel(
+            (row) => TaskModel(
               id: row.id,
               workOrderId: row.workOrderId,
               companyId: row.companyId,
@@ -420,7 +416,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureBool saveTask(TaskResponseModel task) {
+  FutureBool saveTask(TaskModel task) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.tasks)
@@ -459,9 +455,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
-    String companyId,
-  ) {
+  FutureList<WorkOrderChangeRequestModel> getChangeRequests(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrderChangeRequests)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
@@ -469,7 +463,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       final list = rows
           .map(
-            (row) => WorkOrderChangeRequestResponseModel(
+            (row) => WorkOrderChangeRequestModel(
               id: row.id,
               workOrderId: row.workOrderId,
               companyId: row.companyId,
@@ -491,7 +485,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureBool saveChangeRequest(WorkOrderChangeRequestResponseModel request) {
+  FutureBool saveChangeRequest(WorkOrderChangeRequestModel request) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.workOrderChangeRequests)
@@ -542,9 +536,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
-    String workOrderId,
-  ) {
+  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrderHistory)
         ..where((t) => t.workOrderId.equals(workOrderId));
@@ -552,7 +544,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       final list = rows
           .map(
-            (row) => WorkOrderHistoryResponseModel(
+            (row) => WorkOrderHistoryModel(
               id: row.id,
               workOrderId: row.workOrderId,
               companyId: row.companyId,
@@ -570,7 +562,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureBool saveWorkOrderHistory(WorkOrderHistoryResponseModel history) {
+  FutureBool saveWorkOrderHistory(WorkOrderHistoryModel history) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.workOrderHistory)

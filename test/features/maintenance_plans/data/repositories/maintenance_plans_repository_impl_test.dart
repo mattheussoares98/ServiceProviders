@@ -2,7 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_model.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/repositories/maintenance_plans_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 
@@ -27,17 +27,17 @@ void main() {
     );
 
     registerFallbackValue(
-      MaintenancePlanResponseModel.fromEntity(
+      MaintenancePlanModel.fromEntity(
         EntityFactory.makeMaintenancePlanEntity(),
       ),
     );
   });
 
   final tPlanEntity = EntityFactory.makeMaintenancePlanEntity();
-  final tPlanModel = MaintenancePlanResponseModel.fromEntity(tPlanEntity);
+  final tPlanModel = MaintenancePlanModel.fromEntity(tPlanEntity);
   final tPlanEntityList = EntityFactory.makeMaintenancePlanEntityList();
   final tPlanModelList = tPlanEntityList
-      .map(MaintenancePlanResponseModel.fromEntity)
+      .map(MaintenancePlanModel.fromEntity)
       .toList();
 
   group('MaintenancePlansRepositoryImpl', () {

@@ -4,11 +4,11 @@ import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_response_model.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_response_answer_model.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_response_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
-import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_response_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/repositories/checklists_repository.dart';
 
@@ -29,27 +29,27 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   @override
   FutureList<ChecklistTemplateEntity> getTemplates(String companyId) =>
       RepositoryHandler.fetchFromLocalAndMapList<
-        ChecklistTemplateResponseModel,
+        ChecklistTemplateModel,
         ChecklistTemplateEntity
       >(localCallback: () => _localDataSource.getTemplates(companyId));
 
   @override
   FutureData<ChecklistTemplateEntity> getTemplateById(String id) =>
       RepositoryHandler.fetchFromLocalAndMap<
-        ChecklistTemplateResponseModel,
+        ChecklistTemplateModel,
         ChecklistTemplateEntity
       >(localCallback: () => _localDataSource.getTemplateById(id));
 
   @override
   FutureBool createTemplate(ChecklistTemplateEntity template) =>
       _localDataSource.saveTemplate(
-        ChecklistTemplateResponseModel.fromEntity(template),
+        ChecklistTemplateModel.fromEntity(template),
       );
 
   @override
   FutureBool updateTemplate(ChecklistTemplateEntity template) =>
       _localDataSource.saveTemplate(
-        ChecklistTemplateResponseModel.fromEntity(template),
+        ChecklistTemplateModel.fromEntity(template),
       );
 
   @override
@@ -58,36 +58,34 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   @override
   FutureList<ChecklistItemEntity> getItemsByTemplate(String templateId) =>
       RepositoryHandler.fetchFromLocalAndMapList<
-        ChecklistItemResponseModel,
+        ChecklistItemModel,
         ChecklistItemEntity
       >(localCallback: () => _localDataSource.getItemsByTemplate(templateId));
 
   @override
   FutureBool createItem(ChecklistItemEntity item) =>
-      _localDataSource.saveItem(ChecklistItemResponseModel.fromEntity(item));
+      _localDataSource.saveItem(ChecklistItemModel.fromEntity(item));
 
   @override
   FutureBool updateItem(ChecklistItemEntity item) =>
-      _localDataSource.saveItem(ChecklistItemResponseModel.fromEntity(item));
+      _localDataSource.saveItem(ChecklistItemModel.fromEntity(item));
 
   @override
   FutureBool deleteItem(String id) => _localDataSource.deleteItem(id);
 
   @override
-  FutureList<ChecklistResponseAnswerEntity> getResponsesByWorkOrder(
+  FutureList<ChecklistAnswerEntity> getResponsesByWorkOrder(
     String workOrderId,
   ) =>
       RepositoryHandler.fetchFromLocalAndMapList<
-        ChecklistResponseAnswerModel,
-        ChecklistResponseAnswerEntity
+        ChecklistAnswerModel,
+        ChecklistAnswerEntity
       >(
         localCallback: () =>
             _localDataSource.getResponsesByWorkOrder(workOrderId),
       );
 
   @override
-  FutureBool saveResponse(ChecklistResponseAnswerEntity response) =>
-      _localDataSource.saveResponse(
-        ChecklistResponseAnswerModel.fromEntity(response),
-      );
+  FutureBool saveResponse(ChecklistAnswerEntity response) =>
+      _localDataSource.saveResponse(ChecklistAnswerModel.fromEntity(response));
 }

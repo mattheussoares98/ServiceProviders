@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/session_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -21,10 +21,8 @@ void main() {
     sessionLocalDataSource = SessionLocalDataSourceImpl(mockLocalStorageClient);
   });
 
-  final userDataResponse = UserDataResponseModel(
-    user: UserProfileResponseModel.fromEntity(
-      EntityFactory.makeUserProfileEntity(),
-    ),
+  final userDataResponse = UserDataModel(
+    user: UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   );
@@ -98,7 +96,9 @@ void main() {
     group('getSelectedMode', () {
       test('should call getSelectedMode on LocalStorageClient', () {
         // Arrange
-        when(() => mockLocalStorageClient.getSelectedMode()).thenReturn('provider');
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn('provider');
 
         // Act
         final result = sessionLocalDataSource.getSelectedMode();
@@ -112,7 +112,9 @@ void main() {
     group('getSelectedCompanyId', () {
       test('should call getSelectedCompanyId on LocalStorageClient', () {
         // Arrange
-        when(() => mockLocalStorageClient.getSelectedCompanyId()).thenReturn('company_123');
+        when(
+          () => mockLocalStorageClient.getSelectedCompanyId(),
+        ).thenReturn('company_123');
 
         // Act
         final result = sessionLocalDataSource.getSelectedCompanyId();

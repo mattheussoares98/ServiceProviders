@@ -4,13 +4,13 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
 abstract interface class CategoriesLocalDataSource {
-  FutureList<CategoryResponseModel> getCategories(String companyId);
-  FutureBool saveCategory(CategoryResponseModel category);
+  FutureList<CategoryModel> getCategories(String companyId);
+  FutureBool saveCategory(CategoryModel category);
   FutureBool deleteCategory(String id);
-  FutureBool saveCategories(List<CategoryResponseModel> categories);
+  FutureBool saveCategories(List<CategoryModel> categories);
 }
 
 @LazySingleton(as: CategoriesLocalDataSource)
@@ -21,7 +21,7 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
   final AppDatabase _database;
 
   @override
-  FutureList<CategoryResponseModel> getCategories(String companyId) {
+  FutureList<CategoryModel> getCategories(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.categories)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
@@ -29,7 +29,7 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
 
       final list = rows
           .map(
-            (row) => CategoryResponseModel(
+            (row) => CategoryModel(
               id: row.id,
               companyId: row.companyId,
               name: row.name,
@@ -46,7 +46,7 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
   }
 
   @override
-  FutureBool saveCategory(CategoryResponseModel category) {
+  FutureBool saveCategory(CategoryModel category) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.categories)
@@ -76,7 +76,7 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
   }
 
   @override
-  FutureBool saveCategories(List<CategoryResponseModel> categories) {
+  FutureBool saveCategories(List<CategoryModel> categories) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
         batch.insertAllOnConflictUpdate(

@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/repositories/users_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
@@ -22,9 +22,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      UserProfileResponseModel.fromEntity(
-        EntityFactory.makeUserProfileEntity(),
-      ),
+      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
       PermissionGroupModel.fromEntity(
@@ -32,13 +30,11 @@ void main() {
       ),
     );
     registerFallbackValue(
-      UserInvitationResponseModel.fromEntity(
-        EntityFactory.makeUserInvitationEntity(),
-      ),
+      UserInvitationModel.fromEntity(EntityFactory.makeUserInvitationEntity()),
     );
-    registerFallbackValue(<UserProfileResponseModel>[]);
+    registerFallbackValue(<UserProfileModel>[]);
     registerFallbackValue(<PermissionGroupModel>[]);
-    registerFallbackValue(<UserInvitationResponseModel>[]);
+    registerFallbackValue(<UserInvitationModel>[]);
   });
 
   setUp(() {
@@ -53,16 +49,14 @@ void main() {
   });
 
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(
-    tUserProfileEntity,
-  );
+  final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
   final tUserProfileList = [
     tUserProfileEntity,
     tUserProfileEntity,
     tUserProfileEntity,
   ];
   final tUserProfileModelList = tUserProfileList
-      .map(UserProfileResponseModel.fromEntity)
+      .map(UserProfileModel.fromEntity)
       .toList();
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
@@ -335,7 +329,7 @@ void main() {
         test(
           'should call remote and map to entities on success when online',
           () async {
-            final tInvitationModel = UserInvitationResponseModel.fromEntity(
+            final tInvitationModel = UserInvitationModel.fromEntity(
               EntityFactory.makeUserInvitationEntity(),
             );
             when(() => mockInternetClient.isConnected).thenReturn(true);

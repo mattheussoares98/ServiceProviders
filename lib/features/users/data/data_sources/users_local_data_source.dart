@@ -8,20 +8,18 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 abstract interface class UsersLocalDataSource {
   // Profiles
-  FutureList<UserProfileResponseModel> getUserProfiles(String companyId);
-  FutureData<UserProfileResponseModel> getUserProfileById(String id);
-  FutureBool saveUserProfile(UserProfileResponseModel user);
-  FutureBool saveUserProfiles(List<UserProfileResponseModel> users);
+  FutureList<UserProfileModel> getUserProfiles(String companyId);
+  FutureData<UserProfileModel> getUserProfileById(String id);
+  FutureBool saveUserProfile(UserProfileModel user);
+  FutureBool saveUserProfiles(List<UserProfileModel> users);
   FutureBool deleteUserProfile(String id);
 
   // Permission Groups
-  FutureList<PermissionGroupModel> getPermissionGroups(
-    String companyId,
-  );
+  FutureList<PermissionGroupModel> getPermissionGroups(String companyId);
   FutureBool savePermissionGroup(PermissionGroupModel group);
   FutureBool savePermissionGroups(List<PermissionGroupModel> groups);
   FutureBool deletePermissionGroup(String id);
@@ -39,7 +37,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<UserProfileResponseModel> getUserProfiles(String companyId) {
+  FutureList<UserProfileModel> getUserProfiles(String companyId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.userProfiles)..where(
@@ -47,14 +45,12 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               ))
               .get();
 
-      return SuccessState(
-        data: list.map(UserProfileResponseModel.fromDb).toList(),
-      );
+      return SuccessState(data: list.map(UserProfileModel.fromDb).toList());
     });
   }
 
   @override
-  FutureData<UserProfileResponseModel> getUserProfileById(String id) {
+  FutureData<UserProfileModel> getUserProfileById(String id) {
     return ErrorHandler.execute(() async {
       final t =
           await (_database.select(_database.userProfiles)
@@ -62,17 +58,17 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               .getSingleOrNull();
 
       if (t != null) {
-        return SuccessState(data: UserProfileResponseModel.fromDb(t));
+        return SuccessState(data: UserProfileModel.fromDb(t));
       }
 
-      return FailureState<UserProfileResponseModel>(
+      return FailureState<UserProfileModel>(
         message: 'Usuário não encontrado'.hardcoded,
       );
     });
   }
 
   @override
-  FutureBool saveUserProfile(UserProfileResponseModel user) {
+  FutureBool saveUserProfile(UserProfileModel user) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.userProfiles)
@@ -97,7 +93,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   }
 
   @override
-  FutureBool saveUserProfiles(List<UserProfileResponseModel> users) {
+  FutureBool saveUserProfiles(List<UserProfileModel> users) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
         batch.insertAllOnConflictUpdate(
@@ -139,9 +135,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
   // ============================================
 
   @override
-  FutureList<PermissionGroupModel> getPermissionGroups(
-    String companyId,
-  ) {
+  FutureList<PermissionGroupModel> getPermissionGroups(String companyId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.permissionGroups)..where(
@@ -149,9 +143,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               ))
               .get();
 
-      return SuccessState(
-        data: list.map(PermissionGroupModel.fromDb).toList(),
-      );
+      return SuccessState(data: list.map(PermissionGroupModel.fromDb).toList());
     });
   }
 

@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 
@@ -26,7 +26,7 @@ void main() {
   group('ConfigurationsRemoteDataSourceImpl', () {
     group('getConfigurations', () {
       test(
-        'should return SuccessState<ConfigurationsResponseModel> on success',
+        'should return SuccessState<ConfigurationsModel> on success',
         () async {
           when(
             () => mockDatabase.selectOne(
@@ -37,7 +37,7 @@ void main() {
 
           final result = await dataSource.getConfigurations(tUserId);
 
-          expect(result, isA<SuccessState<ConfigurationsResponseModel>>());
+          expect(result, isA<SuccessState<ConfigurationsModel>>());
           expect(result.data?.pushNotificationsEnabled, true);
           expect(result.data?.themeMode, 'dark');
           verify(
@@ -61,24 +61,27 @@ void main() {
 
           final result = await dataSource.getConfigurations(tUserId);
 
-          expect(result, isA<SuccessState<ConfigurationsResponseModel>>());
+          expect(result, isA<SuccessState<ConfigurationsModel>>());
           expect(result.data?.pushNotificationsEnabled, true);
           expect(result.data?.themeMode, 'system');
         },
       );
 
-      test('should return FailureState when DB call throws exception', () async {
-        when(
-          () => mockDatabase.selectOne(
-            table: any(named: 'table'),
-            filters: any(named: 'filters'),
-          ),
-        ).thenThrow(Exception('Database error'));
+      test(
+        'should return FailureState when DB call throws exception',
+        () async {
+          when(
+            () => mockDatabase.selectOne(
+              table: any(named: 'table'),
+              filters: any(named: 'filters'),
+            ),
+          ).thenThrow(Exception('Database error'));
 
-        final result = await dataSource.getConfigurations(tUserId);
+          final result = await dataSource.getConfigurations(tUserId);
 
-        expect(result, isA<FailureState<ConfigurationsResponseModel>>());
-      });
+          expect(result, isA<FailureState<ConfigurationsModel>>());
+        },
+      );
     });
 
     group('saveConfigurations', () {
@@ -104,29 +107,36 @@ void main() {
               named: 'values',
               that: isA<Map<String, dynamic>>()
                   .having((m) => m['user_id'], 'user_id', tUserId)
-                  .having((m) => m['push_notifications_enabled'], 'push_notifications_enabled', true)
+                  .having(
+                    (m) => m['push_notifications_enabled'],
+                    'push_notifications_enabled',
+                    true,
+                  )
                   .having((m) => m['theme_mode'], 'theme_mode', 'dark'),
             ),
           ),
         ).called(1);
       });
 
-      test('should return FailureState when DB call throws exception', () async {
-        when(
-          () => mockDatabase.upsert(
-            table: any(named: 'table'),
-            values: any(named: 'values'),
-          ),
-        ).thenThrow(Exception('Database error'));
+      test(
+        'should return FailureState when DB call throws exception',
+        () async {
+          when(
+            () => mockDatabase.upsert(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+            ),
+          ).thenThrow(Exception('Database error'));
 
-        final result = await dataSource.saveConfigurations(
-          userId: tUserId,
-          pushNotificationsEnabled: true,
-          themeMode: 'dark',
-        );
+          final result = await dataSource.saveConfigurations(
+            userId: tUserId,
+            pushNotificationsEnabled: true,
+            themeMode: 'dark',
+          );
 
-        expect(result, isA<FailureState<void>>());
-      });
+          expect(result, isA<FailureState<void>>());
+        },
+      );
     });
   });
 }

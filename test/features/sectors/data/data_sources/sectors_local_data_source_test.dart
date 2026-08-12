@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_response_model.dart';
+import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -36,7 +36,7 @@ void main() {
 
   group('SectorsLocalDataSourceImpl Tests', () {
     final tSectorEntity = EntityFactory.makeSectorEntity();
-    final tSectorModel = SectorResponseModel.fromEntity(tSectorEntity);
+    final tSectorModel = SectorModel.fromEntity(tSectorEntity);
 
     group('saveSector', () {
       test('should save sector successfully when company exists', () async {
@@ -54,7 +54,7 @@ void main() {
         await insertCompany(tSectorModel.companyId);
         final list = [
           tSectorModel,
-          SectorResponseModel.fromEntity(
+          SectorModel.fromEntity(
             EntityFactory.makeSectorEntity().copyWith(
               companyId: tSectorModel.companyId,
               name: '${tSectorModel.name}_2',
@@ -76,8 +76,8 @@ void main() {
 
         final result = await dataSource.getSectors(tSectorModel.companyId);
 
-        expect(result, isA<SuccessState<List<SectorResponseModel>>>());
-        final list = (result as SuccessState<List<SectorResponseModel>>).data!;
+        expect(result, isA<SuccessState<List<SectorModel>>>());
+        final list = (result as SuccessState<List<SectorModel>>).data!;
         expect(list.length, 1);
         expect(list.first.id, tSectorModel.id);
       });
@@ -87,11 +87,8 @@ void main() {
         () async {
           final result = await dataSource.getSectors('non-existent-company');
 
-          expect(result, isA<SuccessState<List<SectorResponseModel>>>());
-          expect(
-            (result as SuccessState<List<SectorResponseModel>>).data,
-            isEmpty,
-          );
+          expect(result, isA<SuccessState<List<SectorModel>>>());
+          expect((result as SuccessState<List<SectorModel>>).data, isEmpty);
         },
       );
     });
@@ -110,7 +107,7 @@ void main() {
           tSectorModel.companyId,
         );
         expect(
-          (remainingSectors as SuccessState<List<SectorResponseModel>>).data,
+          (remainingSectors as SuccessState<List<SectorModel>>).data,
           isEmpty,
         );
       });

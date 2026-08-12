@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -25,7 +25,7 @@ void main() {
 
   group('getConfigurations', () {
     test(
-      'should return SuccessState containing ConfigurationsResponseModel from LocalStorageClient',
+      'should return SuccessState containing ConfigurationsModel from LocalStorageClient',
       () async {
         final tPushEnabled = faker.randomGenerator.boolean();
         final tThemeMode = faker.randomGenerator.element([
@@ -43,9 +43,8 @@ void main() {
 
         final result = await dataSource.getConfigurations();
 
-        expect(result, isA<SuccessState<ConfigurationsResponseModel>>());
-        final entity =
-            (result as SuccessState<ConfigurationsResponseModel>).data;
+        expect(result, isA<SuccessState<ConfigurationsModel>>());
+        final entity = (result as SuccessState<ConfigurationsModel>).data;
         expect(entity?.pushNotificationsEnabled, tPushEnabled);
         expect(entity?.themeMode, tThemeMode);
         expect(entity?.systemNotificationsEnabled, false);
@@ -61,7 +60,7 @@ void main() {
 
       final result = await dataSource.getConfigurations();
 
-      expect(result, isA<FailureState<ConfigurationsResponseModel>>());
+      expect(result, isA<FailureState<ConfigurationsModel>>());
     });
   });
 

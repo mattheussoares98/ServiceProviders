@@ -1,56 +1,54 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-class UserDataResponseModel extends UserDataEntity
+class UserDataModel extends UserDataEntity
     implements DataConvertible<UserDataEntity> {
-  const UserDataResponseModel({
-    required UserProfileResponseModel user,
+  const UserDataModel({
+    required UserProfileModel user,
     required super.accessToken,
     required super.refreshToken,
   }) : super(user: user);
 
-  factory UserDataResponseModel.fromJson(MapDynamic json) {
-    return UserDataResponseModel(
-      user: UserProfileResponseModel.fromJson(
-        json['user'] as MapDynamic? ?? {},
-      ),
+  factory UserDataModel.fromJson(MapDynamic json) {
+    return UserDataModel(
+      user: UserProfileModel.fromJson(json['user'] as MapDynamic? ?? {}),
       accessToken: json['access'] as String? ?? '',
       refreshToken: json['refresh'] as String? ?? '',
     );
   }
 
-  factory UserDataResponseModel.fromSupabase(sb.AuthResponse response) {
-    return UserDataResponseModel(
-      user: UserProfileResponseModel.fromSupabase(response),
+  factory UserDataModel.fromSupabase(sb.AuthResponse response) {
+    return UserDataModel(
+      user: UserProfileModel.fromSupabase(response),
       accessToken: response.session?.accessToken ?? '',
       refreshToken: response.session?.refreshToken ?? '',
     );
   }
 
-  factory UserDataResponseModel.fromSupabaseProfile({
+  factory UserDataModel.fromSupabaseProfile({
     required sb.AuthResponse response,
-    required UserProfileResponseModel profile,
+    required UserProfileModel profile,
   }) {
-    return UserDataResponseModel(
+    return UserDataModel(
       user: profile,
       accessToken: response.session?.accessToken ?? '',
       refreshToken: response.session?.refreshToken ?? '',
     );
   }
 
-  factory UserDataResponseModel.fromEntity(UserDataEntity domain) {
-    return UserDataResponseModel(
-      user: UserProfileResponseModel.fromEntity(domain.user),
+  factory UserDataModel.fromEntity(UserDataEntity domain) {
+    return UserDataModel(
+      user: UserProfileModel.fromEntity(domain.user),
       accessToken: domain.accessToken,
       refreshToken: domain.refreshToken,
     );
   }
 
   @override
-  UserProfileResponseModel get user => super.user as UserProfileResponseModel;
+  UserProfileModel get user => super.user as UserProfileModel;
 
   @override
   MapDynamic toJson() => {

@@ -5,44 +5,41 @@ import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 
 abstract interface class ServiceProviderLocalDataSource {
-  FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompanies(
     String companyId,
   );
-  FutureData<ServiceProviderCompanyResponseModel> getServiceProviderCompanyById(
+  FutureData<ServiceProviderCompanyModel> getServiceProviderCompanyById(
     String id,
   );
-  FutureBool saveServiceProviderCompany(
-    ServiceProviderCompanyResponseModel company,
-  );
+  FutureBool saveServiceProviderCompany(ServiceProviderCompanyModel company);
   FutureBool saveServiceProviderCompanies(
-    List<ServiceProviderCompanyResponseModel> companies,
+    List<ServiceProviderCompanyModel> companies,
   );
 
-  FutureList<ServiceProviderProfileResponseModel> getServiceProviderProfiles(
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
-  FutureList<ServiceProviderProfileResponseModel>
+  FutureList<ServiceProviderProfileModel>
   getServiceProviderProfilesByCompanyIds(
     List<String> serviceProviderCompanyIds,
   );
-  FutureBool saveServiceProviderProfile(
-    ServiceProviderProfileResponseModel profile,
-  );
+  FutureBool saveServiceProviderProfile(ServiceProviderProfileModel profile);
   FutureBool saveServiceProviderProfiles(
-    List<ServiceProviderProfileResponseModel> profiles,
+    List<ServiceProviderProfileModel> profiles,
   );
 
-  FutureList<ServiceProviderInvitationResponseModel>
-  getServiceProviderInvitations(String serviceProviderCompanyId);
+  FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
+    String serviceProviderCompanyId,
+  );
   FutureBool saveServiceProviderInvitations(
-    List<ServiceProviderInvitationResponseModel> invitations,
+    List<ServiceProviderInvitationModel> invitations,
   );
   FutureBool deleteServiceProviderInvitation(String invitationId);
 }
@@ -56,7 +53,7 @@ final class ServiceProviderLocalDataSourceImpl
   final AppDatabase _database;
 
   @override
-  FutureList<ServiceProviderCompanyResponseModel> getServiceProviderCompanies(
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompanies(
     String companyId,
   ) {
     return ErrorHandler.execute(() async {
@@ -66,7 +63,7 @@ final class ServiceProviderLocalDataSourceImpl
 
       final list = rows
           .map(
-            (row) => ServiceProviderCompanyResponseModel(
+            (row) => ServiceProviderCompanyModel(
               id: row.id,
               companyId: row.companyId,
               name: row.name,
@@ -92,7 +89,7 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureData<ServiceProviderCompanyResponseModel> getServiceProviderCompanyById(
+  FutureData<ServiceProviderCompanyModel> getServiceProviderCompanyById(
     String id,
   ) {
     return ErrorHandler.execute(() async {
@@ -106,7 +103,7 @@ final class ServiceProviderLocalDataSourceImpl
         );
       }
 
-      final model = ServiceProviderCompanyResponseModel(
+      final model = ServiceProviderCompanyModel(
         id: row.id,
         companyId: row.companyId,
         name: row.name,
@@ -128,9 +125,7 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureBool saveServiceProviderCompany(
-    ServiceProviderCompanyResponseModel company,
-  ) {
+  FutureBool saveServiceProviderCompany(ServiceProviderCompanyModel company) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.serviceProviderCompanies)
@@ -156,7 +151,7 @@ final class ServiceProviderLocalDataSourceImpl
 
   @override
   FutureBool saveServiceProviderCompanies(
-    List<ServiceProviderCompanyResponseModel> companies,
+    List<ServiceProviderCompanyModel> companies,
   ) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
@@ -187,7 +182,7 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureList<ServiceProviderProfileResponseModel> getServiceProviderProfiles(
+  FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   ) {
     return ErrorHandler.execute(() async {
@@ -199,7 +194,7 @@ final class ServiceProviderLocalDataSourceImpl
 
       final list = rows
           .map(
-            (row) => ServiceProviderProfileResponseModel(
+            (row) => ServiceProviderProfileModel(
               id: row.id,
               authUserId: row.authUserId,
               serviceProviderCompanyId: row.serviceProviderCompanyId,
@@ -218,7 +213,7 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureList<ServiceProviderProfileResponseModel>
+  FutureList<ServiceProviderProfileModel>
   getServiceProviderProfilesByCompanyIds(
     List<String> serviceProviderCompanyIds,
   ) {
@@ -234,7 +229,7 @@ final class ServiceProviderLocalDataSourceImpl
 
       final list = rows
           .map(
-            (row) => ServiceProviderProfileResponseModel(
+            (row) => ServiceProviderProfileModel(
               id: row.id,
               authUserId: row.authUserId,
               serviceProviderCompanyId: row.serviceProviderCompanyId,
@@ -253,9 +248,7 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureBool saveServiceProviderProfile(
-    ServiceProviderProfileResponseModel profile,
-  ) {
+  FutureBool saveServiceProviderProfile(ServiceProviderProfileModel profile) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.serviceProviderProfiles)
@@ -278,7 +271,7 @@ final class ServiceProviderLocalDataSourceImpl
 
   @override
   FutureBool saveServiceProviderProfiles(
-    List<ServiceProviderProfileResponseModel> profiles,
+    List<ServiceProviderProfileModel> profiles,
   ) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
@@ -308,8 +301,9 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
-  FutureList<ServiceProviderInvitationResponseModel>
-  getServiceProviderInvitations(String serviceProviderCompanyId) {
+  FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
+    String serviceProviderCompanyId,
+  ) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.serviceProviderInvitations)
         ..where(
@@ -319,7 +313,7 @@ final class ServiceProviderLocalDataSourceImpl
 
       final list = rows
           .map(
-            (row) => ServiceProviderInvitationResponseModel(
+            (row) => ServiceProviderInvitationModel(
               id: row.id,
               email: row.email,
               serviceProviderCompanyId: row.serviceProviderCompanyId,
@@ -338,7 +332,7 @@ final class ServiceProviderLocalDataSourceImpl
 
   @override
   FutureBool saveServiceProviderInvitations(
-    List<ServiceProviderInvitationResponseModel> invitations,
+    List<ServiceProviderInvitationModel> invitations,
   ) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {

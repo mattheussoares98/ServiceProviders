@@ -7,8 +7,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,9 +23,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      UserProfileResponseModel.fromEntity(
-        EntityFactory.makeUserProfileEntity(),
-      ),
+      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
       PermissionGroupModel.fromEntity(
@@ -44,9 +42,7 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(
-    tUserProfileEntity,
-  );
+  final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupModel.fromEntity(
@@ -62,7 +58,7 @@ void main() {
     // ============================================
     group('getUserProfiles', () {
       test(
-        'should return SuccessState<List<UserProfileResponseModel>> on success',
+        'should return SuccessState<List<UserProfileModel>> on success',
         () async {
           when(
             () => mockDatabase.selectList(
@@ -73,7 +69,7 @@ void main() {
 
           final result = await dataSource.getUserProfiles(tCompanyId);
 
-          expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+          expect(result, isA<SuccessState<List<UserProfileModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tUserProfileModel.id);
           verify(
@@ -90,31 +86,28 @@ void main() {
     });
 
     group('getUserProfileById', () {
-      test(
-        'should return SuccessState<UserProfileResponseModel> on success',
-        () async {
-          when(
-            () => mockDatabase.selectOne(
-              table: any(named: 'table'),
-              filters: any(named: 'filters'),
-            ),
-          ).thenAnswer((_) async => tUserProfileModel.toJson());
+      test('should return SuccessState<UserProfileModel> on success', () async {
+        when(
+          () => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => tUserProfileModel.toJson());
 
-          final result = await dataSource.getUserProfileById(tId);
+        final result = await dataSource.getUserProfileById(tId);
 
-          expect(result, isA<SuccessState<UserProfileResponseModel>>());
-          expect(result.data!.id, tUserProfileModel.id);
-          verify(
-            () => mockDatabase.selectOne(
-              table: 'user_profiles',
-              filters: [
-                SupabaseFilter.eq('id', tId),
-                SupabaseFilter.isFilter('deleted_at', null),
-              ],
-            ),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<UserProfileModel>>());
+        expect(result.data!.id, tUserProfileModel.id);
+        verify(
+          () => mockDatabase.selectOne(
+            table: 'user_profiles',
+            filters: [
+              SupabaseFilter.eq('id', tId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
+      });
       test('should throw when returning null', () async {
         when(
           () => mockDatabase.selectOne(
@@ -125,7 +118,7 @@ void main() {
 
         final result = await dataSource.getUserProfileById(tId);
 
-        expect(result, isA<FailureState<UserProfileResponseModel>>());
+        expect(result, isA<FailureState<UserProfileModel>>());
         verify(
           () => mockDatabase.selectOne(
             table: 'user_profiles',
@@ -139,30 +132,27 @@ void main() {
     });
 
     group('updateUserProfile', () {
-      test(
-        'should return SuccessState<UserProfileResponseModel> on success',
-        () async {
-          when(
-            () => mockDatabase.update(
-              table: any(named: 'table'),
-              values: any(named: 'values'),
-              filters: any(named: 'filters'),
-            ),
-          ).thenAnswer((_) async => [tUserProfileModel.toJson()]);
+      test('should return SuccessState<UserProfileModel> on success', () async {
+        when(
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tUserProfileModel.toJson()]);
 
-          final result = await dataSource.updateUserProfile(tUserProfileModel);
+        final result = await dataSource.updateUserProfile(tUserProfileModel);
 
-          expect(result, isA<SuccessState<UserProfileResponseModel>>());
-          expect(result.data!.id, tUserProfileModel.id);
-          verify(
-            () => mockDatabase.update(
-              table: 'user_profiles',
-              values: tUserProfileModel.toJson(),
-              filters: [SupabaseFilter.eq('id', tUserProfileModel.id)],
-            ),
-          ).called(1);
-        },
-      );
+        expect(result, isA<SuccessState<UserProfileModel>>());
+        expect(result.data!.id, tUserProfileModel.id);
+        verify(
+          () => mockDatabase.update(
+            table: 'user_profiles',
+            values: tUserProfileModel.toJson(),
+            filters: [SupabaseFilter.eq('id', tUserProfileModel.id)],
+          ),
+        ).called(1);
+      });
     });
 
     group('deleteUserProfile', () {
@@ -230,9 +220,9 @@ void main() {
 
     group('getPendingInvitations', () {
       test(
-        'should return SuccessState<List<UserInvitationResponseModel>> on success',
+        'should return SuccessState<List<UserInvitationModel>> on success',
         () async {
-          final tInvitationModel = UserInvitationResponseModel.fromEntity(
+          final tInvitationModel = UserInvitationModel.fromEntity(
             EntityFactory.makeUserInvitationEntity(),
           );
 
@@ -246,10 +236,7 @@ void main() {
 
           final result = await dataSource.getPendingInvitations(tCompanyId);
 
-          expect(
-            result,
-            isA<SuccessState<List<UserInvitationResponseModel>>>(),
-          );
+          expect(result, isA<SuccessState<List<UserInvitationModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tInvitationModel.id);
           verify(
@@ -336,10 +323,7 @@ void main() {
 
           final result = await dataSource.getPermissionGroups(tCompanyId);
 
-          expect(
-            result,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(result, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first.id, tPermissionGroupModel.id);
           verify(

@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 /// Represents an execution response entry for a checklist item inside a work order execution.
-class ChecklistResponseAnswerEntity extends Equatable {
-  const ChecklistResponseAnswerEntity({
+class ChecklistAnswerEntity extends Equatable {
+  const ChecklistAnswerEntity({
     required this.id,
     required this.workOrderId,
     required this.checklistItemId,
@@ -15,11 +15,9 @@ class ChecklistResponseAnswerEntity extends Equatable {
     required this.updatedAt,
   });
 
-  factory ChecklistResponseAnswerEntity.empty({
-    required String checklistItemId,
-  }) {
+  factory ChecklistAnswerEntity.empty({required String checklistItemId}) {
     final now = DateTime.now();
-    return ChecklistResponseAnswerEntity(
+    return ChecklistAnswerEntity(
       id: '',
       workOrderId: '',
       checklistItemId: checklistItemId,
@@ -58,7 +56,7 @@ class ChecklistResponseAnswerEntity extends Equatable {
     updatedAt,
   ];
 
-  ChecklistResponseAnswerEntity copyWith({
+  ChecklistAnswerEntity copyWith({
     String? id,
     String? workOrderId,
     String? checklistItemId,
@@ -75,7 +73,7 @@ class ChecklistResponseAnswerEntity extends Equatable {
     bool? annulPhotoUrl,
     bool? annulSelectedOption,
   }) {
-    return ChecklistResponseAnswerEntity(
+    return ChecklistAnswerEntity(
       id: id ?? this.id,
       workOrderId: workOrderId ?? this.workOrderId,
       checklistItemId: checklistItemId ?? this.checklistItemId,

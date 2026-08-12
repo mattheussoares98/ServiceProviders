@@ -4,9 +4,9 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/docume
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 
-class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
+class ServiceProviderCompanyModel extends ServiceProviderCompanyEntity
     implements DataConvertible<ServiceProviderCompanyEntity> {
-  const ServiceProviderCompanyResponseModel({
+  const ServiceProviderCompanyModel({
     required super.id,
     required super.companyId,
     required super.name,
@@ -21,9 +21,9 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     required super.deletedAt,
   });
 
-  factory ServiceProviderCompanyResponseModel.fromEntity(
+  factory ServiceProviderCompanyModel.fromEntity(
     ServiceProviderCompanyEntity entity,
-  ) => ServiceProviderCompanyResponseModel(
+  ) => ServiceProviderCompanyModel(
     id: entity.id,
     companyId: entity.companyId,
     name: entity.name,
@@ -38,8 +38,8 @@ class ServiceProviderCompanyResponseModel extends ServiceProviderCompanyEntity
     deletedAt: entity.deletedAt,
   );
 
-  factory ServiceProviderCompanyResponseModel.fromJson(MapDynamic json) =>
-      ServiceProviderCompanyResponseModel(
+  factory ServiceProviderCompanyModel.fromJson(MapDynamic json) =>
+      ServiceProviderCompanyModel(
         id: json['id'] as String? ?? '',
         companyId: json['company_id'] as String? ?? '',
         name: json['name'] as String? ?? '',

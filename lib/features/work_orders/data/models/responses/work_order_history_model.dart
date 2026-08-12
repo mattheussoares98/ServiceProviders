@@ -2,9 +2,9 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 
-class WorkOrderHistoryResponseModel extends WorkOrderHistoryEntity
+class WorkOrderHistoryModel extends WorkOrderHistoryEntity
     implements DataConvertible<WorkOrderHistoryEntity> {
-  const WorkOrderHistoryResponseModel({
+  const WorkOrderHistoryModel({
     required super.id,
     required super.workOrderId,
     required super.companyId,
@@ -15,21 +15,20 @@ class WorkOrderHistoryResponseModel extends WorkOrderHistoryEntity
     required super.createdAt,
   });
 
-  factory WorkOrderHistoryResponseModel.fromEntity(
-    WorkOrderHistoryEntity entity,
-  ) => WorkOrderHistoryResponseModel(
-    id: entity.id,
-    workOrderId: entity.workOrderId,
-    companyId: entity.companyId,
-    userId: entity.userId,
-    action: entity.action,
-    oldValue: entity.oldValue,
-    newValue: entity.newValue,
-    createdAt: entity.createdAt,
-  );
+  factory WorkOrderHistoryModel.fromEntity(WorkOrderHistoryEntity entity) =>
+      WorkOrderHistoryModel(
+        id: entity.id,
+        workOrderId: entity.workOrderId,
+        companyId: entity.companyId,
+        userId: entity.userId,
+        action: entity.action,
+        oldValue: entity.oldValue,
+        newValue: entity.newValue,
+        createdAt: entity.createdAt,
+      );
 
-  factory WorkOrderHistoryResponseModel.fromJson(MapDynamic json) =>
-      WorkOrderHistoryResponseModel(
+  factory WorkOrderHistoryModel.fromJson(MapDynamic json) =>
+      WorkOrderHistoryModel(
         id: json['id'] as String? ?? '',
         workOrderId: json['work_order_id'] as String? ?? '',
         companyId: json['company_id'] as String? ?? '',

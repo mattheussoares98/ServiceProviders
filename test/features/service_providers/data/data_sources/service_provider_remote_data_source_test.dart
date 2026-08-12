@@ -3,9 +3,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -29,17 +29,13 @@ void main() {
   });
 
   final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
-  final tCompanyModel = ServiceProviderCompanyResponseModel.fromEntity(
-    tCompanyEntity,
-  );
+  final tCompanyModel = ServiceProviderCompanyModel.fromEntity(tCompanyEntity);
 
   final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
-  final tProfileModel = ServiceProviderProfileResponseModel.fromEntity(
-    tProfileEntity,
-  );
+  final tProfileModel = ServiceProviderProfileModel.fromEntity(tProfileEntity);
 
   final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
-  final tInvitationModel = ServiceProviderInvitationResponseModel.fromEntity(
+  final tInvitationModel = ServiceProviderInvitationModel.fromEntity(
     tInvitationEntity,
   );
 
@@ -58,12 +54,9 @@ void main() {
           tCompanyEntity.companyId,
         );
 
+        expect(result, isA<SuccessState<List<ServiceProviderCompanyModel>>>());
         expect(
-          result,
-          isA<SuccessState<List<ServiceProviderCompanyResponseModel>>>(),
-        );
-        expect(
-          (result as SuccessState<List<ServiceProviderCompanyResponseModel>>)
+          (result as SuccessState<List<ServiceProviderCompanyModel>>)
               .data!
               .first
               .id,
@@ -112,14 +105,9 @@ void main() {
           tCompanyEntity.id,
         );
 
+        expect(result, isA<SuccessState<ServiceProviderCompanyModel>>());
         expect(
-          result,
-          isA<SuccessState<ServiceProviderCompanyResponseModel>>(),
-        );
-        expect(
-          (result as SuccessState<ServiceProviderCompanyResponseModel>)
-              .data!
-              .id,
+          (result as SuccessState<ServiceProviderCompanyModel>).data!.id,
           tCompanyEntity.id,
         );
       },
@@ -256,12 +244,9 @@ void main() {
           tProfileEntity.serviceProviderCompanyId,
         );
 
+        expect(result, isA<SuccessState<List<ServiceProviderProfileModel>>>());
         expect(
-          result,
-          isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
-        );
-        expect(
-          (result as SuccessState<List<ServiceProviderProfileResponseModel>>)
+          (result as SuccessState<List<ServiceProviderProfileModel>>)
               .data!
               .first
               .id,
@@ -282,17 +267,13 @@ void main() {
           ),
         ).thenAnswer((_) async => [tProfileModel.toJson()]);
 
-        final result =
-            await dataSource.getServiceProviderProfilesByCompanyIds([
-              tProfileEntity.serviceProviderCompanyId,
-            ]);
+        final result = await dataSource.getServiceProviderProfilesByCompanyIds([
+          tProfileEntity.serviceProviderCompanyId,
+        ]);
 
+        expect(result, isA<SuccessState<List<ServiceProviderProfileModel>>>());
         expect(
-          result,
-          isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
-        );
-        expect(
-          (result as SuccessState<List<ServiceProviderProfileResponseModel>>)
+          (result as SuccessState<List<ServiceProviderProfileModel>>)
               .data!
               .first
               .id,
@@ -307,17 +288,18 @@ void main() {
       },
     );
 
-    test('should return empty list when passed empty company ids list', () async {
-      final result =
-          await dataSource.getServiceProviderProfilesByCompanyIds([]);
+    test(
+      'should return empty list when passed empty company ids list',
+      () async {
+        final result = await dataSource.getServiceProviderProfilesByCompanyIds(
+          [],
+        );
 
-      expect(
-        result,
-        isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
-      );
-      expect((result as SuccessState).data, isEmpty);
-      verifyZeroInteractions(mockDatabase);
-    });
+        expect(result, isA<SuccessState<List<ServiceProviderProfileModel>>>());
+        expect((result as SuccessState).data, isEmpty);
+        verifyZeroInteractions(mockDatabase);
+      },
+    );
   });
 
   group('getServiceProviderProfilesByAuthUser', () {
@@ -335,12 +317,9 @@ void main() {
           tProfileEntity.authUserId!,
         );
 
+        expect(result, isA<SuccessState<List<ServiceProviderProfileModel>>>());
         expect(
-          result,
-          isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
-        );
-        expect(
-          (result as SuccessState<List<ServiceProviderProfileResponseModel>>)
+          (result as SuccessState<List<ServiceProviderProfileModel>>)
               .data!
               .first
               .id,
@@ -408,10 +387,10 @@ void main() {
 
         expect(
           result,
-          isA<SuccessState<List<ServiceProviderInvitationResponseModel>>>(),
+          isA<SuccessState<List<ServiceProviderInvitationModel>>>(),
         );
         expect(
-          (result as SuccessState<List<ServiceProviderInvitationResponseModel>>)
+          (result as SuccessState<List<ServiceProviderInvitationModel>>)
               .data!
               .first
               .id,
@@ -523,26 +502,29 @@ void main() {
   });
 
   group('acceptServiceProviderInvitation', () {
-    test('should return SuccessState(true) when rpc call is successful', () async {
-      when(
-        () => mockDatabase.rpc(
-          functionName: any(named: 'functionName'),
-          params: any(named: 'params'),
-          get: any(named: 'get'),
-        ),
-      ).thenAnswer((_) async => true);
+    test(
+      'should return SuccessState(true) when rpc call is successful',
+      () async {
+        when(
+          () => mockDatabase.rpc(
+            functionName: any(named: 'functionName'),
+            params: any(named: 'params'),
+            get: any(named: 'get'),
+          ),
+        ).thenAnswer((_) async => true);
 
-      final result = await dataSource.acceptServiceProviderInvitation(
-        tInvitationEntity.email,
-      );
+        final result = await dataSource.acceptServiceProviderInvitation(
+          tInvitationEntity.email,
+        );
 
-      expect(result, const SuccessState(data: true));
-      verify(
-        () => mockDatabase.rpc(
-          functionName: 'accept_service_provider_invitation',
-          params: {'p_email': tInvitationEntity.email},
-        ),
-      ).called(1);
-    });
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockDatabase.rpc(
+            functionName: 'accept_service_provider_invitation',
+            params: {'p_email': tInvitationEntity.email},
+          ),
+        ).called(1);
+      },
+    );
   });
 }

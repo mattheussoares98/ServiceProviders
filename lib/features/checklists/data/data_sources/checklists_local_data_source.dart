@@ -7,28 +7,26 @@ import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_response_model.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_response_answer_model.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_response_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 
 abstract interface class ChecklistsLocalDataSource {
   // Templates
-  FutureList<ChecklistTemplateResponseModel> getTemplates(String companyId);
-  FutureData<ChecklistTemplateResponseModel> getTemplateById(String id);
-  FutureBool saveTemplate(ChecklistTemplateResponseModel template);
+  FutureList<ChecklistTemplateModel> getTemplates(String companyId);
+  FutureData<ChecklistTemplateModel> getTemplateById(String id);
+  FutureBool saveTemplate(ChecklistTemplateModel template);
   FutureBool deleteTemplate(String id);
 
   // Items
-  FutureList<ChecklistItemResponseModel> getItemsByTemplate(String templateId);
-  FutureBool saveItem(ChecklistItemResponseModel item);
+  FutureList<ChecklistItemModel> getItemsByTemplate(String templateId);
+  FutureBool saveItem(ChecklistItemModel item);
   FutureBool deleteItem(String id);
 
   // Execution Responses
-  FutureList<ChecklistResponseAnswerModel> getResponsesByWorkOrder(
-    String workOrderId,
-  );
-  FutureBool saveResponse(ChecklistResponseAnswerModel response);
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
+  FutureBool saveResponse(ChecklistAnswerModel response);
 }
 
 @LazySingleton(as: ChecklistsLocalDataSource)
@@ -43,7 +41,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   // ============================================
 
   @override
-  FutureList<ChecklistTemplateResponseModel> getTemplates(String companyId) {
+  FutureList<ChecklistTemplateModel> getTemplates(String companyId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.checklistTemplates)..where(
@@ -54,7 +52,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
       return SuccessState(
         data: list
             .map(
-              (t) => ChecklistTemplateResponseModel(
+              (t) => ChecklistTemplateModel(
                 id: t.id,
                 companyId: t.companyId,
                 name: t.name,
@@ -71,7 +69,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   }
 
   @override
-  FutureData<ChecklistTemplateResponseModel> getTemplateById(String id) {
+  FutureData<ChecklistTemplateModel> getTemplateById(String id) {
     return ErrorHandler.execute(() async {
       final item =
           await (_database.select(_database.checklistTemplates)
@@ -85,7 +83,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
       }
 
       return SuccessState(
-        data: ChecklistTemplateResponseModel(
+        data: ChecklistTemplateModel(
           id: item.id,
           companyId: item.companyId,
           name: item.name,
@@ -100,7 +98,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   }
 
   @override
-  FutureBool saveTemplate(ChecklistTemplateResponseModel template) {
+  FutureBool saveTemplate(ChecklistTemplateModel template) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.checklistTemplates)
@@ -135,7 +133,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   // ============================================
 
   @override
-  FutureList<ChecklistItemResponseModel> getItemsByTemplate(String templateId) {
+  FutureList<ChecklistItemModel> getItemsByTemplate(String templateId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.checklistItems)..where(
@@ -146,7 +144,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
       return SuccessState(
         data: list
             .map(
-              (t) => ChecklistItemResponseModel(
+              (t) => ChecklistItemModel(
                 id: t.id,
                 templateId: t.templateId,
                 companyId: t.companyId,
@@ -169,7 +167,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   }
 
   @override
-  FutureBool saveItem(ChecklistItemResponseModel item) {
+  FutureBool saveItem(ChecklistItemModel item) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.checklistItems)
@@ -208,9 +206,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   // ============================================
 
   @override
-  FutureList<ChecklistResponseAnswerModel> getResponsesByWorkOrder(
-    String workOrderId,
-  ) {
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId) {
     return ErrorHandler.execute(() async {
       final list = await (_database.select(
         _database.tasks,
@@ -219,7 +215,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
       return SuccessState(
         data: list
             .map(
-              (t) => ChecklistResponseAnswerModel(
+              (t) => ChecklistAnswerModel(
                 id: t.id,
                 workOrderId: t.workOrderId,
                 checklistItemId: t.title,
@@ -234,7 +230,7 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   }
 
   @override
-  FutureBool saveResponse(ChecklistResponseAnswerModel response) {
+  FutureBool saveResponse(ChecklistAnswerModel response) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.tasks)

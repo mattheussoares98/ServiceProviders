@@ -3,8 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -22,11 +22,11 @@ void main() {
     dataSource = AuthLocalDataSourceImpl(localDatabase: mockLocalDatabase);
   });
 
-  final userModel = UserProfileResponseModel.fromEntity(
+  final userModel = UserProfileModel.fromEntity(
     EntityFactory.makeUserProfileEntity(),
   );
 
-  final tUserDataModel = UserDataResponseModel(
+  final tUserDataModel = UserDataModel(
     user: userModel,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -84,7 +84,7 @@ void main() {
         final result = await dataSource.getUserData();
 
         // Assert
-        expect(result, isA<SuccessState<UserDataResponseModel>>());
+        expect(result, isA<SuccessState<UserDataModel>>());
         expect(result.data, isNotNull);
         expect(result.data!.user.id, userModel.id);
         expect(result.data!.accessToken, 'access');
@@ -100,7 +100,7 @@ void main() {
       final result = await dataSource.getUserData();
 
       // Assert
-      expect(result, isA<FailureState<UserDataResponseModel>>());
+      expect(result, isA<FailureState<UserDataModel>>());
       verify(() => mockLocalDatabase.getUserSession()).called(1);
     });
 
@@ -115,7 +115,7 @@ void main() {
         final result = await dataSource.getUserData();
 
         // Assert
-        expect(result, isA<FailureState<UserDataResponseModel>>());
+        expect(result, isA<FailureState<UserDataModel>>());
       },
     );
   });

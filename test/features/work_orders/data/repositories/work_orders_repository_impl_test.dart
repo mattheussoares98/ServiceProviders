@@ -4,10 +4,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/work_orders_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
@@ -28,19 +28,17 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      WorkOrderResponseModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
     registerFallbackValue(
-      WorkOrderResponseModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
-    registerFallbackValue(
-      TaskResponseModel.fromEntity(EntityFactory.makeTaskEntity()),
-    );
+    registerFallbackValue(TaskModel.fromEntity(EntityFactory.makeTaskEntity()));
     registerFallbackValue(
       TaskRequestModel.fromEntity(EntityFactory.makeTaskEntity()),
     );
     registerFallbackValue(
-      WorkOrderChangeRequestResponseModel.fromEntity(
+      WorkOrderChangeRequestModel.fromEntity(
         EntityFactory.makeWorkOrderChangeRequestEntity(),
       ),
     );
@@ -50,7 +48,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      WorkOrderHistoryResponseModel.fromEntity(
+      WorkOrderHistoryModel.fromEntity(
         EntityFactory.makeWorkOrderHistoryEntity(),
       ),
     );
@@ -69,20 +67,16 @@ void main() {
   });
 
   final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
-  final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+  final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
   final tTaskEntity = EntityFactory.makeTaskEntity();
-  final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);
+  final tTaskModel = TaskModel.fromEntity(tTaskEntity);
 
   final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
-  final tChangeModel = WorkOrderChangeRequestResponseModel.fromEntity(
-    tChangeEntity,
-  );
+  final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
 
   final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
-  final tHistoryModel = WorkOrderHistoryResponseModel.fromEntity(
-    tHistoryEntity,
-  );
+  final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
 
   final tCompanyId = faker.guid.guid();
   final tWorkOrderId = faker.guid.guid();

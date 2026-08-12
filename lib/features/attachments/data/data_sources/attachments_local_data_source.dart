@@ -4,21 +4,19 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
 abstract interface class AttachmentsLocalDataSource {
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
-    String workOrderId,
-  );
-  FutureData<AttachmentResponseModel?> getAttachment(String id);
-  FutureBool saveAttachment(AttachmentResponseModel attachment);
+  FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId);
+  FutureData<AttachmentModel?> getAttachment(String id);
+  FutureBool saveAttachment(AttachmentModel attachment);
   FutureBool deleteAttachment(String id);
   FutureBool hardDeleteAttachment(String id);
   FutureVoid touchLastAccessed(String id);
   FutureData<int> getTotalSandboxBytes();
-  FutureList<AttachmentResponseModel> getUploadedOrderedByLastAccess();
+  FutureList<AttachmentModel> getUploadedOrderedByLastAccess();
 }
 
 @LazySingleton(as: AttachmentsLocalDataSource)
@@ -30,7 +28,7 @@ final class AttachmentsLocalDataSourceImpl
   final AppDatabase _database;
 
   @override
-  FutureData<AttachmentResponseModel?> getAttachment(String id) {
+  FutureData<AttachmentModel?> getAttachment(String id) {
     return ErrorHandler.execute(() async {
       final item = await (_database.select(
         _database.attachments,
@@ -41,7 +39,7 @@ final class AttachmentsLocalDataSourceImpl
       }
 
       return SuccessState(
-        data: AttachmentResponseModel(
+        data: AttachmentModel(
           id: item.id,
           workOrderId: item.workOrderId,
           companyId: item.companyId,
@@ -63,9 +61,7 @@ final class AttachmentsLocalDataSourceImpl
   }
 
   @override
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
-    String workOrderId,
-  ) {
+  FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.attachments)..where(
@@ -76,7 +72,7 @@ final class AttachmentsLocalDataSourceImpl
       return SuccessState(
         data: list
             .map(
-              (t) => AttachmentResponseModel(
+              (t) => AttachmentModel(
                 id: t.id,
                 workOrderId: t.workOrderId,
                 companyId: t.companyId,
@@ -100,7 +96,7 @@ final class AttachmentsLocalDataSourceImpl
   }
 
   @override
-  FutureBool saveAttachment(AttachmentResponseModel attachment) {
+  FutureBool saveAttachment(AttachmentModel attachment) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.attachments)
@@ -175,7 +171,7 @@ final class AttachmentsLocalDataSourceImpl
   }
 
   @override
-  FutureList<AttachmentResponseModel> getUploadedOrderedByLastAccess() {
+  FutureList<AttachmentModel> getUploadedOrderedByLastAccess() {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.attachments)
@@ -191,7 +187,7 @@ final class AttachmentsLocalDataSourceImpl
       return SuccessState(
         data: list
             .map(
-              (t) => AttachmentResponseModel(
+              (t) => AttachmentModel(
                 id: t.id,
                 workOrderId: t.workOrderId,
                 companyId: t.companyId,

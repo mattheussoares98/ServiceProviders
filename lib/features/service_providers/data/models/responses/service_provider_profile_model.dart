@@ -2,9 +2,9 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
-class ServiceProviderProfileResponseModel extends ServiceProviderProfileEntity
+class ServiceProviderProfileModel extends ServiceProviderProfileEntity
     implements DataConvertible<ServiceProviderProfileEntity> {
-  const ServiceProviderProfileResponseModel({
+  const ServiceProviderProfileModel({
     required super.id,
     super.authUserId,
     required super.serviceProviderCompanyId,
@@ -16,9 +16,9 @@ class ServiceProviderProfileResponseModel extends ServiceProviderProfileEntity
     required super.updatedAt,
   });
 
-  factory ServiceProviderProfileResponseModel.fromEntity(
+  factory ServiceProviderProfileModel.fromEntity(
     ServiceProviderProfileEntity entity,
-  ) => ServiceProviderProfileResponseModel(
+  ) => ServiceProviderProfileModel(
     id: entity.id,
     authUserId: entity.authUserId,
     serviceProviderCompanyId: entity.serviceProviderCompanyId,
@@ -30,8 +30,8 @@ class ServiceProviderProfileResponseModel extends ServiceProviderProfileEntity
     updatedAt: entity.updatedAt,
   );
 
-  factory ServiceProviderProfileResponseModel.fromJson(MapDynamic json) =>
-      ServiceProviderProfileResponseModel(
+  factory ServiceProviderProfileModel.fromJson(MapDynamic json) =>
+      ServiceProviderProfileModel(
         id: json['id'] as String? ?? '',
         authUserId: json['auth_user_id'] as String?,
         serviceProviderCompanyId:

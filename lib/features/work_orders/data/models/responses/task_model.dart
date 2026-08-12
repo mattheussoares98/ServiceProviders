@@ -2,11 +2,10 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 
-class TaskResponseModel extends TaskEntity
-        //TODO change all Responsemodel to only Model and fix the AI rules
-        implements
-        DataConvertible<TaskEntity> {
-  const TaskResponseModel({
+class TaskModel extends TaskEntity
+    implements
+    DataConvertible<TaskEntity> {
+  const TaskModel({
     required super.id,
     required super.workOrderId,
     required super.companyId,
@@ -21,7 +20,7 @@ class TaskResponseModel extends TaskEntity
     super.deletedAt,
   });
 
-  factory TaskResponseModel.fromEntity(TaskEntity entity) => TaskResponseModel(
+  factory TaskModel.fromEntity(TaskEntity entity) => TaskModel(
     id: entity.id,
     workOrderId: entity.workOrderId,
     companyId: entity.companyId,
@@ -36,7 +35,7 @@ class TaskResponseModel extends TaskEntity
     deletedAt: entity.deletedAt,
   );
 
-  factory TaskResponseModel.fromJson(MapDynamic json) => TaskResponseModel(
+  factory TaskModel.fromJson(MapDynamic json) => TaskModel(
     id: json['id'] as String? ?? '',
     workOrderId: json['work_order_id'] as String? ?? '',
     companyId: json['company_id'] as String? ?? '',

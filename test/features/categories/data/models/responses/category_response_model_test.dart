@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -7,29 +7,29 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final tEntity = EntityFactory.makeCategoryEntity();
 
-  group('CategoryResponseModel', () {
+  group('CategoryModel', () {
     test('should be a subclass of CategoryEntity', () {
-      final model = CategoryResponseModel.fromEntity(tEntity);
+      final model = CategoryModel.fromEntity(tEntity);
       expect(model, isA<CategoryEntity>());
     });
 
     test('should return a valid model fromEntity', () {
-      final model = CategoryResponseModel.fromEntity(tEntity);
-      final expected = CategoryResponseModel.fromEntity(tEntity);
+      final model = CategoryModel.fromEntity(tEntity);
+      final expected = CategoryModel.fromEntity(tEntity);
       expect(model, equals(expected));
     });
 
     test('should return a valid model fromJson', () {
-      final model = CategoryResponseModel.fromEntity(tEntity);
+      final model = CategoryModel.fromEntity(tEntity);
       final json = model.toJson();
 
-      final result = CategoryResponseModel.fromJson(json);
+      final result = CategoryModel.fromJson(json);
 
       expect(result, equals(model));
     });
 
     test('should return a MapDynamic containing the proper data on toJson', () {
-      final model = CategoryResponseModel.fromEntity(tEntity);
+      final model = CategoryModel.fromEntity(tEntity);
       final expectedJson = model.toJson();
 
       final result = model.toJson();
@@ -38,7 +38,7 @@ void main() {
     });
 
     test('should convert to a CategoryEntity correctly on toEntity', () {
-      final model = CategoryResponseModel.fromEntity(tEntity);
+      final model = CategoryModel.fromEntity(tEntity);
       final entity = model.toEntity();
       expect(entity, tEntity);
     });

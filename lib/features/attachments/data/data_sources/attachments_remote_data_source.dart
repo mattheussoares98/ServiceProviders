@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_da
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AttachmentsRemoteDataSource {
@@ -14,18 +14,16 @@ abstract interface class AttachmentsRemoteDataSource {
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey);
 
   /// Saves the attachment record on the remote database after a successful R2 upload.
-  FutureBool confirmUpload(AttachmentResponseModel attachment);
+  FutureBool confirmUpload(AttachmentModel attachment);
 
   /// Fetches all non-deleted attachments for a given work order from the database.
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
-    String workOrderId,
-  );
+  FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId);
 
   /// Deletes an attachment by ID from the remote database.
   FutureBool deleteAttachment(String id);
 
   /// Fetches an attachment by its hash/original path and work order ID (including soft-deleted).
-  FutureData<AttachmentResponseModel?> getAttachmentByHash({
+  FutureData<AttachmentModel?> getAttachmentByHash({
     required String workOrderId,
     required String hash,
   });
@@ -63,28 +61,25 @@ final class AttachmentsRemoteDataSourceImpl
       });
 
   @override
-  FutureBool confirmUpload(AttachmentResponseModel attachment) =>
-      SupabaseHandler.call(() async {
-        await _database.upsert(
-          table: 'attachments',
-          values: attachment.toJson(),
-        );
-        return true;
-      });
+  FutureBool confirmUpload(AttachmentModel attachment) => SupabaseHandler.call(
+    () async {
+      await _database.upsert(table: 'attachments', values: attachment.toJson());
+      return true;
+    },
+  );
 
   @override
-  FutureList<AttachmentResponseModel> getAttachmentsByWorkOrder(
-    String workOrderId,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.selectList(
-      table: 'attachments',
-      filters: [
-        SupabaseFilter.eq('work_order_id', workOrderId),
-        SupabaseFilter.isFilter('deleted_at', null),
-      ],
-    );
-    return response.map(AttachmentResponseModel.fromJson).toList();
-  });
+  FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'attachments',
+          filters: [
+            SupabaseFilter.eq('work_order_id', workOrderId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(AttachmentModel.fromJson).toList();
+      });
 
   @override
   FutureBool deleteAttachment(String id) => SupabaseHandler.call(() async {
@@ -97,7 +92,7 @@ final class AttachmentsRemoteDataSourceImpl
   });
 
   @override
-  FutureData<AttachmentResponseModel?> getAttachmentByHash({
+  FutureData<AttachmentModel?> getAttachmentByHash({
     required String workOrderId,
     required String hash,
   }) => SupabaseHandler.call(() async {
@@ -109,7 +104,7 @@ final class AttachmentsRemoteDataSourceImpl
       ],
     );
     if (response == null) return null;
-    return AttachmentResponseModel.fromJson(response);
+    return AttachmentModel.fromJson(response);
   });
 
   @override

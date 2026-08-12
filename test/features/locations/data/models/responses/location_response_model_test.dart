@@ -7,7 +7,7 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final tEntity = EntityFactory.makeLocationEntity();
 
-  group('LocationResponseModel', () {
+  group('LocationModel', () {
     test('should be a subclass of LocationEntity', () {
       final model = LocationModel.fromEntity(tEntity);
       expect(model, isA<LocationEntity>());

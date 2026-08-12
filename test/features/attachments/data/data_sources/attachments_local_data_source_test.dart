@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -112,9 +112,7 @@ void main() {
   final tAttachmentEntity = EntityFactory.makeAttachmentEntity().copyWith(
     lastAccessedAt: DateTime(2026),
   );
-  final tAttachmentModel = AttachmentResponseModel.fromEntity(
-    tAttachmentEntity,
-  );
+  final tAttachmentModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
   group('AttachmentsLocalDataSourceImpl', () {
     test('should save an attachment and successfully retrieve it', () async {
@@ -141,7 +139,7 @@ void main() {
       );
 
       // Assert Get List
-      expect(getResult, isA<SuccessState<List<AttachmentResponseModel>>>());
+      expect(getResult, isA<SuccessState<List<AttachmentModel>>>());
       expect(getResult.data, hasLength(1));
       expect(getResult.data!.first, equals(tAttachmentModel));
     });
@@ -175,7 +173,7 @@ void main() {
         );
 
         // Assert Get: Should be empty
-        expect(getResult, isA<SuccessState<List<AttachmentResponseModel>>>());
+        expect(getResult, isA<SuccessState<List<AttachmentModel>>>());
         expect(getResult.data, isEmpty);
       },
     );
@@ -197,7 +195,7 @@ void main() {
         final result = await dataSource.getAttachment(tAttachmentModel.id);
 
         // Assert
-        expect(result, isA<SuccessState<AttachmentResponseModel?>>());
+        expect(result, isA<SuccessState<AttachmentModel?>>());
         expect(result.data, equals(tAttachmentModel));
       });
 
@@ -206,7 +204,7 @@ void main() {
         final result = await dataSource.getAttachment(faker.guid.guid());
 
         // Assert
-        expect(result, isA<SuccessState<AttachmentResponseModel?>>());
+        expect(result, isA<SuccessState<AttachmentModel?>>());
         expect(result.data, null);
       });
     });
@@ -258,15 +256,9 @@ void main() {
             fileSizeBytes: 300,
           ); // no localPath
 
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att1),
-          );
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att2),
-          );
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att3),
-          );
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att1));
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att2));
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att3));
 
           final sizeResult = await dataSource.getTotalSandboxBytes();
           expect(sizeResult, isA<SuccessState<int>>());
@@ -306,21 +298,12 @@ void main() {
             lastAccessedAt: now,
           );
 
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att1),
-          );
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att2),
-          );
-          await dataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(att3),
-          );
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att1));
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att2));
+          await dataSource.saveAttachment(AttachmentModel.fromEntity(att3));
 
           final listResult = await dataSource.getUploadedOrderedByLastAccess();
-          expect(
-            listResult,
-            isA<SuccessState<List<AttachmentResponseModel>>>(),
-          );
+          expect(listResult, isA<SuccessState<List<AttachmentModel>>>());
           expect(listResult.data, hasLength(2));
           expect(listResult.data![0].id, 'att2'); // oldest accessed first
           expect(listResult.data![1].id, 'att1');

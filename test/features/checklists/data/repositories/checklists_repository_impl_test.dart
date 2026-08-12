@@ -2,8 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_response_model.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_response_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/repositories/checklists_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
@@ -29,31 +29,27 @@ void main() {
     );
 
     registerFallbackValue(
-      ChecklistTemplateResponseModel.fromEntity(
+      ChecklistTemplateModel.fromEntity(
         EntityFactory.makeChecklistTemplateEntity(),
       ),
     );
     registerFallbackValue(
-      ChecklistItemResponseModel.fromEntity(
-        EntityFactory.makeChecklistItemEntity(),
-      ),
+      ChecklistItemModel.fromEntity(EntityFactory.makeChecklistItemEntity()),
     );
   });
 
   final tTemplateEntity = EntityFactory.makeChecklistTemplateEntity();
-  final tTemplateModel = ChecklistTemplateResponseModel.fromEntity(
-    tTemplateEntity,
-  );
+  final tTemplateModel = ChecklistTemplateModel.fromEntity(tTemplateEntity);
   final tTemplateEntityList = EntityFactory.makeChecklistTemplateEntityList();
   final tTemplateModelList = tTemplateEntityList
-      .map(ChecklistTemplateResponseModel.fromEntity)
+      .map(ChecklistTemplateModel.fromEntity)
       .toList();
 
   final tItemEntity = EntityFactory.makeChecklistItemEntity();
-  final tItemModel = ChecklistItemResponseModel.fromEntity(tItemEntity);
+  final tItemModel = ChecklistItemModel.fromEntity(tItemEntity);
   final tItemEntityList = EntityFactory.makeChecklistItemEntityList();
   final tItemModelList = tItemEntityList
-      .map(ChecklistItemResponseModel.fromEntity)
+      .map(ChecklistItemModel.fromEntity)
       .toList();
 
   group('ChecklistsRepositoryImpl', () {

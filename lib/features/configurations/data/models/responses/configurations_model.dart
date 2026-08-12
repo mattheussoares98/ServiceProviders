@@ -1,0 +1,38 @@
+import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
+
+class ConfigurationsModel extends ConfigurationsEntity
+    implements DataConvertible<ConfigurationsEntity> {
+  const ConfigurationsModel({
+    required super.pushNotificationsEnabled,
+    required super.themeMode,
+    super.systemNotificationsEnabled = true,
+  });
+
+  factory ConfigurationsModel.fromEntity(ConfigurationsEntity entity) =>
+      ConfigurationsModel(
+        pushNotificationsEnabled: entity.pushNotificationsEnabled,
+        themeMode: entity.themeMode,
+        systemNotificationsEnabled: entity.systemNotificationsEnabled,
+      );
+
+  factory ConfigurationsModel.fromJson(MapDynamic json) => ConfigurationsModel(
+    pushNotificationsEnabled:
+        json['push_notifications_enabled'] as bool? ?? true,
+    themeMode: json['theme_mode'] as String? ?? 'system',
+  );
+
+  @override
+  MapDynamic toJson() => {
+    'push_notifications_enabled': pushNotificationsEnabled,
+    'theme_mode': themeMode,
+  };
+
+  @override
+  ConfigurationsEntity toEntity() => ConfigurationsEntity(
+    pushNotificationsEnabled: pushNotificationsEnabled,
+    themeMode: themeMode,
+    systemNotificationsEnabled: systemNotificationsEnabled,
+  );
+}

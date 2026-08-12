@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
 abstract interface class LocalStorageClient {
@@ -66,7 +66,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
               .getSingleOrNull();
 
       final userEntity = profile != null
-          ? UserProfileResponseModel.fromDb(profile).toEntity()
+          ? UserProfileModel.fromDb(profile).toEntity()
           : UserProfileEntity(
               id: session.id,
               companyId: '',

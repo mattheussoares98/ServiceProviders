@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -76,27 +76,30 @@ void main() {
       },
     );
 
-    test('should return FailureState when Edge Function call throws exception', () async {
-      // Arrange
-      when(
-        () => mockDatabase.invokeFunction(
-          any(),
-          method: any(named: 'method'),
-          body: any(named: 'body'),
-        ),
-      ).thenThrow(const AuthException('Token expired'));
+    test(
+      'should return FailureState when Edge Function call throws exception',
+      () async {
+        // Arrange
+        when(
+          () => mockDatabase.invokeFunction(
+            any(),
+            method: any(named: 'method'),
+            body: any(named: 'body'),
+          ),
+        ).thenThrow(const AuthException('Token expired'));
 
-      // Act
-      final result = await dataSource.getPresignedUploadUrl(tObjectKey);
+        // Act
+        final result = await dataSource.getPresignedUploadUrl(tObjectKey);
 
-      // Assert
-      expect(result, isA<FailureState<PresignedUrlResponse>>());
-    });
+        // Assert
+        expect(result, isA<FailureState<PresignedUrlResponse>>());
+      },
+    );
   });
 
   group('confirmUpload', () {
     final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
-    final tModel = AttachmentResponseModel.fromEntity(tAttachmentEntity);
+    final tModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
     test(
       'should return SuccessState<bool>(true) when database upsert is successful',
@@ -124,27 +127,30 @@ void main() {
       },
     );
 
-    test('should return FailureState when database upsert throws exception', () async {
-      // Arrange
-      when(
-        () => mockDatabase.upsert(
-          table: any(named: 'table'),
-          values: any(named: 'values'),
-        ),
-      ).thenThrow(const PostgrestException(message: 'Database error'));
+    test(
+      'should return FailureState when database upsert throws exception',
+      () async {
+        // Arrange
+        when(
+          () => mockDatabase.upsert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+          ),
+        ).thenThrow(const PostgrestException(message: 'Database error'));
 
-      // Act
-      final result = await dataSource.confirmUpload(tModel);
+        // Act
+        final result = await dataSource.confirmUpload(tModel);
 
-      // Assert
-      expect(result, isA<FailureState<bool>>());
-    });
+        // Assert
+        expect(result, isA<FailureState<bool>>());
+      },
+    );
   });
 
   group('getAttachmentsByWorkOrder', () {
     final tWorkOrderId = faker.guid.guid();
     final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
-    final tModel = AttachmentResponseModel.fromEntity(tAttachmentEntity);
+    final tModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
     test(
       'should return SuccessState with list of models when database query is successful',
@@ -161,9 +167,8 @@ void main() {
         final result = await dataSource.getAttachmentsByWorkOrder(tWorkOrderId);
 
         // Assert
-        expect(result, isA<SuccessState<List<AttachmentResponseModel>>>());
-        final list =
-            (result as SuccessState<List<AttachmentResponseModel>>).data;
+        expect(result, isA<SuccessState<List<AttachmentModel>>>());
+        final list = (result as SuccessState<List<AttachmentModel>>).data;
         expect(list, hasLength(1));
         expect(list![0].id, tModel.id);
         expect(list[0].fileName, tModel.fileName);
@@ -179,21 +184,24 @@ void main() {
       },
     );
 
-    test('should return FailureState when database query throws exception', () async {
-      // Arrange
-      when(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenThrow(const PostgrestException(message: 'Query error'));
+    test(
+      'should return FailureState when database query throws exception',
+      () async {
+        // Arrange
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(const PostgrestException(message: 'Query error'));
 
-      // Act
-      final result = await dataSource.getAttachmentsByWorkOrder(tWorkOrderId);
+        // Act
+        final result = await dataSource.getAttachmentsByWorkOrder(tWorkOrderId);
 
-      // Assert
-      expect(result, isA<FailureState<List<AttachmentResponseModel>>>());
-    });
+        // Assert
+        expect(result, isA<FailureState<List<AttachmentModel>>>());
+      },
+    );
   });
 
   group('deleteAttachment', () {
@@ -227,21 +235,24 @@ void main() {
       },
     );
 
-    test('should return FailureState when database soft-deletion throws exception', () async {
-      // Arrange
-      when(
-        () => mockDatabase.update(
-          table: any(named: 'table'),
-          values: any(named: 'values'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenThrow(const PostgrestException(message: 'Deletion error'));
+    test(
+      'should return FailureState when database soft-deletion throws exception',
+      () async {
+        // Arrange
+        when(
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(const PostgrestException(message: 'Deletion error'));
 
-      // Act
-      final result = await dataSource.deleteAttachment(tAttachmentId);
+        // Act
+        final result = await dataSource.deleteAttachment(tAttachmentId);
 
-      // Assert
-      expect(result, isA<FailureState<bool>>());
-    });
+        // Assert
+        expect(result, isA<FailureState<bool>>());
+      },
+    );
   });
 }

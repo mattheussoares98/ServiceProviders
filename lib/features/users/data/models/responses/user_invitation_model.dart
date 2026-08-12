@@ -2,9 +2,9 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 
-class UserInvitationResponseModel extends UserInvitationEntity
+class UserInvitationModel extends UserInvitationEntity
     implements DataConvertible<UserInvitationEntity> {
-  const UserInvitationResponseModel({
+  const UserInvitationModel({
     required super.id,
     required super.email,
     required super.invitedAt,
@@ -13,9 +13,8 @@ class UserInvitationResponseModel extends UserInvitationEntity
     required super.name,
     super.confirmationSentAt,
   });
-  //TODO remove the response from the name
-  factory UserInvitationResponseModel.fromEntity(UserInvitationEntity entity) =>
-      UserInvitationResponseModel(
+  factory UserInvitationModel.fromEntity(UserInvitationEntity entity) =>
+      UserInvitationModel(
         id: entity.id,
         email: entity.email,
         invitedAt: entity.invitedAt,
@@ -25,8 +24,8 @@ class UserInvitationResponseModel extends UserInvitationEntity
         confirmationSentAt: entity.confirmationSentAt,
       );
 
-  factory UserInvitationResponseModel.fromJson(MapDynamic json) {
-    return UserInvitationResponseModel(
+  factory UserInvitationModel.fromJson(MapDynamic json) {
+    return UserInvitationModel(
       id: json['id'] as String? ?? '',
       email: json['email'] as String? ?? '',
       invitedAt: json['invited_at'] != null

@@ -4,24 +4,24 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_response_model.dart';
+import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
 abstract interface class SectorsLocalDataSource {
-  FutureList<SectorResponseModel> getSectors(String companyId);
-  FutureBool saveSector(SectorResponseModel sector);
-  FutureBool saveSectors(List<SectorResponseModel> sectors);
+  FutureList<SectorModel> getSectors(String companyId);
+  FutureBool saveSector(SectorModel sector);
+  FutureBool saveSectors(List<SectorModel> sectors);
   FutureBool deleteSector(String id);
 }
 
 @LazySingleton(as: SectorsLocalDataSource)
 final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
   SectorsLocalDataSourceImpl({required AppDatabase database})
-      : _database = database;
+    : _database = database;
 
   final AppDatabase _database;
 
   @override
-  FutureList<SectorResponseModel> getSectors(String companyId) {
+  FutureList<SectorModel> getSectors(String companyId) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.sectors)
         ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
@@ -29,7 +29,7 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
 
       final list = rows
           .map(
-            (row) => SectorResponseModel(
+            (row) => SectorModel(
               id: row.id,
               companyId: row.companyId,
               name: row.name,
@@ -45,7 +45,7 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
   }
 
   @override
-  FutureBool saveSector(SectorResponseModel sector) {
+  FutureBool saveSector(SectorModel sector) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.sectors)
@@ -64,7 +64,7 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
   }
 
   @override
-  FutureBool saveSectors(List<SectorResponseModel> sectors) {
+  FutureBool saveSectors(List<SectorModel> sectors) {
     return ErrorHandler.execute(() async {
       await _database.batch((batch) {
         batch.insertAllOnConflictUpdate(

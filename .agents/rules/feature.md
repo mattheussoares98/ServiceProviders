@@ -106,24 +106,24 @@ class AuthRequestModel extends AuthEntity implements DataConvertible<AuthEntity>
   @override AuthEntity toEntity() => AuthEntity(email: email, password: password);
 }
 
-// Response Model (data/models/responses/user_response_model.dart)
-class UserResponseModel extends UserEntity implements DataConvertible<UserEntity> {
-  const UserResponseModel({required super.id, required super.name}) : super();
-  factory UserResponseModel.fromJson(MapDynamic json) => UserResponseModel(id: json['id'] as String? ?? '', name: json['name'] as String? ?? '');
+// Response Model (data/models/responses/user_model.dart)
+class UserModel extends UserEntity implements DataConvertible<UserEntity> {
+  const UserModel({required super.id, required super.name}) : super();
+  factory UserModel.fromJson(MapDynamic json) => UserModel(id: json['id'] as String? ?? '', name: json['name'] as String? ?? '');
   @override MapDynamic toJson() => {'id': id, 'name': name};
   @override UserEntity toEntity() => UserEntity(id: id, name: name);
 }
 
 // Remote DataSource (data/data_sources/auth_remote_data_source.dart)
 abstract interface class AuthRemoteDataSource {
-  FutureData<UserResponseModel> login(AuthRequestModel request);
+  FutureData<UserModel> login(AuthRequestModel request);
 }
 @LazySingleton(as: AuthRemoteDataSource)
 final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   const AuthRemoteDataSourceImpl({required HttpClient client}) : _client = client;
   final HttpClient _client;
-  @override FutureData<UserResponseModel> login(AuthRequestModel req) =>
-      ApiHandler.call(() => _client.post(ApiEndpoints.login, data: req.toJson()), fromJson: UserResponseModel.fromJson);
+  @override FutureData<UserModel> login(AuthRequestModel req) =>
+      ApiHandler.call(() => _client.post(ApiEndpoints.login, data: req.toJson()), fromJson: UserModel.fromJson);
 }
 
 // Local DataSource (data/data_sources/auth_local_data_source.dart)

@@ -5,9 +5,9 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -37,8 +37,8 @@ void main() {
     );
     registerFallbackValue(UserDataEntity.empty());
     registerFallbackValue(
-      UserDataResponseModel(
-        user: UserProfileResponseModel.fromEntity(
+      UserDataModel(
+        user: UserProfileModel.fromEntity(
           EntityFactory.makeUserProfileEntity(),
         ),
         accessToken: '',
@@ -49,9 +49,7 @@ void main() {
       const SignUpRequestModel(name: '', email: '', password: ''),
     );
     registerFallbackValue(
-      UserProfileResponseModel.fromEntity(
-        EntityFactory.makeUserProfileEntity(),
-      ),
+      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     );
   });
 
@@ -74,15 +72,15 @@ void main() {
   );
 
   // Build DTO from domain test data
-  final tUserDataModel = UserDataResponseModel.fromEntity(tUserData);
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(tUser);
-  final tIncompleteUserDataModel = UserDataResponseModel.fromEntity(
+  final tUserDataModel = UserDataModel.fromEntity(tUserData);
+  final tUserProfileModel = UserProfileModel.fromEntity(tUser);
+  final tIncompleteUserDataModel = UserDataModel.fromEntity(
     tUserData.copyWith(user: tUser.copyWith(id: '')),
   );
-  final tProviderUserDataModel = UserDataResponseModel.fromEntity(
+  final tProviderUserDataModel = UserDataModel.fromEntity(
     tUserData.copyWith(user: tUser.copyWith(companyId: '')),
   );
-  final tUserDataModelWithProfile = UserDataResponseModel(
+  final tUserDataModelWithProfile = UserDataModel(
     user: tUserProfileModel,
     accessToken: tUserData.accessToken,
     refreshToken: tUserData.refreshToken,
@@ -154,7 +152,7 @@ void main() {
       when(() => mockInternetClient.isConnected).thenReturn(true);
       when(
         () => mockAuthRemoteDataSource.login(any()),
-      ).thenAnswer((_) async => FailureState<UserDataResponseModel>());
+      ).thenAnswer((_) async => FailureState<UserDataModel>());
 
       // Act
       final result = await repository.login(tAuthentication);

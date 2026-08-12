@@ -6,8 +6,8 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -34,7 +34,7 @@ final class UsersRepositoryImpl implements UsersRepository {
   @override
   FutureList<UserProfileEntity> getUserProfiles(String companyId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
-        UserProfileResponseModel,
+        UserProfileModel,
         UserProfileEntity
       >(
         isInternetConnected: _internet.isConnected,
@@ -46,7 +46,7 @@ final class UsersRepositoryImpl implements UsersRepository {
   @override
   FutureData<UserProfileEntity> getUserProfileById(String id) =>
       RepositoryHandler.fetchWithFallbackAndMap<
-        UserProfileResponseModel,
+        UserProfileModel,
         UserProfileEntity
       >(
         isInternetConnected: _internet.isConnected,
@@ -61,9 +61,9 @@ final class UsersRepositoryImpl implements UsersRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () async {
           final result = await _remoteDataSource.updateUserProfile(
-            UserProfileResponseModel.fromEntity(userProfile),
+            UserProfileModel.fromEntity(userProfile),
           );
-          if (result is SuccessState<UserProfileResponseModel>) {
+          if (result is SuccessState<UserProfileModel>) {
             await _localDataSource.saveUserProfile(result.data!);
             return const SuccessState(data: true);
           }
@@ -112,7 +112,7 @@ final class UsersRepositoryImpl implements UsersRepository {
   @override
   FutureList<UserInvitationEntity> getPendingInvitations(String companyId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
-        UserInvitationResponseModel,
+        UserInvitationModel,
         UserInvitationEntity
       >(
         isInternetConnected: _internet.isConnected,

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
@@ -8,16 +8,16 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final tEntity = EntityFactory.makeUserProfileEntity();
 
-  group('UserProfileResponseModel', () {
+  group('UserProfileModel', () {
     test('should be a subclass of UserProfileEntity', () {
-      final model = UserProfileResponseModel.fromEntity(tEntity);
+      final model = UserProfileModel.fromEntity(tEntity);
       expect(model, isA<UserProfileEntity>());
     });
 
     test(
       'should serialize to JSON with correct flat format overrides on toJson',
       () {
-        final model = UserProfileResponseModel.fromEntity(
+        final model = UserProfileModel.fromEntity(
           tEntity.copyWith(
             workOrders: const UserWorkOrdersPermissionOverrideEntity(
               readScope: WorkOrderReadScope.assigned,
@@ -69,7 +69,7 @@ void main() {
           },
         };
 
-        final result = UserProfileResponseModel.fromJson(json);
+        final result = UserProfileModel.fromJson(json);
 
         expect(result.id, 'user-123');
         expect(result.name, 'John Doe');

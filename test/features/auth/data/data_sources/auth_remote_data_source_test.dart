@@ -6,8 +6,8 @@ import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -19,7 +19,7 @@ void main() {
   late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
   late AuthRemoteDataSourceImpl dataSource;
   late AuthResponse fakeAuthResponse;
-  late UserProfileResponseModel fakeUserProfile;
+  late UserProfileModel fakeUserProfile;
 
   setUpAll(() {
     registerFallbackValue(<SupabaseFilter>[]);
@@ -35,7 +35,7 @@ void main() {
       supabaseDatabase: mockSupabaseDatabaseClient,
     );
     fakeAuthResponse = AuthResponse(user: EntityFactory.makeUser());
-    fakeUserProfile = UserProfileResponseModel.fromEntity(
+    fakeUserProfile = UserProfileModel.fromEntity(
       EntityFactory.makeUserProfileEntity().copyWith(
         id: fakeAuthResponse.user!.id,
       ),
@@ -48,7 +48,7 @@ void main() {
     final tAuthenticationRequest = EntityFactory.makeAuthenticationModel();
 
     test(
-      'should return SuccessState with UserDataResponseModel when Supabase login is successful',
+      'should return SuccessState with UserDataModel when Supabase login is successful',
       () async {
         // Arrange
         when(
@@ -69,10 +69,10 @@ void main() {
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
-        expect(result, isA<SuccessState<UserDataResponseModel>>());
+        expect(result, isA<SuccessState<UserDataModel>>());
         expect(
           result.data,
-          UserDataResponseModel.fromSupabaseProfile(
+          UserDataModel.fromSupabaseProfile(
             response: fakeAuthResponse,
             profile: fakeUserProfile,
           ),
@@ -113,8 +113,8 @@ void main() {
         final result = await dataSource.login(tAuthenticationRequest);
 
         // Assert
-        expect(result, isA<FailureState<UserDataResponseModel>>());
-        final failure = result as FailureState<UserDataResponseModel>;
+        expect(result, isA<FailureState<UserDataModel>>());
+        final failure = result as FailureState<UserDataModel>;
         expect(failure.message, isNotEmpty);
       },
     );
@@ -124,7 +124,7 @@ void main() {
     final tSignUpRequest = EntityFactory.makeSignUpRequest();
 
     test(
-      'should return SuccessState with UserDataResponseModel when Supabase signUp is successful',
+      'should return SuccessState with UserDataModel when Supabase signUp is successful',
       () async {
         // The expected redirect URL is base URL + email-confirmation path
         const expectedRedirectUrl =
@@ -144,7 +144,7 @@ void main() {
         final result = await dataSource.signUp(tSignUpRequest);
 
         // Assert
-        expect(result, isA<SuccessState<UserDataResponseModel>>());
+        expect(result, isA<SuccessState<UserDataModel>>());
         expect(result.data?.user.id, fakeAuthResponse.user!.id);
         expect(result.data?.user.email, fakeAuthResponse.user!.email ?? '');
         expect(
@@ -189,8 +189,8 @@ void main() {
         final result = await dataSource.signUp(tSignUpRequest);
 
         // Assert
-        expect(result, isA<FailureState<UserDataResponseModel>>());
-        final failure = result as FailureState<UserDataResponseModel>;
+        expect(result, isA<FailureState<UserDataModel>>());
+        final failure = result as FailureState<UserDataModel>;
         expect(failure.message, isNotEmpty);
       },
     );
@@ -276,7 +276,7 @@ void main() {
     final tUserId = faker.guid.guid();
 
     test(
-      'should return UserProfileResponseModel from service_provider_profiles when user_profiles is not found',
+      'should return UserProfileModel from service_provider_profiles when user_profiles is not found',
       () async {
         // Arrange
         final serviceProviderProfile =
@@ -285,15 +285,14 @@ void main() {
             );
 
         // Convert the entity to model then to JSON to avoid manual MapDynamic declaration in test files
-        final serviceProviderJson =
-            UserProfileResponseModel.fromServiceProviderJson({
-              'name': serviceProviderProfile.name,
-              'email': serviceProviderProfile.email,
-              'phone': serviceProviderProfile.phone,
-              'is_active': serviceProviderProfile.isActive,
-              'created_at': serviceProviderProfile.createdAt.toIso8601String(),
-              'updated_at': serviceProviderProfile.updatedAt.toIso8601String(),
-            }, tUserId).toJson();
+        final serviceProviderJson = UserProfileModel.fromServiceProviderJson({
+          'name': serviceProviderProfile.name,
+          'email': serviceProviderProfile.email,
+          'phone': serviceProviderProfile.phone,
+          'is_active': serviceProviderProfile.isActive,
+          'created_at': serviceProviderProfile.createdAt.toIso8601String(),
+          'updated_at': serviceProviderProfile.updatedAt.toIso8601String(),
+        }, tUserId).toJson();
 
         when(
           () => mockSupabaseDatabaseClient.selectOne(
@@ -313,7 +312,7 @@ void main() {
         final result = await dataSource.getCurrentUserProfile(tUserId);
 
         // Assert
-        expect(result, isA<SuccessState<UserProfileResponseModel>>());
+        expect(result, isA<SuccessState<UserProfileModel>>());
         expect(result.data?.id, tUserId);
         expect(result.data?.name, serviceProviderProfile.name);
         expect(result.data?.email, serviceProviderProfile.email);
@@ -349,8 +348,8 @@ void main() {
         final result = await dataSource.getCurrentUserProfile(tUserId);
 
         // Assert
-        expect(result, isA<FailureState<UserProfileResponseModel>>());
-        final failure = result as FailureState<UserProfileResponseModel>;
+        expect(result, isA<FailureState<UserProfileModel>>());
+        final failure = result as FailureState<UserProfileModel>;
         expect(failure.message, contains('Perfil de usuário não encontrado'));
 
         verify(

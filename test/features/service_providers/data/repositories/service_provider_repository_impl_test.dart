@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/repositories/service_provider_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
@@ -22,19 +22,19 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
     registerFallbackValue(
-      ServiceProviderCompanyResponseModel.fromEntity(
+      ServiceProviderCompanyModel.fromEntity(
         EntityFactory.makeServiceProviderCompanyEntity(),
       ),
     );
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
     registerFallbackValue(
-      ServiceProviderProfileResponseModel.fromEntity(
+      ServiceProviderProfileModel.fromEntity(
         EntityFactory.makeServiceProviderProfileEntity(),
       ),
     );
     registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
     registerFallbackValue(
-      ServiceProviderInvitationResponseModel.fromEntity(
+      ServiceProviderInvitationModel.fromEntity(
         EntityFactory.makeServiceProviderInvitationEntity(),
       ),
     );
@@ -73,17 +73,13 @@ void main() {
   });
 
   final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
-  final tCompanyModel = ServiceProviderCompanyResponseModel.fromEntity(
-    tCompanyEntity,
-  );
+  final tCompanyModel = ServiceProviderCompanyModel.fromEntity(tCompanyEntity);
 
   final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
-  final tProfileModel = ServiceProviderProfileResponseModel.fromEntity(
-    tProfileEntity,
-  );
+  final tProfileModel = ServiceProviderProfileModel.fromEntity(tProfileEntity);
 
   final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
-  final tInvitationModel = ServiceProviderInvitationResponseModel.fromEntity(
+  final tInvitationModel = ServiceProviderInvitationModel.fromEntity(
     tInvitationEntity,
   );
 
@@ -112,7 +108,8 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => mockLocalDataSource.saveServiceProviderCompanies([tCompanyModel]),
+          () =>
+              mockLocalDataSource.saveServiceProviderCompanies([tCompanyModel]),
         ).called(1);
       },
     );
@@ -186,23 +183,27 @@ void main() {
   });
 
   group('createServiceProviderCompany', () {
-    test('should return true and save to local when creation succeeds', () async {
-      when(
-        () => mockRemoteDataSource.createServiceProviderCompany(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return true and save to local when creation succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.createServiceProviderCompany(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await repository.createServiceProviderCompany(
-        tCompanyEntity,
-      );
+        final result = await repository.createServiceProviderCompany(
+          tCompanyEntity,
+        );
 
-      expect(result, const SuccessState(data: true));
-      verify(
-        () => mockRemoteDataSource.createServiceProviderCompany(tCompanyModel),
-      ).called(1);
-      verify(
-        () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
-      ).called(1);
-    });
+        expect(result, const SuccessState(data: true));
+        verify(
+          () =>
+              mockRemoteDataSource.createServiceProviderCompany(tCompanyModel),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
+        ).called(1);
+      },
+    );
 
     test('should save to local when offline', () async {
       when(() => mockInternet.isConnected).thenReturn(false);
@@ -259,7 +260,8 @@ void main() {
           tProfileEntity,
         );
         verify(
-          () => mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
+          () =>
+              mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
         ).called(1);
       },
     );
@@ -291,7 +293,9 @@ void main() {
       () async {
         final tCompanyIds = ['comp-1', 'comp-2'];
         when(
-          () => mockRemoteDataSource.getServiceProviderProfilesByCompanyIds(any()),
+          () => mockRemoteDataSource.getServiceProviderProfilesByCompanyIds(
+            any(),
+          ),
         ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
 
         final result = await repository.getServiceProviderProfilesByCompanyIds(
@@ -311,7 +315,8 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
+          () =>
+              mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
         ).called(1);
       },
     );
@@ -368,20 +373,23 @@ void main() {
   });
 
   group('createServiceProviderProfile', () {
-    test('should return true and save to local when creation succeeds', () async {
-      when(
-        () => mockRemoteDataSource.createServiceProviderProfile(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return true and save to local when creation succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.createServiceProviderProfile(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await repository.createServiceProviderProfile(
-        tProfileEntity,
-      );
+        final result = await repository.createServiceProviderProfile(
+          tProfileEntity,
+        );
 
-      expect(result, const SuccessState(data: true));
-      verify(
-        () => mockLocalDataSource.saveServiceProviderProfile(tProfileModel),
-      ).called(1);
-    });
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockLocalDataSource.saveServiceProviderProfile(tProfileModel),
+        ).called(1);
+      },
+    );
   });
 
   group('updateServiceProviderProfile', () {
@@ -474,22 +482,25 @@ void main() {
   });
 
   group('deleteServiceProviderInvitation', () {
-    test('should return true and delete from local when remote succeeds', () async {
-      when(
-        () => mockRemoteDataSource.deleteServiceProviderInvitation(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should return true and delete from local when remote succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.deleteServiceProviderInvitation(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await repository.deleteServiceProviderInvitation(
-        tInvitationEntity.id,
-      );
-
-      expect(result, const SuccessState(data: true));
-      verify(
-        () => mockLocalDataSource.deleteServiceProviderInvitation(
+        final result = await repository.deleteServiceProviderInvitation(
           tInvitationEntity.id,
-        ),
-      ).called(1);
-    });
+        );
+
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockLocalDataSource.deleteServiceProviderInvitation(
+            tInvitationEntity.id,
+          ),
+        ).called(1);
+      },
+    );
   });
 
   group('acceptServiceProviderInvitation', () {

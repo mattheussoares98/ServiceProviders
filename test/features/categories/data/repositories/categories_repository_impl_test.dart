@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
-import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/repositories/categories_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
@@ -19,12 +19,12 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      CategoryResponseModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryModel.fromEntity(EntityFactory.makeCategoryEntity()),
     );
     registerFallbackValue(
       CategoryRequestModel.fromEntity(EntityFactory.makeCategoryEntity()),
     );
-    registerFallbackValue(<CategoryResponseModel>[]);
+    registerFallbackValue(<CategoryModel>[]);
   });
 
   setUp(() {
@@ -39,7 +39,7 @@ void main() {
   });
 
   final tEntity = EntityFactory.makeCategoryEntity();
-  final tModel = CategoryResponseModel.fromEntity(tEntity);
+  final tModel = CategoryModel.fromEntity(tEntity);
   final tCompanyId = faker.guid.guid();
 
   group('CategoriesRepositoryImpl', () {

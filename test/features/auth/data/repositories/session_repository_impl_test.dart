@@ -4,9 +4,9 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/repositories/session_repository_impl.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/data_source_mocks.dart';
@@ -22,7 +22,7 @@ class MockUser extends Mock implements User {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
+      UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
     );
   });
 
@@ -41,10 +41,8 @@ void main() {
     when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
   });
 
-  final userDataResponse = UserDataResponseModel(
-    user: UserProfileResponseModel.fromEntity(
-      EntityFactory.makeUserProfileEntity(),
-    ),
+  final userDataResponse = UserDataModel(
+    user: UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     accessToken: faker.lorem.word(),
     refreshToken: faker.lorem.word(),
   );
@@ -180,7 +178,7 @@ void main() {
     group('Logout', () {
       test('should clean IDs, permission and tokens on logout', () async {
         registerFallbackValue(
-          UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
+          UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
         );
         when(
           () => mockSessionLocalDataSource.getUserData(),
@@ -210,7 +208,7 @@ void main() {
         verify(() => mockSupabaseAuthClient.logout()).called(1);
         verify(
           () => mockSessionLocalDataSource.saveUserData(
-            UserDataResponseModel.fromEntity(cleanedUser),
+            UserDataModel.fromEntity(cleanedUser),
           ),
         ).called(1);
         verify(() => mockSessionLocalDataSource.clearSelectedMode()).called(1);
@@ -221,7 +219,7 @@ void main() {
 
       test('should emit empty userData on sessionStream', () async {
         registerFallbackValue(
-          UserDataResponseModel.fromEntity(EntityFactory.makeUserDataEntity()),
+          UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
         );
         when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
         when(
@@ -267,7 +265,9 @@ void main() {
         when(() => mockUser.createdAt).thenReturn(nowStr);
         when(() => mockUser.updatedAt).thenReturn(nowStr);
         when(() => mockSession.user).thenReturn(mockUser);
-        when(() => mockSupabaseAuthClient.currentSession).thenReturn(mockSession);
+        when(
+          () => mockSupabaseAuthClient.currentSession,
+        ).thenReturn(mockSession);
 
         final result = sessionRepository.currentAuthUser;
         expect(result, isNotNull);

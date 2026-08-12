@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -43,9 +43,7 @@ void main() {
   final tUserProfileEntity = EntityFactory.makeUserProfileEntity().copyWith(
     annulPermissionGroupId: true,
   );
-  final tUserProfileModel = UserProfileResponseModel.fromEntity(
-    tUserProfileEntity,
-  );
+  final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
 
   final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupModel.fromEntity(
@@ -62,7 +60,7 @@ void main() {
           tUserProfileModel.companyId,
         );
 
-        expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+        expect(result, isA<SuccessState<List<UserProfileModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first, equals(tUserProfileModel));
       });
@@ -76,7 +74,7 @@ void main() {
                 companyId: otherCompanyId,
                 annulPermissionGroupId: true,
               );
-          final otherProfileModel = UserProfileResponseModel.fromEntity(
+          final otherProfileModel = UserProfileModel.fromEntity(
             otherProfileEntity,
           );
 
@@ -90,7 +88,7 @@ void main() {
             tUserProfileModel.companyId,
           );
 
-          expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+          expect(result, isA<SuccessState<List<UserProfileModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tUserProfileModel));
         },
@@ -101,7 +99,7 @@ void main() {
         () async {
           final result = await dataSource.getUserProfiles(faker.guid.guid());
 
-          expect(result, isA<SuccessState<List<UserProfileResponseModel>>>());
+          expect(result, isA<SuccessState<List<UserProfileModel>>>());
           expect(result.data, isEmpty);
         },
       );
@@ -115,7 +113,7 @@ void main() {
             tUserProfileModel.companyId,
           );
 
-          expect(result, isA<FailureState<List<UserProfileResponseModel>>>());
+          expect(result, isA<FailureState<List<UserProfileModel>>>());
         },
       );
 
@@ -131,7 +129,7 @@ void main() {
           tUserProfileModel.id,
         );
 
-        expect(getResult, isA<SuccessState<UserProfileResponseModel>>());
+        expect(getResult, isA<SuccessState<UserProfileModel>>());
         expect(getResult.data, equals(tUserProfileModel));
       });
 
@@ -139,7 +137,7 @@ void main() {
         'should save multiple user profiles and successfully retrieve them',
         () async {
           await insertTestCompany(tUserProfileModel.companyId);
-          final profile2 = UserProfileResponseModel.fromEntity(
+          final profile2 = UserProfileModel.fromEntity(
             EntityFactory.makeUserProfileEntity().copyWith(
               companyId: tUserProfileModel.companyId,
               annulPermissionGroupId: true,
@@ -158,10 +156,7 @@ void main() {
             tUserProfileModel.companyId,
           );
 
-          expect(
-            getResult,
-            isA<SuccessState<List<UserProfileResponseModel>>>(),
-          );
+          expect(getResult, isA<SuccessState<List<UserProfileModel>>>());
           expect(getResult.data, hasLength(2));
           expect(getResult.data, containsAll([tUserProfileModel, profile2]));
         },
@@ -183,7 +178,7 @@ void main() {
         () async {
           final result = await dataSource.getUserProfileById(faker.guid.guid());
 
-          expect(result, isA<FailureState<UserProfileResponseModel>>());
+          expect(result, isA<FailureState<UserProfileModel>>());
         },
       );
 
@@ -196,7 +191,7 @@ void main() {
             tUserProfileModel.id,
           );
 
-          expect(result, isA<FailureState<UserProfileResponseModel>>());
+          expect(result, isA<FailureState<UserProfileModel>>());
         },
       );
 
@@ -228,7 +223,7 @@ void main() {
             tUserProfileModel.id,
           );
 
-          expect(getResult, isA<FailureState<UserProfileResponseModel>>());
+          expect(getResult, isA<FailureState<UserProfileModel>>());
         },
       );
 
@@ -263,10 +258,7 @@ void main() {
             tPermissionGroupModel.companyId,
           );
 
-          expect(
-            getResult,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(getResult, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(getResult.data, hasLength(1));
           expect(getResult.data!.first, equals(tPermissionGroupModel));
         },
@@ -294,10 +286,7 @@ void main() {
             tPermissionGroupModel.companyId,
           );
 
-          expect(
-            getResult,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(getResult, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(getResult.data, hasLength(2));
           expect(getResult.data, containsAll([tPermissionGroupModel, group2]));
         },
@@ -336,10 +325,7 @@ void main() {
             tPermissionGroupModel.companyId,
           );
 
-          expect(
-            result,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(result, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(result.data, hasLength(1));
           expect(result.data!.first, equals(tPermissionGroupModel));
         },
@@ -352,10 +338,7 @@ void main() {
             faker.guid.guid(),
           );
 
-          expect(
-            result,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(result, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(result.data, isEmpty);
         },
       );
@@ -369,10 +352,7 @@ void main() {
             tPermissionGroupModel.companyId,
           );
 
-          expect(
-            result,
-            isA<FailureState<List<PermissionGroupModel>>>(),
-          );
+          expect(result, isA<FailureState<List<PermissionGroupModel>>>());
         },
       );
 
@@ -406,10 +386,7 @@ void main() {
             tPermissionGroupModel.companyId,
           );
 
-          expect(
-            getResult,
-            isA<SuccessState<List<PermissionGroupModel>>>(),
-          );
+          expect(getResult, isA<SuccessState<List<PermissionGroupModel>>>());
           expect(getResult.data, isEmpty);
         },
       );

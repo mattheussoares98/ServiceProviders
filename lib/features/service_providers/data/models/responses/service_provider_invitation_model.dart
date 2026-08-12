@@ -3,10 +3,9 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 
-class ServiceProviderInvitationResponseModel
-    extends ServiceProviderInvitationEntity
+class ServiceProviderInvitationModel extends ServiceProviderInvitationEntity
     implements DataConvertible<ServiceProviderInvitationEntity> {
-  const ServiceProviderInvitationResponseModel({
+  const ServiceProviderInvitationModel({
     required super.id,
     required super.email,
     required super.serviceProviderCompanyId,
@@ -17,9 +16,9 @@ class ServiceProviderInvitationResponseModel
     super.expiresAt,
   });
 
-  factory ServiceProviderInvitationResponseModel.fromEntity(
+  factory ServiceProviderInvitationModel.fromEntity(
     ServiceProviderInvitationEntity entity,
-  ) => ServiceProviderInvitationResponseModel(
+  ) => ServiceProviderInvitationModel(
     id: entity.id,
     email: entity.email,
     serviceProviderCompanyId: entity.serviceProviderCompanyId,
@@ -30,8 +29,8 @@ class ServiceProviderInvitationResponseModel
     expiresAt: entity.expiresAt,
   );
 
-  factory ServiceProviderInvitationResponseModel.fromJson(MapDynamic json) =>
-      ServiceProviderInvitationResponseModel(
+  factory ServiceProviderInvitationModel.fromJson(MapDynamic json) =>
+      ServiceProviderInvitationModel(
         id: json['id'] as String? ?? '',
         email: json['email'] as String? ?? '',
         serviceProviderCompanyId:

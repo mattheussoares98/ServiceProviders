@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/repositories/attachments_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -32,7 +32,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
     registerFallbackValue(
-      AttachmentResponseModel.fromEntity(EntityFactory.makeAttachmentEntity()),
+      AttachmentModel.fromEntity(EntityFactory.makeAttachmentEntity()),
     );
   });
 
@@ -74,12 +74,10 @@ void main() {
   });
 
   final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
-  final tAttachmentModel = AttachmentResponseModel.fromEntity(
-    tAttachmentEntity,
-  );
+  final tAttachmentModel = AttachmentModel.fromEntity(tAttachmentEntity);
   final tAttachmentEntityList = EntityFactory.makeAttachmentEntityList();
   final tAttachmentModelList = tAttachmentEntityList
-      .map(AttachmentResponseModel.fromEntity)
+      .map(AttachmentModel.fromEntity)
       .toList();
 
   group('AttachmentsRepositoryImpl - CRUD', () {
@@ -161,14 +159,14 @@ void main() {
       () async {
         // Arrange
         final workOrderId = faker.guid.guid();
-        final model1 = AttachmentResponseModel.fromEntity(
+        final model1 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: faker.guid.guid(),
             workOrderId: workOrderId,
             uploadStatus: UploadStatus.uploaded,
           ),
         );
-        final model2 = AttachmentResponseModel.fromEntity(
+        final model2 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: faker.guid.guid(),
             workOrderId: workOrderId,
@@ -227,7 +225,7 @@ void main() {
         // Arrange
         final workOrderId = faker.guid.guid();
         final attachmentId = faker.guid.guid();
-        final remoteModel = AttachmentResponseModel.fromEntity(
+        final remoteModel = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: attachmentId,
             workOrderId: workOrderId,
@@ -245,7 +243,7 @@ void main() {
         ).thenAnswer((_) async => SuccessState(data: [remoteModel]));
         when(() => mockLocalDataSource.getAttachment(attachmentId)).thenAnswer(
           (_) async => SuccessState(
-            data: AttachmentResponseModel.fromEntity(existingLocalModel),
+            data: AttachmentModel.fromEntity(existingLocalModel),
           ),
         );
         when(
@@ -255,7 +253,7 @@ void main() {
           () => mockLocalDataSource.getAttachmentsByWorkOrder(workOrderId),
         ).thenAnswer(
           (_) async => SuccessState(
-            data: [AttachmentResponseModel.fromEntity(existingLocalModel)],
+            data: [AttachmentModel.fromEntity(existingLocalModel)],
           ),
         );
 
@@ -265,7 +263,7 @@ void main() {
         // Assert
         verify(
           () => mockLocalDataSource.saveAttachment(
-            AttachmentResponseModel.fromEntity(
+            AttachmentModel.fromEntity(
               remoteModel.copyWith(localPath: 'local/path/file.jpg'),
             ),
           ),
@@ -304,7 +302,7 @@ void main() {
         final status = statuses.elementAt(
           faker.randomGenerator.integer(statuses.length),
         );
-        final localAttachment = AttachmentResponseModel.fromEntity(
+        final localAttachment = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: status,
@@ -335,7 +333,7 @@ void main() {
       () async {
         // Arrange
         final id = faker.guid.guid();
-        final localAttachment = AttachmentResponseModel.fromEntity(
+        final localAttachment = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
@@ -369,7 +367,7 @@ void main() {
       () async {
         // Arrange
         final id = faker.guid.guid();
-        final localAttachment = AttachmentResponseModel.fromEntity(
+        final localAttachment = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
@@ -400,7 +398,7 @@ void main() {
       () async {
         // Arrange
         final id = faker.guid.guid();
-        final localAttachment = AttachmentResponseModel.fromEntity(
+        final localAttachment = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
@@ -885,9 +883,8 @@ void main() {
             hash: mockEntity.originalPath!,
           ),
         ).thenAnswer(
-          (_) async => SuccessState(
-            data: AttachmentResponseModel.fromEntity(tDeletedEntity),
-          ),
+          (_) async =>
+              SuccessState(data: AttachmentModel.fromEntity(tDeletedEntity)),
         );
 
         when(
@@ -955,9 +952,8 @@ void main() {
             hash: mockEntity.originalPath!,
           ),
         ).thenAnswer(
-          (_) async => SuccessState(
-            data: AttachmentResponseModel.fromEntity(tActiveModel),
-          ),
+          (_) async =>
+              SuccessState(data: AttachmentModel.fromEntity(tActiveModel)),
         );
 
         when(
@@ -1048,13 +1044,13 @@ void main() {
           () => mockLocalDataSource.getTotalSandboxBytes(),
         ).thenAnswer((_) async => SuccessState(data: totalBytes));
 
-        final candidate1 = AttachmentResponseModel.fromEntity(
+        final candidate1 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             localPath: 'file1.webp',
             fileSizeBytes: candidate1Size,
           ),
         );
-        final candidate2 = AttachmentResponseModel.fromEntity(
+        final candidate2 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             localPath: 'file2.webp',
             fileSizeBytes: candidate2Size,
@@ -1088,12 +1084,12 @@ void main() {
     test(
       'clearLocalAttachments should delete local sandbox files and nullify localPath in database',
       () async {
-        final upload1 = AttachmentResponseModel.fromEntity(
+        final upload1 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             localPath: 'upload1.jpg',
           ),
         );
-        final upload2 = AttachmentResponseModel.fromEntity(
+        final upload2 = AttachmentModel.fromEntity(
           EntityFactory.makeAttachmentEntity().copyWith(
             localPath: 'upload2.jpg',
           ),
@@ -1157,7 +1153,7 @@ void main() {
         'downloads and caches remote image file when no local copy exists',
         () async {
           final workOrderId = faker.guid.guid();
-          final model = AttachmentResponseModel.fromEntity(
+          final model = AttachmentModel.fromEntity(
             EntityFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
@@ -1193,7 +1189,7 @@ void main() {
         'does not download video files to prevent filling the sandbox with large files',
         () async {
           final workOrderId = faker.guid.guid();
-          final model = AttachmentResponseModel.fromEntity(
+          final model = AttachmentModel.fromEntity(
             EntityFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
@@ -1220,7 +1216,7 @@ void main() {
         'does not download attachments that have not been fully uploaded yet',
         () async {
           final workOrderId = faker.guid.guid();
-          final model = AttachmentResponseModel.fromEntity(
+          final model = AttachmentModel.fromEntity(
             EntityFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
@@ -1250,7 +1246,7 @@ void main() {
             () => fileService.downloadUrlToSandbox(any(), any()),
           ).thenAnswer((_) async => FailureState(message: 'Network error'));
           final workOrderId = faker.guid.guid();
-          final model = AttachmentResponseModel.fromEntity(
+          final model = AttachmentModel.fromEntity(
             EntityFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
@@ -1282,7 +1278,7 @@ void main() {
         () async {
           final staleLocalPath = faker.lorem.word();
           final workOrderId = faker.guid.guid();
-          final model = AttachmentResponseModel.fromEntity(
+          final model = AttachmentModel.fromEntity(
             EntityFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,

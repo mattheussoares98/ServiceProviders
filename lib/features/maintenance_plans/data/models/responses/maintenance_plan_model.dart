@@ -4,9 +4,9 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/freque
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
-class MaintenancePlanResponseModel extends MaintenancePlanEntity
+class MaintenancePlanModel extends MaintenancePlanEntity
     implements DataConvertible<MaintenancePlanEntity> {
-  const MaintenancePlanResponseModel({
+  const MaintenancePlanModel({
     required super.id,
     required super.companyId,
     super.assetId,
@@ -28,32 +28,31 @@ class MaintenancePlanResponseModel extends MaintenancePlanEntity
     super.deletedAt,
   });
 
-  factory MaintenancePlanResponseModel.fromEntity(
-    MaintenancePlanEntity entity,
-  ) => MaintenancePlanResponseModel(
-    id: entity.id,
-    companyId: entity.companyId,
-    assetId: entity.assetId,
-    locationId: entity.locationId,
-    title: entity.title,
-    description: entity.description,
-    frequency: entity.frequency,
-    dayOfWeek: entity.dayOfWeek,
-    dayOfMonth: entity.dayOfMonth,
-    monthOfYear: entity.monthOfYear,
-    checklistTemplateId: entity.checklistTemplateId,
-    assignedToId: entity.assignedToId,
-    priority: entity.priority,
-    isActive: entity.isActive,
-    lastGeneratedAt: entity.lastGeneratedAt,
-    nextDueDate: entity.nextDueDate,
-    createdAt: entity.createdAt,
-    updatedAt: entity.updatedAt,
-    deletedAt: entity.deletedAt,
-  );
+  factory MaintenancePlanModel.fromEntity(MaintenancePlanEntity entity) =>
+      MaintenancePlanModel(
+        id: entity.id,
+        companyId: entity.companyId,
+        assetId: entity.assetId,
+        locationId: entity.locationId,
+        title: entity.title,
+        description: entity.description,
+        frequency: entity.frequency,
+        dayOfWeek: entity.dayOfWeek,
+        dayOfMonth: entity.dayOfMonth,
+        monthOfYear: entity.monthOfYear,
+        checklistTemplateId: entity.checklistTemplateId,
+        assignedToId: entity.assignedToId,
+        priority: entity.priority,
+        isActive: entity.isActive,
+        lastGeneratedAt: entity.lastGeneratedAt,
+        nextDueDate: entity.nextDueDate,
+        createdAt: entity.createdAt,
+        updatedAt: entity.updatedAt,
+        deletedAt: entity.deletedAt,
+      );
 
-  factory MaintenancePlanResponseModel.fromJson(MapDynamic json) =>
-      MaintenancePlanResponseModel(
+  factory MaintenancePlanModel.fromJson(MapDynamic json) =>
+      MaintenancePlanModel(
         id: json['id'] as String? ?? '',
         companyId: json['company_id'] as String? ?? '',
         assetId: json['asset_id'] as String?,

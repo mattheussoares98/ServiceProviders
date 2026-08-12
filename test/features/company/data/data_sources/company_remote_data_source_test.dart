@@ -31,7 +31,7 @@ void main() {
   group('CompanyRemoteDataSourceImpl', () {
     group('createCompany', () {
       test(
-        'should insert company and return SuccessState<CompanyResponseModel>',
+        'should insert company and return SuccessState<CompanyModel>',
         () async {
           when(
             () => mockDatabase.insert(

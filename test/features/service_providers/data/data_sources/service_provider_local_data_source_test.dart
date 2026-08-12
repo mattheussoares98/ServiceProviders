@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -23,17 +23,13 @@ void main() {
   });
 
   final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
-  final tCompanyModel = ServiceProviderCompanyResponseModel.fromEntity(
-    tCompanyEntity,
-  );
+  final tCompanyModel = ServiceProviderCompanyModel.fromEntity(tCompanyEntity);
 
   final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
-  final tProfileModel = ServiceProviderProfileResponseModel.fromEntity(
-    tProfileEntity,
-  );
+  final tProfileModel = ServiceProviderProfileModel.fromEntity(tProfileEntity);
 
   final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
-  final tInvitationModel = ServiceProviderInvitationResponseModel.fromEntity(
+  final tInvitationModel = ServiceProviderInvitationModel.fromEntity(
     tInvitationEntity,
   );
 
@@ -51,10 +47,7 @@ void main() {
           final getResult = await dataSource.getServiceProviderCompanyById(
             tCompanyModel.id,
           );
-          expect(
-            getResult,
-            isA<SuccessState<ServiceProviderCompanyResponseModel>>(),
-          );
+          expect(getResult, isA<SuccessState<ServiceProviderCompanyModel>>());
           expect(getResult.data?.id, tCompanyModel.id);
           expect(getResult.data?.name, tCompanyModel.name);
         },
@@ -74,7 +67,7 @@ void main() {
           );
           expect(
             getResult,
-            isA<SuccessState<List<ServiceProviderCompanyResponseModel>>>(),
+            isA<SuccessState<List<ServiceProviderCompanyModel>>>(),
           );
           expect(getResult.data?.length, 1);
           expect(getResult.data?.first.id, tCompanyModel.id);
@@ -87,10 +80,7 @@ void main() {
           final result = await dataSource.getServiceProviderCompanyById(
             'non-existent-id',
           );
-          expect(
-            result,
-            isA<FailureState<ServiceProviderCompanyResponseModel>>(),
-          );
+          expect(result, isA<FailureState<ServiceProviderCompanyModel>>());
         },
       );
     });
@@ -112,7 +102,7 @@ void main() {
           );
           expect(
             getResult,
-            isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+            isA<SuccessState<List<ServiceProviderProfileModel>>>(),
           );
           expect(getResult.data?.length, 1);
           expect(getResult.data?.first.id, tProfileModel.id);
@@ -135,14 +125,14 @@ void main() {
           await dataSource.saveServiceProviderCompany(tCompanyModel);
           await dataSource.saveServiceProviderProfiles([tProfileModel]);
 
-          final getResult =
-              await dataSource.getServiceProviderProfilesByCompanyIds([
+          final getResult = await dataSource
+              .getServiceProviderProfilesByCompanyIds([
                 tProfileModel.serviceProviderCompanyId,
               ]);
 
           expect(
             getResult,
-            isA<SuccessState<List<ServiceProviderProfileResponseModel>>>(),
+            isA<SuccessState<List<ServiceProviderProfileModel>>>(),
           );
           expect(getResult.data?.length, 1);
           expect(getResult.data?.first.id, tProfileModel.id);
@@ -166,7 +156,7 @@ void main() {
           );
           expect(
             getResult,
-            isA<SuccessState<List<ServiceProviderInvitationResponseModel>>>(),
+            isA<SuccessState<List<ServiceProviderInvitationModel>>>(),
           );
           expect(getResult.data?.length, 1);
 

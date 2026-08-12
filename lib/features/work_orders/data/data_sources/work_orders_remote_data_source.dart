@@ -7,32 +7,30 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 abstract interface class WorkOrdersRemoteDataSource {
-  FutureList<WorkOrderResponseModel> getWorkOrders(
+  FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
     int pageSize = 20,
     int offset = 0,
   });
-  FutureData<WorkOrderResponseModel> getWorkOrderById(String id);
-  FutureBool createWorkOrder(WorkOrderResponseModel request);
-  FutureBool updateWorkOrder(WorkOrderResponseModel request);
+  FutureData<WorkOrderModel> getWorkOrderById(String id);
+  FutureBool createWorkOrder(WorkOrderModel request);
+  FutureBool updateWorkOrder(WorkOrderModel request);
   FutureBool deleteWorkOrder(String id);
 
-  FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId);
+  FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
   FutureBool createTask(TaskRequestModel request);
   FutureBool updateTask(TaskRequestModel request);
   FutureBool deleteTask(String id);
 
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
-    String companyId,
-  );
+  FutureList<WorkOrderChangeRequestModel> getChangeRequests(String companyId);
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request);
   FutureBool reviewChangeRequest({
     required String id,
@@ -41,9 +39,7 @@ abstract interface class WorkOrdersRemoteDataSource {
     required String reviewedById,
   });
 
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
-    String workOrderId,
-  );
+  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId);
 }
 
 @LazySingleton(as: WorkOrdersRemoteDataSource)
@@ -56,7 +52,7 @@ final class WorkOrdersRemoteDataSourceImpl
   final SupabaseDatabaseClient _database;
 
   @override
-  FutureList<WorkOrderResponseModel> getWorkOrders(
+  FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
     int pageSize = 20,
@@ -101,11 +97,11 @@ final class WorkOrdersRemoteDataSourceImpl
       limit: pageSize,
       offset: offset,
     );
-    return response.map(WorkOrderResponseModel.fromJson).toList();
+    return response.map(WorkOrderModel.fromJson).toList();
   });
 
   @override
-  FutureData<WorkOrderResponseModel> getWorkOrderById(String id) =>
+  FutureData<WorkOrderModel> getWorkOrderById(String id) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'work_orders',
@@ -121,18 +117,18 @@ final class WorkOrdersRemoteDataSourceImpl
             'Ordem de serviço não encontrada.'.hardcoded,
           );
         }
-        return WorkOrderResponseModel.fromJson(response);
+        return WorkOrderModel.fromJson(response);
       });
 
   @override
-  FutureBool createWorkOrder(WorkOrderResponseModel request) =>
+  FutureBool createWorkOrder(WorkOrderModel request) =>
       SupabaseHandler.call(() async {
         await _database.insert(table: 'work_orders', values: request.toJson());
         return true;
       });
 
   @override
-  FutureBool updateWorkOrder(WorkOrderResponseModel request) =>
+  FutureBool updateWorkOrder(WorkOrderModel request) =>
       SupabaseHandler.call(() async {
         await _database.update(
           table: 'work_orders',
@@ -153,7 +149,7 @@ final class WorkOrdersRemoteDataSourceImpl
   });
 
   @override
-  FutureList<TaskResponseModel> getTasksByWorkOrder(String workOrderId) =>
+  FutureList<TaskModel> getTasksByWorkOrder(String workOrderId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'tasks',
@@ -162,7 +158,7 @@ final class WorkOrdersRemoteDataSourceImpl
             SupabaseFilter.isFilter('deleted_at', null),
           ],
         );
-        return response.map(TaskResponseModel.fromJson).toList();
+        return response.map(TaskModel.fromJson).toList();
       });
 
   @override
@@ -194,18 +190,17 @@ final class WorkOrdersRemoteDataSourceImpl
   });
 
   @override
-  FutureList<WorkOrderChangeRequestResponseModel> getChangeRequests(
-    String companyId,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.selectList(
-      table: 'work_order_change_requests',
-      filters: [
-        SupabaseFilter.eq('company_id', companyId),
-        SupabaseFilter.isFilter('deleted_at', null),
-      ],
-    );
-    return response.map(WorkOrderChangeRequestResponseModel.fromJson).toList();
-  });
+  FutureList<WorkOrderChangeRequestModel> getChangeRequests(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'work_order_change_requests',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(WorkOrderChangeRequestModel.fromJson).toList();
+      });
 
   @override
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request) =>
@@ -238,15 +233,14 @@ final class WorkOrdersRemoteDataSourceImpl
   });
 
   @override
-  FutureList<WorkOrderHistoryResponseModel> getWorkOrderHistory(
-    String workOrderId,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.selectList(
-      table: 'work_order_history',
-      filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
-    );
-    return response.map(WorkOrderHistoryResponseModel.fromJson).toList();
-  });
+  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'work_order_history',
+          filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+        );
+        return response.map(WorkOrderHistoryModel.fromJson).toList();
+      });
 }
 
 final class _NotFoundException implements Exception {

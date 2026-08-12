@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_response_model.dart';
+import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/repositories/configurations_repository.dart';
 
@@ -30,7 +30,7 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
   @override
   FutureData<ConfigurationsEntity> getConfigurations() =>
       RepositoryHandler.fetchWithFallbackAndMap<
-        ConfigurationsResponseModel,
+        ConfigurationsModel,
         ConfigurationsEntity
       >(
         isInternetConnected: _internet.isConnected,
@@ -83,7 +83,8 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
           final userId = _sessionRepository.userData.user.id;
 
           final localConfigResult = await _localDataSource.getConfigurations();
-          final pushEnabled = localConfigResult.data?.pushNotificationsEnabled ?? true;
+          final pushEnabled =
+              localConfigResult.data?.pushNotificationsEnabled ?? true;
 
           final result = await _remoteDataSource.saveConfigurations(
             userId: userId,

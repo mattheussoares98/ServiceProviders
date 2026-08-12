@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_s
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
@@ -75,7 +75,7 @@ final class AuthRepositoryImpl implements AuthRepository {
 
   @override
   FutureBool saveUserData(UserDataEntity userData) =>
-      _localDataSource.saveUserData(UserDataResponseModel.fromEntity(userData));
+      _localDataSource.saveUserData(UserDataModel.fromEntity(userData));
 
   @override
   FutureData<UserDataEntity> getUserData() {

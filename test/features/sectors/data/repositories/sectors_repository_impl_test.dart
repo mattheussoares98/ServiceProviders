@@ -3,7 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_response_model.dart';
+import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/repositories/sectors_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 
@@ -24,7 +24,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SectorResponseModel.fromEntity(EntityFactory.makeSectorEntity()),
+      SectorModel.fromEntity(EntityFactory.makeSectorEntity()),
     );
   });
 
@@ -44,7 +44,7 @@ void main() {
       'getSectors fetches from remote and caches locally when connected',
       () async {
         final tSector = EntityFactory.makeSectorEntity();
-        final tModel = SectorResponseModel.fromEntity(tSector);
+        final tModel = SectorModel.fromEntity(tSector);
 
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
@@ -69,7 +69,7 @@ void main() {
 
     test('getSectors fetches from local source when disconnected', () async {
       final tSector = EntityFactory.makeSectorEntity();
-      final tModel = SectorResponseModel.fromEntity(tSector);
+      final tModel = SectorModel.fromEntity(tSector);
 
       when(() => mockInternet.isConnected).thenReturn(false);
       when(
@@ -88,7 +88,7 @@ void main() {
 
     group('updateSector', () {
       final tSector = EntityFactory.makeSectorEntity();
-      final tModel = SectorResponseModel.fromEntity(tSector);
+      final tModel = SectorModel.fromEntity(tSector);
 
       test(
         'calls remote update and saves locally when connected and remote succeeds',

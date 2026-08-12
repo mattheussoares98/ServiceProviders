@@ -76,7 +76,7 @@ void main() {
         .thenAnswer((_) async => Response(requestOptions: RequestOptions(path: ''), statusCode: 200, data: {'data': {'token': faker.jwt.valid()}}));
     
     final result = await AuthRemoteDataSourceImpl(client: client).login(AuthRequestModel(email: faker.internet.email(), password: faker.internet.password()));
-    expect(result, isA<SuccessState<UserResponseModel>>());
+    expect(result, isA<SuccessState<UserModel>>());
   });
 }
 ```
@@ -93,7 +93,7 @@ void main() {
     final net = MockInternetClient();
     final remote = MockAuthRemoteDataSource();
     when(() => net.isConnected).thenReturn(true);
-    when(() => remote.login(any())).thenAnswer((_) async => SuccessState(data: tResponseModel));
+    when(() => remote.login(any())).thenAnswer((_) async => SuccessState(data: tModel));
 
     await AuthRepositoryImpl(internet: net, remote: remote, local: MockAuthLocalDataSource()).login(tAuthenticationEntity);
     verify(() => remote.login(any())).called(1);

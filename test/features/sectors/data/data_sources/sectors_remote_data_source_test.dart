@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_response_model.dart';
+import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -13,7 +13,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SectorResponseModel.fromEntity(EntityFactory.makeSectorEntity()),
+      SectorModel.fromEntity(EntityFactory.makeSectorEntity()),
     );
   });
 
@@ -24,7 +24,7 @@ void main() {
 
   group('SectorsRemoteDataSource Tests', () {
     test('getSectors returns SuccessState when query succeeds', () async {
-      final tSectorModel = SectorResponseModel.fromEntity(
+      final tSectorModel = SectorModel.fromEntity(
         EntityFactory.makeSectorEntity(),
       );
       final jsonList = [tSectorModel.toJson()];
@@ -38,15 +38,15 @@ void main() {
 
       final result = await dataSource.getSectors(tSectorModel.companyId);
 
-      expect(result, isA<SuccessState<List<SectorResponseModel>>>());
+      expect(result, isA<SuccessState<List<SectorModel>>>());
       expect(
-        (result as SuccessState<List<SectorResponseModel>>).data?.first.id,
+        (result as SuccessState<List<SectorModel>>).data?.first.id,
         tSectorModel.id,
       );
     });
 
     test('createSector returns SuccessState when insert succeeds', () async {
-      final tSectorModel = SectorResponseModel.fromEntity(
+      final tSectorModel = SectorModel.fromEntity(
         EntityFactory.makeSectorEntity(),
       );
       final jsonList = [tSectorModel.toJson()];
@@ -60,16 +60,13 @@ void main() {
 
       final result = await dataSource.createSector(tSectorModel);
 
-      expect(result, isA<SuccessState<SectorResponseModel>>());
-      expect(
-        (result as SuccessState<SectorResponseModel>).data?.id,
-        tSectorModel.id,
-      );
+      expect(result, isA<SuccessState<SectorModel>>());
+      expect((result as SuccessState<SectorModel>).data?.id, tSectorModel.id);
     });
 
     group('updateSector', () {
       test('returns SuccessState when update succeeds', () async {
-        final tSectorModel = SectorResponseModel.fromEntity(
+        final tSectorModel = SectorModel.fromEntity(
           EntityFactory.makeSectorEntity(),
         );
         final jsonList = [tSectorModel.toJson()];
@@ -84,15 +81,12 @@ void main() {
 
         final result = await dataSource.updateSector(tSectorModel);
 
-        expect(result, isA<SuccessState<SectorResponseModel>>());
-        expect(
-          (result as SuccessState<SectorResponseModel>).data?.id,
-          tSectorModel.id,
-        );
+        expect(result, isA<SuccessState<SectorModel>>());
+        expect((result as SuccessState<SectorModel>).data?.id, tSectorModel.id);
       });
 
       test('returns FailureState when update fails', () async {
-        final tSectorModel = SectorResponseModel.fromEntity(
+        final tSectorModel = SectorModel.fromEntity(
           EntityFactory.makeSectorEntity(),
         );
 
@@ -106,13 +100,13 @@ void main() {
 
         final result = await dataSource.updateSector(tSectorModel);
 
-        expect(result, isA<FailureState<SectorResponseModel>>());
+        expect(result, isA<FailureState<SectorModel>>());
       });
     });
 
     group('deleteSector', () {
       test('returns SuccessState when delete succeeds', () async {
-        final tSectorModel = SectorResponseModel.fromEntity(
+        final tSectorModel = SectorModel.fromEntity(
           EntityFactory.makeSectorEntity(),
         );
 
@@ -130,7 +124,7 @@ void main() {
       });
 
       test('returns FailureState when delete fails', () async {
-        final tSectorModel = SectorResponseModel.fromEntity(
+        final tSectorModel = SectorModel.fromEntity(
           EntityFactory.makeSectorEntity(),
         );
 

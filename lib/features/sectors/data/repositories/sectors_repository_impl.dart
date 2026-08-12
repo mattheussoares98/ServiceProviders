@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_response_model.dart';
+import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/repositories/sectors_repository.dart';
 
@@ -15,9 +15,9 @@ final class SectorsRepositoryImpl implements SectorsRepository {
     required InternetClient internet,
     required SectorsRemoteDataSource remoteDataSource,
     required SectorsLocalDataSource localDataSource,
-  })  : _internet = internet,
-        _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource;
+  }) : _internet = internet,
+       _remoteDataSource = remoteDataSource,
+       _localDataSource = localDataSource;
 
   final InternetClient _internet;
   final SectorsRemoteDataSource _remoteDataSource;
@@ -25,9 +25,7 @@ final class SectorsRepositoryImpl implements SectorsRepository {
 
   @override
   FutureList<SectorEntity> getSectors(String companyId) =>
-      RepositoryHandler.fetchWithFallbackAndMapList<
-          SectorResponseModel,
-          SectorEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<SectorModel, SectorEntity>(
         localCallback: () => _localDataSource.getSectors(companyId),
         isInternetConnected: _internet.isConnected,
         remoteCallback: () => _remoteDataSource.getSectors(companyId),
@@ -38,13 +36,13 @@ final class SectorsRepositoryImpl implements SectorsRepository {
   FutureBool createSector(SectorEntity sector) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource
-            .saveSector(SectorResponseModel.fromEntity(sector)),
+        localCallback: () =>
+            _localDataSource.saveSector(SectorModel.fromEntity(sector)),
         remoteCallback: () async {
           final result = await _remoteDataSource.createSector(
-            SectorResponseModel.fromEntity(sector),
+            SectorModel.fromEntity(sector),
           );
-          if (result is SuccessState<SectorResponseModel>) {
+          if (result is SuccessState<SectorModel>) {
             await _localDataSource.saveSector(result.data!);
             return const SuccessState(data: true);
           }
@@ -61,13 +59,13 @@ final class SectorsRepositoryImpl implements SectorsRepository {
   FutureBool updateSector(SectorEntity sector) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource
-            .saveSector(SectorResponseModel.fromEntity(sector)),
+        localCallback: () =>
+            _localDataSource.saveSector(SectorModel.fromEntity(sector)),
         remoteCallback: () async {
           final result = await _remoteDataSource.updateSector(
-            SectorResponseModel.fromEntity(sector),
+            SectorModel.fromEntity(sector),
           );
-          if (result is SuccessState<SectorResponseModel>) {
+          if (result is SuccessState<SectorModel>) {
             await _localDataSource.saveSector(result.data!);
             return const SuccessState(data: true);
           }

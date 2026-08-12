@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 
 abstract interface class SessionLocalDataSource {
-  Future<UserDataResponseModel?> getUserData();
+  Future<UserDataModel?> getUserData();
 
-  Future<void> saveUserData(UserDataResponseModel userData);
+  Future<void> saveUserData(UserDataModel userData);
 
   Future<void> clearSelectedMode();
 
@@ -20,16 +20,16 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   final LocalStorageClient _localStorageClient;
 
   @override
-  Future<UserDataResponseModel?> getUserData() async {
+  Future<UserDataModel?> getUserData() async {
     final session = _localStorageClient.getUserSession();
     if (session != null) {
-      return UserDataResponseModel.fromEntity(session);
+      return UserDataModel.fromEntity(session);
     }
     return null;
   }
 
   @override
-  Future<void> saveUserData(UserDataResponseModel userData) async {
+  Future<void> saveUserData(UserDataModel userData) async {
     await _localStorageClient.saveUserSession(userData.toEntity());
   }
 
@@ -44,4 +44,3 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
   @override
   String? getSelectedCompanyId() => _localStorageClient.getSelectedCompanyId();
 }
-

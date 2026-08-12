@@ -6,35 +6,29 @@ import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class UsersRemoteDataSource {
   // User Profiles
-  FutureList<UserProfileResponseModel> getUserProfiles(String companyId);
-  FutureData<UserProfileResponseModel> getUserProfileById(String id);
-  FutureData<UserProfileResponseModel> updateUserProfile(
-    UserProfileResponseModel request,
-  );
+  FutureList<UserProfileModel> getUserProfiles(String companyId);
+  FutureData<UserProfileModel> getUserProfileById(String id);
+  FutureData<UserProfileModel> updateUserProfile(UserProfileModel request);
   FutureVoid deleteUserProfile(String id);
   FutureVoid inviteUser({
     required String email,
     required String companyId,
     required String groupId,
   });
-  FutureList<UserInvitationResponseModel> getPendingInvitations(
-    String companyId,
-  );
+  FutureList<UserInvitationModel> getPendingInvitations(String companyId);
   FutureVoid revokeInvitation(String id);
   FutureVoid resendInvitation(UserInvitationEntity invitation);
 
   // Permission Groups
-  FutureList<PermissionGroupModel> getPermissionGroups(
-    String companyId,
-  );
+  FutureList<PermissionGroupModel> getPermissionGroups(String companyId);
   FutureData<PermissionGroupModel> createPermissionGroup(
     PermissionGroupModel request,
   );
@@ -56,7 +50,7 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   // ============================================
 
   @override
-  FutureList<UserProfileResponseModel> getUserProfiles(String companyId) =>
+  FutureList<UserProfileModel> getUserProfiles(String companyId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'user_profiles',
@@ -65,11 +59,11 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
             SupabaseFilter.isFilter('deleted_at', null),
           ],
         );
-        return response.map(UserProfileResponseModel.fromJson).toList();
+        return response.map(UserProfileModel.fromJson).toList();
       });
 
   @override
-  FutureData<UserProfileResponseModel> getUserProfileById(String id) =>
+  FutureData<UserProfileModel> getUserProfileById(String id) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'user_profiles',
@@ -83,20 +77,19 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
           throw Exception('Usuário não encontrado'.hardcoded);
         }
 
-        return UserProfileResponseModel.fromJson(response);
+        return UserProfileModel.fromJson(response);
       });
 
   @override
-  FutureData<UserProfileResponseModel> updateUserProfile(
-    UserProfileResponseModel request,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.update(
-      table: 'user_profiles',
-      values: request.toJson(),
-      filters: [SupabaseFilter.eq('id', request.id)],
-    );
-    return UserProfileResponseModel.fromJson(response.first);
-  });
+  FutureData<UserProfileModel> updateUserProfile(UserProfileModel request) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.update(
+          table: 'user_profiles',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        return UserProfileModel.fromJson(response.first);
+      });
 
   @override
   FutureVoid deleteUserProfile(String id) => SupabaseHandler.voidCall(() async {
@@ -127,17 +120,16 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   });
 
   @override
-  FutureList<UserInvitationResponseModel> getPendingInvitations(
-    String companyId,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.rpc(
-      functionName: 'get_pending_invitations',
-      params: {'target_company_id': companyId},
-    );
-    return (response as List<dynamic>)
-        .map((e) => UserInvitationResponseModel.fromJson(e as MapDynamic))
-        .toList();
-  });
+  FutureList<UserInvitationModel> getPendingInvitations(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.rpc(
+          functionName: 'get_pending_invitations',
+          params: {'target_company_id': companyId},
+        );
+        return (response as List<dynamic>)
+            .map((e) => UserInvitationModel.fromJson(e as MapDynamic))
+            .toList();
+      });
 
   @override
   FutureVoid revokeInvitation(String id) => SupabaseHandler.voidCall(() async {
@@ -168,18 +160,17 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   // ============================================
 
   @override
-  FutureList<PermissionGroupModel> getPermissionGroups(
-    String companyId,
-  ) => SupabaseHandler.call(() async {
-    final response = await _database.selectList(
-      table: 'permission_groups',
-      filters: [
-        SupabaseFilter.eq('company_id', companyId),
-        SupabaseFilter.isFilter('deleted_at', null),
-      ],
-    );
-    return response.map(PermissionGroupModel.fromJson).toList();
-  });
+  FutureList<PermissionGroupModel> getPermissionGroups(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'permission_groups',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(PermissionGroupModel.fromJson).toList();
+      });
 
   @override
   FutureData<PermissionGroupModel> createPermissionGroup(

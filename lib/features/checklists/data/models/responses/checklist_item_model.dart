@@ -5,9 +5,9 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 
-class ChecklistItemResponseModel extends ChecklistItemEntity
+class ChecklistItemModel extends ChecklistItemEntity
     implements DataConvertible<ChecklistItemEntity> {
-  const ChecklistItemResponseModel({
+  const ChecklistItemModel({
     required super.id,
     required super.templateId,
     required super.companyId,
@@ -20,8 +20,8 @@ class ChecklistItemResponseModel extends ChecklistItemEntity
     super.deletedAt,
   });
 
-  factory ChecklistItemResponseModel.fromEntity(ChecklistItemEntity entity) =>
-      ChecklistItemResponseModel(
+  factory ChecklistItemModel.fromEntity(ChecklistItemEntity entity) =>
+      ChecklistItemModel(
         id: entity.id,
         templateId: entity.templateId,
         companyId: entity.companyId,
@@ -34,7 +34,7 @@ class ChecklistItemResponseModel extends ChecklistItemEntity
         deletedAt: entity.deletedAt,
       );
 
-  factory ChecklistItemResponseModel.fromJson(MapDynamic json) {
+  factory ChecklistItemModel.fromJson(MapDynamic json) {
     List<String>? parsedOptions;
     if (json['options'] != null) {
       if (json['options'] is String) {
@@ -53,7 +53,7 @@ class ChecklistItemResponseModel extends ChecklistItemEntity
       }
     }
 
-    return ChecklistItemResponseModel(
+    return ChecklistItemModel(
       id: json['id'] as String? ?? '',
       templateId: json['template_id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',

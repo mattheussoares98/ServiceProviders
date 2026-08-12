@@ -4,9 +4,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 
-class WorkOrderChangeRequestResponseModel extends WorkOrderChangeRequestEntity
+class WorkOrderChangeRequestModel extends WorkOrderChangeRequestEntity
     implements DataConvertible<WorkOrderChangeRequestEntity> {
-  const WorkOrderChangeRequestResponseModel({
+  const WorkOrderChangeRequestModel({
     required super.id,
     required super.workOrderId,
     required super.companyId,
@@ -21,9 +21,9 @@ class WorkOrderChangeRequestResponseModel extends WorkOrderChangeRequestEntity
     super.deletedAt,
   });
 
-  factory WorkOrderChangeRequestResponseModel.fromEntity(
+  factory WorkOrderChangeRequestModel.fromEntity(
     WorkOrderChangeRequestEntity entity,
-  ) => WorkOrderChangeRequestResponseModel(
+  ) => WorkOrderChangeRequestModel(
     id: entity.id,
     workOrderId: entity.workOrderId,
     companyId: entity.companyId,
@@ -38,8 +38,8 @@ class WorkOrderChangeRequestResponseModel extends WorkOrderChangeRequestEntity
     deletedAt: entity.deletedAt,
   );
 
-  factory WorkOrderChangeRequestResponseModel.fromJson(MapDynamic json) =>
-      WorkOrderChangeRequestResponseModel(
+  factory WorkOrderChangeRequestModel.fromJson(MapDynamic json) =>
+      WorkOrderChangeRequestModel(
         id: json['id'] as String? ?? '',
         workOrderId: json['work_order_id'] as String? ?? '',
         companyId: json['company_id'] as String? ?? '',

@@ -7,10 +7,10 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_response_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_response_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -36,25 +36,21 @@ void main() {
   });
 
   final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
-  final tWorkOrderModel = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
-  final tWorkOrderRequest = WorkOrderResponseModel.fromEntity(tWorkOrderEntity);
+  final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
+  final tWorkOrderRequest = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
   final tTaskEntity = EntityFactory.makeTaskEntity();
-  final tTaskModel = TaskResponseModel.fromEntity(tTaskEntity);
+  final tTaskModel = TaskModel.fromEntity(tTaskEntity);
   final tTaskRequest = TaskRequestModel.fromEntity(tTaskEntity);
 
   final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
-  final tChangeModel = WorkOrderChangeRequestResponseModel.fromEntity(
-    tChangeEntity,
-  );
+  final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
   final tChangeRequest = WorkOrderChangeRequestRequestModel.fromEntity(
     tChangeEntity,
   );
 
   final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
-  final tHistoryModel = WorkOrderHistoryResponseModel.fromEntity(
-    tHistoryEntity,
-  );
+  final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
 
   final tCompanyId = faker.guid.guid();
   final tWorkOrderId = faker.guid.guid();
@@ -63,7 +59,7 @@ void main() {
 
   group('WorkOrdersRemoteDataSourceImpl - Work Orders', () {
     test(
-      'getWorkOrders should return SuccessState<List<WorkOrderResponseModel>>',
+      'getWorkOrders should return SuccessState<List<WorkOrderModel>>',
       () async {
         when(
           () => mockDatabase.selectList(
@@ -78,7 +74,7 @@ void main() {
 
         final result = await dataSource.getWorkOrders(tCompanyId);
 
-        expect(result, isA<SuccessState<List<WorkOrderResponseModel>>>());
+        expect(result, isA<SuccessState<List<WorkOrderModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first.id, tWorkOrderModel.id);
         verify(
@@ -125,7 +121,7 @@ void main() {
           offset: 5,
         );
 
-        expect(result, isA<SuccessState<List<WorkOrderResponseModel>>>());
+        expect(result, isA<SuccessState<List<WorkOrderModel>>>());
 
         final capturedFilters =
             verify(
@@ -209,12 +205,12 @@ void main() {
 
         final result = await dataSource.getWorkOrders(tCompanyId);
 
-        expect(result, isA<FailureState<List<WorkOrderResponseModel>>>());
+        expect(result, isA<FailureState<List<WorkOrderModel>>>());
       },
     );
 
     test(
-      'getWorkOrderById should return SuccessState<WorkOrderResponseModel> when found',
+      'getWorkOrderById should return SuccessState<WorkOrderModel> when found',
       () async {
         when(
           () => mockDatabase.selectOne(
@@ -226,7 +222,7 @@ void main() {
 
         final result = await dataSource.getWorkOrderById(tWorkOrderId);
 
-        expect(result, isA<SuccessState<WorkOrderResponseModel>>());
+        expect(result, isA<SuccessState<WorkOrderModel>>());
         expect(result.data!.id, tWorkOrderModel.id);
         verify(
           () => mockDatabase.selectOne(
@@ -255,8 +251,8 @@ void main() {
 
         final result = await dataSource.getWorkOrderById(tWorkOrderId);
 
-        expect(result, isA<FailureState<WorkOrderResponseModel>>());
-        final failure = result as FailureState<WorkOrderResponseModel>;
+        expect(result, isA<FailureState<WorkOrderModel>>());
+        final failure = result as FailureState<WorkOrderModel>;
         expect(failure.message, 'Ordem de serviço não encontrada.');
         verify(
           () => mockDatabase.selectOne(
@@ -355,7 +351,7 @@ void main() {
 
   group('WorkOrdersRemoteDataSourceImpl - Tasks', () {
     test(
-      'getTasksByWorkOrder should return SuccessState<List<TaskResponseModel>>',
+      'getTasksByWorkOrder should return SuccessState<List<TaskModel>>',
       () async {
         when(
           () => mockDatabase.selectList(
@@ -366,7 +362,7 @@ void main() {
 
         final result = await dataSource.getTasksByWorkOrder(tWorkOrderId);
 
-        expect(result, isA<SuccessState<List<TaskResponseModel>>>());
+        expect(result, isA<SuccessState<List<TaskModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first.id, tTaskModel.id);
         verify(
@@ -446,7 +442,7 @@ void main() {
 
   group('WorkOrdersRemoteDataSourceImpl - Change Requests', () {
     test(
-      'getChangeRequests should return SuccessState<List<WorkOrderChangeRequestResponseModel>>',
+      'getChangeRequests should return SuccessState<List<WorkOrderChangeRequestModel>>',
       () async {
         when(
           () => mockDatabase.selectList(
@@ -457,10 +453,7 @@ void main() {
 
         final result = await dataSource.getChangeRequests(tCompanyId);
 
-        expect(
-          result,
-          isA<SuccessState<List<WorkOrderChangeRequestResponseModel>>>(),
-        );
+        expect(result, isA<SuccessState<List<WorkOrderChangeRequestModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first.id, tChangeModel.id);
         verify(
@@ -535,7 +528,7 @@ void main() {
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
     test(
-      'getWorkOrderHistory should return SuccessState<List<WorkOrderHistoryResponseModel>>',
+      'getWorkOrderHistory should return SuccessState<List<WorkOrderHistoryModel>>',
       () async {
         when(
           () => mockDatabase.selectList(
@@ -546,10 +539,7 @@ void main() {
 
         final result = await dataSource.getWorkOrderHistory(tWorkOrderId);
 
-        expect(
-          result,
-          isA<SuccessState<List<WorkOrderHistoryResponseModel>>>(),
-        );
+        expect(result, isA<SuccessState<List<WorkOrderHistoryModel>>>());
         expect(result.data, hasLength(1));
         expect(result.data!.first.id, tHistoryModel.id);
         verify(

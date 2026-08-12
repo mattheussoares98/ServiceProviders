@@ -5,14 +5,14 @@ import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_response_model.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/data/models/responses/maintenance_plan_model.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
 abstract interface class MaintenancePlansLocalDataSource {
-  FutureList<MaintenancePlanResponseModel> getPlans(String companyId);
-  FutureData<MaintenancePlanResponseModel> getPlanById(String id);
-  FutureBool savePlan(MaintenancePlanResponseModel plan);
+  FutureList<MaintenancePlanModel> getPlans(String companyId);
+  FutureData<MaintenancePlanModel> getPlanById(String id);
+  FutureBool savePlan(MaintenancePlanModel plan);
   FutureBool deletePlan(String id);
 }
 
@@ -25,7 +25,7 @@ final class MaintenancePlansLocalDataSourceImpl
   final AppDatabase _database;
 
   @override
-  FutureList<MaintenancePlanResponseModel> getPlans(String companyId) {
+  FutureList<MaintenancePlanModel> getPlans(String companyId) {
     return ErrorHandler.execute(() async {
       final list =
           await (_database.select(_database.maintenancePlans)..where(
@@ -36,7 +36,7 @@ final class MaintenancePlansLocalDataSourceImpl
       return SuccessState(
         data: list
             .map(
-              (t) => MaintenancePlanResponseModel(
+              (t) => MaintenancePlanModel(
                 id: t.id,
                 companyId: t.companyId,
                 assetId: t.assetId,
@@ -64,7 +64,7 @@ final class MaintenancePlansLocalDataSourceImpl
   }
 
   @override
-  FutureData<MaintenancePlanResponseModel> getPlanById(String id) {
+  FutureData<MaintenancePlanModel> getPlanById(String id) {
     return ErrorHandler.execute(() async {
       final t =
           await (_database.select(_database.maintenancePlans)
@@ -73,7 +73,7 @@ final class MaintenancePlansLocalDataSourceImpl
 
       if (t != null) {
         return SuccessState(
-          data: MaintenancePlanResponseModel(
+          data: MaintenancePlanModel(
             id: t.id,
             companyId: t.companyId,
             assetId: t.assetId,
@@ -97,14 +97,14 @@ final class MaintenancePlansLocalDataSourceImpl
         );
       }
 
-      return FailureState<MaintenancePlanResponseModel>(
+      return FailureState<MaintenancePlanModel>(
         message: 'Maintenance plan not found'.hardcoded,
       );
     });
   }
 
   @override
-  FutureBool savePlan(MaintenancePlanResponseModel plan) {
+  FutureBool savePlan(MaintenancePlanModel plan) {
     return ErrorHandler.execute(() async {
       await _database
           .into(_database.maintenancePlans)

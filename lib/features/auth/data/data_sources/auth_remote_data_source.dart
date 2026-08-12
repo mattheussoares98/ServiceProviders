@@ -8,15 +8,15 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
-import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_response_model.dart';
-import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_response_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
+import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDataSource {
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request);
-  FutureData<UserDataResponseModel> signUp(SignUpRequestModel request);
-  FutureData<UserProfileResponseModel> getCurrentUserProfile(String userId);
+  FutureData<UserDataModel> login(AuthenticationRequestModel request);
+  FutureData<UserDataModel> signUp(SignUpRequestModel request);
+  FutureData<UserProfileModel> getCurrentUserProfile(String userId);
   FutureVoid resetPassword(String email);
   FutureVoid changePassword(String newPassword);
 }
@@ -33,7 +33,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final SupabaseDatabaseClient _supabaseDatabase;
 
   @override
-  FutureData<UserDataResponseModel> login(AuthenticationRequestModel request) {
+  FutureData<UserDataModel> login(AuthenticationRequestModel request) {
     return SupabaseHandler.call(() async {
       final response = await _supabaseAuth.signInWithPassword(
         email: request.email, // Supabase uses email/password
@@ -41,7 +41,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       final profile = await _getUserProfile(response.user?.id);
-      return UserDataResponseModel.fromSupabaseProfile(
+      return UserDataModel.fromSupabaseProfile(
         response: response,
         profile: profile,
       );
@@ -49,7 +49,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  FutureData<UserProfileResponseModel> getCurrentUserProfile(String userId) {
+  FutureData<UserProfileModel> getCurrentUserProfile(String userId) {
     return SupabaseHandler.call(() => _getUserProfile(userId));
   }
 
@@ -69,7 +69,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  FutureData<UserDataResponseModel> signUp(SignUpRequestModel request) {
+  FutureData<UserDataModel> signUp(SignUpRequestModel request) {
     // Build the full redirect URL: base URL + email-confirmation path
     final redirectUrl = '${AppConfigUtil.I.webBaseUrl}$kEmailConfirmationPath';
     return SupabaseHandler.call(() async {
@@ -80,11 +80,11 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {'name': request.name},
       );
 
-      return UserDataResponseModel.fromSupabase(response);
+      return UserDataModel.fromSupabase(response);
     });
   }
 
-  Future<UserProfileResponseModel> _getUserProfile(String? userId) async {
+  Future<UserProfileModel> _getUserProfile(String? userId) async {
     if (userId == null || userId.isEmpty) {
       throw AuthException('Usuário autenticado inválido'.hardcoded);
     }
@@ -94,7 +94,7 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       filters: [SupabaseFilter.eq('id', userId)],
     );
     if (profileJson != null) {
-      return UserProfileResponseModel.fromJson(profileJson);
+      return UserProfileModel.fromJson(profileJson);
     }
 
     final providerJson = await _supabaseDatabase.selectOne(
@@ -106,9 +106,6 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw AuthException('Perfil de usuário não encontrado'.hardcoded);
     }
 
-    return UserProfileResponseModel.fromServiceProviderJson(
-      providerJson,
-      userId,
-    );
+    return UserProfileModel.fromServiceProviderJson(providerJson, userId);
   }
 }

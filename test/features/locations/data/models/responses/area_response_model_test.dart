@@ -7,7 +7,7 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final tEntity = EntityFactory.makeAreaEntity();
 
-  group('AreaResponseModel', () {
+  group('AreaModel', () {
     test('should be a subclass of AreaEntity', () {
       final model = AreaModel.fromEntity(tEntity);
       expect(model, isA<AreaEntity>());

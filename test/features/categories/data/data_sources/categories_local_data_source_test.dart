@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_response_model.dart';
+import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -35,7 +35,7 @@ void main() {
   }
 
   final tEntity = EntityFactory.makeCategoryEntity();
-  final tModel = CategoryResponseModel.fromEntity(tEntity);
+  final tModel = CategoryModel.fromEntity(tEntity);
 
   group('CategoriesLocalDataSourceImpl', () {
     test('should save a category and successfully retrieve it', () async {
@@ -53,7 +53,7 @@ void main() {
       final getResult = await dataSource.getCategories(tModel.companyId);
 
       // Assert Get
-      expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
+      expect(getResult, isA<SuccessState<List<CategoryModel>>>());
       expect(getResult.data, hasLength(1));
       expect(getResult.data!.first, equals(tModel));
     });
@@ -76,7 +76,7 @@ void main() {
         final getResult = await dataSource.getCategories(tModel.companyId);
 
         // Assert Get: Should be empty because it is soft-deleted
-        expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
+        expect(getResult, isA<SuccessState<List<CategoryModel>>>());
         expect(getResult.data, isEmpty);
       },
     );
@@ -89,7 +89,7 @@ void main() {
         final entities = EntityFactory.makeCategoryEntityList()
             .map((e) => e.copyWith(companyId: companyId))
             .toList();
-        final models = entities.map(CategoryResponseModel.fromEntity).toList();
+        final models = entities.map(CategoryModel.fromEntity).toList();
 
         final saveResult = await dataSource.saveCategories(models);
 
@@ -98,7 +98,7 @@ void main() {
 
         final getResult = await dataSource.getCategories(companyId);
 
-        expect(getResult, isA<SuccessState<List<CategoryResponseModel>>>());
+        expect(getResult, isA<SuccessState<List<CategoryModel>>>());
         expect(getResult.data, hasLength(models.length));
         expect(getResult.data, containsAll(models));
       },

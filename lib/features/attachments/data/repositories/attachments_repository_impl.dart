@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_response_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
@@ -52,8 +52,8 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       final remoteResult = await _remoteDataSource.getAttachmentsByWorkOrder(
         workOrderId,
       );
-      if (remoteResult is SuccessState<List<AttachmentResponseModel>>) {
-        final remoteModels = remoteResult.data ?? <AttachmentResponseModel>[];
+      if (remoteResult is SuccessState<List<AttachmentModel>>) {
+        final remoteModels = remoteResult.data ?? <AttachmentModel>[];
         final remoteIds = remoteModels.map((m) => m.id).toSet();
 
         await Future.wait([
@@ -65,8 +65,8 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         final localResult = await _localDataSource.getAttachmentsByWorkOrder(
           workOrderId,
         );
-        if (localResult is SuccessState<List<AttachmentResponseModel>>) {
-          final localModels = localResult.data ?? <AttachmentResponseModel>[];
+        if (localResult is SuccessState<List<AttachmentModel>>) {
+          final localModels = localResult.data ?? <AttachmentModel>[];
           await Future.wait([
             for (final localModel in localModels)
               if (localModel.uploadStatus == UploadStatus.uploaded &&
@@ -80,7 +80,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     final localResult = await _localDataSource.getAttachmentsByWorkOrder(
       workOrderId,
     );
-    if (localResult is! SuccessState<List<AttachmentResponseModel>>) {
+    if (localResult is! SuccessState<List<AttachmentModel>>) {
       return FailureState(
         message: (localResult as FailureState).message,
         error: localResult.error,
@@ -89,24 +89,24 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       );
     }
 
-    final models = localResult.data ?? <AttachmentResponseModel>[];
+    final models = localResult.data ?? <AttachmentModel>[];
     final entities = await Future.wait(models.map(_toEntityWithResolvedPath));
     return SuccessState(data: entities);
   }
 
   Future<void> _saveRemoteModelPreservingLocalPath(
-    AttachmentResponseModel remoteModel,
+    AttachmentModel remoteModel,
   ) async {
     final existingResult = await _localDataSource.getAttachment(remoteModel.id);
     await _localDataSource.saveAttachment(
-      AttachmentResponseModel.fromEntity(
+      AttachmentModel.fromEntity(
         remoteModel.copyWith(localPath: existingResult.data?.localPath),
       ),
     );
   }
 
   Future<AttachmentEntity> _toEntityWithResolvedPath(
-    AttachmentResponseModel model,
+    AttachmentModel model,
   ) async {
     final entity = model.toEntity();
     final localPath = entity.localPath;
@@ -125,9 +125,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       // File record exists but the physical file is gone — clear the stale path
       // and fall through to re-download if a remoteUrl is available.
       await _localDataSource.saveAttachment(
-        AttachmentResponseModel.fromEntity(
-          entity.copyWith(annulLocalPath: true),
-        ),
+        AttachmentModel.fromEntity(entity.copyWith(annulLocalPath: true)),
       );
     }
 
@@ -163,7 +161,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
     // Persist the new localPath so subsequent loads are fully offline.
     await _localDataSource.saveAttachment(
-      AttachmentResponseModel.fromEntity(
+      AttachmentModel.fromEntity(
         entity.copyWith(localPath: cacheFileName, fileSizeBytes: fileSizeBytes),
       ),
     );
@@ -197,7 +195,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
       final listResult = await _localDataSource
           .getUploadedOrderedByLastAccess();
-      if (listResult is! SuccessState<List<AttachmentResponseModel>>) {
+      if (listResult is! SuccessState<List<AttachmentModel>>) {
         return SuccessState.nil;
       }
 
@@ -216,7 +214,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
         final updated = candidate.copyWith(annulLocalPath: true);
         await _localDataSource.saveAttachment(
-          AttachmentResponseModel.fromEntity(updated),
+          AttachmentModel.fromEntity(updated),
         );
 
         currentSize -= candidate.fileSizeBytes ?? 0;
@@ -233,7 +231,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     try {
       final listResult = await _localDataSource
           .getUploadedOrderedByLastAccess();
-      if (listResult is! SuccessState<List<AttachmentResponseModel>>) {
+      if (listResult is! SuccessState<List<AttachmentModel>>) {
         return SuccessState.nil;
       }
 
@@ -250,7 +248,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
         final updated = attachment.copyWith(annulLocalPath: true);
         await _localDataSource.saveAttachment(
-          AttachmentResponseModel.fromEntity(updated),
+          AttachmentModel.fromEntity(updated),
         );
       }
       return SuccessState.nil;
@@ -260,14 +258,14 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   }
 
   @override
-  FutureBool createAttachment(AttachmentEntity attachment) => _localDataSource
-      .saveAttachment(AttachmentResponseModel.fromEntity(attachment));
+  FutureBool createAttachment(AttachmentEntity attachment) =>
+      _localDataSource.saveAttachment(AttachmentModel.fromEntity(attachment));
 
   @override
   FutureBool deleteAttachment(String id) async {
     try {
       final localResult = await _localDataSource.getAttachment(id);
-      if (localResult is! SuccessState<AttachmentResponseModel?>) {
+      if (localResult is! SuccessState<AttachmentModel?>) {
         return FailureState(message: (localResult as FailureState).message);
       }
       final attachment = localResult.data;
@@ -355,7 +353,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
             workOrderId: attachment.workOrderId,
             hash: hash,
           );
-          if (existingResult is SuccessState<AttachmentResponseModel?>) {
+          if (existingResult is SuccessState<AttachmentModel?>) {
             final existing = existingResult.data;
             if (existing != null) {
               if (existing.deletedAt != null) {
@@ -368,7 +366,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
                   // Hard delete local pending record
                   await _localDataSource.hardDeleteAttachment(attachment.id);
                   // Save restored record to local DB
-                  final restoredModel = AttachmentResponseModel.fromEntity(
+                  final restoredModel = AttachmentModel.fromEntity(
                     existing.copyWith(
                       annulDeletedAt: true,
                       uploadedById: attachment.uploadedById,
@@ -428,7 +426,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
       // 3. Confirm the upload — saves the entire record on Supabase.
       final confirmResult = await _remoteDataSource.confirmUpload(
-        AttachmentResponseModel.fromEntity(updated),
+        AttachmentModel.fromEntity(updated),
       );
       if (confirmResult is! SuccessState<bool>) {
         return FailureState(message: (confirmResult as FailureState).message);
@@ -436,7 +434,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
       // 4. Update the local record with the final remoteUrl and uploaded status.
       return _localDataSource.saveAttachment(
-        AttachmentResponseModel.fromEntity(updated),
+        AttachmentModel.fromEntity(updated),
       );
     } catch (error) {
       return FailureState(message: error.toString());
