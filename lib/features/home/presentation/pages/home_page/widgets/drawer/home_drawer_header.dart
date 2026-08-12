@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
@@ -39,21 +40,23 @@ class HomeDrawerHeader extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: BaseText.title('Alterar foto de perfil'.hardcoded),
             ),
-            const SizedBox(height: Sizes.p16),
-            BaseListTile(
-              padding: EdgeInsets.zero,
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.camera_alt_outlined,
-                cupertinoIcon: CupertinoIcons.camera,
+            if (PlatformUtil.isMobile) ...[
+              const SizedBox(height: Sizes.p16),
+              BaseListTile(
+                padding: EdgeInsets.zero,
+                platformIcon: const PlatformIcon(
+                  materialIcon: Icons.camera_alt_outlined,
+                  cupertinoIcon: CupertinoIcons.camera,
+                ),
+                title: 'Tirar foto'.hardcoded,
+                onTap: () {
+                  Navigator.pop(context);
+                  context.read<HomeCubit>().changeAvatar(
+                    AttachmentSource.cameraPhoto,
+                  );
+                },
               ),
-              title: 'Tirar foto'.hardcoded,
-              onTap: () {
-                Navigator.pop(context);
-                context.read<HomeCubit>().changeAvatar(
-                  AttachmentSource.cameraPhoto,
-                );
-              },
-            ),
+            ],
             const Divider(height: 1),
             BaseListTile(
               padding: EdgeInsets.zero,
