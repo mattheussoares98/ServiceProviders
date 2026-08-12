@@ -40,7 +40,7 @@ class _ProgrammedData extends StatelessWidget {
                     child: BaseText(
                       scheduledDate == null
                           ? 'Selecionar'.hardcoded
-                          : scheduledDate!.formatDate(DateFormatType.yMMMMd),
+                          : scheduledDate!.formatDate(),
                     ),
                   ),
                   if (screenWidth > 250) ...[
