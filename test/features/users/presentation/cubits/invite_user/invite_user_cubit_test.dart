@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/invite_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_cubit.dart';
@@ -17,9 +16,6 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockInviteUserUseCase extends Mock implements InviteUserUseCase {}
-
-class MockGetActiveCompanyIdUseCase extends Mock
-    implements GetActiveCompanyIdUseCase {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

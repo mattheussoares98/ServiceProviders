@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla_policy_use_case.dart';
@@ -19,6 +18,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSlaPoliciesUseCase extends Mock implements GetSlaPoliciesUseCase {}
 
@@ -33,9 +33,6 @@ class MockUpdateSlaPolicyUseCase extends Mock
 
 class MockDeleteSlaPolicyUseCase extends Mock
     implements DeleteSlaPolicyUseCase {}
-
-class MockGetActiveCompanyIdUseCase extends Mock
-    implements GetActiveCompanyIdUseCase {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

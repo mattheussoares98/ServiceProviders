@@ -19,12 +19,12 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
 
@@ -39,9 +39,6 @@ class MockDeleteAttachmentUseCase extends Mock
 class MockOpenAttachmentUseCase extends Mock implements OpenAttachmentUseCase {}
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
-
-class MockGetActiveCompanyIdUseCase extends Mock
-    implements GetActiveCompanyIdUseCase {}
 
 class MockGetVideoThumbnailUseCase extends Mock
     implements GetVideoThumbnailUseCase {}

@@ -58,8 +58,7 @@ void main() {
   late MockReviewCompletionUseCase mockReviewCompletion;
   late MockGetSectorsUseCase mockGetSectors;
   late MockNavigationClient mockNavigationClient;
-  late MockGetActiveCompanyIdUseCase
-  mockGetActiveCompanyId; //TODO delete from other tests and use from a single place
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
 
   late PauseWorkflowCubit cubit;
   late UserProfileEntity tUserProfile;

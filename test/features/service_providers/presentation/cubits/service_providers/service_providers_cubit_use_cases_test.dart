@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/updat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 
-import '../../../../categories/presentation/cubits/categories/categories_cubit_test.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetServiceProviderCompaniesUseCase extends Mock
     implements GetServiceProviderCompaniesUseCase {}
@@ -94,7 +94,10 @@ void main() {
   test('ServiceProvidersCubitUseCases retains injected use cases', () {
     expect(useCases.getCompanies, equals(mockGetCompanies));
     expect(useCases.getProfiles, equals(mockGetProfiles));
-    expect(useCases.getProfilesByCompanyIds, equals(mockGetProfilesByCompanyIds));
+    expect(
+      useCases.getProfilesByCompanyIds,
+      equals(mockGetProfilesByCompanyIds),
+    );
     expect(useCases.getInvitations, equals(mockGetInvitations));
     expect(useCases.sendInvitation, equals(mockSendInvitation));
     expect(useCases.deleteInvitation, equals(mockDeleteInvitation));
