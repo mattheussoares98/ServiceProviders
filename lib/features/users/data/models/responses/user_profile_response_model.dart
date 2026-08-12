@@ -110,7 +110,7 @@ class UserProfileResponseModel extends UserProfileEntity
       phone: json['phone'] as String?,
       permissionGroupId: json['permission_group_id'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      isActive: json['is_active'] as bool? ?? true,
+      isActive: json['is_active'] as bool? ?? false,
       isAdmin: json['is_admin'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)

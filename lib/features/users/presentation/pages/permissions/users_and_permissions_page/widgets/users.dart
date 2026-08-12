@@ -39,14 +39,20 @@ class Users extends StatelessWidget {
                     .firstWhereOrNull((e) => e.id == user.permissionGroupId)
                     ?.name ??
                 'Sem grupo'.hardcoded;
+            final roleOrGroup = user.isAdmin
+                ? 'Administrador'.hardcoded
+                : groupName;
+            final statusLabel = user.isActive
+                ? 'Ativo'.hardcoded
+                : 'Pendente'.hardcoded;
             return PermissionItem(
               title: user.name,
-              subtitle:
-                  '${user.email} • ${user.isAdmin ? "Administrador" : groupName}'
-                      .hardcoded,
-              onTap: () => context
-                  .read<UsersCubit>()
-                  .navigateToEditUserPermissions(user),
+              subtitle: '${user.email} • $roleOrGroup ($statusLabel)'.hardcoded,
+              onTap: user.isActive
+                  ? () => context
+                        .read<UsersCubit>()
+                        .navigateToEditUserPermissions(user)
+                  : null,
               leading: SizedBox(
                 height: 120,
                 child: user.avatarUrl?.isNotEmpty ?? false
