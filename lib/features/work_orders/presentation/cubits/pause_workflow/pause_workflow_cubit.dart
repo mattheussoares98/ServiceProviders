@@ -24,8 +24,12 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   final PauseWorkflowCubitUseCases _useCases;
 
-  Future<void> loadPauseReasons(String companyId) async {
+  Future<void> loadPauseReasons([bool force = false]) async {
+    if (!force && state.pauseReasons.isNotEmpty) return;
     emit(state.copyWith(status: StateStatus.loading));
+
+    final companyId = _useCases.getActiveCompanyId();
+
     final result = await _useCases.getPauseReasons(companyId);
     if (isClosed) return;
 
@@ -47,7 +51,9 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
-  Future<void> loadSectors(String companyId) async {
+  Future<void> loadSectors() async {
+    final companyId = _useCases.getActiveCompanyId();
+
     final result = await _useCases.getSectors(companyId);
     if (isClosed) return;
 

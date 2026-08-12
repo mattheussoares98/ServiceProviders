@@ -21,6 +21,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
@@ -57,6 +58,8 @@ void main() {
   late MockReviewCompletionUseCase mockReviewCompletion;
   late MockGetSectorsUseCase mockGetSectors;
   late MockNavigationClient mockNavigationClient;
+  late MockGetActiveCompanyIdUseCase
+  mockGetActiveCompanyId; //TODO delete from other tests and use from a single place
 
   late PauseWorkflowCubit cubit;
   late UserProfileEntity tUserProfile;
@@ -91,6 +94,7 @@ void main() {
     mockReviewCompletion = MockReviewCompletionUseCase();
     mockGetSectors = MockGetSectorsUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -106,6 +110,7 @@ void main() {
       requestCompletion: mockRequestCompletion,
       reviewCompletion: mockReviewCompletion,
       getSectors: mockGetSectors,
+      getActiveCompanyId: mockGetActiveCompanyId,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -122,9 +127,12 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tSectors));
+          when(
+            () => mockGetActiveCompanyId.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadSectors('company-id'),
+        act: (cubit) => cubit.loadSectors(),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.sectors,
@@ -133,7 +141,8 @@ void main() {
           ),
         ],
         verify: (_) {
-          verify(() => mockGetSectors.call('company-id')).called(1);
+          verify(() => mockGetActiveCompanyId.call()).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
 
@@ -143,12 +152,16 @@ void main() {
           when(
             () => mockGetSectors.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error'));
+          when(
+            () => mockGetActiveCompanyId.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadSectors('company-id'),
+        act: (cubit) => cubit.loadSectors(),
         expect: () => <dynamic>[],
         verify: (_) {
-          verify(() => mockGetSectors.call('company-id')).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
+          verify(() => mockGetActiveCompanyId.call()).called(1);
         },
       );
     });
@@ -161,9 +174,12 @@ void main() {
           when(
             () => mockGetPauseReasons.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tReasons));
+          when(
+            () => mockGetActiveCompanyId.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadPauseReasons('company-id'),
+        act: (cubit) => cubit.loadPauseReasons(),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,
@@ -176,7 +192,10 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
-          verify(() => mockGetPauseReasons.call('company-id')).called(1);
+          verify(
+            () => mockGetPauseReasons.call(tUserProfile.companyId),
+          ).called(1);
+          verify(() => mockGetActiveCompanyId.call()).called(1);
         },
       );
 
@@ -186,9 +205,12 @@ void main() {
           when(
             () => mockGetPauseReasons.call(any()),
           ).thenAnswer((_) async => FailureState(message: 'Error'));
+          when(
+            () => mockGetActiveCompanyId.call(),
+          ).thenReturn(tUserProfile.companyId);
           return cubit;
         },
-        act: (cubit) => cubit.loadPauseReasons('company-id'),
+        act: (cubit) => cubit.loadPauseReasons(),
         expect: () => [
           isA<PauseWorkflowState>().having(
             (s) => s.status,

@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
@@ -19,6 +20,7 @@ class PauseWorkflowCubitUseCases {
     required this.getPauseReasons,
     required this.getPauseRequests,
     required this.getSectors,
+    required this.getActiveCompanyId,
   });
   final RequestPauseUseCase requestPause;
   final CancelPauseUseCase cancelPause;
@@ -28,6 +30,5 @@ class PauseWorkflowCubitUseCases {
   final GetPauseReasonsUseCase getPauseReasons;
   final GetPauseRequestsUseCase getPauseRequests;
   final GetSectorsUseCase getSectors;
+  final GetActiveCompanyIdUseCase getActiveCompanyId;
 }
-
-

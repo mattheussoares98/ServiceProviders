@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -29,14 +29,7 @@ class RequestPauseFields extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
-
-    useEffect(() {
-      cubit
-        ..loadPauseReasons(companyId)
-        ..loadSectors(companyId);
-      return null;
-    }, []);
+    final cubit = context.read<PauseWorkflowCubit>();
 
     final selectedReason = useState<PauseReasonEntity?>(null);
     final selectedResponsibility = useState<PauseResponsibility>(
@@ -48,7 +41,6 @@ class RequestPauseFields extends HookWidget {
 
     return BlocProvider.value(
       value: cubit,
-
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
         builder: (context, state) {
           final dropdownReasons = state.pauseReasons.map((reason) {
@@ -67,7 +59,10 @@ class RequestPauseFields extends HookWidget {
             );
           }).toList();
 
-          final dropdownSectors = state.sectors.map((sec) {
+          final sectors = context.select(
+            (SectorsCubit cubit) => cubit.state.sectors,
+          );
+          final dropdownSectors = sectors.map((sec) {
             return DropdownMenuItem<String>(
               value: sec.id,
               child: BaseText.bodyMedium(sec.name),
@@ -85,16 +80,19 @@ class RequestPauseFields extends HookWidget {
                 gapH16,
                 BaseDropDown<PauseReasonEntity>(
                   label: 'Motivo da pausa'.hardcoded,
+                  showLabelAtTopLeft: true,
                   hint: BaseText.bodyMedium('Selecione um motivo'.hardcoded),
                   items: dropdownReasons,
                   selectedItem: selectedReason.value,
+                  onClear: () => selectedReason.value = null,
                   onChanged: (val) {
                     selectedReason.value = val;
                   },
                 ),
                 gapH12,
                 BaseDropDown<PauseResponsibility>(
-                  label: 'Responsabilidade'.hardcoded,
+                  label: 'Responsabilidade da pausa'.hardcoded,
+                  showLabelAtTopLeft: true,
                   items: dropdownResponsibilities,
                   selectedItem: selectedResponsibility.value,
                   onChanged: (val) {
@@ -103,13 +101,15 @@ class RequestPauseFields extends HookWidget {
                 ),
                 gapH12,
                 BaseDropDown<String>(
-                  label: 'Setor destino'.hardcoded,
-                  hint: BaseText.bodyMedium('Selecione o setor'.hardcoded),
+                  label: 'Setor responsável'.hardcoded,
+                  showLabelAtTopLeft: true,
+                  hint: BaseText.bodyMedium('Setor responsável'.hardcoded),
                   items: dropdownSectors,
                   selectedItem: selectedSectorId.value,
                   onChanged: (val) {
                     selectedSectorId.value = val;
                   },
+                  onClear: () => selectedSectorId.value = null,
                 ),
                 gapH12,
                 BaseTextFormField(
@@ -129,11 +129,12 @@ class RequestPauseFields extends HookWidget {
                 ),
                 gapH24,
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SecondaryButton(
+                    BaseTextButton(
                       text: 'Cancelar'.hardcoded,
-                      onTap: () => Navigator.of(context).pop(),
+                      onPressed: Navigator.of(context).pop,
+                      color: Colors.red,
                     ),
                     gapW12,
                     BaseButton(

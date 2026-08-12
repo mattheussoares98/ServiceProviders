@@ -29,7 +29,7 @@ class RequestCompletionFields extends HookWidget {
     final cubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
 
     useEffect(() {
-      cubit.loadSectors(companyId);
+      cubit.loadSectors();
       return null;
     }, []);
 

@@ -67,7 +67,7 @@ class _WorkOrderDetails extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pauseCubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
+    final pauseCubit = context.read<PauseWorkflowCubit>();
     final sessionCubit = context.read<SessionCubit>();
     final serviceProvidersCubit = context.read<ServiceProvidersCubit>();
 

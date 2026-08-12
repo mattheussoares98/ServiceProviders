@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sect
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
@@ -68,6 +69,11 @@ class HomePage extends HookWidget {
         BlocProvider(
           create: (context) =>
               GetIt.I<ServiceProvidersCubit>()..loadCompaniesAndProfiles(),
+        ),
+        BlocProvider<PauseWorkflowCubit>(
+          create: (context) {
+            return GetIt.I<PauseWorkflowCubit>()..loadPauseReasons();
+          },
         ),
       ],
       child: Builder(
