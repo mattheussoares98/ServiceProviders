@@ -21,6 +21,10 @@ class _ServiceProviderProfileDropdown extends StatelessWidget {
           (cubit) => cubit.state.profiles[companyId!] ?? [],
         );
 
+    if (profiles.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final dropdownItems = profiles
         .map(
           (profile) => DropdownMenuItem(
