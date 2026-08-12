@@ -127,14 +127,15 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       _authSubscription?.cancel();
       _authSubscription = null;
       replaceAllRoute(const LoginRoute());
+      final errorMessage =
+          'Convite inválido, expirado ou revogado pelo administrador'.hardcoded;
       emit(
         state.copyWith(
           status: StateStatus.loadingError,
-          errorMessage:
-              'Convite inválido, expirado ou revogado pelo administrador.'
-                  .hardcoded,
+          errorMessage: errorMessage,
         ),
       );
+      showErrorToast(errorMessage);
     });
   }
 
