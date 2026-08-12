@@ -35,8 +35,15 @@ class _DocumentPreview extends StatelessWidget {
     return Container(
       height: 120,
       color: color?.withValues(alpha: 0.1),
-      alignment: Alignment.center,
-      child: icon,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
+            child: BaseText.caption(attachment.fileName),
+          ),
+          Expanded(child: Center(child: icon)),
+        ],
+      ),
     );
   }
 }
