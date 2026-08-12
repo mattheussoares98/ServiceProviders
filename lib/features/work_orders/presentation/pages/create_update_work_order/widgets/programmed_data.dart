@@ -31,7 +31,7 @@ class _ProgrammedData extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
               decoration: BoxDecoration(
-                color: Theme.of(context).disabledColor.withAlpha(30),
+                color: context.theme.disabledColor.withAlpha(30),
                 borderRadius: BorderRadius.circular(Sizes.p8),
               ),
               child: Row(

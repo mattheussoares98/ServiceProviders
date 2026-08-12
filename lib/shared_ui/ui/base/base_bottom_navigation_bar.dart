@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/badges/validated_badge.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class BaseBottomNavigationBarItem {
   const BaseBottomNavigationBarItem({
@@ -39,7 +40,7 @@ class BaseBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).bottomNavigationBarTheme;
+    final theme = context.theme.bottomNavigationBarTheme;
     final isCupertino = PlatformUtil.isCupertino;
 
     final List<BottomNavigationBarItem> localItems = items.map((e) {

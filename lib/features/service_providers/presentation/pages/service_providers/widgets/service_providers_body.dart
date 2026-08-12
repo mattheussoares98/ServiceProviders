@@ -28,8 +28,8 @@ class _ServiceProvidersBody extends StatelessWidget {
             return Card(
               clipBehavior: .hardEdge,
               child: Theme(
-                data: Theme.of(context).copyWith(
-                  disabledColor: Theme.of(context).textTheme.bodyMedium?.color,
+                data: context.theme.copyWith(
+                  disabledColor: context.theme.textTheme.bodyMedium?.color,
                 ),
                 child: ExpansionTile(
                   key: ValueKey(company.id),

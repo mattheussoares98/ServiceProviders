@@ -99,7 +99,7 @@ class WorkOrderBottomActions extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(Sizes.p16),
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: context.theme.scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),

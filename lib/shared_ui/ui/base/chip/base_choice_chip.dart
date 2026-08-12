@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart' as theme;
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 /// PERFORMANCE: Choice chips layout rendered inside a Wrap widget.
 class BaseChoiceChip<T> extends StatelessWidget {
@@ -25,8 +27,6 @@ class BaseChoiceChip<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return RepaintBoundary(
       child: Wrap(
         key: const ValueKey('wrap'),
@@ -36,7 +36,7 @@ class BaseChoiceChip<T> extends StatelessWidget {
         children: items.map((item) {
           final isSelected = selections.contains(item);
           final color =
-              itemColorBuilder?.call(item) ?? theme.colorScheme.primary;
+              itemColorBuilder?.call(item) ?? context.theme.colorScheme.primary;
 
           return ChoiceChip(
             key: ValueKey(item),

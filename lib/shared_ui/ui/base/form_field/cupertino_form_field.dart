@@ -79,8 +79,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = context.theme.colorScheme;
     final dtf = widget.baseTextFormField;
     final isEnabled = dtf.enabled ?? true;
 
@@ -143,7 +142,7 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                       ? null
                       : colorScheme.onSurface.withAlpha(100),
                 ),
-                placeholderStyle: theme.textTheme.bodyMedium?.copyWith(
+                placeholderStyle: context.theme.textTheme.bodyMedium?.copyWith(
                   color: isEnabled
                       ? colorScheme.onSurface.withAlpha(125)
                       : colorScheme.onSurface.withAlpha(100),
