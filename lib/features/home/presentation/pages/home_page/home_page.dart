@@ -73,6 +73,7 @@ class HomePage extends HookWidget {
       child: Builder(
         builder: (context) {
           return BaseScaffold(
+            usePadding: false,
             isScrollable: false,
             body: BlocBuilder<UsersCubit, UsersState>(
               builder: (context, state) {
