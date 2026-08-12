@@ -79,7 +79,6 @@ class BaseButton extends StatelessWidget {
               onPressed: tapCallback,
               color: color ?? AppColors.primary,
               disabledColor: context.theme.disabledColor,
-              padding: EdgeInsets.zero,
               borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
               child: Center(child: childWidget),
             )
