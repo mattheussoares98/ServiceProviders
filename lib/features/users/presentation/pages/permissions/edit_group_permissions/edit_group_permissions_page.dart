@@ -15,12 +15,16 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_segmented_buttons.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+
+part 'widgets/group_work_orders_card.dart';
 
 @RoutePage()
 class EditGroupPermissionsPage extends StatelessWidget {
@@ -63,7 +67,7 @@ class _Body extends HookWidget {
             context.read<UsersCubit>(),
           );
           if (success && context.mounted) {
-            cubit.popRoute();
+            Navigator.of(context).pop();
           }
         }
 
@@ -129,174 +133,6 @@ class _Body extends HookWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _GroupWorkOrdersCard extends StatelessWidget {
-  const _GroupWorkOrdersCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<PermissionsCubit>();
-    final isAdmin = context.select<PermissionsCubit, bool>(
-      (cubit) => cubit.state.isAdmin,
-    );
-
-    return Card(
-      color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-      child: Padding(
-        padding: const EdgeInsets.all(Sizes.p16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            BaseText(
-              ResourceType.workOrders.label,
-              fontWeight: FontWeight.bold,
-            ),
-            const Divider(height: Sizes.p20),
-            BlocSelector<
-              PermissionsCubit,
-              PermissionsState,
-              WorkOrdersPermissionEntity
-            >(
-              selector: (state) => state.draftGroupWorkOrders,
-              builder: (context, draft) {
-                Widget buildScopeRow<T>({
-                  required String label,
-                  required List<T> items,
-                  required T selectedValue,
-                  required ValueChanged<T>? onChanged,
-                  required String Function(T) labelBuilder,
-                  required Color Function(T) colorBuilder,
-                }) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BaseText.bodyMedium(label, fontWeight: FontWeight.w600),
-                        gapH4,
-                        SizedBox(
-                          width: double.infinity,
-                          child: BaseSegmentedButtons<T>(
-                            items: items,
-                            selectedValue: selectedValue,
-                            onChanged: isAdmin ? null : onChanged,
-                            itemLabelBuilder: labelBuilder,
-                            itemColorBuilder: colorBuilder,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                Widget buildSwitchRow({
-                  required String label,
-                  required bool selectedValue,
-                  required ValueChanged<bool>? onChanged,
-                }) {
-                  return DefaultSwitch(
-                    title: label,
-                    value: selectedValue,
-                    onChanged: isAdmin ? null : onChanged,
-                  );
-                } //TODO create a separated widget instead of using a method
-                //TODO when succeeds the change, should close the page
-
-                return Column(
-                  children: [
-                    buildScopeRow<WorkOrderReadScope>(
-                      label: 'Escopo de Leitura (Visualizar)'.hardcoded,
-                      items: WorkOrderReadScope.values,
-                      selectedValue: draft.readScope,
-                      onChanged: cubit.changeGroupWorkOrdersReadScope,
-                      labelBuilder: (val) => val.label,
-                      colorBuilder: (val) => Colors.indigo.shade600,
-                    ),
-                    buildSwitchRow(
-                      label: 'Criar ordens de serviço'.hardcoded,
-                      selectedValue: draft.create,
-                      onChanged: cubit.toggleGroupWorkOrdersCreate,
-                    ),
-                    buildScopeRow<WorkOrderUpdateScope>(
-                      label: 'Escopo de Edição (Alterar)'.hardcoded,
-                      items: WorkOrderUpdateScope.values,
-                      selectedValue: draft.updateScope,
-                      onChanged: cubit.changeGroupWorkOrdersUpdateScope,
-                      labelBuilder: (val) => val.label,
-                      colorBuilder: (val) => Colors.teal.shade600,
-                    ),
-                    buildSwitchRow(
-                      label: 'Excluir ordens de serviço'.hardcoded,
-                      selectedValue: draft.delete,
-                      onChanged: cubit.toggleGroupWorkOrdersDelete,
-                    ),
-                    const Divider(height: Sizes.p20),
-                    buildSwitchRow(
-                      label: 'Alterar status'.hardcoded,
-                      selectedValue: draft.changeStatus,
-                      onChanged: cubit.toggleGroupWorkOrdersChangeStatus,
-                    ),
-                    buildSwitchRow(
-                      label: 'Reatribuir responsável'.hardcoded,
-                      selectedValue: draft.reassign,
-                      onChanged: cubit.toggleGroupWorkOrdersReassign,
-                    ),
-                    buildSwitchRow(
-                      label: 'Aprovar pausas'.hardcoded,
-                      selectedValue: draft.approvePause,
-                      onChanged: cubit.toggleGroupWorkOrdersApprovePause,
-                    ),
-                    buildSwitchRow(
-                      label: 'Aprovar conclusão'.hardcoded,
-                      selectedValue: draft.approveCompletion,
-                      onChanged: cubit.toggleGroupWorkOrdersApproveCompletion,
-                    ),
-                    buildSwitchRow(
-                      label: 'Excluir observações'.hardcoded,
-                      selectedValue: draft.deleteObservation,
-                      onChanged: cubit.toggleGroupWorkOrdersDeleteObservation,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DefaultSwitch extends StatelessWidget {
-  const DefaultSwitch({
-    super.key,
-    required this.title,
-    required this.value,
-    this.onChanged,
-  });
-
-  final String title;
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: BaseText(title)),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: Theme.of(context).primaryColor,
-          ),
-        ],
-      ),
     );
   }
 }
