@@ -35,10 +35,12 @@ class Groups extends StatelessWidget {
             final group = permissionGroups[index];
             return PermissionItem(
               title: group.name,
-              subtitle: group.isDefault
-                  ? 'Grupo padrão'.hardcoded
-                  : '${group.permissions.length} recursos configurados'
-                        .hardcoded,
+              subtitle: BaseText(
+                group.isDefault
+                    ? 'Grupo padrão'.hardcoded
+                    : '${group.permissions.length} recursos configurados'
+                          .hardcoded,
+              ),
               onTap: () => context
                   .read<UsersCubit>()
                   .navigateToEditGroupPermissions(group),

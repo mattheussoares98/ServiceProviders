@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class Users extends StatelessWidget {
@@ -42,12 +43,16 @@ class Users extends StatelessWidget {
             final roleOrGroup = user.isAdmin
                 ? 'Administrador'.hardcoded
                 : groupName;
-            final statusLabel = user.isActive
-                ? 'Ativo'.hardcoded
-                : 'Pendente'.hardcoded;
             return PermissionItem(
               title: user.name,
-              subtitle: '${user.email} • $roleOrGroup ($statusLabel)'.hardcoded,
+              subtitle: BaseRichText(
+                texts: [
+                  BaseText.title(user.email),
+                  BaseText(' • $roleOrGroup'),
+                  if (!user.isActive)
+                    BaseText(' Pendente'.hardcoded, color: Colors.orange),
+                ],
+              ),
               onTap: user.isActive
                   ? () => context
                         .read<UsersCubit>()

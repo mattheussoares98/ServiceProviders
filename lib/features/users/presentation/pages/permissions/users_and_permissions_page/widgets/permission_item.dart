@@ -16,7 +16,7 @@ class PermissionItem extends StatelessWidget {
     required this.leading,
   });
   final String title;
-  final String subtitle;
+  final Widget subtitle;
   final VoidCallback? onTap;
   final Widget leading;
 
@@ -39,7 +39,7 @@ class PermissionItem extends StatelessWidget {
             leading,
             gapH12,
             BaseText.title(title),
-            BaseText(subtitle),
+            subtitle,
             Align(
               alignment: .centerRight,
               child: BaseIconButton(
