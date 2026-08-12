@@ -50,6 +50,7 @@ class ActiveStopwatchCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(Sizes.p8),
             child: Column(
+              mainAxisAlignment: .spaceEvenly,
               children: [
                 BaseText.title(
                   workOrder.title,

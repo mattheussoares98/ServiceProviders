@@ -23,7 +23,7 @@ class ActiveWorkItems extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    const height = 105.0;
+    const height = 130.0;
     Widget child;
     if (context.screenType == ScreenType.compact ||
         context.screenType == ScreenType.phone) {
