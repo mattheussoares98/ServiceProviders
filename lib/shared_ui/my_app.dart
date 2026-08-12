@@ -93,7 +93,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         builder: (context, state) {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: FocusScope.of(context).unfocus,
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
             child: MaterialApp.router(
               localizationsDelegates: const [
                 GlobalMaterialLocalizations.delegate,
