@@ -290,7 +290,6 @@ class _CreateUpdatePage extends HookWidget {
 
     final items = [
       _TitleField(controller: titleController),
-      //TODO check whether it is changing the focus nodes correctly or not on a real device
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
         child: _DescriptionField(controller: descController),
