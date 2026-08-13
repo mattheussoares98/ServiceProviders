@@ -73,6 +73,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [categories_rules.md](categories_rules.md)
 - [work_orders_rules.md](work_orders_rules.md)
 - [work_order_change_requests_rules.md](work_order_change_requests_rules.md)
+- [work_order_pause_requests_rules.md](work_order_pause_requests_rules.md)
 
 ---
 

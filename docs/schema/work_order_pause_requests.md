@@ -15,8 +15,11 @@ Tracks requests to pause work orders or request completion authorization (`event
 | `status` | VARCHAR(30) | NO | 'pending' | `pending` / `approved` / `rejected` / `cancelled_by_provider` |
 | `paused_at` | TIMESTAMP | NO | now() | When the pause or completion request was initiated |
 | `resumed_at` | TIMESTAMP | YES | - | When the work resumed (unpaused) |
+| `resumed_by_id` | UUID | YES | - | FK → `auth.users.id` (Set Null) - User who resumed the work |
 | `reviewed_by_id` | UUID | YES | - | FK → `auth.users.id` (Set Null) - Approver/rejecter |
 | `review_observation` | TEXT | YES | - | Review comment or rejection reason from approver |
 | `affects_sla` | BOOLEAN | NO | true | Whether this pause halts the SLA target clock |
 
+**Indexes:** `idx_wopr_work_order`, `idx_wopr_company`, `idx_wopr_reason`, `idx_wopr_sector`, `idx_wopr_event_type`
 
+> **Audit trail**: `paused_at` + `requested_by_id` record who/when paused. `resumed_at` + `resumed_by_id` record who/when resumed. `reviewed_by_id` records the approver. All three FKs use `ON DELETE SET NULL` to preserve the record even if the user is deleted.
