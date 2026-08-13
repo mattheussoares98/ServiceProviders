@@ -6,6 +6,8 @@ extension DateTimeExtension on DateTime {
   String formatDate([DateFormatType type = DateFormatType.ddMMyyyy]) {
     return DateFormat(type.pattern).format(this);
   }
+
+  String toIsoUtcString() => toUtc().toIso8601String();
 }
 
 enum DateFormatType {

@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -181,6 +181,12 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(
           workOrderPauseRequests,
           workOrderPauseRequests.resumedById,
+        );
+      }
+      if (from < 22) {
+        await m.addColumn(
+          workOrderPauseRequests,
+          workOrderPauseRequests.eventType,
         );
       }
     },

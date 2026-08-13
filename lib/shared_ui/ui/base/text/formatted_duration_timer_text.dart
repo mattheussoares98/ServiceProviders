@@ -66,7 +66,8 @@ class _FormattedDurationTimerTextState
     final baseSeconds = widget.initialAccumulatedSeconds;
     if (widget.isRunning && widget.startedAt != null) {
       final runningSeconds = DateTime.now()
-          .difference(widget.startedAt!)
+          .toUtc()
+          .difference(widget.startedAt!.toUtc())
           .inSeconds;
       _elapsed = Duration(seconds: baseSeconds + runningSeconds);
     } else {

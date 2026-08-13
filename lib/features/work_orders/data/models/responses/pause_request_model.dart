@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
@@ -102,14 +103,14 @@ class PauseRequestModel extends PauseRequestEntity
     'responsibility': responsibility.value,
     'sector_id': sectorId,
     'status': status.value,
-    'paused_at': pausedAt.toIso8601String(),
-    'resumed_at': resumedAt?.toIso8601String(),
+    'paused_at': pausedAt.toIsoUtcString(),
+    'resumed_at': resumedAt?.toIsoUtcString(),
     'resumed_by_id': resumedById,
     'reviewed_by_id': reviewedById,
     'review_observation': reviewObservation,
     'affects_sla': affectsSla,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
   };
 
   @override
@@ -135,4 +136,3 @@ class PauseRequestModel extends PauseRequestEntity
     updatedAt: updatedAt,
   );
 }
-

@@ -127,7 +127,10 @@ class _WorkOrderDetails extends HookWidget {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: WorkOrderExecutionTimerCard(workOrder: workOrder),
+                  child: WorkOrderExecutionTimerCard(
+                    workOrder: workOrder,
+                    pauseRequests: pauseState.pauseRequests,
+                  ),
                 ),
                 InfoItems(workOrder: workOrder),
                 const Attachments(isEditing: false, padding: EdgeInsets.zero),
