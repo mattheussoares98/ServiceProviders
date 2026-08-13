@@ -132,6 +132,7 @@ class _WorkOrderDetails extends HookWidget {
                     pauseRequests: pauseState.pauseRequests,
                   ),
                 ),
+                gapSliverH12,
                 InfoItems(workOrder: workOrder),
                 const Attachments(isEditing: false, padding: EdgeInsets.zero),
                 ObservationsSection(

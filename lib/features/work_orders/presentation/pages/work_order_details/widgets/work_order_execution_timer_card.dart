@@ -36,74 +36,161 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
     final isRunning = status == WorkOrderStatus.inProgress;
     final isOnHold = status == WorkOrderStatus.onHold;
 
-    // When on hold, find the latest active pause request to calculate elapsed pause time
+    // When on hold, find the active pause request (resumedAt == null)
     final activePauseRequest = isOnHold
         ? (pauseRequests.where((p) => p.resumedAt == null).toList()
                 ..sort((a, b) => b.pausedAt.compareTo(a.pausedAt)))
               .firstOrNull
         : null;
 
+    // Calculate total accumulated paused seconds across completed pauses
+    final completedPauseSeconds = pauseRequests
+        .where((p) => p.resumedAt != null)
+        .fold<int>(
+          0,
+          (sum, p) => sum + p.resumedAt!.difference(p.pausedAt).inSeconds,
+        );
+
+    final showTotalPause = pauseRequests.length >= 2;
+    final hasActivePause = isOnHold && activePauseRequest != null;
+
     final statusColor = workOrder.status.color;
-    final cardBgColor = statusColor.withValues(alpha: 0.15);
-    final borderColor = statusColor.withValues(alpha: 0.5);
+    final cardBgColor = statusColor.withValues(alpha: 0.12);
+    final borderColor = statusColor.withValues(alpha: 0.4);
     final contentColor = statusColor;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Sizes.p16,
-        vertical: Sizes.p8,
-      ),
       padding: const EdgeInsets.all(Sizes.p16),
       decoration: BoxDecoration(
         color: cardBgColor,
         borderRadius: BorderRadius.circular(Sizes.p12),
         border: Border.all(color: borderColor),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PlatformIcon(
-            materialIcon: isRunning
-                ? Icons.timer_outlined
-                : isOnHold
-                ? Icons.pause_circle_filled_outlined
-                : Icons.check_circle_outline,
-            cupertinoIcon: isRunning
-                ? CupertinoIcons.timer
-                : isOnHold
-                ? CupertinoIcons.pause_circle_fill
-                : CupertinoIcons.check_mark_circled,
-            color: contentColor,
-            size: Sizes.p24,
+          Row(
+            children: [
+              PlatformIcon(
+                materialIcon: isRunning
+                    ? Icons.timer_outlined
+                    : isOnHold
+                    ? Icons.pause_circle_filled_outlined
+                    : Icons.check_circle_outline,
+                cupertinoIcon: isRunning
+                    ? CupertinoIcons.timer
+                    : isOnHold
+                    ? CupertinoIcons.pause_circle_fill
+                    : CupertinoIcons.check_mark_circled,
+                color: contentColor,
+                size: Sizes.p24,
+              ),
+              gapW12,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BaseText.title(
+                      isRunning
+                          ? 'Tempo em execução'.hardcoded
+                          : 'Tempo total ativo'.hardcoded,
+                    ),
+                    gapH4,
+                    FormattedDurationTimerText(
+                      startedAt: workOrder.startedAt,
+                      initialAccumulatedSeconds:
+                          workOrder.netActiveDuration ?? 0,
+                      color: contentColor,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          gapW12,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                BaseText.caption(
-                  isRunning
-                      ? 'Tempo em execução'.hardcoded
-                      : isOnHold
-                      ? 'Tempo pausado'.hardcoded
-                      : 'Tempo total ativo'.hardcoded,
-                  color: contentColor,
-                ),
-                gapH4,
-                FormattedDurationTimerText(
-                  startedAt: isOnHold
-                      ? activePauseRequest?.pausedAt
-                      : workOrder.startedAt,
-                  initialAccumulatedSeconds: isOnHold
-                      ? 0
-                      : (workOrder.netActiveDuration ?? 0),
-                  isRunning: isRunning || isOnHold,
-                  color: contentColor,
-                ),
-              ],
+          if (hasActivePause || showTotalPause) ...[
+            gapH12,
+            const Divider(height: 1),
+            gapH12,
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: Sizes.p16,
+                runSpacing: Sizes.p8,
+                children: [
+                  if (hasActivePause)
+                    _PauseMetric(
+                      label: 'Pausa atual'.hardcoded,
+                      icon: const PlatformIcon(
+                        materialIcon: Icons.pause_circle_outline,
+                        cupertinoIcon: CupertinoIcons.pause_circle,
+                      ),
+                      startedAt: activePauseRequest.pausedAt,
+                      isRunning: true,
+                      color: contentColor,
+                    ),
+                  if (showTotalPause)
+                    _PauseMetric(
+                      label: 'Total pausado'.hardcoded,
+                      icon: const PlatformIcon(
+                        materialIcon: Icons.history_toggle_off,
+                        cupertinoIcon: CupertinoIcons.arrow_clockwise_circle,
+                      ),
+                      startedAt: hasActivePause
+                          ? activePauseRequest.pausedAt
+                          : null,
+                      initialAccumulatedSeconds: completedPauseSeconds,
+                      isRunning: hasActivePause,
+                      color: contentColor,
+                    ),
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
+    );
+  }
+}
+
+class _PauseMetric extends StatelessWidget {
+  const _PauseMetric({
+    required this.label,
+    required this.icon,
+    this.startedAt,
+    this.initialAccumulatedSeconds = 0,
+    required this.isRunning,
+    required this.color,
+  });
+
+  final String label;
+  final PlatformIcon icon;
+  final DateTime? startedAt;
+  final int initialAccumulatedSeconds;
+  final bool isRunning;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        icon.copyWith(color: color, size: 16),
+        gapW4,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            BaseText.title(label),
+            FormattedDurationTimerText(
+              startedAt: startedAt,
+              initialAccumulatedSeconds: initialAccumulatedSeconds,
+              isRunning: isRunning,
+              color: color,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
