@@ -19,7 +19,6 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_approval_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_execution_timer_card.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -82,8 +81,8 @@ class _WorkOrderDetails extends HookWidget {
     }, [workOrder.id]);
 
     observeLoading(
-      [context.read<WorkOrdersCubit>()],
-      statuses: {StateStatus.deleting},
+      [context.read<WorkOrdersCubit>(), pauseCubit],
+      statuses: {.deleting, .saving},
     );
 
     final canApprovePause = context.hasPermission(
