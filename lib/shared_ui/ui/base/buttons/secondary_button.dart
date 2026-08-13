@@ -51,7 +51,7 @@ class SecondaryButton extends HookWidget {
 
     final activeColor = color ?? context.colorScheme.primary;
     final activeForegroundColor =
-        foregroundColor ?? context.colorScheme.primary;
+        color ?? foregroundColor ?? context.colorScheme.primary;
 
     final isLoading = useState(false);
 
