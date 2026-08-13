@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
@@ -75,7 +76,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     final MapDynamic values = {
       'status': status,
       'reviewed_by_id': reviewedById,
-      'updated_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIsoUtcString(),
       'review_observation': ?reviewObservation,
       'reason_id': ?reasonId,
     };
@@ -94,9 +95,9 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     required String resumedById,
   }) => SupabaseHandler.call(() async {
     final MapDynamic values = {
-      'resumed_at': resumedAt.toIso8601String(),
+      'resumed_at': resumedAt.toIsoUtcString(),
       'resumed_by_id': resumedById,
-      'updated_at': DateTime.now().toIso8601String(),
+      'updated_at': DateTime.now().toIsoUtcString(),
     };
     await _database.update(
       table: 'work_order_pause_requests',

@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 
@@ -33,15 +34,11 @@ class CompanyRequestModel extends CompanyEntity
     cnpj: json['cnpj'] as String?,
     logoUrl: json['logo_url'] as String?,
     isActive: json['is_active'] as bool? ?? true,
-    createdAt: json['created_at'] != null
-        ? DateTime.parse(json['created_at'] as String)
-        : DateTime.now(),
-    updatedAt: json['updated_at'] != null
-        ? DateTime.parse(json['updated_at'] as String)
-        : DateTime.now(),
-    deletedAt: json['deleted_at'] != null
-        ? DateTime.parse(json['deleted_at'] as String)
-        : null,
+    createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+        DateTime.now().toUtc(),
+    updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+        DateTime.now().toUtc(),
+    deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
   );
 
   @override
@@ -50,7 +47,7 @@ class CompanyRequestModel extends CompanyEntity
     'cnpj': cnpj,
     'logo_url': logoUrl,
     'is_active': isActive,
-    'deleted_at': deletedAt?.toIso8601String(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
   @override

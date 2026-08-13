@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 
@@ -53,7 +54,7 @@ final class WorkOrderObservationsRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         await _database.update(
           table: 'work_order_observations',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
+          values: {'deleted_at': DateTime.now().toIsoUtcString()},
           filters: [SupabaseFilter.eq('id', observationId)],
         );
         return true;

@@ -71,22 +71,14 @@ class PauseRequestModel extends PauseRequestEntity
       ),
       sectorId: json['sector_id'] as String?,
       status: PauseRequestStatus.fromValue(json['status'] as String? ?? ''),
-      pausedAt: json['paused_at'] != null
-          ? DateTime.parse(json['paused_at'] as String)
-          : now,
-      resumedAt: json['resumed_at'] != null
-          ? DateTime.parse(json['resumed_at'] as String)
-          : null,
+      pausedAt: (json['paused_at'] as String?).toUtcDateTime() ?? now,
+      resumedAt: (json['resumed_at'] as String?).toUtcDateTime(),
       resumedById: json['resumed_by_id'] as String?,
       reviewedById: json['reviewed_by_id'] as String?,
       reviewObservation: json['review_observation'] as String?,
       affectsSla: json['affects_sla'] as bool? ?? true,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : now,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : now,
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ?? now,
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ?? now,
     );
   }
 

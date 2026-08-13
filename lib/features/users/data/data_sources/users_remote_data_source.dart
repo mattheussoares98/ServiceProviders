@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
@@ -95,7 +95,7 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   FutureVoid deleteUserProfile(String id) => SupabaseHandler.voidCall(() async {
     await _database.update(
       table: 'user_profiles',
-      values: {'deleted_at': DateTime.now().toIso8601String()},
+      values: {'deleted_at': DateTime.now().toIsoUtcString()},
       filters: [SupabaseFilter.eq('id', id)],
     );
   });
@@ -200,7 +200,7 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       SupabaseHandler.voidCall(() async {
         await _database.update(
           table: 'permission_groups',
-          values: {'deleted_at': DateTime.now().toIso8601String()},
+          values: {'deleted_at': DateTime.now().toIsoUtcString()},
           filters: [SupabaseFilter.eq('id', id)],
         );
       });

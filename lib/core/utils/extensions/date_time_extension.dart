@@ -2,12 +2,19 @@
 
 import 'package:intl/intl.dart';
 
+export 'string_extension.dart';
+
 extension DateTimeExtension on DateTime {
   String formatDate([DateFormatType type = DateFormatType.ddMMyyyy]) {
     return DateFormat(type.pattern).format(this);
   }
 
   String toIsoUtcString() => toUtc().toIso8601String();
+
+  Duration elapsedSince([DateTime? now]) =>
+      (now ?? DateTime.now()).difference(this);
+
+  int elapsedSeconds([DateTime? now]) => elapsedSince(now).inSeconds;
 }
 
 enum DateFormatType {

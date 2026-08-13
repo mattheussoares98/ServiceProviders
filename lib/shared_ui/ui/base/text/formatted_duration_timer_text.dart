@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class FormattedDurationTimerText extends StatefulWidget {
@@ -65,10 +65,7 @@ class _FormattedDurationTimerTextState
   void _calculateElapsed() {
     final baseSeconds = widget.initialAccumulatedSeconds;
     if (widget.isRunning && widget.startedAt != null) {
-      final runningSeconds = DateTime.now()
-          .toUtc()
-          .difference(widget.startedAt!.toUtc())
-          .inSeconds;
+      final runningSeconds = widget.startedAt!.elapsedSeconds();
       _elapsed = Duration(seconds: baseSeconds + runningSeconds);
     } else {
       _elapsed = Duration(seconds: baseSeconds);

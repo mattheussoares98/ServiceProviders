@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
@@ -39,15 +40,10 @@ class ServiceProviderInvitationModel extends ServiceProviderInvitationEntity
         status: ServiceProviderInvitationStatus.fromString(
           json['status'] as String? ?? 'pending',
         ),
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        acceptedAt: json['accepted_at'] != null
-            ? DateTime.parse(json['accepted_at'] as String)
-            : null,
-        expiresAt: json['expires_at'] != null
-            ? DateTime.parse(json['expires_at'] as String)
-            : null,
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        acceptedAt: (json['accepted_at'] as String?).toUtcDateTime(),
+        expiresAt: (json['expires_at'] as String?).toUtcDateTime(),
       );
 
   @override
@@ -57,9 +53,9 @@ class ServiceProviderInvitationModel extends ServiceProviderInvitationEntity
     'service_provider_company_id': serviceProviderCompanyId,
     'invite_token': inviteToken,
     'status': status.value,
-    'created_at': createdAt.toUtc().toIso8601String(),
-    'accepted_at': acceptedAt?.toUtc().toIso8601String(),
-    'expires_at': expiresAt?.toUtc().toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'accepted_at': acceptedAt?.toIsoUtcString(),
+    'expires_at': expiresAt?.toIsoUtcString(),
   };
 
   @override

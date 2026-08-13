@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 
@@ -36,9 +37,8 @@ class WorkOrderHistoryModel extends WorkOrderHistoryEntity
         action: json['action'] as String? ?? '',
         oldValue: json['old_value'] as String?,
         newValue: json['new_value'] as String?,
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
       );
 
   @override
@@ -50,7 +50,7 @@ class WorkOrderHistoryModel extends WorkOrderHistoryEntity
     'action': action,
     'old_value': oldValue,
     'new_value': newValue,
-    'created_at': createdAt.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
   };
 
   @override

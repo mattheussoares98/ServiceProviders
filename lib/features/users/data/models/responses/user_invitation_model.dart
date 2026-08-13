@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 
@@ -28,15 +29,13 @@ class UserInvitationModel extends UserInvitationEntity
     return UserInvitationModel(
       id: json['id'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      invitedAt: json['invited_at'] != null
-          ? DateTime.parse(json['invited_at'] as String)
-          : DateTime.now(),
+      invitedAt: (json['invited_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
       companyId: json['company_id'] as String? ?? '',
       permissionGroupId: json['permission_group_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      confirmationSentAt: json['confirmation_sent_at'] != null
-          ? DateTime.parse(json['confirmation_sent_at'] as String)
-          : null,
+      confirmationSentAt:
+          (json['confirmation_sent_at'] as String?).toUtcDateTime(),
     );
   }
 
@@ -44,11 +43,11 @@ class UserInvitationModel extends UserInvitationEntity
   MapDynamic toJson() => {
     'id': id,
     'email': email,
-    'invited_at': invitedAt.toIso8601String(),
+    'invited_at': invitedAt.toIsoUtcString(),
     'company_id': companyId,
     'permission_group_id': permissionGroupId,
     'name': name,
-    'confirmation_sent_at': confirmationSentAt?.toIso8601String(),
+    'confirmation_sent_at': confirmationSentAt?.toIsoUtcString(),
   };
 
   @override

@@ -128,4 +128,14 @@ extension StringExtension on String {
     final trimmed = trim();
     return trimmed.isEmpty ? null : trimmed;
   }
+
+  DateTime toUtcDateTime() => DateTime.parse(this).toUtc();
+}
+
+extension NullableStringDateTimeExtension on String? {
+  DateTime? toUtcDateTime() {
+    final str = this;
+    if (str == null || str.isEmpty) return null;
+    return DateTime.tryParse(str)?.toUtc();
+  }
 }

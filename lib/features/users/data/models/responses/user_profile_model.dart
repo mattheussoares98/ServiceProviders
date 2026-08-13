@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -91,12 +92,10 @@ class UserProfileModel extends UserProfileEntity
       phone: json['phone'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       isAdmin: false,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.now(),
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
     );
   }
 
@@ -112,15 +111,11 @@ class UserProfileModel extends UserProfileEntity
       avatarUrl: json['avatar_url'] as String?,
       isActive: json['is_active'] as bool? ?? false,
       isAdmin: json['is_admin'] as bool? ?? false,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.now(),
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'] as String)
-          : null,
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       permissions: parsed.$1,
       workOrdersPermissionOverrides: parsed.$2,
     );
@@ -180,9 +175,9 @@ class UserProfileModel extends UserProfileEntity
       'avatar_url': avatarUrl,
       'is_active': isActive,
       'is_admin': isAdmin,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'deleted_at': deletedAt?.toIso8601String(),
+      'created_at': createdAt.toIsoUtcString(),
+      'updated_at': updatedAt.toIsoUtcString(),
+      'deleted_at': deletedAt?.toIsoUtcString(),
       'permissions': flatPermissions,
     };
   }

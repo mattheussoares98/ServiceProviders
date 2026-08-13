@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -53,15 +54,11 @@ class ServiceProviderCompanyModel extends ServiceProviderCompanyEntity
                 json['invitation_status'] as String,
               )
             : null,
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        updatedAt: json['updated_at'] != null
-            ? DateTime.parse(json['updated_at'] as String)
-            : DateTime.now(),
-        deletedAt: json['deleted_at'] != null
-            ? DateTime.parse(json['deleted_at'] as String)
-            : null,
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       );
 
   @override
@@ -75,9 +72,9 @@ class ServiceProviderCompanyModel extends ServiceProviderCompanyEntity
     'contact_phone': contactPhone,
     'is_active': isActive,
     'invitation_status': invitationStatus?.value,
-    'created_at': createdAt.toUtc().toIso8601String(),
-    'updated_at': updatedAt.toUtc().toIso8601String(),
-    'deleted_at': deletedAt?.toUtc().toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
   @override

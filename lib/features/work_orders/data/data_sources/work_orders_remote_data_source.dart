@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_da
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
@@ -78,12 +78,12 @@ final class WorkOrdersRemoteDataSourceImpl
       if (filter.scheduledDateFrom != null)
         SupabaseFilter.gte(
           'scheduled_date',
-          filter.scheduledDateFrom!.toIso8601String(),
+          filter.scheduledDateFrom!.toIsoUtcString(),
         ),
       if (filter.scheduledDateTo != null)
         SupabaseFilter.lte(
           'scheduled_date',
-          filter.scheduledDateTo!.toIso8601String(),
+          filter.scheduledDateTo!.toIsoUtcString(),
         ),
       if (filter.searchText != null && filter.searchText!.isNotEmpty)
         SupabaseFilter.ilike('title', '%${filter.searchText!}%'),
@@ -142,7 +142,7 @@ final class WorkOrdersRemoteDataSourceImpl
   FutureBool deleteWorkOrder(String id) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'work_orders',
-      values: {'deleted_at': DateTime.now().toIso8601String()},
+      values: {'deleted_at': DateTime.now().toIsoUtcString()},
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;
@@ -183,7 +183,7 @@ final class WorkOrdersRemoteDataSourceImpl
   FutureBool deleteTask(String id) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'tasks',
-      values: {'deleted_at': DateTime.now().toIso8601String()},
+      values: {'deleted_at': DateTime.now().toIsoUtcString()},
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;
@@ -225,7 +225,7 @@ final class WorkOrdersRemoteDataSourceImpl
         'status': status,
         'rejection_reason': rejectionReason,
         'reviewed_by_id': reviewedById,
-        'updated_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIsoUtcString(),
       },
       filters: [SupabaseFilter.eq('id', id)],
     );

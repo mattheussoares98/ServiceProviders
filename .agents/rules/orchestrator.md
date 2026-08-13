@@ -49,6 +49,7 @@ When delegating, tell the specialist exactly which files to create/modify, which
 4. **English Correction**: At the start of every response, check for grammar/spelling errors and output: `Correction: [wrong] -> [correct] (reason)`. Skip if no errors.
 5. **No build_runner**: Watch mode is active; never run `dart run build_runner` commands.
 6. **No hardcoded URLs**: Always use `AppConfig.apiBaseUrl`.
+7. **DateTime Serialization & Parsing**: Always use `.toIsoUtcString()` extension for all DTOs and API/Database payloads, and `(json['...'] as String?).toUtcDateTime()` when parsing in `fromJson`.
 
 ## Rule Evolution
 When a new pattern is agreed upon or an existing rule is found wrong/incomplete, proactively update the relevant `.agents/rules/` file. Keep all rules concise and compressed to minimize token usage. Never duplicate rules across files.

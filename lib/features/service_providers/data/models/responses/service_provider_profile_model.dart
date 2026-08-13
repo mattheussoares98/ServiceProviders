@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
@@ -40,12 +41,10 @@ class ServiceProviderProfileModel extends ServiceProviderProfileEntity
         email: json['email'] as String? ?? '',
         phone: json['phone'] as String?,
         isActive: json['is_active'] as bool? ?? true,
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        updatedAt: json['updated_at'] != null
-            ? DateTime.parse(json['updated_at'] as String)
-            : DateTime.now(),
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
       );
 
   @override
@@ -57,8 +56,8 @@ class ServiceProviderProfileModel extends ServiceProviderProfileEntity
     'email': email,
     'phone': phone,
     'is_active': isActive,
-    'created_at': createdAt.toUtc().toIso8601String(),
-    'updated_at': updatedAt.toUtc().toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
   };
 
   @override

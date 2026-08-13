@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
@@ -28,22 +29,19 @@ class SlaPolicyModel extends SlaPolicyEntity
   );
 
   factory SlaPolicyModel.fromJson(MapDynamic json) {
-    final now = DateTime.now();
     return SlaPolicyModel(
       id: json['id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       targetHours: json['target_hours'] as int? ?? 0,
       appliesTo: SlaAppliesTo.fromValue(json['applies_to'] as String? ?? ''),
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : now,
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : now,
-      deletedAt: json['deleted_at'] != null
-          ? DateTime.parse(json['deleted_at'] as String)
-          : null,
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     );
   }
 
@@ -54,9 +52,9 @@ class SlaPolicyModel extends SlaPolicyEntity
     'name': name,
     'target_hours': targetHours,
     'applies_to': appliesTo.value,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
-    'deleted_at': deletedAt?.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
   @override

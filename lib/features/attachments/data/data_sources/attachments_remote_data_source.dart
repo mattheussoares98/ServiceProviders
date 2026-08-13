@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -85,7 +86,7 @@ final class AttachmentsRemoteDataSourceImpl
   FutureBool deleteAttachment(String id) => SupabaseHandler.call(() async {
     await _database.update(
       table: 'attachments',
-      values: <String, dynamic>{'deleted_at': DateTime.now().toIso8601String()},
+      values: <String, dynamic>{'deleted_at': DateTime.now().toIsoUtcString()},
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;

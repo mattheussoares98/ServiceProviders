@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 
@@ -38,12 +39,10 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
       authorId: json['author_id'] as String? ?? '',
       authorName: authorMap?['name'] as String? ?? 'Usuário',
       content: json['content'] as String? ?? '',
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
-          : DateTime.now(),
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
     );
   }
 
@@ -54,8 +53,8 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
         'work_order_id': workOrderId,
         'author_id': authorId,
         'content': content,
-        'created_at': createdAt.toIso8601String(),
-        'updated_at': updatedAt.toIso8601String(),
+        'created_at': createdAt.toIsoUtcString(),
+        'updated_at': updatedAt.toIsoUtcString(),
       };
 
   @override

@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -46,12 +47,9 @@ class ChecklistItemRequestModel extends ChecklistItemEntity
                   : null)
             : null,
         sortOrder: json['sort_order'] as int? ?? 0,
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        deletedAt: json['deleted_at'] != null
-            ? DateTime.parse(json['deleted_at'] as String)
-            : null,
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       );
 
   @override
@@ -64,8 +62,8 @@ class ChecklistItemRequestModel extends ChecklistItemEntity
     'is_required': isRequired,
     'options': options,
     'sort_order': sortOrder,
-    'created_at': createdAt.toIso8601String(),
-    'deleted_at': deletedAt?.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
   @override

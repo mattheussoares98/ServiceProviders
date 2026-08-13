@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 
@@ -42,12 +43,10 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       numberValue: (json['number_value'] as num?)?.toDouble(),
       photoUrl: json['photo_url'] as String?,
       selectedOption: json['selected_option'] as String?,
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : DateTime.now(),
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
     );
   }
 
@@ -62,8 +61,8 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       'number_value': numberValue,
       'photo_url': photoUrl,
       'selected_option': selectedOption,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt.toIsoUtcString(),
+      'updated_at': updatedAt.toIsoUtcString(),
     };
   }
 

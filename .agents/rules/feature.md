@@ -209,4 +209,6 @@ final class SessionRepositoryImpl implements SessionRepository {
 - ❌ Never throw exceptions — return `FailureState` instead
 - ❌ Never annotate an entity with `@LazySingleton` or `@injectable`
 - ❌ Never use Map<String, dynamic> in DTO fromJson or toJson methods — always use MapDynamic instead
+- ❌ Never serialize DateTime directly with toIso8601String() or inline toUtc().toIso8601String() in models/datasources — always use the extension .toIsoUtcString()
+- ❌ Never parse DateTime directly with DateTime.parse() in DTO fromJson — always use (json['field'] as String?).toUtcDateTime() (with fallback like ?? DateTime.now().toUtc() when non-nullable)
 - ❌ Never put business logic in a data source — it belongs in use cases or the domain layer

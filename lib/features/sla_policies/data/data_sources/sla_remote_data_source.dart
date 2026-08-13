@@ -2,7 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 
@@ -72,7 +72,7 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
   FutureVoid deleteSlaPolicy(String id) => SupabaseHandler.voidCall(() async {
     await _database.update(
       table: 'sla_policies',
-      values: {'deleted_at': DateTime.now().toIso8601String()},
+      values: {'deleted_at': DateTime.now().toIsoUtcString()},
       filters: [SupabaseFilter.eq('id', id)],
     );
   });

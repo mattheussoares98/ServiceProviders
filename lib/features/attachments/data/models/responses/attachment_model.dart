@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -62,16 +63,11 @@ class AttachmentModel extends AttachmentEntity
     uploadStatus: UploadStatus.fromCode(
       json['upload_status'] as String? ?? 'pending',
     ),
-    createdAt: json['created_at'] != null
-        ? DateTime.parse(json['created_at'] as String)
-        : DateTime.now(),
-    deletedAt: json['deleted_at'] != null
-        ? DateTime.parse(json['deleted_at'] as String)
-        : null,
+    createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+        DateTime.now().toUtc(),
+    deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     originalPath: json['original_path'] as String?,
-    lastAccessedAt: json['last_accessed_at'] != null
-        ? DateTime.parse(json['last_accessed_at'] as String)
-        : null,
+    lastAccessedAt: (json['last_accessed_at'] as String?).toUtcDateTime(),
   );
 
   @override
@@ -87,8 +83,8 @@ class AttachmentModel extends AttachmentEntity
     'file_size_bytes': fileSizeBytes,
     'is_compressed': isCompressed,
     'upload_status': uploadStatus.code,
-    'created_at': createdAt.toIso8601String(),
-    'deleted_at': deletedAt?.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
     'original_path': originalPath,
   };
 

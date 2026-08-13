@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
@@ -53,15 +54,11 @@ class WorkOrderChangeRequestModel extends WorkOrderChangeRequestEntity
         ),
         reviewedById: json['reviewed_by_id'] as String?,
         rejectionReason: json['rejection_reason'] as String?,
-        createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
-        updatedAt: json['updated_at'] != null
-            ? DateTime.parse(json['updated_at'] as String)
-            : DateTime.now(),
-        deletedAt: json['deleted_at'] != null
-            ? DateTime.parse(json['deleted_at'] as String)
-            : null,
+        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+            DateTime.now().toUtc(),
+        deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       );
 
   @override
@@ -75,9 +72,9 @@ class WorkOrderChangeRequestModel extends WorkOrderChangeRequestEntity
     'status': status.code,
     'reviewed_by_id': reviewedById,
     'rejection_reason': rejectionReason,
-    'created_at': createdAt.toIso8601String(),
-    'updated_at': updatedAt.toIso8601String(),
-    'deleted_at': deletedAt?.toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
   @override

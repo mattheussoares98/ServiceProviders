@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 
@@ -51,7 +52,7 @@ final class ConfigurationsRemoteDataSourceImpl
         'user_id': userId,
         'push_notifications_enabled': pushNotificationsEnabled,
         'theme_mode': themeMode,
-        'updated_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIsoUtcString(),
       },
     );
   });

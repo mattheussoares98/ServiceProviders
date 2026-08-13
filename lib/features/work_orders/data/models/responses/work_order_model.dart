@@ -1,4 +1,5 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
@@ -102,30 +103,20 @@ class WorkOrderModel extends WorkOrderEntity
     priority: Priority.fromCode(json['priority'] as String? ?? 'medium'),
     status: WorkOrderStatus.fromCode(json['status'] as String? ?? 'open'),
     type: WorkOrderType.fromCode(json['type'] as String? ?? 'corrective'),
-    scheduledDate: json['scheduled_date'] != null
-        ? DateTime.parse(json['scheduled_date'] as String)
-        : null,
-    startedAt: json['started_at'] != null
-        ? DateTime.parse(json['started_at'] as String)
-        : null,
-    completedAt: json['completed_at'] != null
-        ? DateTime.parse(json['completed_at'] as String)
-        : null,
+    scheduledDate: (json['scheduled_date'] as String?).toUtcDateTime(),
+    startedAt: (json['started_at'] as String?).toUtcDateTime(),
+    completedAt: (json['completed_at'] as String?).toUtcDateTime(),
     estimatedDuration: json['estimated_duration'] as int?,
     actualDuration: json['actual_duration'] as int?,
     laborCost: (json['labor_cost'] as num?)?.toDouble(),
     partsCost: (json['parts_cost'] as num?)?.toDouble(),
     totalCost: (json['total_cost'] as num?)?.toDouble(),
     notes: json['notes'] as String?,
-    createdAt: json['created_at'] != null
-        ? DateTime.parse(json['created_at'] as String)
-        : DateTime.now(),
-    updatedAt: json['updated_at'] != null
-        ? DateTime.parse(json['updated_at'] as String)
-        : DateTime.now(),
-    deletedAt: json['deleted_at'] != null
-        ? DateTime.parse(json['deleted_at'] as String)
-        : null,
+    createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+        DateTime.now().toUtc(),
+    updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+        DateTime.now().toUtc(),
+    deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     attachments:
         (json['attachments'] as List?)
             ?.map((e) => AttachmentModel.fromJson(e as MapDynamic))
@@ -135,9 +126,7 @@ class WorkOrderModel extends WorkOrderEntity
     serviceProviderCompanyId: json['service_provider_company_id'] as String?,
     providerProfileId: json['provider_profile_id'] as String?,
     slaPolicyId: json['sla_policy_id'] as String?,
-    slaDeadlineAt: json['sla_deadline_at'] != null
-        ? DateTime.parse(json['sla_deadline_at'] as String)
-        : null,
+    slaDeadlineAt: (json['sla_deadline_at'] as String?).toUtcDateTime(),
     slaBreached: json['sla_breached'] as bool? ?? false,
     netActiveDuration: json['net_active_duration'] as int?,
     openedBy:
@@ -166,22 +155,22 @@ class WorkOrderModel extends WorkOrderEntity
     'priority': priority.code,
     'status': status.code,
     'type': type.code,
-    'scheduled_date': scheduledDate?.toUtc().toIso8601String(),
-    'started_at': startedAt?.toUtc().toIso8601String(),
-    'completed_at': completedAt?.toUtc().toIso8601String(),
+    'scheduled_date': scheduledDate?.toIsoUtcString(),
+    'started_at': startedAt?.toIsoUtcString(),
+    'completed_at': completedAt?.toIsoUtcString(),
     'estimated_duration': estimatedDuration,
     'actual_duration': actualDuration,
     'labor_cost': laborCost,
     'parts_cost': partsCost,
     'total_cost': totalCost,
     'notes': notes,
-    'created_at': createdAt.toUtc().toIso8601String(),
-    'updated_at': updatedAt.toUtc().toIso8601String(),
-    'deleted_at': deletedAt?.toUtc().toIso8601String(),
+    'created_at': createdAt.toIsoUtcString(),
+    'updated_at': updatedAt.toIsoUtcString(),
+    'deleted_at': deletedAt?.toIsoUtcString(),
     'service_provider_company_id': serviceProviderCompanyId,
     'provider_profile_id': providerProfileId,
     'sla_policy_id': slaPolicyId,
-    'sla_deadline_at': slaDeadlineAt?.toUtc().toIso8601String(),
+    'sla_deadline_at': slaDeadlineAt?.toIsoUtcString(),
     'sla_breached': slaBreached,
     'net_active_duration': netActiveDuration,
     'opened_by': openedBy.name,

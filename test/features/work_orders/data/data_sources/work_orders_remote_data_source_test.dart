@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
@@ -169,7 +170,7 @@ void main() {
           contains(
             SupabaseFilter.gte(
               'scheduled_date',
-              DateTime(2026, 7, 14).toIso8601String(),
+              DateTime(2026, 7, 14).toIsoUtcString(),
             ),
           ),
         );
@@ -178,7 +179,7 @@ void main() {
           contains(
             SupabaseFilter.lte(
               'scheduled_date',
-              DateTime(2026, 7, 16).toIso8601String(),
+              DateTime(2026, 7, 16).toIsoUtcString(),
             ),
           ),
         );
