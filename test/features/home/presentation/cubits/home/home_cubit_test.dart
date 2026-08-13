@@ -18,7 +18,7 @@ import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 import '../../../../attachments/presentation/cubits/attachments/attachments_cubit_test.dart'
-    hide MockGetActiveCompanyIdUseCase, MockGetSessionUserUseCase;
+    hide MockGetSessionUserUseCase;
 
 class MockClearLocalAttachmentsUseCase extends Mock
     implements ClearLocalAttachmentsUseCase {}
