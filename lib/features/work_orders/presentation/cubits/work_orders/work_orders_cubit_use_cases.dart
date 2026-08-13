@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_atta
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -29,6 +30,7 @@ class WorkOrdersCubitUseCases {
     required this.uploadAttachment,
     required this.deleteAttachment,
     required this.createAttachment,
+    required this.cancelPause,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -44,4 +46,6 @@ class WorkOrdersCubitUseCases {
   final UploadAttachmentUseCase uploadAttachment;
   final DeleteAttachmentUseCase deleteAttachment;
   final CreateAttachmentUseCase createAttachment;
+  final CancelPauseUseCase cancelPause;
 }
+

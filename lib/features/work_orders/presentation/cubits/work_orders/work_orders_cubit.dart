@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
@@ -359,6 +360,40 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showDataStateToast(dataState);
       return false;
     }
+  }
+
+  Future<bool> resumePausedWorkOrder({
+    required WorkOrderEntity workOrder,
+    required String currentUserId,
+    required String pauseId,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final now = DateTime.now();
+
+    final cancelResult = await _useCases.cancelPause(
+      CancelPauseParams(
+        id: pauseId,
+        resumedAt: now,
+        resumedById: currentUserId,
+      ),
+    );
+    if (isClosed) return false;
+
+    if (cancelResult is FailureState) {
+      final message =
+          cancelResult.message ?? 'Erro ao retomar trabalho'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showDataStateToast(cancelResult);
+      return false;
+    }
+
+    return changeWorkOrderStatus(
+      workOrder: workOrder,
+      status: WorkOrderStatus.inProgress,
+    );
   }
 
   Future<bool> deleteWorkOrder(String id) async {

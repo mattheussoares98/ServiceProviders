@@ -27,8 +27,6 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockRequestPauseUseCase extends Mock implements RequestPauseUseCase {}
 
-class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
-
 class MockReviewPauseUseCase extends Mock implements ReviewPauseUseCase {}
 
 class MockGetPauseReasonsUseCase extends Mock
@@ -50,7 +48,6 @@ void main() {
 
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockRequestPauseUseCase mockRequestPause;
-  late MockCancelPauseUseCase mockCancelPause;
   late MockReviewPauseUseCase mockReviewPause;
   late MockGetPauseReasonsUseCase mockGetPauseReasons;
   late MockGetPauseRequestsUseCase mockGetPauseRequests;
@@ -87,7 +84,6 @@ void main() {
   setUp(() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockRequestPause = MockRequestPauseUseCase();
-    mockCancelPause = MockCancelPauseUseCase();
     mockReviewPause = MockReviewPauseUseCase();
     mockGetPauseReasons = MockGetPauseReasonsUseCase();
     mockGetPauseRequests = MockGetPauseRequestsUseCase();
@@ -104,7 +100,6 @@ void main() {
 
     final useCases = PauseWorkflowCubitUseCases(
       requestPause: mockRequestPause,
-      cancelPause: mockCancelPause,
       reviewPause: mockReviewPause,
       getPauseReasons: mockGetPauseReasons,
       getPauseRequests: mockGetPauseRequests,
@@ -315,50 +310,6 @@ void main() {
           isA<PauseWorkflowState>()
               .having((s) => s.status, 'status', StateStatus.savingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Request failed'),
-        ],
-      );
-    });
-
-    group('cancelPause', () {
-      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit saving, loaded, loading, loaded when cancel succeeds',
-        build: () {
-          when(
-            () => mockCancelPause.call(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
-          );
-          return cubit;
-        },
-        act: (cubit) => cubit.cancelPause(
-          id: 'pause-id',
-          resumedAt: DateTime.now(),
-          workOrderId: 'wo-id',
-          resumedById: 'user-id',
-        ),
-        expect: () => [
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
         ],
       );
     });

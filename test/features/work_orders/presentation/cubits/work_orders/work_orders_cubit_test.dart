@@ -16,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -69,6 +70,8 @@ class MockDeleteAttachmentUseCase extends Mock
 class MockCreateAttachmentUseCase extends Mock
     implements CreateAttachmentUseCase {}
 
+class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
+
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
 
@@ -88,6 +91,7 @@ void main() {
   late MockUploadAttachmentUseCase mockUploadAttachment;
   late MockDeleteAttachmentUseCase mockDeleteAttachment;
   late MockCreateAttachmentUseCase mockCreateAttachment;
+  late MockCancelPauseUseCase mockCancelPause;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -108,6 +112,13 @@ void main() {
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
     registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
+    registerFallbackValue(
+      CancelPauseParams(
+        id: faker.guid.guid(),
+        resumedAt: DateTime.now(),
+        resumedById: faker.guid.guid(),
+      ),
+    );
   });
 
   setUp(() {
@@ -125,6 +136,7 @@ void main() {
     mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockNavigationClient = MockNavigationClient();
     mockCreateAttachment = MockCreateAttachmentUseCase();
+    mockCancelPause = MockCancelPauseUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -157,6 +169,7 @@ void main() {
       uploadAttachment: mockUploadAttachment,
       deleteAttachment: mockDeleteAttachment,
       createAttachment: mockCreateAttachment,
+      cancelPause: mockCancelPause,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -1346,6 +1359,93 @@ void main() {
           verify: (_) {
             verify(() => mockUpdateWorkOrder.call(any())).called(1);
             verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+      });
+
+      group('resumePausedWorkOrder', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should cancel pause and update status to inProgress when resumePausedWorkOrder succeeds',
+          build: () {
+            when(
+              () => mockCancelPause.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.resumePausedWorkOrder(
+              workOrder: tWorkOrder,
+              currentUserId: faker.guid.guid(),
+              pauseId: faker.guid.guid(),
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockCancelPause.call(any())).called(1);
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.status == WorkOrderStatus.inProgress,
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit savingError and not update status if cancelPause fails',
+          build: () {
+            when(() => mockCancelPause.call(any())).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.resumePausedWorkOrder(
+              workOrder: tWorkOrder,
+              currentUserId: faker.guid.guid(),
+              pauseId: faker.guid.guid(),
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.savingError,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockCancelPause.call(any())).called(1);
+            verifyNever(() => mockUpdateWorkOrder.call(any()));
           },
         );
       });

@@ -119,24 +119,22 @@ class WorkOrderBottomActions extends StatelessWidget {
           onTap: () async {
             final activePause = pauseCubit.activePauseRequest;
             if (activePause != null) {
-              await pauseCubit.cancelPause(
-                id: activePause.id,
-                resumedAt: DateTime.now(),
-                workOrderId: workOrder.id,
-                resumedById: currentUserId,
-              );
-            }
-            if (context.mounted) {
               final success = await context
                   .read<WorkOrdersCubit>()
-                  .changeWorkOrderStatus(
+                  .resumePausedWorkOrder(
                     workOrder: workOrder,
-                    status: WorkOrderStatus.inProgress,
+                    currentUserId: currentUserId,
+                    pauseId: activePause.id,
                   );
 
-              if (context.mounted && success) {
+              if (success) {
                 unawaited(pauseCubit.loadPauseRequests(workOrder.id));
               }
+            } else {
+              await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                workOrder: workOrder,
+                status: WorkOrderStatus.inProgress,
+              );
             }
           },
         ),
