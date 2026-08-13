@@ -12,7 +12,7 @@ All tables share these columns (omitted from individual files):
 | `updated_at` | TIMESTAMP | NOT NULL | now() |
 | `deleted_at` | TIMESTAMP | NULL | Soft delete |
 
-**Exceptions**: `companies` has no `company_id`. `sync_audit_logs` and `work_order_history` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`.
+**Exceptions**: `companies` has no `company_id`. `sync_audit_logs` and `work_order_history` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`. `user_configurations` uses `user_id` as PK (no `id`, no `company_id`, no `deleted_at`).
 
 ---
 
@@ -64,6 +64,7 @@ erDiagram
     UserProfiles ||--o{ SyncAuditLogs : logs
     UserProfiles ||--o{ WorkOrderHistory : logs
     UserProfiles ||--o{ UserParameters : has
+    UserProfiles ||--o{ UserConfigurations : has
     WorkOrders ||--o{ Tasks : contains
     WorkOrders ||--o{ Attachments : contains
     WorkOrders ||--o{ WorkOrderChangeRequests : changes
@@ -110,6 +111,7 @@ erDiagram
 | 24 | service_provider_companies | [service_provider_companies.md](service_provider_companies.md) |
 | 25 | service_provider_profiles | [service_provider_profiles.md](service_provider_profiles.md) |
 | 26 | service_provider_invitations | [service_provider_invitations.md](service_provider_invitations.md) |
+| 27 | user_configurations | [user_configurations.md](user_configurations.md) |
 
 
 

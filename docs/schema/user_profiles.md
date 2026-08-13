@@ -10,6 +10,7 @@ Extended profile mapping to Supabase Auth uid.
 | `permission_group_id` | UUID | YES | - | FK → `permission_groups.id` (Set Null) |
 | `avatar_url` | VARCHAR(2048) | YES | - | Avatar image URL |
 | `is_active` | BOOLEAN | NO | true | Active status |
-| `is_admin` | BOOLEAN | NO | false | Admin privileges flag |
+| `is_admin` | BOOLEAN | NO | false | Admin privileges flag (auto-set by trigger when group has `"*": true`) |
+| `permissions` | JSONB | NO | `{}` | Cached flat permissions object from `permission_groups.permissions` |
 
 **Note**: `id` matches Supabase Auth uid.

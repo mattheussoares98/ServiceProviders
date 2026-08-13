@@ -56,6 +56,7 @@ $$ LANGUAGE plpgsql;
 - **areas** (`tr_prevent_delete_areas`)
 - **assets** (`tr_prevent_delete_assets`)
 - **categories** (`tr_prevent_delete_categories`)
+- **attachments** (`tr_prevent_delete_attachments`)
 - **work_orders** (`tr_prevent_delete_work_orders`)
 - **work_order_change_requests** (`tr_prevent_delete_work_order_change_requests`)
 
@@ -74,6 +75,15 @@ Table‑specific policies are maintained in individual files within this directo
 - [work_orders_rules.md](work_orders_rules.md)
 - [work_order_change_requests_rules.md](work_order_change_requests_rules.md)
 - [work_order_pause_requests_rules.md](work_order_pause_requests_rules.md)
+- [work_order_observations_rules.md](work_order_observations_rules.md)
+- [attachments_rules.md](attachments_rules.md)
+- [sla_policies_rules.md](sla_policies_rules.md)
+- [pause_reasons_rules.md](pause_reasons_rules.md)
+- [sectors_rules.md](sectors_rules.md)
+- [service_provider_companies_rules.md](service_provider_companies_rules.md)
+- [service_provider_profiles_rules.md](service_provider_profiles_rules.md)
+- [service_provider_invitations_rules.md](service_provider_invitations_rules.md)
+- [user_configurations_rules.md](user_configurations_rules.md)
 
 ---
 
