@@ -105,7 +105,6 @@ class SecondaryButton extends HookWidget {
           ),
           child: CupertinoButton(
             onPressed: isLoading.value ? null : tapCallback,
-            padding: EdgeInsets.zero,
             child: Center(child: childWidget),
           ),
         ),
@@ -118,7 +117,6 @@ class SecondaryButton extends HookWidget {
       child: OutlinedButton(
         onPressed: isLoading.value ? null : tapCallback,
         style: OutlinedButton.styleFrom(elevation: elevation).copyWith(
-          padding: WidgetStateProperty.all(EdgeInsets.zero),
           side: WidgetStateProperty.all(
             BorderSide(color: activeColor, width: 1.5),
           ),
