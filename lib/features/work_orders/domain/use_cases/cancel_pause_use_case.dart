@@ -7,10 +7,12 @@ class CancelPauseParams {
   const CancelPauseParams({
     required this.id,
     required this.resumedAt,
+    required this.resumedById,
   });
 
   final String id;
   final DateTime resumedAt;
+  final String resumedById;
 }
 
 @LazySingleton()
@@ -24,5 +26,6 @@ class CancelPauseUseCase implements UseCase<bool, CancelPauseParams> {
   FutureBool call(CancelPauseParams request) => _pauseRepository.cancelPause(
         id: request.id,
         resumedAt: request.resumedAt,
+        resumedById: request.resumedById,
       );
 }

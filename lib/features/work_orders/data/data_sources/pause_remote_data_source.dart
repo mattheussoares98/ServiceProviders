@@ -17,7 +17,11 @@ abstract interface class PauseRemoteDataSource {
     required String reviewedById,
     String? reasonId,
   });
-  FutureBool cancelPause({required String id, required DateTime resumedAt});
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  });
 }
 
 @LazySingleton(as: PauseRemoteDataSource)
@@ -84,17 +88,21 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
   });
 
   @override
-  FutureBool cancelPause({required String id, required DateTime resumedAt}) =>
-      SupabaseHandler.call(() async {
-        await _database.update(
-          table: 'work_order_pause_requests',
-          values: {
-            'status': 'cancelled_by_provider',
-            'resumed_at': resumedAt.toIso8601String(),
-            'updated_at': DateTime.now().toIso8601String(),
-          },
-          filters: [SupabaseFilter.eq('id', id)],
-        );
-        return true;
-      });
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  }) => SupabaseHandler.call(() async {
+    final MapDynamic values = {
+      'resumed_at': resumedAt.toIso8601String(),
+      'resumed_by_id': resumedById,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+    await _database.update(
+      table: 'work_order_pause_requests',
+      values: values,
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
 }

@@ -180,18 +180,21 @@ void main() {
           () => mockRemoteDataSource.cancelPause(
             id: any(named: 'id'),
             resumedAt: any(named: 'resumedAt'),
+            resumedById: any(named: 'resumedById'),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(
           () => mockLocalDataSource.cancelPause(
             id: any(named: 'id'),
             resumedAt: any(named: 'resumedAt'),
+            resumedById: any(named: 'resumedById'),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.cancelPause(
           id: tRequestEntity.id,
           resumedAt: DateTime.now(),
+          resumedById: tRequestEntity.resumedById!,
         );
 
         expect(result, isA<SuccessState<bool>>());

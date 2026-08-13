@@ -22,7 +22,11 @@ abstract interface class PauseLocalDataSource {
     required String reviewedById,
     String? reasonId,
   });
-  FutureBool cancelPause({required String id, required DateTime resumedAt});
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  });
 }
 
 @LazySingleton(as: PauseLocalDataSource)
@@ -97,6 +101,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               status: PauseRequestStatus.fromValue(r.status),
               pausedAt: r.pausedAt,
               resumedAt: r.resumedAt,
+              resumedById: r.resumedById,
               reviewedById: r.reviewedById,
               reviewObservation: r.reviewObservation,
               affectsSla: r.affectsSla,
@@ -129,6 +134,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               status: Value(request.status.value),
               pausedAt: Value(request.pausedAt),
               resumedAt: Value(request.resumedAt),
+              resumedById: Value(request.resumedById),
               reviewedById: Value(request.reviewedById),
               reviewObservation: Value(request.reviewObservation),
               affectsSla: Value(request.affectsSla),
@@ -168,14 +174,18 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   }
 
   @override
-  FutureBool cancelPause({required String id, required DateTime resumedAt}) {
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  }) {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.workOrderPauseRequests)
         ..where((t) => t.id.equals(id));
       await query.write(
         WorkOrderPauseRequestsCompanion(
-          status: const Value('cancelled_by_provider'),
           resumedAt: Value(resumedAt),
+          resumedById: Value(resumedById),
           updatedAt: Value(DateTime.now()),
         ),
       );

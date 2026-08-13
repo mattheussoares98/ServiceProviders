@@ -66,7 +66,11 @@ void main() {
       ),
     );
     registerFallbackValue(
-      CancelPauseParams(id: faker.guid.guid(), resumedAt: DateTime.now()),
+      CancelPauseParams(
+        id: faker.guid.guid(),
+        resumedAt: DateTime.now(),
+        resumedById: faker.guid.guid(),
+      ),
     );
   });
 
@@ -569,6 +573,7 @@ void main() {
     final tParams = CancelPauseParams(
       id: faker.guid.guid(),
       resumedAt: DateTime.now(),
+      resumedById: faker.guid.guid(),
     );
 
     test('should return true on success', () async {
@@ -576,6 +581,7 @@ void main() {
         () => mockPauseRepository.cancelPause(
           id: any(named: 'id'),
           resumedAt: any(named: 'resumedAt'),
+          resumedById: any(named: 'resumedById'),
         ),
       ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -587,6 +593,7 @@ void main() {
         () => mockPauseRepository.cancelPause(
           id: tParams.id,
           resumedAt: tParams.resumedAt,
+          resumedById: tParams.resumedById,
         ),
       ).called(1);
     });

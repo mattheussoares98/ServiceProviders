@@ -30,35 +30,51 @@ void main() {
   final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
 
   group('getPauseReasons', () {
-    test('should return SuccessState with list of pause reasons when successful', () async {
-      when(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenAnswer((_) async => [tReasonModel.toJson()]);
+    test(
+      'should return SuccessState with list of pause reasons when successful',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tReasonModel.toJson()]);
 
-      final result = await dataSource.getPauseReasons(tReasonEntity.companyId);
+        final result = await dataSource.getPauseReasons(
+          tReasonEntity.companyId,
+        );
 
-      expect(result, isA<SuccessState<List<PauseReasonModel>>>());
-      expect((result as SuccessState<List<PauseReasonModel>>).data!.first.id, tReasonEntity.id);
-    });
+        expect(result, isA<SuccessState<List<PauseReasonModel>>>());
+        expect(
+          (result as SuccessState<List<PauseReasonModel>>).data!.first.id,
+          tReasonEntity.id,
+        );
+      },
+    );
   });
 
   group('getPauseRequests', () {
-    test('should return SuccessState with list of pause requests when successful', () async {
-      when(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenAnswer((_) async => [tRequestModel.toJson()]);
+    test(
+      'should return SuccessState with list of pause requests when successful',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tRequestModel.toJson()]);
 
-      final result = await dataSource.getPauseRequests(tRequestEntity.workOrderId);
+        final result = await dataSource.getPauseRequests(
+          tRequestEntity.workOrderId,
+        );
 
-      expect(result, isA<SuccessState<List<PauseRequestModel>>>());
-      expect((result as SuccessState<List<PauseRequestModel>>).data!.first.id, tRequestEntity.id);
-    });
+        expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+        expect(
+          (result as SuccessState<List<PauseRequestModel>>).data!.first.id,
+          tRequestEntity.id,
+        );
+      },
+    );
   });
 
   group('requestPause', () {
@@ -110,6 +126,7 @@ void main() {
       final result = await dataSource.cancelPause(
         id: tRequestEntity.id,
         resumedAt: DateTime.now(),
+        resumedById: tRequestEntity.resumedById!,
       );
 
       expect(result, const SuccessState(data: true));

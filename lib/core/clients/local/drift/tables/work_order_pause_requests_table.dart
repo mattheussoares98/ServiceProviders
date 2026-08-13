@@ -31,6 +31,11 @@ class WorkOrderPauseRequests extends Table {
   TextColumn get status => text()();
   DateTimeColumn get pausedAt => dateTime()();
   DateTimeColumn get resumedAt => dateTime().nullable()();
+  TextColumn get resumedById => text().nullable().references(
+    UserProfiles,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get reviewedById => text().nullable().references(
     UserProfiles,
     #id,

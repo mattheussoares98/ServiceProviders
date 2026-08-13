@@ -14,5 +14,9 @@ abstract interface class PauseRepository {
     required String reviewedById,
     String? reasonId, // Administrator can normalize with pre-registered reasonId
   });
-  FutureBool cancelPause({required String id, required DateTime resumedAt});
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  });
 }

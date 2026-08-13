@@ -135,14 +135,34 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
+  PauseRequestEntity? get activePauseRequest {
+    for (final request in state.pauseRequests) {
+      if (request.eventType == PauseEventType.pause && request.resumedAt == null) {
+        return request;
+      }
+    }
+    return null;
+  }
+
+  bool get hasPendingPauseRequests {
+    return state.pauseRequests.any(
+      (r) => r.status == PauseRequestStatus.pending,
+    );
+  }
+
   Future<bool> cancelPause({
     required String id,
     required DateTime resumedAt,
     required String workOrderId,
+    required String resumedById,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.cancelPause(
-      CancelPauseParams(id: id, resumedAt: resumedAt),
+      CancelPauseParams(
+        id: id,
+        resumedAt: resumedAt,
+        resumedById: resumedById,
+      ),
     );
     if (isClosed) return false;
 
@@ -151,7 +171,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       await loadPauseRequests(workOrderId);
       return true;
     } else {
-      final message = result.message ?? 'Erro ao cancelar pausa'.hardcoded;
+      final message = result.message ?? 'Erro ao retomar trabalho'.hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
       );
@@ -203,6 +223,17 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? observation,
     String? sectorId,
   }) async {
+    if (hasPendingPauseRequests) {
+      final message =
+          'Não é possível solicitar conclusão: Existem solicitações de pausa pendentes de avaliação.'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),

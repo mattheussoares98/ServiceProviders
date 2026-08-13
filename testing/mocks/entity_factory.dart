@@ -652,6 +652,7 @@ abstract final class EntityFactory {
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
       resumedAt: _makeDateTime(),
+      resumedById: _makeId(),
       reviewObservation: _makeId(),
       reviewedById: _makeId(),
       eventType: PauseEventType.values[_makeInt(PauseEventType.values.length)],

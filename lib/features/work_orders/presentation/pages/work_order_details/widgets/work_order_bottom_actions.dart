@@ -58,11 +58,17 @@ class WorkOrderBottomActions extends StatelessWidget {
                   );
 
                   if (result == true && context.mounted) {
-                    unawaited(
-                      context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(),
+                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                      workOrder: workOrder,
+                      status: WorkOrderStatus.onHold,
                     );
+                    if (context.mounted) {
+                      unawaited(
+                        context
+                            .read<WorkOrdersCubit>()
+                            .loadWorkOrdersAndChangeRequests(),
+                      );
+                    }
                   }
                 },
               ),
@@ -111,14 +117,26 @@ class WorkOrderBottomActions extends StatelessWidget {
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
           onTap: () async {
-            final success = await context
-                .read<WorkOrdersCubit>()
-                .changeWorkOrderStatus(
-                  workOrder: workOrder,
-                  status: WorkOrderStatus.inProgress,
-                );
-            if (success) {
-              unawaited(pauseCubit.loadPauseRequests(workOrder.id));
+            final activePause = pauseCubit.activePauseRequest;
+            if (activePause != null) {
+              await pauseCubit.cancelPause(
+                id: activePause.id,
+                resumedAt: DateTime.now(),
+                workOrderId: workOrder.id,
+                resumedById: currentUserId,
+              );
+            }
+            if (context.mounted) {
+              final success = await context
+                  .read<WorkOrdersCubit>()
+                  .changeWorkOrderStatus(
+                    workOrder: workOrder,
+                    status: WorkOrderStatus.inProgress,
+                  );
+
+              if (context.mounted && success) {
+                unawaited(pauseCubit.loadPauseRequests(workOrder.id));
+              }
             }
           },
         ),

@@ -65,7 +65,9 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makePauseRequestEntity());
-    registerFallbackValue(CancelPauseParams(id: '', resumedAt: DateTime.now()));
+    registerFallbackValue(
+      CancelPauseParams(id: '', resumedAt: DateTime.now(), resumedById: ''),
+    );
     registerFallbackValue(
       const ReviewPauseParams(
         id: '',
@@ -334,6 +336,7 @@ void main() {
           id: 'pause-id',
           resumedAt: DateTime.now(),
           workOrderId: 'wo-id',
+          resumedById: 'user-id',
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(

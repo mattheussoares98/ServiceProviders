@@ -130,26 +130,37 @@ final class PauseRepositoryImpl implements PauseRepository {
   );
 
   @override
-  FutureBool cancelPause({required String id, required DateTime resumedAt}) =>
-      RepositoryHandler.fetchWithFallback<bool>(
-        isInternetConnected: _internet.isConnected,
-        localCallback: () =>
-            _localDataSource.cancelPause(id: id, resumedAt: resumedAt),
-        remoteCallback: () async {
-          final result = await _remoteDataSource.cancelPause(
-            id: id,
-            resumedAt: resumedAt,
-          );
-          if (result is SuccessState<bool> && result.data == true) {
-            await _localDataSource.cancelPause(id: id, resumedAt: resumedAt);
-            return const SuccessState(data: true);
-          }
-          return FailureState(
-            message: result.message,
-            error: result.error,
-            statusCode: result.statusCode,
-            response: result.response,
-          );
-        },
+  FutureBool cancelPause({
+    required String id,
+    required DateTime resumedAt,
+    required String resumedById,
+  }) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    localCallback: () => _localDataSource.cancelPause(
+      id: id,
+      resumedAt: resumedAt,
+      resumedById: resumedById,
+    ),
+    remoteCallback: () async {
+      final result = await _remoteDataSource.cancelPause(
+        id: id,
+        resumedAt: resumedAt,
+        resumedById: resumedById,
       );
+      if (result is SuccessState<bool> && result.data == true) {
+        await _localDataSource.cancelPause(
+          id: id,
+          resumedAt: resumedAt,
+          resumedById: resumedById,
+        );
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    },
+  );
 }

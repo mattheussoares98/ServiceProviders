@@ -261,6 +261,7 @@ void main() {
         final result = await dataSource.cancelPause(
           id: tRequestModel.id,
           resumedAt: resumedAt,
+          resumedById: userId,
         );
 
         expect(result, isA<SuccessState<bool>>());
