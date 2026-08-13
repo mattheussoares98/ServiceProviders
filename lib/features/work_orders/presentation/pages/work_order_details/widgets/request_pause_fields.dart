@@ -17,7 +17,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class RequestPauseFields extends HookWidget {
-  //TODO review this entire page
   const RequestPauseFields({
     required this.companyId,
     required this.workOrderId,
@@ -81,9 +80,7 @@ class RequestPauseFields extends HookWidget {
                   items: dropdownReasons,
                   selectedItem: selectedReason.value,
                   onClear: () => selectedReason.value = null,
-                  onChanged: (val) {
-                    selectedReason.value = val;
-                  },
+                  onChanged: (val) => selectedReason.value = val,
                 );
               },
             ),
@@ -93,9 +90,7 @@ class RequestPauseFields extends HookWidget {
               showLabelAtTopLeft: true,
               items: dropdownResponsibilities,
               selectedItem: selectedResponsibility.value,
-              onChanged: (val) {
-                selectedResponsibility.value = val;
-              },
+              onChanged: (val) => selectedResponsibility.value = val,
             ),
             gapH12,
             BaseStateView<SectorsCubit, SectorsState, List<SectorEntity>>(
@@ -114,9 +109,7 @@ class RequestPauseFields extends HookWidget {
                   hint: BaseText.bodyMedium('Setor responsável'.hardcoded),
                   items: dropdownSectors,
                   selectedItem: selectedSectorId.value,
-                  onChanged: (val) {
-                    selectedSectorId.value = val;
-                  },
+                  onChanged: (val) => selectedSectorId.value = val,
                   onClear: () => selectedSectorId.value = null,
                 );
               },
