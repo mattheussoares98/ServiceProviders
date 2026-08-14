@@ -92,6 +92,8 @@ class ReviewCompletionDialog extends HookWidget {
                             workOrderId: pauseRequest.workOrderId,
                             reviewObservation: observationController.text
                                 .trim(),
+                            completionReason: pauseRequest.customReason,
+                            completionSectorId: pauseRequest.sectorId,
                           );
 
                           if (success && context.mounted) {
@@ -111,6 +113,8 @@ class ReviewCompletionDialog extends HookWidget {
                                 observationController.text.trim().isEmpty
                                 ? null
                                 : observationController.text.trim(),
+                            completionReason: pauseRequest.customReason,
+                            completionSectorId: pauseRequest.sectorId,
                           );
 
                           if (success && context.mounted) {

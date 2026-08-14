@@ -13,14 +13,26 @@ abstract interface class PauseRemoteDataSource {
   FutureBool requestPause(PauseRequestModel pauseRequest);
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required String status,
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
     String? responsibility,
   });
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required String status,
+    required String reviewedById,
+    String? reviewObservation,
+    String? responsibility,
+    String? completionReason,
+    String? completionSectorId,
+  });
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   });
@@ -63,12 +75,27 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
           table: 'work_order_pause_requests',
           values: pauseRequest.toJson(),
         );
+
+        final targetStatus =
+            pauseRequest.eventType.value == 'completion'
+                ? 'pending_approval'
+                : 'on_hold';
+
+        await _database.update(
+          table: 'work_orders',
+          values: {
+            'status': targetStatus,
+            'updated_at': DateTime.now().toIsoUtcString(),
+          },
+          filters: [SupabaseFilter.eq('id', pauseRequest.workOrderId)],
+        );
         return true;
       });
 
   @override
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required String status,
     String? reviewObservation,
     required String reviewedById,
@@ -88,12 +115,76 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       values: values,
       filters: [SupabaseFilter.eq('id', id)],
     );
+
+    final nextWoStatus = status == 'approved' ? 'on_hold' : 'in_progress';
+    await _database.update(
+      table: 'work_orders',
+      values: {
+        'status': nextWoStatus,
+        'updated_at': DateTime.now().toIsoUtcString(),
+      },
+      filters: [SupabaseFilter.eq('id', workOrderId)],
+    );
+    return true;
+  });
+
+  @override
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required String status,
+    required String reviewedById,
+    String? reviewObservation,
+    String? responsibility,
+    String? completionReason,
+    String? completionSectorId,
+  }) => SupabaseHandler.call(() async {
+    final MapDynamic values = {
+      'status': status,
+      'reviewed_by_id': reviewedById,
+      'updated_at': DateTime.now().toIsoUtcString(),
+      'review_observation': ?reviewObservation,
+      'responsibility': ?responsibility,
+    };
+    await _database.update(
+      table: 'work_order_pause_requests',
+      values: values,
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+
+    final isApproved = status == 'approved';
+    if (isApproved) {
+      final MapDynamic woValues = {
+        'status': 'completed',
+        'completed_at': DateTime.now().toIsoUtcString(),
+        'completion_reason': ?completionReason,
+        'completion_responsibility': ?responsibility,
+        'completion_sector_id': ?completionSectorId,
+        'updated_at': DateTime.now().toIsoUtcString(),
+      };
+      await _database.update(
+        table: 'work_orders',
+        values: woValues,
+        filters: [SupabaseFilter.eq('id', workOrderId)],
+      );
+    } else {
+      await _database.update(
+        table: 'work_orders',
+        values: {
+          'status': 'in_progress',
+          'completed_at': null,
+          'updated_at': DateTime.now().toIsoUtcString(),
+        },
+        filters: [SupabaseFilter.eq('id', workOrderId)],
+      );
+    }
     return true;
   });
 
   @override
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   }) => SupabaseHandler.call(() async {
@@ -106,6 +197,15 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       table: 'work_order_pause_requests',
       values: values,
       filters: [SupabaseFilter.eq('id', id)],
+    );
+
+    await _database.update(
+      table: 'work_orders',
+      values: {
+        'status': 'in_progress',
+        'updated_at': DateTime.now().toIsoUtcString(),
+      },
+      filters: [SupabaseFilter.eq('id', workOrderId)],
     );
     return true;
   });

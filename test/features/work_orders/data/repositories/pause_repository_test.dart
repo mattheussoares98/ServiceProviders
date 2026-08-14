@@ -141,24 +141,29 @@ void main() {
         when(
           () => mockRemoteDataSource.reviewPause(
             id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
             status: any(named: 'status'),
             reviewObservation: any(named: 'reviewObservation'),
             reviewedById: any(named: 'reviewedById'),
             reasonId: any(named: 'reasonId'),
+            responsibility: any(named: 'responsibility'),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(
           () => mockLocalDataSource.reviewPause(
             id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
             status: any(named: 'status'),
             reviewObservation: any(named: 'reviewObservation'),
             reviewedById: any(named: 'reviewedById'),
             reasonId: any(named: 'reasonId'),
+            responsibility: any(named: 'responsibility'),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.reviewPause(
           id: tRequestEntity.id,
+          workOrderId: tRequestEntity.workOrderId,
           status: PauseRequestStatus.approved,
           reviewObservation: 'observation',
           reviewedById: 'manager-id',
@@ -167,6 +172,91 @@ void main() {
 
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.reviewPause(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            status: 'approved',
+            reviewObservation: 'observation',
+            reviewedById: 'manager-id',
+            reasonId: 'reason-id',
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.reviewPause(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            status: 'approved',
+            reviewObservation: 'observation',
+            reviewedById: 'manager-id',
+            reasonId: 'reason-id',
+          ),
+        ).called(1);
+      },
+    );
+  });
+
+  group('reviewCompletion', () {
+    test(
+      'should review remote completion and save locally when successful',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.reviewCompletion(
+            id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
+            status: any(named: 'status'),
+            reviewedById: any(named: 'reviewedById'),
+            reviewObservation: any(named: 'reviewObservation'),
+            responsibility: any(named: 'responsibility'),
+            completionReason: any(named: 'completionReason'),
+            completionSectorId: any(named: 'completionSectorId'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.reviewCompletion(
+            id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
+            status: any(named: 'status'),
+            reviewedById: any(named: 'reviewedById'),
+            reviewObservation: any(named: 'reviewObservation'),
+            responsibility: any(named: 'responsibility'),
+            completionReason: any(named: 'completionReason'),
+            completionSectorId: any(named: 'completionSectorId'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.reviewCompletion(
+          id: tRequestEntity.id,
+          workOrderId: tRequestEntity.workOrderId,
+          status: PauseRequestStatus.approved,
+          reviewedById: 'manager-id',
+          reviewObservation: 'observation',
+          completionReason: 'done',
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.reviewCompletion(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            status: 'approved',
+            reviewedById: 'manager-id',
+            reviewObservation: 'observation',
+            completionReason: 'done',
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.reviewCompletion(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            status: 'approved',
+            reviewedById: 'manager-id',
+            reviewObservation: 'observation',
+            completionReason: 'done',
+          ),
+        ).called(1);
       },
     );
   });
@@ -175,10 +265,12 @@ void main() {
     test(
       'should cancel remote pause and save locally when successful',
       () async {
+        final now = DateTime.now();
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.cancelPause(
             id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
             resumedById: any(named: 'resumedById'),
           ),
@@ -186,6 +278,7 @@ void main() {
         when(
           () => mockLocalDataSource.cancelPause(
             id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
             resumedById: any(named: 'resumedById'),
           ),
@@ -193,12 +286,29 @@ void main() {
 
         final result = await repository.cancelPause(
           id: tRequestEntity.id,
-          resumedAt: DateTime.now(),
+          workOrderId: tRequestEntity.workOrderId,
+          resumedAt: now,
           resumedById: tRequestEntity.resumedById!,
         );
 
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockRemoteDataSource.cancelPause(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            resumedAt: now,
+            resumedById: tRequestEntity.resumedById!,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.cancelPause(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            resumedAt: now,
+            resumedById: tRequestEntity.resumedById!,
+          ),
+        ).called(1);
       },
     );
   });

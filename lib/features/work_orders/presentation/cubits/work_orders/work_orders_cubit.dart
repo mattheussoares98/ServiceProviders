@@ -374,6 +374,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final cancelResult = await _useCases.cancelPause(
       CancelPauseParams(
         id: pauseId,
+        workOrderId: workOrder.id,
         resumedAt: now,
         resumedById: currentUserId,
       ),

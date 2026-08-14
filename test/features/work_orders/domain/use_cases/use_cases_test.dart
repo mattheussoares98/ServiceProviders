@@ -61,6 +61,15 @@ void main() {
     registerFallbackValue(
       ReviewPauseParams(
         id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
+        status: PauseRequestStatus.approved,
+        reviewedById: faker.guid.guid(),
+      ),
+    );
+    registerFallbackValue(
+      ReviewCompletionParams(
+        id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
         status: PauseRequestStatus.approved,
         reviewedById: faker.guid.guid(),
       ),
@@ -68,6 +77,7 @@ void main() {
     registerFallbackValue(
       CancelPauseParams(
         id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
         resumedAt: DateTime.now(),
         resumedById: faker.guid.guid(),
       ),
@@ -539,6 +549,7 @@ void main() {
   group('ReviewPauseUseCase', () {
     final tParams = ReviewPauseParams(
       id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
       status: PauseRequestStatus.approved,
       reviewedById: faker.guid.guid(),
       reviewObservation: 'Approved',
@@ -548,9 +559,12 @@ void main() {
       when(
         () => mockPauseRepository.reviewPause(
           id: any(named: 'id'),
+          workOrderId: any(named: 'workOrderId'),
           status: any(named: 'status'),
           reviewedById: any(named: 'reviewedById'),
           reviewObservation: any(named: 'reviewObservation'),
+          reasonId: any(named: 'reasonId'),
+          responsibility: any(named: 'responsibility'),
         ),
       ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -561,6 +575,7 @@ void main() {
       verify(
         () => mockPauseRepository.reviewPause(
           id: tParams.id,
+          workOrderId: tParams.workOrderId,
           status: tParams.status,
           reviewedById: tParams.reviewedById,
           reviewObservation: tParams.reviewObservation,
@@ -572,6 +587,7 @@ void main() {
   group('CancelPauseUseCase', () {
     final tParams = CancelPauseParams(
       id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
       resumedAt: DateTime.now(),
       resumedById: faker.guid.guid(),
     );
@@ -580,6 +596,7 @@ void main() {
       when(
         () => mockPauseRepository.cancelPause(
           id: any(named: 'id'),
+          workOrderId: any(named: 'workOrderId'),
           resumedAt: any(named: 'resumedAt'),
           resumedById: any(named: 'resumedById'),
         ),
@@ -592,6 +609,7 @@ void main() {
       verify(
         () => mockPauseRepository.cancelPause(
           id: tParams.id,
+          workOrderId: tParams.workOrderId,
           resumedAt: tParams.resumedAt,
           resumedById: tParams.resumedById,
         ),
@@ -621,20 +639,25 @@ void main() {
   group('ReviewCompletionUseCase', () {
     final tParams = ReviewCompletionParams(
       id: faker.guid.guid(),
+      workOrderId: faker.guid.guid(),
       status: PauseRequestStatus.approved,
       reviewedById: faker.guid.guid(),
       reviewObservation: 'Approved completion',
     );
 
     test(
-      'should call reviewPause on pauseRepository and return true on success',
+      'should call reviewCompletion on pauseRepository and return true on success',
       () async {
         when(
-          () => mockPauseRepository.reviewPause(
+          () => mockPauseRepository.reviewCompletion(
             id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
             status: any(named: 'status'),
             reviewedById: any(named: 'reviewedById'),
             reviewObservation: any(named: 'reviewObservation'),
+            responsibility: any(named: 'responsibility'),
+            completionReason: any(named: 'completionReason'),
+            completionSectorId: any(named: 'completionSectorId'),
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -643,8 +666,9 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, true);
         verify(
-          () => mockPauseRepository.reviewPause(
+          () => mockPauseRepository.reviewCompletion(
             id: tParams.id,
+            workOrderId: tParams.workOrderId,
             status: tParams.status,
             reviewedById: tParams.reviewedById,
             reviewObservation: tParams.reviewObservation,

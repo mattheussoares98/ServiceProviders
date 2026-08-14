@@ -78,22 +78,42 @@ void main() {
   });
 
   group('requestPause', () {
-    test('should return SuccessState(true) when successful', () async {
+    test('should return SuccessState(true) and update work order when successful', () async {
       when(
         () => mockDatabase.insert(
           table: any(named: 'table'),
           values: any(named: 'values'),
         ),
       ).thenAnswer((_) async => [tRequestModel.toJson()]);
+      when(
+        () => mockDatabase.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tRequestModel.toJson()]);
 
       final result = await dataSource.requestPause(tRequestModel);
 
       expect(result, const SuccessState(data: true));
+      verify(
+        () => mockDatabase.insert(
+          table: 'work_order_pause_requests',
+          values: any(named: 'values'),
+        ),
+      ).called(1);
+      verify(
+        () => mockDatabase.update(
+          table: 'work_orders',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
     });
   });
 
   group('reviewPause', () {
-    test('should return SuccessState(true) when successful', () async {
+    test('should return SuccessState(true) and update work order when successful', () async {
       when(
         () => mockDatabase.update(
           table: any(named: 'table'),
@@ -104,17 +124,69 @@ void main() {
 
       final result = await dataSource.reviewPause(
         id: tRequestEntity.id,
+        workOrderId: tRequestEntity.workOrderId,
         status: 'approved',
         reviewObservation: 'approved observation',
         reviewedById: 'manager-id',
       );
 
       expect(result, const SuccessState(data: true));
+      verify(
+        () => mockDatabase.update(
+          table: 'work_order_pause_requests',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+      verify(
+        () => mockDatabase.update(
+          table: 'work_orders',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+    });
+  });
+
+  group('reviewCompletion', () {
+    test('should return SuccessState(true) and update work order to completed when approved', () async {
+      when(
+        () => mockDatabase.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tRequestModel.toJson()]);
+
+      final result = await dataSource.reviewCompletion(
+        id: tRequestEntity.id,
+        workOrderId: tRequestEntity.workOrderId,
+        status: 'approved',
+        reviewedById: 'manager-id',
+        responsibility: 'contractor',
+        completionReason: 'done',
+      );
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockDatabase.update(
+          table: 'work_order_pause_requests',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+      verify(
+        () => mockDatabase.update(
+          table: 'work_orders',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
     });
   });
 
   group('cancelPause', () {
-    test('should return SuccessState(true) when successful', () async {
+    test('should return SuccessState(true) and update work order to in_progress when successful', () async {
       when(
         () => mockDatabase.update(
           table: any(named: 'table'),
@@ -125,11 +197,26 @@ void main() {
 
       final result = await dataSource.cancelPause(
         id: tRequestEntity.id,
+        workOrderId: tRequestEntity.workOrderId,
         resumedAt: DateTime.now(),
         resumedById: tRequestEntity.resumedById!,
       );
 
       expect(result, const SuccessState(data: true));
+      verify(
+        () => mockDatabase.update(
+          table: 'work_order_pause_requests',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+      verify(
+        () => mockDatabase.update(
+          table: 'work_orders',
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
     });
   });
 }

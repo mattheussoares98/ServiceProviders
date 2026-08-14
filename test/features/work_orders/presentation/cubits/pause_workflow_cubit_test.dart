@@ -65,11 +65,17 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makePauseRequestEntity());
     registerFallbackValue(
-      CancelPauseParams(id: '', resumedAt: DateTime.now(), resumedById: ''),
+      CancelPauseParams(
+        id: '',
+        workOrderId: '',
+        resumedAt: DateTime.now(),
+        resumedById: '',
+      ),
     );
     registerFallbackValue(
       const ReviewPauseParams(
         id: '',
+        workOrderId: '',
         status: PauseRequestStatus.approved,
         reviewedById: '',
       ),
@@ -77,6 +83,7 @@ void main() {
     registerFallbackValue(
       const ReviewCompletionParams(
         id: '',
+        workOrderId: '',
         status: PauseRequestStatus.approved,
         reviewedById: '',
       ),

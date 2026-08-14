@@ -68,17 +68,11 @@ class WorkOrderBottomActions extends StatelessWidget {
                   );
 
                   if (result == true && context.mounted) {
-                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
-                      workOrder: workOrder,
-                      status: WorkOrderStatus.onHold,
+                    unawaited(
+                      context
+                          .read<WorkOrdersCubit>()
+                          .loadWorkOrdersAndChangeRequests(),
                     );
-                    if (context.mounted) {
-                      unawaited(
-                        context
-                            .read<WorkOrdersCubit>()
-                            .loadWorkOrdersAndChangeRequests(),
-                      );
-                    }
                   }
                 },
               ),
@@ -114,17 +108,11 @@ class WorkOrderBottomActions extends StatelessWidget {
                     context,
                   );
                   if (result == true && context.mounted) {
-                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
-                      workOrder: workOrder,
-                      status: WorkOrderStatus.pendingConclusionApproval,
+                    unawaited(
+                      context
+                          .read<WorkOrdersCubit>()
+                          .loadWorkOrdersAndChangeRequests(),
                     );
-                    if (context.mounted) {
-                      unawaited(
-                        context
-                            .read<WorkOrdersCubit>()
-                            .loadWorkOrdersAndChangeRequests(),
-                      );
-                    }
                   }
                 },
               ),

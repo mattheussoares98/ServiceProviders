@@ -90,6 +90,7 @@ final class PauseRepositoryImpl implements PauseRepository {
   @override
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required PauseRequestStatus status,
     String? reviewObservation,
     required String reviewedById,
@@ -99,6 +100,7 @@ final class PauseRepositoryImpl implements PauseRepository {
     isInternetConnected: _internet.isConnected,
     localCallback: () => _localDataSource.reviewPause(
       id: id,
+      workOrderId: workOrderId,
       status: status.value,
       reviewObservation: reviewObservation,
       reviewedById: reviewedById,
@@ -108,6 +110,7 @@ final class PauseRepositoryImpl implements PauseRepository {
     remoteCallback: () async {
       final result = await _remoteDataSource.reviewPause(
         id: id,
+        workOrderId: workOrderId,
         status: status.value,
         reviewObservation: reviewObservation,
         reviewedById: reviewedById,
@@ -117,6 +120,7 @@ final class PauseRepositoryImpl implements PauseRepository {
       if (result is SuccessState<bool> && result.data == true) {
         await _localDataSource.reviewPause(
           id: id,
+          workOrderId: workOrderId,
           status: status.value,
           reviewObservation: reviewObservation,
           reviewedById: reviewedById,
@@ -135,26 +139,85 @@ final class PauseRepositoryImpl implements PauseRepository {
   );
 
   @override
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required PauseRequestStatus status,
+    required String reviewedById,
+    String? reviewObservation,
+    PauseResponsibility? responsibility,
+    String? completionReason,
+    String? completionSectorId,
+  }) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    localCallback: () => _localDataSource.reviewCompletion(
+      id: id,
+      workOrderId: workOrderId,
+      status: status.value,
+      reviewedById: reviewedById,
+      reviewObservation: reviewObservation,
+      responsibility: responsibility?.value,
+      completionReason: completionReason,
+      completionSectorId: completionSectorId,
+    ),
+    remoteCallback: () async {
+      final result = await _remoteDataSource.reviewCompletion(
+        id: id,
+        workOrderId: workOrderId,
+        status: status.value,
+        reviewedById: reviewedById,
+        reviewObservation: reviewObservation,
+        responsibility: responsibility?.value,
+        completionReason: completionReason,
+        completionSectorId: completionSectorId,
+      );
+      if (result is SuccessState<bool> && result.data == true) {
+        await _localDataSource.reviewCompletion(
+          id: id,
+          workOrderId: workOrderId,
+          status: status.value,
+          reviewedById: reviewedById,
+          reviewObservation: reviewObservation,
+          responsibility: responsibility?.value,
+          completionReason: completionReason,
+          completionSectorId: completionSectorId,
+        );
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    },
+  );
+
+  @override
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   }) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
     localCallback: () => _localDataSource.cancelPause(
       id: id,
+      workOrderId: workOrderId,
       resumedAt: resumedAt,
       resumedById: resumedById,
     ),
     remoteCallback: () async {
       final result = await _remoteDataSource.cancelPause(
         id: id,
+        workOrderId: workOrderId,
         resumedAt: resumedAt,
         resumedById: resumedById,
       );
       if (result is SuccessState<bool> && result.data == true) {
         await _localDataSource.cancelPause(
           id: id,
+          workOrderId: workOrderId,
           resumedAt: resumedAt,
           resumedById: resumedById,
         );

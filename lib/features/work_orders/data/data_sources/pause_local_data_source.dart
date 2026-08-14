@@ -17,14 +17,26 @@ abstract interface class PauseLocalDataSource {
   FutureBool savePauseRequest(PauseRequestModel request);
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required String status,
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
     String? responsibility,
   });
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required String status,
+    required String reviewedById,
+    String? reviewObservation,
+    String? responsibility,
+    String? completionReason,
+    String? completionSectorId,
+  });
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   });
@@ -120,31 +132,46 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   @override
   FutureBool savePauseRequest(PauseRequestModel request) {
     return ErrorHandler.execute(() async {
-      await _database
-          .into(_database.workOrderPauseRequests)
-          .insertOnConflictUpdate(
-            WorkOrderPauseRequestsCompanion(
-              id: Value(request.id),
-              companyId: Value(request.companyId),
-              workOrderId: Value(request.workOrderId),
-              requestedById: Value(request.requestedById),
-              eventType: Value(request.eventType.value),
-              reasonId: Value(request.reasonId),
-              customReason: Value(request.customReason),
-              observation: Value(request.observation),
-              responsibility: Value(request.responsibility?.value),
-              sectorId: Value(request.sectorId),
-              status: Value(request.status.value),
-              pausedAt: Value(request.pausedAt),
-              resumedAt: Value(request.resumedAt),
-              resumedById: Value(request.resumedById),
-              reviewedById: Value(request.reviewedById),
-              reviewObservation: Value(request.reviewObservation),
-              affectsSla: Value(request.affectsSla),
-              createdAt: Value(request.createdAt),
-              updatedAt: Value(request.updatedAt),
-            ),
-          );
+      await _database.transaction(() async {
+        await _database
+            .into(_database.workOrderPauseRequests)
+            .insertOnConflictUpdate(
+              WorkOrderPauseRequestsCompanion(
+                id: Value(request.id),
+                companyId: Value(request.companyId),
+                workOrderId: Value(request.workOrderId),
+                requestedById: Value(request.requestedById),
+                eventType: Value(request.eventType.value),
+                reasonId: Value(request.reasonId),
+                customReason: Value(request.customReason),
+                observation: Value(request.observation),
+                responsibility: Value(request.responsibility?.value),
+                sectorId: Value(request.sectorId),
+                status: Value(request.status.value),
+                pausedAt: Value(request.pausedAt),
+                resumedAt: Value(request.resumedAt),
+                resumedById: Value(request.resumedById),
+                reviewedById: Value(request.reviewedById),
+                reviewObservation: Value(request.reviewObservation),
+                affectsSla: Value(request.affectsSla),
+                createdAt: Value(request.createdAt),
+                updatedAt: Value(request.updatedAt),
+              ),
+            );
+
+        final targetStatus = request.eventType == PauseEventType.completion
+            ? 'pending_approval'
+            : 'on_hold';
+
+        final woQuery = _database.update(_database.workOrders)
+          ..where((t) => t.id.equals(request.workOrderId));
+        await woQuery.write(
+          WorkOrdersCompanion(
+            status: Value(targetStatus),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      });
       return const SuccessState(data: true);
     });
   }
@@ -152,6 +179,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   @override
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required String status,
     String? reviewObservation,
     required String reviewedById,
@@ -159,22 +187,101 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
     String? responsibility,
   }) {
     return ErrorHandler.execute(() async {
-      final query = _database.update(_database.workOrderPauseRequests)
-        ..where((t) => t.id.equals(id));
-      await query.write(
-        WorkOrderPauseRequestsCompanion(
-          status: Value(status),
-          reviewedById: Value(reviewedById),
-          reviewObservation: reviewObservation != null
-              ? Value(reviewObservation)
-              : const Value.absent(),
-          reasonId: reasonId != null ? Value(reasonId) : const Value.absent(),
-          responsibility: responsibility != null
-              ? Value(responsibility)
-              : const Value.absent(),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
+      await _database.transaction(() async {
+        final query = _database.update(_database.workOrderPauseRequests)
+          ..where((t) => t.id.equals(id));
+        await query.write(
+          WorkOrderPauseRequestsCompanion(
+            status: Value(status),
+            reviewedById: Value(reviewedById),
+            reviewObservation: reviewObservation != null
+                ? Value(reviewObservation)
+                : const Value.absent(),
+            reasonId: reasonId != null ? Value(reasonId) : const Value.absent(),
+            responsibility: responsibility != null
+                ? Value(responsibility)
+                : const Value.absent(),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        final nextWoStatus = status == PauseRequestStatus.approved.value
+            ? 'on_hold'
+            : 'in_progress';
+
+        final woQuery = _database.update(_database.workOrders)
+          ..where((t) => t.id.equals(workOrderId));
+        await woQuery.write(
+          WorkOrdersCompanion(
+            status: Value(nextWoStatus),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      });
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required String status,
+    required String reviewedById,
+    String? reviewObservation,
+    String? responsibility,
+    String? completionReason,
+    String? completionSectorId,
+  }) {
+    return ErrorHandler.execute(() async {
+      await _database.transaction(() async {
+        final query = _database.update(_database.workOrderPauseRequests)
+          ..where((t) => t.id.equals(id));
+        await query.write(
+          WorkOrderPauseRequestsCompanion(
+            status: Value(status),
+            reviewedById: Value(reviewedById),
+            reviewObservation: reviewObservation != null
+                ? Value(reviewObservation)
+                : const Value.absent(),
+            responsibility: responsibility != null
+                ? Value(responsibility)
+                : const Value.absent(),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        final isApproved = status == PauseRequestStatus.approved.value;
+        final woQuery = _database.update(_database.workOrders)
+          ..where((t) => t.id.equals(workOrderId));
+
+        if (isApproved) {
+          await woQuery.write(
+            WorkOrdersCompanion(
+              status: const Value('completed'),
+              completedAt: Value(DateTime.now()),
+              completionReason: completionReason != null
+                  ? Value(completionReason)
+                  : const Value.absent(),
+              completionResponsibility: responsibility != null
+                  ? Value(responsibility)
+                  : const Value.absent(),
+              completionSectorId: completionSectorId != null
+                  ? Value(completionSectorId)
+                  : const Value.absent(),
+              updatedAt: Value(DateTime.now()),
+            ),
+          );
+        } else {
+          await woQuery.write(
+            WorkOrdersCompanion(
+              status: const Value('in_progress'),
+              completedAt: const Value(null),
+              updatedAt: Value(DateTime.now()),
+            ),
+          );
+        }
+      });
       return const SuccessState(data: true);
     });
   }
@@ -182,19 +289,31 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   @override
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   }) {
     return ErrorHandler.execute(() async {
-      final query = _database.update(_database.workOrderPauseRequests)
-        ..where((t) => t.id.equals(id));
-      await query.write(
-        WorkOrderPauseRequestsCompanion(
-          resumedAt: Value(resumedAt),
-          resumedById: Value(resumedById),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
+      await _database.transaction(() async {
+        final query = _database.update(_database.workOrderPauseRequests)
+          ..where((t) => t.id.equals(id));
+        await query.write(
+          WorkOrderPauseRequestsCompanion(
+            resumedAt: Value(resumedAt),
+            resumedById: Value(resumedById),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        final woQuery = _database.update(_database.workOrders)
+          ..where((t) => t.id.equals(workOrderId));
+        await woQuery.write(
+          WorkOrdersCompanion(
+            status: const Value('in_progress'),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      });
       return const SuccessState(data: true);
     });
   }

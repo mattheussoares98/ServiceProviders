@@ -115,6 +115,7 @@ void main() {
     registerFallbackValue(
       CancelPauseParams(
         id: faker.guid.guid(),
+        workOrderId: faker.guid.guid(),
         resumedAt: DateTime.now(),
         resumedById: faker.guid.guid(),
       ),

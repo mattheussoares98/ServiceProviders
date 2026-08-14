@@ -165,15 +165,18 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     required String workOrderId,
     String? reviewObservation,
     String? reasonId,
+    PauseResponsibility? responsibility,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewPause(
       ReviewPauseParams(
         id: id,
+        workOrderId: workOrderId,
         status: status,
         reviewedById: reviewedById,
         reviewObservation: reviewObservation,
         reasonId: reasonId,
+        responsibility: responsibility,
       ),
     );
     if (isClosed) return false;
@@ -246,6 +249,8 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     required String workOrderId,
     String? reviewObservation,
     PauseResponsibility? responsibility,
+    String? completionReason,
+    String? completionSectorId,
   }) async {
     if (hasPendingPauses) {
       final message =
@@ -268,10 +273,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     final result = await _useCases.reviewCompletion(
       ReviewCompletionParams(
         id: id,
+        workOrderId: workOrderId,
         status: status,
         reviewedById: reviewedById,
         reviewObservation: reviewObservation,
         responsibility: effectiveResponsibility,
+        completionReason: completionReason,
+        completionSectorId: completionSectorId,
       ),
     );
     if (isClosed) return false;

@@ -53,7 +53,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract final class EntityFactory {
   static DateTime _makeDateTime() {
     final dt = faker.date.dateTime();
-    return DateTime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second);
+    return DateTime.utc(
+      dt.year,
+      dt.month,
+      dt.day,
+      dt.hour,
+      dt.minute,
+      dt.second,
+    );
   }
 
   static String _makeCompanyName() => faker.company.name();

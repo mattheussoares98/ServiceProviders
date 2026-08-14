@@ -51,10 +51,10 @@ final class AttachmentsLocalDataSourceImpl
           fileSizeBytes: item.fileSizeBytes,
           isCompressed: item.isCompressed,
           uploadStatus: UploadStatus.fromCode(item.uploadStatus),
-          createdAt: item.createdAt,
-          deletedAt: item.deletedAt,
+          createdAt: item.createdAt.toUtc(),
+          deletedAt: item.deletedAt?.toUtc(),
           originalPath: item.originalPath,
-          lastAccessedAt: item.lastAccessedAt,
+          lastAccessedAt: item.lastAccessedAt?.toUtc(),
         ),
       );
     });
@@ -84,10 +84,10 @@ final class AttachmentsLocalDataSourceImpl
                 fileSizeBytes: t.fileSizeBytes,
                 isCompressed: t.isCompressed,
                 uploadStatus: UploadStatus.fromCode(t.uploadStatus),
-                createdAt: t.createdAt,
-                deletedAt: t.deletedAt,
+                createdAt: t.createdAt.toUtc(),
+                deletedAt: t.deletedAt?.toUtc(),
                 originalPath: t.originalPath,
-                lastAccessedAt: t.lastAccessedAt,
+                lastAccessedAt: t.lastAccessedAt?.toUtc(),
               ),
             )
             .toList(),
@@ -116,9 +116,7 @@ final class AttachmentsLocalDataSourceImpl
               createdAt: Value(attachment.createdAt),
               deletedAt: Value(attachment.deletedAt),
               originalPath: Value(attachment.originalPath),
-              lastAccessedAt: Value(
-                attachment.lastAccessedAt ?? DateTime.now(),
-              ),
+              lastAccessedAt: Value(attachment.lastAccessedAt),
             ),
           );
       return const SuccessState(data: true);
@@ -128,9 +126,9 @@ final class AttachmentsLocalDataSourceImpl
   @override
   FutureBool deleteAttachment(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.update(_database.attachments)
-            ..where((t) => t.id.equals(id)))
-          .write(AttachmentsCompanion(deletedAt: Value(DateTime.now())));
+      final query = _database.update(_database.attachments)
+        ..where((t) => t.id.equals(id));
+      await query.write(AttachmentsCompanion(deletedAt: Value(DateTime.now())));
       return const SuccessState(data: true);
     });
   }
@@ -138,9 +136,9 @@ final class AttachmentsLocalDataSourceImpl
   @override
   FutureBool hardDeleteAttachment(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.delete(
-        _database.attachments,
-      )..where((t) => t.id.equals(id))).go();
+      final query = _database.delete(_database.attachments)
+        ..where((t) => t.id.equals(id));
+      await query.go();
       return const SuccessState(data: true);
     });
   }
@@ -148,9 +146,11 @@ final class AttachmentsLocalDataSourceImpl
   @override
   FutureVoid touchLastAccessed(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.update(_database.attachments)
-            ..where((t) => t.id.equals(id)))
-          .write(AttachmentsCompanion(lastAccessedAt: Value(DateTime.now())));
+      final query = _database.update(_database.attachments)
+        ..where((t) => t.id.equals(id));
+      await query.write(
+        AttachmentsCompanion(lastAccessedAt: Value(DateTime.now())),
+      );
       return SuccessState.nil;
     });
   }
@@ -164,9 +164,10 @@ final class AttachmentsLocalDataSourceImpl
           _database.attachments.localPath.isNotNull() &
               _database.attachments.deletedAt.isNull(),
         );
-      final row = await query.getSingle();
-      final sum = row.read(_database.attachments.fileSizeBytes.sum()) ?? 0;
-      return SuccessState(data: sum);
+
+      final result = await query.getSingle();
+      final total = result.read(_database.attachments.fileSizeBytes.sum()) ?? 0;
+      return SuccessState(data: total);
     });
   }
 
@@ -199,10 +200,10 @@ final class AttachmentsLocalDataSourceImpl
                 fileSizeBytes: t.fileSizeBytes,
                 isCompressed: t.isCompressed,
                 uploadStatus: UploadStatus.fromCode(t.uploadStatus),
-                createdAt: t.createdAt,
-                deletedAt: t.deletedAt,
+                createdAt: t.createdAt.toUtc(),
+                deletedAt: t.deletedAt?.toUtc(),
                 originalPath: t.originalPath,
-                lastAccessedAt: t.lastAccessedAt,
+                lastAccessedAt: t.lastAccessedAt?.toUtc(),
               ),
             )
             .toList(),

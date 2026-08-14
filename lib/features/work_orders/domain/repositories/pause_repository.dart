@@ -10,14 +10,26 @@ abstract interface class PauseRepository {
   FutureBool requestPause(PauseRequestEntity pauseRequest);
   FutureBool reviewPause({
     required String id,
+    required String workOrderId,
     required PauseRequestStatus status,
     String? reviewObservation,
     required String reviewedById,
-    String? reasonId, // Administrator can normalize with pre-registered reasonId
+    String? reasonId,
     PauseResponsibility? responsibility,
+  });
+  FutureBool reviewCompletion({
+    required String id,
+    required String workOrderId,
+    required PauseRequestStatus status,
+    required String reviewedById,
+    String? reviewObservation,
+    PauseResponsibility? responsibility,
+    String? completionReason,
+    String? completionSectorId,
   });
   FutureBool cancelPause({
     required String id,
+    required String workOrderId,
     required DateTime resumedAt,
     required String resumedById,
   });

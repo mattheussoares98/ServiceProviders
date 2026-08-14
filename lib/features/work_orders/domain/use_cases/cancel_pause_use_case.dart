@@ -6,11 +6,13 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_re
 class CancelPauseParams {
   const CancelPauseParams({
     required this.id,
+    required this.workOrderId,
     required this.resumedAt,
     required this.resumedById,
   });
 
   final String id;
+  final String workOrderId;
   final DateTime resumedAt;
   final String resumedById;
 }
@@ -18,14 +20,15 @@ class CancelPauseParams {
 @LazySingleton()
 class CancelPauseUseCase implements UseCase<bool, CancelPauseParams> {
   CancelPauseUseCase({required PauseRepository pauseRepository})
-      : _pauseRepository = pauseRepository;
+    : _pauseRepository = pauseRepository;
 
   final PauseRepository _pauseRepository;
 
   @override
   FutureBool call(CancelPauseParams request) => _pauseRepository.cancelPause(
-        id: request.id,
-        resumedAt: request.resumedAt,
-        resumedById: request.resumedById,
-      );
+    id: request.id,
+    workOrderId: request.workOrderId,
+    resumedAt: request.resumedAt,
+    resumedById: request.resumedById,
+  );
 }
