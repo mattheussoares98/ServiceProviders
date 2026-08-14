@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_completion_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_pause_dialog.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
@@ -105,7 +108,7 @@ class WorkOrderApprovalBanner extends HookWidget {
           if (pendingRequest?.responsibility != null) ...[
             gapH4,
             BaseText.bodySmall(
-              'Responsabilidade: ${pendingRequest!.responsibility.label}',
+              'Responsabilidade: ${pendingRequest!.responsibility!.label}',
               color: Colors.black54,
             ),
           ],
@@ -136,7 +139,23 @@ class WorkOrderApprovalBanner extends HookWidget {
                     },
                   );
 
-                  if (result != null) {
+                  if (result != null && context.mounted) {
+                    if (!isPauseApproval) {
+                      final newStatus = result
+                          ? WorkOrderStatus.completed
+                          : WorkOrderStatus.inProgress;
+                      final responsibility = result
+                          ? PauseResponsibility.contractor
+                          : PauseResponsibility.provider;
+                      await context
+                          .read<WorkOrdersCubit>()
+                          .changeWorkOrderStatus(
+                            workOrder: workOrder.copyWith(
+                              completionResponsibility: responsibility,
+                            ),
+                            status: newStatus,
+                          );
+                    }
                     onRefresh();
                   }
                 },

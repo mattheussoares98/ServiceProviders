@@ -17,6 +17,7 @@ abstract interface class PauseRemoteDataSource {
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
+    String? responsibility,
   });
   FutureBool cancelPause({
     required String id,
@@ -72,6 +73,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
+    String? responsibility,
   }) => SupabaseHandler.call(() async {
     final MapDynamic values = {
       'status': status,
@@ -79,6 +81,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       'updated_at': DateTime.now().toIsoUtcString(),
       'review_observation': ?reviewObservation,
       'reason_id': ?reasonId,
+      'responsibility': ?responsibility,
     };
     await _database.update(
       table: 'work_order_pause_requests',

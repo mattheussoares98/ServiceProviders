@@ -150,6 +150,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     );
   }
 
+  bool get hasPendingPauses {
+    return state.pauseRequests.any(
+      (r) =>
+          r.eventType == PauseEventType.pause &&
+          r.status == PauseRequestStatus.pending,
+    );
+  }
+
   Future<bool> reviewPause({
     required String id,
     required PauseRequestStatus status,
@@ -189,21 +197,9 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     required String workOrderId,
     required String requestedById,
     required String customReason,
-    PauseResponsibility responsibility = PauseResponsibility.provider,
     String? observation,
     String? sectorId,
   }) async {
-    if (hasPendingPauseRequests) {
-      final message =
-          'Não é possível solicitar conclusão: Existem solicitações de pausa pendentes de avaliação.'
-              .hardcoded;
-      emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
-      );
-      showErrorToast(message);
-      return false;
-    }
-
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
@@ -213,7 +209,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       eventType: PauseEventType.completion,
       customReason: customReason,
       observation: observation,
-      responsibility: responsibility,
       sectorId: sectorId,
       status: PauseRequestStatus.pending,
       pausedAt: now,
@@ -250,7 +245,25 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     required String reviewedById,
     required String workOrderId,
     String? reviewObservation,
+    PauseResponsibility? responsibility,
   }) async {
+    if (hasPendingPauses) {
+      final message =
+          'Existem solicitações de pausa pendentes. Avalie as pausas primeiro.'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    final effectiveResponsibility =
+        responsibility ??
+        (status == PauseRequestStatus.approved
+            ? PauseResponsibility.contractor
+            : PauseResponsibility.provider);
+
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewCompletion(
       ReviewCompletionParams(
@@ -258,6 +271,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
         status: status,
         reviewedById: reviewedById,
         reviewObservation: reviewObservation,
+        responsibility: effectiveResponsibility,
       ),
     );
     if (isClosed) return false;

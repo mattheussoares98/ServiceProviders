@@ -6,7 +6,9 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
@@ -434,7 +436,39 @@ void main() {
 
     group('reviewCompletion', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit saving, loaded, loading, loaded when review completion succeeds',
+        'should emit savingError and not call reviewCompletion use case when there are pending pause requests',
+        seed: () => const PauseWorkflowState.initial().copyWith(
+          pauseRequests: [
+            EntityFactory.makePauseRequestEntity().copyWith(
+              status: PauseRequestStatus.pending,
+              eventType: PauseEventType.pause,
+            ),
+          ],
+        ),
+        build: () => cubit,
+        act: (cubit) => cubit.reviewCompletion(
+          id: 'request-id',
+          status: PauseRequestStatus.approved,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+          reviewObservation: 'Approved completion',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Existem solicitações de pausa pendentes. Avalie as pausas primeiro.',
+              ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockReviewCompletion.call(any()));
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit saving, loaded, loading, loaded and pass contractor responsibility when review completion is approved',
         build: () {
           when(
             () => mockReviewCompletion.call(any()),
@@ -474,6 +508,89 @@ void main() {
             StateStatus.loaded,
           ),
         ],
+        verify: (_) {
+          verify(
+            () => mockReviewCompletion.call(
+              any(
+                that: isA<ReviewCompletionParams>()
+                    .having((p) => p.id, 'id', 'request-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.approved,
+                    )
+                    .having(
+                      (p) => p.responsibility,
+                      'responsibility',
+                      PauseResponsibility.contractor,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should pass provider responsibility when review completion is rejected',
+        build: () {
+          when(
+            () => mockReviewCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.reviewCompletion(
+          id: 'request-id',
+          status: PauseRequestStatus.rejected,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+          reviewObservation: 'Rejected completion',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockReviewCompletion.call(
+              any(
+                that: isA<ReviewCompletionParams>()
+                    .having((p) => p.id, 'id', 'request-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.rejected,
+                    )
+                    .having(
+                      (p) => p.responsibility,
+                      'responsibility',
+                      PauseResponsibility.provider,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
       );
     });
   });

@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
 
 @LazySingleton(as: PauseRepository)
@@ -93,6 +94,7 @@ final class PauseRepositoryImpl implements PauseRepository {
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
+    PauseResponsibility? responsibility,
   }) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
     localCallback: () => _localDataSource.reviewPause(
@@ -101,6 +103,7 @@ final class PauseRepositoryImpl implements PauseRepository {
       reviewObservation: reviewObservation,
       reviewedById: reviewedById,
       reasonId: reasonId,
+      responsibility: responsibility?.value,
     ),
     remoteCallback: () async {
       final result = await _remoteDataSource.reviewPause(
@@ -109,6 +112,7 @@ final class PauseRepositoryImpl implements PauseRepository {
         reviewObservation: reviewObservation,
         reviewedById: reviewedById,
         reasonId: reasonId,
+        responsibility: responsibility?.value,
       );
       if (result is SuccessState<bool> && result.data == true) {
         await _localDataSource.reviewPause(
@@ -117,6 +121,7 @@ final class PauseRepositoryImpl implements PauseRepository {
           reviewObservation: reviewObservation,
           reviewedById: reviewedById,
           reasonId: reasonId,
+          responsibility: responsibility?.value,
         );
         return const SuccessState(data: true);
       }

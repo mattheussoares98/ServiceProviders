@@ -272,8 +272,8 @@ void main() {
         );
         final updated =
             (check as SuccessState<List<PauseRequestModel>>).data!.first;
-        expect(updated.status.value, 'cancelled_by_provider');
         expect(updated.resumedAt?.year, resumedAt.year);
+        expect(updated.resumedById, userId);
       });
     });
   });

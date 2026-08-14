@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
 
 class ReviewCompletionParams {
@@ -10,12 +11,14 @@ class ReviewCompletionParams {
     required this.status,
     required this.reviewedById,
     this.reviewObservation,
+    this.responsibility,
   });
 
   final String id;
   final PauseRequestStatus status;
   final String reviewedById;
   final String? reviewObservation;
+  final PauseResponsibility? responsibility;
 }
 
 @LazySingleton()
@@ -31,6 +34,7 @@ class ReviewCompletionUseCase implements UseCase<bool, ReviewCompletionParams> {
         status: request.status,
         reviewedById: request.reviewedById,
         reviewObservation: request.reviewObservation,
+        responsibility: request.responsibility,
       );
 }
 

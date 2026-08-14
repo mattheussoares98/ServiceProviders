@@ -25,7 +25,7 @@ class WorkOrderPauseRequests extends Table {
   )();
   TextColumn get customReason => text().nullable()();
   TextColumn get observation => text().nullable()();
-  TextColumn get responsibility => text()();
+  TextColumn get responsibility => text().nullable()();
   TextColumn get sectorId =>
       text().nullable().references(Sectors, #id, onDelete: KeyAction.setNull)();
   TextColumn get status => text()();

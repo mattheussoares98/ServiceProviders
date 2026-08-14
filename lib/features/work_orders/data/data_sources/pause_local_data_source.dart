@@ -21,6 +21,7 @@ abstract interface class PauseLocalDataSource {
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
+    String? responsibility,
   });
   FutureBool cancelPause({
     required String id,
@@ -96,7 +97,9 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               reasonId: r.reasonId,
               customReason: r.customReason,
               observation: r.observation,
-              responsibility: PauseResponsibility.fromValue(r.responsibility),
+              responsibility: r.responsibility != null
+                  ? PauseResponsibility.fromValue(r.responsibility!)
+                  : null,
               sectorId: r.sectorId,
               status: PauseRequestStatus.fromValue(r.status),
               pausedAt: r.pausedAt,
@@ -129,7 +132,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               reasonId: Value(request.reasonId),
               customReason: Value(request.customReason),
               observation: Value(request.observation),
-              responsibility: Value(request.responsibility.value),
+              responsibility: Value(request.responsibility?.value),
               sectorId: Value(request.sectorId),
               status: Value(request.status.value),
               pausedAt: Value(request.pausedAt),
@@ -146,7 +149,6 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
     });
   }
 
-
   @override
   FutureBool reviewPause({
     required String id,
@@ -154,6 +156,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
     String? reviewObservation,
     required String reviewedById,
     String? reasonId,
+    String? responsibility,
   }) {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.workOrderPauseRequests)
@@ -166,6 +169,9 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               ? Value(reviewObservation)
               : const Value.absent(),
           reasonId: reasonId != null ? Value(reasonId) : const Value.absent(),
+          responsibility: responsibility != null
+              ? Value(responsibility)
+              : const Value.absent(),
           updatedAt: Value(DateTime.now()),
         ),
       );

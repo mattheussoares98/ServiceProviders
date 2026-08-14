@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -30,6 +32,14 @@ class WorkOrderBottomActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (workOrder.status == WorkOrderStatus.inProgress) {
+      final canApproveCompletion = context.hasPermission(
+        const ActionPermission.workOrderSubAction(
+          WorkOrderSubAction.approveCompletion,
+        ),
+      );
+      final canConcludeDirectly =
+          canApproveCompletion && !pauseCubit.hasPendingPauses;
+
       return Container(
         padding: const EdgeInsets.all(Sizes.p16),
         decoration: BoxDecoration(
@@ -76,8 +86,25 @@ class WorkOrderBottomActions extends StatelessWidget {
             gapW12,
             Expanded(
               child: BaseButton(
-                text: 'Solicitar conclusão'.hardcoded,
+                text: canConcludeDirectly
+                    ? 'Concluir'.hardcoded
+                    : 'Solicitar conclusão'.hardcoded,
                 onTap: () async {
+                  if (canConcludeDirectly) {
+                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                      workOrder: workOrder,
+                      status: WorkOrderStatus.completed,
+                    );
+                    if (context.mounted) {
+                      unawaited(
+                        context
+                            .read<WorkOrdersCubit>()
+                            .loadWorkOrdersAndChangeRequests(),
+                      );
+                    }
+                    return;
+                  }
+
                   final result = await showModalPage<bool>(
                     RequestCompletionFields(
                       companyId: workOrder.companyId,
@@ -87,11 +114,17 @@ class WorkOrderBottomActions extends StatelessWidget {
                     context,
                   );
                   if (result == true && context.mounted) {
-                    unawaited(
-                      context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(),
+                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                      workOrder: workOrder,
+                      status: WorkOrderStatus.pendingConclusionApproval,
                     );
+                    if (context.mounted) {
+                      unawaited(
+                        context
+                            .read<WorkOrdersCubit>()
+                            .loadWorkOrdersAndChangeRequests(),
+                      );
+                    }
                   }
                 },
               ),

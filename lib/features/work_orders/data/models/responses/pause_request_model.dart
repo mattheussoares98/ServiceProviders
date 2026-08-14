@@ -17,7 +17,7 @@ class PauseRequestModel extends PauseRequestEntity
     super.reasonId,
     super.customReason,
     super.observation,
-    required super.responsibility,
+    super.responsibility,
     super.sectorId,
     required super.status,
     required super.pausedAt,
@@ -66,9 +66,9 @@ class PauseRequestModel extends PauseRequestEntity
       reasonId: json['reason_id'] as String?,
       customReason: json['custom_reason'] as String?,
       observation: json['observation'] as String?,
-      responsibility: PauseResponsibility.fromValue(
-        json['responsibility'] as String? ?? '',
-      ),
+      responsibility: json['responsibility'] != null
+          ? PauseResponsibility.fromValue(json['responsibility'] as String)
+          : null,
       sectorId: json['sector_id'] as String?,
       status: PauseRequestStatus.fromValue(json['status'] as String? ?? ''),
       pausedAt: (json['paused_at'] as String?).toUtcDateTime() ?? now,
@@ -92,7 +92,7 @@ class PauseRequestModel extends PauseRequestEntity
     'reason_id': reasonId,
     'custom_reason': customReason,
     'observation': observation,
-    'responsibility': responsibility.value,
+    'responsibility': responsibility?.value,
     'sector_id': sectorId,
     'status': status.value,
     'paused_at': pausedAt.toIsoUtcString(),

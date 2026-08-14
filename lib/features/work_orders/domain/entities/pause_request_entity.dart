@@ -13,7 +13,7 @@ class PauseRequestEntity extends Equatable {
     required this.reasonId,
     required this.customReason,
     required this.observation,
-    required this.responsibility,
+    this.responsibility,
     required this.sectorId,
     required this.status,
     required this.pausedAt,
@@ -34,7 +34,7 @@ class PauseRequestEntity extends Equatable {
   final String? reasonId;
   final String? customReason;
   final String? observation;
-  final PauseResponsibility responsibility;
+  final PauseResponsibility? responsibility;
   final String? sectorId;
   final PauseRequestStatus status;
   final DateTime pausedAt;
@@ -93,6 +93,7 @@ class PauseRequestEntity extends Equatable {
     bool? annulReasonId,
     bool? annulCustomReason,
     bool? annulObservation,
+    bool? annulResponsibility,
     bool? annulSectorId,
     bool? annulResumedAt,
     bool? annulResumedById,
@@ -114,7 +115,9 @@ class PauseRequestEntity extends Equatable {
       observation: annulObservation == true
           ? null
           : observation ?? this.observation,
-      responsibility: responsibility ?? this.responsibility,
+      responsibility: annulResponsibility == true
+          ? null
+          : responsibility ?? this.responsibility,
       sectorId: annulSectorId == true ? null : sectorId ?? this.sectorId,
       status: status ?? this.status,
       pausedAt: pausedAt ?? this.pausedAt,
