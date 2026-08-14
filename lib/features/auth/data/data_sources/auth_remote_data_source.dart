@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/verify_otp_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
@@ -19,6 +20,7 @@ abstract interface class AuthRemoteDataSource {
   FutureData<UserProfileModel> getCurrentUserProfile(String userId);
   FutureVoid resetPassword(String email);
   FutureVoid changePassword(String newPassword);
+  FutureData<UserDataModel> verifyOtp(VerifyOtpRequestModel request);
 }
 
 @LazySingleton(as: AuthRemoteDataSource)
@@ -78,6 +80,25 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: request.password,
         emailRedirectTo: redirectUrl,
         data: {'name': request.name},
+      );
+
+      return UserDataModel.fromSupabase(response);
+    });
+  }
+
+  @override
+  FutureData<UserDataModel> verifyOtp(VerifyOtpRequestModel request) {
+    return SupabaseHandler.call(() async {
+      final otpType = switch (request.type.toLowerCase()) {
+        'signup' || 'email' => OtpType.signup,
+        'recovery' => OtpType.recovery,
+        'magiclink' => OtpType.magiclink,
+        _ => OtpType.invite,
+      };
+
+      final response = await _supabaseAuth.verifyOTP(
+        tokenHash: request.tokenHash,
+        type: otpType,
       );
 
       return UserDataModel.fromSupabase(response);

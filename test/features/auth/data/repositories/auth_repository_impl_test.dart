@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/verify_otp_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
@@ -20,6 +21,27 @@ void main() {
   late MockUsersLocalDataSource mockUsersLocalDataSource;
   late AuthRepositoryImpl repository;
 
+  setUpAll(() {
+    registerFallbackValue(
+      AuthenticationRequestModel.fromEntity(EntityFactory.makeAuthentication()),
+    );
+    registerFallbackValue(EntityFactory.makeUserDataEntity());
+    registerFallbackValue(
+      UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
+    );
+    registerFallbackValue(
+      SignUpRequestModel.fromEntity(EntityFactory.makeSignUp()),
+    );
+    registerFallbackValue(
+      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+    );
+    registerFallbackValue(
+      VerifyOtpRequestModel.fromEntity(
+        EntityFactory.makeVerifyOtpRequestEntity(),
+      ),
+    );
+  });
+
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockAuthRemoteDataSource = MockAuthRemoteDataSource();
@@ -30,26 +52,6 @@ void main() {
       remoteDataSource: mockAuthRemoteDataSource,
       localDataSource: mockAuthLocalDataSource,
       usersLocalDataSource: mockUsersLocalDataSource,
-    );
-
-    registerFallbackValue(
-      const AuthenticationRequestModel(email: '', password: ''),
-    );
-    registerFallbackValue(UserDataEntity.empty());
-    registerFallbackValue(
-      UserDataModel(
-        user: UserProfileModel.fromEntity(
-          EntityFactory.makeUserProfileEntity(),
-        ),
-        accessToken: '',
-        refreshToken: '',
-      ),
-    );
-    registerFallbackValue(
-      const SignUpRequestModel(name: '', email: '', password: ''),
-    );
-    registerFallbackValue(
-      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
     );
   });
 
@@ -383,6 +385,50 @@ void main() {
         verifyNoMoreInteractions(mockAuthLocalDataSource);
         verifyZeroInteractions(mockInternetClient);
         verifyZeroInteractions(mockAuthRemoteDataSource);
+      },
+    );
+  });
+
+  group('verifyOtp', () {
+    final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+
+    test(
+      'should call remoteDataSource.verifyOtp when internet is connected and return its result mapped to domain',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockAuthRemoteDataSource.verifyOtp(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUserDataModel));
+
+        // Act
+        final result = await repository.verifyOtp(tVerifyOtpRequest);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataEntity>>());
+        expect(result.data, tUserData);
+        verify(
+          () => mockAuthRemoteDataSource.verifyOtp(
+            VerifyOtpRequestModel.fromEntity(tVerifyOtpRequest),
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return FailureState when remoteDataSource.verifyOtp fails',
+      () async {
+        // Arrange
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockAuthRemoteDataSource.verifyOtp(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Error'));
+
+        // Act
+        final result = await repository.verifyOtp(tVerifyOtpRequest);
+
+        // Assert
+        expect(result, isA<FailureState<UserDataEntity>>());
       },
     );
   });

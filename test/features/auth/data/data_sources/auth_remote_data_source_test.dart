@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/verify_otp_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
@@ -23,6 +24,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(<SupabaseFilter>[]);
+    registerFallbackValue(OtpType.invite);
   });
 
   setUp(() {
@@ -367,5 +369,59 @@ void main() {
         ).called(1);
       },
     );
+  });
+
+  group('verifyOtp', () {
+    final tVerifyOtpRequest = VerifyOtpRequestModel.fromEntity(
+      EntityFactory.makeVerifyOtpRequestEntity(),
+    );
+
+    test('should return SuccessState with UserDataModel when verifyOTP is successful', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.verifyOTP(
+          tokenHash: any(named: 'tokenHash'),
+          type: any(named: 'type'),
+        ),
+      ).thenAnswer((_) async => fakeAuthResponse);
+
+      // Act
+      final result = await dataSource.verifyOtp(tVerifyOtpRequest);
+
+      // Assert
+      expect(result, isA<SuccessState<UserDataModel>>());
+      expect(result.data?.user.id, fakeAuthResponse.user!.id);
+      expect(result.data?.user.email, fakeAuthResponse.user!.email ?? '');
+      expect(
+        result.data?.accessToken,
+        fakeAuthResponse.session?.accessToken ?? '',
+      );
+      expect(
+        result.data?.refreshToken,
+        fakeAuthResponse.session?.refreshToken ?? '',
+      );
+      verify(
+        () => mockSupabaseAuthClient.verifyOTP(
+          tokenHash: tVerifyOtpRequest.tokenHash,
+          type: OtpType.invite,
+        ),
+      ).called(1);
+    });
+
+    test('should return FailureState when verifyOTP throws exception', () async {
+      // Arrange
+      when(
+        () => mockSupabaseAuthClient.verifyOTP(
+          tokenHash: any(named: 'tokenHash'),
+          type: any(named: 'type'),
+        ),
+      ).thenThrow(const AuthException('Token expired'));
+
+      // Act
+      final result = await dataSource.verifyOtp(tVerifyOtpRequest);
+
+      // Assert
+      expect(result, isA<FailureState<UserDataModel>>());
+    });
   });
 }

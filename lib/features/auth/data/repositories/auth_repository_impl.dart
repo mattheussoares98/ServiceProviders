@@ -9,9 +9,11 @@ import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_s
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/authentication_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_request_model.dart';
+import 'package:o_jogo_da_obra/features/auth/data/models/requests/verify_otp_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/verify_otp_request_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 
@@ -81,6 +83,16 @@ final class AuthRepositoryImpl implements AuthRepository {
   FutureData<UserDataEntity> getUserData() {
     return RepositoryHandler.fetchFromLocalAndMap(
       localCallback: _localDataSource.getUserData,
+    );
+  }
+
+  @override
+  FutureData<UserDataEntity> verifyOtp(VerifyOtpRequestEntity request) {
+    return RepositoryHandler.fetchWithFallbackAndMap(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () => _remoteDataSource.verifyOtp(
+        VerifyOtpRequestModel.fromEntity(request),
+      ),
     );
   }
 }
