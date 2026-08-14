@@ -63,7 +63,7 @@ class RequestCompletionFields extends HookWidget {
                   hintText:
                       'Descreva o trabalho realizado / justificativa'.hardcoded,
                   maxLength: 250,
-                  maxLines: 2,
+                  maxLines: 5,
                 ),
                 gapH12,
                 BaseDropDown<String>(
@@ -81,7 +81,7 @@ class RequestCompletionFields extends HookWidget {
                   labelText: 'Observação adicional (opcional)'.hardcoded,
                   hintText: 'Observações sobre a entrega do serviço'.hardcoded,
                   maxLength: 250,
-                  maxLines: 2,
+                  maxLines: 5,
                 ),
                 gapH24,
                 Row(
