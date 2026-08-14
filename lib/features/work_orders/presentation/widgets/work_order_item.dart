@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -109,10 +108,6 @@ class WorkOrderItem extends StatelessWidget {
             Align(
               alignment: .centerRight,
               child: BaseTextButton(
-                permission: const ActionPermission.resource(
-                  resource: ResourceType.workOrders,
-                  action: PermissionAction.update,
-                ),
                 text: 'Detalhes'.hardcoded,
                 onPressed: () => context
                     .read<WorkOrdersCubit>()
