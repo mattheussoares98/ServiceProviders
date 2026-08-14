@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/verify_otp_request_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/accept_service_provider_invitation_use_case.dart';
@@ -35,6 +38,7 @@ class AcceptInviteCubitUseCases {
     required this.getAuthUser,
     required this.watchAuthUser,
     required this.logOut,
+    required this.verifyOtp,
   });
 
   final ChangePasswordUseCase changePassword;
@@ -48,6 +52,7 @@ class AcceptInviteCubitUseCases {
   final GetAuthUserUseCase getAuthUser;
   final WatchAuthUserUseCase watchAuthUser;
   final LogOutUseCase logOut;
+  final VerifyOtpUseCase verifyOtp;
 }
 
 @injectable
@@ -59,16 +64,22 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
   final AcceptInviteCubitUseCases _useCases;
   StreamSubscription<String?>? _authSubscription;
 
-  void initialize() {
-    // ── Sync fragment check (must be first, before any await/microtask) ──────
-    // The URL fragment is readable synchronously. Supabase only clears it
-    // after its own async processing runs. We capture error info here, before
-    // it is gone, so we can show a meaningful message instead of a spinner.
+  Future<void> initialize() async {
+    // ── Sync fragment and query check (must be first, before any await/microtask) ──
+    // On web, read errors and token_hash from query parameters or fragment.
     if (kIsWeb) {
+      final queryParams = Uri.base.queryParameters;
       final fragment = Uri.base.fragment;
-      if (fragment.contains('error=')) {
-        final params = Uri.splitQueryString(fragment);
-        final errorCode = params['error_code'] ?? '';
+      final fragmentParams = Uri.splitQueryString(fragment);
+
+      final hasQueryError =
+          queryParams.containsKey('error') ||
+          queryParams.containsKey('error_code');
+      final hasFragmentError = fragment.contains('error=');
+
+      if (hasQueryError || hasFragmentError) {
+        final params = hasQueryError ? queryParams : fragmentParams;
+        final errorCode = params['error_code'] ?? params['error'] ?? '';
         final errorDescription = Uri.decodeComponent(
           params['error_description'] ?? '',
         ).replaceAll('+', ' ');
@@ -94,12 +105,46 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
         );
         return;
       }
+
+      // Check for token_hash in query parameters or fragment
+      final tokenHash =
+          queryParams['token_hash'] ?? fragmentParams['token_hash'];
+      if (tokenHash != null && tokenHash.isNotEmpty) {
+        emit(state.copyWith(status: StateStatus.loading));
+        final type = queryParams['type'] ?? fragmentParams['type'] ?? 'invite';
+        final result = await _useCases.verifyOtp.call(
+          VerifyOtpRequestEntity(tokenHash: tokenHash, type: type),
+        );
+
+        if (isClosed) return;
+
+        if (result is SuccessState<UserDataEntity>) {
+          final userId =
+              result.data?.user.id ?? _useCases.getAuthUser.call()?.id;
+          if (userId != null && userId.isNotEmpty) {
+            await loadProfile(userId);
+            return;
+          }
+        }
+
+        final errorMessage = result.message?.isNotEmpty == true
+            ? result.message!
+            : 'Convite inválido ou expirado. Solicite um novo convite ao administrador.'
+                  .hardcoded;
+        emit(
+          state.copyWith(
+            status: StateStatus.loadingError,
+            errorMessage: errorMessage,
+          ),
+        );
+        return;
+      }
     }
     // ─────────────────────────────────────────────────────────────────────────
 
     final userId = _useCases.getAuthUser.call()?.id;
     if (userId != null) {
-      loadProfile(userId);
+      await loadProfile(userId);
       return;
     }
 

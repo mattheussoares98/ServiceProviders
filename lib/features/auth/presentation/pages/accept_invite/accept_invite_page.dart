@@ -57,162 +57,167 @@ class AcceptInvitePage extends HookWidget {
                 ),
               ),
             ),
-            body:
-                BaseStateView<
-                  AcceptInviteCubit,
-                  AcceptInviteState,
-                  UserProfileEntity?
-                >(
-                  dataSelector: (state) => state.userProfile,
-                  onRetry: cubit.initialize,
-                  builder: (context, userProfile) {
-                    if (userProfile != null && userProfile.isActive) {
+            body: Center(
+              child:
+                  BaseStateView<
+                    AcceptInviteCubit,
+                    AcceptInviteState,
+                    UserProfileEntity?
+                  >(
+                    dataSelector: (state) => state.userProfile,
+                    onRetry: cubit.initialize,
+                    builder: (context, userProfile) {
+                      if (userProfile != null && userProfile.isActive) {
+                        return Padding(
+                          padding: const EdgeInsets.all(Sizes.p24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              BaseText.titleMedium(
+                                'Convite aceito com sucesso!'.hardcoded,
+                                textAlign: TextAlign.center,
+                              ),
+                              gapH16,
+                              BaseText.bodyLarge(
+                                'Sua conta já está ativa e vinculada.'
+                                    .hardcoded,
+                                textAlign: TextAlign.center,
+                              ),
+                              gapH48,
+                              BaseButton(
+                                isLoading: isLoading,
+                                expandWidth: true,
+                                onTap: cubit.navigateToLogin,
+                                text: 'OK'.hardcoded,
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
                       return Padding(
                         padding: const EdgeInsets.all(Sizes.p24),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            BaseText.titleMedium(
-                              'Convite aceito com sucesso!'.hardcoded,
-                              textAlign: TextAlign.center,
-                            ),
-                            gapH16,
-                            BaseText.bodyLarge(
-                              'Sua conta já está ativa e vinculada.'.hardcoded,
-                              textAlign: TextAlign.center,
-                            ),
-                            gapH48,
-                            BaseButton(
-                              isLoading: isLoading,
-                              expandWidth: true,
-                              onTap: cubit.navigateToLogin,
-                              text: 'OK'.hardcoded,
-                            ),
-                          ],
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              BaseText.bodyLarge(
+                                'Complete seus dados e crie uma senha para ativar sua conta.'
+                                    .hardcoded,
+                              ),
+                              gapH32,
+                              BaseTextFormField(
+                                enabled: !isLoading,
+                                labelText: 'Nome completo'.hardcoded,
+                                hintText: 'Digite seu nome completo'.hardcoded,
+                                controller: nameController,
+                                validator: FormValidators.compose([
+                                  MinLengthValidator(3),
+                                ]),
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onFieldSubmitted: (_) =>
+                                    passwordFocusNode.requestFocus(),
+                              ),
+                              gapH20,
+                              BaseTextFormField(
+                                enabled: !isLoading,
+                                focusNode: passwordFocusNode,
+                                labelText: 'Senha'.hardcoded,
+                                hintText: 'Crie uma senha de acesso'.hardcoded,
+                                controller: passwordController,
+                                validator: FormValidators.compose([
+                                  MinLengthValidator(6),
+                                ]),
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                obscureText: !state.passwordVisibility,
+                                onFieldSubmitted: (_) =>
+                                    confirmPasswordFocusNode.requestFocus(),
+                                suffixIcon: BaseIconButton(
+                                  onPressed: cubit.togglePasswordVisibility,
+                                  platformIcon: PlatformIcon(
+                                    materialIcon: state.passwordVisibility
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    cupertinoIcon: state.passwordVisibility
+                                        ? CupertinoIcons.eye
+                                        : CupertinoIcons.eye_slash,
+                                  ),
+                                ),
+                              ),
+                              gapH20,
+                              BaseTextFormField(
+                                enabled: !isLoading,
+                                focusNode: confirmPasswordFocusNode,
+                                labelText: 'Confirmar senha'.hardcoded,
+                                hintText:
+                                    'Confirme sua senha de acesso'.hardcoded,
+                                controller: confirmPasswordController,
+                                validator: (value) =>
+                                    confirmPasswordController.text ==
+                                        passwordController.text
+                                    ? null
+                                    : 'As senhas não conferem'.hardcoded,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                obscureText: !state.confirmPasswordVisibility,
+                                suffixIcon: BaseIconButton(
+                                  onPressed:
+                                      cubit.toggleConfirmPasswordVisibility,
+                                  platformIcon: PlatformIcon(
+                                    materialIcon:
+                                        state.confirmPasswordVisibility
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    cupertinoIcon:
+                                        state.confirmPasswordVisibility
+                                        ? CupertinoIcons.eye
+                                        : CupertinoIcons.eye_slash,
+                                  ),
+                                ),
+                                onFieldSubmitted: (_) async {
+                                  if (!formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  final success = await cubit.acceptInvite(
+                                    name: nameController.text,
+                                    password: passwordController.text,
+                                  );
+                                  if (success) {
+                                    await cubit.navigateToLogin();
+                                  }
+                                },
+                              ),
+                              gapH48,
+                              BaseButton(
+                                isLoading: isLoading,
+                                expandWidth: true,
+                                onTap: () async {
+                                  if (!formKey.currentState!.validate()) {
+                                    return;
+                                  }
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  final success = await cubit.acceptInvite(
+                                    name: nameController.text,
+                                    password: passwordController.text,
+                                  );
+                                  if (success) {
+                                    await cubit.navigateToLogin();
+                                  }
+                                },
+                                text: 'Ativar minha conta'.hardcoded,
+                              ),
+                            ],
+                          ),
                         ),
                       );
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.all(Sizes.p24),
-                      child: Form(
-                        key: formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            BaseText.bodyLarge(
-                              'Complete seus dados e crie uma senha para ativar sua conta.'
-                                  .hardcoded,
-                            ),
-                            gapH32,
-                            BaseTextFormField(
-                              enabled: !isLoading,
-                              labelText: 'Nome completo'.hardcoded,
-                              hintText: 'Digite seu nome completo'.hardcoded,
-                              controller: nameController,
-                              validator: FormValidators.compose([
-                                MinLengthValidator(3),
-                              ]),
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              onFieldSubmitted: (_) =>
-                                  passwordFocusNode.requestFocus(),
-                            ),
-                            gapH20,
-                            BaseTextFormField(
-                              enabled: !isLoading,
-                              focusNode: passwordFocusNode,
-                              labelText: 'Senha'.hardcoded,
-                              hintText: 'Crie uma senha de acesso'.hardcoded,
-                              controller: passwordController,
-                              validator: FormValidators.compose([
-                                MinLengthValidator(6),
-                              ]),
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              obscureText: !state.passwordVisibility,
-                              onFieldSubmitted: (_) =>
-                                  confirmPasswordFocusNode.requestFocus(),
-                              suffixIcon: BaseIconButton(
-                                onPressed: cubit.togglePasswordVisibility,
-                                platformIcon: PlatformIcon(
-                                  materialIcon: state.passwordVisibility
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  cupertinoIcon: state.passwordVisibility
-                                      ? CupertinoIcons.eye
-                                      : CupertinoIcons.eye_slash,
-                                ),
-                              ),
-                            ),
-                            gapH20,
-                            BaseTextFormField(
-                              enabled: !isLoading,
-                              focusNode: confirmPasswordFocusNode,
-                              labelText: 'Confirmar senha'.hardcoded,
-                              hintText:
-                                  'Confirme sua senha de acesso'.hardcoded,
-                              controller: confirmPasswordController,
-                              validator: (value) =>
-                                  confirmPasswordController.text ==
-                                      passwordController.text
-                                  ? null
-                                  : 'As senhas não conferem'.hardcoded,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              obscureText: !state.confirmPasswordVisibility,
-                              suffixIcon: BaseIconButton(
-                                onPressed:
-                                    cubit.toggleConfirmPasswordVisibility,
-                                platformIcon: PlatformIcon(
-                                  materialIcon: state.confirmPasswordVisibility
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  cupertinoIcon: state.confirmPasswordVisibility
-                                      ? CupertinoIcons.eye
-                                      : CupertinoIcons.eye_slash,
-                                ),
-                              ),
-                              onFieldSubmitted: (_) async {
-                                if (!formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                final success = await cubit.acceptInvite(
-                                  name: nameController.text,
-                                  password: passwordController.text,
-                                );
-                                if (success) {
-                                  await cubit.navigateToLogin();
-                                }
-                              },
-                            ),
-                            gapH48,
-                            BaseButton(
-                              isLoading: isLoading,
-                              expandWidth: true,
-                              onTap: () async {
-                                if (!formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                final success = await cubit.acceptInvite(
-                                  name: nameController.text,
-                                  password: passwordController.text,
-                                );
-                                if (success) {
-                                  await cubit.navigateToLogin();
-                                }
-                              },
-                              text: 'Ativar minha conta'.hardcoded,
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    },
+                  ),
+            ),
           );
         },
       ),

@@ -64,11 +64,13 @@ void main() {
   late MockGetAuthUserUseCase mockGetAuthUser;
   late MockWatchAuthUserUseCase mockWatchAuthUser;
   late MockLogOutUseCase mockLogOut;
+  late MockVerifyOtpUseCase mockVerifyOtp;
   late AcceptInviteCubit cubit;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(EntityFactory.makeUserDataEntity());
+    registerFallbackValue(EntityFactory.makeVerifyOtpRequestEntity());
     registerFallbackValue(const HomeRoute());
     registerFallbackValue(const ProviderHomeRoute());
     registerFallbackValue(const LoginRoute());
@@ -89,6 +91,7 @@ void main() {
     mockGetAuthUser = MockGetAuthUserUseCase();
     mockWatchAuthUser = MockWatchAuthUserUseCase();
     mockLogOut = MockLogOutUseCase();
+    mockVerifyOtp = MockVerifyOtpUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -98,6 +101,9 @@ void main() {
     when(
       () => mockWatchAuthUser.call(),
     ).thenAnswer((_) => const Stream.empty());
+    when(() => mockVerifyOtp.call(any())).thenAnswer(
+      (_) async => SuccessState(data: EntityFactory.makeUserDataEntity()),
+    );
 
     final useCases = AcceptInviteCubitUseCases(
       changePassword: mockChangePassword,
@@ -111,6 +117,7 @@ void main() {
       getAuthUser: mockGetAuthUser,
       watchAuthUser: mockWatchAuthUser,
       logOut: mockLogOut,
+      verifyOtp: mockVerifyOtp,
     );
 
     cubit = AcceptInviteCubit(useCases: useCases);
@@ -158,7 +165,7 @@ void main() {
           () => mockGetUserProfileById.call(userId),
         ).thenAnswer((_) async => SuccessState(data: profile));
 
-        cubit.initialize();
+        await cubit.initialize();
 
         controller.add(userId);
         await pumpEventQueue();
