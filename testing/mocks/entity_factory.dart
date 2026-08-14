@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/auth/data/models/requests/sign_up_reques
 import 'package:o_jogo_da_obra/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/verify_otp_request_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -501,6 +502,18 @@ abstract final class EntityFactory {
       email: _makeEmail(),
       password: _makePassword(),
     );
+  }
+
+  static VerifyOtpRequestEntity makeVerifyOtpRequestEntity() {
+    return VerifyOtpRequestEntity(tokenHash: _makeId());
+  }
+
+  static List<VerifyOtpRequestEntity> makeVerifyOtpRequestEntityList() {
+    return [
+      makeVerifyOtpRequestEntity(),
+      makeVerifyOtpRequestEntity(),
+      makeVerifyOtpRequestEntity(),
+    ];
   }
 
   static AuthenticationRequestModel makeAuthenticationModel() {

@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/reset_password_use
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
@@ -53,6 +54,8 @@ class MockChangePasswordUseCase extends Mock implements ChangePasswordUseCase {}
 class MockGetUserDataUseCase extends Mock implements GetUserDataUseCase {}
 
 class MockSaveUserDataUseCase extends Mock implements SaveUserDataUseCase {}
+
+class MockVerifyOtpUseCase extends Mock implements VerifyOtpUseCase {}
 
 class MockCreateCompanyUseCase extends Mock implements CreateCompanyUseCase {}
 
