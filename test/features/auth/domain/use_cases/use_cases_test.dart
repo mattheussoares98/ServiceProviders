@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
@@ -26,11 +27,13 @@ void main() {
   late WatchSessionUseCase watchSessionUseCase;
   late GetAuthUserUseCase getAuthUserUseCase;
   late WatchAuthUserUseCase watchAuthUserUseCase;
+  late VerifyOtpUseCase verifyOtpUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAuthentication());
     registerFallbackValue(EntityFactory.makeSignUp());
     registerFallbackValue(EntityFactory.makeUserDataEntity());
+    registerFallbackValue(EntityFactory.makeVerifyOtpRequestEntity());
   });
 
   setUp(() {
@@ -38,6 +41,7 @@ void main() {
     mockSessionRepository = MockSessionRepository();
     loginUseCase = LoginUseCase(authRepository: mockAuthRepository);
     signUpUseCase = SignUpUseCase(authRepository: mockAuthRepository);
+    verifyOtpUseCase = VerifyOtpUseCase(authRepository: mockAuthRepository);
     changePasswordUseCase = ChangePasswordUseCase(
       repository: mockAuthRepository,
     );
@@ -45,7 +49,9 @@ void main() {
     watchSessionUseCase = WatchSessionUseCase(
       sessionRepository: mockSessionRepository,
     );
-    getAuthUserUseCase = GetAuthUserUseCase(sessionRepository: mockSessionRepository);
+    getAuthUserUseCase = GetAuthUserUseCase(
+      sessionRepository: mockSessionRepository,
+    );
     watchAuthUserUseCase = WatchAuthUserUseCase(
       sessionRepository: mockSessionRepository,
     );
@@ -269,6 +275,47 @@ void main() {
         expect(result, equals(stream));
         verify(() => mockSessionRepository.authUserIdStream).called(1);
       });
+    });
+
+    group('VerifyOtpUseCase', () {
+      test(
+        'should call authRepository.verifyOtp and return user data on success',
+        () async {
+          final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+          when(
+            () => mockAuthRepository.verifyOtp(any()),
+          ).thenAnswer((_) async => SuccessState(data: tUserData));
+
+          final result = await verifyOtpUseCase(tVerifyOtpRequest);
+
+          expect(result, isA<SuccessState<UserDataEntity>>());
+          expect(result.data, tUserData);
+          verify(
+            () => mockAuthRepository.verifyOtp(tVerifyOtpRequest),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return a FailureState when authRepository.verifyOtp fails',
+        () async {
+          final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+          final tFailureState = FailureState<UserDataEntity>(
+            message: 'OTP verification failed',
+          );
+          when(
+            () => mockAuthRepository.verifyOtp(any()),
+          ).thenAnswer((_) async => tFailureState);
+
+          final result = await verifyOtpUseCase(tVerifyOtpRequest);
+
+          expect(result, isA<FailureState<UserDataEntity>>());
+          expect(result.message, 'OTP verification failed');
+          verify(
+            () => mockAuthRepository.verifyOtp(tVerifyOtpRequest),
+          ).called(1);
+        },
+      );
     });
   });
 }
