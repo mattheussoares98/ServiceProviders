@@ -29,6 +29,11 @@ abstract interface class SupabaseAuthClient {
   Stream<AuthState> get onAuthStateChange;
 
   Future<void> updateUserPassword(String newPassword);
+
+  Future<AuthResponse> verifyOTP({
+    required String tokenHash,
+    required OtpType type,
+  });
 }
 
 @LazySingleton(as: SupabaseAuthClient)
@@ -80,4 +85,10 @@ final class SupabaseAuthClientImpl implements SupabaseAuthClient {
   Future<void> updateUserPassword(String newPassword) async {
     await _auth.updateUser(UserAttributes(password: newPassword));
   }
+
+  @override
+  Future<AuthResponse> verifyOTP({
+    required String tokenHash,
+    required OtpType type,
+  }) => _auth.verifyOTP(tokenHash: tokenHash, type: type);
 }
