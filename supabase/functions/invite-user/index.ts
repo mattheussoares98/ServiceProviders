@@ -166,17 +166,6 @@ serve(async (req) => {
       }
     }
 
-    // Set default password to '123456' right after the invite is created for brand-new users
-    if (inviteData?.user?.id) {
-      const { error: updateErr } = await supabase.auth.admin.updateUserById(
-        inviteData.user.id,
-        { password: '123456' }
-      )
-      if (updateErr) {
-        console.error('Erro ao definir senha padrão:', updateErr.message)
-      }
-    }
-
     return new Response(
       JSON.stringify({ message: 'Convite enviado com sucesso!', data: inviteData }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
