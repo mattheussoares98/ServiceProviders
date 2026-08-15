@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
 abstract interface class PauseLocalDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
@@ -160,8 +161,8 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
             );
 
         final targetStatus = request.eventType == PauseEventType.completion
-            ? 'pending_approval'
-            : 'on_hold';
+            ? WorkOrderStatus.pendingConclusionApproval.code
+            : WorkOrderStatus.pendingPauseApproval.code;
 
         final woQuery = _database.update(_database.workOrders)
           ..where((t) => t.id.equals(request.workOrderId));
@@ -206,8 +207,8 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
         );
 
         final nextWoStatus = status == PauseRequestStatus.approved.value
-            ? 'on_hold'
-            : 'in_progress';
+            ? WorkOrderStatus.onHold.code
+            : WorkOrderStatus.inProgress.code;
 
         final woQuery = _database.update(_database.workOrders)
           ..where((t) => t.id.equals(workOrderId));
@@ -258,7 +259,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
         if (isApproved) {
           await woQuery.write(
             WorkOrdersCompanion(
-              status: const Value('completed'),
+              status: Value(WorkOrderStatus.completed.code),
               completedAt: Value(DateTime.now()),
               completionReason: completionReason != null
                   ? Value(completionReason)
@@ -275,7 +276,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
         } else {
           await woQuery.write(
             WorkOrdersCompanion(
-              status: const Value('in_progress'),
+              status: Value(WorkOrderStatus.inProgress.code),
               completedAt: const Value(null),
               updatedAt: Value(DateTime.now()),
             ),
@@ -309,7 +310,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           ..where((t) => t.id.equals(workOrderId));
         await woQuery.write(
           WorkOrdersCompanion(
-            status: const Value('in_progress'),
+            status: Value(WorkOrderStatus.inProgress.code),
             updatedAt: Value(DateTime.now()),
           ),
         );

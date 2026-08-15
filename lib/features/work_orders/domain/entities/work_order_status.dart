@@ -4,7 +4,7 @@ enum WorkOrderStatus {
   pendingPauseApproval('pending_pause', 'Pausa pendente de aprovação'),
   onHold('on_hold', 'Em espera'),
   pendingConclusionApproval(
-    'pending_approval',
+    'pending_conclusion',
     'Conclusão pendente de aprovação',
   ),
   completed('completed', 'Concluída'),

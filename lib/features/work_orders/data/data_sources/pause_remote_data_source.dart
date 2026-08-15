@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
 abstract interface class PauseRemoteDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
@@ -78,8 +79,8 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
 
         final targetStatus =
             pauseRequest.eventType.value == 'completion'
-                ? 'pending_approval'
-                : 'on_hold';
+                ? WorkOrderStatus.pendingConclusionApproval.code
+                : WorkOrderStatus.pendingPauseApproval.code;
 
         await _database.update(
           table: 'work_orders',
@@ -116,7 +117,9 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       filters: [SupabaseFilter.eq('id', id)],
     );
 
-    final nextWoStatus = status == 'approved' ? 'on_hold' : 'in_progress';
+    final nextWoStatus = status == 'approved'
+        ? WorkOrderStatus.onHold.code
+        : WorkOrderStatus.inProgress.code;
     await _database.update(
       table: 'work_orders',
       values: {
@@ -155,7 +158,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     final isApproved = status == 'approved';
     if (isApproved) {
       final MapDynamic woValues = {
-        'status': 'completed',
+        'status': WorkOrderStatus.completed.code,
         'completed_at': DateTime.now().toIsoUtcString(),
         'completion_reason': ?completionReason,
         'completion_responsibility': ?responsibility,
@@ -171,7 +174,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       await _database.update(
         table: 'work_orders',
         values: {
-          'status': 'in_progress',
+          'status': WorkOrderStatus.inProgress.code,
           'completed_at': null,
           'updated_at': DateTime.now().toIsoUtcString(),
         },
@@ -202,7 +205,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     await _database.update(
       table: 'work_orders',
       values: {
-        'status': 'in_progress',
+        'status': WorkOrderStatus.inProgress.code,
         'updated_at': DateTime.now().toIsoUtcString(),
       },
       filters: [SupabaseFilter.eq('id', workOrderId)],
