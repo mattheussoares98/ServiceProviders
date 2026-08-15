@@ -53,10 +53,20 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
             ]);
           }
 
+          final pendingRequestsLength = context.select<PauseWorkflowCubit, int>(
+            (cubit) => cubit.state.pauseRequests
+                .where((e) => e.status == PauseRequestStatus.pending)
+                .length,
+          );
+
           return BaseScaffold(
             isScrollable: false,
             onRefresh: refresh,
-            appBar: BaseAppBar(title: 'Solicitações pendentes'.hardcoded),
+            appBar: BaseAppBar(
+              title:
+                  '${pendingRequestsLength > 0 ? pendingRequestsLength : ''} Solicitações pendentes'
+                      .hardcoded,
+            ),
             body:
                 BaseStateView<
                   PauseWorkflowCubit,
