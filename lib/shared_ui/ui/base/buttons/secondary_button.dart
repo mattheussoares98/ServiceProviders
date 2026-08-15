@@ -91,7 +91,7 @@ class SecondaryButton extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
           ),
           child: CupertinoButton(
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(horizontal: Sizes.p12),
             onPressed: isLoading ? null : tapCallback,
             child: Center(child: childWidget),
           ),
