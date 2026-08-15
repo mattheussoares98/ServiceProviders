@@ -121,6 +121,7 @@ class RequestPauseFields extends HookWidget {
               labelText: 'Motivo personalizado (opcional)'.hardcoded,
               hintText: 'Digite um motivo específico se aplicável'.hardcoded,
               maxLength: 100,
+              maxLines: 2,
             ),
             gapH12,
             BaseTextFormField(
@@ -128,7 +129,7 @@ class RequestPauseFields extends HookWidget {
               labelText: 'Observação (opcional)'.hardcoded,
               hintText: 'Observações adicionais'.hardcoded,
               maxLength: 250,
-              maxLines: 3,
+              maxLines: 5,
             ),
             gapH24,
             Row(
