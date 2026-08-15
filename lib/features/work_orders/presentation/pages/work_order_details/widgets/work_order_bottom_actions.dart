@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_fields.dart';
@@ -79,10 +78,10 @@ class WorkOrderBottomActions extends StatelessWidget {
                   );
 
                   if (result == true && context.mounted) {
-                    unawaited(
-                      context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(),
+                    context.read<WorkOrdersCubit>().updateLocalWorkOrderStatus(
+                      workOrder.id,
+                      WorkOrderStatus.pendingPauseApproval,
+                      syncRemotely: true,
                     );
                   }
                 },
@@ -123,11 +122,13 @@ class WorkOrderBottomActions extends StatelessWidget {
                       context,
                     );
                     if (result == true && context.mounted) {
-                      unawaited(
-                        context
-                            .read<WorkOrdersCubit>()
-                            .loadWorkOrdersAndChangeRequests(),
-                      );
+                      context
+                          .read<WorkOrdersCubit>()
+                          .updateLocalWorkOrderStatus(
+                            workOrder.id,
+                            WorkOrderStatus.pendingConclusionApproval,
+                            syncRemotely: true,
+                          );
                     }
                   },
                 ),

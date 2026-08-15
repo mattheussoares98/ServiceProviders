@@ -1645,6 +1645,70 @@ void main() {
         );
       });
 
+      group('updateLocalWorkOrderStatus', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should update the status of the target work order without remote sync by default (syncRemotely: false)',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [
+              tWorkOrder.copyWith(status: WorkOrderStatus.inProgress),
+            ],
+          ),
+          build: () => cubit,
+          act: (cubit) => cubit.updateLocalWorkOrderStatus(
+            tWorkOrder.id,
+            WorkOrderStatus.pendingConclusionApproval,
+          ),
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.workOrders.first.status,
+              'work order status',
+              WorkOrderStatus.pendingConclusionApproval,
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockGetWorkOrders.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should update the status of the target work order and trigger remote sync when syncRemotely is true',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [
+              tWorkOrder.copyWith(status: WorkOrderStatus.inProgress),
+            ],
+          ),
+          build: () {
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.updateLocalWorkOrderStatus(
+            tWorkOrder.id,
+            WorkOrderStatus.pendingPauseApproval,
+            syncRemotely: true,
+          ),
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.workOrders.first.status,
+              'work order status',
+              WorkOrderStatus.pendingPauseApproval,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
+      });
+
       group('concludeDirectly', () {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should change status to completed and reload work orders when concludeDirectly succeeds',

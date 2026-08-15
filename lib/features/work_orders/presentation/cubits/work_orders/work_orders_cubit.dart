@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -455,6 +457,27 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
 
     return success;
+  }
+
+  /// Optimistically updates the status of a specific work order in local state
+  /// and optionally triggers a background sync without showing a loading spinner.
+  void updateLocalWorkOrderStatus(
+    String workOrderId,
+    WorkOrderStatus newStatus, {
+    bool syncRemotely = false,
+  }) {
+    final updatedList = state.workOrders.map((wo) {
+      if (wo.id == workOrderId) {
+        return wo.copyWith(status: newStatus);
+      }
+      return wo;
+    }).toList();
+
+    emit(state.copyWith(workOrders: updatedList));
+
+    if (syncRemotely) {
+      unawaited(loadWorkOrdersAndChangeRequests(showLoading: false));
+    }
   }
 
   /// Directly concludes a work order (when user has permission and no pending pauses).

@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sect
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
@@ -167,14 +166,7 @@ class RequestPauseFields extends HookWidget {
                         sectorId: selectedSectorId.value,
                       );
                       if (success && context.mounted) {
-                        await context
-                            .read<WorkOrdersCubit>()
-                            .loadWorkOrdersAndChangeRequests(
-                              showLoading: false,
-                            );
-                        if (context.mounted) {
-                          Navigator.of(context).pop(true);
-                        }
+                        Navigator.of(context).pop(true);
                       }
                     },
                   ),
