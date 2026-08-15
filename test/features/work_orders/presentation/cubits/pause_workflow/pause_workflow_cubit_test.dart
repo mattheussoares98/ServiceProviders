@@ -659,6 +659,137 @@ void main() {
           ).called(1);
         },
       );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should allow cancelling completion even when there are pending pause requests',
+        seed: () => const PauseWorkflowState.initial().copyWith(
+          pauseRequests: [
+            EntityFactory.makePauseRequestEntity().copyWith(
+              status: PauseRequestStatus.pending,
+              eventType: PauseEventType.pause,
+            ),
+          ],
+        ),
+        build: () {
+          when(
+            () => mockReviewCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.reviewCompletion(
+          id: 'request-id',
+          status: PauseRequestStatus.cancelled,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockReviewCompletion.call(
+              any(
+                that: isA<ReviewCompletionParams>()
+                    .having((p) => p.id, 'id', 'request-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.cancelled,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should allow rejecting completion even when there are pending pause requests',
+        seed: () => const PauseWorkflowState.initial().copyWith(
+          pauseRequests: [
+            EntityFactory.makePauseRequestEntity().copyWith(
+              status: PauseRequestStatus.pending,
+              eventType: PauseEventType.pause,
+            ),
+          ],
+        ),
+        build: () {
+          when(
+            () => mockReviewCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.reviewCompletion(
+          id: 'request-id',
+          status: PauseRequestStatus.rejected,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+          reviewObservation: 'Rejected note',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockReviewCompletion.call(
+              any(
+                that: isA<ReviewCompletionParams>()
+                    .having((p) => p.id, 'id', 'request-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.rejected,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
     });
   });
 }

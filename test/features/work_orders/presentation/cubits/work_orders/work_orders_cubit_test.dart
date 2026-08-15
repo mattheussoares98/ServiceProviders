@@ -13,6 +13,8 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -26,6 +28,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -75,6 +78,9 @@ class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
 
+class MockPauseWorkflowCubit extends MockCubit<PauseWorkflowState>
+    implements PauseWorkflowCubit {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -118,6 +124,8 @@ void main() {
       ),
     );
     registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
+    registerFallbackValue(PauseRequestStatus.pending);
+    registerFallbackValue(EntityFactory.makePauseRequestEntity());
     registerFallbackValue(
       CancelPauseParams(
         id: faker.guid.guid(),
@@ -1370,15 +1378,26 @@ void main() {
         );
       });
 
-      group('resumePausedWorkOrder', () {
+      group('resumeWork', () {
+        late MockPauseWorkflowCubit mockPauseCubit;
+
+        setUp(() {
+          mockPauseCubit = MockPauseWorkflowCubit();
+        });
+
         blocTest<WorkOrdersCubit, WorkOrdersState>(
-          'should cancel pause and update status to inProgress when resumePausedWorkOrder succeeds',
+          'should cancel active pause and reload pause requests and work orders when active pause exists',
           build: () {
+            final tPause = EntityFactory.makePauseRequestEntity();
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(tPause);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(null);
+            when(
+              () => mockPauseCubit.loadPauseRequests(any()),
+            ).thenAnswer((_) async {});
             when(
               () => mockCancelPause.call(any()),
-            ).thenAnswer((_) async => const SuccessState(data: true));
-            when(
-              () => mockUpdateWorkOrder.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
             when(
               () => mockGetWorkOrders.call(any()),
@@ -1389,10 +1408,10 @@ void main() {
             return cubit;
           },
           act: (cubit) async {
-            final result = await cubit.resumePausedWorkOrder(
+            final result = await cubit.resumeWork(
               workOrder: tWorkOrder,
               currentUserId: faker.guid.guid(),
-              pauseId: faker.guid.guid(),
+              pauseCubit: mockPauseCubit,
             );
             expect(result, isTrue);
           },
@@ -1411,30 +1430,31 @@ void main() {
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
             verify(
-              () => mockUpdateWorkOrder.call(
-                any(
-                  that: predicate<WorkOrderEntity>(
-                    (actual) => actual.status == WorkOrderStatus.inProgress,
-                  ),
-                ),
-              ),
+              () => mockPauseCubit.loadPauseRequests(tWorkOrder.id),
             ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+            verifyNever(() => mockUpdateWorkOrder.call(any()));
           },
         );
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
-          'should emit savingError and not update status if cancelPause fails',
+          'should emit savingError and not reload if cancelPause fails',
           build: () {
+            final tPause = EntityFactory.makePauseRequestEntity();
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(tPause);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(null);
             when(() => mockCancelPause.call(any())).thenAnswer(
               (_) async => FailureState(message: faker.lorem.sentence()),
             );
             return cubit;
           },
           act: (cubit) async {
-            final result = await cubit.resumePausedWorkOrder(
+            final result = await cubit.resumeWork(
               workOrder: tWorkOrder,
               currentUserId: faker.guid.guid(),
-              pauseId: faker.guid.guid(),
+              pauseCubit: mockPauseCubit,
             );
             expect(result, isFalse);
           },
@@ -1452,7 +1472,190 @@ void main() {
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
-            verifyNever(() => mockUpdateWorkOrder.call(any()));
+            verifyNever(() => mockPauseCubit.loadPauseRequests(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should review completion with cancelled status and reload work orders when pending completion exists',
+          build: () {
+            final tCompletion = EntityFactory.makePauseRequestEntity().copyWith(
+              eventType: PauseEventType.completion,
+            );
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(null);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(tCompletion);
+            when(
+              () => mockPauseCubit.reviewCompletion(
+                id: any(named: 'id'),
+                status: any(named: 'status'),
+                reviewedById: any(named: 'reviewedById'),
+                workOrderId: any(named: 'workOrderId'),
+              ),
+            ).thenAnswer((_) async => true);
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final tUserId = faker.guid.guid();
+            final result = await cubit.resumeWork(
+              workOrder: tWorkOrder,
+              currentUserId: tUserId,
+              pauseCubit: mockPauseCubit,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>(),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockPauseCubit.reviewCompletion(
+                id: any(named: 'id'),
+                status: PauseRequestStatus.cancelled,
+                reviewedById: any(named: 'reviewedById'),
+                workOrderId: tWorkOrder.id,
+              ),
+            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should fallback to changing status to inProgress when no active pause or pending completion exists',
+          build: () {
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(null);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(null);
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.resumeWork(
+              workOrder: tWorkOrder,
+              currentUserId: faker.guid.guid(),
+              pauseCubit: mockPauseCubit,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.status == WorkOrderStatus.inProgress,
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+      });
+
+      group('concludeDirectly', () {
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should change status to completed and reload work orders when concludeDirectly succeeds',
+          build: () {
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.concludeDirectly(workOrder: tWorkOrder);
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loaded,
+            ),
+          ],
+          verify: (_) {
+            verify(
+              () => mockUpdateWorkOrder.call(
+                any(
+                  that: predicate<WorkOrderEntity>(
+                    (actual) => actual.status == WorkOrderStatus.completed,
+                  ),
+                ),
+              ),
+            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit savingError when concludeDirectly fails',
+          build: () {
+            when(() => mockUpdateWorkOrder.call(any())).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.concludeDirectly(workOrder: tWorkOrder);
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.savingError,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockUpdateWorkOrder.call(any())).called(1);
+            verifyNever(() => mockGetWorkOrders.call(any()));
           },
         );
       });
