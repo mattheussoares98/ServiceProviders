@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -57,70 +58,77 @@ class ReviewCompletionDialog extends HookWidget {
       value: cubit,
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
         builder: (context, state) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Sizes.p16),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(Sizes.p24),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    BaseText.titleMedium(
-                      'Revisar solicitação de conclusão'.hardcoded,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    gapH16,
-                    if (pauseRequest.customReason?.isNotEmpty ?? false) ...[
-                      TitleAndSubtitle(
-                        title: 'Justificativa'.hardcoded,
-                        subtitle: pauseRequest.customReason,
+          final isSaving = state.status == StateStatus.saving;
+          return IgnorePointer(
+            ignoring: isSaving,
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Sizes.p16),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(Sizes.p24),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      BaseText.titleMedium(
+                        'Revisar solicitação de conclusão'.hardcoded,
+                        fontWeight: FontWeight.bold,
                       ),
-                      gapH12,
-                    ],
-                    if (pauseRequest.observation?.isNotEmpty ?? false) ...[
-                      TitleAndSubtitle(
-                        title: 'Observação'.hardcoded,
-                        subtitle: pauseRequest.observation,
-                      ),
-                      gapH12,
-                    ],
-                    BaseTextFormField(
-                      controller: observationController,
-                      labelText: 'Observação do revisor'.hardcoded,
-                      hintText:
-                          'Motivo de rejeição ou nota de aprovação'.hardcoded,
-                      maxLength: 250,
-                      maxLines: 10,
-                      validator: FormValidators.compose([
-                        NonEmptyValidator(),
-                        MinLengthValidator(5),
-                      ]),
-                    ),
-                    gapH24,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: SecondaryButton(
-                            text: 'Rejeitar'.hardcoded,
-                            onTap: () => reviewCompletion(false),
-                            color: Colors.red,
-                          ),
+                      gapH16,
+                      if (pauseRequest.customReason?.isNotEmpty ?? false) ...[
+                        TitleAndSubtitle(
+                          title: 'Justificativa'.hardcoded,
+                          subtitle: pauseRequest.customReason,
                         ),
-                        gapW12,
-                        Flexible(
-                          child: BaseButton(
-                            text: 'Aprovar'.hardcoded,
-                            onTap: () => reviewCompletion(true),
-                          ),
-                        ),
+                        gapH12,
                       ],
-                    ),
-                  ],
+                      if (pauseRequest.observation?.isNotEmpty ?? false) ...[
+                        TitleAndSubtitle(
+                          title: 'Observação'.hardcoded,
+                          subtitle: pauseRequest.observation,
+                        ),
+                        gapH12,
+                      ],
+                      BaseTextFormField(
+                        enabled: !isSaving,
+                        controller: observationController,
+                        labelText: 'Observação do revisor'.hardcoded,
+                        hintText:
+                            'Motivo de rejeição ou nota de aprovação'.hardcoded,
+                        maxLength: 250,
+                        maxLines: 10,
+                        validator: FormValidators.compose([
+                          NonEmptyValidator(),
+                          MinLengthValidator(5),
+                        ]),
+                      ),
+                      gapH24,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: SecondaryButton(
+                              text: 'Rejeitar'.hardcoded,
+                              isLoading: isSaving,
+                              onTap: () => reviewCompletion(false),
+                              color: Colors.red,
+                            ),
+                          ),
+                          gapW12,
+                          Flexible(
+                            child: BaseButton(
+                              text: 'Aprovar'.hardcoded,
+                              isLoading: isSaving,
+                              onTap: () => reviewCompletion(true),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

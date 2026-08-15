@@ -95,7 +95,6 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
                                 request: request,
                                 workOrder: workOrder,
                                 currentUserId: currentUserId,
-                                onRefresh: refresh,
                               );
                             },
                           );

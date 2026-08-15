@@ -5,13 +5,11 @@ class _PendingRequestCard extends StatelessWidget {
     required this.request,
     required this.workOrder,
     required this.currentUserId,
-    required this.onRefresh,
   });
 
   final PauseRequestEntity request;
   final WorkOrderEntity workOrder;
   final String currentUserId;
-  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +133,15 @@ class _PendingRequestCard extends StatelessWidget {
                   );
 
                   if (result != null && context.mounted) {
-                    onRefresh();
+                    await context
+                        .read<PauseWorkflowCubit>()
+                        .loadPauseRequests(workOrder.id);
+
+                    if (!isPauseRequest && context.mounted) {
+                      await context
+                          .read<WorkOrdersCubit>()
+                          .loadWorkOrdersAndChangeRequests();
+                    }
                   }
                 },
               ),
