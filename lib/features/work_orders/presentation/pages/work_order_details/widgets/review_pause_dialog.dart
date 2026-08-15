@@ -9,10 +9,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_respon
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 class ReviewPauseDialog extends HookWidget {
@@ -59,20 +59,24 @@ class ReviewPauseDialog extends HookWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     BaseText.titleMedium(
-                      'Revisar solicitação de pausa'.hardcoded,
+                      'Definir responsabilidade da pausa'.hardcoded,
                       fontWeight: FontWeight.bold,
                     ),
                     gapH16,
-                    BaseTextFormField(
-                      enabled: !isSaving,
-                      controller: notesController,
-                      labelText: 'Observação do revisor (opcional)'.hardcoded,
-                      hintText:
-                          'Digite o motivo da aprovação ou rejeição'.hardcoded,
-                      maxLength: 250,
-                      maxLines: 3,
-                    ),
-                    gapH12,
+                    if (pauseRequest.customReason?.isNotEmpty ?? false) ...[
+                      TitleAndSubtitle(
+                        title: 'Motivo'.hardcoded,
+                        subtitle: pauseRequest.customReason,
+                      ),
+                      gapH12,
+                    ],
+                    if (pauseRequest.observation?.isNotEmpty ?? false) ...[
+                      TitleAndSubtitle(
+                        title: 'Observação'.hardcoded,
+                        subtitle: pauseRequest.observation,
+                      ),
+                      gapH12,
+                    ],
                     BaseDropDown<PauseResponsibility>(
                       label: 'Responsabilidade'.hardcoded,
                       showLabelAtTopLeft: true,
@@ -84,57 +88,35 @@ class ReviewPauseDialog extends HookWidget {
                               selectedResponsibility.value = val;
                             },
                     ),
+                    gapH12,
+                    BaseTextFormField(
+                      enabled: !isSaving,
+                      controller: notesController,
+                      labelText: 'Observação do revisor (opcional)'.hardcoded,
+                      hintText:
+                          'Digite uma observação sobre esta pausa'.hardcoded,
+                      maxLength: 250,
+                      maxLines: 3,
+                    ),
                     gapH24,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: SecondaryButton(
-                            text: 'Rejeitar'.hardcoded,
-                            color: Colors.red,
-                            isLoading: isSaving,
-                            onTap: () async {
-                              final success = await cubit.reviewPause(
-                                id: pauseRequest.id,
-                                status: PauseRequestStatus.rejected,
-                                reviewedById: currentUserId,
-                                workOrderId: pauseRequest.workOrderId,
-                                responsibility: selectedResponsibility.value,
-                                reviewObservation:
-                                    notesController.text.trim().isEmpty
-                                    ? null
-                                    : notesController.text.trim(),
-                              );
-                              if (success && context.mounted) {
-                                Navigator.of(context).pop(false);
-                              }
-                            },
-                          ),
-                        ),
-                        gapW12,
-                        Flexible(
-                          child: BaseButton(
-                            text: 'Aprovar'.hardcoded,
-                            isLoading: isSaving,
-                            onTap: () async {
-                              final success = await cubit.reviewPause(
-                                id: pauseRequest.id,
-                                status: PauseRequestStatus.approved,
-                                reviewedById: currentUserId,
-                                workOrderId: pauseRequest.workOrderId,
-                                responsibility: selectedResponsibility.value,
-                                reviewObservation:
-                                    notesController.text.trim().isEmpty
-                                    ? null
-                                    : notesController.text.trim(),
-                              );
-                              if (success && context.mounted) {
-                                Navigator.of(context).pop(true);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
+                    BaseButton(
+                      text: 'Salvar'.hardcoded,
+                      isLoading: isSaving,
+                      onTap: () async {
+                        final success = await cubit.reviewPause(
+                          id: pauseRequest.id,
+                          status: PauseRequestStatus.approved,
+                          reviewedById: currentUserId,
+                          workOrderId: pauseRequest.workOrderId,
+                          responsibility: selectedResponsibility.value,
+                          reviewObservation: notesController.text.trim().isEmpty
+                              ? null
+                              : notesController.text.trim(),
+                        );
+                        if (success && context.mounted) {
+                          Navigator.of(context).pop(true);
+                        }
+                      },
                     ),
                   ],
                 ),
