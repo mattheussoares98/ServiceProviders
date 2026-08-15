@@ -119,7 +119,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
-    if (hasPendingPauses || activePauseRequest != null) {
+    if (activePauseRequest != null) {
       final message =
           'Já existe uma pausa ativa ou pendente para esta ordem de serviço'
               .hardcoded;
