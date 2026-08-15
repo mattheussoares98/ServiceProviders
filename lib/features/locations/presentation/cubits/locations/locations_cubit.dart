@@ -23,15 +23,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
 
-    final results = await Future.wait([
-      _useCases.getLocations(companyId),
-      _useCases.getAreas(companyId),
-    ]);
+    final locationsResult = await _useCases.getLocations(companyId);
+    final areasResult = await _useCases.getAreas(companyId);
 
     if (isClosed) return;
-
-    final locationsResult = results[0];
-    final areasResult = results[1];
 
     if (locationsResult is SuccessState<List<LocationEntity>> &&
         areasResult is SuccessState<List<AreaEntity>>) {
