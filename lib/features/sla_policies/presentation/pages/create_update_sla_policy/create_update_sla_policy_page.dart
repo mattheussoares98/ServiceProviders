@@ -31,10 +31,12 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
   final SlaPolicyEntity? slaPolicy;
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<SlaPoliciesCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<SlaPoliciesCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(text: slaPolicy?.name);

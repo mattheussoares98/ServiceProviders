@@ -38,10 +38,12 @@ class CreateUpdateAssetPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    observeLoading(
-      [context.read<AssetsCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<AssetsCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context

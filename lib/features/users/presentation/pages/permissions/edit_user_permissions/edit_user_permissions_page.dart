@@ -30,10 +30,16 @@ class EditUserPermissionsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<UsersCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting, StateStatus.loading},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<UsersCubit>(),
+        statuses: {
+          StateStatus.saving,
+          StateStatus.deleting,
+          StateStatus.loading,
+        },
+      ),
+    ]);
     return BlocProvider(
       create: (context) => GetIt.I<PermissionsCubit>()..initUser(user),
       child: _Body(user: user),
@@ -47,10 +53,16 @@ class _Body extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<PermissionsCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting, StateStatus.loading},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<PermissionsCubit>(),
+        statuses: {
+          StateStatus.saving,
+          StateStatus.deleting,
+          StateStatus.loading,
+        },
+      ),
+    ]);
     return BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
       selector: (state) => (state.isAdmin, state.status == StateStatus.saving),
       builder: (context, value) {

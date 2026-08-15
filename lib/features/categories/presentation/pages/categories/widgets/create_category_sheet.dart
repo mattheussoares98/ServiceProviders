@@ -21,7 +21,9 @@ class CreateCategorySheet extends HookWidget {
 
     final categoriesCubit = context.read<CategoriesCubit>();
 
-    observeLoading([categoriesCubit], statuses: {StateStatus.saving});
+    observeLoading([
+      ObservedLoadingTarget(categoriesCubit, statuses: {StateStatus.saving}),
+    ]);
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;

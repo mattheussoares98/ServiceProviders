@@ -30,10 +30,12 @@ class ServiceProvidersPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<ServiceProvidersCubit>()],
-      statuses: {StateStatus.saving},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<ServiceProvidersCubit>(),
+        statuses: {StateStatus.saving},
+      ),
+    ]);
     return BaseScaffold(
       isScrollable: false,
       onRefresh: () => context

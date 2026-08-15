@@ -82,10 +82,12 @@ class CreateUpdateWorkOrderPage extends HookWidget {
       () => workOrderId ?? const Uuid().v4(),
     );
 
-    observeLoading(
-      [context.read<WorkOrdersCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<WorkOrdersCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     return Builder(
       builder: (context) {

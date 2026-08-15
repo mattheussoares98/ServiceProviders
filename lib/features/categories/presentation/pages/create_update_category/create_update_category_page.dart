@@ -30,10 +30,12 @@ class CreateUpdateCategoryPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<CategoriesCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<CategoriesCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(text: category?.name);

@@ -6,10 +6,51 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
+final class ObservedLoadingTarget {
+  const ObservedLoadingTarget(
+    this.cubit, {
+    this.statuses = const {StateStatus.loading},
+    this.sections = const {},
+  });
+
+  /// Convenient constructor when only observing specific sections of a cubit.
+  factory ObservedLoadingTarget.section(
+    BaseCubit<BaseState> cubit,
+    SectionKey section, {
+    Set<StateStatus> statuses = const {StateStatus.loading},
+  }) => ObservedLoadingTarget(
+    cubit,
+    statuses: const {},
+    sections: {section: statuses},
+  );
+
+  final BaseCubit<BaseState> cubit;
+
+  /// Statuses checked against the root `cubit.state.status`.
+  final Set<StateStatus> statuses;
+
+  /// Map of specific sections to the statuses that trigger loading for that section.
+  final Map<SectionKey, Set<StateStatus>> sections;
+
+  bool get isLoading {
+    if (statuses.contains(cubit.state.status)) {
+      return true;
+    }
+
+    for (final entry in sections.entries) {
+      final sectionStatus = cubit.state.sections[entry.key];
+      if (sectionStatus != null && entry.value.contains(sectionStatus)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+}
+
 void observeLoading(
-  List<BaseCubit<BaseState>> cubits, {
+  List<ObservedLoadingTarget> targets, {
   String message = 'Aguarde',
-  Set<StateStatus> statuses = const {StateStatus.loading},
 }) {
   final context = useContext();
   final overlayEntry = useRef<OverlayEntry?>(null);
@@ -66,7 +107,7 @@ void observeLoading(
 
     void sync() {
       if (isDisposed) return;
-      final anyLoading = cubits.any((c) => statuses.contains(c.state.status));
+      final anyLoading = targets.any((t) => t.isLoading);
       if (anyLoading) {
         show(overlay);
       } else {
@@ -74,11 +115,11 @@ void observeLoading(
       }
     }
 
-    final subscriptions = cubits
-        .map((cubit) => cubit.stream.listen((_) => sync()))
+    final subscriptions = targets
+        .map((target) => target.cubit.stream.listen((_) => sync()))
         .toList();
 
-    final anyLoading = cubits.any((c) => statuses.contains(c.state.status));
+    final anyLoading = targets.any((t) => t.isLoading);
     if (anyLoading) {
       // The effect runs during build, so the insert has to wait for the frame
       // to finish or it would mark the overlay dirty mid-build.
@@ -92,5 +133,5 @@ void observeLoading(
       }
       hide();
     };
-  }, cubits);
+  }, targets.map((t) => t.cubit).toList());
 }

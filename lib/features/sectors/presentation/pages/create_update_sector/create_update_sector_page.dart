@@ -30,10 +30,12 @@ class CreateUpdateSectorPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<SectorsCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<SectorsCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(text: sector?.name);

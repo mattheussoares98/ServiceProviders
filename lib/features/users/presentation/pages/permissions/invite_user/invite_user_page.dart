@@ -20,7 +20,9 @@ class InviteUserPage extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    observeLoading([context.read<InviteUserCubit>()]);
+    observeLoading([
+      ObservedLoadingTarget(context.read<InviteUserCubit>()),
+    ]);
 
     final selectedGroup = useState<PermissionGroupEntity?>(null);
 

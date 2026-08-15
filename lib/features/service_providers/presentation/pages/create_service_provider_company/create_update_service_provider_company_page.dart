@@ -45,10 +45,12 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<ServiceProvidersCubit>()],
-      statuses: {StateStatus.saving},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<ServiceProvidersCubit>(),
+        statuses: {StateStatus.saving},
+      ),
+    ]);
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController();
     final emailController = useTextEditingController();

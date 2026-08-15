@@ -39,10 +39,12 @@ class CreateUpdateAreaPage extends HookWidget {
     final floorFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
 
-    observeLoading(
-      [context.read<LocationsCubit>()],
-      statuses: {StateStatus.saving, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<LocationsCubit>(),
+        statuses: {StateStatus.saving, StateStatus.deleting},
+      ),
+    ]);
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;

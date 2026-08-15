@@ -46,10 +46,16 @@ class _Body extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(
-      [context.read<PermissionsCubit>()],
-      statuses: {StateStatus.saving, StateStatus.loading, StateStatus.deleting},
-    );
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<PermissionsCubit>(),
+        statuses: {
+          StateStatus.saving,
+          StateStatus.loading,
+          StateStatus.deleting,
+        },
+      ),
+    ]);
     return BlocSelector<
       PermissionsCubit,
       PermissionsState,
