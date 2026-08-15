@@ -21,6 +21,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -100,7 +101,7 @@ class _WorkOrderDetails extends HookWidget {
                 ResponsiveListFlow(
                   itemCount: 2,
                   isSliver: true,
-                  maxItemWidth: 700,
+                  maxItemWidth: Breakpoint.tablet,
                   padding: const EdgeInsets.only(bottom: Sizes.p12),
                   itemBuilder: (context, index) {
                     if (index == 0) {
