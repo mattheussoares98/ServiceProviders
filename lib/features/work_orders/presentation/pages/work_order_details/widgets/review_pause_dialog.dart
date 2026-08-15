@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
@@ -44,89 +45,99 @@ class ReviewPauseDialog extends HookWidget {
       value: cubit,
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
         builder: (context, state) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Sizes.p16),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(Sizes.p24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  BaseText.titleMedium(
-                    'Revisar solicitação de pausa'.hardcoded,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  gapH16,
-                  BaseTextFormField(
-                    controller: notesController,
-                    labelText: 'Observação do revisor (opcional)'.hardcoded,
-                    hintText:
-                        'Digite o motivo da aprovação ou rejeição'.hardcoded,
-                    maxLength: 250,
-                    maxLines: 3,
-                  ),
-                  gapH12,
-                  BaseDropDown<PauseResponsibility>(
-                    label: 'Responsabilidade'.hardcoded,
-                    items: dropdownResponsibilities,
-                    selectedItem: selectedResponsibility.value,
-                    onChanged: (val) {
-                      selectedResponsibility.value = val;
-                    },
-                  ),
-                  gapH24,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SecondaryButton(
-                        text: 'Cancelar'.hardcoded,
-                        onTap: () => Navigator.of(context).pop(),
-                      ),
-                      gapW8,
-                      SecondaryButton(
-                        text: 'Rejeitar'.hardcoded,
-                        onTap: () async {
-                          final success = await cubit.reviewPause(
-                            id: pauseRequest.id,
-                            status: PauseRequestStatus.rejected,
-                            reviewedById: currentUserId,
-                            workOrderId: pauseRequest.workOrderId,
-                            responsibility: selectedResponsibility.value,
-                            reviewObservation:
-                                notesController.text.trim().isEmpty
-                                ? null
-                                : notesController.text.trim(),
-                          );
-                          if (success && context.mounted) {
-                            Navigator.of(context).pop(false);
-                          }
-                        },
-                      ),
-                      gapW8,
-                      BaseButton(
-                        text: 'Aprovar'.hardcoded,
-                        onTap: () async {
-                          final success = await cubit.reviewPause(
-                            id: pauseRequest.id,
-                            status: PauseRequestStatus.approved,
-                            reviewedById: currentUserId,
-                            workOrderId: pauseRequest.workOrderId,
-                            responsibility: selectedResponsibility.value,
-                            reviewObservation:
-                                notesController.text.trim().isEmpty
-                                ? null
-                                : notesController.text.trim(),
-                          );
-                          if (success && context.mounted) {
-                            Navigator.of(context).pop(true);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+          final isSaving = state.status == StateStatus.saving;
+          return IgnorePointer(
+            ignoring: isSaving,
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Sizes.p16),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(Sizes.p24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    BaseText.titleMedium(
+                      'Revisar solicitação de pausa'.hardcoded,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    gapH16,
+                    BaseTextFormField(
+                      enabled: !isSaving,
+                      controller: notesController,
+                      labelText: 'Observação do revisor (opcional)'.hardcoded,
+                      hintText:
+                          'Digite o motivo da aprovação ou rejeição'.hardcoded,
+                      maxLength: 250,
+                      maxLines: 3,
+                    ),
+                    gapH12,
+                    BaseDropDown<PauseResponsibility>(
+                      label: 'Responsabilidade'.hardcoded,
+                      showLabelAtTopLeft: true,
+                      items: dropdownResponsibilities,
+                      selectedItem: selectedResponsibility.value,
+                      onChanged: isSaving
+                          ? null
+                          : (val) {
+                              selectedResponsibility.value = val;
+                            },
+                    ),
+                    gapH24,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: SecondaryButton(
+                            text: 'Rejeitar'.hardcoded,
+                            color: Colors.red,
+                            isLoading: isSaving,
+                            onTap: () async {
+                              final success = await cubit.reviewPause(
+                                id: pauseRequest.id,
+                                status: PauseRequestStatus.rejected,
+                                reviewedById: currentUserId,
+                                workOrderId: pauseRequest.workOrderId,
+                                responsibility: selectedResponsibility.value,
+                                reviewObservation:
+                                    notesController.text.trim().isEmpty
+                                    ? null
+                                    : notesController.text.trim(),
+                              );
+                              if (success && context.mounted) {
+                                Navigator.of(context).pop(false);
+                              }
+                            },
+                          ),
+                        ),
+                        gapW12,
+                        Flexible(
+                          child: BaseButton(
+                            text: 'Aprovar'.hardcoded,
+                            isLoading: isSaving,
+                            onTap: () async {
+                              final success = await cubit.reviewPause(
+                                id: pauseRequest.id,
+                                status: PauseRequestStatus.approved,
+                                reviewedById: currentUserId,
+                                workOrderId: pauseRequest.workOrderId,
+                                responsibility: selectedResponsibility.value,
+                                reviewObservation:
+                                    notesController.text.trim().isEmpty
+                                    ? null
+                                    : notesController.text.trim(),
+                              );
+                              if (success && context.mounted) {
+                                Navigator.of(context).pop(true);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
