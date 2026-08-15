@@ -35,7 +35,7 @@ BEGIN
       IF NEW.event_type = 'completion' THEN
         UPDATE public.work_orders 
         SET status = 'completed', 
-            completed_at = NOW(), 
+            completed_at = COALESCE(NEW.created_at, NOW()), 
             completion_reason = COALESCE(NEW.custom_reason, NEW.reason),
             completion_sector_id = NEW.sector_id,
             completion_responsibility = NEW.responsibility,
@@ -44,20 +44,24 @@ BEGIN
       ELSIF NEW.event_type = 'pause' THEN
         UPDATE public.work_orders 
         SET status = 'on_hold', updated_at = NOW() 
-        WHERE id = NEW.work_order_id;
+        WHERE id = NEW.work_order_id
+          AND status NOT IN ('completed', 'cancelled')
+          AND NEW.resumed_at IS NULL;
       END IF;
 
     -- If review status changed to rejected or cancelled
     ELSIF NEW.status IN ('rejected', 'cancelled', 'cancelled_by_provider') AND (OLD.status NOT IN ('rejected', 'cancelled', 'cancelled_by_provider')) THEN
       UPDATE public.work_orders 
       SET status = 'in_progress', updated_at = NOW() 
-      WHERE id = NEW.work_order_id;
+      WHERE id = NEW.work_order_id
+        AND status IN ('pending_pause', 'pending_conclusion', 'on_hold');
 
     -- If a pause is resumed
     ELSIF NEW.resumed_at IS NOT NULL AND OLD.resumed_at IS NULL THEN
       UPDATE public.work_orders 
       SET status = 'in_progress', updated_at = NOW() 
-      WHERE id = NEW.work_order_id;
+      WHERE id = NEW.work_order_id
+        AND status IN ('on_hold', 'pending_pause');
     END IF;
   END IF;
 

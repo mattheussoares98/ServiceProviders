@@ -301,17 +301,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? completionReason,
     String? completionSectorId,
   }) async {
-    if (status == PauseRequestStatus.approved && hasPendingPauses) {
-      final message =
-          'Existem solicitações de pausa pendentes. Avalie as pausas primeiro'
-              .hardcoded;
-      emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
-      );
-      showErrorToast(message);
-      return false;
-    }
-
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewCompletion(
       ReviewCompletionParams(

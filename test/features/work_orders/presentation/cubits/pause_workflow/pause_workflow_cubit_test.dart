@@ -511,7 +511,7 @@ void main() {
 
     group('reviewCompletion', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit savingError and not call reviewCompletion use case when there are pending pause requests',
+        'should emit saving, loaded, loading, loaded and call reviewCompletion use case when there are pending pause requests',
         seed: () => const PauseWorkflowState.initial().copyWith(
           pauseRequests: [
             EntityFactory.makePauseRequestEntity().copyWith(
@@ -520,7 +520,16 @@ void main() {
             ),
           ],
         ),
-        build: () => cubit,
+        build: () {
+          when(
+            () => mockReviewCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
         act: (cubit) => cubit.reviewCompletion(
           id: 'request-id',
           status: PauseRequestStatus.approved,
@@ -529,16 +538,29 @@ void main() {
           reviewObservation: 'Approved completion',
         ),
         expect: () => [
-          isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Existem solicitações de pausa pendentes. Avalie as pausas primeiro',
-              ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
-          verifyNever(() => mockReviewCompletion.call(any()));
+          verify(() => mockReviewCompletion.call(any())).called(1);
         },
       );
 

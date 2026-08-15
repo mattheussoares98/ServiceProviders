@@ -61,8 +61,6 @@ class WorkOrderBottomActions extends StatelessWidget {
           WorkOrderSubAction.approveCompletion,
         ),
       );
-      final canConcludeDirectly =
-          canApproveCompletion && !pauseCubit.hasPendingPauses;
 
       return _BottomBar(
         child: Row(
@@ -94,11 +92,11 @@ class WorkOrderBottomActions extends StatelessWidget {
             if (!isPendingConclusion)
               Expanded(
                 child: BaseButton(
-                  text: canConcludeDirectly
+                  text: canApproveCompletion
                       ? 'Concluir'.hardcoded
                       : 'Solicitar conclusão'.hardcoded,
                   onTap: () async {
-                    if (canConcludeDirectly) {
+                    if (canApproveCompletion) {
                       await context.read<WorkOrdersCubit>().concludeDirectly(
                         workOrder: workOrder,
                       );
