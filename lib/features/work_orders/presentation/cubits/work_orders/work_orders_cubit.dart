@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -15,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -362,20 +364,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
-  Future<bool> resumePausedWorkOrder({
+  Future<bool> _resumePausedWorkOrder({
     required WorkOrderEntity workOrder,
     required String currentUserId,
     required String pauseId,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
 
-    final now = DateTime.now();
-
     final cancelResult = await _useCases.cancelPause(
       CancelPauseParams(
         id: pauseId,
         workOrderId: workOrder.id,
-        resumedAt: now,
+        resumedAt: DateTime.now(),
         resumedById: currentUserId,
       ),
     );
@@ -391,11 +391,59 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return false;
     }
 
+    await loadWorkOrdersAndChangeRequests(showLoading: false);
+    return true;
+  }
+
+  /// Resumes work on a paused or pending-completion work order.
+  /// Handles cancelling active pauses, cancelling pending completions,
+  /// and transitioning the work order back to inProgress.
+  /// Status transitions are handled atomically at the datasource level.
+  Future<bool> resumeWork({
+    required WorkOrderEntity workOrder,
+    required String currentUserId,
+    required PauseWorkflowCubit pauseCubit,
+  }) async {
+    final activePause = pauseCubit.activePauseRequest;
+    final pendingCompletion = pauseCubit.pendingCompletionRequest;
+
+    if (activePause != null) {
+      final success = await _resumePausedWorkOrder(
+        workOrder: workOrder,
+        currentUserId: currentUserId,
+        pauseId: activePause.id,
+      );
+      if (success) {
+        await pauseCubit.loadPauseRequests(workOrder.id);
+      }
+      return success;
+    }
+
+    if (pendingCompletion != null) {
+      final success = await pauseCubit.reviewCompletion(
+        id: pendingCompletion.id,
+        status: PauseRequestStatus.cancelled,
+        reviewedById: currentUserId,
+        workOrderId: workOrder.id,
+      );
+      if (success) {
+        await loadWorkOrdersAndChangeRequests(showLoading: false);
+      }
+      return success;
+    }
+
     return changeWorkOrderStatus(
       workOrder: workOrder,
       status: WorkOrderStatus.inProgress,
     );
   }
+
+  /// Directly concludes a work order (when user has permission and no pending pauses).
+  Future<bool> concludeDirectly({required WorkOrderEntity workOrder}) =>
+      changeWorkOrderStatus(
+        workOrder: workOrder,
+        status: WorkOrderStatus.completed,
+      );
 
   Future<bool> deleteWorkOrder(String id) async {
     emit(state.copyWith(status: StateStatus.deleting));

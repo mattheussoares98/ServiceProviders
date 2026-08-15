@@ -79,7 +79,15 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           r.eventType == PauseEventType.pause &&
           r.resumedAt == null &&
           r.status != PauseRequestStatus.rejected &&
-          r.status != PauseRequestStatus.cancelledByProvider,
+          r.status != PauseRequestStatus.cancelled,
+    );
+  }
+
+  PauseRequestEntity? get pendingCompletionRequest {
+    return state.pauseRequests.firstWhereOrNull(
+      (r) =>
+          r.eventType == PauseEventType.completion &&
+          r.status == PauseRequestStatus.pending,
     );
   }
 
@@ -293,7 +301,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? completionReason,
     String? completionSectorId,
   }) async {
-    if (hasPendingPauses) {
+    if (status == PauseRequestStatus.approved && hasPendingPauses) {
       final message =
           'Existem solicitações de pausa pendentes. Avalie as pausas primeiro'
               .hardcoded;
