@@ -38,6 +38,16 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final pauseCubit = GetIt.I<PauseWorkflowCubit>();
     //TODO check this entire page
+    final canApprovePause = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.approvePause,
+      ),
+    );
+    final canApproveCompletion = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.approveCompletion,
+      ),
+    );
     return BlocProvider(
       create: (context) => pauseCubit..loadPauseRequests(workOrder.id),
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(

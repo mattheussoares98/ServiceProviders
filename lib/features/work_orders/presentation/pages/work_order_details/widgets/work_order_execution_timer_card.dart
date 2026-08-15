@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -27,17 +26,15 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = workOrder.status;
 
-    if (status != WorkOrderStatus.inProgress &&
-        status != WorkOrderStatus.onHold &&
-        status != WorkOrderStatus.completed) {
+    if (!status.showsExecutionTimer) {
       return const SizedBox.shrink();
     }
 
-    final isRunning = status == WorkOrderStatus.inProgress;
-    final isOnHold = status == WorkOrderStatus.onHold;
+    final isRunning = status.isRunning;
+    final isPaused = status.isPaused;
 
     // When on hold, find the active pause request (resumedAt == null)
-    final activePauseRequest = isOnHold
+    final activePauseRequest = isPaused
         ? (pauseRequests.where((p) => p.resumedAt == null).toList()
                 ..sort((a, b) => b.pausedAt.compareTo(a.pausedAt)))
               .firstOrNull
@@ -52,7 +49,7 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
         );
 
     final showTotalPause = pauseRequests.length >= 2;
-    final hasActivePause = isOnHold && activePauseRequest != null;
+    final hasActivePause = activePauseRequest != null;
 
     final statusColor = workOrder.status.color;
     final cardBgColor = statusColor.withValues(alpha: 0.12);
@@ -74,12 +71,12 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
               PlatformIcon(
                 materialIcon: isRunning
                     ? Icons.timer_outlined
-                    : isOnHold
+                    : isPaused
                     ? Icons.pause_circle_filled_outlined
                     : Icons.check_circle_outline,
                 cupertinoIcon: isRunning
                     ? CupertinoIcons.timer
-                    : isOnHold
+                    : isPaused
                     ? CupertinoIcons.pause_circle_fill
                     : CupertinoIcons.check_mark_circled,
                 color: contentColor,

@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
@@ -22,6 +21,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -97,26 +97,34 @@ class _WorkOrderDetails extends HookWidget {
             ),
             body: CustomScrollView(
               slivers: [
-                SliverToBoxAdapter(
-                  child: WorkOrderApprovalBanner(
-                    workOrder: workOrder,
-                    pauseRequests: pauseState.pauseRequests,
-                    currentUserId: currentUserId,
-                    onRefresh: () {
-                      context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests();
-                      pauseCubit.loadPauseRequests(workOrder.id);
-                    },
-                  ),
+                ResponsiveListFlow(
+                  itemCount: 2,
+                  isSliver: true,
+                  maxItemWidth: 700,
+                  padding: const EdgeInsets.only(bottom: Sizes.p12),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Sizes.p8),
+                        child: WorkOrderApprovalBanner(
+                          workOrder: workOrder,
+                          pauseRequests: pauseState.pauseRequests,
+                          currentUserId: currentUserId,
+                          onRefresh: () {
+                            context
+                                .read<WorkOrdersCubit>()
+                                .loadWorkOrdersAndChangeRequests();
+                            pauseCubit.loadPauseRequests(workOrder.id);
+                          },
+                        ),
+                      );
+                    }
+                    return WorkOrderExecutionTimerCard(
+                      workOrder: workOrder,
+                      pauseRequests: pauseState.pauseRequests,
+                    );
+                  },
                 ),
-                SliverToBoxAdapter(
-                  child: WorkOrderExecutionTimerCard(
-                    workOrder: workOrder,
-                    pauseRequests: pauseState.pauseRequests,
-                  ),
-                ),
-                gapSliverH12,
                 InfoItems(workOrder: workOrder),
                 const Attachments(isEditing: false, padding: EdgeInsets.zero),
                 ObservationsSection(
@@ -127,7 +135,9 @@ class _WorkOrderDetails extends HookWidget {
               ],
             ),
             bottomNavigationBar:
-                workOrder.status == WorkOrderStatus.pendingConclusionApproval
+                workOrder.status.isCancelled ||
+                    workOrder.status.isCompleted ||
+                    workOrder.status.isOpen
                 ? null
                 : WorkOrderBottomActions(
                     workOrder: workOrder,

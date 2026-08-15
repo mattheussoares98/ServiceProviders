@@ -31,7 +31,49 @@ class WorkOrderBottomActions extends StatelessWidget {
   //TODO read this entire file
   @override
   Widget build(BuildContext context) {
-    if (workOrder.status == WorkOrderStatus.inProgress) {
+    if (workOrder.status.isPaused ||
+        workOrder.status.isPendingConclusionApproval) {
+      return Container(
+        padding: const EdgeInsets.all(Sizes.p16),
+        decoration: BoxDecoration(
+          color: context.theme.scaffoldBackgroundColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BaseButton(
+          text: 'Retomar trabalho'.hardcoded,
+          onTap: () async {
+            final activePause = pauseCubit.activePauseRequest;
+            if (activePause != null) {
+              final success = await context
+                  .read<WorkOrdersCubit>()
+                  .resumePausedWorkOrder(
+                    workOrder: workOrder,
+                    currentUserId: currentUserId,
+                    pauseId: activePause.id,
+                  );
+
+              if (success) {
+                unawaited(pauseCubit.loadPauseRequests(workOrder.id));
+              }
+            } else {
+              await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                workOrder: workOrder,
+                status: WorkOrderStatus.inProgress,
+              );
+            }
+          },
+        ),
+      );
+    }
+
+    if (workOrder.status.isRunning) {
+      final isPendingConclusion = workOrder.status.isPendingConclusionApproval;
       final canApproveCompletion = context.hasPermission(
         const ActionPermission.workOrderSubAction(
           WorkOrderSubAction.approveCompletion,
@@ -78,86 +120,49 @@ class WorkOrderBottomActions extends StatelessWidget {
               ),
             ),
             gapW12,
-            Expanded(
-              child: BaseButton(
-                text: canConcludeDirectly
-                    ? 'Concluir'.hardcoded
-                    : 'Solicitar conclusão'.hardcoded,
-                onTap: () async {
-                  if (canConcludeDirectly) {
-                    await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
-                      workOrder: workOrder,
-                      status: WorkOrderStatus.completed,
+            if (!isPendingConclusion)
+              Expanded(
+                child: BaseButton(
+                  text: canConcludeDirectly
+                      ? 'Concluir'.hardcoded
+                      : 'Solicitar conclusão'.hardcoded,
+                  onTap: () async {
+                    if (canConcludeDirectly) {
+                      await context
+                          .read<WorkOrdersCubit>()
+                          .changeWorkOrderStatus(
+                            workOrder: workOrder,
+                            status: WorkOrderStatus.completed,
+                          );
+                      if (context.mounted) {
+                        unawaited(
+                          context
+                              .read<WorkOrdersCubit>()
+                              .loadWorkOrdersAndChangeRequests(),
+                        );
+                      }
+                      return;
+                    }
+
+                    final result = await showModalPage<bool>(
+                      RequestCompletionFields(
+                        companyId: workOrder.companyId,
+                        workOrderId: workOrder.id,
+                        currentUserId: currentUserId,
+                      ),
+                      context,
                     );
-                    if (context.mounted) {
+                    if (result == true && context.mounted) {
                       unawaited(
                         context
                             .read<WorkOrdersCubit>()
                             .loadWorkOrdersAndChangeRequests(),
                       );
                     }
-                    return;
-                  }
-
-                  final result = await showModalPage<bool>(
-                    RequestCompletionFields(
-                      companyId: workOrder.companyId,
-                      workOrderId: workOrder.id,
-                      currentUserId: currentUserId,
-                    ),
-                    context,
-                  );
-                  if (result == true && context.mounted) {
-                    unawaited(
-                      context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(),
-                    );
-                  }
-                },
+                  },
+                ),
               ),
-            ),
           ],
-        ),
-      );
-    }
-
-    if (workOrder.status == WorkOrderStatus.onHold) {
-      return Container(
-        padding: const EdgeInsets.all(Sizes.p16),
-        decoration: BoxDecoration(
-          color: context.theme.scaffoldBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BaseButton(
-          text: 'Retomar trabalho'.hardcoded,
-          onTap: () async {
-            final activePause = pauseCubit.activePauseRequest;
-            if (activePause != null) {
-              final success = await context
-                  .read<WorkOrdersCubit>()
-                  .resumePausedWorkOrder(
-                    workOrder: workOrder,
-                    currentUserId: currentUserId,
-                    pauseId: activePause.id,
-                  );
-
-              if (success) {
-                unawaited(pauseCubit.loadPauseRequests(workOrder.id));
-              }
-            } else {
-              await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
-                workOrder: workOrder,
-                status: WorkOrderStatus.inProgress,
-              );
-            }
-          },
         ),
       );
     }
