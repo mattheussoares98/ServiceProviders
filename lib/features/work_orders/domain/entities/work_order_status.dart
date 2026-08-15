@@ -1,8 +1,8 @@
 enum WorkOrderStatus {
   open('open', 'Aberta'),
   inProgress('in_progress', 'Em andamento'),
-  pendingPauseApproval('pending_pause', 'Pausa pendente de aprovação'),
-  onHold('on_hold', 'Em espera'),
+  pendingPauseApproval('pending_pause', 'Em pausa'),
+  onHold('on_hold', 'Em pausa'),
   pendingConclusionApproval(
     'pending_conclusion',
     'Conclusão pendente de aprovação',
