@@ -21,8 +21,8 @@ void observeLoading(
     }
   }
 
-  void show() {
-    if (overlayEntry.value != null) return;
+  void show(OverlayState overlay) {
+    if (overlayEntry.value != null || !overlay.mounted) return;
     FocusManager.instance.primaryFocus?.unfocus();
 
     overlayEntry.value = OverlayEntry(
@@ -53,27 +53,40 @@ void observeLoading(
       ),
     );
 
-    Overlay.of(context).insert(overlayEntry.value!);
+    overlay.insert(overlayEntry.value!);
   }
 
   useEffect(() {
-    final subscriptions = cubits.map((cubit) {
-      return cubit.stream.listen((state) {
-        final anyLoading = cubits.any((c) => statuses.contains(c.state.status));
-        if (anyLoading) {
-          show();
-        } else {
-          hide();
-        }
-      });
-    }).toList();
+    // Resolved once, while this element is guaranteed active. Looking the
+    // overlay up later — from a cubit stream callback that can fire after the
+    // widget was deactivated — throws "Looking up a deactivated widget's
+    // ancestor is unsafe".
+    final overlay = Overlay.of(context);
+    var isDisposed = false;
+
+    void sync() {
+      if (isDisposed) return;
+      final anyLoading = cubits.any((c) => statuses.contains(c.state.status));
+      if (anyLoading) {
+        show(overlay);
+      } else {
+        hide();
+      }
+    }
+
+    final subscriptions = cubits
+        .map((cubit) => cubit.stream.listen((_) => sync()))
+        .toList();
 
     final anyLoading = cubits.any((c) => statuses.contains(c.state.status));
     if (anyLoading) {
-      show();
+      // The effect runs during build, so the insert has to wait for the frame
+      // to finish or it would mark the overlay dirty mid-build.
+      WidgetsBinding.instance.addPostFrameCallback((_) => sync());
     }
 
     return () {
+      isDisposed = true;
       for (final sub in subscriptions) {
         sub.cancel();
       }
