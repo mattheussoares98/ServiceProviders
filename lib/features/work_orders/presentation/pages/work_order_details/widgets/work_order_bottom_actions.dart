@@ -30,8 +30,7 @@ class WorkOrderBottomActions extends StatelessWidget {
   //TODO read this entire file
   @override
   Widget build(BuildContext context) {
-    if (workOrder.status.isPaused ||
-        workOrder.status.isPendingConclusionApproval) {
+    if (workOrder.status.isPaused) {
       return _BottomBar(
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
