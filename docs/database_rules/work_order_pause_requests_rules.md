@@ -35,25 +35,43 @@ CREATE POLICY "Users insert work order pause requests"
     )
   );
 
--- UPDATE: approver (has permission) OR original requester on pending requests OR SP linked to pending WO
--- Added in migration 20260812220000_add_resumed_by_to_pause_requests.sql (replaces original policy)
+-- UPDATE: approver (has permission) OR original requester OR assigned provider / SP linked to WO
+-- Updated in migration 20260815150000_add_cancelled_status_to_pause_requests.sql
 CREATE POLICY "Users update work order pause requests"
   ON public.work_order_pause_requests FOR UPDATE
   TO authenticated
   USING (
     (
       company_id = public.get_user_company_id()
-      AND public.has_permission('work_orders.approve_pause')
+      AND (
+        public.has_permission('work_orders.approve_pause')
+        OR public.has_permission('work_orders.change_status')
+        OR public.has_permission('work_orders.update')
+      )
     )
     OR (
       requested_by_id = auth.uid()
-      AND status = 'pending'
     )
     OR EXISTS (
       SELECT 1 FROM public.work_orders wo
       JOIN public.service_provider_profiles spp ON wo.service_provider_company_id = spp.service_provider_company_id
       WHERE wo.id = work_order_id AND spp.auth_user_id = auth.uid()
-      AND status = 'pending'
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.work_orders wo
+      WHERE wo.id = work_order_id AND wo.assigned_to_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    company_id = public.get_user_company_id()
+    OR EXISTS (
+      SELECT 1 FROM public.work_orders wo
+      JOIN public.service_provider_profiles spp ON wo.service_provider_company_id = spp.service_provider_company_id
+      WHERE wo.id = work_order_id AND spp.auth_user_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.work_orders wo
+      WHERE wo.id = work_order_id AND wo.assigned_to_id = auth.uid()
     )
   );
 ```
@@ -78,3 +96,4 @@ FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
 | `20260812220000_add_resumed_by_to_pause_requests.sql` | `resumed_by_id` FK added; UPDATE policy expanded to allow SP users to update pending requests |
 | `20260814210000_make_pause_request_responsibility_nullable.sql` | `responsibility` made nullable; `chk_responsibility_on_review` CHECK constraint added to require responsibility on approved/rejected status |
 | `20260814211500_relax_completion_responsibility_constraint.sql` | `chk_responsibility_on_review` constraint updated so `responsibility` is only required for `event_type = 'pause'` on approval/rejection |
+| `20260815150000_add_cancelled_status_to_pause_requests.sql` | Added `cancelled` status to check constraint; updated sync trigger; added explicit `WITH CHECK` on UPDATE policy to prevent new row RLS violation |

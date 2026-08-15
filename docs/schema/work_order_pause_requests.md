@@ -12,7 +12,7 @@ Tracks requests to pause work orders or request completion authorization (`event
 | `observation` | TEXT | YES | - | Optional free-text observation from requester |
 | `responsibility` | VARCHAR(20) | YES | - | Responsibility: `provider` / `contractor` / `shared` (null on creation for completion requests, assigned during review) |
 | `sector_id` | UUID | YES | - | FK → `sectors.id` (Set Null) - Responsible department or sector |
-| `status` | VARCHAR(30) | NO | 'pending' | `pending` / `approved` / `rejected` / `cancelled_by_provider` |
+| `status` | VARCHAR(30) | NO | 'pending' | `pending` / `approved` / `rejected` / `cancelled` / `cancelled_by_provider` |
 | `paused_at` | TIMESTAMP | NO | now() | When the pause or completion request was initiated |
 | `resumed_at` | TIMESTAMP | YES | - | When the work resumed (unpaused) |
 | `resumed_by_id` | UUID | YES | - | FK → `auth.users.id` (Set Null) - User who resumed the work |
