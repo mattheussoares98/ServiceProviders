@@ -56,17 +56,26 @@ class _PendingRequestCard extends StatelessWidget {
               ),
               gapW8,
               Expanded(
-                child: BaseText.bodyLarge(
-                  isPauseRequest
-                      ? 'Solicitação de pausa'.hardcoded
-                      : 'Solicitação de conclusão'.hardcoded,
-                  fontWeight: FontWeight.bold,
-                  color: iconColor,
+                child: Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Flexible(
+                      child: BaseText.bodyLarge(
+                        isPauseRequest
+                            ? 'Pausa'.hardcoded
+                            : 'Conclusão'.hardcoded,
+                        fontWeight: FontWeight.bold,
+                        color: iconColor,
+                      ),
+                    ),
+                    Flexible(
+                      child: BaseText.bodySmall(
+                        request.createdAt.formatDate(.ddMMyyyyHHmm),
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              BaseText.bodySmall(
-                request.createdAt.formatDate(.ddMMyyyyHHmm),
-                color: Colors.black54,
               ),
             ],
           ),
