@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_fields.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_pause_fields.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
@@ -35,11 +36,20 @@ class WorkOrderBottomActions extends StatelessWidget {
       return _BottomBar(
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
-          onTap: () => context.read<WorkOrdersCubit>().resumeWork(
-            workOrder: workOrder,
-            currentUserId: currentUserId,
-            pauseCubit: pauseCubit,
-          ),
+          onTap: () {
+            showAlertDialog(
+              context: context,
+              title: 'Retomar trabalho'.hardcoded,
+              contentText: 'Deseja realmente retomar o trabalho?'.hardcoded,
+              defaultActionText: 'Sim'.hardcoded,
+              cancelActionText: 'Não'.hardcoded,
+              onOkPressed: () => context.read<WorkOrdersCubit>().resumeWork(
+                workOrder: workOrder,
+                currentUserId: currentUserId,
+                pauseCubit: pauseCubit,
+              ),
+            );
+          },
         ),
       );
     }
