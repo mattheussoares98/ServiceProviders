@@ -21,9 +21,9 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
-import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
-import '../../../../../testing/mocks/use_case_mocks.dart';
+import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
@@ -534,7 +534,7 @@ void main() {
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
-                'Existem solicitações de pausa pendentes. Avalie as pausas primeiro.',
+                'Existem solicitações de pausa pendentes. Avalie as pausas primeiro',
               ),
         ],
         verify: (_) {
