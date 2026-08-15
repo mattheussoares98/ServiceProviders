@@ -128,10 +128,7 @@ class _WorkOrderDetails extends HookWidget {
                 ),
                 InfoItems(workOrder: workOrder),
                 const Attachments(isEditing: false, padding: EdgeInsets.zero),
-                ObservationsSection(
-                  workOrderId: workOrder.id,
-                  companyId: workOrder.companyId,
-                ),
+                ObservationsSection(workOrder: workOrder),
                 gapSliverH24,
               ],
             ),

@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
@@ -24,20 +25,16 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.d
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 class ObservationsSection extends HookWidget {
-  const ObservationsSection({
-    required this.workOrderId,
-    required this.companyId,
-    super.key,
-  });
+  const ObservationsSection({required this.workOrder, super.key});
 
-  final String workOrderId;
-  final String companyId;
+  final WorkOrderEntity workOrder;
 
   @override
   Widget build(BuildContext context) {
     final cubit = useMemoized(
       () =>
-          GetIt.I<WorkOrderObservationsCubit>()..fetchObservations(workOrderId),
+          GetIt.I<WorkOrderObservationsCubit>()
+            ..fetchObservations(workOrder.id),
     );
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
@@ -52,8 +49,8 @@ class ObservationsSection extends HookWidget {
       if (content.isEmpty) return;
 
       final success = await cubit.createObservation(
-        companyId: companyId,
-        workOrderId: workOrderId,
+        companyId: workOrder.companyId,
+        workOrderId: workOrder.id,
         authorId: currentUser.id,
         authorName: currentUser.name,
         content: content,
@@ -75,7 +72,7 @@ class ObservationsSection extends HookWidget {
           >(
             isSliver: true,
             dataSelector: (state) => state.observations,
-            onRetry: () => cubit.fetchObservations(workOrderId),
+            onRetry: () => cubit.fetchObservations(workOrder.id),
             builder: (context, observations) {
               if (observations.isEmpty) {
                 return SliverToBoxAdapter(
@@ -165,44 +162,47 @@ class ObservationsSection extends HookWidget {
             },
           ),
           gapSliverH16,
-          SliverToBoxAdapter(
-            child: Form(
-              key: formKey,
-              child:
-                  BlocSelector<
-                    WorkOrderObservationsCubit,
-                    WorkOrderObservationsState,
-                    bool
-                  >(
-                    selector: (state) => state.status == StateStatus.saving,
-                    builder: (context, isSubmitting) {
-                      return Column(
-                        children: [
-                          BaseTextFormField(
-                            controller: textController,
-                            hintText: 'Adicionar uma observação...'.hardcoded,
-                            maxLines: 8,
-                            maxLength: 2000,
-                            enabled: !isSubmitting,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteractionIfError,
-                            validator: FormValidators.compose([
-                              NonEmptyValidator(),
-                              MinLengthValidator(10),
-                            ]),
-                          ),
-                          gapH8,
-                          BaseButton(
-                            text: 'Adicionar observação'.hardcoded,
-                            isLoading: isSubmitting,
-                            onTap: onSubmit,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+          if (!workOrder.status.isOpen &&
+              !workOrder.status.isCompleted &&
+              !workOrder.status.isPendingConclusionApproval)
+            SliverToBoxAdapter(
+              child: Form(
+                key: formKey,
+                child:
+                    BlocSelector<
+                      WorkOrderObservationsCubit,
+                      WorkOrderObservationsState,
+                      bool
+                    >(
+                      selector: (state) => state.status == StateStatus.saving,
+                      builder: (context, isSubmitting) {
+                        return Column(
+                          children: [
+                            BaseTextFormField(
+                              controller: textController,
+                              hintText: 'Adicionar uma observação...'.hardcoded,
+                              maxLines: 8,
+                              maxLength: 2000,
+                              enabled: !isSubmitting,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteractionIfError,
+                              validator: FormValidators.compose([
+                                NonEmptyValidator(),
+                                MinLengthValidator(10),
+                              ]),
+                            ),
+                            gapH8,
+                            BaseButton(
+                              text: 'Adicionar observação'.hardcoded,
+                              isLoading: isSubmitting,
+                              onTap: onSubmit,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+              ),
             ),
-          ),
         ],
       ),
     );
