@@ -94,7 +94,7 @@ class ReviewCompletionDialog extends HookWidget {
                       hintText:
                           'Motivo de rejeição ou nota de aprovação'.hardcoded,
                       maxLength: 250,
-                      maxLines: 5,
+                      maxLines: 10,
                       validator: FormValidators.compose([
                         NonEmptyValidator(),
                         MinLengthValidator(5),
@@ -104,14 +104,19 @@ class ReviewCompletionDialog extends HookWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SecondaryButton(
-                          text: 'Rejeitar'.hardcoded,
-                          onTap: () => reviewCompletion(false),
-                          color: Colors.red,
+                        Flexible(
+                          child: SecondaryButton(
+                            text: 'Rejeitar'.hardcoded,
+                            onTap: () => reviewCompletion(false),
+                            color: Colors.red,
+                          ),
                         ),
-                        BaseButton(
-                          text: 'Aprovar'.hardcoded,
-                          onTap: () => reviewCompletion(true),
+                        gapW12,
+                        Flexible(
+                          child: BaseButton(
+                            text: 'Aprovar'.hardcoded,
+                            onTap: () => reviewCompletion(true),
+                          ),
                         ),
                       ],
                     ),
