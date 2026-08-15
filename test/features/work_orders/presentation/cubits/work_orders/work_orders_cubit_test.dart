@@ -111,6 +111,12 @@ void main() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
+    registerFallbackValue(
+      WorkOrderPendingRequestsRoute(
+        workOrder: EntityFactory.makeWorkOrderEntity(),
+        currentUserId: faker.guid.guid(),
+      ),
+    );
     registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
     registerFallbackValue(
       CancelPauseParams(
@@ -1724,6 +1730,28 @@ void main() {
             () => mockNavigationClient.pushRoute<WorkOrderDetailsRouteArgs>(
               any(),
             ),
+          ).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'navigateToWorkOrderPendingRequests should push WorkOrderPendingRequestsRoute',
+        build: () {
+          when(
+            () => mockNavigationClient
+                .pushRoute<WorkOrderPendingRequestsRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
+          return cubit;
+        },
+        act: (cubit) => cubit.navigateToWorkOrderPendingRequests(
+          EntityFactory.makeWorkOrderEntity(),
+          faker.guid.guid(),
+        ),
+        expect: () => <WorkOrdersState>[],
+        verify: (cubit) {
+          verify(
+            () => mockNavigationClient
+                .pushRoute<WorkOrderPendingRequestsRouteArgs>(any()),
           ).called(1);
         },
       );

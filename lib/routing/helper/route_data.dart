@@ -40,6 +40,9 @@ const String kCreateUpdateWorkOrderPath = 'create-update-work-order';
 const String kWorkOrderDetailsRoute = 'WorkOrderDetailsRoute';
 const String kWorkOrderDetailsPath = 'work-order-details';
 
+const String kWorkOrderPendingRequestsRoute = 'WorkOrderPendingRequestsRoute';
+const String kWorkOrderPendingRequestsPath = 'work-order-pending-requests';
+
 // Assets
 const String kAssetsRoute = 'AssetsRoute';
 const String kAssetsPath = 'assets';

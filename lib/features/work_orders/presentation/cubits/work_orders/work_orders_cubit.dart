@@ -480,6 +480,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     await pushRoute(WorkOrderDetailsRoute(workOrderId: workOrderId));
   }
 
+  Future<void> navigateToWorkOrderPendingRequests(
+    WorkOrderEntity workOrder,
+    String currentUserId,
+  ) async {
+    await pushRoute(
+      WorkOrderPendingRequestsRoute(
+        workOrder: workOrder,
+        currentUserId: currentUserId,
+      ),
+    );
+  }
+
   Future<void> navigateToCreateSlaPolicy() async {
     await pushRoute(CreateUpdateSlaPolicyRoute());
   }
