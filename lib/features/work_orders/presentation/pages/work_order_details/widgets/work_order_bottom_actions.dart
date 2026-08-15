@@ -97,9 +97,20 @@ class WorkOrderBottomActions extends StatelessWidget {
                       : 'Solicitar conclusão'.hardcoded,
                   onTap: () async {
                     if (canApproveCompletion) {
-                      await context.read<WorkOrdersCubit>().concludeDirectly(
-                        workOrder: workOrder,
+                      final ok = await showAlertDialog(
+                        context: context,
+                        title: 'Concluir'.hardcoded,
+                        contentText:
+                            'Deseja realmente concluir a ordem de serviço?'
+                                .hardcoded,
+                        defaultActionText: 'Sim'.hardcoded,
+                        cancelActionText: 'Não'.hardcoded,
                       );
+                      if (ok == true && context.mounted) {
+                        await context.read<WorkOrdersCubit>().concludeDirectly(
+                          workOrder: workOrder,
+                        );
+                      }
                       return;
                     }
 
