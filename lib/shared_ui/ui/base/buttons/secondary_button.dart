@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -10,7 +9,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class SecondaryButton extends HookWidget {
+class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
     required this.onTap,
@@ -21,11 +20,11 @@ class SecondaryButton extends HookWidget {
     this.height,
     this.width,
     this.color,
-    this.loadableButton = false,
     this.elevation,
     this.expandWidth = false,
     this.permission,
     this.platformIcon,
+    this.isLoading = false,
   });
   final FutureOr<void> Function()? onTap;
   final String text;
@@ -34,10 +33,10 @@ class SecondaryButton extends HookWidget {
   final Color? foregroundColor;
   final double? height;
   final double? width;
-  final bool loadableButton;
   final Color? color;
   final double? elevation;
   final bool expandWidth;
+  final bool isLoading;
   final ActionPermission? permission;
   final PlatformIcon? platformIcon;
 
@@ -53,26 +52,14 @@ class SecondaryButton extends HookWidget {
     final activeForegroundColor =
         color ?? foregroundColor ?? context.colorScheme.primary;
 
-    final isLoading = useState(false);
-
     final tapCallback = onTap == null
         ? null
-        : () async {
+        : () {
             FocusManager.instance.primaryFocus?.unfocus();
-            final result = onTap!();
-            if (result is Future) {
-              isLoading.value = true;
-              try {
-                await result;
-              } finally {
-                if (context.mounted) {
-                  isLoading.value = false;
-                }
-              }
-            }
+            onTap!();
           };
 
-    final childWidget = isLoading.value
+    final childWidget = isLoading
         ? LoadingCircle.small(activeForegroundColor)
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -104,7 +91,8 @@ class SecondaryButton extends HookWidget {
             borderRadius: const BorderRadius.all(Radius.circular(Sizes.p8)),
           ),
           child: CupertinoButton(
-            onPressed: isLoading.value ? null : tapCallback,
+            padding: EdgeInsets.zero,
+            onPressed: isLoading ? null : tapCallback,
             child: Center(child: childWidget),
           ),
         ),
@@ -115,7 +103,7 @@ class SecondaryButton extends HookWidget {
       height: height ?? 50,
       width: expandWidth ? double.maxFinite : width,
       child: OutlinedButton(
-        onPressed: isLoading.value ? null : tapCallback,
+        onPressed: isLoading ? null : tapCallback,
         style: OutlinedButton.styleFrom(elevation: elevation).copyWith(
           side: WidgetStateProperty.all(
             BorderSide(color: activeColor, width: 1.5),
