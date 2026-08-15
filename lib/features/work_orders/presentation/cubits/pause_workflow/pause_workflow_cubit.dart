@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -84,6 +85,32 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
+  PauseRequestEntity? get activePauseRequest {
+    return state.pauseRequests.firstWhereOrNull(
+      (r) =>
+          r.eventType == PauseEventType.pause &&
+          r.resumedAt == null &&
+          r.status != PauseRequestStatus.rejected &&
+          r.status != PauseRequestStatus.cancelledByProvider,
+    );
+  }
+
+  bool get hasPendingPauses {
+    return state.pauseRequests.any(
+      (r) =>
+          r.eventType == PauseEventType.pause &&
+          r.status == PauseRequestStatus.pending,
+    );
+  }
+
+  bool get hasPendingCompletions {
+    return state.pauseRequests.any(
+      (r) =>
+          r.eventType == PauseEventType.completion &&
+          r.status == PauseRequestStatus.pending,
+    );
+  }
+
   Future<bool> requestPause({
     required String companyId,
     required String workOrderId,
@@ -95,6 +122,37 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? sectorId,
     bool affectsSla = true,
   }) async {
+    if ((reasonId?.isEmpty ?? true) && (customReason?.trim().isEmpty ?? true)) {
+      final message = 'Informe o motivo da pausa'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (hasPendingPauses || activePauseRequest != null) {
+      final message =
+          'Já existe uma pausa ativa ou pendente para esta ordem de serviço'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (hasPendingCompletions) {
+      final message =
+          'Existe uma solicitação de conclusão pendente para esta ordem de serviço'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
@@ -134,38 +192,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
-  PauseRequestEntity? get activePauseRequest {
-    for (final request in state.pauseRequests) {
-      if (request.eventType == PauseEventType.pause &&
-          request.resumedAt == null) {
-        return request;
-      }
-    }
-    return null;
-  }
-
-  bool get hasPendingPauseRequests {
-    return state.pauseRequests.any(
-      (r) => r.status == PauseRequestStatus.pending,
-    );
-  }
-
-  bool get hasPendingPauses {
-    return state.pauseRequests.any(
-      (r) =>
-          r.eventType == PauseEventType.pause &&
-          r.status == PauseRequestStatus.pending,
-    );
-  }
-
   Future<bool> reviewPause({
     required String id,
     required PauseRequestStatus status,
     required String reviewedById,
     required String workOrderId,
+    required PauseResponsibility responsibility,
     String? reviewObservation,
     String? reasonId,
-    PauseResponsibility? responsibility,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewPause(
@@ -203,6 +237,37 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? observation,
     String? sectorId,
   }) async {
+    if (customReason.trim().isEmpty) {
+      final message = 'Informe a justificativa de conclusão'.hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (activePauseRequest != null || hasPendingPauses) {
+      final message =
+          'Existem pausas ativas ou pendentes. Finalize as pausas antes de solicitar conclusão'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (hasPendingCompletions) {
+      final message =
+          'Já existe uma solicitação de conclusão pendente para esta ordem de serviço'
+              .hardcoded;
+      emit(
+        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
@@ -248,13 +313,12 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     required String reviewedById,
     required String workOrderId,
     String? reviewObservation,
-    PauseResponsibility? responsibility,
     String? completionReason,
     String? completionSectorId,
   }) async {
     if (hasPendingPauses) {
       final message =
-          'Existem solicitações de pausa pendentes. Avalie as pausas primeiro.'
+          'Existem solicitações de pausa pendentes. Avalie as pausas primeiro'
               .hardcoded;
       emit(
         state.copyWith(status: StateStatus.savingError, errorMessage: message),
@@ -262,12 +326,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       showErrorToast(message);
       return false;
     }
-
-    final effectiveResponsibility =
-        responsibility ??
-        (status == PauseRequestStatus.approved
-            ? PauseResponsibility.contractor
-            : PauseResponsibility.provider);
 
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewCompletion(
@@ -277,7 +335,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
         status: status,
         reviewedById: reviewedById,
         reviewObservation: reviewObservation,
-        responsibility: effectiveResponsibility,
         completionReason: completionReason,
         completionSectorId: completionSectorId,
       ),

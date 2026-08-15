@@ -123,8 +123,7 @@ class WorkOrderApprovalBanner extends HookWidget {
                     builder: (context) {
                       if (isPauseApproval) {
                         return ReviewPauseDialog(
-                          pauseRequestId: pendingRequest.id,
-                          workOrderId: workOrder.id,
+                          pauseRequest: pendingRequest,
                           currentUserId: currentUserId,
                         );
                       } else {

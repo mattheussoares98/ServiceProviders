@@ -76,3 +76,5 @@ FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
 | `20260721230000_create_sectors.sql` | `sector` column dropped; `sector_id` FK added |
 | `20260725210000_add_work_order_completion_metadata.sql` | `event_type` column added (default `'pause'`) |
 | `20260812220000_add_resumed_by_to_pause_requests.sql` | `resumed_by_id` FK added; UPDATE policy expanded to allow SP users to update pending requests |
+| `20260814210000_make_pause_request_responsibility_nullable.sql` | `responsibility` made nullable; `chk_responsibility_on_review` CHECK constraint added to require responsibility on approved/rejected status |
+| `20260814211500_relax_completion_responsibility_constraint.sql` | `chk_responsibility_on_review` constraint updated so `responsibility` is only required for `event_type = 'pause'` on approval/rejection |

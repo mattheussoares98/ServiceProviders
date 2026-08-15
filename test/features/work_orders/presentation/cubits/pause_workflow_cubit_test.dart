@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
@@ -259,6 +260,28 @@ void main() {
 
     group('requestPause', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit savingError when both reasonId and customReason are missing',
+        build: () => cubit,
+        act: (cubit) => cubit.requestPause(
+          companyId: 'company-id',
+          workOrderId: 'wo-id',
+          requestedById: 'user-id',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>()
+              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Informe o motivo da pausa',
+              ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockRequestPause.call(any()));
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving, loaded, loading, loaded when request succeeds',
         build: () {
           when(
@@ -274,6 +297,7 @@ void main() {
           companyId: 'company-id',
           workOrderId: 'wo-id',
           requestedById: 'user-id',
+          customReason: 'Falta de peças',
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
@@ -309,6 +333,7 @@ void main() {
           companyId: 'company-id',
           workOrderId: 'wo-id',
           requestedById: 'user-id',
+          customReason: 'Falta de peças',
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
@@ -325,7 +350,7 @@ void main() {
 
     group('reviewPause', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit saving, loaded, loading, loaded when review succeeds',
+        'should emit saving, loaded, loading, loaded when review approval succeeds',
         build: () {
           when(
             () => mockReviewPause.call(any()),
@@ -341,6 +366,7 @@ void main() {
           status: PauseRequestStatus.approved,
           reviewedById: 'manager-id',
           workOrderId: 'wo-id',
+          responsibility: PauseResponsibility.provider,
           reviewObservation: 'Approved pause',
           reasonId: 'reason-id',
         ),
@@ -366,12 +392,96 @@ void main() {
             StateStatus.loaded,
           ),
         ],
+        verify: (_) {
+          verify(
+            () => mockReviewPause.call(
+              any(
+                that: isA<ReviewPauseParams>()
+                    .having((p) => p.id, 'id', 'pause-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.approved,
+                    )
+                    .having(
+                      (p) => p.responsibility,
+                      'responsibility',
+                      PauseResponsibility.provider,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should emit saving, loaded, loading, loaded when review rejection succeeds',
+        build: () {
+          when(
+            () => mockReviewPause.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.reviewPause(
+          id: 'pause-id',
+          status: PauseRequestStatus.rejected,
+          reviewedById: 'manager-id',
+          workOrderId: 'wo-id',
+          responsibility: PauseResponsibility.contractor,
+          reviewObservation: 'Rejected pause',
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.saving,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockReviewPause.call(
+              any(
+                that: isA<ReviewPauseParams>()
+                    .having((p) => p.id, 'id', 'pause-id')
+                    .having(
+                      (p) => p.status,
+                      'status',
+                      PauseRequestStatus.rejected,
+                    )
+                    .having(
+                      (p) => p.responsibility,
+                      'responsibility',
+                      PauseResponsibility.contractor,
+                    ),
+              ),
+            ),
+          ).called(1);
+        },
       );
     });
 
     group('requestCompletion', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit saving, loaded, loading, loaded when completion request succeeds',
+        'should emit saving, loaded, loading, loaded when completion request succeeds with null responsibility by default',
         build: () {
           when(
             () => mockRequestCompletion.call(any()),
@@ -408,6 +518,17 @@ void main() {
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
+        verify: (_) {
+          verify(
+            () => mockRequestCompletion.call(
+              any(
+                that: isA<PauseRequestEntity>()
+                    .having((r) => r.companyId, 'companyId', 'company-id')
+                    .having((r) => r.responsibility, 'responsibility', isNull),
+              ),
+            ),
+          ).called(1);
+        },
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
@@ -475,7 +596,7 @@ void main() {
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit saving, loaded, loading, loaded and pass contractor responsibility when review completion is approved',
+        'should emit saving, loaded, loading, loaded when review completion is approved',
         build: () {
           when(
             () => mockReviewCompletion.call(any()),
@@ -529,7 +650,7 @@ void main() {
                     .having(
                       (p) => p.responsibility,
                       'responsibility',
-                      PauseResponsibility.contractor,
+                      isNull,
                     ),
               ),
             ),
@@ -538,7 +659,7 @@ void main() {
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should pass provider responsibility when review completion is rejected',
+        'should emit saving, loaded, loading, loaded when review completion is rejected',
         build: () {
           when(
             () => mockReviewCompletion.call(any()),
@@ -592,7 +713,7 @@ void main() {
                     .having(
                       (p) => p.responsibility,
                       'responsibility',
-                      PauseResponsibility.provider,
+                      isNull,
                     ),
               ),
             ),
