@@ -113,7 +113,7 @@ void main() {
   });
 
   group('reviewPause', () {
-    test('should return SuccessState(true) and update work order when successful', () async {
+    test('should return SuccessState(true) and update pause request when successful', () async {
       when(
         () => mockDatabase.update(
           table: any(named: 'table'),
@@ -138,13 +138,13 @@ void main() {
           filters: any(named: 'filters'),
         ),
       ).called(1);
-      verify(
+      verifyNever(
         () => mockDatabase.update(
           table: 'work_orders',
           values: any(named: 'values'),
           filters: any(named: 'filters'),
         ),
-      ).called(1);
+      );
     });
   });
 

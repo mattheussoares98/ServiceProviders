@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_loca
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -212,7 +213,7 @@ void main() {
 
     group('reviewPause', () {
       test(
-        'should update status and review fields of a pause request and set work order status',
+        'should update status and review fields of a pause request without changing work order status',
         () async {
           await insertDependencies(
             companyId: tRequestModel.companyId,
@@ -244,10 +245,14 @@ void main() {
           expect(updated.reviewedById, userId);
           expect(updated.reviewObservation, 'Approved request');
 
-          final wo = await (database.select(database.workOrders)
-                ..where((t) => t.id.equals(tRequestModel.workOrderId)))
-              .getSingle();
-          expect(wo.status, 'on_hold');
+          final wo = await (database.select(
+            database.workOrders,
+          )..where((t) => t.id.equals(tRequestModel.workOrderId))).getSingle();
+          final expectedWoStatus =
+              tRequestModel.eventType == PauseEventType.completion
+              ? WorkOrderStatus.pendingConclusionApproval.code
+              : WorkOrderStatus.pendingPauseApproval.code;
+          expect(wo.status, expectedWoStatus);
         },
       );
     });
@@ -287,9 +292,10 @@ void main() {
           expect(result, isA<SuccessState<bool>>());
           expect((result as SuccessState<bool>).data, true);
 
-          final wo = await (database.select(database.workOrders)
-                ..where((t) => t.id.equals(completionRequest.workOrderId)))
-              .getSingle();
+          final wo =
+              await (database.select(database.workOrders)
+                    ..where((t) => t.id.equals(completionRequest.workOrderId)))
+                  .getSingle();
           expect(wo.status, 'completed');
           expect(wo.completionReason, 'Completed successfully');
           expect(wo.completionResponsibility, 'contractor');
@@ -299,41 +305,44 @@ void main() {
     });
 
     group('cancelPause', () {
-      test('should cancel the pause, set resumedAt, and update work order to in_progress', () async {
-        await insertDependencies(
-          companyId: tRequestModel.companyId,
-          userId: userId,
-          locationId: locationId,
-          areaId: areaId,
-          assetId: assetId,
-          workOrderId: tRequestModel.workOrderId,
-        );
-        await dataSource.savePauseRequest(tRequestModel);
+      test(
+        'should cancel the pause, set resumedAt, and update work order to in_progress',
+        () async {
+          await insertDependencies(
+            companyId: tRequestModel.companyId,
+            userId: userId,
+            locationId: locationId,
+            areaId: areaId,
+            assetId: assetId,
+            workOrderId: tRequestModel.workOrderId,
+          );
+          await dataSource.savePauseRequest(tRequestModel);
 
-        final resumedAt = DateTime.now().add(const Duration(hours: 2));
-        final result = await dataSource.cancelPause(
-          id: tRequestModel.id,
-          workOrderId: tRequestModel.workOrderId,
-          resumedAt: resumedAt,
-          resumedById: userId,
-        );
+          final resumedAt = DateTime.now().add(const Duration(hours: 2));
+          final result = await dataSource.cancelPause(
+            id: tRequestModel.id,
+            workOrderId: tRequestModel.workOrderId,
+            resumedAt: resumedAt,
+            resumedById: userId,
+          );
 
-        expect(result, isA<SuccessState<bool>>());
-        expect((result as SuccessState<bool>).data, true);
+          expect(result, isA<SuccessState<bool>>());
+          expect((result as SuccessState<bool>).data, true);
 
-        final check = await dataSource.getPauseRequests(
-          tRequestModel.workOrderId,
-        );
-        final updated =
-            (check as SuccessState<List<PauseRequestModel>>).data!.first;
-        expect(updated.resumedAt?.year, resumedAt.year);
-        expect(updated.resumedById, userId);
+          final check = await dataSource.getPauseRequests(
+            tRequestModel.workOrderId,
+          );
+          final updated =
+              (check as SuccessState<List<PauseRequestModel>>).data!.first;
+          expect(updated.resumedAt?.year, resumedAt.year);
+          expect(updated.resumedById, userId);
 
-        final wo = await (database.select(database.workOrders)
-              ..where((t) => t.id.equals(tRequestModel.workOrderId)))
-            .getSingle();
-        expect(wo.status, 'in_progress');
-      });
+          final wo = await (database.select(
+            database.workOrders,
+          )..where((t) => t.id.equals(tRequestModel.workOrderId))).getSingle();
+          expect(wo.status, 'in_progress');
+        },
+      );
     });
   });
 }

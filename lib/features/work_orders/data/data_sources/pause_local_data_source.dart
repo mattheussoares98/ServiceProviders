@@ -188,37 +188,22 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
     String? responsibility,
   }) {
     return ErrorHandler.execute(() async {
-      await _database.transaction(() async {
-        final query = _database.update(_database.workOrderPauseRequests)
-          ..where((t) => t.id.equals(id));
-        await query.write(
-          WorkOrderPauseRequestsCompanion(
-            status: Value(status),
-            reviewedById: Value(reviewedById),
-            reviewObservation: reviewObservation != null
-                ? Value(reviewObservation)
-                : const Value.absent(),
-            reasonId: reasonId != null ? Value(reasonId) : const Value.absent(),
-            responsibility: responsibility != null
-                ? Value(responsibility)
-                : const Value.absent(),
-            updatedAt: Value(DateTime.now()),
-          ),
-        );
-
-        final nextWoStatus = status == PauseRequestStatus.approved.value
-            ? WorkOrderStatus.onHold.code
-            : WorkOrderStatus.inProgress.code;
-
-        final woQuery = _database.update(_database.workOrders)
-          ..where((t) => t.id.equals(workOrderId));
-        await woQuery.write(
-          WorkOrdersCompanion(
-            status: Value(nextWoStatus),
-            updatedAt: Value(DateTime.now()),
-          ),
-        );
-      });
+      final query = _database.update(_database.workOrderPauseRequests)
+        ..where((t) => t.id.equals(id));
+      await query.write(
+        WorkOrderPauseRequestsCompanion(
+          status: Value(status),
+          reviewedById: Value(reviewedById),
+          reviewObservation: reviewObservation != null
+              ? Value(reviewObservation)
+              : const Value.absent(),
+          reasonId: reasonId != null ? Value(reasonId) : const Value.absent(),
+          responsibility: responsibility != null
+              ? Value(responsibility)
+              : const Value.absent(),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
       return const SuccessState(data: true);
     });
   }
