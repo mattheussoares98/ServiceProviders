@@ -4,7 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
@@ -44,8 +43,6 @@ class MockRequestCompletionUseCase extends Mock
 class MockReviewCompletionUseCase extends Mock
     implements ReviewCompletionUseCase {}
 
-class MockGetSectorsUseCase extends Mock implements GetSectorsUseCase {}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -56,7 +53,6 @@ void main() {
   late MockGetPauseRequestsUseCase mockGetPauseRequests;
   late MockRequestCompletionUseCase mockRequestCompletion;
   late MockReviewCompletionUseCase mockReviewCompletion;
-  late MockGetSectorsUseCase mockGetSectors;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
 
@@ -99,7 +95,6 @@ void main() {
     mockGetPauseRequests = MockGetPauseRequestsUseCase();
     mockRequestCompletion = MockRequestCompletionUseCase();
     mockReviewCompletion = MockReviewCompletionUseCase();
-    mockGetSectors = MockGetSectorsUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
 
@@ -115,7 +110,6 @@ void main() {
       getPauseRequests: mockGetPauseRequests,
       requestCompletion: mockRequestCompletion,
       reviewCompletion: mockReviewCompletion,
-      getSectors: mockGetSectors,
       getActiveCompanyId: mockGetActiveCompanyId,
     );
 
@@ -125,53 +119,6 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('PauseWorkflowCubit Tests', () {
-    group('loadSectors', () {
-      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit updated sectors when getSectors succeeds',
-        build: () {
-          final tSectors = EntityFactory.makeSectorEntityList();
-          when(
-            () => mockGetSectors.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: tSectors));
-          when(
-            () => mockGetActiveCompanyId.call(),
-          ).thenReturn(tUserProfile.companyId);
-          return cubit;
-        },
-        act: (cubit) => cubit.loadSectors(),
-        expect: () => [
-          isA<PauseWorkflowState>().having(
-            (s) => s.sectors,
-            'sectors',
-            hasLength(3),
-          ),
-        ],
-        verify: (_) {
-          verify(() => mockGetActiveCompanyId.call()).called(1);
-          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
-        },
-      );
-
-      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should not emit state when getSectors fails',
-        build: () {
-          when(
-            () => mockGetSectors.call(any()),
-          ).thenAnswer((_) async => FailureState(message: 'Error'));
-          when(
-            () => mockGetActiveCompanyId.call(),
-          ).thenReturn(tUserProfile.companyId);
-          return cubit;
-        },
-        act: (cubit) => cubit.loadSectors(),
-        expect: () => <dynamic>[],
-        verify: (_) {
-          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
-          verify(() => mockGetActiveCompanyId.call()).called(1);
-        },
-      );
-    });
-
     group('loadPauseReasons', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit loading and loaded when reasons fetch succeeds',
@@ -647,11 +594,7 @@ void main() {
                       'status',
                       PauseRequestStatus.approved,
                     )
-                    .having(
-                      (p) => p.responsibility,
-                      'responsibility',
-                      isNull,
-                    ),
+                    .having((p) => p.responsibility, 'responsibility', isNull),
               ),
             ),
           ).called(1);
@@ -710,11 +653,7 @@ void main() {
                       'status',
                       PauseRequestStatus.rejected,
                     )
-                    .having(
-                      (p) => p.responsibility,
-                      'responsibility',
-                      isNull,
-                    ),
+                    .having((p) => p.responsibility, 'responsibility', isNull),
               ),
             ),
           ).called(1);
