@@ -1,5 +1,7 @@
 part of 'work_orders_cubit.dart';
 
+enum WorkOrdersSection implements SectionKey { resumeWork }
+
 class WorkOrdersState extends BaseState {
   const WorkOrdersState({
     required this.workOrders,
@@ -10,6 +12,7 @@ class WorkOrdersState extends BaseState {
     this.isLoadingMore = false,
     super.status = StateStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const WorkOrdersState.initial()
@@ -35,6 +38,7 @@ class WorkOrdersState extends BaseState {
     WorkOrderFilter? activeFilter,
     bool? hasMorePages,
     bool? isLoadingMore,
+    Map<SectionKey, StateStatus>? sections,
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
@@ -46,6 +50,7 @@ class WorkOrdersState extends BaseState {
       activeFilter: activeFilter ?? this.activeFilter,
       hasMorePages: hasMorePages ?? this.hasMorePages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      sections: sections ?? this.sections,
       status: status ?? this.status,
       errorMessage: annulErrorMessage == true
           ? null
@@ -61,6 +66,7 @@ class WorkOrdersState extends BaseState {
     activeFilter,
     hasMorePages,
     isLoadingMore,
+    sections,
     status,
     errorMessage,
   ];

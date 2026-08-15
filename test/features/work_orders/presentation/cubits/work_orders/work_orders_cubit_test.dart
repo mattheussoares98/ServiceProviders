@@ -1417,15 +1417,31 @@ void main() {
           },
           expect: () => [
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
               StateStatus.saving,
             ),
-            isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.loaded,
-            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.saving),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1460,15 +1476,31 @@ void main() {
           },
           expect: () => [
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
               StateStatus.saving,
             ),
-            isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.savingError,
-            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.saving),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.savingError),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.savingError),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1512,12 +1544,25 @@ void main() {
             expect(result, isTrue);
           },
           expect: () => [
-            isA<WorkOrdersState>(),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.loaded,
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
+              StateStatus.saving,
             ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
           ],
           verify: (_) {
             verify(
@@ -1560,15 +1605,31 @@ void main() {
           },
           expect: () => [
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
               StateStatus.saving,
             ),
-            isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.loaded,
-            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.saving),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
           ],
           verify: (_) {
             verify(

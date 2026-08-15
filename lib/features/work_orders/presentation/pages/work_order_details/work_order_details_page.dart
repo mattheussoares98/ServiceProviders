@@ -83,6 +83,7 @@ class _WorkOrderDetails extends HookWidget {
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
         statuses: {.deleting, .saving},
+        sections: {WorkOrdersSection.resumeWork: {.saving}},
       ),
       ObservedLoadingTarget(
         pauseCubit,

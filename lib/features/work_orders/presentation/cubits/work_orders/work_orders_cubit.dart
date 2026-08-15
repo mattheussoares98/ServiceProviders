@@ -20,6 +20,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'work_orders_state.dart';
 
@@ -404,38 +405,56 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     required String currentUserId,
     required PauseWorkflowCubit pauseCubit,
   }) async {
-    final activePause = pauseCubit.activePauseRequest;
-    final pendingCompletion = pauseCubit.pendingCompletionRequest;
-
-    if (activePause != null) {
-      final success = await _resumePausedWorkOrder(
-        workOrder: workOrder,
-        currentUserId: currentUserId,
-        pauseId: activePause.id,
-      );
-      if (success) {
-        await pauseCubit.loadPauseRequests(workOrder.id);
-      }
-      return success;
-    }
-
-    if (pendingCompletion != null) {
-      final success = await pauseCubit.reviewCompletion(
-        id: pendingCompletion.id,
-        status: PauseRequestStatus.cancelled,
-        reviewedById: currentUserId,
-        workOrderId: workOrder.id,
-      );
-      if (success) {
-        await loadWorkOrdersAndChangeRequests(showLoading: false);
-      }
-      return success;
-    }
-
-    return changeWorkOrderStatus(
-      workOrder: workOrder,
-      status: WorkOrderStatus.inProgress,
+    emit(
+      state.copyWith(
+        sections: withSection(WorkOrdersSection.resumeWork, StateStatus.saving),
+      ),
     );
+
+    var success = false;
+    try {
+      final activePause = pauseCubit.activePauseRequest;
+      final pendingCompletion = pauseCubit.pendingCompletionRequest;
+
+      if (activePause != null) {
+        success = await _resumePausedWorkOrder(
+          workOrder: workOrder,
+          currentUserId: currentUserId,
+          pauseId: activePause.id,
+        );
+        if (success) {
+          await pauseCubit.loadPauseRequests(workOrder.id);
+        }
+      } else if (pendingCompletion != null) {
+        success = await pauseCubit.reviewCompletion(
+          id: pendingCompletion.id,
+          status: PauseRequestStatus.cancelled,
+          reviewedById: currentUserId,
+          workOrderId: workOrder.id,
+        );
+        if (success) {
+          await loadWorkOrdersAndChangeRequests(showLoading: false);
+        }
+      } else {
+        success = await changeWorkOrderStatus(
+          workOrder: workOrder,
+          status: WorkOrderStatus.inProgress,
+        );
+      }
+    } finally {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            sections: withSection(
+              WorkOrdersSection.resumeWork,
+              StateStatus.loaded,
+            ),
+          ),
+        );
+      }
+    }
+
+    return success;
   }
 
   /// Directly concludes a work order (when user has permission and no pending pauses).
