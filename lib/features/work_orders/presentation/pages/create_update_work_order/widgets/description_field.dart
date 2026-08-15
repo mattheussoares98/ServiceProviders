@@ -12,7 +12,7 @@ class _DescriptionField extends StatelessWidget {
       hintText: 'Ex: O equipamento do bloco B não liga'.hardcoded,
       controller: controller,
       maxLength: 500,
-      maxLines: 3,
+      maxLines: 10,
       textInputAction: TextInputAction.newline,
     );
   }

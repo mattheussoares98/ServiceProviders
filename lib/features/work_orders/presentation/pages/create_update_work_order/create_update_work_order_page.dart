@@ -143,11 +143,17 @@ class _CreateUpdatePage extends HookWidget {
       (UsersCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
     );
-    final isLoading = assetsLoading || locationsLoading || usersLoading;
+    final (providersError, providersLoading) = context.select(
+      (ServiceProvidersCubit cubit) =>
+          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+    );
+    final isLoading =
+        assetsLoading || locationsLoading || usersLoading || providersLoading;
     final hasError =
         assetsError?.isNotEmpty == true ||
         locationsError?.isNotEmpty == true ||
-        usersError?.isNotEmpty == true;
+        usersError?.isNotEmpty == true ||
+        providersError?.isNotEmpty == true;
 
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
@@ -183,15 +189,6 @@ class _CreateUpdatePage extends HookWidget {
       initialProviderProfileId,
     );
     final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
-
-    useEffect(() {
-      if (initialServiceProviderCompanyId != null) {
-        context.read<ServiceProvidersCubit>().selectCompany(
-          initialServiceProviderCompanyId,
-        );
-      }
-      return null;
-    }, [initialServiceProviderCompanyId]);
 
     bool getHasChanges() {
       final attachmentsState = context.read<AttachmentsCubit>().state;
@@ -300,15 +297,13 @@ class _CreateUpdatePage extends HookWidget {
           onChanged: (val) => selectedAssignedToId.value = val,
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _ServiceProviderCompanyDropdown(
-          selectedCompanyId: selectedServiceProviderCompanyId.value,
-          onChanged: (val) {
-            selectedServiceProviderCompanyId.value = val;
-            selectedProviderProfileId.value = null;
-          },
-        ),
+      _ServiceProviderCompanyDropdown(
+        //* handling the padding in the widget
+        selectedCompanyId: selectedServiceProviderCompanyId.value,
+        onChanged: (val) {
+          selectedServiceProviderCompanyId.value = val;
+          selectedProviderProfileId.value = null;
+        },
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
@@ -462,6 +457,7 @@ class _CreateUpdatePage extends HookWidget {
               assetsError: assetsError,
               locationsError: locationsError,
               usersError: usersError,
+              providersError: providersError,
             )
           : Form(
               key: formKey,

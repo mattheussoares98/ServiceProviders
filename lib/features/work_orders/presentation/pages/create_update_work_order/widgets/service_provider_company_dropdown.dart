@@ -16,6 +16,10 @@ class _ServiceProviderCompanyDropdown extends StatelessWidget {
           (cubit) => cubit.state.companies,
         );
 
+    if (companies.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final dropdownItems = companies
         .map(
           (company) => DropdownMenuItem(
@@ -25,13 +29,16 @@ class _ServiceProviderCompanyDropdown extends StatelessWidget {
         )
         .toList();
 
-    return BaseDropDown<String?>(
-      key: const ValueKey('ServiceProviderCompany'),
-      label: 'Empresa prestadora do serviço'.hardcoded,
-      showLabelAtTopLeft: true,
-      selectedItem: selectedCompanyId,
-      items: dropdownItems,
-      onChanged: onChanged,
+    return Padding(
+      padding: const EdgeInsets.only(top: Sizes.p8),
+      child: BaseDropDown<String?>(
+        key: const ValueKey('ServiceProviderCompany'),
+        label: 'Empresa prestadora do serviço'.hardcoded,
+        showLabelAtTopLeft: true,
+        selectedItem: selectedCompanyId,
+        items: dropdownItems,
+        onChanged: onChanged,
+      ),
     );
   }
 }
