@@ -134,16 +134,13 @@ class _WorkOrderDetails extends HookWidget {
                 gapSliverH24,
               ],
             ),
-            bottomNavigationBar:
-                workOrder.status.isCancelled ||
-                    workOrder.status.isCompleted ||
-                    workOrder.status.isOpen
-                ? null
-                : WorkOrderBottomActions(
+            bottomNavigationBar: workOrder.status.showsBottomActions
+                ? WorkOrderBottomActions(
                     workOrder: workOrder,
                     currentUserId: currentUserId,
                     pauseCubit: pauseCubit,
-                  ),
+                  )
+                : null,
           );
         },
       ),

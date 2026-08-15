@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/request_completion_fields.dart';
@@ -33,41 +32,14 @@ class WorkOrderBottomActions extends StatelessWidget {
   Widget build(BuildContext context) {
     if (workOrder.status.isPaused ||
         workOrder.status.isPendingConclusionApproval) {
-      return Container(
-        padding: const EdgeInsets.all(Sizes.p16),
-        decoration: BoxDecoration(
-          color: context.theme.scaffoldBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
+      return _BottomBar(
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
-          onTap: () async {
-            final activePause = pauseCubit.activePauseRequest;
-            if (activePause != null) {
-              final success = await context
-                  .read<WorkOrdersCubit>()
-                  .resumePausedWorkOrder(
-                    workOrder: workOrder,
-                    currentUserId: currentUserId,
-                    pauseId: activePause.id,
-                  );
-
-              if (success) {
-                unawaited(pauseCubit.loadPauseRequests(workOrder.id));
-              }
-            } else {
-              await context.read<WorkOrdersCubit>().changeWorkOrderStatus(
-                workOrder: workOrder,
-                status: WorkOrderStatus.inProgress,
-              );
-            }
-          },
+          onTap: () => context.read<WorkOrdersCubit>().resumeWork(
+            workOrder: workOrder,
+            currentUserId: currentUserId,
+            pauseCubit: pauseCubit,
+          ),
         ),
       );
     }
@@ -82,18 +54,7 @@ class WorkOrderBottomActions extends StatelessWidget {
       final canConcludeDirectly =
           canApproveCompletion && !pauseCubit.hasPendingPauses;
 
-      return Container(
-        padding: const EdgeInsets.all(Sizes.p16),
-        decoration: BoxDecoration(
-          color: context.theme.scaffoldBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
+      return _BottomBar(
         child: Row(
           children: [
             Expanded(
@@ -128,19 +89,9 @@ class WorkOrderBottomActions extends StatelessWidget {
                       : 'Solicitar conclusão'.hardcoded,
                   onTap: () async {
                     if (canConcludeDirectly) {
-                      await context
-                          .read<WorkOrdersCubit>()
-                          .changeWorkOrderStatus(
-                            workOrder: workOrder,
-                            status: WorkOrderStatus.completed,
-                          );
-                      if (context.mounted) {
-                        unawaited(
-                          context
-                              .read<WorkOrdersCubit>()
-                              .loadWorkOrdersAndChangeRequests(),
-                        );
-                      }
+                      await context.read<WorkOrdersCubit>().concludeDirectly(
+                        workOrder: workOrder,
+                      );
                       return;
                     }
 
@@ -168,5 +119,28 @@ class WorkOrderBottomActions extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(Sizes.p16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: child,
+    );
   }
 }
