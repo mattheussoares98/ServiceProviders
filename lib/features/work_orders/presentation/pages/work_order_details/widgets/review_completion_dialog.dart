@@ -10,7 +10,11 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 class ReviewCompletionDialog extends HookWidget {
   const ReviewCompletionDialog({
@@ -18,7 +22,6 @@ class ReviewCompletionDialog extends HookWidget {
     required this.currentUserId,
     super.key,
   });
-  //TODO check this entire code
   final PauseRequestEntity pauseRequest;
   final String currentUserId;
 
@@ -26,6 +29,29 @@ class ReviewCompletionDialog extends HookWidget {
   Widget build(BuildContext context) {
     final cubit = useMemoized(() => GetIt.I<PauseWorkflowCubit>());
     final observationController = useTextEditingController();
+    final formKey = useMemoized(GlobalKey<FormState>.new);
+
+    Future<void> reviewCompletion(bool accept) async {
+      if (!accept && formKey.currentState?.validate() != true) {
+        return;
+      }
+
+      final success = await cubit.reviewCompletion(
+        id: pauseRequest.id,
+        status: accept
+            ? PauseRequestStatus.approved
+            : PauseRequestStatus.rejected,
+        reviewedById: currentUserId,
+        workOrderId: pauseRequest.workOrderId,
+        reviewObservation: observationController.text.trim(),
+        completionReason: pauseRequest.customReason,
+        completionSectorId: pauseRequest.sectorId,
+      );
+
+      if (success && context.mounted) {
+        Navigator.of(context).pop(accept);
+      }
+    }
 
     return BlocProvider.value(
       value: cubit,
@@ -37,94 +63,60 @@ class ReviewCompletionDialog extends HookWidget {
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(Sizes.p24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  BaseText.titleMedium(
-                    'Revisar Solicitação de Conclusão'.hardcoded,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  gapH16,
-                  if (pauseRequest.customReason != null) ...[
-                    BaseText.bodySmall(
-                      'Justificativa:'.hardcoded,
-                      color: Colors.grey[700],
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    BaseText.titleMedium(
+                      'Revisar solicitação de conclusão'.hardcoded,
+                      fontWeight: FontWeight.bold,
                     ),
-                    BaseText.bodyMedium(pauseRequest.customReason!),
-                    gapH12,
-                  ],
-                  if (pauseRequest.observation != null) ...[
-                    BaseText.bodySmall(
-                      'Observação:'.hardcoded,
-                      color: Colors.grey[700],
-                    ),
-                    BaseText.bodyMedium(pauseRequest.observation!),
-                    gapH12,
-                  ],
-                  BaseTextFormField(
-                    controller: observationController,
-                    labelText: 'Observação do Revisor'.hardcoded,
-                    hintText:
-                        'Motivo de rejeição ou nota de aprovação'.hardcoded,
-                    maxLength: 250,
-                    maxLines: 2,
-                  ),
-                  gapH24,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SecondaryButton(
-                        text: 'Rejeitar'.hardcoded,
-                        onTap: () async {
-                          if (observationController.text.trim().isEmpty) {
-                            cubit.showErrorToast(
-                              'Por favor, informe o motivo da rejeição.'
-                                  .hardcoded,
-                            );
-                            return;
-                          }
-
-                          final success = await cubit.reviewCompletion(
-                            id: pauseRequest.id,
-                            status: PauseRequestStatus.rejected,
-                            reviewedById: currentUserId,
-                            workOrderId: pauseRequest.workOrderId,
-                            reviewObservation: observationController.text
-                                .trim(),
-                            completionReason: pauseRequest.customReason,
-                            completionSectorId: pauseRequest.sectorId,
-                          );
-
-                          if (success && context.mounted) {
-                            Navigator.of(context).pop(false);
-                          }
-                        },
+                    gapH16,
+                    if (pauseRequest.customReason?.isNotEmpty ?? false) ...[
+                      TitleAndSubtitle(
+                        title: 'Justificativa'.hardcoded,
+                        subtitle: pauseRequest.customReason,
                       ),
-                      BaseButton(
-                        text: 'Aprovar'.hardcoded,
-                        onTap: () async {
-                          final success = await cubit.reviewCompletion(
-                            id: pauseRequest.id,
-                            status: PauseRequestStatus.approved,
-                            reviewedById: currentUserId,
-                            workOrderId: pauseRequest.workOrderId,
-                            reviewObservation:
-                                observationController.text.trim().isEmpty
-                                ? null
-                                : observationController.text.trim(),
-                            completionReason: pauseRequest.customReason,
-                            completionSectorId: pauseRequest.sectorId,
-                          );
-
-                          if (success && context.mounted) {
-                            Navigator.of(context).pop(true);
-                          }
-                        },
-                      ),
+                      gapH12,
                     ],
-                  ),
-                ],
+                    if (pauseRequest.observation?.isNotEmpty ?? false) ...[
+                      TitleAndSubtitle(
+                        title: 'Observação'.hardcoded,
+                        subtitle: pauseRequest.observation,
+                      ),
+                      gapH12,
+                    ],
+                    BaseTextFormField(
+                      controller: observationController,
+                      labelText: 'Observação do revisor'.hardcoded,
+                      hintText:
+                          'Motivo de rejeição ou nota de aprovação'.hardcoded,
+                      maxLength: 250,
+                      maxLines: 5,
+                      validator: FormValidators.compose([
+                        NonEmptyValidator(),
+                        MinLengthValidator(5),
+                      ]),
+                    ),
+                    gapH24,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SecondaryButton(
+                          text: 'Rejeitar'.hardcoded,
+                          onTap: () => reviewCompletion(false),
+                          color: Colors.red,
+                        ),
+                        BaseButton(
+                          text: 'Aprovar'.hardcoded,
+                          onTap: () => reviewCompletion(true),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

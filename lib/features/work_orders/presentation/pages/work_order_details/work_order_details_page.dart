@@ -8,9 +8,8 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
@@ -25,7 +24,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends StatelessWidget {
@@ -85,17 +83,6 @@ class _WorkOrderDetails extends HookWidget {
       statuses: {.deleting, .saving},
     );
 
-    final canApprovePause = context.hasPermission(
-      const ActionPermission.workOrderSubAction(
-        WorkOrderSubAction.approvePause,
-      ),
-    );
-    final canApproveCompletion = context.hasPermission(
-      const ActionPermission.workOrderSubAction(
-        WorkOrderSubAction.approveCompletion,
-      ),
-    );
-
     final currentUserId = sessionCubit.state.user.id;
 
     return MultiBlocProvider(
@@ -115,8 +102,6 @@ class _WorkOrderDetails extends HookWidget {
                     workOrder: workOrder,
                     pauseRequests: pauseState.pauseRequests,
                     currentUserId: currentUserId,
-                    canApprovePause: canApprovePause,
-                    canApproveCompletion: canApproveCompletion,
                     onRefresh: () {
                       context
                           .read<WorkOrdersCubit>()
@@ -141,11 +126,14 @@ class _WorkOrderDetails extends HookWidget {
                 gapSliverH24,
               ],
             ),
-            bottomNavigationBar: WorkOrderBottomActions(
-              workOrder: workOrder,
-              currentUserId: currentUserId,
-              pauseCubit: pauseCubit,
-            ),
+            bottomNavigationBar:
+                workOrder.status == WorkOrderStatus.pendingConclusionApproval
+                ? null
+                : WorkOrderBottomActions(
+                    workOrder: workOrder,
+                    currentUserId: currentUserId,
+                    pauseCubit: pauseCubit,
+                  ),
           );
         },
       ),

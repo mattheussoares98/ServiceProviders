@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
@@ -9,16 +11,17 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_completion_dialog.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/review_pause_dialog.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class WorkOrderApprovalBanner extends HookWidget {
   const WorkOrderApprovalBanner({
     required this.workOrder,
     required this.pauseRequests,
     required this.currentUserId,
-    required this.canApprovePause,
-    required this.canApproveCompletion,
     required this.onRefresh,
     super.key,
   });
@@ -26,8 +29,6 @@ class WorkOrderApprovalBanner extends HookWidget {
   final WorkOrderEntity workOrder;
   final List<PauseRequestEntity> pauseRequests;
   final String currentUserId;
-  final bool canApprovePause;
-  final bool canApproveCompletion;
   final VoidCallback onRefresh;
 
   @override
@@ -36,6 +37,17 @@ class WorkOrderApprovalBanner extends HookWidget {
         workOrder.status != WorkOrderStatus.pendingConclusionApproval) {
       return const SizedBox.shrink();
     }
+
+    final canApprovePause = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.approvePause,
+      ),
+    );
+    final canApproveCompletion = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.approveCompletion,
+      ),
+    );
 
     final isPauseApproval =
         workOrder.status == WorkOrderStatus.pendingPauseApproval;
@@ -56,20 +68,16 @@ class WorkOrderApprovalBanner extends HookWidget {
         : Colors.blue[100]!;
     final borderColor = isPauseApproval
         ? Colors.amber[700]!
-        : Colors.blue[700]!; //TODO review these colors
+        : Colors.blue[700]!;
     final iconColor = isPauseApproval ? Colors.amber[900]! : Colors.blue[900]!;
 
     final title = isPauseApproval
-        ? 'Pausa Pendente de Aprovação'.hardcoded
-        : 'Conclusão Pendente de Aprovação'.hardcoded;
+        ? 'Pausa pendente de aprovação'.hardcoded
+        : 'Conclusão pendente de aprovação'.hardcoded;
 
     final canApprove = isPauseApproval ? canApprovePause : canApproveCompletion;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Sizes.p16,
-        vertical: Sizes.p8,
-      ),
       padding: const EdgeInsets.all(Sizes.p16),
       decoration: BoxDecoration(
         color: bannerColor,
@@ -81,8 +89,13 @@ class WorkOrderApprovalBanner extends HookWidget {
         children: [
           Row(
             children: [
-              Icon(
-                isPauseApproval ? Icons.pause_circle_filled : Icons.task_alt,
+              PlatformIcon(
+                materialIcon: isPauseApproval
+                    ? Icons.pause_circle_filled
+                    : Icons.task_alt,
+                cupertinoIcon: isPauseApproval
+                    ? CupertinoIcons.pause_circle_fill
+                    : CupertinoIcons.check_mark_circled,
                 color: iconColor,
               ),
               gapW8,
@@ -97,16 +110,20 @@ class WorkOrderApprovalBanner extends HookWidget {
           ),
           if (pendingRequest?.customReason != null) ...[
             gapH8,
-            BaseText.bodyMedium(
-              'Motivo: ${pendingRequest!.customReason!}',
-              color: Colors.black87,
+            TitleAndSubtitle(
+              title: 'Motivo'.hardcoded,
+              subtitle: pendingRequest!.customReason,
+              titleColor: Colors.black,
+              subtitleColor: Colors.black,
             ),
           ],
           if (pendingRequest?.responsibility != null) ...[
             gapH4,
-            BaseText.bodySmall(
-              'Responsabilidade: ${pendingRequest!.responsibility!.label}',
-              color: Colors.black54,
+            TitleAndSubtitle(
+              title: 'Responsabilidade'.hardcoded,
+              subtitle: pendingRequest!.responsibility!.label,
+              titleColor: Colors.black,
+              subtitleColor: Colors.black,
             ),
           ],
           if (canApprove && pendingRequest != null) ...[
@@ -115,8 +132,8 @@ class WorkOrderApprovalBanner extends HookWidget {
               alignment: Alignment.centerRight,
               child: BaseButton(
                 text: isPauseApproval
-                    ? 'Revisar Pausa'.hardcoded
-                    : 'Revisar Conclusão'.hardcoded,
+                    ? 'Revisar pausa'.hardcoded
+                    : 'Revisar conclusão'.hardcoded,
                 onTap: () async {
                   final result = await showDialog<bool>(
                     context: context,
