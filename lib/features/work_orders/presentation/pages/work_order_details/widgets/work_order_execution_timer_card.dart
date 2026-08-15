@@ -108,13 +108,9 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
             gapH12,
             const Divider(height: 1),
             gapH12,
-            SizedBox(
-              width: double.infinity,
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: Sizes.p16,
-                runSpacing: Sizes.p8,
-                children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final metrics = [
                   if (hasActivePause)
                     _PauseMetric(
                       label: 'Pausa atual'.hardcoded,
@@ -140,8 +136,31 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
                       isRunning: hasActivePause,
                       color: contentColor,
                     ),
-                ],
-              ),
+                ];
+
+                if (metrics.length == 1) {
+                  return metrics.first;
+                }
+
+                const breakpoint = 280.0;
+                final isWide = constraints.maxWidth >= breakpoint;
+
+                if (isWide) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(child: metrics[0]),
+                      gapW16,
+                      Flexible(child: metrics[1]),
+                    ],
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [metrics[0], gapH8, metrics[1]],
+                );
+              },
             ),
           ],
         ],
@@ -174,18 +193,20 @@ class _PauseMetric extends StatelessWidget {
       children: [
         icon.copyWith(color: color, size: 16),
         gapW4,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BaseText.title(label),
-            FormattedDurationTimerText(
-              startedAt: startedAt,
-              initialAccumulatedSeconds: initialAccumulatedSeconds,
-              isRunning: isRunning,
-              color: color,
-            ),
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BaseText.title(label),
+              FormattedDurationTimerText(
+                startedAt: startedAt,
+                initialAccumulatedSeconds: initialAccumulatedSeconds,
+                isRunning: isRunning,
+                color: color,
+              ),
+            ],
+          ),
         ),
       ],
     );
