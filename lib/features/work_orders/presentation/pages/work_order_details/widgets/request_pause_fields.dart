@@ -40,7 +40,7 @@ class RequestPauseFields extends HookWidget {
     final selectedSectorId = useState<String?>(null);
     final customReasonController = useTextEditingController();
     final observationController = useTextEditingController();
-
+    final formKey = useMemoized(GlobalKey<FormState>.new);
     final dropdownResponsibilities = PauseResponsibility.values.map((resp) {
       return DropdownMenuItem<PauseResponsibility>(
         value: resp,
@@ -51,126 +51,137 @@ class RequestPauseFields extends HookWidget {
     return BlocProvider.value(
       value: cubit,
       child: BaseScaffold(
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BaseText.titleMedium(
-              'Solicitar pausa'.hardcoded,
-              fontWeight: FontWeight.bold,
-            ),
-            gapH16,
-            BaseStateView<
-              PauseWorkflowCubit,
-              PauseWorkflowState,
-              List<PauseReasonEntity>
-            >(
-              onRetry: () => cubit.loadPauseReasons(true),
-              dataSelector: (state) => state.pauseReasons,
-              builder: (context, pauseReasons) {
-                final dropdownReasons = pauseReasons.map((reason) {
-                  return DropdownMenuItem<PauseReasonEntity>(
-                    value: reason,
-                    child: BaseText.bodyMedium(reason.name),
-                  );
-                }).toList();
-
-                return BaseDropDown<PauseReasonEntity>(
-                  label: 'Motivo da pausa'.hardcoded,
-                  showLabelAtTopLeft: true,
-                  hint: BaseText.bodyMedium('Selecione um motivo'.hardcoded),
-                  items: dropdownReasons,
-                  selectedItem: selectedReason.value,
-                  onClear: () => selectedReason.value = null,
-                  onChanged: (val) => selectedReason.value = val,
-                );
-              },
-            ),
-            gapH12,
-            BaseDropDown<PauseResponsibility>(
-              label: 'Responsabilidade da pausa'.hardcoded,
-              showLabelAtTopLeft: true,
-              items: dropdownResponsibilities,
-              selectedItem: selectedResponsibility.value,
-              onChanged: (val) => selectedResponsibility.value = val,
-            ),
-            gapH12,
-            BaseStateView<SectorsCubit, SectorsState, List<SectorEntity>>(
-              onRetry: () => context.read<SectorsCubit>().loadSectors(),
-              dataSelector: (state) => state.sectors,
-              builder: (context, sectors) {
-                final dropdownSectors = sectors.map((sec) {
-                  return DropdownMenuItem<String>(
-                    value: sec.id,
-                    child: BaseText.bodyMedium(sec.name),
-                  );
-                }).toList();
-                return BaseDropDown<String>(
-                  label: 'Setor responsável'.hardcoded,
-                  showLabelAtTopLeft: true,
-                  hint: BaseText.bodyMedium('Setor responsável'.hardcoded),
-                  items: dropdownSectors,
-                  selectedItem: selectedSectorId.value,
-                  onChanged: (val) => selectedSectorId.value = val,
-                  onClear: () => selectedSectorId.value = null,
-                );
-              },
-            ),
-            gapH12,
-            BaseTextFormField(
-              controller: customReasonController,
-              labelText: 'Motivo personalizado (opcional)'.hardcoded,
-              hintText: 'Digite um motivo específico se aplicável'.hardcoded,
-              maxLength: 100,
-              maxLines: 2,
-            ),
-            gapH12,
-            BaseTextFormField(
-              controller: observationController,
-              labelText: 'Observação (opcional)'.hardcoded,
-              hintText: 'Observações adicionais'.hardcoded,
-              maxLength: 250,
-              maxLines: 5,
-            ),
-            gapH24,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BaseTextButton(
-                  text: 'Cancelar'.hardcoded,
-                  onPressed: Navigator.of(context).pop,
-                  color: Colors.red,
-                ),
-                gapW12,
-                BaseButton(
-                  text: 'Confirmar'.hardcoded,
-                  onTap: () async {
-                    final success = await cubit.requestPause(
-                      companyId: companyId,
-                      workOrderId: workOrderId,
-                      requestedById: currentUserId,
-                      reasonId: selectedReason.value?.id,
-                      customReason: customReasonController.text.trim().isEmpty
-                          ? null
-                          : customReasonController.text.trim(),
-                      observation: observationController.text.trim().isEmpty
-                          ? null
-                          : observationController.text.trim(),
-                      responsibility: selectedResponsibility.value,
-                      sectorId: selectedSectorId.value,
+        body: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BaseText.titleMedium(
+                'Solicitar pausa'.hardcoded,
+                fontWeight: FontWeight.bold,
+              ),
+              gapH16,
+              BaseStateView<
+                PauseWorkflowCubit,
+                PauseWorkflowState,
+                List<PauseReasonEntity>
+              >(
+                onRetry: () => cubit.loadPauseReasons(true),
+                dataSelector: (state) => state.pauseReasons,
+                builder: (context, pauseReasons) {
+                  final dropdownReasons = pauseReasons.map((reason) {
+                    return DropdownMenuItem<PauseReasonEntity>(
+                      value: reason,
+                      child: BaseText.bodyMedium(reason.name),
                     );
-                    if (success && context.mounted) {
-                      await context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(showLoading: false);
-                      if (context.mounted) {
-                        Navigator.of(context).pop(true);
+                  }).toList();
+
+                  return BaseDropDown<PauseReasonEntity>(
+                    label: 'Motivo da pausa'.hardcoded,
+                    showLabelAtTopLeft: true,
+                    hint: BaseText.bodyMedium('Selecione um motivo'.hardcoded),
+                    items: dropdownReasons,
+                    selectedItem: selectedReason.value,
+                    onClear: () => selectedReason.value = null,
+                    onChanged: (val) => selectedReason.value = val,
+                    validator: (value) =>
+                        value == null ? 'Selecione um motivo'.hardcoded : null,
+                  );
+                },
+              ),
+              gapH12,
+              BaseDropDown<PauseResponsibility>(
+                label: 'Responsabilidade da pausa'.hardcoded,
+                showLabelAtTopLeft: true,
+                items: dropdownResponsibilities,
+                selectedItem: selectedResponsibility.value,
+                onChanged: (val) => selectedResponsibility.value = val,
+              ),
+              gapH12,
+              BaseStateView<SectorsCubit, SectorsState, List<SectorEntity>>(
+                onRetry: () => context.read<SectorsCubit>().loadSectors(),
+                dataSelector: (state) => state.sectors,
+                builder: (context, sectors) {
+                  final dropdownSectors = sectors.map((sec) {
+                    return DropdownMenuItem<String>(
+                      value: sec.id,
+                      child: BaseText.bodyMedium(sec.name),
+                    );
+                  }).toList();
+                  return BaseDropDown<String>(
+                    label: 'Setor responsável'.hardcoded,
+                    showLabelAtTopLeft: true,
+                    hint: BaseText.bodyMedium('Setor responsável'.hardcoded),
+                    items: dropdownSectors,
+                    selectedItem: selectedSectorId.value,
+                    onChanged: (val) => selectedSectorId.value = val,
+                    onClear: () => selectedSectorId.value = null,
+                  );
+                },
+              ),
+              gapH12,
+              BaseTextFormField(
+                controller: customReasonController,
+                labelText: 'Motivo personalizado (opcional)'.hardcoded,
+                hintText: 'Digite um motivo específico se aplicável'.hardcoded,
+                maxLength: 100,
+                maxLines: 2,
+              ),
+              gapH12,
+              BaseTextFormField(
+                controller: observationController,
+                labelText: 'Observação (opcional)'.hardcoded,
+                hintText: 'Observações adicionais'.hardcoded,
+                maxLength: 250,
+                maxLines: 5,
+              ),
+              gapH24,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  BaseTextButton(
+                    text: 'Cancelar'.hardcoded,
+                    onPressed: Navigator.of(context).pop,
+                    color: Colors.red,
+                  ),
+                  gapW12,
+                  BaseButton(
+                    text: 'Confirmar'.hardcoded,
+                    onTap: () async {
+                      if (formKey.currentState?.validate() != true) {
+                        return;
                       }
-                    }
-                  },
-                ),
-              ],
-            ),
-          ],
+
+                      final success = await cubit.requestPause(
+                        companyId: companyId,
+                        workOrderId: workOrderId,
+                        requestedById: currentUserId,
+                        reasonId: selectedReason.value?.id,
+                        customReason: customReasonController.text.trim().isEmpty
+                            ? null
+                            : customReasonController.text.trim(),
+                        observation: observationController.text.trim().isEmpty
+                            ? null
+                            : observationController.text.trim(),
+                        responsibility: selectedResponsibility.value,
+                        sectorId: selectedSectorId.value,
+                      );
+                      if (success && context.mounted) {
+                        await context
+                            .read<WorkOrdersCubit>()
+                            .loadWorkOrdersAndChangeRequests(
+                              showLoading: false,
+                            );
+                        if (context.mounted) {
+                          Navigator.of(context).pop(true);
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
