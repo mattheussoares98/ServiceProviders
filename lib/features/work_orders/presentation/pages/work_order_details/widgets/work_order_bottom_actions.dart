@@ -32,7 +32,8 @@ class WorkOrderBottomActions extends StatelessWidget {
   //TODO read this entire file
   @override
   Widget build(BuildContext context) {
-    if (workOrder.status.isPaused) {
+    if (workOrder.status.isPaused ||
+        workOrder.status.isPendingConclusionApproval) {
       return _BottomBar(
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
@@ -76,9 +77,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                     (canApprovePause ? 'Pausar' : 'Solicitar pausa').hardcoded,
                 onTap: () async {
                   final result = await showModalPage<bool>(
-                    RequestPauseFields(
-                      workOrderId: workOrder.id,
-                    ),
+                    RequestPauseFields(workOrderId: workOrder.id),
                     context,
                   );
 
@@ -131,9 +130,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                     }
 
                     final result = await showModalPage<bool>(
-                      RequestCompletionFields(
-                        workOrderId: workOrder.id,
-                      ),
+                      RequestCompletionFields(workOrderId: workOrder.id),
                       context,
                     );
                     if (result == true && context.mounted) {

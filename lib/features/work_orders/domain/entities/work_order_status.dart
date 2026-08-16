@@ -26,8 +26,7 @@ enum WorkOrderStatus {
 
   bool get showsExecutionTimer => isRunning || isPaused;
 
-  bool get showsBottomActions =>
-      (isRunning || isPaused) && !isPendingConclusionApproval;
+  bool get showsBottomActions => isRunning || isPaused;
 
   static WorkOrderStatus fromCode(String code) {
     for (final val in WorkOrderStatus.values) {
