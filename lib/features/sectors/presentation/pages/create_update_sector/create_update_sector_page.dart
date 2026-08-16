@@ -84,8 +84,8 @@ class CreateUpdateSectorPage extends HookWidget {
                 );
               },
               permission: const ActionPermission.resource(
-                resource: ResourceType.sectors,
-                action: PermissionAction.delete,
+                resourceType: ResourceType.sectors,
+                permissionAction: PermissionAction.delete,
               ),
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.delete,

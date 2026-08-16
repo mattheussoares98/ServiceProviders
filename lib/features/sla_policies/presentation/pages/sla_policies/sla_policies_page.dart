@@ -29,8 +29,8 @@ class SlaPoliciesPage extends StatelessWidget {
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.slaPolicies,
-              action: PermissionAction.create,
+              resourceType: ResourceType.slaPolicies,
+              permissionAction: PermissionAction.create,
             ),
             onPressed: () => context
                 .read<SlaPoliciesCubit>()
@@ -85,8 +85,8 @@ class SlaPoliciesPage extends StatelessWidget {
                           children: [
                             BaseIconButton(
                               permission: const ActionPermission.resource(
-                                resource: ResourceType.workOrders,
-                                action: PermissionAction.update,
+                                resourceType: ResourceType.workOrders,
+                                permissionAction: PermissionAction.update,
                               ),
                               onPressed: () => context
                                   .read<SlaPoliciesCubit>()

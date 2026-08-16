@@ -91,7 +91,10 @@ void main() {
     for (final resource in ResourceType.values) {
       for (final action in PermissionAction.values) {
         registerFallbackValue(
-          ActionPermission.resource(resource: resource, action: action),
+          ActionPermission.resource(
+            resourceType: resource,
+            permissionAction: action,
+          ),
         );
       }
     }

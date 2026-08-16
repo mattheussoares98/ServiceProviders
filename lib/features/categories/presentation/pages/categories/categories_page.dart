@@ -29,8 +29,8 @@ class CategoriesPage extends StatelessWidget {
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.categories,
-              action: PermissionAction.create,
+              resourceType: ResourceType.categories,
+              permissionAction: PermissionAction.create,
             ),
             onPressed: () => context
                 .read<CategoriesCubit>()
@@ -83,8 +83,8 @@ class CategoriesPage extends StatelessWidget {
                           children: [
                             BaseIconButton(
                               permission: const ActionPermission.resource(
-                                resource: ResourceType.categories,
-                                action: PermissionAction.update,
+                                resourceType: ResourceType.categories,
+                                permissionAction: PermissionAction.update,
                               ),
                               onPressed: () => context
                                   .read<CategoriesCubit>()

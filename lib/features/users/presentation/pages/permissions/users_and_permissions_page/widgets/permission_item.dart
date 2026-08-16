@@ -24,8 +24,8 @@ class PermissionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final canEditUsers = context.hasPermission(
       const ActionPermission.resource(
-        resource: ResourceType.users,
-        action: PermissionAction.update,
+        resourceType: ResourceType.users,
+        permissionAction: PermissionAction.update,
       ),
     );
 

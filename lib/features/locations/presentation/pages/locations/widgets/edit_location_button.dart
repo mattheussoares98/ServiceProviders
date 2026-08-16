@@ -15,8 +15,8 @@ class EditLocationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseIconButton(
       permission: const ActionPermission.resource(
-        resource: ResourceType.locations,
-        action: PermissionAction.update,
+        resourceType: ResourceType.locations,
+        permissionAction: PermissionAction.update,
       ),
       onPressed: () {
         context.read<LocationsCubit>().navigateToCreateUpdateLocation(

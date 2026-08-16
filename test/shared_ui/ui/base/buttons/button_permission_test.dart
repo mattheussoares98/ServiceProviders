@@ -52,8 +52,8 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       const ActionPermission.resource(
-        resource: ResourceType.users,
-        action: PermissionAction.create,
+        resourceType: ResourceType.users,
+        permissionAction: PermissionAction.create,
       ),
     );
   });
@@ -121,8 +121,8 @@ void main() {
           tester,
         ) async {
           const permission = ActionPermission.resource(
-            resource: ResourceType.users,
-            action: PermissionAction.create,
+            resourceType: ResourceType.users,
+            permissionAction: PermissionAction.create,
           );
 
           when(
@@ -143,8 +143,8 @@ void main() {
           tester,
         ) async {
           const permission = ActionPermission.resource(
-            resource: ResourceType.users,
-            action: PermissionAction.create,
+            resourceType: ResourceType.users,
+            permissionAction: PermissionAction.create,
           );
 
           when(

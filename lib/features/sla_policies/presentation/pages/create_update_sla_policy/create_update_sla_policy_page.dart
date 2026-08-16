@@ -77,8 +77,8 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
           if (isEditing)
             BaseIconButton(
               permission: const ActionPermission.resource(
-                resource: ResourceType.slaPolicies,
-                action: PermissionAction.delete,
+                resourceType: ResourceType.slaPolicies,
+                permissionAction: PermissionAction.delete,
               ),
               onPressed: () async {
                 final proceed = await showAlertDialog(

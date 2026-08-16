@@ -121,8 +121,8 @@ class InvitationsPage extends StatelessWidget {
                           }
                           return BaseIconButton(
                             permission: const ActionPermission.resource(
-                              resource: ResourceType.users,
-                              action: PermissionAction.create,
+                              resourceType: ResourceType.users,
+                              permissionAction: PermissionAction.create,
                             ),
                             onPressed: () async {
                               final confirmed = await showAlertDialog(
@@ -167,8 +167,8 @@ class InvitationsPage extends StatelessWidget {
                         }
                         return BaseIconButton(
                           permission: const ActionPermission.resource(
-                            resource: ResourceType.users,
-                            action: PermissionAction.delete,
+                            resourceType: ResourceType.users,
+                            permissionAction: PermissionAction.delete,
                           ),
                           onPressed: () async {
                             final confirmed = await showAlertDialog(

@@ -23,8 +23,8 @@ class AddAreaButton extends StatelessWidget {
 
     return BaseTextButton(
       permission: const ActionPermission.resource(
-        resource: ResourceType.locations,
-        action: PermissionAction.create,
+        resourceType: ResourceType.locations,
+        permissionAction: PermissionAction.create,
       ),
       onPressed: isLoading
           ? null

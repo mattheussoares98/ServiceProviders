@@ -34,8 +34,8 @@ class LocationsPage extends StatelessWidget {
             builder: (context, hasError) {
               return BaseIconButton(
                 permission: const ActionPermission.resource(
-                  resource: ResourceType.locations,
-                  action: PermissionAction.create,
+                  resourceType: ResourceType.locations,
+                  permissionAction: PermissionAction.create,
                 ),
                 onPressed: hasError
                     ? null

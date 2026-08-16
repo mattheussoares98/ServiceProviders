@@ -78,7 +78,10 @@ class HasPermissionUseCase implements UseCase<bool, HasPermissionParams> {
     if (user.isAdmin) return true;
 
     return switch (permission) {
-      ResourceActionPermission(:final resource, :final action) =>
+      ResourceActionPermission(
+        resourceType: final resource,
+        permissionAction: final action,
+      ) =>
         _hasResourcePermission(
           resource: resource,
           action: action,

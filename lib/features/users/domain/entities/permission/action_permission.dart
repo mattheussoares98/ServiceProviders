@@ -7,8 +7,8 @@ sealed class ActionPermission extends Equatable {
   const ActionPermission();
 
   const factory ActionPermission.resource({
-    required ResourceType resource,
-    required PermissionAction action,
+    required ResourceType resourceType,
+    required PermissionAction permissionAction,
   }) = ResourceActionPermission;
 
   const factory ActionPermission.workOrderSubAction(
@@ -18,15 +18,15 @@ sealed class ActionPermission extends Equatable {
 
 final class ResourceActionPermission extends ActionPermission {
   const ResourceActionPermission({
-    required this.resource,
-    required this.action,
+    required this.resourceType,
+    required this.permissionAction,
   });
 
-  final ResourceType resource;
-  final PermissionAction action;
+  final ResourceType resourceType;
+  final PermissionAction permissionAction;
 
   @override
-  List<Object?> get props => [resource, action];
+  List<Object?> get props => [resourceType, permissionAction];
 }
 
 final class WorkOrderSubActionPermission extends ActionPermission {

@@ -87,8 +87,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                         cupertinoIcon: CupertinoIcons.add,
                       ),
                       permission: const ActionPermission.resource(
-                        resource: ResourceType.serviceProviders,
-                        action: PermissionAction.update,
+                        resourceType: ResourceType.serviceProviders,
+                        permissionAction: PermissionAction.update,
                       ),
                       onPressed: isLoading
                           ? null
@@ -194,8 +194,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                             color: Colors.red,
                           ),
                           permission: const ResourceActionPermission(
-                            resource: ResourceType.serviceProviders,
-                            action: PermissionAction.delete,
+                            resourceType: ResourceType.serviceProviders,
+                            permissionAction: PermissionAction.delete,
                           ),
                           onPressed: () {
                             showAlertDialog(
@@ -231,8 +231,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                             BaseTextButton(
                               isLoading: isLoading,
                               permission: const ActionPermission.resource(
-                                resource: ResourceType.serviceProviders,
-                                action: PermissionAction.update,
+                                resourceType: ResourceType.serviceProviders,
+                                permissionAction: PermissionAction.update,
                               ),
                               text: 'Convidar por e-mail'.hardcoded,
                               onPressed: () {

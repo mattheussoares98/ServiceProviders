@@ -19,8 +19,8 @@ class DeleteLocationButton extends StatelessWidget {
 
     return BaseIconButton(
       permission: const ActionPermission.resource(
-        resource: ResourceType.locations,
-        action: PermissionAction.delete,
+        resourceType: ResourceType.locations,
+        permissionAction: PermissionAction.delete,
       ),
       isLoading: context.select<LocationsCubit, bool>(
         (cubit) => cubit.state.status == StateStatus.deleting,

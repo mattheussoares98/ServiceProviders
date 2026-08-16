@@ -23,8 +23,8 @@ class EditAndDeleteIcons extends StatelessWidget {
         Flexible(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.workOrders,
-              action: PermissionAction.update,
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.update,
             ),
             onPressed: () {
               context.read<WorkOrdersCubit>().navigateToCreateUpdateWorkOrder(
@@ -41,8 +41,8 @@ class EditAndDeleteIcons extends StatelessWidget {
         Flexible(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.workOrders,
-              action: PermissionAction.delete,
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
             ),
             onPressed: () async {
               final bool? ok = await showAlertDialog(

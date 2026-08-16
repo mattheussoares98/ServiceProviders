@@ -71,8 +71,8 @@ class CreateUpdateCategoryPage extends HookWidget {
           if (category != null)
             BaseIconButton(
               permission: const ActionPermission.resource(
-                resource: ResourceType.categories,
-                action: PermissionAction.delete,
+                resourceType: ResourceType.categories,
+                permissionAction: PermissionAction.delete,
               ),
               onPressed: () {
                 showAlertDialog(

@@ -1231,8 +1231,8 @@ void main() {
 
           final result = cubit.hasActionPermission(
             const ActionPermission.resource(
-              resource: ResourceType.assets,
-              action: PermissionAction.create,
+              resourceType: ResourceType.assets,
+              permissionAction: PermissionAction.create,
             ),
           );
 

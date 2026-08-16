@@ -51,8 +51,8 @@ class WorkOrdersPage extends StatelessWidget {
             builder: (context) {
               return BaseIconButton(
                 permission: const ActionPermission.resource(
-                  resource: ResourceType.workOrders,
-                  action: PermissionAction.create,
+                  resourceType: ResourceType.workOrders,
+                  permissionAction: PermissionAction.create,
                 ),
                 onPressed: () => context
                     .read<WorkOrdersCubit>()

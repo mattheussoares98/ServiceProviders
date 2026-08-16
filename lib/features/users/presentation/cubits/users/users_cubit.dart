@@ -432,7 +432,10 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   bool hasPermission(ResourceType resource, PermissionAction action) {
     return hasActionPermission(
-      ActionPermission.resource(resource: resource, action: action),
+      ActionPermission.resource(
+        resourceType: resource,
+        permissionAction: action,
+      ),
     );
   }
 

@@ -23,8 +23,8 @@ class DeleteAssetButton extends StatelessWidget {
         color: Colors.red,
       ),
       permission: const ActionPermission.resource(
-        resource: ResourceType.assets,
-        action: PermissionAction.delete,
+        resourceType: ResourceType.assets,
+        permissionAction: PermissionAction.delete,
       ),
       onPressed: () async {
         final confirmed = await showAlertDialog(

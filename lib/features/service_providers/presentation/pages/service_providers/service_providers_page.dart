@@ -46,8 +46,8 @@ class ServiceProvidersPage extends HookWidget {
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.serviceProviders,
-              action: PermissionAction.create,
+              resourceType: ResourceType.serviceProviders,
+              permissionAction: PermissionAction.create,
             ),
             platformIcon: const PlatformIcon(
               materialIcon: Icons.add,

@@ -28,8 +28,8 @@ class AreaItem extends StatelessWidget {
         FittedBox(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.locations,
-              action: PermissionAction.update,
+              resourceType: ResourceType.locations,
+              permissionAction: PermissionAction.update,
             ),
             onPressed: () {
               context.read<LocationsCubit>().navigateToCreateUpdateArea(

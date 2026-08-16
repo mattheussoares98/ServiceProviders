@@ -20,8 +20,8 @@ class DeleteIconButton extends StatelessWidget {
     }
     return BaseIconButton(
       permission: const ActionPermission.resource(
-        resource: ResourceType.locations,
-        action: PermissionAction.delete,
+        resourceType: ResourceType.locations,
+        permissionAction: PermissionAction.delete,
       ),
       onPressed: () {
         showAlertDialog(

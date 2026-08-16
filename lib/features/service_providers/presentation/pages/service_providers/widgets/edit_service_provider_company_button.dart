@@ -14,8 +14,8 @@ class EditServiceProviderCompanyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BaseIconButton(
       permission: const ActionPermission.resource(
-        resource: ResourceType.serviceProviders,
-        action: PermissionAction.update,
+        resourceType: ResourceType.serviceProviders,
+        permissionAction: PermissionAction.update,
       ),
       platformIcon: const PlatformIcon(
         materialIcon: Icons.edit_outlined,

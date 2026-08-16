@@ -29,8 +29,8 @@ class SectorsPage extends StatelessWidget {
         actions: [
           BaseIconButton(
             permission: const ActionPermission.resource(
-              resource: ResourceType.sectors,
-              action: PermissionAction.create,
+              resourceType: ResourceType.sectors,
+              permissionAction: PermissionAction.create,
             ),
             onPressed: () =>
                 context.read<SectorsCubit>().navigateToCreateUpdateSector(),
@@ -76,8 +76,8 @@ class SectorsPage extends StatelessWidget {
                       children: [
                         BaseIconButton(
                           permission: const ActionPermission.resource(
-                            resource: ResourceType.sectors,
-                            action: PermissionAction.update,
+                            resourceType: ResourceType.sectors,
+                            permissionAction: PermissionAction.update,
                           ),
                           onPressed: () => context
                               .read<SectorsCubit>()
