@@ -26,6 +26,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -75,6 +76,8 @@ class MockCreateAttachmentUseCase extends Mock
 
 class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
 
+class MockSyncWorkOrdersUseCase extends Mock implements SyncWorkOrdersUseCase {}
+
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
 
@@ -98,6 +101,7 @@ void main() {
   late MockDeleteAttachmentUseCase mockDeleteAttachment;
   late MockCreateAttachmentUseCase mockCreateAttachment;
   late MockCancelPauseUseCase mockCancelPause;
+  late MockSyncWorkOrdersUseCase mockSyncWorkOrders;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -152,6 +156,7 @@ void main() {
     mockNavigationClient = MockNavigationClient();
     mockCreateAttachment = MockCreateAttachmentUseCase();
     mockCancelPause = MockCancelPauseUseCase();
+    mockSyncWorkOrders = MockSyncWorkOrdersUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -185,6 +190,7 @@ void main() {
       deleteAttachment: mockDeleteAttachment,
       createAttachment: mockCreateAttachment,
       cancelPause: mockCancelPause,
+      syncWorkOrders: mockSyncWorkOrders,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -2353,6 +2359,36 @@ void main() {
           ).called(1);
         },
       );
+    });
+
+    group('syncWorkOrders', () {
+      test('returns true and refreshes data on sync success', () async {
+        when(
+          () => mockSyncWorkOrders.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [EntityFactory.makeWorkOrderEntity()]));
+        when(
+          () => mockGetChangeRequests(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        final result = await cubit.syncWorkOrders();
+
+        expect(result, true);
+        verify(() => mockSyncWorkOrders.call(tUserProfile.companyId)).called(1);
+      });
+
+      test('returns false on sync failure', () async {
+        when(
+          () => mockSyncWorkOrders.call(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Sync error'));
+
+        final result = await cubit.syncWorkOrders();
+
+        expect(result, false);
+        verify(() => mockSyncWorkOrders.call(tUserProfile.companyId)).called(1);
+      });
     });
   });
 }

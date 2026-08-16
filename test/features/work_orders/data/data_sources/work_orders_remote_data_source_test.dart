@@ -211,6 +211,74 @@ void main() {
     );
 
     test(
+      'getWorkOrdersDelta should return SuccessState<List<WorkOrderModel>> with correctly constructed filters',
+      () async {
+        final tSince = DateTime.now().toUtc().subtract(const Duration(days: 1));
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+          ),
+        ).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+
+        final result = await dataSource.getWorkOrdersDelta(
+          tCompanyId,
+          since: tSince,
+          limit: 50,
+        );
+
+        expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+        expect(result.data, hasLength(1));
+        expect(result.data!.first.id, tWorkOrderModel.id);
+
+        final captured = verify(
+          () => mockDatabase.selectList(
+            table: 'work_orders',
+            columns: '*, attachments(*)',
+            filters: captureAny(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: 50,
+          ),
+        ).captured;
+
+        final capturedFilters = captured.first as List<SupabaseFilter>;
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.eq('company_id', tCompanyId)),
+        );
+        expect(
+          capturedFilters,
+          contains(SupabaseFilter.gt('updated_at', tSince.toIsoUtcString())),
+        );
+      },
+    );
+
+    test(
+      'getWorkOrdersDelta should return FailureState when selectList throws',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+          ),
+        ).thenThrow(Exception('network error'));
+
+        final result = await dataSource.getWorkOrdersDelta(
+          tCompanyId,
+          since: DateTime.now().toUtc(),
+        );
+
+        expect(result, isA<FailureState<List<WorkOrderModel>>>());
+      },
+    );
+
+    test(
       'getWorkOrderById should return SuccessState<WorkOrderModel> when found',
       () async {
         when(

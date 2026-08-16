@@ -90,6 +90,16 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+  Future<bool> syncWorkOrders() async {
+    final companyId = _useCases.getActiveCompanyId();
+    final result = await _useCases.syncWorkOrders(companyId);
+    if (result is SuccessState<bool>) {
+      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      return true;
+    }
+    return false;
+  }
+
   Future<void> applyFilter(WorkOrderFilter filter) =>
       loadWorkOrdersAndChangeRequests(filter: filter);
 

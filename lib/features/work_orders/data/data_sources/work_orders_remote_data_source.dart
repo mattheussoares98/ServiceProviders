@@ -20,6 +20,11 @@ abstract interface class WorkOrdersRemoteDataSource {
     int pageSize = 20,
     int offset = 0,
   });
+  FutureList<WorkOrderModel> getWorkOrdersDelta(
+    String companyId, {
+    required DateTime since,
+    int limit = 100,
+  });
   FutureData<WorkOrderModel> getWorkOrderById(String id);
   FutureBool createWorkOrder(WorkOrderModel request);
   FutureBool updateWorkOrder(WorkOrderModel request);
@@ -96,6 +101,27 @@ final class WorkOrdersRemoteDataSourceImpl
       orderBy: [const SupabaseOrder(column: 'created_at')],
       limit: pageSize,
       offset: offset,
+    );
+    return response.map(WorkOrderModel.fromJson).toList();
+  });
+
+  @override
+  FutureList<WorkOrderModel> getWorkOrdersDelta(
+    String companyId, {
+    required DateTime since,
+    int limit = 100,
+  }) => SupabaseHandler.call(() async {
+    final filters = [
+      SupabaseFilter.eq('company_id', companyId),
+      SupabaseFilter.gt('updated_at', since.toIsoUtcString()),
+    ];
+
+    final response = await _database.selectList(
+      table: 'work_orders',
+      columns: '*, attachments(*)',
+      filters: filters,
+      orderBy: [const SupabaseOrder(column: 'updated_at', ascending: true)],
+      limit: limit,
     );
     return response.map(WorkOrderModel.fromJson).toList();
   });

@@ -200,6 +200,139 @@ void main() {
     );
 
     test(
+      'should hard-delete a work order and verify it is completely removed from database',
+      () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tWorkOrderModel.companyId,
+          userId: tWorkOrderModel.createdById,
+          locationId: tWorkOrderModel.locationId,
+          areaId: faker.guid.guid(),
+          assetId: tWorkOrderModel.assetId!,
+          providerProfileId: tWorkOrderModel.providerProfileId!,
+          serviceProviderCompanyId: tWorkOrderModel.serviceProviderCompanyId!,
+        );
+        await dataSource.saveWorkOrder(tWorkOrderModel);
+
+        // Act: Hard Delete
+        final hardDeleteResult = await dataSource.hardDeleteWorkOrder(
+          tWorkOrderModel.id,
+        );
+
+        // Assert Delete
+        expect(hardDeleteResult, isA<SuccessState<bool>>());
+        expect(hardDeleteResult.data, isTrue);
+
+        // Direct DB Query to confirm row is completely gone
+        final rawRows = await (database.select(database.workOrders)
+              ..where((t) => t.id.equals(tWorkOrderModel.id)))
+            .get();
+        expect(rawRows, isEmpty);
+      },
+    );
+
+    test(
+      'should hard-delete a work order when saveWorkOrder receives a model with deletedAt != null',
+      () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tWorkOrderModel.companyId,
+          userId: tWorkOrderModel.createdById,
+          locationId: tWorkOrderModel.locationId,
+          areaId: faker.guid.guid(),
+          assetId: tWorkOrderModel.assetId!,
+          providerProfileId: tWorkOrderModel.providerProfileId!,
+          serviceProviderCompanyId: tWorkOrderModel.serviceProviderCompanyId!,
+        );
+        await dataSource.saveWorkOrder(tWorkOrderModel);
+
+        final deletedModel = WorkOrderModel.fromEntity(
+          tWorkOrderEntity.copyWith(deletedAt: DateTime.now().toUtc()),
+        );
+
+        // Act: Save with deletedAt
+        final saveResult = await dataSource.saveWorkOrder(deletedModel);
+
+        // Assert
+        expect(saveResult, isA<SuccessState<bool>>());
+        expect(saveResult.data, isTrue);
+
+        // Direct DB Query to confirm row is completely removed
+        final rawRows = await (database.select(database.workOrders)
+              ..where((t) => t.id.equals(tWorkOrderModel.id)))
+            .get();
+        expect(rawRows, isEmpty);
+      },
+    );
+
+    test(
+      'should batch save multiple work orders (upserting active and deleting soft-deleted) in a single batch',
+      () async {
+        // Arrange
+        await insertDependencies(
+          companyId: tWorkOrderModel.companyId,
+          userId: tWorkOrderModel.createdById,
+          locationId: tWorkOrderModel.locationId,
+          areaId: faker.guid.guid(),
+          assetId: tWorkOrderModel.assetId!,
+          providerProfileId: tWorkOrderModel.providerProfileId!,
+          serviceProviderCompanyId: tWorkOrderModel.serviceProviderCompanyId!,
+        );
+
+        // Pre-insert a work order to be deleted
+        final orderToDelete = WorkOrderModel.fromEntity(
+          EntityFactory.makeWorkOrderEntity().copyWith(
+            companyId: tWorkOrderModel.companyId,
+            locationId: tWorkOrderModel.locationId,
+            createdById: tWorkOrderModel.createdById,
+            assignedToId: tWorkOrderModel.assignedToId,
+            assetId: tWorkOrderModel.assetId,
+            attachments: const [],
+          ),
+        );
+        await dataSource.saveWorkOrder(orderToDelete);
+
+        final orderToUpsert = WorkOrderModel.fromEntity(
+          EntityFactory.makeWorkOrderEntity().copyWith(
+            companyId: tWorkOrderModel.companyId,
+            locationId: tWorkOrderModel.locationId,
+            createdById: tWorkOrderModel.createdById,
+            assignedToId: tWorkOrderModel.assignedToId,
+            assetId: tWorkOrderModel.assetId,
+            attachments: const [],
+          ),
+        );
+
+        final deletedOrderModel = WorkOrderModel.fromEntity(
+          orderToDelete.copyWith(deletedAt: DateTime.now().toUtc()),
+        );
+
+        // Act: Batch Save
+        final result = await dataSource.saveWorkOrders([
+          orderToUpsert,
+          deletedOrderModel,
+        ]);
+
+        // Assert
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+
+        final activeRows = await dataSource.getWorkOrders(
+          tWorkOrderModel.companyId,
+        );
+        expect(activeRows, isA<SuccessState<List<WorkOrderModel>>>());
+        expect(
+          activeRows.data!.map((e) => e.id),
+          contains(orderToUpsert.id),
+        );
+        expect(
+          activeRows.data!.map((e) => e.id),
+          isNot(contains(orderToDelete.id)),
+        );
+      },
+    );
+
+    test(
       'should soft-delete a work order and verify it is not returned in active queries',
       () async {
         // Arrange

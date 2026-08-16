@@ -28,8 +28,11 @@ abstract interface class WorkOrdersLocalDataSource {
     int offset = 0,
   });
   FutureData<WorkOrderModel> getWorkOrderById(String id);
+  Future<DateTime?> getLastUpdatedTimestamp(String companyId);
   FutureBool saveWorkOrder(WorkOrderModel workOrder);
+  FutureBool saveWorkOrders(List<WorkOrderModel> workOrders);
   FutureBool deleteWorkOrder(String id);
+  FutureBool hardDeleteWorkOrder(String id);
 
   // Tasks
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
@@ -304,11 +307,32 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }
 
   @override
-  FutureBool saveWorkOrder(WorkOrderModel workOrder) {
+  Future<DateTime?> getLastUpdatedTimestamp(String companyId) async {
+    final query = _database.select(_database.workOrders)
+      ..where((t) => t.companyId.equals(companyId))
+      ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+      ..limit(1);
+    final row = await query.getSingleOrNull();
+    return row?.updatedAt.toUtc();
+  }
+
+  @override
+  FutureBool saveWorkOrder(WorkOrderModel workOrder) =>
+      saveWorkOrders([workOrder]);
+
+  @override
+  FutureBool saveWorkOrders(List<WorkOrderModel> workOrders) {
+    if (workOrders.isEmpty) return Future.value(const SuccessState(data: true));
     return ErrorHandler.execute(() async {
-      await _database
-          .into(_database.workOrders)
-          .insertOnConflictUpdate(
+      final toDelete = <String>[];
+      final toUpsert = <WorkOrdersCompanion>[];
+      final attachmentsToUpsert = <AttachmentsCompanion>[];
+
+      for (final workOrder in workOrders) {
+        if (workOrder.deletedAt != null) {
+          toDelete.add(workOrder.id);
+        } else {
+          toUpsert.add(
             WorkOrdersCompanion(
               id: Value(workOrder.id),
               companyId: Value(workOrder.companyId),
@@ -343,10 +367,8 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
             ),
           );
 
-      for (final attachment in workOrder.attachments) {
-        await _database
-            .into(_database.attachments)
-            .insertOnConflictUpdate(
+          for (final attachment in workOrder.attachments) {
+            attachmentsToUpsert.add(
               AttachmentsCompanion(
                 id: Value(attachment.id),
                 workOrderId: Value(attachment.workOrderId),
@@ -364,7 +386,27 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
                 originalPath: Value(attachment.originalPath),
               ),
             );
+          }
+        }
       }
+
+      await _database.batch((batch) {
+        if (toDelete.isNotEmpty) {
+          batch.deleteWhere(
+            _database.workOrders,
+            (t) => t.id.isIn(toDelete),
+          );
+        }
+        if (toUpsert.isNotEmpty) {
+          batch.insertAllOnConflictUpdate(_database.workOrders, toUpsert);
+        }
+        if (attachmentsToUpsert.isNotEmpty) {
+          batch.insertAllOnConflictUpdate(
+            _database.attachments,
+            attachmentsToUpsert,
+          );
+        }
+      });
 
       return const SuccessState(data: true);
     });
@@ -376,6 +418,16 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       final query = _database.update(_database.workOrders)
         ..where((t) => t.id.equals(id));
       await query.write(WorkOrdersCompanion(deletedAt: Value(DateTime.now())));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool hardDeleteWorkOrder(String id) {
+    return ErrorHandler.execute(() async {
+      final query = _database.delete(_database.workOrders)
+        ..where((t) => t.id.equals(id));
+      await query.go();
       return const SuccessState(data: true);
     });
   }

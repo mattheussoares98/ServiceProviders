@@ -30,9 +30,9 @@ void main() {
     registerFallbackValue(
       WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
-    registerFallbackValue(
+    registerFallbackValue(<WorkOrderModel>[
       WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
-    );
+    ]);
     registerFallbackValue(TaskModel.fromEntity(EntityFactory.makeTaskEntity()));
     registerFallbackValue(
       TaskRequestModel.fromEntity(EntityFactory.makeTaskEntity()),
@@ -53,6 +53,7 @@ void main() {
       ),
     );
     registerFallbackValue(const WorkOrderFilter());
+    registerFallbackValue(DateTime.now());
   });
 
   setUp(() {
@@ -98,7 +99,7 @@ void main() {
           ),
         ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
         when(
-          () => mockLocalDataSource.saveWorkOrder(any()),
+          () => mockLocalDataSource.saveWorkOrders(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.getWorkOrders(tCompanyId);
@@ -114,7 +115,7 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => mockLocalDataSource.saveWorkOrder(tWorkOrderModel),
+          () => mockLocalDataSource.saveWorkOrders([tWorkOrderModel]),
         ).called(1);
       },
     );
@@ -376,7 +377,7 @@ void main() {
 
   group('deleteWorkOrder', () {
     test(
-      'should call remote, delete locally, and return SuccessState(true) when internet is connected',
+      'should call remote, delete locally with hardDeleteWorkOrder, and return SuccessState(true) when internet is connected',
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
@@ -384,6 +385,9 @@ void main() {
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(
           () => mockRemoteDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.hardDeleteWorkOrder(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.deleteWorkOrder(tWorkOrderId);
@@ -394,7 +398,7 @@ void main() {
           () => mockRemoteDataSource.deleteWorkOrder(tWorkOrderId),
         ).called(1);
         verify(
-          () => mockLocalDataSource.deleteWorkOrder(tWorkOrderId),
+          () => mockLocalDataSource.hardDeleteWorkOrder(tWorkOrderId),
         ).called(1);
       },
     );
@@ -434,6 +438,119 @@ void main() {
         expect(result, isA<FailureState<bool>>());
         expect(result.message, 'Server error');
         verifyNever(() => mockLocalDataSource.deleteWorkOrder(tWorkOrderId));
+      },
+    );
+  });
+
+  group('hardDeleteWorkOrder', () {
+    test('should delegate to localDataSource.hardDeleteWorkOrder', () async {
+      when(
+        () => mockLocalDataSource.hardDeleteWorkOrder(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.hardDeleteWorkOrder(tWorkOrderId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(
+        () => mockLocalDataSource.hardDeleteWorkOrder(tWorkOrderId),
+      ).called(1);
+    });
+  });
+
+  group('syncWorkOrders', () {
+    test('should return FailureState when internet is disconnected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.syncWorkOrders(tCompanyId);
+
+      expect(result, isA<FailureState<bool>>());
+    });
+
+    test(
+      'initial sync (when lastSyncAt is null) should fetch active work orders and batch save locally',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockRemoteDataSource.getWorkOrders(tCompanyId, pageSize: 100),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
+        when(
+          () => mockLocalDataSource.saveWorkOrders(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.syncWorkOrders(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockRemoteDataSource.getWorkOrders(tCompanyId, pageSize: 100),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrders([tWorkOrderModel]),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
+        ).called(1);
+      },
+    );
+
+    test(
+      'delta sync (when lastSyncAt is not null) should fetch delta changes and batch save locally',
+      () async {
+        final tLastSync = DateTime.now().toUtc().subtract(
+          const Duration(hours: 2),
+        );
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
+        ).thenAnswer((_) async => tLastSync);
+        when(
+          () => mockRemoteDataSource.getWorkOrdersDelta(
+            tCompanyId,
+            since: any(named: 'since'),
+          ),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
+        when(
+          () => mockLocalDataSource.saveWorkOrders(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.syncWorkOrders(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockRemoteDataSource.getWorkOrdersDelta(
+            tCompanyId,
+            since: tLastSync,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrders([tWorkOrderModel]),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should return FailureState when remote fetch fails during sync',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockRemoteDataSource.getWorkOrders(
+            any(),
+            pageSize: any(named: 'pageSize'),
+          ),
+        ).thenAnswer((_) async => FailureState(message: 'Remote error'));
+
+        final result = await repository.syncWorkOrders(tCompanyId);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Remote error');
       },
     );
   });

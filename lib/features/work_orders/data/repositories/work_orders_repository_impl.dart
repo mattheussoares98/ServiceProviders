@@ -39,30 +39,29 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     WorkOrderFilter filter = const WorkOrderFilter(),
     int pageSize = 20,
     int offset = 0,
-  }) => RepositoryHandler.fetchWithFallbackAndMapList<WorkOrderModel, WorkOrderEntity>(
-    isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.getWorkOrders(
-      companyId,
-      filter: filter,
-      pageSize: pageSize,
-      offset: offset,
-    ),
-    remoteCallback: () => _remoteDataSource.getWorkOrders(
-      companyId,
-      filter: filter,
-      pageSize: pageSize,
-      offset: offset,
-    ),
-    onRemoteSuccess: (list) async {
-      // Cache locally only when offset is 0 (first page) to keep the local database updated with
-      // the latest/most relevant orders, while preventing local database storage bloat with endless
-      // scrolled items.
-      if (offset == 0) {
-        await Future.wait(list.map(_localDataSource.saveWorkOrder).toList());
-      }
-      return const SuccessState(data: true);
-    },
-  );
+  }) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        WorkOrderModel,
+        WorkOrderEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.getWorkOrders(
+          companyId,
+          filter: filter,
+          pageSize: pageSize,
+          offset: offset,
+        ),
+        remoteCallback: () => _remoteDataSource.getWorkOrders(
+          companyId,
+          filter: filter,
+          pageSize: pageSize,
+          offset: offset,
+        ),
+        onRemoteSuccess: (list) async {
+          await _localDataSource.saveWorkOrders(list);
+          return const SuccessState(data: true);
+        },
+      );
 
   @override
   FutureData<WorkOrderEntity> getWorkOrderById(String id) =>
@@ -136,7 +135,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
         remoteCallback: () async {
           final result = await _remoteDataSource.deleteWorkOrder(id);
           if (result is SuccessState<bool> && result.data == true) {
-            await _localDataSource.deleteWorkOrder(id);
+            await _localDataSource.hardDeleteWorkOrder(id);
             return const SuccessState(data: true);
           }
           return FailureState(
@@ -147,6 +146,54 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           );
         },
       );
+
+  @override
+  FutureBool hardDeleteWorkOrder(String id) =>
+      _localDataSource.hardDeleteWorkOrder(id);
+
+  @override
+  FutureBool syncWorkOrders(String companyId) async {
+    if (!_internet.isConnected) {
+      return FailureState.noInternet();
+    }
+    final lastSyncAt = await _localDataSource.getLastUpdatedTimestamp(
+      companyId,
+    );
+
+    if (lastSyncAt == null) {
+      final result = await _remoteDataSource.getWorkOrders(
+        companyId,
+        pageSize: 100,
+      );
+      if (result is SuccessState<List<WorkOrderModel>>) {
+        final list = result.data ?? [];
+        await _localDataSource.saveWorkOrders(list);
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    } else {
+      final result = await _remoteDataSource.getWorkOrdersDelta(
+        companyId,
+        since: lastSyncAt,
+      );
+      if (result is SuccessState<List<WorkOrderModel>>) {
+        final list = result.data ?? [];
+        await _localDataSource.saveWorkOrders(list);
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
+      );
+    }
+  }
 
   @override
   FutureList<TaskEntity> getTasksByWorkOrder(String workOrderId) =>

@@ -21,6 +21,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pau
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -39,6 +40,7 @@ void main() {
   late GetWorkOrdersUseCase getWorkOrdersUseCase;
   late ReviewWorkOrderChangeRequestUseCase reviewWorkOrderChangeRequestUseCase;
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
+  late SyncWorkOrdersUseCase syncWorkOrdersUseCase;
 
   late GetPauseReasonsUseCase getPauseReasonsUseCase;
   late GetPauseRequestsUseCase getPauseRequestsUseCase;
@@ -110,6 +112,9 @@ void main() {
       workOrdersRepository: mockRepository,
     );
     updateWorkOrderUseCase = UpdateWorkOrderUseCase(
+      workOrdersRepository: mockRepository,
+    );
+    syncWorkOrdersUseCase = SyncWorkOrdersUseCase(
       workOrdersRepository: mockRepository,
     );
     getPauseReasonsUseCase = GetPauseReasonsUseCase(
@@ -243,6 +248,42 @@ void main() {
       expect(result, isA<FailureState<bool>>());
       expect(result.message, 'Delete failed');
       verify(() => mockRepository.deleteWorkOrder(tWorkOrderId)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+  });
+
+  group('SyncWorkOrdersUseCase', () {
+    final tCompanyId = faker.guid.guid();
+
+    test('should return true on success', () async {
+      // Arrange
+      when(
+        () => mockRepository.syncWorkOrders(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      // Act
+      final result = await syncWorkOrdersUseCase(tCompanyId);
+
+      // Assert
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, true);
+      verify(() => mockRepository.syncWorkOrders(tCompanyId)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('should return FailureState when repository fails', () async {
+      // Arrange
+      when(
+        () => mockRepository.syncWorkOrders(any()),
+      ).thenAnswer((_) async => FailureState<bool>(message: 'Sync failed'));
+
+      // Act
+      final result = await syncWorkOrdersUseCase(tCompanyId);
+
+      // Assert
+      expect(result, isA<FailureState<bool>>());
+      expect(result.message, 'Sync failed');
+      verify(() => mockRepository.syncWorkOrders(tCompanyId)).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
   });
