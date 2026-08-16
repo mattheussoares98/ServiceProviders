@@ -57,9 +57,9 @@ class UserProfileModel extends UserProfileEntity
       avatarUrl: db.avatarUrl,
       isActive: db.isActive,
       isAdmin: db.isAdmin,
-      createdAt: db.createdAt,
-      updatedAt: db.updatedAt,
-      deletedAt: db.deletedAt,
+      createdAt: db.createdAt.toUtc(),
+      updatedAt: db.updatedAt.toUtc(),
+      deletedAt: db.deletedAt?.toUtc(),
       permissions: parsed.$1,
       workOrdersPermissionOverrides: parsed.$2,
     );

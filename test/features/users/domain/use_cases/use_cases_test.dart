@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/create_permission_group_use_case.dart';
@@ -12,6 +13,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_user_profi
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/invite_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
@@ -27,6 +29,9 @@ import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockUsersRepository mockRepository;
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetPermissionGroupsUseCase mockGetPermissionGroups;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
 
   // Use cases
   late GetUsersUseCase getUsersUseCase;
@@ -39,6 +44,7 @@ void main() {
   late DeletePermissionGroupUseCase deletePermissionGroupUseCase;
   late InviteUserUseCase inviteUserUseCase;
   late ResendInvitationUseCase resendInvitationUseCase;
+  late HasPermissionUseCase hasPermissionUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
@@ -77,6 +83,18 @@ void main() {
     inviteUserUseCase = InviteUserUseCase(usersRepository: mockRepository);
     resendInvitationUseCase = ResendInvitationUseCase(
       usersRepository: mockRepository,
+    );
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetPermissionGroups = MockGetPermissionGroupsUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
+    when(() => mockGetPermissionGroups.call(any())).thenAnswer(
+      (_) async => const SuccessState(data: []),
+    );
+    hasPermissionUseCase = HasPermissionUseCase(
+      getSessionUser: mockGetSessionUser,
+      getPermissionGroups: mockGetPermissionGroups,
+      getActiveCompanyId: mockGetActiveCompanyId,
     );
   });
 
@@ -407,6 +425,92 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRepository.deletePermissionGroup(groupId)).called(1);
+      });
+    });
+
+    group('HasPermissionUseCase', () {
+      test('should return true when user is admin', () async {
+        final adminUser = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: true,
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.approvePause,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: true));
+      });
+
+      test('should return user override when present', () async {
+        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: false,
+          workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
+              .copyWith(approvePause: true),
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.approvePause,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: true));
+      });
+
+      test('should return group permission when override is null', () async {
+        final group = EntityFactory.makePermissionGroupEntity().copyWith(
+          workOrders: const WorkOrdersPermissionEntity.defaultTechnical()
+              .copyWith(approvePause: true, approveCompletion: false),
+        );
+        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: false,
+          permissionGroupId: group.id,
+          workOrders: const UserWorkOrdersPermissionOverrideEntity.empty(),
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+        when(
+          () => mockGetActiveCompanyId.call(),
+        ).thenReturn(regularUser.companyId);
+        when(
+          () => mockGetPermissionGroups.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: [group]));
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.approvePause,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: true));
+      });
+
+      test('should return false when user has no permission', () async {
+        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+          isAdmin: false,
+          workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
+              .copyWith(approvePause: false),
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.approvePause,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: false));
       });
     });
   });

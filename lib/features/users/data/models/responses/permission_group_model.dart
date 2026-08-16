@@ -41,8 +41,8 @@ class PermissionGroupModel extends PermissionGroupEntity
       permissions: parsed.$1,
       workOrders: parsed.$2,
       isDefault: db.isDefault,
-      createdAt: db.createdAt,
-      deletedAt: db.deletedAt,
+      createdAt: db.createdAt.toUtc(),
+      deletedAt: db.deletedAt?.toUtc(),
     );
   }
 

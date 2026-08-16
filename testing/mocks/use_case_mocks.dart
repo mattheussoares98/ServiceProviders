@@ -34,6 +34,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_pending_invit
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_user_profile_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_users_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
@@ -137,3 +138,5 @@ class MockRevokeInvitationUseCase extends Mock
 
 class MockResendInvitationUseCase extends Mock
     implements ResendInvitationUseCase {}
+
+class MockHasPermissionUseCase extends Mock implements HasPermissionUseCase {}
