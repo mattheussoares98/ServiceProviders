@@ -36,7 +36,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   static const _pageSize = 20;
 
-  Future<void> loadWorkOrdersAndChangeRequests({
+  Future<bool> loadWorkOrdersAndChangeRequests({
     bool showLoading = true,
     WorkOrderFilter? filter,
   }) async {
@@ -55,7 +55,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       ),
       _useCases.getChangeRequests(companyId),
     ]);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     final workOrdersResult = results[0];
     final changeRequestsResult = results[1];
@@ -75,6 +75,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           annulErrorMessage: true,
         ),
       );
+      return true;
     } else {
       final errorMessage = workOrdersResult is FailureState
           ? workOrdersResult.message
@@ -85,6 +86,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           errorMessage: errorMessage,
         ),
       );
+      return false;
     }
   }
 
@@ -351,6 +353,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      final updatedList = state.workOrders.map((wo) {
+        if (wo.id == updatedWorkOrder.id) {
+          return updatedWorkOrder;
+        }
+        return wo;
+      }).toList();
+      emit(state.copyWith(workOrders: updatedList));
+
       await loadWorkOrdersAndChangeRequests(showLoading: false);
       return true;
     } else {
@@ -394,6 +404,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return false;
     }
 
+    final updatedWorkOrder = workOrder.copyWith(
+      status: WorkOrderStatus.inProgress,
+      updatedAt: DateTime.now(),
+    );
+    final updatedList = state.workOrders.map((wo) {
+      if (wo.id == workOrder.id) {
+        return updatedWorkOrder;
+      }
+      return wo;
+    }).toList();
+    emit(state.copyWith(workOrders: updatedList));
+
     await loadWorkOrdersAndChangeRequests(showLoading: false);
     return true;
   }
@@ -426,7 +448,21 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           reviewedById: currentUserId,
           workOrderId: workOrder.id,
         );
-        if (success) await loadWorkOrdersAndChangeRequests(showLoading: false);
+        if (success) {
+          final updatedWorkOrder = workOrder.copyWith(
+            status: WorkOrderStatus.inProgress,
+            updatedAt: DateTime.now(),
+          );
+          final updatedList = state.workOrders.map((wo) {
+            if (wo.id == workOrder.id) {
+              return updatedWorkOrder;
+            }
+            return wo;
+          }).toList();
+          emit(state.copyWith(workOrders: updatedList));
+
+          await loadWorkOrdersAndChangeRequests(showLoading: false);
+        }
       } else if (activePause != null) {
         success = await _resumePausedWorkOrder(
           workOrder: workOrder,

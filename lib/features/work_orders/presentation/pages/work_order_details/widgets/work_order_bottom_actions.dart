@@ -80,20 +80,11 @@ class WorkOrderBottomActions extends StatelessWidget {
                   );
 
                   if (result == true && context.mounted) {
-                    if (canApprovePause) {
-                      context
-                          .read<WorkOrdersCubit>()
-                          .updateLocalWorkOrderStatus(
-                            workOrder.id,
-                            WorkOrderStatus.onHold,
-                            syncRemotely: true,
-                          );
-                    } else {
-                      await context
-                          .read<WorkOrdersCubit>()
-                          .loadWorkOrdersAndChangeRequests(showLoading: false);
-                    }
-                    await pauseCubit.loadPauseRequests(workOrder.id);
+                    context.read<WorkOrdersCubit>().updateLocalWorkOrderStatus(
+                      workOrder.id,
+                      WorkOrderStatus.onHold,
+                      syncRemotely: true,
+                    );
                   }
                 },
               ),
@@ -136,7 +127,6 @@ class WorkOrderBottomActions extends StatelessWidget {
                             WorkOrderStatus.pendingConclusionApproval,
                             syncRemotely: true,
                           );
-                      await pauseCubit.loadPauseRequests(workOrder.id);
                     }
                   },
                 ),

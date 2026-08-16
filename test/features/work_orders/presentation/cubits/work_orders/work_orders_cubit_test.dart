@@ -1376,6 +1376,45 @@ void main() {
             verifyNever(() => mockGetWorkOrders.call(any()));
           },
         );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should emit saving and loadingError and return true when updateWorkOrder succeeds but background reload fails',
+          build: () {
+            when(() => mockUpdateWorkOrder.call(any())).thenAnswer(
+              (_) async => const SuccessState(data: true),
+            );
+            when(() => mockGetWorkOrders.call(any())).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            when(() => mockGetChangeRequests.call(any())).thenAnswer(
+              (_) async => const SuccessState(data: []),
+            );
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.changeWorkOrderStatus(
+              workOrder: tWorkOrder,
+              status: WorkOrderStatus.inProgress,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.status,
+              'status',
+              StateStatus.loadingError,
+            ),
+          ],
+          verify: (_) {
+            verify(() => mockUpdateWorkOrder.call(any())).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
       });
 
       group('resumeWork', () {
@@ -1450,6 +1489,102 @@ void main() {
             ).called(1);
             verify(() => mockGetWorkOrders.call(any())).called(1);
             verifyNever(() => mockUpdateWorkOrder.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should update local work order to inProgress and return true when cancelPause succeeds even if background reload fails',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [
+              tWorkOrder.copyWith(status: WorkOrderStatus.onHold),
+            ],
+          ),
+          build: () {
+            final tPause = EntityFactory.makePauseRequestEntity();
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(tPause);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(null);
+            when(
+              () => mockPauseCubit.loadPauseRequests(any()),
+            ).thenAnswer((_) async {});
+            when(
+              () => mockCancelPause.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.resumeWork(
+              workOrder: tWorkOrder.copyWith(status: WorkOrderStatus.onHold),
+              currentUserId: faker.guid.guid(),
+              pauseCubit: mockPauseCubit,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.saving),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.saving)
+                .having(
+                  (s) => s.workOrders.first.status,
+                  'work order status updated to inProgress',
+                  WorkOrderStatus.inProgress,
+                ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.loadingError)
+                .having(
+                  (s) => s.workOrders.first.status,
+                  'work order status preserved inProgress',
+                  WorkOrderStatus.inProgress,
+                ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.loadingError)
+                .having(
+                  (s) => s.workOrders.first.status,
+                  'work order status preserved inProgress',
+                  WorkOrderStatus.inProgress,
+                ),
+          ],
+          verify: (_) {
+            verify(() => mockCancelPause.call(any())).called(1);
+            verify(
+              () => mockPauseCubit.loadPauseRequests(tWorkOrder.id),
+            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
           },
         );
 
@@ -1791,6 +1926,52 @@ void main() {
               'status',
               StateStatus.loaded,
             ),
+          ],
+          verify: (_) {
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should keep local status update and emit loadingError when remote sync fails (syncRemotely: true)',
+          seed: () => const WorkOrdersState.initial().copyWith(
+            workOrders: [
+              tWorkOrder.copyWith(status: WorkOrderStatus.inProgress),
+            ],
+          ),
+          build: () {
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer(
+              (_) async => FailureState(message: faker.lorem.sentence()),
+            );
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) => cubit.updateLocalWorkOrderStatus(
+            tWorkOrder.id,
+            WorkOrderStatus.onHold,
+            syncRemotely: true,
+          ),
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.workOrders.first.status,
+              'optimistic work order status',
+              WorkOrderStatus.onHold,
+            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.status,
+                  'status',
+                  StateStatus.loadingError,
+                )
+                .having(
+                  (s) => s.workOrders.first.status,
+                  'work order status preserved',
+                  WorkOrderStatus.onHold,
+                ),
           ],
           verify: (_) {
             verify(() => mockGetWorkOrders.call(any())).called(1);
