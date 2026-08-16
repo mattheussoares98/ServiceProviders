@@ -4,6 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -15,22 +17,26 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class RequestPauseFields extends HookWidget {
   const RequestPauseFields({
-    required this.companyId,
     required this.workOrderId,
     required this.currentUserId,
     super.key,
   });
 
-  final String companyId;
   final String workOrderId;
   final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PauseWorkflowCubit>();
+    final canApprovePause = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.approvePause,
+      ),
+    );
 
     final selectedReason = useState<PauseReasonEntity?>(null);
     final selectedResponsibility = useState<PauseResponsibility>(
@@ -56,7 +62,7 @@ class RequestPauseFields extends HookWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               BaseText.titleMedium(
-                'Solicitar pausa'.hardcoded,
+                (canApprovePause ? 'Pausar' : 'Solicitar pausa').hardcoded,
                 fontWeight: FontWeight.bold,
               ),
               gapH16,
@@ -145,14 +151,13 @@ class RequestPauseFields extends HookWidget {
                   ),
                   gapW12,
                   BaseButton(
-                    text: 'Confirmar'.hardcoded,
+                    text: (canApprovePause ? 'Pausar' : 'Confirmar').hardcoded,
                     onTap: () async {
                       if (formKey.currentState?.validate() != true) {
                         return;
                       }
 
                       final success = await cubit.requestPause(
-                        companyId: companyId,
                         workOrderId: workOrderId,
                         requestedById: currentUserId,
                         reasonId: selectedReason.value?.id,

@@ -40,7 +40,7 @@ class WorkOrderApprovalBanner extends HookWidget {
       return const SizedBox.shrink();
     }
 
-    final isPauseApproval = workOrder.status.isPendingPauseApproval;
+    final isPauseApproval = workOrder.status.isPaused;
 
     final color = workOrder.status.color;
     final bannerColor = color.withValues(alpha: 0.1);

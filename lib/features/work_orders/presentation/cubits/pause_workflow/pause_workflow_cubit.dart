@@ -2,6 +2,10 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
@@ -107,8 +111,22 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     );
   }
 
+  Future<bool> _canDirectlyPause() async {
+    final mode = _useCases.getSelectedMode();
+    final isInternal = mode != AppMode.provider.name;
+    if (!isInternal) return false;
+
+    final permResult = await _useCases.hasPermission(
+      const HasPermissionParams(
+        permission: ActionPermission.workOrderSubAction(
+          WorkOrderSubAction.approvePause,
+        ),
+      ),
+    );
+    return permResult is SuccessState<bool> && permResult.data == true;
+  }
+
   Future<bool> requestPause({
-    required String companyId,
     required String workOrderId,
     required String requestedById,
     PauseResponsibility responsibility = PauseResponsibility.provider,
@@ -149,6 +167,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
+    final isDirectPause = await _canDirectlyPause();
+    final initialStatus = isDirectPause
+        ? PauseRequestStatus.approved
+        : PauseRequestStatus.pending;
+    final reviewedById = isDirectPause ? requestedById : null;
+    final companyId = _useCases.getActiveCompanyId();
+
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
@@ -160,14 +185,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       observation: observation,
       responsibility: responsibility,
       sectorId: sectorId,
-      status: PauseRequestStatus.pending,
+      status: initialStatus,
       pausedAt: now,
       affectsSla: affectsSla,
       createdAt: now,
       updatedAt: now,
       resumedAt: null,
       reviewObservation: null,
-      reviewedById: null,
+      reviewedById: reviewedById,
     );
 
     emit(state.copyWith(status: StateStatus.saving));
@@ -226,7 +251,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   }
 
   Future<bool> requestCompletion({
-    required String companyId,
     required String workOrderId,
     required String requestedById,
     required String customReason,
@@ -253,6 +277,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
+    final companyId = _useCases.getActiveCompanyId();
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),

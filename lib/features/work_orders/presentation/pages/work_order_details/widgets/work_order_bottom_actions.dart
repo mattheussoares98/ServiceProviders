@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -54,6 +56,11 @@ class WorkOrderBottomActions extends StatelessWidget {
 
     if (workOrder.status.isRunning) {
       final isPendingConclusion = workOrder.status.isPendingConclusionApproval;
+      final canApprovePause = context.hasPermission(
+        const ActionPermission.workOrderSubAction(
+          WorkOrderSubAction.approvePause,
+        ),
+      );
       final canApproveCompletion = context.hasPermission(
         const ActionPermission.workOrderSubAction(
           WorkOrderSubAction.approveCompletion,
@@ -65,11 +72,11 @@ class WorkOrderBottomActions extends StatelessWidget {
           children: [
             Expanded(
               child: SecondaryButton(
-                text: 'Pausar'.hardcoded,
+                text:
+                    (canApprovePause ? 'Pausar' : 'Solicitar pausa').hardcoded,
                 onTap: () async {
                   final result = await showModalPage<bool>(
                     RequestPauseFields(
-                      companyId: workOrder.companyId,
                       workOrderId: workOrder.id,
                       currentUserId: currentUserId,
                     ),
@@ -77,11 +84,23 @@ class WorkOrderBottomActions extends StatelessWidget {
                   );
 
                   if (result == true && context.mounted) {
-                    context.read<WorkOrdersCubit>().updateLocalWorkOrderStatus(
-                      workOrder.id,
-                      WorkOrderStatus.pendingPauseApproval,
-                      syncRemotely: true,
-                    );
+                    if (canApprovePause) {
+                      context
+                          .read<WorkOrdersCubit>()
+                          .updateLocalWorkOrderStatus(
+                            workOrder.id,
+                            WorkOrderStatus.onHold,
+                            syncRemotely: true,
+                          );
+                    } else {
+                      unawaited(
+                        context
+                            .read<WorkOrdersCubit>()
+                            .loadWorkOrdersAndChangeRequests(
+                              showLoading: false,
+                            ),
+                      );
+                    }
                   }
                 },
               ),
@@ -114,7 +133,6 @@ class WorkOrderBottomActions extends StatelessWidget {
 
                     final result = await showModalPage<bool>(
                       RequestCompletionFields(
-                        companyId: workOrder.companyId,
                         workOrderId: workOrder.id,
                         currentUserId: currentUserId,
                       ),

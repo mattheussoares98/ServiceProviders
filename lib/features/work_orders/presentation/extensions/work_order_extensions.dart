@@ -34,7 +34,6 @@ extension WorkOrderStatusUiExtension on WorkOrderStatus {
       case WorkOrderStatus.inProgress:
         return Colors.amber;
       case WorkOrderStatus.onHold:
-      case WorkOrderStatus.pendingPauseApproval:
         return Colors.purple;
       case WorkOrderStatus.completed:
         return Colors.green;

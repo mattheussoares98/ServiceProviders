@@ -1688,14 +1688,14 @@ void main() {
           },
           act: (cubit) => cubit.updateLocalWorkOrderStatus(
             tWorkOrder.id,
-            WorkOrderStatus.pendingPauseApproval,
+            WorkOrderStatus.onHold,
             syncRemotely: true,
           ),
           expect: () => [
             isA<WorkOrdersState>().having(
               (s) => s.workOrders.first.status,
               'work order status',
-              WorkOrderStatus.pendingPauseApproval,
+              WorkOrderStatus.onHold,
             ),
             isA<WorkOrdersState>().having(
               (s) => s.status,
