@@ -295,8 +295,7 @@ Standard resources use boolean keys. Work orders use specific scope/action keys:
   "work_orders.delete": false,
   "work_orders.change_status": true,
   "work_orders.reassign": false,
-  "work_orders.approve_pause": false,
-  "work_orders.approve_completion": false
+  "work_orders.manage_pending_requests": false
 }
 ```
 
@@ -344,7 +343,7 @@ Standard resources use boolean keys. Work orders use specific scope/action keys:
 3. **UI / Presentation**:
    - Edit the Group Permissions and User Permissions screens to lock `read` to always-on (not switchable/editable) for standard resources.
    - Display a dropdown/segmented control for `read_scope` (`'all'` \| `'assigned'`) and `update_scope` (`'all'` \| `'assigned'` \| `'own'` \| `'none'`) on `work_orders`.
-   - Display switchable toggles for the special work order actions (`change_status`, `reassign`, `approve_pause`, `approve_completion`).
+   - Display switchable toggles for the special work order actions (`change_status`, `reassign`, `manage_pending_requests`).
 
 ---
 

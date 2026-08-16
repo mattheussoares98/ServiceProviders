@@ -124,8 +124,10 @@ class PermissionGroupModel extends PermissionGroupEntity
           final delete = data['work_orders.delete'] == true;
           final changeStatus = data['work_orders.change_status'] == true;
           final reassign = data['work_orders.reassign'] == true;
-          final approvePause = data['work_orders.approve_pause'] == true;
-          final approveCompletion =
+          final managePendingRequests =
+              data['work_orders.manage_pending_requests'] == true ||
+              data['work_orders.handle_status_changes'] == true ||
+              data['work_orders.approve_pause'] == true ||
               data['work_orders.approve_completion'] == true;
           final deleteObservation =
               data['work_orders.delete_observation'] == true;
@@ -137,8 +139,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             delete: delete,
             changeStatus: changeStatus,
             reassign: reassign,
-            approvePause: approvePause,
-            approveCompletion: approveCompletion,
+            managePendingRequests: managePendingRequests,
             deleteObservation: deleteObservation,
           );
         }
@@ -212,8 +213,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             delete: data.contains('work_orders.delete'),
             changeStatus: hasWorkOrderRead || hasWorkOrderUpdate,
             reassign: false,
-            approvePause: false,
-            approveCompletion: false,
+            managePendingRequests: false,
             deleteObservation: false,
           );
         }
@@ -239,8 +239,8 @@ class PermissionGroupModel extends PermissionGroupEntity
     flat['work_orders.delete'] = workOrders.delete;
     flat['work_orders.change_status'] = workOrders.changeStatus;
     flat['work_orders.reassign'] = workOrders.reassign;
-    flat['work_orders.approve_pause'] = workOrders.approvePause;
-    flat['work_orders.approve_completion'] = workOrders.approveCompletion;
+    flat['work_orders.manage_pending_requests'] =
+        workOrders.managePendingRequests;
     flat['work_orders.delete_observation'] = workOrders.deleteObservation;
 
     return {

@@ -15,17 +15,11 @@ class _PendingRequestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPauseRequest = request.eventType == PauseEventType.pause;
 
-    final canApprove = isPauseRequest
-        ? context.hasPermission(
-            const ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
-            ),
-          )
-        : context.hasPermission(
-            const ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approveCompletion,
-            ),
-          );
+    final canApprove = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.managePendingRequests,
+      ),
+    );
 
     final cardBgColor = isPauseRequest ? Colors.amber[100]! : Colors.blue[100]!;
     final borderColor = isPauseRequest ? Colors.amber[700]! : Colors.blue[700]!;
@@ -133,9 +127,9 @@ class _PendingRequestCard extends StatelessWidget {
                   );
 
                   if (result != null && context.mounted) {
-                    await context
-                        .read<PauseWorkflowCubit>()
-                        .loadPauseRequests(workOrder.id);
+                    await context.read<PauseWorkflowCubit>().loadPauseRequests(
+                      workOrder.id,
+                    );
 
                     if (!isPauseRequest && context.mounted) {
                       await context

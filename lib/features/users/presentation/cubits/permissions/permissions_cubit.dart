@@ -139,23 +139,12 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
   }
 
-  void toggleGroupWorkOrdersApprovePause(bool value) {
+  void toggleGroupWorkOrdersmanagePendingRequests(bool value) {
     if (state.isAdmin) return;
     emit(
       state.copyWith(
         draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
-          approvePause: value,
-        ),
-      ),
-    );
-  }
-
-  void toggleGroupWorkOrdersApproveCompletion(bool value) {
-    if (state.isAdmin) return;
-    emit(
-      state.copyWith(
-        draftGroupWorkOrders: state.draftGroupWorkOrders.copyWith(
-          approveCompletion: value,
+          managePendingRequests: value,
         ),
       ),
     );
@@ -353,25 +342,13 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
   }
 
-  void toggleUserWorkOrdersApprovePause(bool? value) {
+  void toggleUserWorkOrdersmanagePendingRequests(bool? value) {
     if (state.isAdmin) return;
     emit(
       state.copyWith(
         draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
-          approvePause: value,
-          annulApprovePause: value == null,
-        ),
-      ),
-    );
-  }
-
-  void toggleUserWorkOrdersApproveCompletion(bool? value) {
-    if (state.isAdmin) return;
-    emit(
-      state.copyWith(
-        draftUserWorkOrders: state.draftUserWorkOrders.copyWith(
-          approveCompletion: value,
-          annulApproveCompletion: value == null,
+          managePendingRequests: value,
+          annulManagePendingRequests: value == null,
         ),
       ),
     );

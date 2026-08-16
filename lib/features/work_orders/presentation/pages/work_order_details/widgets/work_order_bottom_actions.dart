@@ -54,14 +54,9 @@ class WorkOrderBottomActions extends StatelessWidget {
 
     if (workOrder.status.isRunning) {
       final isPendingConclusion = workOrder.status.isPendingConclusionApproval;
-      final canApprovePause = context.hasPermission(
+      final canmanagePendingRequests = context.hasPermission(
         const ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.approvePause,
-        ),
-      );
-      final canApproveCompletion = context.hasPermission(
-        const ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.approveCompletion,
+          WorkOrderSubAction.managePendingRequests,
         ),
       );
 
@@ -70,8 +65,8 @@ class WorkOrderBottomActions extends StatelessWidget {
           children: [
             Expanded(
               child: SecondaryButton(
-                text:
-                    (canApprovePause ? 'Pausar' : 'Solicitar pausa').hardcoded,
+                text: (canmanagePendingRequests ? 'Pausar' : 'Solicitar pausa')
+                    .hardcoded,
                 onTap: () async {
                   await showModalPage<void>(
                     RequestPauseFields(workOrderId: workOrder.id),
@@ -84,11 +79,11 @@ class WorkOrderBottomActions extends StatelessWidget {
             if (!isPendingConclusion)
               Expanded(
                 child: BaseButton(
-                  text: canApproveCompletion
+                  text: canmanagePendingRequests
                       ? 'Concluir'.hardcoded
                       : 'Solicitar conclusão'.hardcoded,
                   onTap: () async {
-                    if (canApproveCompletion) {
+                    if (canmanagePendingRequests) {
                       final ok = await showAlertDialog(
                         context: context,
                         title: 'Concluir'.hardcoded,

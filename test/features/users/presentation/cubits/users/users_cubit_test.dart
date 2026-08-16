@@ -1276,7 +1276,7 @@ void main() {
         final regularUser = tSessionUser.copyWith(
           isAdmin: false,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
-              .copyWith(deleteObservation: true, approvePause: false),
+              .copyWith(deleteObservation: true, managePendingRequests: false),
         );
         when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
@@ -1291,7 +1291,7 @@ void main() {
         expect(
           cubit.hasPermission(
             const ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
+              WorkOrderSubAction.managePendingRequests,
             ),
           ),
           isFalse,

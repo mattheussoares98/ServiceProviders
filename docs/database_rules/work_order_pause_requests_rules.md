@@ -44,7 +44,7 @@ CREATE POLICY "Users update work order pause requests"
     (
       company_id = public.get_user_company_id()
       AND (
-        public.has_permission('work_orders.approve_pause')
+        public.has_permission('work_orders.manage_pending_requests')
         OR public.has_permission('work_orders.change_status')
         OR public.has_permission('work_orders.update')
       )

@@ -123,7 +123,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     final permResult = await _useCases.hasPermission(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.approvePause,
+          WorkOrderSubAction.managePendingRequests,
         ),
       ),
     );
@@ -264,7 +264,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     final permResult = await _useCases.hasPermission(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.approveCompletion,
+          WorkOrderSubAction.managePendingRequests,
         ),
       ),
     );

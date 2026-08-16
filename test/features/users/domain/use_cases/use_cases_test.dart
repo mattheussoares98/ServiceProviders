@@ -88,9 +88,9 @@ void main() {
     mockGetPermissionGroups = MockGetPermissionGroupsUseCase();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
-    when(() => mockGetPermissionGroups.call(any())).thenAnswer(
-      (_) async => const SuccessState(data: []),
-    );
+    when(
+      () => mockGetPermissionGroups.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
     hasPermissionUseCase = HasPermissionUseCase(
       getSessionUser: mockGetSessionUser,
       getPermissionGroups: mockGetPermissionGroups,
@@ -438,7 +438,7 @@ void main() {
         final result = await hasPermissionUseCase(
           const HasPermissionParams(
             permission: ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
+              WorkOrderSubAction.managePendingRequests,
             ),
           ),
         );
@@ -450,14 +450,14 @@ void main() {
         final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
-              .copyWith(approvePause: true),
+              .copyWith(managePendingRequests: true),
         );
         when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
         final result = await hasPermissionUseCase(
           const HasPermissionParams(
             permission: ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
+              WorkOrderSubAction.managePendingRequests,
             ),
           ),
         );
@@ -468,7 +468,7 @@ void main() {
       test('should return group permission when override is null', () async {
         final group = EntityFactory.makePermissionGroupEntity().copyWith(
           workOrders: const WorkOrdersPermissionEntity.defaultTechnical()
-              .copyWith(approvePause: true, approveCompletion: false),
+              .copyWith(managePendingRequests: true),
         );
         final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
@@ -486,7 +486,7 @@ void main() {
         final result = await hasPermissionUseCase(
           const HasPermissionParams(
             permission: ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
+              WorkOrderSubAction.managePendingRequests,
             ),
           ),
         );
@@ -498,14 +498,14 @@ void main() {
         final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
-              .copyWith(approvePause: false),
+              .copyWith(managePendingRequests: false),
         );
         when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
         final result = await hasPermissionUseCase(
           const HasPermissionParams(
             permission: ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.approvePause,
+              WorkOrderSubAction.managePendingRequests,
             ),
           ),
         );

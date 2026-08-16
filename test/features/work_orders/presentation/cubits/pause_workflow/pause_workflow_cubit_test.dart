@@ -80,7 +80,7 @@ void main() {
     registerFallbackValue(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.approvePause,
+          WorkOrderSubAction.managePendingRequests,
         ),
       ),
     );

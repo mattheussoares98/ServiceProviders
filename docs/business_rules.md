@@ -12,10 +12,10 @@ Work order pauses and completion requests are tracked in `work_order_pause_reque
 
 | Rule | Action | User Has Permission? | Resulting Work Order Status | Pause Request Row Status | Review Behavior |
 |---|---|---|---|---|---|
-| **1: Pending Pause** | Request Pause | ❌ No (`approvePause` denied or provider mode) | **`onHold`** | `pending` | Reviewing does **NOT** alter the work order status (remains `onHold`). Only updates responsibility/reason. |
-| **2: Direct Pause** | Request Pause | ✅ Yes (`approvePause` granted & internal mode) | **`onHold`** | `approved` | Direct approval; no pending request is left. |
-| **3: Pending Completion** | Request Completion | ❌ No (`approveCompletion` denied or provider mode) | **`pendingConclusionApproval`** | `pending` | **Accept:** changes status to `completed` and sets `completedAt`.<br>**Reject:** changes status back to `inProgress`. |
-| **4: Direct Completion** | Request Completion | ✅ Yes (`approveCompletion` granted & internal mode) | **`completed`** | `approved` | Direct conclusion; no pending completion is left. |
+| **1: Pending Pause** | Request Pause | ❌ No (`managePendingRequests` denied or provider mode) | **`onHold`** | `pending` | Reviewing does **NOT** alter the work order status (remains `onHold`). Only updates responsibility/reason. |
+| **2: Direct Pause** | Request Pause | ✅ Yes (`managePendingRequests` granted & internal mode) | **`onHold`** | `approved` | Direct approval; no pending request is left. |
+| **3: Pending Completion** | Request Completion | ❌ No (`managePendingRequests` denied or provider mode) | **`pendingConclusionApproval`** | `pending` | **Accept:** changes status to `completed` and sets `completedAt`.<br>**Reject:** changes status back to `inProgress`. |
+| **4: Direct Completion** | Request Completion | ✅ Yes (`managePendingRequests` granted & internal mode) | **`completed`** | `approved` | Direct conclusion; no pending completion is left. |
 
 ---
 

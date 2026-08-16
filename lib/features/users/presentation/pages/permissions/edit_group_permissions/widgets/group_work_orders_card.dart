@@ -81,18 +81,11 @@ class _GroupWorkOrdersCard extends StatelessWidget {
                           : cubit.toggleGroupWorkOrdersReassign,
                     ),
                     BaseSwitch(
-                      title: 'Aprovar pausas'.hardcoded,
-                      value: draft.approvePause,
+                      title: 'Aprovar mudanças de status'.hardcoded,
+                      value: draft.managePendingRequests,
                       onChanged: isAdmin
                           ? null
-                          : cubit.toggleGroupWorkOrdersApprovePause,
-                    ),
-                    BaseSwitch(
-                      title: 'Aprovar conclusão'.hardcoded,
-                      value: draft.approveCompletion,
-                      onChanged: isAdmin
-                          ? null
-                          : cubit.toggleGroupWorkOrdersApproveCompletion,
+                          : cubit.toggleGroupWorkOrdersmanagePendingRequests,
                     ),
                     BaseSwitch(
                       title: 'Excluir observações'.hardcoded,

@@ -21,10 +21,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class RequestPauseFields extends HookWidget {
-  const RequestPauseFields({
-    required this.workOrderId,
-    super.key,
-  });
+  const RequestPauseFields({required this.workOrderId, super.key});
 
   final String workOrderId;
 
@@ -33,7 +30,7 @@ class RequestPauseFields extends HookWidget {
     final cubit = context.read<PauseWorkflowCubit>();
     final canApprovePause = context.hasPermission(
       const ActionPermission.workOrderSubAction(
-        WorkOrderSubAction.approvePause,
+        WorkOrderSubAction.managePendingRequests,
       ),
     );
 

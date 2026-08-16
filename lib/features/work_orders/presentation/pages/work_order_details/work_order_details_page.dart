@@ -83,12 +83,11 @@ class _WorkOrderDetails extends HookWidget {
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
         statuses: {.deleting, .saving},
-        sections: {WorkOrdersSection.resumeWork: {.saving}},
+        sections: {
+          WorkOrdersSection.resumeWork: {.saving},
+        },
       ),
-      ObservedLoadingTarget(
-        pauseCubit,
-        statuses: {.deleting, .saving},
-      ),
+      ObservedLoadingTarget(pauseCubit, statuses: {.deleting, .saving}),
     ]);
 
     final currentUserId = sessionCubit.state.user.id;

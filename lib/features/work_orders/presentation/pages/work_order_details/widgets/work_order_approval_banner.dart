@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -13,6 +14,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class WorkOrderApprovalBanner extends HookWidget {
   const WorkOrderApprovalBanner({
@@ -30,6 +32,10 @@ class WorkOrderApprovalBanner extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.hasPermission(
+      const ActionPermission.workOrderSubAction(.managePendingRequests),
+    )) {}
+
     final pendingCount = pauseRequests
         .where((r) => r.status == PauseRequestStatus.pending)
         .length;

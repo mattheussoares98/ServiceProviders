@@ -125,15 +125,10 @@ class HasPermissionUseCase implements UseCase<bool, HasPermissionParams> {
         if (override != null) return override;
         return groupPermissions?.reassign ?? false;
 
-      case WorkOrderSubAction.approvePause:
-        final override = woPermissions.approvePause;
+      case WorkOrderSubAction.managePendingRequests:
+        final override = woPermissions.managePendingRequests;
         if (override != null) return override;
-        return groupPermissions?.approvePause ?? false;
-
-      case WorkOrderSubAction.approveCompletion:
-        final override = woPermissions.approveCompletion;
-        if (override != null) return override;
-        return groupPermissions?.approveCompletion ?? false;
+        return groupPermissions?.managePendingRequests ?? false;
     }
   }
 

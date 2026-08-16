@@ -10,8 +10,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     required this.delete,
     required this.changeStatus,
     required this.reassign,
-    required this.approvePause,
-    required this.approveCompletion,
+    required this.managePendingRequests,
     required this.deleteObservation,
   });
 
@@ -22,8 +21,7 @@ class WorkOrdersPermissionEntity extends Equatable {
       delete = false,
       changeStatus = true,
       reassign = false,
-      approvePause = false,
-      approveCompletion = false,
+      managePendingRequests = false,
       deleteObservation = false;
 
   const WorkOrdersPermissionEntity.defaultSupervisor()
@@ -33,8 +31,7 @@ class WorkOrdersPermissionEntity extends Equatable {
       delete = true,
       changeStatus = true,
       reassign = true,
-      approvePause = true,
-      approveCompletion = true,
+      managePendingRequests = true,
       deleteObservation = true;
 
   const WorkOrdersPermissionEntity.defaultAdmin()
@@ -44,8 +41,7 @@ class WorkOrdersPermissionEntity extends Equatable {
       delete = true,
       changeStatus = true,
       reassign = true,
-      approvePause = true,
-      approveCompletion = true,
+      managePendingRequests = true,
       deleteObservation = true;
 
   final WorkOrderReadScope readScope;
@@ -54,8 +50,7 @@ class WorkOrdersPermissionEntity extends Equatable {
   final bool delete;
   final bool changeStatus;
   final bool reassign;
-  final bool approvePause;
-  final bool approveCompletion;
+  final bool managePendingRequests;
   final bool deleteObservation;
 
   @override
@@ -66,8 +61,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     delete,
     changeStatus,
     reassign,
-    approvePause,
-    approveCompletion,
+    managePendingRequests,
     deleteObservation,
   ];
 
@@ -78,8 +72,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     bool? delete,
     bool? changeStatus,
     bool? reassign,
-    bool? approvePause,
-    bool? approveCompletion,
+    bool? managePendingRequests,
     bool? deleteObservation,
   }) {
     return WorkOrdersPermissionEntity(
@@ -89,8 +82,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       delete: delete ?? this.delete,
       changeStatus: changeStatus ?? this.changeStatus,
       reassign: reassign ?? this.reassign,
-      approvePause: approvePause ?? this.approvePause,
-      approveCompletion: approveCompletion ?? this.approveCompletion,
+      managePendingRequests:
+          managePendingRequests ?? this.managePendingRequests,
       deleteObservation: deleteObservation ?? this.deleteObservation,
     );
   }

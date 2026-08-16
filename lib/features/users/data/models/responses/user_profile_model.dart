@@ -156,13 +156,9 @@ class UserProfileModel extends UserProfileEntity
       flatPermissions['work_orders.reassign'] =
           workOrdersPermissionOverrides.reassign;
     }
-    if (workOrdersPermissionOverrides.approvePause != null) {
-      flatPermissions['work_orders.approve_pause'] =
-          workOrdersPermissionOverrides.approvePause;
-    }
-    if (workOrdersPermissionOverrides.approveCompletion != null) {
-      flatPermissions['work_orders.approve_completion'] =
-          workOrdersPermissionOverrides.approveCompletion;
+    if (workOrdersPermissionOverrides.managePendingRequests != null) {
+      flatPermissions['work_orders.manage_pending_requests'] =
+          workOrdersPermissionOverrides.managePendingRequests;
     }
 
     return {
@@ -261,9 +257,10 @@ class UserProfileModel extends UserProfileEntity
         final bool? changeStatus =
             decoded['work_orders.change_status'] as bool?;
         final bool? reassign = decoded['work_orders.reassign'] as bool?;
-        final bool? approvePause =
-            decoded['work_orders.approve_pause'] as bool?;
-        final bool? approveCompletion =
+        final bool? managePendingRequests =
+            decoded['work_orders.manage_pending_requests'] as bool? ??
+            decoded['work_orders.handle_status_changes'] as bool? ??
+            decoded['work_orders.approve_pause'] as bool? ??
             decoded['work_orders.approve_completion'] as bool?;
 
         workOrders = UserWorkOrdersPermissionOverrideEntity(
@@ -273,8 +270,7 @@ class UserProfileModel extends UserProfileEntity
           delete: delete,
           changeStatus: changeStatus,
           reassign: reassign,
-          approvePause: approvePause,
-          approveCompletion: approveCompletion,
+          managePendingRequests: managePendingRequests,
           deleteObservation: null,
         );
       }

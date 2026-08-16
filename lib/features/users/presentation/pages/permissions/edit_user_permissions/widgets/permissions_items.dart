@@ -315,14 +315,9 @@ class _WorkOrdersCard extends StatelessWidget {
                     onChanged: cubit.toggleUserWorkOrdersReassign,
                   ),
                   buildToggleRow(
-                    label: 'Aprovar pausas'.hardcoded,
-                    selectedValue: draft.approvePause,
-                    onChanged: cubit.toggleUserWorkOrdersApprovePause,
-                  ),
-                  buildToggleRow(
-                    label: 'Aprovar conclusão'.hardcoded,
-                    selectedValue: draft.approveCompletion,
-                    onChanged: cubit.toggleUserWorkOrdersApproveCompletion,
+                    label: 'Aprovar mudanças de status'.hardcoded,
+                    selectedValue: draft.managePendingRequests,
+                    onChanged: cubit.toggleUserWorkOrdersmanagePendingRequests,
                   ),
                   buildToggleRow(
                     label: 'Excluir observações'.hardcoded,

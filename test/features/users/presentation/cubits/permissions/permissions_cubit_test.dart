@@ -389,26 +389,13 @@ void main() {
       );
 
       blocTest<PermissionsCubit, PermissionsState>(
-        'toggleGroupWorkOrdersApprovePause updates draftGroupWorkOrders approvePause',
+        'toggleGroupWorkOrdersmanagePendingRequests updates draftGroupWorkOrders managePendingRequests',
         build: () => cubit..initGroup(tGroup),
-        act: (c) => c.toggleGroupWorkOrdersApprovePause(true),
+        act: (c) => c.toggleGroupWorkOrdersmanagePendingRequests(true),
         expect: () => [
           isA<PermissionsState>().having(
-            (s) => s.draftGroupWorkOrders.approvePause,
-            'approvePause',
-            true,
-          ),
-        ],
-      );
-
-      blocTest<PermissionsCubit, PermissionsState>(
-        'toggleGroupWorkOrdersApproveCompletion updates draftGroupWorkOrders approveCompletion',
-        build: () => cubit..initGroup(tGroup),
-        act: (c) => c.toggleGroupWorkOrdersApproveCompletion(true),
-        expect: () => [
-          isA<PermissionsState>().having(
-            (s) => s.draftGroupWorkOrders.approveCompletion,
-            'approveCompletion',
+            (s) => s.draftGroupWorkOrders.managePendingRequests,
+            'managePendingRequests',
             true,
           ),
         ],
@@ -495,27 +482,14 @@ void main() {
       );
 
       blocTest<PermissionsCubit, PermissionsState>(
-        'toggleUserWorkOrdersApprovePause updates draftUserWorkOrders approvePause override',
+        'toggleUserWorkOrdersmanagePendingRequests updates draftUserWorkOrders managePendingRequests override',
         build: () => cubit..initUser(tUser),
-        act: (c) => c.toggleUserWorkOrdersApprovePause(true),
+        act: (c) => c.toggleUserWorkOrdersmanagePendingRequests(true),
         expect: () => [
           isA<PermissionsState>().having(
-            (s) => s.draftUserWorkOrders.approvePause,
-            'approvePause override',
+            (s) => s.draftUserWorkOrders.managePendingRequests,
+            'managePendingRequests override',
             true,
-          ),
-        ],
-      );
-
-      blocTest<PermissionsCubit, PermissionsState>(
-        'toggleUserWorkOrdersApproveCompletion updates draftUserWorkOrders approveCompletion override',
-        build: () => cubit..initUser(tUser),
-        act: (c) => c.toggleUserWorkOrdersApproveCompletion(false),
-        expect: () => [
-          isA<PermissionsState>().having(
-            (s) => s.draftUserWorkOrders.approveCompletion,
-            'approveCompletion override',
-            false,
           ),
         ],
       );

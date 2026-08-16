@@ -10,8 +10,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     required this.delete,
     required this.changeStatus,
     required this.reassign,
-    required this.approvePause,
-    required this.approveCompletion,
+    required this.managePendingRequests,
     required this.deleteObservation,
   });
 
@@ -22,8 +21,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
       delete = null,
       changeStatus = null,
       reassign = null,
-      approvePause = null,
-      approveCompletion = null,
+      managePendingRequests = null,
       deleteObservation = null;
 
   final WorkOrderReadScope? readScope;
@@ -32,8 +30,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
   final bool? delete;
   final bool? changeStatus;
   final bool? reassign;
-  final bool? approvePause;
-  final bool? approveCompletion;
+  final bool? managePendingRequests;
   final bool? deleteObservation;
 
   @override
@@ -44,8 +41,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     delete,
     changeStatus,
     reassign,
-    approvePause,
-    approveCompletion,
+    managePendingRequests,
     deleteObservation,
   ];
 
@@ -56,8 +52,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? delete,
     bool? changeStatus,
     bool? reassign,
-    bool? approvePause,
-    bool? approveCompletion,
+    bool? managePendingRequests,
     bool? deleteObservation,
     bool? annulReadScope,
     bool? annulCreate,
@@ -65,8 +60,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? annulDelete,
     bool? annulChangeStatus,
     bool? annulReassign,
-    bool? annulApprovePause,
-    bool? annulApproveCompletion,
+    bool? annulManagePendingRequests,
     bool? annulDeleteObservation,
   }) {
     return UserWorkOrdersPermissionOverrideEntity(
@@ -80,12 +74,9 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
           ? null
           : changeStatus ?? this.changeStatus,
       reassign: annulReassign == true ? null : reassign ?? this.reassign,
-      approvePause: annulApprovePause == true
+      managePendingRequests: annulManagePendingRequests == true
           ? null
-          : approvePause ?? this.approvePause,
-      approveCompletion: annulApproveCompletion == true
-          ? null
-          : approveCompletion ?? this.approveCompletion,
+          : managePendingRequests ?? this.managePendingRequests,
       deleteObservation: annulDeleteObservation == true
           ? null
           : deleteObservation ?? this.deleteObservation,
