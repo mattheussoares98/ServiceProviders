@@ -78,7 +78,6 @@ class WorkOrderBottomActions extends StatelessWidget {
                   final result = await showModalPage<bool>(
                     RequestPauseFields(
                       workOrderId: workOrder.id,
-                      currentUserId: currentUserId,
                     ),
                     context,
                   );
@@ -134,7 +133,6 @@ class WorkOrderBottomActions extends StatelessWidget {
                     final result = await showModalPage<bool>(
                       RequestCompletionFields(
                         workOrderId: workOrder.id,
-                        currentUserId: currentUserId,
                       ),
                       context,
                     );

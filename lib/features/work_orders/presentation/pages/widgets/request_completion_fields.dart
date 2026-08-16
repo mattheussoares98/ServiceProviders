@@ -19,12 +19,10 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.da
 class RequestCompletionFields extends HookWidget {
   const RequestCompletionFields({
     required this.workOrderId,
-    required this.currentUserId,
     super.key,
   });
 
   final String workOrderId;
-  final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +106,6 @@ class RequestCompletionFields extends HookWidget {
                     final cubit = context.read<PauseWorkflowCubit>();
                     final success = await cubit.requestCompletion(
                       workOrderId: workOrderId,
-                      requestedById: currentUserId,
                       customReason: reasonController.text.trim(),
                       sectorId: selectedSectorId.value,
                       observation: observationController.text.trim().isEmpty

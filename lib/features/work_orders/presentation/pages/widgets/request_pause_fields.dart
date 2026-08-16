@@ -22,12 +22,10 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 class RequestPauseFields extends HookWidget {
   const RequestPauseFields({
     required this.workOrderId,
-    required this.currentUserId,
     super.key,
   });
 
   final String workOrderId;
-  final String currentUserId;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +157,6 @@ class RequestPauseFields extends HookWidget {
 
                       final success = await cubit.requestPause(
                         workOrderId: workOrderId,
-                        requestedById: currentUserId,
                         reasonId: selectedReason.value?.id,
                         customReason: customReasonController.text.trim().isEmpty
                             ? null
