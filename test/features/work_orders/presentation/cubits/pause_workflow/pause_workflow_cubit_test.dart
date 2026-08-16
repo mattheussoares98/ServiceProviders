@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
@@ -22,12 +23,16 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_comp
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
+
+class MockWorkOrdersCubit extends MockCubit<WorkOrdersState>
+    implements WorkOrdersCubit {}
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
@@ -64,11 +69,13 @@ void main() {
   late MockReviewCompletionUseCase mockReviewCompletion;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockWorkOrdersCubit mockWorkOrdersCubit;
 
   late PauseWorkflowCubit cubit;
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
+    registerFallbackValue(WorkOrderStatus.open);
     registerFallbackValue(EntityFactory.makePauseRequestEntity());
     registerFallbackValue(
       const HasPermissionParams(
@@ -115,6 +122,20 @@ void main() {
     mockReviewCompletion = MockReviewCompletionUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockWorkOrdersCubit = MockWorkOrdersCubit();
+
+    when(
+      () => mockWorkOrdersCubit.updateLocalWorkOrderStatus(
+        any(),
+        any(),
+        syncRemotely: any(named: 'syncRemotely'),
+      ),
+    ).thenAnswer((_) {});
+    when(
+      () => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests(
+        showLoading: any(named: 'showLoading'),
+      ),
+    ).thenAnswer((_) async => true);
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -237,6 +258,7 @@ void main() {
         build: () => cubit,
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
+          workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
           isA<PauseWorkflowState>()
@@ -267,6 +289,7 @@ void main() {
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
           customReason: 'Falta de peças',
+          workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
@@ -291,6 +314,34 @@ void main() {
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should update workOrdersCubit when requestPause succeeds',
+        build: () {
+          when(
+            () => mockRequestPause.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          when(() => mockGetSelectedMode.call()).thenReturn('internal');
+          when(
+            () => mockHasPermission.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          return cubit;
+        },
+        act: (cubit) {
+          return cubit.requestPause(
+            workOrderId: 'wo-id',
+            customReason: 'Falta de peças',
+            workOrdersCubit: mockWorkOrdersCubit,
+          );
+        },
+        verify: (_) {
+          verify(() => mockRequestPause.call(any())).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving and savingError when request fails',
         build: () {
           when(
@@ -301,6 +352,7 @@ void main() {
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
           customReason: 'Falta de peças',
+          workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
@@ -314,74 +366,92 @@ void main() {
         ],
       );
 
-      test('creates approved pause request when user is internal and has permission', () async {
-        when(() => mockGetSelectedMode.call()).thenReturn('internal');
-        when(
-          () => mockHasPermission.call(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockRequestPause.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: true),
-        );
-        when(() => mockGetPauseRequests.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: []),
-        );
+      test(
+        'creates approved pause request when user is internal and has permission',
+        () async {
+          when(() => mockGetSelectedMode.call()).thenReturn('internal');
+          when(
+            () => mockHasPermission.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockRequestPause.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetPauseRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
 
-        final result = await cubit.requestPause(
-          workOrderId: 'wo-id',
-          customReason: 'Falta de peças',
-        );
+          final result = await cubit.requestPause(
+            workOrderId: 'wo-id',
+            customReason: 'Falta de peças',
+            workOrdersCubit: mockWorkOrdersCubit,
+          );
 
-        expect(result, isTrue);
-        final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
-        expect(captured.status, PauseRequestStatus.approved);
-        expect(captured.requestedById, tUserProfile.id);
-        expect(captured.reviewedById, tUserProfile.id);
-      });
+          expect(result, isTrue);
+          final captured =
+              verify(() => mockRequestPause.call(captureAny())).captured.first
+                  as PauseRequestEntity;
+          expect(captured.status, PauseRequestStatus.approved);
+          expect(captured.requestedById, tUserProfile.id);
+          expect(captured.reviewedById, tUserProfile.id);
+        },
+      );
 
-      test('creates pending pause request when user is in provider mode', () async {
-        when(() => mockGetSelectedMode.call()).thenReturn('provider');
-        when(() => mockRequestPause.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: true),
-        );
-        when(() => mockGetPauseRequests.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: []),
-        );
+      test(
+        'creates pending pause request when user is in provider mode',
+        () async {
+          when(() => mockGetSelectedMode.call()).thenReturn('provider');
+          when(
+            () => mockRequestPause.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetPauseRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
 
-        final result = await cubit.requestPause(
-          workOrderId: 'wo-id',
-          customReason: 'Falta de peças',
-        );
+          final result = await cubit.requestPause(
+            workOrderId: 'wo-id',
+            customReason: 'Falta de peças',
+            workOrdersCubit: mockWorkOrdersCubit,
+          );
 
-        expect(result, isTrue);
-        final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
-        expect(captured.status, PauseRequestStatus.pending);
-        expect(captured.requestedById, tUserProfile.id);
-        expect(captured.reviewedById, isNull);
-      });
+          expect(result, isTrue);
+          final captured =
+              verify(() => mockRequestPause.call(captureAny())).captured.first
+                  as PauseRequestEntity;
+          expect(captured.status, PauseRequestStatus.pending);
+          expect(captured.requestedById, tUserProfile.id);
+          expect(captured.reviewedById, isNull);
+        },
+      );
 
-      test('creates pending pause request when user lacks permission', () async {
-        when(() => mockGetSelectedMode.call()).thenReturn('internal');
-        when(
-          () => mockHasPermission.call(any()),
-        ).thenAnswer((_) async => const SuccessState(data: false));
-        when(() => mockRequestPause.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: true),
-        );
-        when(() => mockGetPauseRequests.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: []),
-        );
+      test(
+        'creates pending pause request when user lacks permission',
+        () async {
+          when(() => mockGetSelectedMode.call()).thenReturn('internal');
+          when(
+            () => mockHasPermission.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: false));
+          when(
+            () => mockRequestPause.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetPauseRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
 
-        final result = await cubit.requestPause(
-          workOrderId: 'wo-id',
-          customReason: 'Falta de peças',
-        );
+          final result = await cubit.requestPause(
+            workOrderId: 'wo-id',
+            customReason: 'Falta de peças',
+            workOrdersCubit: mockWorkOrdersCubit,
+          );
 
-        expect(result, isTrue);
-        final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
-        expect(captured.status, PauseRequestStatus.pending);
-        expect(captured.requestedById, tUserProfile.id);
-        expect(captured.reviewedById, isNull);
-      });
+          expect(result, isTrue);
+          final captured =
+              verify(() => mockRequestPause.call(captureAny())).captured.first
+                  as PauseRequestEntity;
+          expect(captured.status, PauseRequestStatus.pending);
+          expect(captured.requestedById, tUserProfile.id);
+          expect(captured.reviewedById, isNull);
+        },
+      );
     });
 
     group('reviewPause', () {
@@ -531,6 +601,7 @@ void main() {
         act: (cubit) => cubit.requestCompletion(
           workOrderId: 'wo-id',
           customReason: 'Concluído com sucesso',
+          workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
@@ -566,6 +637,30 @@ void main() {
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should update workOrdersCubit when requestCompletion succeeds',
+        build: () {
+          when(
+            () => mockRequestCompletion.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) {
+          return cubit.requestCompletion(
+            workOrderId: 'wo-id',
+            customReason: 'Concluído com sucesso',
+            workOrdersCubit: mockWorkOrdersCubit,
+          );
+        },
+        verify: (_) {
+          verify(() => mockRequestCompletion.call(any())).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit saving and savingError when completion request fails',
         build: () {
           when(
@@ -576,6 +671,7 @@ void main() {
         act: (cubit) => cubit.requestCompletion(
           workOrderId: 'wo-id',
           customReason: 'Concluído com sucesso',
+          workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(

@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
@@ -17,10 +18,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.d
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 class RequestCompletionFields extends HookWidget {
-  const RequestCompletionFields({
-    required this.workOrderId,
-    super.key,
-  });
+  const RequestCompletionFields({required this.workOrderId, super.key});
 
   final String workOrderId;
 
@@ -104,6 +102,7 @@ class RequestCompletionFields extends HookWidget {
                     }
 
                     final cubit = context.read<PauseWorkflowCubit>();
+
                     final success = await cubit.requestCompletion(
                       workOrderId: workOrderId,
                       customReason: reasonController.text.trim(),
@@ -111,9 +110,10 @@ class RequestCompletionFields extends HookWidget {
                       observation: observationController.text.trim().isEmpty
                           ? null
                           : observationController.text.trim(),
+                      workOrdersCubit: context.read<WorkOrdersCubit>(),
                     );
                     if (success && context.mounted) {
-                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop();
                     }
                   },
                 ),

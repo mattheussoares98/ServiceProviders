@@ -207,7 +207,9 @@ void main() {
     ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests(),
-    ).thenAnswer((_) async {});
+    ).thenAnswer((_) async {
+      return true;
+    });
 
     when(() => mockCategoriesCubit.state).thenReturn(
       const CategoriesState.initial().copyWith(status: StateStatus.loaded),

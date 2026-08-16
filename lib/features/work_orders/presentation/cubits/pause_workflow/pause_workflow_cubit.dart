@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -11,9 +13,11 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -128,6 +132,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   Future<bool> requestPause({
     required String workOrderId,
+    required WorkOrdersCubit workOrdersCubit,
     PauseResponsibility responsibility = PauseResponsibility.provider,
     String? reasonId,
     String? customReason,
@@ -190,6 +195,17 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
+      if (isDirectPause) {
+        workOrdersCubit.updateLocalWorkOrderStatus(
+          workOrderId,
+          WorkOrderStatus.onHold,
+          syncRemotely: true,
+        );
+      } else {
+        unawaited(
+          workOrdersCubit.loadWorkOrdersAndChangeRequests(showLoading: false),
+        );
+      }
       await loadPauseRequests(request.workOrderId);
       return true;
     } else {
@@ -258,6 +274,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   Future<bool> requestCompletion({
     required String workOrderId,
     required String customReason,
+    required WorkOrdersCubit workOrdersCubit,
     String? observation,
     String? sectorId,
   }) async {
@@ -315,6 +332,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(state.copyWith(status: StateStatus.loaded));
+      workOrdersCubit.updateLocalWorkOrderStatus(
+        workOrderId,
+        isDirectComplete
+            ? WorkOrderStatus.completed
+            : WorkOrderStatus.pendingConclusionApproval,
+        syncRemotely: true,
+      );
       await loadPauseRequests(request.workOrderId);
       return true;
     } else {

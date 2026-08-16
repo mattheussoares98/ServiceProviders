@@ -4,7 +4,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_completion_fields.dart';
@@ -74,18 +73,10 @@ class WorkOrderBottomActions extends StatelessWidget {
                 text:
                     (canApprovePause ? 'Pausar' : 'Solicitar pausa').hardcoded,
                 onTap: () async {
-                  final result = await showModalPage<bool>(
+                  await showModalPage<void>(
                     RequestPauseFields(workOrderId: workOrder.id),
                     context,
                   );
-
-                  if (result == true && context.mounted) {
-                    context.read<WorkOrdersCubit>().updateLocalWorkOrderStatus(
-                      workOrder.id,
-                      WorkOrderStatus.onHold,
-                      syncRemotely: true,
-                    );
-                  }
                 },
               ),
             ),
@@ -115,19 +106,10 @@ class WorkOrderBottomActions extends StatelessWidget {
                       return;
                     }
 
-                    final result = await showModalPage<bool>(
+                    await showModalPage<void>(
                       RequestCompletionFields(workOrderId: workOrder.id),
                       context,
                     );
-                    if (result == true && context.mounted) {
-                      context
-                          .read<WorkOrdersCubit>()
-                          .updateLocalWorkOrderStatus(
-                            workOrder.id,
-                            WorkOrderStatus.pendingConclusionApproval,
-                            syncRemotely: true,
-                          );
-                    }
                   },
                 ),
               ),
