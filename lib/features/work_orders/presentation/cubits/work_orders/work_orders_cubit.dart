@@ -442,6 +442,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           workOrder: workOrder,
           status: WorkOrderStatus.inProgress,
         );
+        if (success) {
+          await pauseCubit.loadPauseRequests(workOrder.id);
+        }
       }
     } finally {
       if (!isClosed) {

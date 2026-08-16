@@ -1591,6 +1591,9 @@ void main() {
               () => mockGetWorkOrders.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: []));
             when(
+              () => mockPauseCubit.loadPauseRequests(any()),
+            ).thenAnswer((_) async {});
+            when(
               () => mockGetChangeRequests.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: []));
             return cubit;
@@ -1641,6 +1644,8 @@ void main() {
                 ),
               ),
             ).called(1);
+            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id))
+                .called(1);
           },
         );
       });

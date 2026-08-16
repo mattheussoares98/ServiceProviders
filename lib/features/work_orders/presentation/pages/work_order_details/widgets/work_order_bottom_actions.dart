@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -91,14 +89,11 @@ class WorkOrderBottomActions extends StatelessWidget {
                             syncRemotely: true,
                           );
                     } else {
-                      unawaited(
-                        context
-                            .read<WorkOrdersCubit>()
-                            .loadWorkOrdersAndChangeRequests(
-                              showLoading: false,
-                            ),
-                      );
+                      await context
+                          .read<WorkOrdersCubit>()
+                          .loadWorkOrdersAndChangeRequests(showLoading: false);
                     }
+                    await pauseCubit.loadPauseRequests(workOrder.id);
                   }
                 },
               ),
@@ -141,6 +136,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                             WorkOrderStatus.pendingConclusionApproval,
                             syncRemotely: true,
                           );
+                      await pauseCubit.loadPauseRequests(workOrder.id);
                     }
                   },
                 ),
