@@ -1519,6 +1519,9 @@ void main() {
               () => mockPauseCubit.pendingCompletionRequest,
             ).thenReturn(tCompletion);
             when(
+              () => mockPauseCubit.loadPauseRequests(any()),
+            ).thenAnswer((_) async {});
+            when(
               () => mockPauseCubit.reviewCompletion(
                 id: any(named: 'id'),
                 status: any(named: 'status'),
@@ -1537,7 +1540,9 @@ void main() {
           act: (cubit) async {
             final tUserId = faker.guid.guid();
             final result = await cubit.resumeWork(
-              workOrder: tWorkOrder,
+              workOrder: tWorkOrder.copyWith(
+                status: WorkOrderStatus.pendingConclusionApproval,
+              ),
               currentUserId: tUserId,
               pauseCubit: mockPauseCubit,
             );
@@ -1574,6 +1579,85 @@ void main() {
               ),
             ).called(1);
             verify(() => mockGetWorkOrders.call(any())).called(1);
+            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id)).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should review completion with cancelled status when work order status is pendingConclusionApproval even if activePause is present',
+          build: () {
+            final tCompletion = EntityFactory.makePauseRequestEntity().copyWith(
+              eventType: PauseEventType.completion,
+            );
+            final tPause = EntityFactory.makePauseRequestEntity().copyWith(
+              eventType: PauseEventType.pause,
+            );
+            when(() => mockPauseCubit.activePauseRequest).thenReturn(tPause);
+            when(
+              () => mockPauseCubit.pendingCompletionRequest,
+            ).thenReturn(tCompletion);
+            when(
+              () => mockPauseCubit.loadPauseRequests(any()),
+            ).thenAnswer((_) async {});
+            when(
+              () => mockPauseCubit.reviewCompletion(
+                id: any(named: 'id'),
+                status: any(named: 'status'),
+                reviewedById: any(named: 'reviewedById'),
+                workOrderId: any(named: 'workOrderId'),
+              ),
+            ).thenAnswer((_) async => true);
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final tUserId = faker.guid.guid();
+            final result = await cubit.resumeWork(
+              workOrder: tWorkOrder.copyWith(
+                status: WorkOrderStatus.pendingConclusionApproval,
+              ),
+              currentUserId: tUserId,
+              pauseCubit: mockPauseCubit,
+            );
+            expect(result, isTrue);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSection.resumeWork],
+              'resumeWork section',
+              StateStatus.saving,
+            ),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.saving,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
+            isA<WorkOrdersState>()
+                .having(
+                  (s) => s.sections[WorkOrdersSection.resumeWork],
+                  'resumeWork section',
+                  StateStatus.loaded,
+                )
+                .having((s) => s.status, 'status', StateStatus.loaded),
+          ],
+          verify: (_) {
+            verify(
+              () => mockPauseCubit.reviewCompletion(
+                id: any(named: 'id'),
+                status: PauseRequestStatus.cancelled,
+                reviewedById: any(named: 'reviewedById'),
+                workOrderId: tWorkOrder.id,
+              ),
+            ).called(1);
+            verify(() => mockGetWorkOrders.call(any())).called(1);
+            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id)).called(1);
           },
         );
 

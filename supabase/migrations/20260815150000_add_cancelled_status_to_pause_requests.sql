@@ -16,15 +16,28 @@ RETURNS TRIGGER AS $$
 BEGIN
   -- When a new pause / completion request is created
   IF (TG_OP = 'INSERT') THEN
-    IF NEW.status = 'pending' THEN
-      IF NEW.event_type = 'completion' THEN
+    IF NEW.event_type = 'completion' THEN
+      IF NEW.status = 'pending' THEN
         UPDATE public.work_orders 
         SET status = 'pending_conclusion', updated_at = NOW() 
         WHERE id = NEW.work_order_id;
-      ELSIF NEW.event_type = 'pause' THEN
+      ELSIF NEW.status = 'approved' THEN
         UPDATE public.work_orders 
-        SET status = 'pending_pause', updated_at = NOW() 
+        SET status = 'completed', 
+            completed_at = COALESCE(NEW.created_at, NOW()), 
+            completion_reason = COALESCE(NEW.custom_reason, NEW.reason),
+            completion_sector_id = NEW.sector_id,
+            completion_responsibility = NEW.responsibility,
+            updated_at = NOW() 
         WHERE id = NEW.work_order_id;
+      END IF;
+    ELSIF NEW.event_type = 'pause' THEN
+      IF NEW.status IN ('pending', 'approved') THEN
+        UPDATE public.work_orders 
+        SET status = 'on_hold', updated_at = NOW() 
+        WHERE id = NEW.work_order_id
+          AND status NOT IN ('completed', 'cancelled')
+          AND NEW.resumed_at IS NULL;
       END IF;
     END IF;
 

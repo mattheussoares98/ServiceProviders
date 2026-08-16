@@ -415,36 +415,33 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
     var success = false;
     try {
-      final activePause = pauseCubit.activePauseRequest;
       final pendingCompletion = pauseCubit.pendingCompletionRequest;
+      final activePause = pauseCubit.activePauseRequest;
 
-      if (activePause != null) {
-        success = await _resumePausedWorkOrder(
-          workOrder: workOrder,
-          currentUserId: currentUserId,
-          pauseId: activePause.id,
-        );
-        if (success) {
-          await pauseCubit.loadPauseRequests(workOrder.id);
-        }
-      } else if (pendingCompletion != null) {
+      if (workOrder.status.isPendingConclusionApproval &&
+          pendingCompletion != null) {
         success = await pauseCubit.reviewCompletion(
           id: pendingCompletion.id,
           status: PauseRequestStatus.cancelled,
           reviewedById: currentUserId,
           workOrderId: workOrder.id,
         );
-        if (success) {
-          await loadWorkOrdersAndChangeRequests(showLoading: false);
-        }
+        if (success) await loadWorkOrdersAndChangeRequests(showLoading: false);
+      } else if (activePause != null) {
+        success = await _resumePausedWorkOrder(
+          workOrder: workOrder,
+          currentUserId: currentUserId,
+          pauseId: activePause.id,
+        );
       } else {
         success = await changeWorkOrderStatus(
           workOrder: workOrder,
           status: WorkOrderStatus.inProgress,
         );
-        if (success) {
-          await pauseCubit.loadPauseRequests(workOrder.id);
-        }
+      }
+
+      if (success) {
+        await pauseCubit.loadPauseRequests(workOrder.id);
       }
     } finally {
       if (!isClosed) {
