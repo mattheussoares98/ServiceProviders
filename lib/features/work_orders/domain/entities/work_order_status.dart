@@ -1,7 +1,6 @@
 enum WorkOrderStatus {
   open('open', 'Aberta'),
   inProgress('in_progress', 'Em andamento'),
-  pendingPauseApproval('pending_pause', 'Em pausa'),
   onHold('on_hold', 'Em pausa'),
   pendingConclusionApproval(
     'pending_conclusion',
@@ -17,14 +16,11 @@ enum WorkOrderStatus {
   bool get isOpen => this == WorkOrderStatus.open;
   bool get isCompleted => this == WorkOrderStatus.completed;
   bool get isCancelled => this == WorkOrderStatus.cancelled;
-  bool get isPaused => this == WorkOrderStatus.onHold || isPendingPauseApproval;
-  bool get isPendingPauseApproval =>
-      this == WorkOrderStatus.pendingPauseApproval;
+  bool get isPaused => this == WorkOrderStatus.onHold;
   bool get isPendingConclusionApproval =>
       this == WorkOrderStatus.pendingConclusionApproval;
 
-  bool get isPendingApproval =>
-      isPendingPauseApproval || isPendingConclusionApproval;
+  bool get isPendingApproval => isPendingConclusionApproval;
 
   bool get isRunning => this == WorkOrderStatus.inProgress || isPendingApproval;
 

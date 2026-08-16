@@ -76,19 +76,6 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
           table: 'work_order_pause_requests',
           values: pauseRequest.toJson(),
         );
-
-        final targetStatus = pauseRequest.eventType.value == 'completion'
-            ? WorkOrderStatus.pendingConclusionApproval.code
-            : WorkOrderStatus.pendingPauseApproval.code;
-
-        await _database.update(
-          table: 'work_orders',
-          values: {
-            'status': targetStatus,
-            'updated_at': DateTime.now().toIsoUtcString(),
-          },
-          filters: [SupabaseFilter.eq('id', pauseRequest.workOrderId)],
-        );
         return true;
       });
 

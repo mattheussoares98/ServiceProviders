@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_loca
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -118,7 +118,10 @@ void main() {
     final tReasonEntity = EntityFactory.makePauseReasonEntity();
     final tReasonModel = PauseReasonModel.fromEntity(tReasonEntity);
 
-    final tRequestEntity = EntityFactory.makePauseRequestEntity();
+    final tRequestEntity = EntityFactory.makePauseRequestEntity().copyWith(
+      eventType: PauseEventType.pause,
+      status: PauseRequestStatus.pending,
+    );
     final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
 
     final userId = tRequestModel.requestedById ?? 'user-id';
@@ -248,11 +251,7 @@ void main() {
           final wo = await (database.select(
             database.workOrders,
           )..where((t) => t.id.equals(tRequestModel.workOrderId))).getSingle();
-          final expectedWoStatus =
-              tRequestModel.eventType == PauseEventType.completion
-              ? WorkOrderStatus.pendingConclusionApproval.code
-              : WorkOrderStatus.pendingPauseApproval.code;
-          expect(wo.status, expectedWoStatus);
+          expect(wo.status, 'opened');
         },
       );
     });

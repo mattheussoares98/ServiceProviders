@@ -160,18 +160,23 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               ),
             );
 
-        final targetStatus = request.eventType == PauseEventType.completion
+        final String? targetStatus =
+            request.eventType == PauseEventType.completion
             ? WorkOrderStatus.pendingConclusionApproval.code
-            : WorkOrderStatus.pendingPauseApproval.code;
+            : (request.status == PauseRequestStatus.approved
+                ? WorkOrderStatus.onHold.code
+                : null);
 
-        final woQuery = _database.update(_database.workOrders)
-          ..where((t) => t.id.equals(request.workOrderId));
-        await woQuery.write(
-          WorkOrdersCompanion(
-            status: Value(targetStatus),
-            updatedAt: Value(DateTime.now()),
-          ),
-        );
+        if (targetStatus != null) {
+          final woQuery = _database.update(_database.workOrders)
+            ..where((t) => t.id.equals(request.workOrderId));
+          await woQuery.write(
+            WorkOrdersCompanion(
+              status: Value(targetStatus),
+              updatedAt: Value(DateTime.now()),
+            ),
+          );
+        }
       });
       return const SuccessState(data: true);
     });
