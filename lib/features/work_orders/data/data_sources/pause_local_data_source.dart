@@ -170,13 +170,13 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
                 status: Value(WorkOrderStatus.completed.code),
                 completedAt: Value(DateTime.now()),
                 completionReason: request.customReason != null
-                    ? Value(request.customReason!)
+                    ? Value(request.customReason)
                     : const Value.absent(),
                 completionResponsibility: request.responsibility != null
                     ? Value(request.responsibility!.value)
                     : const Value.absent(),
                 completionSectorId: request.sectorId != null
-                    ? Value(request.sectorId!)
+                    ? Value(request.sectorId)
                     : const Value.absent(),
                 updatedAt: Value(DateTime.now()),
               ),
