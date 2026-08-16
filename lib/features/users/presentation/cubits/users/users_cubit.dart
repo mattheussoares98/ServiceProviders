@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -413,96 +414,26 @@ class UsersCubit extends BaseCubit<UsersState> {
   // ============================================
 
   bool hasActionPermission(ActionPermission permission) {
-    return switch (permission) {
-      ResourceActionPermission(:final resource, :final action) => hasPermission(
-        resource,
-        action,
-      ),
-      WorkOrderSubActionPermission(:final subAction) =>
-        hasWorkOrderSubActionPermission(subAction),
-    };
+    final sessionUser = _useCases.getSessionUser();
+    final currentUser =
+        state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
+        sessionUser;
+
+    return HasPermissionUseCase.evaluatePermission(
+      permission: permission,
+      user: currentUser,
+      permissionGroups: state.permissionGroups,
+    );
   }
 
   bool hasWorkOrderSubActionPermission(WorkOrderSubAction subAction) {
-    final sessionUser = _useCases.getSessionUser();
-    final currentUser =
-        state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
-        sessionUser;
-
-    if (currentUser.isAdmin) return true;
-
-    final woPermissions = currentUser.workOrdersPermissionOverrides;
-    final groupPermissions = state.permissionGroups
-        .firstWhereOrNull((g) => g.id == currentUser.permissionGroupId)
-        ?.workOrders;
-
-    switch (subAction) {
-      case WorkOrderSubAction.deleteObservation:
-        final override = woPermissions.deleteObservation;
-        if (override != null) return override;
-        return groupPermissions?.deleteObservation ?? false;
-
-      case WorkOrderSubAction.changeStatus:
-        final override = woPermissions.changeStatus;
-        if (override != null) return override;
-        return groupPermissions?.changeStatus ?? false;
-
-      case WorkOrderSubAction.reassign:
-        final override = woPermissions.reassign;
-        if (override != null) return override;
-        return groupPermissions?.reassign ?? false;
-
-      case WorkOrderSubAction.approvePause:
-        final override = woPermissions.approvePause;
-        if (override != null) return override;
-        return groupPermissions?.approvePause ?? false;
-
-      case WorkOrderSubAction.approveCompletion:
-        final override = woPermissions.approveCompletion;
-        if (override != null) return override;
-        return groupPermissions?.approveCompletion ?? false;
-    }
+    return hasActionPermission(ActionPermission.workOrderSubAction(subAction));
   }
 
   bool hasPermission(ResourceType resource, PermissionAction action) {
-    final sessionUser = _useCases.getSessionUser();
-    final currentUser =
-        state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
-        sessionUser;
-
-    if (currentUser.isAdmin) return true;
-
-    if (resource == ResourceType.workOrders) {
-      final woPermissions = currentUser.workOrdersPermissionOverrides;
-      final groupPermissions = state.permissionGroups
-          .firstWhereOrNull((g) => g.id == currentUser.permissionGroupId)
-          ?.workOrders;
-
-      if (action == PermissionAction.create) {
-        if (woPermissions.create != null) return woPermissions.create!;
-        if (groupPermissions?.create == true) return true;
-      } else if (action == PermissionAction.delete) {
-        if (woPermissions.delete != null) return woPermissions.delete!;
-        if (groupPermissions?.delete == true) return true;
-      }
-    }
-
-    final userOverride = currentUser.permissions[resource]?[action];
-    if (userOverride != null) {
-      return userOverride;
-    }
-
-    final groupId = currentUser.permissionGroupId;
-    if (groupId == null || groupId.isEmpty) return false;
-
-    final group = state.permissionGroups.firstWhereOrNull(
-      (g) => g.id == groupId,
+    return hasActionPermission(
+      ActionPermission.resource(resource: resource, action: action),
     );
-    if (group != null) {
-      return group.permissions[resource]?.contains(action) ?? false;
-    }
-
-    return false;
   }
 
   Future<void> navigateToEditUserPermissions(UserProfileEntity user) async {
