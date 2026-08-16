@@ -13,11 +13,24 @@ BEGIN
         UPDATE public.work_orders 
         SET status = 'pending_conclusion', updated_at = NOW() 
         WHERE id = NEW.work_order_id;
+      ELSIF NEW.event_type = 'pause' THEN
+        UPDATE public.work_orders 
+        SET status = 'on_hold', updated_at = NOW() 
+        WHERE id = NEW.work_order_id;
       END IF;
     ELSIF NEW.status = 'approved' THEN
       IF NEW.event_type = 'pause' THEN
         UPDATE public.work_orders 
         SET status = 'on_hold', updated_at = NOW() 
+        WHERE id = NEW.work_order_id;
+      ELSIF NEW.event_type = 'completion' THEN
+        UPDATE public.work_orders 
+        SET status = 'completed', 
+            completed_at = NOW(), 
+            completion_reason = COALESCE(NEW.custom_reason, NEW.reason),
+            completion_sector_id = NEW.sector_id,
+            completion_responsibility = NEW.responsibility,
+            updated_at = NOW() 
         WHERE id = NEW.work_order_id;
       END IF;
     END IF;

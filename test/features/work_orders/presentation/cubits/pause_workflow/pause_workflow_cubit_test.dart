@@ -55,6 +55,7 @@ void main() {
 
   late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockHasPermissionUseCase mockHasPermission;
+  late MockGetSessionUserUseCase mockGetSessionUser;
   late MockRequestPauseUseCase mockRequestPause;
   late MockReviewPauseUseCase mockReviewPause;
   late MockGetPauseReasonsUseCase mockGetPauseReasons;
@@ -105,6 +106,7 @@ void main() {
   setUp(() {
     mockGetSelectedMode = MockGetSelectedModeUseCase();
     mockHasPermission = MockHasPermissionUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
     mockRequestPause = MockRequestPauseUseCase();
     mockReviewPause = MockReviewPauseUseCase();
     mockGetPauseReasons = MockGetPauseReasonsUseCase();
@@ -117,6 +119,7 @@ void main() {
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
+    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
     when(() => mockGetSelectedMode.call()).thenReturn('internal');
     when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
     when(
@@ -133,6 +136,7 @@ void main() {
       getActiveCompanyId: mockGetActiveCompanyId,
       getSelectedMode: mockGetSelectedMode,
       hasPermission: mockHasPermission,
+      getSessionUser: mockGetSessionUser,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -233,7 +237,6 @@ void main() {
         build: () => cubit,
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
         ),
         expect: () => [
           isA<PauseWorkflowState>()
@@ -263,7 +266,6 @@ void main() {
         },
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Falta de peças',
         ),
         expect: () => [
@@ -298,7 +300,6 @@ void main() {
         },
         act: (cubit) => cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Falta de peças',
         ),
         expect: () => [
@@ -327,14 +328,14 @@ void main() {
 
         final result = await cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Falta de peças',
         );
 
         expect(result, isTrue);
         final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
         expect(captured.status, PauseRequestStatus.approved);
-        expect(captured.reviewedById, 'user-id');
+        expect(captured.requestedById, tUserProfile.id);
+        expect(captured.reviewedById, tUserProfile.id);
       });
 
       test('creates pending pause request when user is in provider mode', () async {
@@ -348,13 +349,13 @@ void main() {
 
         final result = await cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Falta de peças',
         );
 
         expect(result, isTrue);
         final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
         expect(captured.status, PauseRequestStatus.pending);
+        expect(captured.requestedById, tUserProfile.id);
         expect(captured.reviewedById, isNull);
       });
 
@@ -372,13 +373,13 @@ void main() {
 
         final result = await cubit.requestPause(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Falta de peças',
         );
 
         expect(result, isTrue);
         final captured = verify(() => mockRequestPause.call(captureAny())).captured.first as PauseRequestEntity;
         expect(captured.status, PauseRequestStatus.pending);
+        expect(captured.requestedById, tUserProfile.id);
         expect(captured.reviewedById, isNull);
       });
     });
@@ -529,7 +530,6 @@ void main() {
         },
         act: (cubit) => cubit.requestCompletion(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Concluído com sucesso',
         ),
         expect: () => [
@@ -575,7 +575,6 @@ void main() {
         },
         act: (cubit) => cubit.requestCompletion(
           workOrderId: 'wo-id',
-          requestedById: 'user-id',
           customReason: 'Concluído com sucesso',
         ),
         expect: () => [

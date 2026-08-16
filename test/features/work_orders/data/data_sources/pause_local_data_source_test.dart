@@ -251,7 +251,7 @@ void main() {
           final wo = await (database.select(
             database.workOrders,
           )..where((t) => t.id.equals(tRequestModel.workOrderId))).getSingle();
-          expect(wo.status, 'opened');
+          expect(wo.status, 'on_hold');
         },
       );
     });

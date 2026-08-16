@@ -160,19 +160,39 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               ),
             );
 
-        final String? targetStatus =
-            request.eventType == PauseEventType.completion
-            ? WorkOrderStatus.pendingConclusionApproval.code
-            : (request.status == PauseRequestStatus.approved
-                ? WorkOrderStatus.onHold.code
-                : null);
+        final woQuery = _database.update(_database.workOrders)
+          ..where((t) => t.id.equals(request.workOrderId));
 
-        if (targetStatus != null) {
-          final woQuery = _database.update(_database.workOrders)
-            ..where((t) => t.id.equals(request.workOrderId));
+        if (request.eventType == PauseEventType.completion) {
+          if (request.status == PauseRequestStatus.approved) {
+            await woQuery.write(
+              WorkOrdersCompanion(
+                status: Value(WorkOrderStatus.completed.code),
+                completedAt: Value(DateTime.now()),
+                completionReason: request.customReason != null
+                    ? Value(request.customReason!)
+                    : const Value.absent(),
+                completionResponsibility: request.responsibility != null
+                    ? Value(request.responsibility!.value)
+                    : const Value.absent(),
+                completionSectorId: request.sectorId != null
+                    ? Value(request.sectorId!)
+                    : const Value.absent(),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+          } else {
+            await woQuery.write(
+              WorkOrdersCompanion(
+                status: Value(WorkOrderStatus.pendingConclusionApproval.code),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+          }
+        } else {
           await woQuery.write(
             WorkOrdersCompanion(
-              status: Value(targetStatus),
+              status: Value(WorkOrderStatus.onHold.code),
               updatedAt: Value(DateTime.now()),
             ),
           );

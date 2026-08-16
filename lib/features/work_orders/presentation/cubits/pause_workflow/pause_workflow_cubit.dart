@@ -128,7 +128,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   Future<bool> requestPause({
     required String workOrderId,
-    required String requestedById,
     PauseResponsibility responsibility = PauseResponsibility.provider,
     String? reasonId,
     String? customReason,
@@ -167,11 +166,12 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
+    final currentUserId = _useCases.getSessionUser().id;
     final isDirectPause = await _canDirectlyPause();
     final initialStatus = isDirectPause
         ? PauseRequestStatus.approved
         : PauseRequestStatus.pending;
-    final reviewedById = isDirectPause ? requestedById : null;
+    final reviewedById = isDirectPause ? currentUserId : null;
     final companyId = _useCases.getActiveCompanyId();
 
     final now = DateTime.now();
@@ -179,7 +179,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       id: const Uuid().v4(),
       companyId: companyId,
       workOrderId: workOrderId,
-      requestedById: requestedById,
+      requestedById: currentUserId,
       reasonId: reasonId,
       customReason: customReason,
       observation: observation,
@@ -216,19 +216,20 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   Future<bool> reviewPause({
     required String id,
     required PauseRequestStatus status,
-    required String reviewedById,
     required String workOrderId,
     required PauseResponsibility responsibility,
     String? reviewObservation,
     String? reasonId,
+    String? reviewedById,
   }) async {
+    final currentUserId = reviewedById ?? _useCases.getSessionUser().id;
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewPause(
       ReviewPauseParams(
         id: id,
         workOrderId: workOrderId,
         status: status,
-        reviewedById: reviewedById,
+        reviewedById: currentUserId,
         reviewObservation: reviewObservation,
         reasonId: reasonId,
         responsibility: responsibility,
@@ -250,9 +251,23 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
+  Future<bool> _canDirectlyComplete() async {
+    final mode = _useCases.getSelectedMode();
+    final isInternal = mode != AppMode.provider.name;
+    if (!isInternal) return false;
+
+    final permResult = await _useCases.hasPermission(
+      const HasPermissionParams(
+        permission: ActionPermission.workOrderSubAction(
+          WorkOrderSubAction.approveCompletion,
+        ),
+      ),
+    );
+    return permResult is SuccessState<bool> && permResult.data == true;
+  }
+
   Future<bool> requestCompletion({
     required String workOrderId,
-    required String requestedById,
     required String customReason,
     String? observation,
     String? sectorId,
@@ -277,18 +292,24 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
+    final currentUserId = _useCases.getSessionUser().id;
+    final isDirectComplete = await _canDirectlyComplete();
+    final initialStatus = isDirectComplete
+        ? PauseRequestStatus.approved
+        : PauseRequestStatus.pending;
+    final reviewedById = isDirectComplete ? currentUserId : null;
     final companyId = _useCases.getActiveCompanyId();
     final now = DateTime.now();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
       companyId: companyId,
       workOrderId: workOrderId,
-      requestedById: requestedById,
+      requestedById: currentUserId,
       eventType: PauseEventType.completion,
       customReason: customReason,
       observation: observation,
       sectorId: sectorId,
-      status: PauseRequestStatus.pending,
+      status: initialStatus,
       pausedAt: now,
       affectsSla: false,
       createdAt: now,
@@ -296,7 +317,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       reasonId: null,
       resumedAt: null,
       reviewObservation: null,
-      reviewedById: null,
+      reviewedById: reviewedById,
     );
 
     emit(state.copyWith(status: StateStatus.saving));
@@ -320,19 +341,20 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   Future<bool> reviewCompletion({
     required String id,
     required PauseRequestStatus status,
-    required String reviewedById,
     required String workOrderId,
     String? reviewObservation,
     String? completionReason,
     String? completionSectorId,
+    String? reviewedById,
   }) async {
+    final currentUserId = reviewedById ?? _useCases.getSessionUser().id;
     emit(state.copyWith(status: StateStatus.saving));
     final result = await _useCases.reviewCompletion(
       ReviewCompletionParams(
         id: id,
         workOrderId: workOrderId,
         status: status,
-        reviewedById: reviewedById,
+        reviewedById: currentUserId,
         reviewObservation: reviewObservation,
         completionReason: completionReason,
         completionSectorId: completionSectorId,
