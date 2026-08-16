@@ -413,7 +413,7 @@ class UsersCubit extends BaseCubit<UsersState> {
   // Permission Helper
   // ============================================
 
-  bool hasActionPermission(ActionPermission permission) {
+  bool hasPermission(ActionPermission permission) {
     final sessionUser = _useCases.getSessionUser();
     final currentUser =
         state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
@@ -423,19 +423,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       permission: permission,
       user: currentUser,
       permissionGroups: state.permissionGroups,
-    );
-  }
-
-  bool hasWorkOrderSubActionPermission(WorkOrderSubAction subAction) {
-    return hasActionPermission(ActionPermission.workOrderSubAction(subAction));
-  }
-
-  bool hasPermission(ResourceType resource, PermissionAction action) {
-    return hasActionPermission(
-      ActionPermission.resource(
-        resourceType: resource,
-        permissionAction: action,
-      ),
     );
   }
 

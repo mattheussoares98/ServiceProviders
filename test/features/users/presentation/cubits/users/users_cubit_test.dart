@@ -968,7 +968,12 @@ void main() {
         final adminUser = tSessionUser.copyWith(isAdmin: true);
         when(() => mockGetSessionUser.call()).thenReturn(adminUser);
 
-        final hasPerm = cubit.hasPermission(resource, action);
+        final hasPerm = cubit.hasPermission(
+          ActionPermission.resource(
+            resourceType: resource,
+            permissionAction: action,
+          ),
+        );
 
         expect(hasPerm, isTrue);
       });
@@ -982,7 +987,12 @@ void main() {
           );
           when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
-          final hasPerm = cubit.hasPermission(resource, action);
+          final hasPerm = cubit.hasPermission(
+            ActionPermission.resource(
+              resourceType: resource,
+              permissionAction: action,
+            ),
+          );
 
           expect(hasPerm, isFalse);
         },
@@ -997,7 +1007,12 @@ void main() {
           );
           when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
-          final hasPerm = cubit.hasPermission(resource, action);
+          final hasPerm = cubit.hasPermission(
+            ActionPermission.resource(
+              resourceType: resource,
+              permissionAction: action,
+            ),
+          );
 
           expect(hasPerm, isFalse);
         },
@@ -1011,7 +1026,12 @@ void main() {
         );
         when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
-        final hasPerm = cubit.hasPermission(resource, action);
+        final hasPerm = cubit.hasPermission(
+          ActionPermission.resource(
+            resourceType: resource,
+            permissionAction: action,
+          ),
+        );
 
         expect(hasPerm, isFalse);
       });
@@ -1036,8 +1056,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.read,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.read,
+            ),
           );
 
           expect(hasPerm, isFalse);
@@ -1064,8 +1086,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.delete,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
+            ),
           );
 
           expect(hasPerm, isFalse);
@@ -1092,8 +1116,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.delete,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
+            ),
           );
 
           expect(hasPerm, isTrue);
@@ -1123,8 +1149,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.delete,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
+            ),
           );
 
           expect(hasPerm, isTrue);
@@ -1154,8 +1182,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.delete,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
+            ),
           );
 
           expect(hasPerm, isFalse);
@@ -1185,8 +1215,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.delete,
+            const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.delete,
+            ),
           );
 
           expect(hasPerm, isTrue);
@@ -1213,46 +1245,13 @@ void main() {
           cubit.emit(cubit.state.copyWith(users: [updatedUser]));
 
           final hasPerm = cubit.hasPermission(
-            ResourceType.workOrders,
-            PermissionAction.create,
-          );
-
-          expect(hasPerm, isTrue);
-        },
-      );
-    });
-
-    group('hasActionPermission & hasWorkOrderSubActionPermission', () {
-      test(
-        'hasActionPermission routes ResourceActionPermission to hasPermission',
-        () {
-          final adminUser = tSessionUser.copyWith(isAdmin: true);
-          when(() => mockGetSessionUser.call()).thenReturn(adminUser);
-
-          final result = cubit.hasActionPermission(
             const ActionPermission.resource(
-              resourceType: ResourceType.assets,
+              resourceType: ResourceType.workOrders,
               permissionAction: PermissionAction.create,
             ),
           );
 
-          expect(result, isTrue);
-        },
-      );
-
-      test(
-        'hasActionPermission routes WorkOrderSubActionPermission to hasWorkOrderSubActionPermission',
-        () {
-          final adminUser = tSessionUser.copyWith(isAdmin: true);
-          when(() => mockGetSessionUser.call()).thenReturn(adminUser);
-
-          final result = cubit.hasActionPermission(
-            const ActionPermission.workOrderSubAction(
-              WorkOrderSubAction.deleteObservation,
-            ),
-          );
-
-          expect(result, isTrue);
+          expect(hasPerm, isTrue);
         },
       );
 
@@ -1263,7 +1262,12 @@ void main() {
           when(() => mockGetSessionUser.call()).thenReturn(adminUser);
 
           for (final subAction in WorkOrderSubAction.values) {
-            expect(cubit.hasWorkOrderSubActionPermission(subAction), isTrue);
+            expect(
+              cubit.hasPermission(
+                ActionPermission.workOrderSubAction(subAction),
+              ),
+              isTrue,
+            );
           }
         },
       );
@@ -1277,14 +1281,18 @@ void main() {
         when(() => mockGetSessionUser.call()).thenReturn(regularUser);
 
         expect(
-          cubit.hasWorkOrderSubActionPermission(
-            WorkOrderSubAction.deleteObservation,
+          cubit.hasPermission(
+            const ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.deleteObservation,
+            ),
           ),
           isTrue,
         );
         expect(
-          cubit.hasWorkOrderSubActionPermission(
-            WorkOrderSubAction.approvePause,
+          cubit.hasPermission(
+            const ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.approvePause,
+            ),
           ),
           isFalse,
         );
@@ -1308,14 +1316,18 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           expect(
-            cubit.hasWorkOrderSubActionPermission(
-              WorkOrderSubAction.deleteObservation,
+            cubit.hasPermission(
+              const ActionPermission.workOrderSubAction(
+                WorkOrderSubAction.deleteObservation,
+              ),
             ),
             isTrue,
           );
           expect(
-            cubit.hasWorkOrderSubActionPermission(
-              WorkOrderSubAction.changeStatus,
+            cubit.hasPermission(
+              const ActionPermission.workOrderSubAction(
+                WorkOrderSubAction.changeStatus,
+              ),
             ),
             isTrue,
           );
@@ -1340,8 +1352,10 @@ void main() {
           cubit.emit(cubit.state.copyWith(permissionGroups: [group]));
 
           expect(
-            cubit.hasWorkOrderSubActionPermission(
-              WorkOrderSubAction.deleteObservation,
+            cubit.hasPermission(
+              const ActionPermission.workOrderSubAction(
+                WorkOrderSubAction.deleteObservation,
+              ),
             ),
             isFalse,
           );

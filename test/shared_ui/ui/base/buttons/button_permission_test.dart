@@ -40,7 +40,7 @@ void main() {
     mockSessionCubit = MockSessionCubit();
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockUsersCubit.hasActionPermission(any())).thenReturn(true);
+    when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
     when(() => mockSessionCubit.state).thenReturn(
       SessionState.initial().copyWith(
         user: EntityFactory.makeUserProfileEntity(),
@@ -126,7 +126,7 @@ void main() {
           );
 
           when(
-            () => mockUsersCubit.hasActionPermission(permission),
+            () => mockUsersCubit.hasPermission(permission),
           ).thenReturn(true);
 
           await tester.pumpWidget(
@@ -135,7 +135,7 @@ void main() {
 
           expect(testCase.finder, findsOneWidget);
           verify(
-            () => mockUsersCubit.hasActionPermission(permission),
+            () => mockUsersCubit.hasPermission(permission),
           ).called(1);
         });
 
@@ -148,7 +148,7 @@ void main() {
           );
 
           when(
-            () => mockUsersCubit.hasActionPermission(permission),
+            () => mockUsersCubit.hasPermission(permission),
           ).thenReturn(false);
 
           await tester.pumpWidget(
@@ -157,7 +157,7 @@ void main() {
 
           expect(testCase.finder, findsNothing);
           verify(
-            () => mockUsersCubit.hasActionPermission(permission),
+            () => mockUsersCubit.hasPermission(permission),
           ).called(1);
         });
       });
