@@ -65,8 +65,7 @@ class WorkOrderBottomActions extends StatelessWidget {
           children: [
             Expanded(
               child: SecondaryButton(
-                text: (canmanagePendingRequests ? 'Pausar' : 'Solicitar pausa')
-                    .hardcoded,
+                text: 'Pausar'.hardcoded,
                 onTap: () async {
                   await showModalPage<void>(
                     RequestPauseFields(workOrderId: workOrder.id),
