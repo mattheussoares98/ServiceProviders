@@ -13,9 +13,11 @@ BEGIN
         UPDATE public.work_orders 
         SET status = 'pending_conclusion', updated_at = NOW() 
         WHERE id = NEW.work_order_id;
-      ELSIF NEW.event_type = 'pause' THEN
+      END IF;
+    ELSIF NEW.status = 'approved' THEN
+      IF NEW.event_type = 'pause' THEN
         UPDATE public.work_orders 
-        SET status = 'pending_pause', updated_at = NOW() 
+        SET status = 'on_hold', updated_at = NOW() 
         WHERE id = NEW.work_order_id;
       END IF;
     END IF;
