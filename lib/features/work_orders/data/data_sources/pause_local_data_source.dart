@@ -14,7 +14,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 abstract interface class PauseLocalDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
   FutureBool savePauseReason(PauseReasonModel reason);
-  FutureList<PauseRequestModel> getPauseRequests(String workOrderId);
+  FutureList<PauseRequestModel> getPauseRequests(
+    String workOrderId, {
+    String? status,
+  });
   FutureBool savePauseRequest(PauseRequestModel request);
   FutureBool reviewPause({
     required String id,
@@ -94,10 +97,19 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   }
 
   @override
-  FutureList<PauseRequestModel> getPauseRequests(String workOrderId) {
+  FutureList<PauseRequestModel> getPauseRequests(
+    String workOrderId, {
+    String? status,
+  }) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrderPauseRequests)
-        ..where((t) => t.workOrderId.equals(workOrderId));
+        ..where(
+          (t) =>
+              t.workOrderId.equals(workOrderId) &
+              (status != null
+                  ? t.status.equals(status)
+                  : const Constant(true)),
+        );
       final rows = await query.get();
       final list = rows
           .map(

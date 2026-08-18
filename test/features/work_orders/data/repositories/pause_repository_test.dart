@@ -77,11 +77,14 @@ void main() {
 
   group('getPauseRequests', () {
     test(
-      'should fetch remote requests and cache locally when online',
+      'should fetch remote requests and cache locally when online without status filter',
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockRemoteDataSource.getPauseRequests(any()),
+          () => mockRemoteDataSource.getPauseRequests(
+            any(),
+            status: any(named: 'status'),
+          ),
         ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
         when(
           () => mockLocalDataSource.savePauseRequest(any()),
@@ -102,6 +105,35 @@ void main() {
         ).called(1);
         verify(
           () => mockLocalDataSource.savePauseRequest(tRequestModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should fetch remote requests with status filter when provided',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getPauseRequests(
+            any(),
+            status: any(named: 'status'),
+          ),
+        ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
+        when(
+          () => mockLocalDataSource.savePauseRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.getPauseRequests(
+          tRequestEntity.workOrderId,
+          status: PauseRequestStatus.pending,
+        );
+
+        expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
+        verify(
+          () => mockRemoteDataSource.getPauseRequests(
+            tRequestEntity.workOrderId,
+            status: 'pending',
+          ),
         ).called(1);
       },
     );
@@ -194,6 +226,27 @@ void main() {
         ).called(1);
       },
     );
+
+    test('should return FailureState.noInternet when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.reviewPause(
+        id: tRequestEntity.id,
+        workOrderId: tRequestEntity.workOrderId,
+        status: PauseRequestStatus.approved,
+        reviewedById: 'manager-id',
+      );
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(
+        () => mockRemoteDataSource.reviewPause(
+          id: any(named: 'id'),
+          workOrderId: any(named: 'workOrderId'),
+          status: any(named: 'status'),
+          reviewedById: any(named: 'reviewedById'),
+        ),
+      );
+    });
   });
 
   group('reviewCompletion', () {
@@ -259,6 +312,27 @@ void main() {
         ).called(1);
       },
     );
+
+    test('should return FailureState.noInternet when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.reviewCompletion(
+        id: tRequestEntity.id,
+        workOrderId: tRequestEntity.workOrderId,
+        status: PauseRequestStatus.approved,
+        reviewedById: 'manager-id',
+      );
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(
+        () => mockRemoteDataSource.reviewCompletion(
+          id: any(named: 'id'),
+          workOrderId: any(named: 'workOrderId'),
+          status: any(named: 'status'),
+          reviewedById: any(named: 'reviewedById'),
+        ),
+      );
+    });
   });
 
   group('cancelPause', () {

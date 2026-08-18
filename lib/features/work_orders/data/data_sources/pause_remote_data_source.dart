@@ -10,7 +10,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 
 abstract interface class PauseRemoteDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
-  FutureList<PauseRequestModel> getPauseRequests(String workOrderId);
+  FutureList<PauseRequestModel> getPauseRequests(
+    String workOrderId, {
+    String? status,
+  });
   FutureBool requestPause(PauseRequestModel pauseRequest);
   FutureBool reviewPause({
     required String id,
@@ -60,11 +63,17 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       });
 
   @override
-  FutureList<PauseRequestModel> getPauseRequests(String workOrderId) =>
+  FutureList<PauseRequestModel> getPauseRequests(
+    String workOrderId, {
+    String? status,
+  }) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'work_order_pause_requests',
-          filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+          filters: [
+            SupabaseFilter.eq('work_order_id', workOrderId),
+            if (status != null) SupabaseFilter.eq('status', status),
+          ],
         );
         return response.map(PauseRequestModel.fromJson).toList();
       });

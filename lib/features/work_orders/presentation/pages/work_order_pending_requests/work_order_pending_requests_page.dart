@@ -40,8 +40,11 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          GetIt.I<PauseWorkflowCubit>()..loadPauseRequests(workOrder.id),
+      create: (context) => GetIt.I<PauseWorkflowCubit>()
+        ..loadPauseRequests(
+          workOrder.id,
+          status: PauseRequestStatus.pending,
+        ),
       child: Builder(
         builder: (context) {
           Future<void> refresh() async {
@@ -49,14 +52,13 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
               context.read<WorkOrdersCubit>().loadWorkOrdersAndChangeRequests(),
               context.read<PauseWorkflowCubit>().loadPauseRequests(
                 workOrder.id,
+                status: PauseRequestStatus.pending,
               ),
             ]);
           }
 
           final pendingRequestsLength = context.select<PauseWorkflowCubit, int>(
-            (cubit) => cubit.state.pauseRequests
-                .where((e) => e.status == PauseRequestStatus.pending)
-                .length,
+            (cubit) => cubit.state.pauseRequests.length,
           );
 
           return BaseScaffold(
@@ -75,9 +77,7 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
                 >(
                   onRetry: refresh,
                   dataSelector: (state) =>
-                      state.pauseRequests
-                          .where((r) => r.status == PauseRequestStatus.pending)
-                          .toList()
+                      state.pauseRequests.toList()
                         ..sort((a, b) {
                           final aIsCompletion =
                               a.eventType == PauseEventType.completion;

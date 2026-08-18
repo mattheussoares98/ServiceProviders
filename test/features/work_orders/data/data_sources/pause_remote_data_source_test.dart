@@ -55,7 +55,7 @@ void main() {
 
   group('getPauseRequests', () {
     test(
-      'should return SuccessState with list of pause requests when successful',
+      'should return SuccessState with list of pause requests when successful without status filter',
       () async {
         when(
           () => mockDatabase.selectList(
@@ -66,6 +66,29 @@ void main() {
 
         final result = await dataSource.getPauseRequests(
           tRequestEntity.workOrderId,
+        );
+
+        expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+        expect(
+          (result as SuccessState<List<PauseRequestModel>>).data!.first.id,
+          tRequestEntity.id,
+        );
+      },
+    );
+
+    test(
+      'should return SuccessState with list of pause requests when successful with status filter',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tRequestModel.toJson()]);
+
+        final result = await dataSource.getPauseRequests(
+          tRequestEntity.workOrderId,
+          status: 'pending',
         );
 
         expect(result, isA<SuccessState<List<PauseRequestModel>>>());

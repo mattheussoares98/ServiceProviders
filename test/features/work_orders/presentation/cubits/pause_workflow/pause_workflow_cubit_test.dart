@@ -101,6 +101,9 @@ void main() {
       ),
     );
     registerFallbackValue(
+      const GetPauseRequestsParams(workOrderId: 'fallback-wo-id'),
+    );
+    registerFallbackValue(
       const ReviewCompletionParams(
         id: '',
         workOrderId: '',
@@ -226,7 +229,7 @@ void main() {
 
     group('loadPauseRequests', () {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'should emit loading and loaded when requests fetch succeeds',
+        'should emit loading and loaded when requests fetch succeeds without status',
         build: () {
           final tRequests = EntityFactory.makePauseRequestEntityList();
           when(
@@ -247,7 +250,47 @@ void main() {
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
         verify: (_) {
-          verify(() => mockGetPauseRequests.call('wo-id')).called(1);
+          verify(
+            () => mockGetPauseRequests.call(
+              const GetPauseRequestsParams(workOrderId: 'wo-id'),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'should pass status filter when provided',
+        build: () {
+          final tRequests = EntityFactory.makePauseRequestEntityList();
+          when(
+            () => mockGetPauseRequests.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tRequests));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadPauseRequests(
+          'wo-id',
+          status: PauseRequestStatus.pending,
+        ),
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<PauseWorkflowState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty)
+              .having((s) => s.errorMessage, 'errorMessage', isNull),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGetPauseRequests.call(
+              const GetPauseRequestsParams(
+                workOrderId: 'wo-id',
+                status: PauseRequestStatus.pending,
+              ),
+            ),
+          ).called(1);
         },
       );
     });

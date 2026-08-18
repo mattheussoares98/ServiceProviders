@@ -58,6 +58,9 @@ void main() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
     registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
     registerFallbackValue(EntityFactory.makePauseReasonEntity());
+    registerFallbackValue(
+      const GetPauseRequestsParams(workOrderId: 'fallback-wo-id'),
+    );
     registerFallbackValue(EntityFactory.makePauseRequestEntity());
     registerFallbackValue(PauseRequestStatus.pending);
     registerFallbackValue(
@@ -558,15 +561,45 @@ void main() {
 
     test('should return list of pause requests on success', () async {
       when(
-        () => mockPauseRepository.getPauseRequests(any()),
+        () => mockPauseRepository.getPauseRequests(
+          any(),
+          status: any(named: 'status'),
+        ),
       ).thenAnswer((_) async => SuccessState(data: tRequests));
 
-      final result = await getPauseRequestsUseCase(tWorkOrderId);
+      final result = await getPauseRequestsUseCase(
+        GetPauseRequestsParams(workOrderId: tWorkOrderId),
+      );
 
       expect(result, isA<SuccessState<List<dynamic>>>());
       expect(result.data, tRequests);
       verify(
         () => mockPauseRepository.getPauseRequests(tWorkOrderId),
+      ).called(1);
+    });
+
+    test('should pass status to repository when provided', () async {
+      when(
+        () => mockPauseRepository.getPauseRequests(
+          any(),
+          status: any(named: 'status'),
+        ),
+      ).thenAnswer((_) async => SuccessState(data: tRequests));
+
+      final result = await getPauseRequestsUseCase(
+        GetPauseRequestsParams(
+          workOrderId: tWorkOrderId,
+          status: PauseRequestStatus.pending,
+        ),
+      );
+
+      expect(result, isA<SuccessState<List<dynamic>>>());
+      expect(result.data, tRequests);
+      verify(
+        () => mockPauseRepository.getPauseRequests(
+          tWorkOrderId,
+          status: PauseRequestStatus.pending,
+        ),
       ).called(1);
     });
   });

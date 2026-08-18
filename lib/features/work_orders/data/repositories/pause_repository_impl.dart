@@ -45,14 +45,23 @@ final class PauseRepositoryImpl implements PauseRepository {
       );
 
   @override
-  FutureList<PauseRequestEntity> getPauseRequests(String workOrderId) =>
+  FutureList<PauseRequestEntity> getPauseRequests(
+    String workOrderId, {
+    PauseRequestStatus? status,
+  }) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
         PauseRequestModel,
         PauseRequestEntity
       >(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.getPauseRequests(workOrderId),
-        remoteCallback: () => _remoteDataSource.getPauseRequests(workOrderId),
+        localCallback: () => _localDataSource.getPauseRequests(
+          workOrderId,
+          status: status?.value,
+        ),
+        remoteCallback: () => _remoteDataSource.getPauseRequests(
+          workOrderId,
+          status: status?.value,
+        ),
         onRemoteSuccess: (list) async {
           await Future.wait(
             list.map(_localDataSource.savePauseRequest).toList(),
@@ -98,15 +107,6 @@ final class PauseRepositoryImpl implements PauseRepository {
     PauseResponsibility? responsibility,
   }) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.reviewPause(
-      id: id,
-      workOrderId: workOrderId,
-      status: status.value,
-      reviewObservation: reviewObservation,
-      reviewedById: reviewedById,
-      reasonId: reasonId,
-      responsibility: responsibility?.value,
-    ),
     remoteCallback: () async {
       final result = await _remoteDataSource.reviewPause(
         id: id,
@@ -150,16 +150,6 @@ final class PauseRepositoryImpl implements PauseRepository {
     String? completionSectorId,
   }) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.reviewCompletion(
-      id: id,
-      workOrderId: workOrderId,
-      status: status.value,
-      reviewedById: reviewedById,
-      reviewObservation: reviewObservation,
-      responsibility: responsibility?.value,
-      completionReason: completionReason,
-      completionSectorId: completionSectorId,
-    ),
     remoteCallback: () async {
       final result = await _remoteDataSource.reviewCompletion(
         id: id,

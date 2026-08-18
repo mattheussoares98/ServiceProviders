@@ -212,6 +212,43 @@ void main() {
         expect(list.length, 1);
         expect(list.first.id, tRequestModel.id);
       });
+
+      test(
+        'should filter by status when status parameter is provided',
+        () async {
+          await insertDependencies(
+            companyId: tRequestModel.companyId,
+            userId: userId,
+            locationId: locationId,
+            areaId: areaId,
+            assetId: assetId,
+            workOrderId: tRequestModel.workOrderId,
+          );
+          await dataSource.savePauseRequest(tRequestModel);
+
+          final resultMatch = await dataSource.getPauseRequests(
+            tRequestModel.workOrderId,
+            status: tRequestModel.status.value,
+          );
+          expect(resultMatch, isA<SuccessState<List<PauseRequestModel>>>());
+          expect(
+            (resultMatch as SuccessState<List<PauseRequestModel>>).data!.length,
+            1,
+          );
+
+          final resultNoMatch = await dataSource.getPauseRequests(
+            tRequestModel.workOrderId,
+            status: 'non_matching_status',
+          );
+          expect(resultNoMatch, isA<SuccessState<List<PauseRequestModel>>>());
+          expect(
+            (resultNoMatch as SuccessState<List<PauseRequestModel>>)
+                .data!
+                .isEmpty,
+            true,
+          );
+        },
+      );
     });
 
     group('reviewPause', () {

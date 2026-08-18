@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
@@ -58,9 +59,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     }
   }
 
-  Future<void> loadPauseRequests(String workOrderId) async {
+  Future<void> loadPauseRequests(
+    String workOrderId, {
+    PauseRequestStatus? status,
+  }) async {
     emit(state.copyWith(status: StateStatus.loading));
-    final result = await _useCases.getPauseRequests(workOrderId);
+    final result = await _useCases.getPauseRequests(
+      GetPauseRequestsParams(workOrderId: workOrderId, status: status),
+    );
     if (isClosed) return;
 
     if (result is SuccessState<List<PauseRequestEntity>>) {

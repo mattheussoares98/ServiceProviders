@@ -129,6 +129,7 @@ class _PendingRequestCard extends StatelessWidget {
                   if (result != null && context.mounted) {
                     await context.read<PauseWorkflowCubit>().loadPauseRequests(
                       workOrder.id,
+                      status: PauseRequestStatus.pending,
                     );
 
                     if (!isPauseRequest && context.mounted) {

@@ -6,7 +6,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_respon
 
 abstract interface class PauseRepository {
   FutureList<PauseReasonEntity> getPauseReasons(String companyId);
-  FutureList<PauseRequestEntity> getPauseRequests(String workOrderId);
+  FutureList<PauseRequestEntity> getPauseRequests(
+    String workOrderId, {
+    PauseRequestStatus? status,
+  });
   FutureBool requestPause(PauseRequestEntity pauseRequest);
   FutureBool reviewPause({
     required String id,
