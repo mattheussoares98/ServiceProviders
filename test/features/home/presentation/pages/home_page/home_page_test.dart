@@ -15,7 +15,6 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/m
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
@@ -52,9 +51,6 @@ class MockSplashCubit extends MockCubit<SplashState> implements SplashCubit {}
 
 class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
     implements ScreenObserverCubit {}
-
-class MockDashboardCubit extends MockCubit<DashboardState>
-    implements DashboardCubit {}
 
 class MockClearLocalAttachmentsUseCase extends Mock
     implements ClearLocalAttachmentsUseCase {}
@@ -101,7 +97,6 @@ void main() {
   late MockHomeCubit mockHomeCubit;
   late MockNavigationClient mockNavigationClient;
   late MockSessionRepository mockSessionRepository;
-  late MockDashboardCubit mockDashboardCubit;
   late MockUsersCubit mockUsersCubit;
   late MockCompanyCubit mockCompanyCubit;
   late MockLocationsCubit mockLocationsCubit;
@@ -133,7 +128,6 @@ void main() {
     mockHomeCubit = MockHomeCubit();
     mockNavigationClient = MockNavigationClient();
     mockSessionRepository = MockSessionRepository();
-    mockDashboardCubit = MockDashboardCubit();
     mockUsersCubit = MockUsersCubit();
     mockCompanyCubit = MockCompanyCubit();
     mockLocationsCubit = MockLocationsCubit();
@@ -155,13 +149,6 @@ void main() {
     when(() => mockSessionRepository.userData).thenReturn(
       EntityFactory.makeUserDataEntity().copyWith(user: userProfile),
     );
-    when(() => mockDashboardCubit.state).thenReturn(
-      const DashboardState.initial().copyWith(status: StateStatus.loaded),
-    );
-    when(
-      () => mockDashboardCubit.stream,
-    ).thenAnswer((_) => const Stream.empty());
-    when(() => mockDashboardCubit.loadDashboardData()).thenAnswer((_) async {});
     when(() => mockHomeCubit.state).thenReturn(const HomeState.empty());
     when(() => mockHomeCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockHomeCubit.logout()).thenAnswer((_) async {});
@@ -208,6 +195,9 @@ void main() {
     when(
       () => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests(),
     ).thenAnswer((_) async {
+      return true;
+    });
+    when(() => mockWorkOrdersCubit.syncWorkOrders()).thenAnswer((_) async {
       return true;
     });
 
@@ -282,7 +272,6 @@ void main() {
       ..registerSingleton<SessionRepository>(mockSessionRepository)
       ..registerSingleton<LocalStorageClient>(mockLocalStorageClient)
       ..registerFactory<HomeCubit>(() => mockHomeCubit)
-      ..registerFactory<DashboardCubit>(() => mockDashboardCubit)
       ..registerFactory<CompanyCubit>(() => mockCompanyCubit)
       ..registerFactory<LocationsCubit>(() => mockLocationsCubit)
       ..registerFactory<AssetsCubit>(() => mockAssetsCubit)

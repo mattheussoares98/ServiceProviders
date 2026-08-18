@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/stats_card.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -12,22 +14,28 @@ class NotClosedWorkOrders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<DashboardCubit, DashboardState, (int, int, int)>(
+    return BlocSelector<WorkOrdersCubit, WorkOrdersState, (int, int, int)>(
       selector: (state) => (
-        state.openWorkOrdersCount,
-        state.inProgressWorkOrdersCount,
-        state.pendingRevisionsCount,
+        state.workOrders
+            .where((wo) => wo.status == WorkOrderStatus.open)
+            .length,
+        state.workOrders
+            .where((wo) => wo.status == WorkOrderStatus.inProgress)
+            .length,
+        state.changeRequests
+            .where((cr) => cr.status == ChangeRequestStatus.pending)
+            .length,
       ),
       builder: (_, values) {
         final (
           openWorkOrdersCount,
           inProgressWorkOrdersCount,
-          pendingRevisionsCount,
+          pendingRequestsCount,
         ) = values;
         final total =
             openWorkOrdersCount +
             inProgressWorkOrdersCount +
-            pendingRevisionsCount;
+            pendingRequestsCount;
 
         if (total <= 0) {
           return const SizedBox.shrink();
@@ -65,11 +73,11 @@ class NotClosedWorkOrders extends StatelessWidget {
                 gapW8,
                 Flexible(
                   child: StatsCard(
-                    title: 'Revisões'.hardcoded,
-                    value: pendingRevisionsCount.toString(),
+                    title: 'Solicitações'.hardcoded,
+                    value: pendingRequestsCount.toString(),
                     icon: const PlatformIcon(
-                      materialIcon: Icons.warning_amber_outlined,
-                      cupertinoIcon: CupertinoIcons.exclamationmark_triangle,
+                      materialIcon: Icons.pending_actions_outlined,
+                      cupertinoIcon: CupertinoIcons.hourglass,
                     ),
                     color: Colors.orange,
                     onTap: () {},
@@ -99,9 +107,9 @@ class NotClosedWorkOrders extends StatelessWidget {
                           color: Colors.amber.withValues(alpha: 0.8),
                         ),
                       ),
-                    if (pendingRevisionsCount > 0)
+                    if (pendingRequestsCount > 0)
                       Expanded(
-                        flex: pendingRevisionsCount,
+                        flex: pendingRequestsCount,
                         child: Container(
                           color: Colors.orange.withValues(alpha: 0.8),
                         ),
@@ -117,3 +125,4 @@ class NotClosedWorkOrders extends StatelessWidget {
     );
   }
 }
+

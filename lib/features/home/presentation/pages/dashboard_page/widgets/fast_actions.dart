@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/quick_action_button.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -13,7 +14,6 @@ class FastActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<DashboardCubit>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,7 +28,9 @@ class FastActions extends StatelessWidget {
                   materialIcon: Icons.add_task,
                   cupertinoIcon: CupertinoIcons.check_mark_circled,
                 ),
-                onTap: cubit.navigateToCreateUpdateWorkOrder,
+                onTap: () => context
+                    .read<WorkOrdersCubit>()
+                    .navigateToCreateUpdateWorkOrder(null),
               ),
             ),
             gapW12,
@@ -39,7 +41,9 @@ class FastActions extends StatelessWidget {
                   materialIcon: Icons.add_box_outlined,
                   cupertinoIcon: CupertinoIcons.add_circled,
                 ),
-                onTap: cubit.navigateToCreateUpdateAsset,
+                onTap: () => context
+                    .read<AssetsCubit>()
+                    .navigateToCreateUpdateAsset(),
               ),
             ),
           ],
@@ -49,3 +53,4 @@ class FastActions extends StatelessWidget {
     );
   }
 }
+

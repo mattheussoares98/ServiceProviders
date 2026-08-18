@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/cubits/dashboard/dashboard_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/active_stopwatch_card.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -13,10 +14,13 @@ class ActiveWorkItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<DashboardCubit>();
+    final workOrdersCubit = context.read<WorkOrdersCubit>();
     final activeWorkOrders = context
-        .select<DashboardCubit, List<WorkOrderEntity>>(
-          (cubit) => cubit.state.activeWorkOrders,
+        .select<WorkOrdersCubit, List<WorkOrderEntity>>(
+          (cubit) => cubit.state.workOrders
+              .where((wo) => wo.status == WorkOrderStatus.inProgress)
+              .toList()
+            ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt)),
         );
 
     if (activeWorkOrders.isEmpty) {
@@ -41,7 +45,8 @@ class ActiveWorkItems extends StatelessWidget {
                 padding: const EdgeInsets.only(right: Sizes.p8),
                 child: ActiveStopwatchCard(
                   workOrder: workOrder,
-                  onTap: () => cubit.navigateToWorkOrderDetails(workOrder.id),
+                  onTap: () =>
+                      workOrdersCubit.navigateToWorkOrderDetails(workOrder.id),
                 ),
               ),
             );
@@ -59,7 +64,8 @@ class ActiveWorkItems extends StatelessWidget {
               height: height,
               child: ActiveStopwatchCard(
                 workOrder: workOrder,
-                onTap: () => cubit.navigateToWorkOrderDetails(workOrder.id),
+                onTap: () =>
+                    workOrdersCubit.navigateToWorkOrderDetails(workOrder.id),
               ),
             );
           }).toList(),
@@ -78,3 +84,4 @@ class ActiveWorkItems extends StatelessWidget {
     );
   }
 }
+
