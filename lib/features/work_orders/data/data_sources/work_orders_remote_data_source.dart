@@ -17,7 +17,7 @@ abstract interface class WorkOrdersRemoteDataSource {
   FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
-    int pageSize = 20,
+    int pageSize = 50,
     int offset = 0,
   });
   FutureList<WorkOrderModel> getWorkOrdersDelta(
@@ -60,7 +60,7 @@ final class WorkOrdersRemoteDataSourceImpl
   FutureList<WorkOrderModel> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
-    int pageSize = 20,
+    int pageSize = 50,
     int offset = 0,
   }) => SupabaseHandler.call(() async {
     final filters = [

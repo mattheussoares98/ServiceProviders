@@ -34,7 +34,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   final WorkOrdersCubitUseCases _useCases;
 
-  static const _pageSize = 20;
+  static const _pageSize = 50;
 
   Future<bool> loadWorkOrdersAndChangeRequests({
     bool showLoading = true,

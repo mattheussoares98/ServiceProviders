@@ -9,7 +9,7 @@ class GetWorkOrdersParams {
   const GetWorkOrdersParams({
     required this.companyId,
     this.filter = const WorkOrderFilter(),
-    this.pageSize = 20,
+    this.pageSize = 50,
     this.offset = 0,
   });
 

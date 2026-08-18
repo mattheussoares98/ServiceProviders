@@ -37,7 +37,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureList<WorkOrderEntity> getWorkOrders(
     String companyId, {
     WorkOrderFilter filter = const WorkOrderFilter(),
-    int pageSize = 20,
+    int pageSize = 50,
     int offset = 0,
   }) =>
       RepositoryHandler.fetchWithFallbackAndMapList<

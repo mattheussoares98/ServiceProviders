@@ -84,7 +84,7 @@ void main() {
             columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: any(named: 'filters'),
             orderBy: any(named: 'orderBy'),
-            limit: 20,
+            limit: 50,
             offset: 0,
           ),
         ).called(1);
