@@ -77,11 +77,11 @@ class WorkOrderApprovalBanner extends HookWidget {
                   color: iconColor,
                 ),
               ),
-              BaseText.bodyLarge(
-                '$pendingCount ${pendingCount > 1 ? 'solicitações pendentes' : 'solicitação pendente'} de aprovação'
+              BaseText.title(
+                '$pendingCount ${pendingCount > 1 ? 'solicitações pendentes' : 'solicitação pendente'}'
                     .hardcoded,
-                fontWeight: FontWeight.bold,
-                color: iconColor,
+                // fontWeight: FontWeight.bold,
+                // color: iconColor,
               ),
             ],
           ),
