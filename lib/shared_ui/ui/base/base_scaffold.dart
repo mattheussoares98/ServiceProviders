@@ -138,7 +138,7 @@ class _BaseScaffold extends StatelessWidget {
     }
 
     if (params.onRefresh != null) {
-      newChild = RefreshIndicator(
+      newChild = RefreshIndicator.adaptive(
         onRefresh: params.onRefresh!,
         backgroundColor: context.theme.colorScheme.surface,
         strokeWidth: 2,
