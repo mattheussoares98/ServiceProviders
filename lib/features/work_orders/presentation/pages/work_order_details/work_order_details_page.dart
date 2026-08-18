@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -26,7 +27,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.da
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends StatelessWidget {
@@ -113,7 +113,7 @@ class _WorkOrderDetails extends HookWidget {
                   padding: const EdgeInsets.only(bottom: Sizes.p12),
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      if (!context.hasPermission(
+                      if (!context.read<UsersCubit>().hasPermission(
                         const ActionPermission.workOrderSubAction(
                           .managePendingRequests,
                         ),
