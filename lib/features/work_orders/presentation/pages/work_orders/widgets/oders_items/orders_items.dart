@@ -65,10 +65,18 @@ class _OrdersItemsState extends State<OrdersItems> {
                     .loadWorkOrdersAndChangeRequests,
                 builder: (context, workOrders) {
                   if (workOrders.isEmpty) {
-                    return Center(
-                      child: BaseText.error(
-                        'Nenhuma ordem foi encontrada'.hardcoded,
-                      ),
+                    return CustomScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(
+                            child: BaseText.error(
+                              'Nenhuma ordem foi encontrada'.hardcoded,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   }
                   return Column(
@@ -76,6 +84,7 @@ class _OrdersItemsState extends State<OrdersItems> {
                       Expanded(
                         child: ResponsiveListFlow(
                           scrollController: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: workOrders.length,
                           itemBuilder: (context, index) {
                             final workOrder = workOrders[index];
