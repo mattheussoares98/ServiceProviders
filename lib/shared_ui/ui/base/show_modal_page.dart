@@ -41,7 +41,7 @@ Future<T?> showModalPage<T>(
             minChildSize: minChildSize,
             maxChildSize: maxChildSize,
             builder: (_, controller) {
-              return SafeArea(child: _Body(body: body));
+              return _Body(body: body);
             },
           ),
         ],
@@ -63,31 +63,36 @@ class _Body extends StatelessWidget {
         color: context.theme.scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          //dragglable indicator
-          Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: Sizes.p12),
-              height: 5,
-              width: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            //dragglable indicator
+            Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: Sizes.p12),
+                height: 5,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
-          ),
-          if (expand)
-            Expanded(
-              child: Scaffold(backgroundColor: Colors.transparent, body: body),
-            )
-          else
-            Flexible(
-              child: Material(color: Colors.transparent, child: body),
-            ),
-          // const SizedBox(height: Sizes.p12),
-        ],
+            if (expand)
+              Expanded(
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: body,
+                ),
+              )
+            else
+              Flexible(
+                child: Material(color: Colors.transparent, child: body),
+              ),
+            // const SizedBox(height: Sizes.p12),
+          ],
+        ),
       ),
     );
   }
