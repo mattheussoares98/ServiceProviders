@@ -51,8 +51,9 @@ class HomePage extends HookWidget {
           create: (context) => GetIt.I<AssetsCubit>()..loadAssets(),
         ),
         BlocProvider<WorkOrdersCubit>(
-          create: (context) =>
-              GetIt.I<WorkOrdersCubit>()..loadWorkOrdersAndChangeRequests(),
+          create: (context) => GetIt.I<WorkOrdersCubit>()
+            ..loadWorkOrdersAndChangeRequests()
+            ..syncWorkOrders(),
         ),
         BlocProvider<UsersCubit>(
           create: (context) => GetIt.I<UsersCubit>()..loadAll(),

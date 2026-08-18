@@ -2362,16 +2362,10 @@ void main() {
     });
 
     group('syncWorkOrders', () {
-      test('returns true and refreshes data on sync success', () async {
+      test('returns true on sync success', () async {
         when(
           () => mockSyncWorkOrders.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockGetWorkOrders(any()),
-        ).thenAnswer((_) async => SuccessState(data: [EntityFactory.makeWorkOrderEntity()]));
-        when(
-          () => mockGetChangeRequests(any()),
-        ).thenAnswer((_) async => const SuccessState(data: []));
 
         final result = await cubit.syncWorkOrders();
 
