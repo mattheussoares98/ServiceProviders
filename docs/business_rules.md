@@ -16,6 +16,7 @@ Work order pauses and completion requests are tracked in `work_order_pause_reque
 | **2: Direct Pause** | Request Pause | ✅ Yes (`managePendingRequests` granted & internal mode) | **`onHold`** | `approved` | Direct approval; no pending request is left. |
 | **3: Pending Completion** | Request Completion | ❌ No (`managePendingRequests` denied or provider mode) | **`pendingConclusionApproval`** | `pending` | **Accept:** changes status to `completed` and sets `completedAt`.<br>**Reject:** changes status back to `inProgress`. |
 | **4: Direct Completion** | Request Completion | ✅ Yes (`managePendingRequests` granted & internal mode) | **`completed`** | `approved` | Direct conclusion; no pending completion is left. |
+| **5: Resume Work** | Resume Work (Retomar) | Anyone with assigned / execution access | **`inProgress`** | *Unchanged* (`pending` stays `pending`, `approved` stays `approved`) | Sets `resumed_at` timestamp. Work order transitions back to `inProgress`. Pending pauses remain open for supervisor responsibility review. |
 
 ---
 
