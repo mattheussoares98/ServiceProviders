@@ -26,7 +26,6 @@ class WorkOrderBottomActions extends StatelessWidget {
   final WorkOrderEntity workOrder;
   final String currentUserId;
   final PauseWorkflowCubit pauseCubit;
-  //TODO read this entire file
   @override
   Widget build(BuildContext context) {
     if (workOrder.status.isPaused ||
