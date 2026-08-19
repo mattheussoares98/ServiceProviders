@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -18,6 +19,7 @@ class ResponsiveListFlow extends StatelessWidget {
     this.useMultiColumnWhenMobile = false,
     this.scrollController,
   });
+
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
   final double? maxItemWidth;
@@ -31,6 +33,7 @@ class ResponsiveListFlow extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectivePadding =
         padding ?? const EdgeInsets.only(bottom: Sizes.p48);
+
     if (PlatformUtil.isMobile && !useMultiColumnWhenMobile) {
       if (isSliver) {
         return SliverPadding(
@@ -51,94 +54,44 @@ class ResponsiveListFlow extends StatelessWidget {
     }
 
     final maxWidthSize = ScreenType.desktop.maxWidth;
-    final width = min(maxWidthSize, MediaQuery.of(context).size.width);
-    // Calculate how many items fit in one row
-    final itemsPerRow = max((width / maxItemWidth!).floor(), 1);
-    // Calculate the total number of rows needed
-    final rowCount = (itemCount / itemsPerRow).ceil();
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final width = min(maxWidthSize, screenWidth);
+    final effectiveItemWidth = maxItemWidth ?? 380.0;
+    final itemsPerRow = max((width / effectiveItemWidth).floor(), 1);
 
     if (isSliver) {
-      return SliverPadding(
-        padding: effectivePadding,
-        sliver: SliverList.builder(
-          itemCount: rowCount,
-          itemBuilder: (context, rowIndex) {
-            return _RowsItems(
-              key: ValueKey('row_${rowIndex}_$itemsPerRow'),
-              itemCount: itemCount,
-              itemBuilder: itemBuilder,
-              itemsPerRow: itemsPerRow,
-              rowIndex: rowIndex,
-              maxWidthSize: maxWidthSize,
-            );
-          },
-        ),
+      final grid = SliverMasonryGrid.count(
+        crossAxisCount: itemsPerRow,
+        mainAxisSpacing: Sizes.p8,
+        crossAxisSpacing: Sizes.p8,
+        childCount: itemCount,
+        itemBuilder: itemBuilder,
       );
+
+      final paddedGrid = SliverPadding(padding: effectivePadding, sliver: grid);
+
+      if (screenWidth > maxWidthSize) {
+        final horizontalPadding = (screenWidth - maxWidthSize) / 2;
+        return SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          sliver: paddedGrid,
+        );
+      }
+
+      return paddedGrid;
     }
 
-    return ListView.builder(
+    final grid = MasonryGridView.count(
       controller: scrollController,
       physics: physics,
-      itemCount: rowCount,
-      padding: effectivePadding,
-      itemBuilder: (context, rowIndex) {
-        return _RowsItems(
-          key: ValueKey('row_${rowIndex}_$itemsPerRow'),
-          itemCount: itemCount,
-          itemBuilder: itemBuilder,
-          itemsPerRow: itemsPerRow,
-          rowIndex: rowIndex,
-          maxWidthSize: maxWidthSize,
-        );
-      },
-    );
-  }
-}
-
-class _RowsItems extends StatelessWidget {
-  const _RowsItems({
-    super.key,
-    required this.itemCount,
-    required this.itemBuilder,
-    required this.itemsPerRow,
-    required this.rowIndex,
-    this.maxWidthSize,
-  });
-  final int itemCount;
-  final Widget Function(BuildContext context, int index) itemBuilder;
-  final int itemsPerRow;
-  final int rowIndex;
-  final double? maxWidthSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(itemsPerRow, (colIndex) {
-        final itemIndex = (rowIndex * itemsPerRow) + colIndex;
-
-        if (itemIndex < itemCount) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: colIndex == 0 ? 0 : Sizes.p4,
-                right: colIndex == itemsPerRow - 1 ? 0 : Sizes.p4,
-                bottom: Sizes.p4,
-              ),
-              child: itemBuilder(context, itemIndex),
-            ),
-          );
-        } else {
-          return const Expanded(child: SizedBox());
-        }
-      }),
+      padding: effectivePadding is EdgeInsets ? effectivePadding : null,
+      crossAxisCount: itemsPerRow,
+      mainAxisSpacing: Sizes.p8,
+      crossAxisSpacing: Sizes.p8,
+      itemCount: itemCount,
+      itemBuilder: itemBuilder,
     );
 
-    if (maxWidthSize != null) {
-      return ResponsiveCenter(maxContentWidth: maxWidthSize!, child: row);
-    }
-
-    return row;
+    return ResponsiveCenter(maxContentWidth: maxWidthSize, child: grid);
   }
 }
