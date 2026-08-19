@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -30,8 +31,16 @@ class WorkOrderDetailsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workOrderInState = context.select<WorkOrdersCubit, WorkOrderEntity?>(
+      (cubit) =>
+          cubit.state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
+    );
+
     useEffect(() {
-      context.read<WorkOrdersCubit>().loadWorkOrderById(workOrderId);
+      context.read<WorkOrdersCubit>().loadWorkOrderById(
+        workOrderId,
+        showLoading: workOrderInState == null,
+      );
       return null;
     }, [workOrderId]);
 
@@ -46,21 +55,23 @@ class WorkOrderDetailsPage extends HookWidget {
                 ..fetchObservations(workOrderId),
         ),
       ],
-      child: BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
-        selector: (state) =>
+      child: BaseStateView<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
+        dataSelector: (state) =>
             state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
+        onRetry: () => context.read<WorkOrdersCubit>().loadWorkOrderById(
+          workOrderId,
+          showLoading: true,
+        ),
         builder: (context, workOrder) {
           if (workOrder == null) {
             return BaseScaffold(
               appBar: BaseAppBar(
                 title: 'Detalhes da ordem de serviço'.hardcoded,
               ),
-              onRefresh: () => context
-                  .read<WorkOrdersCubit>()
-                  .loadWorkOrderById(workOrderId, showLoading: true),
               body: Center(
                 child: BaseText.error(
                   'Ordem de serviço não encontrada'.hardcoded,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             );
@@ -89,7 +100,7 @@ class _WorkOrderDetails extends HookWidget {
         );
       }
       return null;
-    }, [workOrder.id]);
+    }, [workOrder.id, workOrder.serviceProviderCompanyId]);
 
     observeLoading([
       ObservedLoadingTarget(

@@ -78,6 +78,13 @@ void main() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
   });
 
+  final tUser = EntityFactory.makeUserProfileEntity();
+  final tAttachmentList = EntityFactory.makeAttachmentEntityList();
+  final tUploadedAttachmentList = tAttachmentList
+      .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
+      .toList();
+  final tWorkOrderId = faker.guid.guid();
+
   setUp(() {
     mockGetAttachments = MockGetAttachmentsUseCase();
     mockPickAttachment = MockPickAttachmentUseCase();
@@ -99,6 +106,9 @@ void main() {
       () => mockTouchLastAccessed(any()),
     ).thenAnswer((_) async => SuccessState.nil);
     when(() => mockGetActiveCompanyId()).thenReturn('abc');
+    when(
+      () => mockGetAttachments(any()),
+    ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
 
     useCases = AttachmentsCubitUseCases(
       getAttachments: mockGetAttachments,
@@ -117,29 +127,16 @@ void main() {
 
   tearDown(GetIt.I.reset);
 
-  final tUser = EntityFactory.makeUserProfileEntity();
-  final tAttachmentList = EntityFactory.makeAttachmentEntityList();
-  final tUploadedAttachmentList = EntityFactory.makeAttachmentEntityList()
-      .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
-      .toList();
-  final tWorkOrderId = faker.guid.guid();
-
   group('AttachmentsCubit - init & refresh', () {
     blocTest<AttachmentsCubit, AttachmentsState>(
-      'emits [loading, loaded] when init successfully fetches attachments',
+      'emits [loaded] when init successfully fetches attachments',
       build: () {
         when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having(
@@ -154,20 +151,14 @@ void main() {
     );
 
     blocTest<AttachmentsCubit, AttachmentsState>(
-      'emits [loading, loadingError] when init fails to fetch attachments',
+      'emits [loadingError] when init fails to fetch attachments',
       build: () {
         when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => FailureState(message: 'Error fetching'));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loadingError)
             .having((s) => s.errorMessage, 'errorMessage', 'Error fetching'),
@@ -190,11 +181,11 @@ void main() {
         when(
           () => mockUploadAttachment(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        // Refresh call inside _uploadAttachment will fetch updated list, but first fetch should be empty
-        var getAttachmentsCallCount = 0;
+
+        var getCount = 0;
         when(() => mockGetAttachments(any())).thenAnswer((_) async {
-          getAttachmentsCallCount++;
-          if (getAttachmentsCallCount == 1) {
+          getCount++;
+          if (getCount == 1) {
             return const SuccessState(data: []);
           }
           return SuccessState(
@@ -203,12 +194,8 @@ void main() {
         });
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) async {
-        await cubit.refreshAttachments();
-        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
-        await cubit.uploadPending();
-      },
-      skip: 2, // Skip initial loading/loaded from init
+      act: (cubit) => cubit.pickAttachment(AttachmentSource.cameraPhoto),
+      skip: 1, // Skip initial loaded from init
       expect: () => [
         // 1. Adds picked attachment to state
         isA<AttachmentsState>().having((s) => s.attachments, 'attachments', [
@@ -234,8 +221,99 @@ void main() {
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having(
               (s) => s.attachments[0].uploadStatus,
-              'status',
+              'uploadStatus',
               UploadStatus.uploaded,
+            ),
+      ],
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'picks multiple files and updates processingCount',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(() => mockPickAttachment(any())).thenAnswer((inv) async {
+          final params = inv.positionalArguments.first as PickAttachmentParams;
+          params.onFilesPicked?.call(3);
+          return SuccessState(data: [tPickedFile]);
+        });
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        var getCount = 0;
+        when(() => mockGetAttachments(any())).thenAnswer((_) async {
+          getCount++;
+          if (getCount == 1) {
+            return const SuccessState(data: []);
+          }
+          return SuccessState(
+            data: [tPickedFile.copyWith(uploadStatus: UploadStatus.uploaded)],
+          );
+        });
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
+      },
+      act: (cubit) => cubit.pickAttachment(AttachmentSource.gallery),
+      skip: 1,
+      expect: () => [
+        isA<AttachmentsState>().having(
+          (s) => s.processingCount,
+          'processingCount',
+          3,
+        ),
+        isA<AttachmentsState>()
+            .having((s) => s.processingCount, 'processingCount', 0)
+            .having((s) => s.attachments, 'attachments', [tPickedFile]),
+        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
+          tPickedFile.id,
+        }),
+        isA<AttachmentsState>().having(
+          (s) => s.uploadingIds,
+          'uploadingIds',
+          isEmpty,
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'handles upload failure gracefully and marks uploadStatus as failed',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
+      },
+      act: (cubit) => cubit.pickAttachment(AttachmentSource.cameraVideo),
+      skip: 1,
+      expect: () => [
+        isA<AttachmentsState>().having((s) => s.attachments, 'attachments', [
+          tPickedFile,
+        ]),
+        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
+          tPickedFile.id,
+        }),
+        isA<AttachmentsState>()
+            .having((s) => s.uploadingIds, 'uploadingIds', isEmpty)
+            .having(
+              (s) => s.attachments[0].uploadStatus,
+              'uploadStatus',
+              UploadStatus.failed,
             ),
       ],
     );
@@ -256,7 +334,6 @@ void main() {
         when(
           () => mockGetVideoThumbnail(any()),
         ).thenAnswer((_) async => const SuccessState(data: 'thumb.jpg'));
-        // Returns the same attachment that is already in state
         when(
           () => mockPickAttachment(any()),
         ).thenAnswer((_) async => SuccessState(data: [tAttachmentList.first]));
@@ -266,10 +343,9 @@ void main() {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
-      skip: 2, // Skip initial loading/loaded from init
+      skip: 1,
       expect: () =>
           <AttachmentsState>[], // No emissions because newAttachments is empty
       verify: (_) {
@@ -293,10 +369,9 @@ void main() {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
-      skip: 2, // Skip initial loading/loaded from init
+      skip: 1,
       expect: () => [
         isA<AttachmentsState>().having(
           (s) => s.processingCount,
@@ -337,13 +412,7 @@ void main() {
         });
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.attachments, 'attachments', [tAttachment]),
@@ -379,10 +448,7 @@ void main() {
       build: () {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      seed: () => AttachmentsState(
-        status: StateStatus.loaded,
-        attachments: tAttachmentList,
-      ),
+      skip: 1,
       act: (cubit) => cubit.deleteAttachment(tAttachment.id),
       expect: () => [
         isA<AttachmentsState>()
@@ -390,7 +456,7 @@ void main() {
             .having(
               (s) => s.attachments,
               'attachments',
-              tAttachmentList.skip(1).toList(),
+              tUploadedAttachmentList.skip(1).toList(),
             )
             .having((s) => s.pendingDeletions, 'pendingDeletions', {
               tAttachment.id,
@@ -410,6 +476,7 @@ void main() {
         ).thenAnswer((_) async => SuccessState.nil);
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
+      skip: 1,
       act: (cubit) => cubit.openAttachment(tAttachment),
       expect: () => <AttachmentsState>[],
       verify: (_) {
@@ -437,13 +504,7 @@ void main() {
         ).thenAnswer((_) async => const SuccessState(data: 'thumb_path.jpg'));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.refreshAttachments(),
       expect: () => [
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.attachments, 'attachments', [tVideoAttachment]),
@@ -476,9 +537,9 @@ void main() {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) async {
-        await cubit.refreshAttachments();
         await cubit.pickAttachment(AttachmentSource.cameraPhoto);
       },
+      skip: 1,
       verify: (_) {
         verify(() => mockPruneSandbox()).called(1);
         verify(() => mockPickAttachment(any())).called(1);
@@ -493,6 +554,7 @@ void main() {
         ).thenAnswer((_) async => SuccessState.nil);
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
+      skip: 1,
       act: (cubit) => cubit.openAttachment(tAttachment),
       verify: (_) {
         verify(() => mockTouchLastAccessed(tAttachment.id)).called(1);

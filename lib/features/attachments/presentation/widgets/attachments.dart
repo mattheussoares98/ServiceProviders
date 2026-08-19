@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_item.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_source_sheet.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -24,10 +25,15 @@ class Attachments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (isLoading, attachments, processingCount) = context
-        .select<AttachmentsCubit, (bool, List<AttachmentEntity>, int)>(
+    final (isLoading, hasError, errorMessage, attachments, processingCount) =
+        context.select<
+          AttachmentsCubit,
+          (bool, bool, String?, List<AttachmentEntity>, int)
+        >(
           (cubit) => (
             cubit.state.status == StateStatus.loading,
+            cubit.state.status == StateStatus.loadingError,
+            cubit.state.errorMessage,
             cubit.state.attachments,
             cubit.state.processingCount,
           ),
@@ -35,6 +41,35 @@ class Attachments extends StatelessWidget {
 
     if (isLoading) {
       return const SliverToBoxAdapter(child: Center(child: LoadingCircle()));
+    }
+
+    if (hasError) {
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(Sizes.p16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BaseText(
+                  errorMessage ?? 'Erro ao carregar anexos'.hardcoded,
+                  color: Colors.red,
+                  fontStyle: FontStyle.italic,
+                ),
+                gapH8,
+                BaseButton(
+                  color: Colors.red,
+                  onTap:
+                      () => context
+                          .read<AttachmentsCubit>()
+                          .refreshAttachments(),
+                  text: 'Tentar novamente'.hardcoded,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     return SliverMainAxisGroup(
