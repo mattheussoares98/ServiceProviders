@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_completion_fields.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_pause_fields.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
@@ -16,16 +17,9 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class WorkOrderBottomActions extends StatelessWidget {
-  const WorkOrderBottomActions({
-    required this.workOrder,
-    required this.currentUserId,
-    required this.pauseCubit,
-    super.key,
-  });
+  const WorkOrderBottomActions({required this.workOrder, super.key});
 
   final WorkOrderEntity workOrder;
-  final String currentUserId;
-  final PauseWorkflowCubit pauseCubit;
   @override
   Widget build(BuildContext context) {
     if (workOrder.status.isPaused ||
@@ -42,8 +36,8 @@ class WorkOrderBottomActions extends StatelessWidget {
               cancelActionText: 'Não'.hardcoded,
               onOkPressed: () => context.read<WorkOrdersCubit>().resumeWork(
                 workOrder: workOrder,
-                currentUserId: currentUserId,
-                pauseCubit: pauseCubit,
+                currentUserId: context.read<SessionCubit>().state.user.id,
+                pauseCubit: context.read<PauseWorkflowCubit>(),
               ),
             );
           },

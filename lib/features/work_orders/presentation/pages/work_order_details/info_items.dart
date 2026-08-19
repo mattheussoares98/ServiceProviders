@@ -13,10 +13,16 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_approval_banner.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_execution_timer_card.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
@@ -26,11 +32,23 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class InfoItems extends StatelessWidget {
-  const InfoItems({super.key, required this.workOrder});
+  const InfoItems({
+    super.key,
+    required this.workOrder,
+    required this.onRefresh,
+  });
+
   final WorkOrderEntity workOrder;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
+    final canManagePendingRequests = context.hasPermission(
+      const ActionPermission.workOrderSubAction(.managePendingRequests),
+    );
+    final sessionCubit = context.read<SessionCubit>();
+    final currentUserId = sessionCubit.state.user.id;
+
     final user = context.select<UsersCubit, UserProfileEntity?>(
       (cubit) => cubit.state.users.firstWhereOrNull(
         (e) => e.id == workOrder.assignedToId,
@@ -66,6 +84,35 @@ class InfoItems extends StatelessWidget {
           );
 
     final items = [
+      if (canManagePendingRequests)
+        BlocSelector<
+          PauseWorkflowCubit,
+          PauseWorkflowState,
+          List<PauseRequestEntity>
+        >(
+          selector: (state) => state.pauseRequests,
+          builder: (context, pauseRequests) {
+            return WorkOrderApprovalBanner(
+              workOrder: workOrder,
+              pauseRequests: pauseRequests,
+              currentUserId: currentUserId,
+              onRefresh: onRefresh,
+            );
+          },
+        ),
+      BlocSelector<
+        PauseWorkflowCubit,
+        PauseWorkflowState,
+        List<PauseRequestEntity>
+      >(
+        selector: (state) => state.pauseRequests,
+        builder: (context, pauseRequests) {
+          return WorkOrderExecutionTimerCard(
+            workOrder: workOrder,
+            pauseRequests: pauseRequests,
+          );
+        },
+      ),
       TitleAndSubtitle(
         title: 'Título'.hardcoded,
         subtitle: workOrder.title,

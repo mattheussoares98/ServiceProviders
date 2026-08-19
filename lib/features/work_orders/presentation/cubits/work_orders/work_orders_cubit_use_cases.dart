@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
@@ -20,6 +21,7 @@ class WorkOrdersCubitUseCases {
   const WorkOrdersCubitUseCases({
     required this.getActiveCompanyId,
     required this.getWorkOrders,
+    required this.getWorkOrderById,
     required this.createWorkOrder,
     required this.updateWorkOrder,
     required this.deleteWorkOrder,
@@ -37,6 +39,7 @@ class WorkOrdersCubitUseCases {
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
   final GetWorkOrdersUseCase getWorkOrders;
+  final GetWorkOrderByIdUseCase getWorkOrderById;
   final CreateWorkOrderUseCase createWorkOrder;
   final UpdateWorkOrderUseCase updateWorkOrder;
   final DeleteWorkOrderUseCase deleteWorkOrder;

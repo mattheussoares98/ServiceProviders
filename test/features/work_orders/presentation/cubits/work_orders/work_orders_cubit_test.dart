@@ -22,6 +22,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
@@ -41,6 +42,9 @@ import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetWorkOrdersUseCase extends Mock implements GetWorkOrdersUseCase {}
+
+class MockGetWorkOrderByIdUseCase extends Mock
+    implements GetWorkOrderByIdUseCase {}
 
 class MockCreateWorkOrderUseCase extends Mock
     implements CreateWorkOrderUseCase {}
@@ -89,6 +93,7 @@ void main() {
 
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetWorkOrdersUseCase mockGetWorkOrders;
+  late MockGetWorkOrderByIdUseCase mockGetWorkOrderById;
   late MockCreateWorkOrderUseCase mockCreateWorkOrder;
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
   late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
@@ -143,6 +148,7 @@ void main() {
   setUp(() {
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetWorkOrders = MockGetWorkOrdersUseCase();
+    mockGetWorkOrderById = MockGetWorkOrderByIdUseCase();
     mockCreateWorkOrder = MockCreateWorkOrderUseCase();
     mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
     mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
@@ -178,6 +184,7 @@ void main() {
     final useCases = WorkOrdersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
       getWorkOrders: mockGetWorkOrders,
+      getWorkOrderById: mockGetWorkOrderById,
       createWorkOrder: mockCreateWorkOrder,
       updateWorkOrder: mockUpdateWorkOrder,
       deleteWorkOrder: mockDeleteWorkOrder,
@@ -314,6 +321,120 @@ void main() {
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
           ).called(1);
+        },
+      );
+    });
+
+    group('loadWorkOrderById', () {
+      final tExistingOrder = EntityFactory.makeWorkOrderEntity();
+      final tUpdatedOrder = tExistingOrder.copyWith(title: 'Updated Title');
+      final tNewOrder = EntityFactory.makeWorkOrderEntity();
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should update the existing work order in workOrders list when found',
+        seed: () => const WorkOrdersState.initial().copyWith(
+          status: StateStatus.loaded,
+          workOrders: [tExistingOrder],
+        ),
+        build: () {
+          when(
+            () => mockGetWorkOrderById.call(tExistingOrder.id),
+          ).thenAnswer((_) async => SuccessState(data: tUpdatedOrder));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadWorkOrderById(tExistingOrder.id),
+        expect: () => [
+          isA<WorkOrdersState>()
+              .having(
+                (s) => s.workOrders.first.title,
+                'title',
+                'Updated Title',
+              )
+              .having((s) => s.workOrders.length, 'length', 1),
+        ],
+        verify: (_) {
+          verify(() => mockGetWorkOrderById.call(tExistingOrder.id)).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should append the work order to workOrders list when not present',
+        seed: () => const WorkOrdersState.initial().copyWith(
+          status: StateStatus.loaded,
+          workOrders: [tExistingOrder],
+        ),
+        build: () {
+          when(
+            () => mockGetWorkOrderById.call(tNewOrder.id),
+          ).thenAnswer((_) async => SuccessState(data: tNewOrder));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadWorkOrderById(tNewOrder.id),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.workOrders.length,
+            'length',
+            2,
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockGetWorkOrderById.call(tNewOrder.id)).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should emit loading and loaded when showLoading is true and request succeeds',
+        build: () {
+          when(
+            () => mockGetWorkOrderById.call(tNewOrder.id),
+          ).thenAnswer((_) async => SuccessState(data: tNewOrder));
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.loadWorkOrderById(tNewOrder.id, showLoading: true),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.workOrders, 'workOrders', [tNewOrder]),
+        ],
+        verify: (_) {
+          verify(() => mockGetWorkOrderById.call(tNewOrder.id)).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should emit loading and loadingError when showLoading is true and request fails',
+        build: () {
+          when(
+            () => mockGetWorkOrderById.call(tNewOrder.id),
+          ).thenAnswer(
+            (_) async => FailureState(message: 'Work order not found'),
+          );
+          return cubit;
+        },
+        act: (cubit) =>
+            cubit.loadWorkOrderById(tNewOrder.id, showLoading: true),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<WorkOrdersState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.errorMessage,
+                'errorMessage',
+                'Work order not found',
+              ),
+        ],
+        verify: (_) {
+          verify(() => mockGetWorkOrderById.call(tNewOrder.id)).called(1);
         },
       );
     });

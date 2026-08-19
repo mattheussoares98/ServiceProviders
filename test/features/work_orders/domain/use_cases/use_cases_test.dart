@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
@@ -38,6 +39,7 @@ void main() {
   late GetWorkOrderChangeRequestsUseCase getWorkOrderChangeRequestsUseCase;
   late GetWorkOrderHistoryUseCase getWorkOrderHistoryUseCase;
   late GetWorkOrdersUseCase getWorkOrdersUseCase;
+  late GetWorkOrderByIdUseCase getWorkOrderByIdUseCase;
   late ReviewWorkOrderChangeRequestUseCase reviewWorkOrderChangeRequestUseCase;
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
   late SyncWorkOrdersUseCase syncWorkOrdersUseCase;
@@ -109,6 +111,9 @@ void main() {
       workOrdersRepository: mockRepository,
     );
     getWorkOrdersUseCase = GetWorkOrdersUseCase(
+      workOrdersRepository: mockRepository,
+    );
+    getWorkOrderByIdUseCase = GetWorkOrderByIdUseCase(
       workOrdersRepository: mockRepository,
     );
     reviewWorkOrderChangeRequestUseCase = ReviewWorkOrderChangeRequestUseCase(
@@ -433,6 +438,45 @@ void main() {
           offset: tParams.offset,
         ),
       ).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+  });
+
+  group('GetWorkOrderByIdUseCase', () {
+    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+    final tId = tWorkOrder.id;
+
+    test('should return a work order on success', () async {
+      // Arrange
+      when(
+        () => mockRepository.getWorkOrderById(any()),
+      ).thenAnswer((_) async => SuccessState(data: tWorkOrder));
+
+      // Act
+      final result = await getWorkOrderByIdUseCase(tId);
+
+      // Assert
+      expect(result, isA<SuccessState<WorkOrderEntity>>());
+      expect(result.data, tWorkOrder);
+      verify(() => mockRepository.getWorkOrderById(tId)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('should return FailureState when repository fails', () async {
+      // Arrange
+      when(
+        () => mockRepository.getWorkOrderById(any()),
+      ).thenAnswer(
+        (_) async => FailureState<WorkOrderEntity>(message: 'Not found'),
+      );
+
+      // Act
+      final result = await getWorkOrderByIdUseCase(tId);
+
+      // Assert
+      expect(result, isA<FailureState<WorkOrderEntity>>());
+      expect(result.message, 'Not found');
+      verify(() => mockRepository.getWorkOrderById(tId)).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
   });

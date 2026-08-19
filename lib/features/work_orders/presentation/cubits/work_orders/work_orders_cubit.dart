@@ -90,6 +90,46 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+  Future<bool> loadWorkOrderById(String id, {bool showLoading = false}) async {
+    if (showLoading) {
+      emit(state.copyWith(status: StateStatus.loading));
+    }
+
+    final dataState = await _useCases.getWorkOrderById(id);
+    if (isClosed) return false;
+
+    if (dataState is SuccessState<WorkOrderEntity> && dataState.data != null) {
+      final updatedOrder = dataState.data!;
+      final exists = state.workOrders.any((wo) => wo.id == id);
+      final updatedList = exists
+          ? state.workOrders
+                .map((wo) => wo.id == id ? updatedOrder : wo)
+                .toList()
+          : [...state.workOrders, updatedOrder];
+
+      emit(
+        state.copyWith(
+          status: showLoading ? StateStatus.loaded : state.status,
+          workOrders: updatedList,
+          annulErrorMessage: true,
+        ),
+      );
+      return true;
+    } else {
+      if (showLoading) {
+        emit(
+          state.copyWith(
+            status: StateStatus.loadingError,
+            errorMessage: dataState.message,
+          ),
+        );
+      } else {
+        showDataStateToast(dataState);
+      }
+      return false;
+    }
+  }
+
   Future<bool> syncWorkOrders() async {
     final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.syncWorkOrders(companyId);

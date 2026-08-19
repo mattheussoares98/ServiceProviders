@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -31,11 +30,7 @@ class ObservationsSection extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = useMemoized(
-      () =>
-          GetIt.I<WorkOrderObservationsCubit>()
-            ..fetchObservations(workOrder.id),
-    );
+    final cubit = context.read<WorkOrderObservationsCubit>();
     final formKey = useMemoized(GlobalKey<FormState>.new);
 
     final textController = useTextEditingController();
@@ -61,150 +56,147 @@ class ObservationsSection extends HookWidget {
       }
     }
 
-    return BlocProvider.value(
-      value: cubit,
-      child: SliverMainAxisGroup(
-        slivers: [
-          BaseStateView<
-            WorkOrderObservationsCubit,
-            WorkOrderObservationsState,
-            List<WorkOrderObservationEntity>
-          >(
-            isSliver: true,
-            dataSelector: (state) => state.observations,
-            onRetry: () => cubit.fetchObservations(workOrder.id),
-            builder: (context, observations) {
-              if (observations.isEmpty) {
-                return SliverToBoxAdapter(
-                  child: BaseText(
-                    'Nenhuma observação registrada'.hardcoded,
-                    fontStyle: FontStyle.italic,
-                    color: context.theme.disabledColor,
-                  ),
-                );
-              }
-
-              return SliverList.builder(
-                itemCount: observations.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return BaseText.title('Observações'.hardcoded);
-                  }
-
-                  final item = observations[index - 1];
-
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Sizes.p8),
-                      child: Column(
-                        crossAxisAlignment: .stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: BaseText(
-                                  item.authorName,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              BlocSelector<
-                                WorkOrderObservationsCubit,
-                                WorkOrderObservationsState,
-                                bool
-                              >(
-                                selector: (state) =>
-                                    state.sections[WorkOrderObservationsSection
-                                        .deleteObservation] ==
-                                    StateStatus.deleting,
-                                builder: (context, isDeleting) {
-                                  return BaseIconButton(
-                                    isLoading: isDeleting,
-                                    onPressed: () {
-                                      showAlertDialog(
-                                        context: context,
-                                        title: 'Excluir observação'.hardcoded,
-                                        contentText:
-                                            'Deseja realmente excluir a observação?'
-                                                .hardcoded,
-                                        cancelActionText: 'Não'.hardcoded,
-                                        defaultActionText: 'Sim'.hardcoded,
-                                        onOkPressed: () =>
-                                            cubit.deleteObservation(item.id),
-                                      );
-                                    },
-                                    permission:
-                                        const ActionPermission.workOrderSubAction(
-                                          WorkOrderSubAction.deleteObservation,
-                                        ),
-                                    platformIcon: const PlatformIcon(
-                                      materialIcon: Icons.delete_outline,
-                                      cupertinoIcon: CupertinoIcons.trash,
-                                      color: Colors.red,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          BaseText(
-                            item.createdAt.formatDate(
-                              DateFormatType.ddMMyyyyHHmm,
-                            ),
-                          ),
-                          gapH8,
-                          BaseText(item.content),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+    return SliverMainAxisGroup(
+      slivers: [
+        BaseStateView<
+          WorkOrderObservationsCubit,
+          WorkOrderObservationsState,
+          List<WorkOrderObservationEntity>
+        >(
+          isSliver: true,
+          dataSelector: (state) => state.observations,
+          onRetry: () => cubit.fetchObservations(workOrder.id),
+          builder: (context, observations) {
+            if (observations.isEmpty) {
+              return SliverToBoxAdapter(
+                child: BaseText(
+                  'Nenhuma observação registrada'.hardcoded,
+                  fontStyle: FontStyle.italic,
+                  color: context.theme.disabledColor,
+                ),
               );
-            },
-          ),
-          gapSliverH16,
-          if (!workOrder.status.isOpen &&
-              !workOrder.status.isCompleted &&
-              !workOrder.status.isPendingConclusionApproval)
-            SliverToBoxAdapter(
-              child: Form(
-                key: formKey,
-                child:
-                    BlocSelector<
-                      WorkOrderObservationsCubit,
-                      WorkOrderObservationsState,
-                      bool
-                    >(
-                      selector: (state) => state.status == StateStatus.saving,
-                      builder: (context, isSubmitting) {
-                        return Column(
+            }
+
+            return SliverList.builder(
+              itemCount: observations.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return BaseText.title('Observações'.hardcoded);
+                }
+
+                final item = observations[index - 1];
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Sizes.p8),
+                    child: Column(
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        Row(
                           children: [
-                            BaseTextFormField(
-                              controller: textController,
-                              hintText: 'Adicionar uma observação...'.hardcoded,
-                              maxLines: 8,
-                              maxLength: 2000,
-                              enabled: !isSubmitting,
-                              autovalidateMode:
-                                  AutovalidateMode.onUserInteractionIfError,
-                              validator: FormValidators.compose([
-                                NonEmptyValidator(),
-                                MinLengthValidator(10),
-                              ]),
+                            Expanded(
+                              child: BaseText(
+                                item.authorName,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            gapH8,
-                            BaseButton(
-                              text: 'Adicionar observação'.hardcoded,
-                              isLoading: isSubmitting,
-                              onTap: onSubmit,
+                            BlocSelector<
+                              WorkOrderObservationsCubit,
+                              WorkOrderObservationsState,
+                              bool
+                            >(
+                              selector: (state) =>
+                                  state.sections[WorkOrderObservationsSection
+                                      .deleteObservation] ==
+                                  StateStatus.deleting,
+                              builder: (context, isDeleting) {
+                                return BaseIconButton(
+                                  isLoading: isDeleting,
+                                  onPressed: () {
+                                    showAlertDialog(
+                                      context: context,
+                                      title: 'Excluir observação'.hardcoded,
+                                      contentText:
+                                          'Deseja realmente excluir a observação?'
+                                              .hardcoded,
+                                      cancelActionText: 'Não'.hardcoded,
+                                      defaultActionText: 'Sim'.hardcoded,
+                                      onOkPressed: () =>
+                                          cubit.deleteObservation(item.id),
+                                    );
+                                  },
+                                  permission:
+                                      const ActionPermission.workOrderSubAction(
+                                        WorkOrderSubAction.deleteObservation,
+                                      ),
+                                  platformIcon: const PlatformIcon(
+                                    materialIcon: Icons.delete_outline,
+                                    cupertinoIcon: CupertinoIcons.trash,
+                                    color: Colors.red,
+                                  ),
+                                );
+                              },
                             ),
                           ],
-                        );
-                      },
+                        ),
+                        BaseText(
+                          item.createdAt.formatDate(
+                            DateFormatType.ddMMyyyyHHmm,
+                          ),
+                        ),
+                        gapH8,
+                        BaseText(item.content),
+                      ],
                     ),
-              ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        gapSliverH16,
+        if (!workOrder.status.isOpen &&
+            !workOrder.status.isCompleted &&
+            !workOrder.status.isPendingConclusionApproval)
+          SliverToBoxAdapter(
+            child: Form(
+              key: formKey,
+              child:
+                  BlocSelector<
+                    WorkOrderObservationsCubit,
+                    WorkOrderObservationsState,
+                    bool
+                  >(
+                    selector: (state) => state.status == StateStatus.saving,
+                    builder: (context, isSubmitting) {
+                      return Column(
+                        children: [
+                          BaseTextFormField(
+                            controller: textController,
+                            hintText: 'Adicionar uma observação...'.hardcoded,
+                            maxLines: 8,
+                            maxLength: 2000,
+                            enabled: !isSubmitting,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteractionIfError,
+                            validator: FormValidators.compose([
+                              NonEmptyValidator(),
+                              MinLengthValidator(10),
+                            ]),
+                          ),
+                          gapH8,
+                          BaseButton(
+                            text: 'Adicionar observação'.hardcoded,
+                            isLoading: isSubmitting,
+                            onTap: onSubmit,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

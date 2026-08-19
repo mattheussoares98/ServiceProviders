@@ -8,36 +8,44 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
-import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_approval_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_execution_timer_card.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_center.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
-class WorkOrderDetailsPage extends StatelessWidget {
+class WorkOrderDetailsPage extends HookWidget {
   const WorkOrderDetailsPage({super.key, required this.workOrderId});
 
   final String workOrderId;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<AttachmentsCubit>(param1: workOrderId),
+    useEffect(() {
+      context.read<WorkOrdersCubit>().loadWorkOrderById(workOrderId);
+      return null;
+    }, [workOrderId]);
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => GetIt.I<AttachmentsCubit>(param1: workOrderId),
+        ),
+        BlocProvider(
+          create: (context) =>
+              GetIt.I<WorkOrderObservationsCubit>()
+                ..fetchObservations(workOrderId),
+        ),
+      ],
       child: BlocSelector<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
         selector: (state) =>
             state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
@@ -47,6 +55,9 @@ class WorkOrderDetailsPage extends StatelessWidget {
               appBar: BaseAppBar(
                 title: 'Detalhes da ordem de serviço'.hardcoded,
               ),
+              onRefresh: () => context
+                  .read<WorkOrdersCubit>()
+                  .loadWorkOrderById(workOrderId, showLoading: true),
               body: Center(
                 child: BaseText.error(
                   'Ordem de serviço não encontrada'.hardcoded,
@@ -68,7 +79,6 @@ class _WorkOrderDetails extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final pauseCubit = context.read<PauseWorkflowCubit>();
-    final sessionCubit = context.read<SessionCubit>();
     final serviceProvidersCubit = context.read<ServiceProvidersCubit>();
 
     useEffect(() {
@@ -92,71 +102,40 @@ class _WorkOrderDetails extends HookWidget {
       ObservedLoadingTarget(pauseCubit, statuses: {.deleting, .saving}),
     ]);
 
-    final currentUserId = sessionCubit.state.user.id;
+    Future<void> onRefresh() async {
+      await Future.wait([
+        context.read<WorkOrdersCubit>().loadWorkOrderById(workOrder.id),
+        pauseCubit.loadPauseRequests(workOrder.id),
+        context.read<AttachmentsCubit>().refreshAttachments(),
+        context.read<WorkOrderObservationsCubit>().fetchObservations(
+          workOrder.id,
+        ),
+        if (workOrder.serviceProviderCompanyId != null)
+          serviceProvidersCubit.ensureProfilesLoaded(
+            workOrder.serviceProviderCompanyId!,
+          ),
+      ]);
+    }
 
-    return MultiBlocProvider(
-      providers: [BlocProvider.value(value: pauseCubit)],
-      child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
-        builder: (context, pauseState) {
-          return BaseScaffold(
-            isScrollable: false,
-            appBar: BaseAppBar(
-              title: 'Detalhes da ordem de serviço'.hardcoded,
-              actions: [EditAndDeleteIcons(workOrderId: workOrder.id)],
-            ),
-            body: CustomScrollView(
-              slivers: [
-                ResponsiveListFlow(
-                  itemCount: 2,
-                  isSliver: true,
-                  maxItemWidth: Breakpoint.tablet,
-                  padding: const EdgeInsets.only(bottom: Sizes.p12),
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      if (!context.read<UsersCubit>().hasPermission(
-                        const ActionPermission.workOrderSubAction(
-                          .managePendingRequests,
-                        ),
-                      )) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: Sizes.p8),
-                        child: WorkOrderApprovalBanner(
-                          workOrder: workOrder,
-                          pauseRequests: pauseState.pauseRequests,
-                          currentUserId: currentUserId,
-                          onRefresh: () {
-                            context
-                                .read<WorkOrdersCubit>()
-                                .loadWorkOrdersAndChangeRequests();
-                            pauseCubit.loadPauseRequests(workOrder.id);
-                          },
-                        ),
-                      );
-                    }
-                    return WorkOrderExecutionTimerCard(
-                      workOrder: workOrder,
-                      pauseRequests: pauseState.pauseRequests,
-                    );
-                  },
-                ),
-                InfoItems(workOrder: workOrder),
-                const Attachments(isEditing: false, padding: EdgeInsets.zero),
-                ObservationsSection(workOrder: workOrder),
-                gapSliverH24,
-              ],
-            ),
-            bottomNavigationBar: workOrder.status.showsBottomActions
-                ? WorkOrderBottomActions(
-                    workOrder: workOrder,
-                    currentUserId: currentUserId,
-                    pauseCubit: pauseCubit,
-                  )
-                : null,
-          );
-        },
+    return BaseScaffold(
+      isScrollable: false,
+      onRefresh: onRefresh,
+      appBar: BaseAppBar(
+        title: 'Detalhes da ordem de serviço'.hardcoded,
+        actions: [EditAndDeleteIcons(workOrderId: workOrder.id)],
       ),
+      body: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          InfoItems(workOrder: workOrder, onRefresh: onRefresh),
+          const Attachments(isEditing: false, padding: EdgeInsets.zero),
+          ObservationsSection(workOrder: workOrder),
+          gapSliverH24,
+        ],
+      ),
+      bottomNavigationBar: workOrder.status.showsBottomActions
+          ? WorkOrderBottomActions(workOrder: workOrder)
+          : null,
     );
   }
 }

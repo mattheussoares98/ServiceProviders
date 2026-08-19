@@ -49,7 +49,7 @@ class WorkOrderPendingRequestsPage extends StatelessWidget {
         builder: (context) {
           Future<void> refresh() async {
             await Future.wait([
-              context.read<WorkOrdersCubit>().loadWorkOrdersAndChangeRequests(),
+              context.read<WorkOrdersCubit>().loadWorkOrderById(workOrder.id),
               context.read<PauseWorkflowCubit>().loadPauseRequests(
                 workOrder.id,
                 status: PauseRequestStatus.pending,
