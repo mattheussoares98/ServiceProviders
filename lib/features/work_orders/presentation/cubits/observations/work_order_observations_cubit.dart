@@ -39,18 +39,18 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   }
 
   Future<bool> createObservation({
-    required String companyId,
     required String workOrderId,
-    required String authorId,
-    required String authorName,
     required String content,
   }) async {
+    final companyId = _useCases.getActiveCompanyId();
+    final user = _useCases.getSessionUser();
+
     final newObservation = WorkOrderObservationEntity(
       id: const Uuid().v4(),
       companyId: companyId,
       workOrderId: workOrderId,
-      authorId: authorId,
-      authorName: authorName,
+      authorId: user.id,
+      authorName: user.name,
       content: content.trim(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

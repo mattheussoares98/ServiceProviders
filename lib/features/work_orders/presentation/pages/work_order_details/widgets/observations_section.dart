@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
@@ -35,8 +34,6 @@ class ObservationsSection extends HookWidget {
 
     final textController = useTextEditingController();
 
-    final currentUser = context.select((SessionCubit c) => c.state.user);
-
     Future<void> onSubmit() async {
       if (formKey.currentState?.validate() != true) return;
 
@@ -44,10 +41,7 @@ class ObservationsSection extends HookWidget {
       if (content.isEmpty) return;
 
       final success = await cubit.createObservation(
-        companyId: workOrder.companyId,
         workOrderId: workOrder.id,
-        authorId: currentUser.id,
-        authorName: currentUser.name,
         content: content,
       );
 

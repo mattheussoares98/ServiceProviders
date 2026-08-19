@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_use_cases.dart';
@@ -23,10 +25,18 @@ class MockCreateWorkOrderObservationUseCase extends Mock
 class MockDeleteWorkOrderObservationUseCase extends Mock
     implements DeleteWorkOrderObservationUseCase {}
 
+class MockGetActiveCompanyIdUseCase extends Mock
+    implements GetActiveCompanyIdUseCase {}
+
+class MockGetSessionUserUseCase extends Mock
+    implements GetSessionUserUseCase {}
+
 void main() {
   late MockGetWorkOrderObservationsUseCase getUseCase;
   late MockCreateWorkOrderObservationUseCase createUseCase;
   late MockDeleteWorkOrderObservationUseCase deleteUseCase;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetSessionUserUseCase mockGetSessionUser;
   late WorkOrderObservationsCubitUseCases cubitUseCases;
   late MockNavigationClient mockNavigationClient;
 
@@ -38,10 +48,14 @@ void main() {
     getUseCase = MockGetWorkOrderObservationsUseCase();
     createUseCase = MockCreateWorkOrderObservationUseCase();
     deleteUseCase = MockDeleteWorkOrderObservationUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
     cubitUseCases = WorkOrderObservationsCubitUseCases(
       getObservations: getUseCase,
       createObservation: createUseCase,
       deleteObservation: deleteUseCase,
+      getActiveCompanyId: mockGetActiveCompanyId,
+      getSessionUser: mockGetSessionUser,
     );
     mockNavigationClient = MockNavigationClient();
 
@@ -100,6 +114,12 @@ void main() {
     build: () {
       final createdObs = EntityFactory.makeWorkOrderObservationEntity();
       when(
+        () => mockGetActiveCompanyId.call(),
+      ).thenReturn(faker.guid.guid());
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      when(
         () => createUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: createdObs));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
@@ -109,10 +129,7 @@ void main() {
       observations: [tObs],
     ),
     act: (cubit) => cubit.createObservation(
-      companyId: faker.guid.guid(),
       workOrderId: faker.guid.guid(),
-      authorId: faker.guid.guid(),
-      authorName: faker.person.name(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [
@@ -132,15 +149,18 @@ void main() {
     build: () {
       final errorMsg = faker.lorem.sentence();
       when(
+        () => mockGetActiveCompanyId.call(),
+      ).thenReturn(faker.guid.guid());
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      when(
         () => createUseCase.call(any()),
       ).thenAnswer((_) async => FailureState(message: errorMsg));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     act: (cubit) => cubit.createObservation(
-      companyId: faker.guid.guid(),
       workOrderId: faker.guid.guid(),
-      authorId: faker.guid.guid(),
-      authorName: faker.person.name(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [
