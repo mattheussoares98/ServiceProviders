@@ -15,9 +15,11 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
@@ -52,6 +54,7 @@ class ObservationsSection extends HookWidget {
 
     return SliverMainAxisGroup(
       slivers: [
+        SliverToBoxAdapter(child: BaseText.title('Observações'.hardcoded)),
         BaseStateView<
           WorkOrderObservationsCubit,
           WorkOrderObservationsState,
@@ -71,14 +74,13 @@ class ObservationsSection extends HookWidget {
               );
             }
 
-            return SliverList.builder(
-              itemCount: observations.length + 1,
+            return ResponsiveListFlow(
+              maxItemWidth: ScreenType.phone.maxWidth,
+              itemCount: observations.length,
+              isSliver: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return BaseText.title('Observações'.hardcoded);
-                }
-
-                final item = observations[index - 1];
+                final item = observations[index];
 
                 return Card(
                   child: Padding(
