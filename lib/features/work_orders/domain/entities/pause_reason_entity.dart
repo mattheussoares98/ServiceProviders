@@ -29,4 +29,25 @@ class PauseReasonEntity extends Equatable {
     updatedAt,
     deletedAt,
   ];
+
+  PauseReasonEntity copyWith({
+    String? id,
+    String? companyId,
+    String? name,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+    bool? annulDeletedAt,
+  }) {
+    return PauseReasonEntity(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
+    );
+  }
 }
