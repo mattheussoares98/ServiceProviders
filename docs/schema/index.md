@@ -41,6 +41,7 @@ erDiagram
     Companies ||--o{ PauseReasons : has
     Companies ||--o{ Sectors : has
     Companies ||--o{ ServiceProviderCompanies : owns
+    Companies ||--o{ WorkOrderObservations : has
 
     PermissionGroups ||--o{ UserProfiles : governs
     Locations ||--o{ Areas : contains
@@ -61,6 +62,7 @@ erDiagram
     UserProfiles ||--o{ Attachments : uploaded_by
     UserProfiles ||--o{ WorkOrderChangeRequests : requested_by
     UserProfiles ||--o{ WorkOrderChangeRequests : reviewed_by
+    UserProfiles ||--o{ WorkOrderObservations : authors
     UserProfiles ||--o{ SyncAuditLogs : logs
     UserProfiles ||--o{ WorkOrderHistory : logs
     UserProfiles ||--o{ UserParameters : has
@@ -70,6 +72,7 @@ erDiagram
     WorkOrders ||--o{ WorkOrderChangeRequests : changes
     WorkOrders ||--o{ WorkOrderHistory : logs
     WorkOrders ||--o{ WorkOrderPauseRequests : has
+    WorkOrders ||--o{ WorkOrderObservations : has
     SlaPolicies ||--o{ WorkOrders : has
     PauseReasons ||--o{ WorkOrderPauseRequests : classifies
     Sectors ||--o{ WorkOrderPauseRequests : classifies
@@ -120,4 +123,4 @@ erDiagram
 
 ## Remote Security & RLS (Supabase Only)
 
-See [Database Global Rules](/docs/database/global_rules.md).
+See [Database Global Rules](/docs/database_rules/global_rules.md).

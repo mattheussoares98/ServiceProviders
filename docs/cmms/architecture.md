@@ -1,4 +1,9 @@
-# Architecture — Offline-First Design
+# Architecture — Data Layer Design
+
+> [!WARNING]
+> **This document describes both the current implementation and the intended
+> target design.** Sections that describe unbuilt behavior are marked
+> **`[NOT IMPLEMENTED]`**. Do not assume a marked section works today.
 
 ## Data Flow
 
@@ -17,17 +22,48 @@
 │  LOCAL DATA SOURCE  │            │  REMOTE DATA SOURCE       │
 │  (Drift / SQLite)   │            │  (Supabase PostgreSQL)    │
 │  ═══════════════    │            │  ═══════════════════      │
-│  • Source of truth  │            │  • Remote backup          │
-│  • Works offline    │            │  • Multi-device sync (V2) │
-│  • Reactive .watch()│            │  • Files → Cloudflare R2  │
+│  • Offline cache    │            │  • System of record       │
+│  • Offline fallback │            │  • Written first when     │
+│  • Reactive .watch()│            │    connectivity exists    │
+│                     │            │  • Files → Cloudflare R2  │
 └─────────────────────┘            └───────────────────────────┘
 ```
 
-## Offline-First Principle: Local DB is the Source of Truth
+## Read/Write Strategy: Remote-First with Local Fallback
 
-1. **All writes go to Drift first** — the UI never waits for a network call to perform CRUD.
-2. **Reactive queries** — UI uses Drift's `.watch()` streams so the interface updates instantly when local data changes.
-3. **Bidirectional Sync Engine in V1** — A background synchronizer is implemented in V1 to sync local database events (inserts, updates, soft deletes) to Supabase and pull remote changes using a First-In, First-Out (FIFO) queue logic.
+This is what the code does today, via `RepositoryHandler.fetchWithFallback`:
+
+1. **When online, writes go to Supabase first.** Only after the remote call
+   succeeds is the record mirrored into Drift. The UI waits for the network call.
+2. **When offline, writes go to Drift only.** The repository detects no
+   connectivity (`InternetClient.isConnected`) and takes the local branch.
+3. **Reads follow the same pattern** — remote when connected, local cache otherwise.
+
+> [!CAUTION]
+> **Offline writes are currently lost to the server.** There is no outbound
+> queue, so a record created or edited offline stays in Drift and is never
+> pushed to Supabase. The next pull-sync can also overwrite it with remote state.
+> Treat offline editing as unsupported until an outbound sync exists.
+
+### Synchronization — Current State
+
+`WorkOrdersRepositoryImpl.syncWorkOrders(companyId)` is the only sync in the
+codebase. It is **pull-only and on-demand**:
+
+- Requires connectivity, otherwise returns `FailureState.noInternet()`.
+- First run (no local timestamp) → full fetch, page size 100.
+- Subsequent runs → delta fetch via `getWorkOrdersDelta(since: lastUpdatedAt)`.
+- Results are written to Drift with `saveWorkOrders`.
+
+It covers **work orders only**. No other feature has a sync path.
+
+### Bidirectional Sync Engine — `[NOT IMPLEMENTED]`
+
+The intended design is a background synchronizer that pushes local events
+(inserts, updates, soft deletes) to Supabase through a First-In, First-Out queue
+and pulls remote changes. The `sync_audit_logs` table exists in the Drift schema
+to back this, but **no code reads or writes it**. Nothing below in
+"Handling Closed Work Orders" that depends on outbound sync is active yet.
 
 ## What Can Be Done Offline?
 
@@ -35,11 +71,21 @@ Not everything should be editable offline. Allowing unrestricted offline edits c
 
 | Operation | Offline? | Rule |
 |---|---|---|
-| **Create** a work order | ✅ Yes | UUID generated locally. Syncs when online (V2). |
-| **Edit** an open work order **you created** | ✅ Yes | Safe because you own it. |
-| **Edit** an open work order **someone else created** | ✅ Yes | Allowed — if conflicts occur on closed orders, they become change requests. |
+| **Create** a work order | ⚠️ Writes locally | UUID generated locally. **Never reaches the server** — outbound sync is not implemented. |
+| **Edit** an open work order **you created** | ⚠️ Writes locally | Safe because you own it, but the edit stays on-device. |
+| **Edit** an open work order **someone else created** | ⚠️ Writes locally | Intended to become a change request on sync; that redirection is server-side and is only reached by online writes today. |
 
-## Handling Closed Work Orders (FIFO Sync & Change Requests)
+> [!NOTE]
+> Every row above is marked ⚠️ rather than ✅ because the write succeeds locally
+> but has no path to Supabase. This table becomes accurate once the outbound
+> sync queue is built.
+
+## Handling Closed Work Orders (Change Requests)
+
+> [!NOTE]
+> The database-trigger redirection (step 2) and the approval queue (step 5) are
+> **implemented and working for online writes**. The offline/FIFO-queue half of
+> this design is **`[NOT IMPLEMENTED]`** — see the sync section above.
 
 To maintain historical integrity and prevent tampering with finalized data, edits to closed work orders follow a strict approval workflow:
 1. **Direct Updates Locked**: Once a `WorkOrder` status is set to `completed` or `cancelled`, it cannot be directly edited/updated in the database by any normal user.
@@ -77,18 +123,18 @@ To ensure accurate labor time tracking and prevent manual input fabrication, the
 Here is how photos/PDFs are handled step by step:
 
 1. **User picks a file** — via camera, gallery, or file picker
-2. **Image compression** — if it's an image, `image_compress_plus` compresses it (max 1920px, quality 75-80, WebP format). This reduces a 5MB photo to ~300-500KB while maintaining good visual quality
+2. **Image compression** — if it's an image, `flutter_image_compress` compresses it (max 1920px, quality 75-80, WebP format). This reduces a 5MB photo to ~300-500KB while maintaining good visual quality
 3. **File copied to app sandbox** — using `path_provider`, the file is moved into the app's secure local directory
 4. **Attachment record saved to Drift** — with `localPath`, `uploadStatus: pending`
 5. **App works fully offline at this point** — the file is visible in the UI from the local path
-6. **(V2) When online** — the file is uploaded to Cloudflare R2 via a presigned URL, and the `remoteUrl` + `uploadStatus: uploaded` are saved
+6. **When online** — the file is uploaded to Cloudflare R2 via a presigned URL obtained from the `generate_presigned_url` Edge Function, and the `remoteUrl` + `uploadStatus: uploaded` are saved
 
 > [!NOTE]
 > PDF and document files are NOT compressed — only images. The `isCompressed` flag on the Attachment entity tracks whether compression was applied.
 
 ## User Invitation Flow
 
-Supabase supports inviting users by email via the Admin API. Here is the planned flow:
+Implemented via the `invite-user` Edge Function (service providers use `invite-service-provider`). The flow:
 
 1. **Admin clicks "Convidar Usuário"** in the app
 2. **App calls a Supabase Edge Function** with the invitee's email and the company's `company_id`
@@ -107,42 +153,56 @@ Supabase supports inviting users by email via the Admin API. Here is the planned
 lib/core/clients/local/drift/
 ├── app_database.dart              # Main database class, all tables, migrations
 ├── app_database.g.dart            # Generated by drift_dev
-├── tables/                        # One file per table definition
-│   ├── companies_table.dart
-│   ├── locations_table.dart
-│   ├── areas_table.dart
-│   ├── assets_table.dart
-│   ├── work_orders_table.dart
-│   ├── tasks_table.dart
-│   ├── maintenance_plans_table.dart
-│   ├── checklist_templates_table.dart
-│   ├── checklist_items_table.dart
-│   ├── attachments_table.dart
-│   ├── categories_table.dart
-│   ├── permission_groups_table.dart
-│   ├── user_profiles_table.dart
-│   ├── work_order_change_requests_table.dart
-│   ├── company_parameters_table.dart
-│   ├── sync_audit_logs_table.dart
-│   └── work_order_history_table.dart
-└── daos/
-    ├── work_order_dao.dart
-    ├── asset_dao.dart
-    ├── maintenance_plan_dao.dart
-    ├── checklist_dao.dart
-    ├── work_order_change_request_dao.dart
-    └── work_order_history_dao.dart
+├── connection/                    # Platform-specific database connections
+└── tables/                        # One file per table definition
+    ├── app_settings_table.dart
+    ├── areas_table.dart
+    ├── assets_table.dart
+    ├── attachments_table.dart
+    ├── categories_table.dart
+    ├── checklist_items_table.dart
+    ├── checklist_templates_table.dart
+    ├── companies_table.dart
+    ├── company_parameters_table.dart
+    ├── locations_table.dart
+    ├── maintenance_plans_table.dart
+    ├── pause_reasons_table.dart
+    ├── permission_groups_table.dart
+    ├── sectors_table.dart
+    ├── service_provider_companies_table.dart
+    ├── service_provider_invitations_table.dart
+    ├── service_provider_profiles_table.dart
+    ├── sla_policies_table.dart
+    ├── sync_audit_logs_table.dart
+    ├── tasks_table.dart
+    ├── user_profiles_table.dart
+    ├── user_sessions_table.dart
+    ├── work_order_change_requests_table.dart
+    ├── work_order_history_table.dart
+    ├── work_order_observations_table.dart
+    ├── work_order_pause_requests_table.dart
+    └── work_orders_table.dart
 ```
 
 > [!NOTE]
-> All 17 tables live inside a **single `AppDatabase` class** → a **single `.sqlite` file** on disk. Drift tables will declare local `@Index` annotations mirroring PostgreSQL indexes to prevent frame drops on mobile CPUs when searching and filtering.
+> All 27 tables live inside a **single `AppDatabase` class** → a **single `.sqlite` file** on disk. Drift tables declare local `@Index` annotations mirroring PostgreSQL indexes to prevent frame drops on mobile CPUs when searching and filtering.
+
+> [!NOTE]
+> There is **no `daos/` folder**. Table access goes through each feature's local
+> data source (`lib/features/<feature>/data/data_sources/*_local_data_source.dart`),
+> not through Drift DAO classes.
 
 ### Supabase Database Client
 ```
-lib/core/clients/remote/supabase/
-├── supabase_auth_client.dart          # Auth-only wrapper around Supabase Auth
-├── supabase_database_client.dart      # Generic structured CRUD/RPC wrapper
-└── supabase_module.dart               # Injectable module for Supabase SDK clients
+lib/core/clients/remote/
+├── supabase_module.dart                   # Injectable module for Supabase SDK clients
+└── supabase/
+    ├── supabase_auth_client.dart          # Auth-only wrapper around Supabase Auth
+    └── database/
+        ├── supabase_database_client.dart  # Generic structured CRUD/RPC wrapper
+        ├── supabase_filter.dart           # Structured filter value
+        ├── supabase_filter_operator.dart  # Filter operator enum
+        └── supabase_order.dart            # Structured ordering value
 ```
 
 > [!IMPORTANT]
