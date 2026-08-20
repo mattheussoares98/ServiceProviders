@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     _screenObserverCubit = GetIt.I<ScreenObserverCubit>();
     _keyboardVisibilityCubit = GetIt.I<KeyboardVisibilityCubit>();
-    _configurationsCubit = GetIt.I<ConfigurationsCubit>();
+    _configurationsCubit = GetIt.I<ConfigurationsCubit>()..loadConfigurations();
 
     WidgetsBinding.instance.addObserver(this);
 

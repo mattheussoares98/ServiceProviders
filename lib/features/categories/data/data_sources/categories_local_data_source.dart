@@ -35,8 +35,8 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
               name: row.name,
               description: row.description,
               color: row.color,
-              createdAt: row.createdAt,
-              deletedAt: row.deletedAt,
+              createdAt: row.createdAt.toUtc(),
+              deletedAt: row.deletedAt?.toUtc(),
             ),
           )
           .toList();

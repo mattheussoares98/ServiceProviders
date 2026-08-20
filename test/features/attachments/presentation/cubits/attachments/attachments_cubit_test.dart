@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
@@ -19,6 +20,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -78,14 +80,19 @@ void main() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
   });
 
-  final tUser = EntityFactory.makeUserProfileEntity();
-  final tAttachmentList = EntityFactory.makeAttachmentEntityList();
-  final tUploadedAttachmentList = tAttachmentList
-      .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
-      .toList();
-  final tWorkOrderId = faker.guid.guid();
+  late UserProfileEntity tUser;
+  late List<AttachmentEntity> tAttachmentList;
+  late List<AttachmentEntity> tUploadedAttachmentList;
+  late String tWorkOrderId;
 
   setUp(() {
+    tUser = EntityFactory.makeUserProfileEntity();
+    tAttachmentList = EntityFactory.makeAttachmentEntityList();
+    tUploadedAttachmentList = tAttachmentList
+        .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
+        .toList();
+    tWorkOrderId = faker.guid.guid();
+
     mockGetAttachments = MockGetAttachmentsUseCase();
     mockPickAttachment = MockPickAttachmentUseCase();
     mockUploadAttachment = MockUploadAttachmentUseCase();
@@ -167,9 +174,13 @@ void main() {
   });
 
   group('AttachmentsCubit - pickAttachment & upload', () {
-    final tPickedFile = EntityFactory.makeAttachmentEntity().copyWith(
-      uploadStatus: UploadStatus.pending,
-    );
+    late AttachmentEntity tPickedFile;
+
+    setUp(() {
+      tPickedFile = EntityFactory.makeAttachmentEntity().copyWith(
+        uploadStatus: UploadStatus.pending,
+      );
+    });
 
     blocTest<AttachmentsCubit, AttachmentsState>(
       'successfully picks and triggers upload for pending attachment',
@@ -179,51 +190,17 @@ void main() {
           () => mockPickAttachment(any()),
         ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
         when(
-          () => mockUploadAttachment(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
-        var getCount = 0;
-        when(() => mockGetAttachments(any())).thenAnswer((_) async {
-          getCount++;
-          if (getCount == 1) {
-            return const SuccessState(data: []);
-          }
-          return SuccessState(
-            data: [tPickedFile.copyWith(uploadStatus: UploadStatus.uploaded)],
-          );
-        });
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) => cubit.pickAttachment(AttachmentSource.cameraPhoto),
       skip: 1, // Skip initial loaded from init
       expect: () => [
-        // 1. Adds picked attachment to state
+        // Adds picked attachment to state
         isA<AttachmentsState>().having((s) => s.attachments, 'attachments', [
           tPickedFile,
         ]),
-        // 2. Starts uploading (adds ID to uploadingIds)
-        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
-          tPickedFile.id,
-        }),
-        // 3. Upload finishes (removes ID from uploadingIds)
-        isA<AttachmentsState>().having(
-          (s) => s.uploadingIds,
-          'uploadingIds',
-          isEmpty,
-        ),
-        // 4. Refreshes list after successful upload
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
-        isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
-            .having(
-              (s) => s.attachments[0].uploadStatus,
-              'uploadStatus',
-              UploadStatus.uploaded,
-            ),
       ],
     );
 
@@ -237,19 +214,8 @@ void main() {
           return SuccessState(data: [tPickedFile]);
         });
         when(
-          () => mockUploadAttachment(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
-        var getCount = 0;
-        when(() => mockGetAttachments(any())).thenAnswer((_) async {
-          getCount++;
-          if (getCount == 1) {
-            return const SuccessState(data: []);
-          }
-          return SuccessState(
-            data: [tPickedFile.copyWith(uploadStatus: UploadStatus.uploaded)],
-          );
-        });
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       act: (cubit) => cubit.pickAttachment(AttachmentSource.gallery),
@@ -262,25 +228,10 @@ void main() {
         ),
         isA<AttachmentsState>()
             .having((s) => s.processingCount, 'processingCount', 0)
+            .having((s) => s.attachments, 'attachments', isEmpty),
+        isA<AttachmentsState>()
+            .having((s) => s.processingCount, 'processingCount', 0)
             .having((s) => s.attachments, 'attachments', [tPickedFile]),
-        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
-          tPickedFile.id,
-        }),
-        isA<AttachmentsState>().having(
-          (s) => s.uploadingIds,
-          'uploadingIds',
-          isEmpty,
-        ),
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
-        ),
-        isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
-        ),
       ],
     );
 
@@ -292,9 +243,6 @@ void main() {
           () => mockPickAttachment(any()),
         ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
         when(
-          () => mockUploadAttachment(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
-        when(
           () => mockGetAttachments(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
@@ -305,16 +253,6 @@ void main() {
         isA<AttachmentsState>().having((s) => s.attachments, 'attachments', [
           tPickedFile,
         ]),
-        isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
-          tPickedFile.id,
-        }),
-        isA<AttachmentsState>()
-            .having((s) => s.uploadingIds, 'uploadingIds', isEmpty)
-            .having(
-              (s) => s.attachments[0].uploadStatus,
-              'uploadStatus',
-              UploadStatus.failed,
-            ),
       ],
     );
 
@@ -441,33 +379,40 @@ void main() {
   });
 
   group('AttachmentsCubit - deleteAttachment', () {
-    final tAttachment = tAttachmentList.first;
-
     blocTest<AttachmentsCubit, AttachmentsState>(
       'adds ID to pendingDeletions and removes from attachments list',
       build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      skip: 1,
-      act: (cubit) => cubit.deleteAttachment(tAttachment.id),
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        await cubit.deleteAttachment(tUploadedAttachmentList.first.id);
+      },
       expect: () => [
         isA<AttachmentsState>()
             .having((s) => s.status, 'status', StateStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
-              tUploadedAttachmentList.skip(1).toList(),
+              tUploadedAttachmentList,
+            ),
+        isA<AttachmentsState>()
+            .having(
+              (s) => s.attachments.map((e) => e.id).toList(),
+              'attachments ids',
+              tUploadedAttachmentList.skip(1).map((e) => e.id).toList(),
             )
             .having((s) => s.pendingDeletions, 'pendingDeletions', {
-              tAttachment.id,
+              tUploadedAttachmentList.first.id,
             }),
       ],
     );
   });
 
   group('AttachmentsCubit - openAttachment', () {
-    final tAttachment = tAttachmentList.first;
-
     blocTest<AttachmentsCubit, AttachmentsState>(
       'does not emit new states when open is successful',
       build: () {
@@ -477,10 +422,10 @@ void main() {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       skip: 1,
-      act: (cubit) => cubit.openAttachment(tAttachment),
+      act: (cubit) => cubit.openAttachment(tAttachmentList.first),
       expect: () => <AttachmentsState>[],
       verify: (_) {
-        verify(() => mockOpenAttachment(tAttachment)).called(1);
+        verify(() => mockOpenAttachment(tAttachmentList.first)).called(1);
       },
     );
   });

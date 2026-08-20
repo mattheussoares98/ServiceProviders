@@ -18,7 +18,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
-import '../../../../../../testing/mocks/external/router_mocks.dart';
 
 class MockSaveConfigurationsUseCase extends Mock
     implements SaveConfigurationsUseCase {}
@@ -36,12 +35,7 @@ void main() {
   late MockSaveThemeModeUseCase mockSaveThemeMode;
   late MockClearAppCacheUseCase mockClearAppCache;
   late MockNavigationClient mockNavigationClient;
-  late ConfigurationsCubit cubit;
-
-  setUpAll(() {
-    registerFallbackValue(const MockPageRouteInfo());
-    registerFallbackValue(EntityFactory.makeConfigurationsEntity());
-  });
+  late ConfigurationsCubitUseCases useCases;
 
   setUp(() {
     mockGetConfigurations = MockGetConfigurationsUseCase();
@@ -52,14 +46,12 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    final useCases = ConfigurationsCubitUseCases(
+    useCases = ConfigurationsCubitUseCases(
       getConfigurations: mockGetConfigurations,
       saveConfigurations: mockSaveConfigurations,
       saveThemeMode: mockSaveThemeMode,
       clearAppCache: mockClearAppCache,
     );
-
-    cubit = ConfigurationsCubit(useCases: useCases);
   });
 
   tearDown(GetIt.I.reset);
@@ -72,7 +64,7 @@ void main() {
         when(
           () => mockGetConfigurations.call(),
         ).thenAnswer((_) async => SuccessState(data: tEntity));
-        return cubit;
+        return ConfigurationsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.loadConfigurations(),
       expect: () => [
@@ -101,7 +93,7 @@ void main() {
         when(
           () => mockGetConfigurations.call(),
         ).thenAnswer((_) async => FailureState(message: tMessage));
-        return cubit;
+        return ConfigurationsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.loadConfigurations(),
       expect: () => [
@@ -127,7 +119,7 @@ void main() {
         when(
           () => mockSaveConfigurations.call(true),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        return cubit;
+        return ConfigurationsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
@@ -152,7 +144,7 @@ void main() {
         when(
           () => mockSaveThemeMode.call('dark'),
         ).thenAnswer((_) async => const SuccessState(data: true));
-        return cubit;
+        return ConfigurationsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
       expect: () => [
@@ -173,7 +165,7 @@ void main() {
         when(
           () => mockClearAppCache.call(),
         ).thenAnswer((_) async => SuccessState.nil);
-        return cubit;
+        return ConfigurationsCubit(useCases: useCases);
       },
       act: (cubit) => cubit.clearAppCache(),
       expect: () => [

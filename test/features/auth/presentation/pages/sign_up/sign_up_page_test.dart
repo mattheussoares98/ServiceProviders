@@ -1,218 +1,280 @@
-// import 'package:bloc_test/bloc_test.dart';
-// import 'package:faker/faker.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_test/flutter_test.dart';
-// import 'package:get_it/get_it.dart';
-// import 'package:mocktail/mocktail.dart';
-// import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-// import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
-// import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
-// import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
-// import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
-// import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
-// import 'package:o_jogo_da_obra/features/auth/presentation/pages/sign_up/sign_up_page.dart';
-// import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
-// import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
-// import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
-// import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
-// import 'package:patrol/patrol.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:faker/faker.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/cubits/sign_up/sign_up_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/sign_up/sign_up_page.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_visibility_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:patrol/patrol.dart';
 
-// import '../../../../../../testing/mocks/client_mocks.dart';
-// import '../../../../../../testing/mocks/entity_factory.dart';
-// import '../../../../../../testing/mocks/external/router_mocks.dart';
-// import '../../../../../../testing/mocks/use_case_mocks.dart';
+import '../../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/external/router_mocks.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
-// final locator = GetIt.I;
+final locator = GetIt.I;
 
-// class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
-//     implements ScreenObserverCubit {}
+class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
+    implements ScreenObserverCubit {}
 
-// void main() {
-//   late MockSignUpUseCase mockSignUpUseCase;
-//   late MockNavigationClient mockNavigationClient;
-//   late UserDataEntity userData;
+class MockKeyboardVisibilityCubit extends MockCubit<bool>
+    implements KeyboardVisibilityCubit {}
 
-//   setUpAll(() {
-//     userData = EntityFactory.makeUserDataEntity();
-//     registerFallbackValue(
-//       const SignUpEntity(name: '', email: '', password: ''),
-//     );
-//     registerFallbackValue(const MockPageRouteInfo());
-//     registerFallbackValue(userData);
-//   });
+void main() {
+  late MockSignUpUseCase mockSignUpUseCase;
+  late MockNavigationClient mockNavigationClient;
+  late UserDataEntity userData;
 
-//   setUp(() {
-//     mockSignUpUseCase = MockSignUpUseCase();
-//     mockNavigationClient = MockNavigationClient();
+  setUpAll(() {
+    userData = EntityFactory.makeUserDataEntity();
+    registerFallbackValue(
+      const SignUpEntity(name: '', email: '', password: ''),
+    );
+    registerFallbackValue(const MockPageRouteInfo());
+    registerFallbackValue(userData);
+  });
 
-//     locator
-//       ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
-//       ..registerSingleton<NavigationClient>(mockNavigationClient)
-//       ..registerFactory<SignUpCubit>(
-//         () => SignUpCubit(
-//           useCases: SignUpCubitUseCases(signUp: mockSignUpUseCase),
-//         ),
-//       );
+  setUp(() {
+    mockSignUpUseCase = MockSignUpUseCase();
+    mockNavigationClient = MockNavigationClient();
 
-//     const screenDetails = ScreenDetails(
-//       logicalSize: Size(1920, 1280),
-//       physicalSize: Size(1920, 1280),
-//       devicePixelRatio: 1,
-//     );
-//     ScreenUtil.I.configureScreen(screenDetails);
-//   });
+    locator
+      ..registerSingleton<SignUpUseCase>(mockSignUpUseCase)
+      ..registerSingleton<NavigationClient>(mockNavigationClient)
+      ..registerFactory<SignUpCubit>(
+        () => SignUpCubit(
+          useCases: SignUpCubitUseCases(signUp: mockSignUpUseCase),
+        ),
+      );
 
-//   tearDown(locator.reset);
+    const screenDetails = ScreenDetails(
+      logicalSize: Size(1920, 1280),
+      physicalSize: Size(1920, 1280),
+      devicePixelRatio: 1,
+    );
+    ScreenUtil.I.configureScreen(screenDetails);
+  });
 
-//   patrolWidgetTest('successfully signs up a new user and navigates', ($) async {
-//     // Arrange
-//     final fakeName = faker.person.name();
-//     final fakeEmail = faker.internet.email();
-//     final fakePassword = '${faker.internet.password()}!123';
+  tearDown(locator.reset);
 
-//     when(
-//       () => mockSignUpUseCase.call(any()),
-//     ).thenAnswer((_) async => SuccessState(data: userData));
+  patrolWidgetTest('successfully signs up a new user and navigates', ($) async {
+    // Arrange
+    final fakeName = faker.person.name();
+    final fakeEmail = faker.internet.email();
+    final fakePassword = '${faker.internet.password()}!123';
 
-//     final mockScreenObserverCubit = MockScreenObserverCubit();
-//     when(
-//       () => mockScreenObserverCubit.state,
-//     ).thenReturn(ScreenObserverState.initial());
-//     when(
-//       () => mockScreenObserverCubit.stream,
-//     ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockSignUpUseCase.call(any()),
+    ).thenAnswer((_) async => SuccessState(data: userData));
 
-//     await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+    final mockScreenObserverCubit = MockScreenObserverCubit();
+    when(
+      () => mockScreenObserverCubit.state,
+    ).thenReturn(ScreenObserverState.initial());
+    when(
+      () => mockScreenObserverCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
 
-//     // Render Page
-//     await $.pumpWidget(
-//       BlocProvider<ScreenObserverCubit>(
-//         create: (_) => mockScreenObserverCubit,
-//         child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
-//       ),
-//     );
+    final mockKeyboardVisibilityCubit = MockKeyboardVisibilityCubit();
+    when(() => mockKeyboardVisibilityCubit.state).thenReturn(false);
+    when(
+      () => mockKeyboardVisibilityCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
 
-//     await $.pumpAndSettle();
+    await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
-//     // Enter SignUp Details
-//     await $.tester.enterText(find.byType(TextField).at(0), fakeName);
-//     await $.tester.enterText(find.byType(TextField).at(1), fakeEmail);
-//     await $.tester.enterText(find.byType(TextField).at(2), fakePassword);
-//     await $.tester.enterText(find.byType(TextField).at(3), fakePassword);
-//     await $.pumpAndSettle();
+    // Render Page
+    await $.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ScreenObserverCubit>(
+            create: (_) => mockScreenObserverCubit,
+          ),
+          BlocProvider<KeyboardVisibilityCubit>(
+            create: (_) => mockKeyboardVisibilityCubit,
+          ),
+        ],
+        child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
+      ),
+    );
 
-//     // Tap Confirm button
-//     await $.tester.tap(find.byType(ElevatedButton));
-//     await $.pumpAndSettle();
+    await $.pumpAndSettle();
 
-//     // Verify sign up flow triggers correct use cases and navigates
-//     verify(() => mockSignUpUseCase.call(any())).called(1);
-//     verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
-//   });
+    // Enter SignUp Details
+    await $.tester.enterText(find.byType(BaseTextFormField).at(0), fakeName);
+    await $.tester.enterText(find.byType(BaseTextFormField).at(1), fakeEmail);
+    await $.tester.enterText(
+      find.byType(BaseTextFormField).at(2),
+      fakePassword,
+    );
+    await $.tester.enterText(
+      find.byType(BaseTextFormField).at(3),
+      fakePassword,
+    );
+    await $.pumpAndSettle();
 
-//   patrolWidgetTest(
-//     'toggles password visibility when the visibility icon is tapped',
-//     ($) async {
-//       // Arrange
-//       final mockScreenObserverCubit = MockScreenObserverCubit();
-//       when(
-//         () => mockScreenObserverCubit.state,
-//       ).thenReturn(ScreenObserverState.initial());
-//       when(
-//         () => mockScreenObserverCubit.stream,
-//       ).thenAnswer((_) => const Stream.empty());
+    // Tap Confirm button
+    await $.tester.tap(find.byType(BaseButton));
+    await $.pumpAndSettle();
 
-//       await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+    // Verify sign up flow triggers correct use cases and navigates
+    verify(() => mockSignUpUseCase.call(any())).called(1);
+    verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
+  });
 
-//       await $.pumpWidget(
-//         BlocProvider<ScreenObserverCubit>(
-//           create: (_) => mockScreenObserverCubit,
-//           child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
-//         ),
-//       );
+  patrolWidgetTest(
+    'toggles password visibility when the visibility icon is tapped',
+    ($) async {
+      // Arrange
+      final mockScreenObserverCubit = MockScreenObserverCubit();
+      when(
+        () => mockScreenObserverCubit.state,
+      ).thenReturn(ScreenObserverState.initial());
+      when(
+        () => mockScreenObserverCubit.stream,
+      ).thenAnswer((_) => const Stream.empty());
 
-//       await $.pumpAndSettle();
+      final mockKeyboardVisibilityCubit = MockKeyboardVisibilityCubit();
+      when(() => mockKeyboardVisibilityCubit.state).thenReturn(false);
+      when(
+        () => mockKeyboardVisibilityCubit.stream,
+      ).thenAnswer((_) => const Stream.empty());
 
-//       // Find password text field and check initial obscure text state
-//       final passwordFinder = find.byType(TextField).at(2);
-//       var passwordField = $.tester.widget<TextField>(passwordFinder);
-//       expect(passwordField.obscureText, isTrue);
+      await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
-//       // Tap password visibility toggle icon (starts as visibility_off)
-//       await $.tester.tap(find.byIcon(Icons.visibility_off_outlined).first);
-//       await $.pumpAndSettle();
+      await $.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<ScreenObserverCubit>(
+              create: (_) => mockScreenObserverCubit,
+            ),
+            BlocProvider<KeyboardVisibilityCubit>(
+              create: (_) => mockKeyboardVisibilityCubit,
+            ),
+          ],
+          child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
+        ),
+      );
 
-//       // Verify password text field is no longer obscure
-//       passwordField = $.tester.widget<TextField>(passwordFinder);
-//       expect(passwordField.obscureText, isFalse);
+      await $.pumpAndSettle();
 
-//       // Tap visibility icon again to obscure it again
-//       await $.tester.tap(find.byIcon(Icons.visibility_outlined).first);
-//       await $.pumpAndSettle();
+      // Find password text field and check initial obscure text state
+      final passwordFinder = find.byType(CupertinoTextField).at(2);
+      var passwordField = $.tester.widget<CupertinoTextField>(passwordFinder);
+      expect(passwordField.obscureText, isTrue);
 
-//       // Verify it is obscured again
-//       passwordField = $.tester.widget<TextField>(passwordFinder);
-//       expect(passwordField.obscureText, isTrue);
-//     },
-//   );
+      // Find the toggle button inside the password field suffix
+      final toggleFinder = find.descendant(
+        of: find.byType(BaseTextFormField).at(2),
+        matching: find.byType(BaseIconButton),
+      );
 
-//   patrolWidgetTest(
-//     'displays form validation errors for empty fields and invalid email',
-//     ($) async {
-//       // Arrange
-//       final mockScreenObserverCubit = MockScreenObserverCubit();
-//       when(
-//         () => mockScreenObserverCubit.state,
-//       ).thenReturn(ScreenObserverState.initial());
-//       when(
-//         () => mockScreenObserverCubit.stream,
-//       ).thenAnswer((_) => const Stream.empty());
+      // Tap password visibility toggle icon (starts as visibility_off)
+      await $.tester.tap(toggleFinder);
+      await $.pumpAndSettle();
 
-//       await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+      // Verify password text field is no longer obscure
+      passwordField = $.tester.widget<CupertinoTextField>(passwordFinder);
+      expect(passwordField.obscureText, isFalse);
 
-//       await $.pumpWidget(
-//         BlocProvider<ScreenObserverCubit>(
-//           create: (_) => mockScreenObserverCubit,
-//           child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
-//         ),
-//       );
+      // Tap visibility icon again to obscure it again
+      await $.tester.tap(toggleFinder);
+      await $.pumpAndSettle();
 
-//       await $.pumpAndSettle();
+      // Verify it is obscured again
+      passwordField = $.tester.widget<CupertinoTextField>(passwordFinder);
+      expect(passwordField.obscureText, isTrue);
+    },
+  );
 
-//       // 1. Submit empty form
-//       await $.tester.tap(find.byType(ElevatedButton));
-//       await $.pumpAndSettle();
+  patrolWidgetTest(
+    'displays form validation errors for empty fields and invalid email',
+    ($) async {
+      // Arrange
+      final mockScreenObserverCubit = MockScreenObserverCubit();
+      when(
+        () => mockScreenObserverCubit.state,
+      ).thenReturn(ScreenObserverState.initial());
+      when(
+        () => mockScreenObserverCubit.stream,
+      ).thenAnswer((_) => const Stream.empty());
 
-//       // Verify required field errors are shown
-//       expect(
-//         find.text('Precisa ter pelo menos 3 caracteres'),
-//         findsNWidgets(2),
-//       );
-//       expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
+      final mockKeyboardVisibilityCubit = MockKeyboardVisibilityCubit();
+      when(() => mockKeyboardVisibilityCubit.state).thenReturn(false);
+      when(
+        () => mockKeyboardVisibilityCubit.stream,
+      ).thenAnswer((_) => const Stream.empty());
 
-//       // Verify SignUpUseCase is not called
-//       verifyNever(() => mockSignUpUseCase.call(any()));
+      await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
-//       // 2. Enter invalid email and see invalid email error
-//       final fakeInvalidEmail = faker.randomGenerator.string(
-//         10,
-//       ); // not a valid email
-//       final password = faker.internet.password();
-//       await $.tester.enterText(
-//         find.byType(TextField).at(0),
-//         faker.person.name(),
-//       );
-//       await $.tester.enterText(find.byType(TextField).at(1), fakeInvalidEmail);
-//       await $.tester.enterText(find.byType(TextField).at(2), password);
-//       await $.tester.enterText(find.byType(TextField).at(3), password);
-//       await $.pumpAndSettle();
+      await $.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<ScreenObserverCubit>(
+              create: (_) => mockScreenObserverCubit,
+            ),
+            BlocProvider<KeyboardVisibilityCubit>(
+              create: (_) => mockKeyboardVisibilityCubit,
+            ),
+          ],
+          child: MaterialApp(theme: lightTheme, home: const SignUpPage()),
+        ),
+      );
 
-//       await $.tester.tap(find.byType(ElevatedButton));
-//       await $.pumpAndSettle();
+      await $.pumpAndSettle();
 
-//       expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
-//       verifyNever(() => mockSignUpUseCase.call(any()));
-//     },
-//   );
-// }
+      // 1. Submit empty form
+      await $.tester.tap(find.byType(BaseButton));
+      await $.pumpAndSettle();
+
+      // Verify required field errors are shown
+      expect(
+        find.text('Precisa ter pelo menos 3 caracteres'),
+        findsNWidgets(2),
+      );
+      expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
+
+      // Verify SignUpUseCase is not called
+      verifyNever(() => mockSignUpUseCase.call(any()));
+
+      // 2. Enter invalid email and see invalid email error
+      final fakeInvalidEmail = faker.randomGenerator.string(
+        10,
+      ); // not a valid email
+      final password = faker.internet.password();
+      await $.tester.enterText(
+        find.byType(BaseTextFormField).at(0),
+        faker.person.name(),
+      );
+      await $.tester.enterText(
+        find.byType(BaseTextFormField).at(1),
+        fakeInvalidEmail,
+      );
+      await $.tester.enterText(find.byType(BaseTextFormField).at(2), password);
+      await $.tester.enterText(find.byType(BaseTextFormField).at(3), password);
+      await $.pumpAndSettle();
+
+      await $.tester.tap(find.byType(BaseButton));
+      await $.pumpAndSettle();
+
+      expect(find.text('Por favor, insira um e-mail válido'), findsOneWidget);
+      verifyNever(() => mockSignUpUseCase.call(any()));
+    },
+  );
+}

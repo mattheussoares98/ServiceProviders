@@ -127,7 +127,7 @@ void main() {
 
         final result = await clearAppCacheUseCase();
 
-        expect(result, const SuccessState(data: null));
+        expect(result, SuccessState.nil);
         verify(() => mockRepository.clearAppCache()).called(1);
       },
     );
