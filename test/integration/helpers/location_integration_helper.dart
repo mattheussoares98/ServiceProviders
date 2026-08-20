@@ -15,7 +15,7 @@ import '../core/integration_data_tracker.dart';
 class LocationIntegrationHelper {
   const LocationIntegrationHelper._();
 
-  /// Returns an existing location or creates a new [IT]-prefixed one.
+  /// Returns an existing location or creates a new `[IT]`-prefixed one.
   static Future<LocationModel> getOrCreateLocation(
     LocationsRemoteDataSource remote,
     String companyId,
@@ -74,7 +74,7 @@ class LocationIntegrationHelper {
     return created;
   }
 
-  /// Finds a location by [IT] prefix name. Returns null if not found.
+  /// Finds a location by `[IT]` prefix name. Returns null if not found.
   static Future<LocationEntity?> findByPrefix(
     LocationsRemoteDataSource remote,
     String companyId,
@@ -89,7 +89,7 @@ class LocationIntegrationHelper {
     return null;
   }
 
-  /// Finds an area by [IT] prefix name. Returns null if not found.
+  /// Finds an area by `[IT]` prefix name. Returns null if not found.
   static Future<AreaEntity?> findAreaByPrefix(
     LocationsRemoteDataSource remote,
     String companyId,

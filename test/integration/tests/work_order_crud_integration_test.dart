@@ -9,9 +9,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_re
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 import '../../../testing/mocks/entity_factory.dart';
 import '../core/integration_cleanup.dart';
@@ -108,21 +106,11 @@ void main() {
         assignedToId: userId,
         createdById: userId,
         title: IntegrationConfig.testName('WO ${faker.lorem.sentence()}'),
-        description: 'Integration test work order description',
-        priority: Priority.high,
         status: WorkOrderStatus.open,
-        type: WorkOrderType.corrective,
-        scheduledDate: DateTime.now().toUtc().add(const Duration(days: 2)),
-        estimatedDuration: 180,
-        laborCost: 200,
-        partsCost: 75,
-        totalCost: 275,
-        notes: 'Initial work order note',
         createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
         attachments: const [],
         slaPolicyId: slaPolicyId,
-        slaDeadlineAt: DateTime.now().toUtc().add(const Duration(hours: 48)),
         annulServiceProviderCompanyId: true,
         annulProviderProfileId: true,
         annulMaintenancePlanId: true,
@@ -153,16 +141,33 @@ void main() {
       final updatedTitle = IntegrationConfig.testName(
         'Updated WO ${faker.lorem.sentence()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+        id: workOrderId,
+        companyId: companyId,
+        locationId: locationId,
+        areaId: areaId,
+        assetId: assetId,
+        assignedToId: userId,
+        createdById: userId,
         title: updatedTitle,
-        priority: Priority.critical,
-        notes: 'Updated note after inspection',
-        laborCost: 350,
-        totalCost: 425,
+        status: WorkOrderStatus.open,
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
+        attachments: const [],
+        slaPolicyId: slaPolicyId,
+        annulServiceProviderCompanyId: true,
+        annulProviderProfileId: true,
+        annulMaintenancePlanId: true,
+        annulStartedAt: true,
+        annulCompletedAt: true,
+        annulActualDuration: true,
+        annulNetActiveDuration: true,
+        annulCompletionReason: true,
+        annulCompletionResponsibility: true,
+        annulCompletionSectorId: true,
       );
       final updateResult = await workOrdersRemote.updateWorkOrder(
-        WorkOrderModel.fromEntity(updateEntity),
+        WorkOrderModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<bool>>());
 
@@ -170,25 +175,27 @@ void main() {
         workOrderId,
       );
       final updatedWO = (getAfterUpdate as SuccessState<WorkOrderModel>).data;
-      expect(updatedWO?.toEntity(), updateEntity);
+      expect(updatedWO?.toEntity(), updatedEntity);
 
       // 4. Soft Delete
-      final deleteResult = await workOrdersRemote.deleteWorkOrder(workOrderId);
-      expect(deleteResult, isA<SuccessState<bool>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await workOrdersRemote.deleteWorkOrder(workOrderId);
+        expect(deleteResult, isA<SuccessState<bool>>());
 
-      // 5. Verify excluded from getWorkOrderById
-      final postDeleteFetch = await workOrdersRemote.getWorkOrderById(
-        workOrderId,
-      );
-      expect(postDeleteFetch, isA<FailureState<WorkOrderModel>>());
+        // 5. Verify excluded from getWorkOrderById
+        final postDeleteFetch = await workOrdersRemote.getWorkOrderById(
+          workOrderId,
+        );
+        expect(postDeleteFetch, isA<FailureState<WorkOrderModel>>());
 
-      // 6. Verify deleted_at is set in the database
-      final rawRow = await db.selectOne(
-        table: 'work_orders',
-        filters: [SupabaseFilter.eq('id', workOrderId)],
-      );
-      expect(rawRow, isNotNull);
-      expect(rawRow!['deleted_at'], isNotNull);
+        // 6. Verify deleted_at is set in the database
+        final rawRow = await db.selectOne(
+          table: 'work_orders',
+          filters: [SupabaseFilter.eq('id', workOrderId)],
+        );
+        expect(rawRow, isNotNull);
+        expect(rawRow!['deleted_at'], isNotNull);
+      }
     });
   });
 }

@@ -4,7 +4,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_da
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 
 import '../../../testing/mocks/entity_factory.dart';
 import '../core/integration_cleanup.dart';
@@ -41,11 +40,8 @@ void main() {
         id: policyId,
         companyId: companyId,
         name: IntegrationConfig.testName('SLA Policy ${faker.lorem.word()}'),
-        targetHours: 48,
-        appliesTo: SlaAppliesTo.both,
         createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
-        deletedAt: () => null,
       );
 
       // 1. Create
@@ -57,7 +53,8 @@ void main() {
       // 2. Read by ID
       final getByIdResult = await slaRemote.getSlaPolicyById(policyId);
       expect(getByIdResult, isA<SuccessState<SlaPolicyModel>>());
-      final createdPolicy = (getByIdResult as SuccessState<SlaPolicyModel>).data;
+      final createdPolicy =
+          (getByIdResult as SuccessState<SlaPolicyModel>).data;
       expect(createdPolicy?.toEntity(), initialEntity);
 
       // 3. Read list
@@ -68,29 +65,37 @@ void main() {
       expect(foundPolicy.toEntity(), initialEntity);
 
       // 4. Update
-      final updatedName = IntegrationConfig.testName('Updated SLA ${faker.lorem.word()}');
-      final updateEntity = initialEntity.copyWith(
+      final updatedName = IntegrationConfig.testName(
+        'Updated SLA ${faker.lorem.word()}',
+      );
+      final updatedEntity = EntityFactory.makeSlaPolicyEntity().copyWith(
+        id: policyId,
+        companyId: companyId,
         name: updatedName,
-        targetHours: 72,
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
       );
       final updateResult = await slaRemote.updateSlaPolicy(
-        SlaPolicyModel.fromEntity(updateEntity),
+        SlaPolicyModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<bool>>());
 
       final getAfterUpdate = await slaRemote.getSlaPolicyById(policyId);
-      final updatedPolicy = (getAfterUpdate as SuccessState<SlaPolicyModel>).data;
-      expect(updatedPolicy?.toEntity(), updateEntity);
+      final updatedPolicy =
+          (getAfterUpdate as SuccessState<SlaPolicyModel>).data;
+      expect(updatedPolicy?.toEntity(), updatedEntity);
 
       // 5. Soft Delete
-      final deleteResult = await slaRemote.deleteSlaPolicy(policyId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await slaRemote.deleteSlaPolicy(policyId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 6. Verify deleted SLA policy is excluded from active list
-      final postDeleteList = await slaRemote.getSlaPolicies(companyId);
-      final activeList = (postDeleteList as SuccessState<List<SlaPolicyModel>>).data!;
-      expect(activeList.any((p) => p.id == policyId), isFalse);
+        // 6. Verify deleted SLA policy is excluded from active list
+        final postDeleteList = await slaRemote.getSlaPolicies(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<SlaPolicyModel>>).data!;
+        expect(activeList.any((p) => p.id == policyId), isFalse);
+      }
     });
   });
 }

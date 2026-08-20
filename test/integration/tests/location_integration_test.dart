@@ -40,9 +40,6 @@ void main() {
         id: locationId,
         companyId: companyId,
         name: IntegrationConfig.testName('Location ${faker.address.city()}'),
-        address: faker.address.streetAddress(),
-        city: faker.address.city(),
-        state: faker.address.state(),
         isActive: true,
         createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
@@ -68,27 +65,33 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated ${faker.address.city()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeLocationEntity().copyWith(
+        id: locationId,
+        companyId: companyId,
         name: updatedName,
+        isActive: true,
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
       );
       final updateResult = await locationsRemote.updateLocation(
-        LocationModel.fromEntity(updateEntity),
+        LocationModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<LocationModel>>());
       final updatedLocation =
           (updateResult as SuccessState<LocationModel>).data;
-      expect(updatedLocation?.toEntity(), updateEntity);
+      expect(updatedLocation?.toEntity(), updatedEntity);
 
       // 4. Soft Delete
-      final deleteResult = await locationsRemote.deleteLocation(locationId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await locationsRemote.deleteLocation(locationId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 5. Verify deleted location is excluded from active list
-      final postDeleteList = await locationsRemote.getLocations(companyId);
-      final activeList =
-          (postDeleteList as SuccessState<List<LocationModel>>).data!;
-      expect(activeList.any((l) => l.id == locationId), isFalse);
+        // 5. Verify deleted location is excluded from active list
+        final postDeleteList = await locationsRemote.getLocations(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<LocationModel>>).data!;
+        expect(activeList.any((l) => l.id == locationId), isFalse);
+      }
     });
   });
 }

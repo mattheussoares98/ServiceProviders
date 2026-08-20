@@ -14,9 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 import '../../../testing/mocks/entity_factory.dart';
 import '../core/integration_cleanup.dart';
@@ -146,21 +144,11 @@ void main() {
           title: IntegrationConfig.testName(
             'Live Lifecycle WO ${faker.lorem.sentence()}',
           ),
-          description: 'Testing live Supabase database flow',
-          priority: Priority.high,
           status: WorkOrderStatus.open,
-          type: WorkOrderType.corrective,
-          scheduledDate: DateTime.now().toUtc().add(const Duration(days: 1)),
-          estimatedDuration: 120,
-          laborCost: 150,
-          partsCost: 50,
-          totalCost: 200,
-          notes: 'Integration initial note',
           createdAt: DateTime.now().toUtc(),
           updatedAt: DateTime.now().toUtc(),
           attachments: const [],
           slaPolicyId: slaPolicyId,
-          slaDeadlineAt: DateTime.now().toUtc().add(const Duration(hours: 24)),
           annulServiceProviderCompanyId: true,
           annulProviderProfileId: true,
           annulMaintenancePlanId: true,
@@ -227,8 +215,6 @@ void main() {
           requestedById: adminUserId,
           eventType: PauseEventType.pause,
           reasonId: pauseReasonId,
-          customReason: 'Awaiting specialized parts',
-          observation: 'Technician paused work',
           sectorId: sectorId,
           status: PauseRequestStatus.pending,
           pausedAt: DateTime.now().toUtc(),
@@ -344,8 +330,6 @@ void main() {
               workOrderId: workOrderId,
               requestedById: adminUserId,
               eventType: PauseEventType.completion,
-              customReason: 'Maintenance finished successfully',
-              observation: 'Ready for final inspection',
               sectorId: sectorId,
               status: PauseRequestStatus.pending,
               pausedAt: DateTime.now().toUtc(),

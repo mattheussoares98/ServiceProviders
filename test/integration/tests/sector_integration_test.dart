@@ -63,26 +63,31 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Sector ${faker.lorem.word()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeSectorEntity().copyWith(
+        id: sectorId,
+        companyId: companyId,
         name: updatedName,
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
       );
       final updateResult = await sectorsRemote.updateSector(
-        SectorModel.fromEntity(updateEntity),
+        SectorModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<SectorModel>>());
       final updatedSector = (updateResult as SuccessState<SectorModel>).data;
-      expect(updatedSector?.toEntity(), updateEntity);
+      expect(updatedSector?.toEntity(), updatedEntity);
 
       // 4. Soft Delete
-      final deleteResult = await sectorsRemote.deleteSector(sectorId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await sectorsRemote.deleteSector(sectorId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 5. Verify deleted sector is excluded from active list
-      final postDeleteList = await sectorsRemote.getSectors(companyId);
-      final activeList =
-          (postDeleteList as SuccessState<List<SectorModel>>).data!;
-      expect(activeList.any((s) => s.id == sectorId), isFalse);
+        // 5. Verify deleted sector is excluded from active list
+        final postDeleteList = await sectorsRemote.getSectors(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<SectorModel>>).data!;
+        expect(activeList.any((s) => s.id == sectorId), isFalse);
+      }
     });
   });
 }

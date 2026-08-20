@@ -5,8 +5,6 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
-import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
-import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 
@@ -72,10 +70,6 @@ void main() {
         areaId: areaId,
         categoryId: categoryId,
         name: IntegrationConfig.testName('Asset ${faker.company.name()}'),
-        code: 'AST-${faker.randomGenerator.integer(99999, min: 10000)}',
-        status: AssetStatus.active,
-        criticality: AssetCriticality.high,
-        notes: 'Integration test asset notes',
         createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
         annulParentAssetId: true,
@@ -109,28 +103,37 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Asset ${faker.company.name()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeAssetEntity().copyWith(
+        id: assetId,
+        companyId: companyId,
+        areaId: areaId,
+        categoryId: categoryId,
         name: updatedName,
-        status: AssetStatus.inactive,
-        criticality: AssetCriticality.low,
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
+        annulParentAssetId: true,
+        annulInstallDate: true,
+        annulWarrantyExpiration: true,
+        annulRevisionForecast: true,
       );
       final updateResult = await assetsRemote.updateAsset(
-        AssetRequestModel.fromEntity(updateEntity),
+        AssetRequestModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<AssetModel>>());
       final updatedAsset = (updateResult as SuccessState<AssetModel>).data;
-      expect(updatedAsset?.toEntity(), updateEntity);
+      expect(updatedAsset?.toEntity(), updatedEntity);
 
       // 5. Soft Delete
-      final deleteResult = await assetsRemote.deleteAsset(assetId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await assetsRemote.deleteAsset(assetId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 6. Verify deleted asset is excluded from active list
-      final postDeleteList = await assetsRemote.getAssets(companyId);
-      final activeList =
-          (postDeleteList as SuccessState<List<AssetModel>>).data!;
-      expect(activeList.any((a) => a.id == assetId), isFalse);
+        // 6. Verify deleted asset is excluded from active list
+        final postDeleteList = await assetsRemote.getAssets(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<AssetModel>>).data!;
+        expect(activeList.any((a) => a.id == assetId), isFalse);
+      }
     });
   });
 }

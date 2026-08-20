@@ -12,7 +12,7 @@ import '../core/integration_data_tracker.dart';
 class PauseReasonIntegrationHelper {
   const PauseReasonIntegrationHelper._();
 
-  /// Returns an existing Pause Reason or creates a new [IT]-prefixed one.
+  /// Returns an existing Pause Reason or creates a new `[IT]`-prefixed one.
   static Future<PauseReasonModel> getOrCreatePauseReason({
     required PauseRemoteDataSource pauseRemote,
     required SupabaseDatabaseClient db,

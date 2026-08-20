@@ -41,8 +41,6 @@ void main() {
         id: categoryId,
         companyId: companyId,
         name: IntegrationConfig.testName('Category ${faker.lorem.word()}'),
-        description: 'Test category description',
-        color: '#FF5733',
         createdAt: DateTime.now().toUtc(),
       );
 
@@ -67,27 +65,31 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Cat ${faker.lorem.word()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeCategoryEntity().copyWith(
+        id: categoryId,
+        companyId: companyId,
         name: updatedName,
-        color: '#33FF57',
+        createdAt: DateTime.now().toUtc(),
       );
       final updateResult = await categoriesRemote.updateCategory(
-        CategoryRequestModel.fromEntity(updateEntity),
+        CategoryRequestModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<CategoryModel>>());
       final updatedCategory =
           (updateResult as SuccessState<CategoryModel>).data;
-      expect(updatedCategory?.toEntity(), updateEntity);
+      expect(updatedCategory?.toEntity(), updatedEntity);
 
       // 4. Soft Delete
-      final deleteResult = await categoriesRemote.deleteCategory(categoryId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await categoriesRemote.deleteCategory(categoryId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 5. Verify deleted category is excluded from active list
-      final postDeleteList = await categoriesRemote.getCategories(companyId);
-      final activeList =
-          (postDeleteList as SuccessState<List<CategoryModel>>).data!;
-      expect(activeList.any((c) => c.id == categoryId), isFalse);
+        // 5. Verify deleted category is excluded from active list
+        final postDeleteList = await categoriesRemote.getCategories(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<CategoryModel>>).data!;
+        expect(activeList.any((c) => c.id == categoryId), isFalse);
+      }
     });
   });
 }

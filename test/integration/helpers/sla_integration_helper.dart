@@ -12,7 +12,7 @@ import '../core/integration_data_tracker.dart';
 class SlaIntegrationHelper {
   const SlaIntegrationHelper._();
 
-  /// Returns an existing SLA policy or creates a new [IT]-prefixed one.
+  /// Returns an existing SLA policy or creates a new `[IT]`-prefixed one.
   static Future<SlaPolicyModel> getOrCreateSlaPolicy(
     SlaRemoteDataSource remote,
     String companyId,

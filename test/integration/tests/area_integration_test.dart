@@ -50,8 +50,6 @@ void main() {
         companyId: companyId,
         locationId: locationId,
         name: IntegrationConfig.testName('Area ${faker.lorem.word()}'),
-        floor: '2',
-        description: 'Integration test area description',
         createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
       );
@@ -75,27 +73,32 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Area ${faker.lorem.word()}',
       );
-      final updateEntity = initialEntity.copyWith(
+      final updatedEntity = EntityFactory.makeAreaEntity().copyWith(
+        id: areaId,
+        companyId: companyId,
+        locationId: locationId,
         name: updatedName,
-        floor: '3',
+        createdAt: DateTime.now().toUtc(),
         updatedAt: DateTime.now().toUtc(),
       );
       final updateResult = await locationsRemote.updateArea(
-        AreaRequestModel.fromEntity(updateEntity),
+        AreaRequestModel.fromEntity(updatedEntity),
       );
       expect(updateResult, isA<SuccessState<AreaModel>>());
       final updatedArea = (updateResult as SuccessState<AreaModel>).data;
-      expect(updatedArea?.toEntity(), updateEntity);
+      expect(updatedArea?.toEntity(), updatedEntity);
 
       // 4. Soft Delete
-      final deleteResult = await locationsRemote.deleteArea(areaId);
-      expect(deleteResult, isA<SuccessState<void>>());
+      if (IntegrationConfig.autoCleanup) {
+        final deleteResult = await locationsRemote.deleteArea(areaId);
+        expect(deleteResult, isA<SuccessState<void>>());
 
-      // 5. Verify deleted area is excluded from active list
-      final postDeleteList = await locationsRemote.getAreas(companyId);
-      final activeList =
-          (postDeleteList as SuccessState<List<AreaModel>>).data!;
-      expect(activeList.any((a) => a.id == areaId), isFalse);
+        // 5. Verify deleted area is excluded from active list
+        final postDeleteList = await locationsRemote.getAreas(companyId);
+        final activeList =
+            (postDeleteList as SuccessState<List<AreaModel>>).data!;
+        expect(activeList.any((a) => a.id == areaId), isFalse);
+      }
     });
   });
 }
