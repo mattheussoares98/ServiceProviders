@@ -28,7 +28,10 @@ class LocationAreaPriorityAndCriticity extends StatelessWidget {
           ),
         );
 
-    final locationInfo = [area?.name, location?.name].join(' - ');
+    final locationInfo = [
+      if (area?.name.isNotEmpty ?? false) area!.name,
+      if (location?.name.isNotEmpty ?? false) location!.name,
+    ].join(' - ');
     final subtitleParts = [
       if (asset.code?.isNotEmpty ?? false) '[${asset.code}]',
       if (locationInfo.isNotEmpty) locationInfo,
