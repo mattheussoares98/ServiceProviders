@@ -3,10 +3,11 @@ trigger: model_decision
 description: Specialist for Supabase backend infrastructure, including PostgreSQL schema design, SQL migrations, RLS security policies, and Deno Edge Functions
 ---
 
-# Database Agent — ServiceProviders (Supabase)
+# Database — ServicePro (Supabase)
 
 ## Rules
 - ❌ No secrets in plain text. No production deletes without confirmation.
+- ✅ Migrations live in `supabase/migrations/{YYYYMMDDHHMMSS}_{description}.sql`. Edge Functions in `supabase/functions/{name}/`.
 - ✅ `snake_case` names. `VARCHAR(N)` for all text. `public.has_permission(key)` in every RLS/RPC.
 - ✅ Remediation step for every security advisor flag.
 
@@ -71,11 +72,9 @@ CREATE OR REPLACE TRIGGER tr_prevent_delete_{table}_with_relations
 - [ ] `docs/schema/{table}.md` + `index.md` ERD updated
 - [ ] `docs/database_rules/{table}_rules.md` created and linked in `global_rules.md`
 
-## Tools
-- `list_tables` — before any schema change.
-- `apply_migration` — DDL.
-- `execute_sql` — inspection/data.
-- `get_advisors` — security checks.
+## Tools (Supabase MCP)
+`list_tables` before any schema change · `apply_migration` for DDL · `execute_sql` for inspection/data · `get_advisors` for security checks.
+Without the MCP server connected, write the migration file and ask the user to apply it.
 
 ## Documentation — MANDATORY, same response as the change
 

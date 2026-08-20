@@ -2,54 +2,66 @@
 trigger: always_on
 ---
 
-# Orchestrator Agent — ServiceProviders
+# Orchestrator — ServicePro
 
-You orchestrate a Flutter app (package: `clean_architecture`). Decompose requests, delegate to specialists, validate outputs, synthesize results.
+Flutter app, package `o_jogo_da_obra`. Decompose → delegate → validate → synthesize.
+
+**This file is the single source of truth for global rules.** `/CLAUDE.md` and `/GEMINI.md` are thin pointers to it — never put a rule in either of them.
 
 ## Stack
-Flutter (Dart ≥3.10), Clean Architecture (Data→Domain→Presentation), Cubit/BLoC, GetIt+injectable, auto_route, Dio, shared_preferences, Flavors (production/staging/development).
+Flutter (Dart ≥3.10) · Clean Architecture (data→domain→presentation) · Cubit/BLoC · GetIt+injectable · auto_route · flutter_hooks
+**Supabase** (auth, Postgres, RLS, Edge Functions) · **Drift** (local SQLite) · **Cloudflare R2** (files) · Dio (legacy, 2 data sources) · Flavors: production/staging/development
 
-## Folder Quick-Ref
+## Folders
 ```
 lib/
 ├── config/          # AppConfig (sealed, flavor-based), injector/
 ├── core/
-│   ├── clients/     # HttpClient (Dio wrapper), LocalStorageClient, InternetClient
-│   ├── constants/   # ApiEndpoints, LocalDbKeys
-│   ├── data/        # handlers/ (ApiHandler, RepositoryHandler, ErrorHandler), models/, states/DataState
-│   ├── domain/      # UseCase<P,T>, UseCaseNoParameter<T> interfaces
-│   └── utils/       # type_defs.dart (FutureData, FutureBool, etc.)
+│   ├── clients/
+│   │   ├── local/   # AppDatabase (Drift), LocalStorageClient
+│   │   └── remote/  # supabase/ (auth + database clients), storage/ (R2), http/, internet_client
+│   ├── constants/   # api_endpoints, app_colors, app_icons, local_storage_limits
+│   ├── data/        # handlers/ (RepositoryHandler, ErrorHandler, ApiHandler), models/, states/DataState
+│   ├── domain/      # UseCase<T,P>, UseCaseNoParameter<T>
+│   └── utils/       # type_defs.dart
 ├── features/{name}/ # data/ | domain/ | presentation/
 ├── routing/         # routes.dart, routes.gr.dart (generated), guards/, helper/
-└── shared_ui/       # application, themes, base widgets, cubits/base, utils/
+└── shared_ui/       # themes, base widgets, cubits/base, utils/
+testing/mocks/       # EntityFactory + all mocks (repo root, NOT under test/)
 ```
 
-## Specialists & Their Rule Files
-| Agent | Rule File | Responsibility |
-|---|---|---|
-| Architect | `architect.md` | Layer isolation, DI, routing, file/folder naming |
-| Feature | `feature.md` | Entities, use cases, repositories, data sources |
-| UI | `ui.md` | Cubits, states, pages, widgets |
-| QA | `quality_assurance.md` | Unit + integration tests |
-| Database | `database.md` | Supabase schema, RLS, migrations |
+## Specialists
+| Rule file | Owns |
+|---|---|
+| `architect.md` | Layer isolation, DI, routing, file/folder naming |
+| `feature.md` | Entities, use cases, repositories, data sources, DTOs |
+| `ui.md` | Cubits, states, pages, widgets |
+| `quality_assurance.md` | Unit + integration tests |
+| `database.md` | Supabase schema, RLS, migrations, Edge Functions |
 
-## Orchestration Workflow
-1. **Scope**: Which layers are affected? (data / domain / presentation / routing / config / db)
-2. **Validate**: Check architecture rules before delegating.
-3. **Delegate** in order: Architect → Feature → UI → QA (skip non-applicable agents).
-4. **Verify**: No wrong-layer imports; all new classes properly annotated; tests exist.
-5. **Synthesize**: Deliver a coherent result.
+## Workflow
+1. **Scope** — which layers? (data / domain / presentation / routing / config / db)
+2. **Delegate** in order: Architect → Feature → UI → QA. Skip what doesn't apply.
+3. **Verify** — no wrong-layer imports, DI annotations present, tests written and passing.
 
-When delegating, tell the specialist exactly which files to create/modify, which classes to define, and which patterns to follow.
+Tell each specialist exactly which files to create/modify, which classes to define, and which patterns to follow.
 
-## Global Constraints
-1. **Code**: No "starting change" / "ending change" annotation comments. Comments explain complex logic only.
-2. **File Paths**: Always absolute and optimal.
-3. **Portuguese UI**: All user-visible strings (labels, messages, buttons, placeholders, errors) in **pt-BR**.
-4. **English Correction**: At the start of every response, check for grammar/spelling errors and output: `Correction: [wrong] -> [correct] (reason)`. Skip if no errors.
-5. **No build_runner**: Watch mode is active; never run `dart run build_runner` commands.
-6. **No hardcoded URLs**: Always use `AppConfig.apiBaseUrl`.
-7. **DateTime Serialization & Parsing**: Always use `.toIsoUtcString()` extension for all DTOs and API/Database payloads, and `(json['...'] as String?).toUtcDateTime()` when parsing in `fromJson`.
+## Global Constraints — apply to every task
+1. **pt-BR** for every user-visible string, wrapped in `.hardcoded`.
+2. **Never run `build_runner`** — watch mode is active.
+3. Comments explain *why*, only for complex logic. No change-marker comments.
+4. DateTime: serialize with `.toIsoUtcString()`, parse with `(json['x'] as String?).toUtcDateTime()`.
+5. `MapDynamic`, never `Map<String, dynamic>`, in DTOs.
+6. New permission-controlled resource → register in `ResourceType` (`lib/features/users/domain/entities/permission.dart`).
+7. Implementation and its test land in the same turn.
+8. Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
+
+## Reference Docs
+`docs/business_rules.md` (domain lifecycle, SLA, pause/completion) · `docs/schema/index.md` (schema + ERD) · `docs/cmms/architecture.md` (data flow, sync state)
+
+## Response Format
+Start every response with a grammar/spelling correction of the user's message:
+`Correction: [wrong] -> [correct] (reason)`. Omit the line entirely if there is nothing to correct.
 
 ## Rule Evolution
-When a new pattern is agreed upon or an existing rule is found wrong/incomplete, proactively update the relevant `.agents/rules/` file. Keep all rules concise and compressed to minimize token usage. Never duplicate rules across files.
+When a rule is agreed, wrong, or missing, update the relevant `.agents/rules/` file in the same turn. Keep rules compressed. Never duplicate a rule across files — shared rules belong here.

@@ -1,28 +1,19 @@
 ---
 trigger: model_decision
-description: Handles the presentation layer: builds Flutter pages, widgets, Cubits, and States. Enforces project aesthetics, responsive design, and UI patterns (app_sizes, BaseScaffold). Route here for any task involving UI or user interactions
+description: Presentation layer — Flutter pages, widgets, Cubits, States. Enforces project aesthetics, responsive design, and shared-widget usage. Route here for any UI or user-interaction task
 ---
 
-# UI Expert Agent — ServiceProviders Flutter Project
+# UI Expert — ServicePro
 
-## Role
-You are the **UI Expert Agent** (package: `clean_architecture`). You implement the **presentation** layer for any feature. Your deliverables are: pages, widgets, cubits, states, and shared UI components. 
+Implements the **presentation** layer: pages, widgets, cubits, states, shared components.
+Consumes the domain layer only through the `*CubitUseCases` aggregator. No data sources, repositories, or use cases (→ `feature.md`).
 
-You focus on aesthetics, responsiveness, and clean widget trees. You do NOT write data sources, repositories, or use cases. You consume the domain layer through the `*CubitUseCases` aggregator.
+## Cubit + State
 
----
-
-## State Management (Cubit)
-
-### 1. State
-- Lives in `presentation/cubits/{name}/{name}_state.dart`
-- Declared as a `part of` the cubit file.
-- Must extend `BaseState` (which provides `status` of type `StateStatus`).
-- Must implement `props` for Equatable.
-- **Error Toast**: Call `showDataStateToast(res)` on Cubit errors to display failure on screen.
+State lives in `presentation/cubits/{name}/{name}_state.dart` as a `part of` the cubit file, extends `BaseState` (provides `status: StateStatus`), implements `props`.
+Cubit is `@injectable`, extends `BaseCubit<T>`, and calls `showDataStateToast(res)` on failure.
 
 ```dart
-// State (presentation/cubits/login/login_state.dart)
 part of 'login_cubit.dart';
 class LoginState extends BaseState {
   const LoginState({super.status, required this.showPassword});
@@ -33,7 +24,6 @@ class LoginState extends BaseState {
   @override List<Object> get props => [status, showPassword];
 }
 
-// Cubit (presentation/cubits/login/login_cubit.dart)
 @injectable
 class LoginCubit extends BaseCubit<LoginState> {
   LoginCubit({required LoginCubitUseCases useCases}) : _useCases = useCases, super(const LoginState.initial());
@@ -41,26 +31,16 @@ class LoginCubit extends BaseCubit<LoginState> {
   Future<void> login(String e, String p) async {
     emit(state.copyWith(status: StateStatus.loading));
     final res = await _useCases.login(AuthEntity(email: e, password: p));
-    if (res is SuccessState) {
-      await replaceAllRoute(const HomeRoute());
-    } else {
-      emit(state.copyWith(status: StateStatus.error));
-      showDataStateToast(res);
-    }
+    if (res is SuccessState) return replaceAllRoute(const HomeRoute());
+    emit(state.copyWith(status: StateStatus.error));
+    showDataStateToast(res);
   }
 }
 ```
 
----
-
-## UI Components & Pages
-
-### 1. Pages
-- Live in `presentation/pages/{name}/{name}_page.dart`.
-- Must be annotated with `@RoutePage()`.
-- **Controllers & Hooks**: For any page that uses controllers (e.g., text controllers, animation controllers, scroll controllers), you MUST use `flutter_hooks` (e.g., extend `HookWidget` and use `useTextEditingController`, `useAnimationController`, `useScrollController`) to eliminate state boilerplate, automatically manage disposal, and reduce code size.
-- Wrap the main body in `BaseScaffold` for consistent safe area, padding, and app bars.
-- **Widgets Folder**: Extract complex UI into smaller widgets inside the `widgets/` folder in the page directory.
+## Pages
+`presentation/pages/{name}/{name}_page.dart`, annotated `@RoutePage()`, body wrapped in `BaseScaffold`.
+Any page using a controller must be a `HookWidget` using `useTextEditingController` / `useScrollController` / `useAnimationController` — never manual `initState`/`dispose`.
 
 ```dart
 @RoutePage()
@@ -80,85 +60,54 @@ class LoginPage extends HookWidget {
 }
 ```
 
-### 2. BaseScaffold
-Always use `BaseScaffold` instead of the material `Scaffold`.
-It provides:
-- `isScrollable`: Wraps body in a scroll view (default true).
-- `showAnnotatedRegion`: Configures system UI overlay.
-- `onRefresh`: Adds a pull-to-refresh indicator.
-- Standardized padding and safe areas.
+`BaseScaffold` provides safe areas, standardized padding, `isScrollable` (default true), `showAnnotatedRegion`, and `onRefresh` (pull-to-refresh).
 
-### 3. App Sizes & Spacing (CRITICAL)
-**Never use hardcoded `SizedBox`, raw padding values (e.g. `16.0`), or raw spacing values directly in the UI.** Always import and use the pre-defined constants and helper classes from `package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart`.
+**Max 100 lines per page file.** Beyond that, split sub-widgets into `pages/{name}/widgets/`.
 
-- **Vertical space:** Use `gapH+size` constants, e.g., `gapH4`, `gapH8`, `gapH12`, `gapH16`, `gapH20`, `gapH24`, `gapH32` (never use `SizedBox(height: 16)`).
-- **Horizontal space:** Use `gapW+size` constants, e.g., `gapW4`, `gapW8`, `gapW12`, `gapW16`, `gapW20`, `gapW24`, `gapW32` (never use `SizedBox(width: 16)`).
-- **Sliver layouts:** Use `gapSliverH+size` or `gapSliverW+size` constants, e.g., `gapSliverH16` (never use `SliverToBoxAdapter(child: SizedBox(...))`).
-- **Padding, Margin, and Radius:** Always use `Sizes` constants (e.g., `Sizes.p16` instead of `16.0` or `16`) for all paddings, margins, border radii, or other raw layout measurements.
+## Sizing & Spacing
+From `package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart` — never raw numbers:
+- Vertical gap → `gapH4`…`gapH32` (never `SizedBox(height: 16)`)
+- Horizontal gap → `gapW4`…`gapW32`
+- Sliver gap → `gapSliverH16`, `gapSliverW16` (never `SliverToBoxAdapter(child: SizedBox(...))`)
+- Padding / margin / radius → `Sizes.p16`, never `16.0`
 
+## Responsiveness
+`ScreenUtil.I.getResponsiveValue(base:, screens: {...})` for breakpoint-dependent values.
+`MediaQuery.sizeOf(context)` — never `MediaQuery.of(context).size` (rebuild churn).
 
-### 4. Responsiveness
-Use `ScreenUtil.I.getResponsiveValue` for responsive UI changes, rather than hardcoding `MediaQuery`.
-**MediaQuery Size**: Never use `MediaQuery.of(context).size` to load screen dimensions as it causes unnecessary rebuilds. Instead, always use `MediaQuery.sizeOf(context)`.
+## Theme & Color
+`context.theme`, `context.colorScheme`, `context.isCupertino` — never `Theme.of(context)`.
+Colors from `AppColors`; add missing ones to `app_colors.dart` rather than inlining hex.
+Alpha via `.withValues(alpha: v)` — `.withOpacity()` / `.withAlpha()` are deprecated.
+
+## Shared Widget Mapping (mandatory)
+All under `package:o_jogo_da_obra/shared_ui/ui/base/`.
+
+| Instead of | Use | Path |
+|---|---|---|
+| `Text` | `BaseText` (`.bodyMedium`, `.titleMedium`, `.caption`, …) | `text/base_text.dart` |
+| `Scaffold` | `BaseScaffold` | `base_scaffold.dart` |
+| `AppBar` | `BaseAppBar` | `app_bar/base_app_bar.dart` |
+| `ElevatedButton` / `MaterialButton` | `BaseButton` | `buttons/base_button.dart` |
+| `OutlinedButton` | `SecondaryButton` | `buttons/secondary_button.dart` |
+| `TextButton` | `BaseTextButton` | `buttons/base_text_button.dart` |
+| `IconButton` | `BaseIconButton` | `buttons/base_icon_button.dart` |
+| `Icon` | `PlatformIcon(materialIcon:, cupertinoIcon:, color:)` | `platform_icon.dart` |
+| `TextField` / `TextFormField` | `BaseTextFormField` | `form_field/base_text_form_field.dart` |
+| `DropdownButton*` | `BaseDropDown` | `dropdown/base_dropdown.dart` |
+| `ListTile` | `BaseListTile` | `base_list_tile.dart` |
+| `Switch` | `BaseSwitch` | `base_switch.dart` |
+| `Checkbox` | `BaseCheckbox` | `base_checkbox.dart` |
+| `ChoiceChip` | `BaseChoiceChip` | `chip/base_choice_chip.dart` |
+| `SegmentedButton` | `BaseSegmentedButtons` | `base_segmented_buttons.dart` |
+| `BottomNavigationBar` | `BaseBottomNavigationBar` + `BaseBottomNavigationBarItem` | `base_bottom_navigation_bar.dart` |
+| `CircularProgressIndicator` | `LoadingCircle` | `loading/loading_circle.dart` |
+| `AlertDialog` / `showDialog` | `await showAlertDialog(...)` | `alert_dialogs.dart` |
+| `ListView` / `SliverList.builder` grids | `ResponsiveListFlow` | `responsive/responsive_list_flow.dart` |
+
+## Enum Labels
+Display labels live **in the enum** as a `label` field — never a `switch`, helper, or extension in the UI.
 ```dart
-EdgeInsets _getHorizontalPadding() => EdgeInsets.symmetric(
-  horizontal: ScreenUtil.I.getResponsiveValue(
-    base: 24,
-    screens: {
-      {.largeTablet}: 22.widthPart(),
-      {.desktop}: kIsWeb ? 32.5.widthPart() : 27.widthPart(),
-    },
-  ),
-);
-```
-
-### 5. Colors and Themes
-- Access colors via `AppColors` (e.g., `AppColors.primary`, `AppColors.surface`).
-- Do not hardcode hex colors in widgets. Add them to `app_colors.dart` if missing.
-- **Theme & ColorScheme Access**: Never use `Theme.of(context)` or create local theme variables. Always use the BuildContext extensions: `context.theme`, `context.colorScheme`, and `context.isCupertino`.
-- **Opacity / Alpha API**: Never use `.withOpacity()` or `.withAlpha()` on a Color object as they are deprecated. Always use `.withValues(alpha: value)` instead (e.g. `const Color(0xFF10B981).withValues(alpha: 0.06)`).
-
-### 6. Page Size and Modularization
-- **Maximum 100 lines of code**: When building any page, if the file exceeds 100 lines of code, you MUST split the sub-widgets into separate files to reduce the main page size.
-- **Location of separated widgets**: Put these separate sub-widget files inside a sub-folder named `widgets/` in that page's folder (e.g. `lib/features/{feature_name}/presentation/pages/{page_name}/widgets/`).
-
----
-
-## Shared UI Widgets Mapping (CRITICAL)
-
-To ensure visual consistency and correct platform adaptation, you MUST always use the custom widgets defined in `package:o_jogo_da_obra/shared_ui/` instead of raw Flutter/Material/Cupertino components.
-
-The following table maps standard widgets to their corresponding custom shared counterparts:
-
-| Standard Component | Required Custom Widget | Import & Construction Guidelines |
-| :--- | :--- | :--- |
-| `Text` | `BaseText` | Import `package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart`. Use style-specific constructors (e.g., `BaseText.bodyMedium(...)`, `BaseText.titleMedium(...)`, `BaseText.caption(...)`). |
-| `ElevatedButton` / `MaterialButton` | `PrimaryButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/primary_button.dart`. |
-| `TextButton` | `BaseTextButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart`. |
-| `IconButton` | `BaseIconButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart`. |
-| `Icon` (standalone) | `PlatformIcon` | **Never use raw `Icon(...)` in the UI.** Use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)` Import `package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart`. |
-| `OutlinedButton` | `SecondaryButton` | Import `package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart`. |
-| `AlertDialog` / `showDialog` | `showAlertDialog` | Import `package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart`. Call the asynchronous `showAlertDialog(...)` helper function. |
-| `BottomNavigationBar` | `BaseBottomNavigationBar` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_bottom_navigation_bar.dart` and use it with `BaseBottomNavigationBarItem`. |
-| `ListTile` | `BaseListTile` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart`. |
-| `Switch` | `BaseSwitch` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart`. |
-| `Checkbox` | `BaseCheckbox` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart`. |
-| `ChoiceChip` | `BaseChoiceChip` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_choice_chip.dart`. |
-| `SegmentedButton` | `BaseSegmentedButtons` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_segmented_buttons.dart`. |
-| `CircularProgressIndicator` | `LoadingCircle` | Import `package:o_jogo_da_obra/shared_ui/ui/base/loading_circle.dart`. |
-| `DropdownButton` / `DropdownButtonFormField` | `BaseDropdown` | Import `package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart`. |
-| `TextField` / `TextFormField` | `BaseTextFormField` | Import `package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart`. |
-| `Scaffold` | `BaseScaffold` | Import `package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart`. |
-| `Icon` (with platform variant) | `PlatformIcon` | Import `package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart`. |
-
----
-
-## Enum Labels — Ownership Rule
-
-Enum display labels **must live inside the enum itself** as a `label` field — never as a `switch` statement, helper method, or extension in a widget/page.
-
-```dart
-// ✅ Correct — label lives in the domain enum
 enum PermissionAction {
   create('create', 'Criar'),
   read('read', 'Ler');
@@ -166,33 +115,16 @@ enum PermissionAction {
   final String code;
   final String label;
 }
-// Usage in UI: action.label
-
-// ❌ Wrong — label logic leaking into presentation layer
-extension PermissionActionExtension on PermissionAction {
-  String get label { switch (this) { ... } }
-}
 ```
 
----
-
-## Absolute Prohibitions
-
-- ❌ No `Navigator` directly — use `ClientMixin` (`pushRoute`, `replaceAllRoute`) in `BaseCubit`.
-- ❌ No hardcoded spacing/padding — use `app_sizes.dart` constants (`gapH16`, `Sizes.p16`).
-- ❌ No `@injectable`/`@LazySingleton` on Pages, States, or Widgets — only Cubits get `@injectable`.
-- ❌ No direct Use Case injection into Cubits — always inject the `*CubitUseCases` aggregator.
-- ❌ No `Cubit<T>` extension — always extend `BaseCubit<T>`.
-- ❌ No raw HTTP responses in UI — data comes from Cubit state only.
-- ❌ No `faker` in UI code — strictly for tests.
-- ❌ No `Theme.of(context)` — use `context.theme`, `context.colorScheme`, `context.isCupertino`.
-- ❌ No `.withOpacity()` / `.withAlpha()` — use `.withValues(alpha: value)`.
-- ❌ No Page file > 100 lines — split sub-widgets into `widgets/` folder.
-- ❌ No `MediaQuery.of(context).size` — use `MediaQuery.sizeOf(context)`.
-- ❌ No raw `Scaffold` — always `BaseScaffold`.
-- ❌ No `SafeArea` wrapping on `BaseScaffold` body — it manages safe areas internally.
-- ❌ No English user-visible strings — all labels/messages/buttons/placeholders in **pt-BR**.
-- ❌ No standard Flutter/Material widgets when a custom equivalent exists in `lib/shared_ui/ui/base/` (see widget mapping table above).
-- ❌ No overflow-prone layouts — use `Flexible`, `Expanded`, `LayoutBuilder`, `SingleChildScrollView`.
-- ❌ No raw `Icon(...)` widget — always use `PlatformIcon(materialIcon: ..., cupertinoIcon: ..., color: ...)`.
-- ❌ No enum label mapping in the UI (switch/extension/helper method) — add a `label` field directly to the enum.
+## Prohibitions
+- ❌ `Navigator` directly — use `pushRoute` / `replaceAllRoute` from `ClientMixin` in the cubit
+- ❌ DI annotations on Pages, States, or Widgets — only Cubits get `@injectable`
+- ❌ Injecting a use case straight into a cubit — always the `*CubitUseCases` aggregator
+- ❌ `Cubit<T>` — always `BaseCubit<T>`
+- ❌ Raw data/HTTP in UI — everything comes from cubit state
+- ❌ `faker` in UI code — tests only
+- ❌ `SafeArea` around a `BaseScaffold` body — it handles this
+- ❌ Page file > 100 lines
+- ❌ Overflow-prone layouts — reach for `Flexible`, `Expanded`, `LayoutBuilder`
+- ❌ A raw Material/Cupertino widget where the table above lists a replacement
