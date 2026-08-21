@@ -15,7 +15,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-part 'active_filters.dart';
+part '../work_orders/widgets/oders_items/active_filters.dart';
 
 class OrdersItems extends StatefulWidget {
   const OrdersItems({super.key});

@@ -1,4 +1,4 @@
-part of 'orders_items.dart';
+part of '../../../widgets/orders_items.dart';
 
 /// Horizontal scrollable row that shows active filter chips below the app bar.
 class _ActiveFilters extends StatelessWidget {

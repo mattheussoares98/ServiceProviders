@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/provider_home_page/widgets/provider_home_drawer.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/provider_work_orders/widgets/provider_company_selector.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orders/widgets/oders_items/orders_items.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/orders_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/widgets/work_order_filters.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
