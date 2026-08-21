@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_completion_fields.dart';
@@ -22,6 +23,28 @@ class WorkOrderBottomActions extends StatelessWidget {
   final WorkOrderEntity workOrder;
   @override
   Widget build(BuildContext context) {
+    if (workOrder.status.isOpen) {
+      return _BottomBar(
+        child: BaseButton(
+          text: 'Iniciar trabalho'.hardcoded,
+          onTap: () {
+            showAlertDialog(
+              context: context,
+              title: 'Iniciar trabalho'.hardcoded,
+              contentText: 'Deseja realmente iniciar o trabalho?'.hardcoded,
+              defaultActionText: 'Sim'.hardcoded,
+              cancelActionText: 'Não'.hardcoded,
+              onOkPressed: () =>
+                  context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                    workOrder: workOrder,
+                    status: WorkOrderStatus.inProgress,
+                  ),
+            );
+          },
+        ),
+      );
+    }
+
     if (workOrder.status.isPaused ||
         workOrder.status.isPendingConclusionApproval) {
       return _BottomBar(
