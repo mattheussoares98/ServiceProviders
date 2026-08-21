@@ -39,7 +39,8 @@ $$;
 COMMENT ON FUNCTION public.is_provider_of_company(UUID) IS
   'True when auth.uid() is an active member of a provider company hired by the given contracting company.';
 
-REVOKE EXECUTE ON FUNCTION public.is_provider_of_company(UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_provider_of_company(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_provider_of_company(UUID) TO authenticated;
 
 DROP POLICY IF EXISTS "Users read own company locations with permission" ON public.locations;
 CREATE POLICY "Users read own company locations with permission"

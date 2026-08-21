@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -253,7 +254,11 @@ class _CreateUpdatePage extends HookWidget {
         assignedToId: selectedAssignedToId.value == ''
             ? null
             : selectedAssignedToId.value,
-        createdById: workOrder?.createdById ?? sessionUser.id,
+        createdById: workOrder != null
+            ? workOrder?.createdById
+            : sessionUser.id,
+        createdByProviderProfileId: workOrder?.createdByProviderProfileId,
+        openedBy: workOrder?.openedBy ?? AppMode.internal,
         title: titleController.text.trim(),
         description: descController.text.trim().isEmpty
             ? null

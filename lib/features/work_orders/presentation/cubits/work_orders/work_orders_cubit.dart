@@ -414,8 +414,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       locationId: locationId,
       areaId: areaId,
       assignedToId: assignedToId?.trimToNull(),
-      createdById: createdById,
-      createdByProviderProfileId: createdByProviderProfileId,
+      createdById: isEditing
+          ? (createdById ?? existing?.createdById)
+          : createdById,
+      createdByProviderProfileId: isEditing
+          ? (createdByProviderProfileId ?? existing?.createdByProviderProfileId)
+          : createdByProviderProfileId,
       maintenancePlanId: maintenancePlanId?.trimToNull(),
       title: title.trim(),
       description: description?.trimToNull(),
@@ -437,12 +441,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
       providerProfileId: providerProfileId?.trimToNull(),
       slaPolicyId: slaPolicyId,
-      slaDeadlineAt: null,
-      netActiveDuration: null,
-      completionReason: null,
-      completionResponsibility: null,
-      completionSectorId: null,
-      openedBy: openedBy,
+      slaDeadlineAt: existing?.slaDeadlineAt,
+      slaBreached: existing?.slaBreached ?? false,
+      netActiveDuration: existing?.netActiveDuration,
+      completionReason: existing?.completionReason,
+      completionResponsibility: existing?.completionResponsibility,
+      completionSectorId: existing?.completionSectorId,
+      openedBy: isEditing ? (existing?.openedBy ?? openedBy) : openedBy,
     );
 
     final dataState = isEditing

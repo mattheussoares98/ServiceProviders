@@ -50,7 +50,8 @@ AS $$
   );
 $$;
 
-REVOKE EXECUTE ON FUNCTION public.is_provider_company_of_company(UUID, UUID) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.is_provider_company_of_company(UUID, UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_provider_company_of_company(UUID, UUID) TO authenticated;
 
 COMMENT ON FUNCTION public.is_provider_company_of_company(UUID, UUID) IS
   'True when the service provider company is registered under the given contracting company.';

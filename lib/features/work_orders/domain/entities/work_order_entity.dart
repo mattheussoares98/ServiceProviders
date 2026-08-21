@@ -169,6 +169,8 @@ class WorkOrderEntity extends Equatable {
     String? completionReason,
     PauseResponsibility? completionResponsibility,
     String? completionSectorId,
+    bool? annulCreatedById,
+    bool? annulCreatedByProviderProfileId,
     bool? annulAssetId,
     bool? annulAreaId,
     bool? annulAssignedToId,
@@ -201,9 +203,12 @@ class WorkOrderEntity extends Equatable {
       assignedToId: annulAssignedToId == true
           ? null
           : assignedToId ?? this.assignedToId,
-      createdById: createdById ?? this.createdById,
-      createdByProviderProfileId:
-          createdByProviderProfileId ?? this.createdByProviderProfileId,
+      createdById: annulCreatedById == true
+          ? null
+          : createdById ?? this.createdById,
+      createdByProviderProfileId: annulCreatedByProviderProfileId == true
+          ? null
+          : createdByProviderProfileId ?? this.createdByProviderProfileId,
       maintenancePlanId: annulMaintenancePlanId == true
           ? null
           : maintenancePlanId ?? this.maintenancePlanId,
