@@ -18,7 +18,7 @@ All mocks and factories live at repo root in **`testing/mocks/`** (not under `te
 - Every list property holds **exactly 3 items**.
 - Need a model? Build it from the entity: `CompanyModel.fromEntity(EntityFactory.makeCompanyEntity())`.
 - Same rule inside `registerFallbackValue()`.
-- Helpers available beyond entities: list variants (`make{X}EntityList`) and primitives (`makeId`, `makeEmail`, `makePassword`, `makeDateTime`, `makeInt`, `makeDouble`, `makeBool`, `makeHttps`, `makeCompanyName`).
+- Helpers available beyond entities: list variants (`make{X}EntityList`) and value helpers (`makeEmail`, `makePassword`, `makeDateTime`, `makeInt`, `makeDouble`, `makeBool`, `makeHttps`, `makeCompanyName`). Id generation is private (`_makeId`) — take an id off a factory entity instead of generating one.
 
 ## Core Rules
 1. **`faker` for all test data** — `faker.internet.email()`, not `'test@email.com'`. Exception: format-validated inputs (CPF/CNPJ, strict regex boundaries) use real valid values.
