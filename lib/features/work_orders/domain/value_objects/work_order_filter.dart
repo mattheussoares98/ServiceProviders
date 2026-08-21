@@ -12,6 +12,7 @@ class WorkOrderFilter extends Equatable {
     this.scheduledDateFrom,
     this.scheduledDateTo,
     this.searchText,
+    this.serviceProviderCompanyIds = const [],
   });
 
   final List<WorkOrderStatus> statuses;
@@ -22,6 +23,10 @@ class WorkOrderFilter extends Equatable {
   final DateTime? scheduledDateTo;
   final String? searchText;
 
+  /// Provider mode only. Restricts results to work orders assigned to these
+  /// provider companies. Empty means every company the provider belongs to.
+  final List<String> serviceProviderCompanyIds;
+
   bool get isEmpty =>
       statuses.isEmpty &&
       priorities.isEmpty &&
@@ -29,7 +34,8 @@ class WorkOrderFilter extends Equatable {
       assignedToId == null &&
       scheduledDateFrom == null &&
       scheduledDateTo == null &&
-      (searchText == null || searchText!.isEmpty);
+      (searchText == null || searchText!.isEmpty) &&
+      serviceProviderCompanyIds.isEmpty;
 
   int get activeCount {
     var count = 0;
@@ -39,6 +45,7 @@ class WorkOrderFilter extends Equatable {
     if (assignedToId != null) count++;
     if (scheduledDateFrom != null || scheduledDateTo != null) count++;
     if (searchText != null && searchText!.isNotEmpty) count++;
+    if (serviceProviderCompanyIds.isNotEmpty) count++;
     return count;
   }
 
@@ -50,6 +57,7 @@ class WorkOrderFilter extends Equatable {
     DateTime? scheduledDateFrom,
     DateTime? scheduledDateTo,
     String? searchText,
+    List<String>? serviceProviderCompanyIds,
     bool annulType = false,
     bool annulAssignedToId = false,
     bool annulScheduledDateFrom = false,
@@ -70,6 +78,8 @@ class WorkOrderFilter extends Equatable {
           : scheduledDateTo ?? this.scheduledDateTo,
       searchText:
           annulSearchText ? null : searchText ?? this.searchText,
+      serviceProviderCompanyIds:
+          serviceProviderCompanyIds ?? this.serviceProviderCompanyIds,
     );
   }
 
@@ -82,5 +92,6 @@ class WorkOrderFilter extends Equatable {
     scheduledDateFrom,
     scheduledDateTo,
     searchText,
+    serviceProviderCompanyIds,
   ];
 }
