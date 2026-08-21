@@ -43,18 +43,19 @@ class ProviderHomePage extends HookWidget {
               GetIt.I<WorkOrdersCubit>()..loadProviderWorkOrders(),
         ),
         BlocProvider<PauseWorkflowCubit>(
-          create: (context) => GetIt.I<PauseWorkflowCubit>()..loadPauseReasons(),
+          create: (context) =>
+              GetIt.I<PauseWorkflowCubit>()..loadPauseReasons(),
         ),
         // SLA policies, pause reasons and sectors already carry provider RLS
         // branches, so these load normally in provider mode.
         BlocProvider<SlaPoliciesCubit>(
           create: (context) => GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
         ),
-        // Constructed but not loaded: locations, assets and users are still
-        // scoped to `company_id` in RLS, so a provider fetch returns nothing.
-        // The work order widgets read them for optional labels and already
-        // render without them. Providing the cubits keeps those widgets from
-        // throwing ProviderNotFoundException.
+        // Constructed but not loaded here: locations and assets cannot be fetched
+        // by company in provider mode. `ProviderLookupsLoader` feeds them the ids
+        // the loaded work orders reference, which is the scope RLS grants.
+        // Users stays empty — `user_profiles` is still company-scoped, and the
+        // widgets reading it render without a label.
         BlocProvider<LocationsCubit>(
           create: (context) => GetIt.I<LocationsCubit>(),
         ),
