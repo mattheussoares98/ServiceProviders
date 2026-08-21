@@ -6,7 +6,7 @@ class _ResponsibleDropdown extends StatelessWidget {
     required this.selectedId,
   });
   final String? selectedId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {

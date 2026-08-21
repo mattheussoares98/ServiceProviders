@@ -8,7 +8,7 @@ class _AreaDropdown extends StatelessWidget {
   });
   final String? selectedAreaId;
   final String? selectedLocationId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {

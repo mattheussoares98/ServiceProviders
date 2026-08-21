@@ -7,7 +7,7 @@ class _SlaPolicyDropdown extends StatelessWidget {
   });
 
   final String? selectedSlaPolicyId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _SlaPolicyDropdown extends StatelessWidget {
           hint: BaseText.bodyMedium('Nenhuma (sem SLA)'.hardcoded),
           items: dropdownItems,
           selectedItem: selectedSlaPolicyId,
-          onClear: () => onChanged(null),
+          onClear: onChanged == null ? null : () => onChanged!(null),
           onChanged: onChanged,
         );
       },

@@ -4,7 +4,7 @@ class _WorkOrderTypeDropdown extends StatelessWidget {
   const _WorkOrderTypeDropdown({this.selectedType, required this.onChanged});
 
   final WorkOrderType? selectedType;
-  final ValueChanged<WorkOrderType> onChanged;
+  final ValueChanged<WorkOrderType>? onChanged;
 
   @override
   Widget build(BuildContext context) {

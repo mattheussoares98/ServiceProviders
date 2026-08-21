@@ -1,9 +1,14 @@
 part of '../create_update_work_order_page.dart';
 
 class _ProgrammedData extends StatelessWidget {
-  const _ProgrammedData({required this.scheduledDate, required this.onChanged});
+  const _ProgrammedData({
+    required this.scheduledDate,
+    required this.onChanged,
+    this.enabled = true,
+  });
   final DateTime? scheduledDate;
-  final ValueChanged<DateTime?> onChanged;
+  final ValueChanged<DateTime?>? onChanged;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +22,19 @@ class _ProgrammedData extends StatelessWidget {
         gapH8,
         Expanded(
           child: InkWell(
-            onTap: () async {
-              final newDate = await GetNewDate.get(
-                minimumDate: now,
-                maximumDate: now.add(const Duration(days: 365 * 10)),
-                context: context,
-                currentSelectedDate: scheduledDate,
-              );
-              if (newDate != null) {
-                onChanged(newDate);
-              }
-            },
+            onTap: enabled && onChanged != null
+                ? () async {
+                    final newDate = await GetNewDate.get(
+                      minimumDate: now,
+                      maximumDate: now.add(const Duration(days: 365 * 10)),
+                      context: context,
+                      currentSelectedDate: scheduledDate,
+                    );
+                    if (newDate != null) {
+                      onChanged!(newDate);
+                    }
+                  }
+                : null,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
               decoration: BoxDecoration(
@@ -44,7 +51,7 @@ class _ProgrammedData extends StatelessWidget {
                     ),
                   ),
                   if (screenWidth > 250) ...[
-                    if (scheduledDate != null)
+                    if (scheduledDate != null && enabled && onChanged != null)
                       BaseIconButton(
                         padding: EdgeInsets.zero,
                         platformIcon: const PlatformIcon(
@@ -53,7 +60,7 @@ class _ProgrammedData extends StatelessWidget {
                           color: Colors.red,
                           size: 16,
                         ),
-                        onPressed: () => onChanged(null),
+                        onPressed: () => onChanged!(null),
                       )
                     else
                       const PlatformIcon(

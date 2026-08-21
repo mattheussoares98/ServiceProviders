@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -134,6 +135,10 @@ class _CreateUpdatePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedModeName = GetIt.I<GetSelectedModeUseCase>().call();
+    final isProviderMode = AppMode.fromName(selectedModeName) == AppMode.provider;
+    final isEditing = workOrder != null;
+
     final (assetsError, assetsLoading) = context.select(
       (AssetsCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
@@ -150,13 +155,18 @@ class _CreateUpdatePage extends HookWidget {
       (ServiceProvidersCubit cubit) =>
           (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
     );
-    final isLoading =
-        assetsLoading || locationsLoading || usersLoading || providersLoading;
-    final hasError =
-        assetsError?.isNotEmpty == true ||
-        locationsError?.isNotEmpty == true ||
-        usersError?.isNotEmpty == true ||
-        providersError?.isNotEmpty == true;
+    final isLoading = isProviderMode
+        ? providersLoading
+        : (assetsLoading ||
+            locationsLoading ||
+            usersLoading ||
+            providersLoading);
+    final hasError = isProviderMode
+        ? providersError?.isNotEmpty == true
+        : (assetsError?.isNotEmpty == true ||
+            locationsError?.isNotEmpty == true ||
+            usersError?.isNotEmpty == true ||
+            providersError?.isNotEmpty == true);
 
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
@@ -172,6 +182,15 @@ class _CreateUpdatePage extends HookWidget {
     final initialServiceProviderCompanyId = workOrder?.serviceProviderCompanyId;
     final initialProviderProfileId = workOrder?.providerProfileId;
     final initialSlaPolicyId = workOrder?.slaPolicyId;
+
+    final isProviderCreator =
+        isEditing &&
+        (workOrder?.openedBy == AppMode.provider ||
+            workOrder?.createdByProviderProfileId != null);
+    final canEditCoreFields = !isProviderMode || isProviderCreator;
+    final canAssignInternalResponsible = !isProviderMode;
+    final canChangeProviderCompany = !isProviderMode;
+    final canEditSlaPolicy = !isProviderMode;
 
     final titleController = useTextEditingController(text: initialTitle);
     final descController = useTextEditingController(text: initialDescription);
@@ -192,6 +211,15 @@ class _CreateUpdatePage extends HookWidget {
       initialProviderProfileId,
     );
     final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
+
+    useEffect(() {
+      if (initialServiceProviderCompanyId != null) {
+        context.read<ServiceProvidersCubit>().ensureProfilesLoaded(
+          initialServiceProviderCompanyId,
+        );
+      }
+      return null;
+    }, [initialServiceProviderCompanyId]);
 
     bool getHasChanges() {
       final attachmentsState = context.read<AttachmentsCubit>().state;
@@ -258,7 +286,7 @@ class _CreateUpdatePage extends HookWidget {
             ? workOrder?.createdById
             : sessionUser.id,
         createdByProviderProfileId: workOrder?.createdByProviderProfileId,
-        openedBy: workOrder?.openedBy ?? AppMode.internal,
+        openedBy: workOrder?.openedBy ?? (isProviderMode ? AppMode.provider : AppMode.internal),
         title: titleController.text.trim(),
         description: descController.text.trim().isEmpty
             ? null
@@ -292,25 +320,34 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     final items = [
-      _TitleField(controller: titleController),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _DescriptionField(controller: descController),
+      _TitleField(
+        controller: titleController,
+        enabled: canEditCoreFields,
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _ResponsibleDropdown(
-          selectedId: selectedAssignedToId.value,
-          onChanged: (val) => selectedAssignedToId.value = val,
+        child: _DescriptionField(
+          controller: descController,
+          enabled: canEditCoreFields,
         ),
       ),
+      if (canAssignInternalResponsible)
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _ResponsibleDropdown(
+            selectedId: selectedAssignedToId.value,
+            onChanged: (val) => selectedAssignedToId.value = val,
+          ),
+        ),
       _ServiceProviderCompanyDropdown(
         //* handling the padding in the widget
         selectedCompanyId: selectedServiceProviderCompanyId.value,
-        onChanged: (val) {
-          selectedServiceProviderCompanyId.value = val;
-          selectedProviderProfileId.value = null;
-        },
+        onChanged: canChangeProviderCompany
+            ? (val) {
+                selectedServiceProviderCompanyId.value = val;
+                selectedProviderProfileId.value = null;
+              }
+            : null,
       ),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
@@ -327,20 +364,24 @@ class _CreateUpdatePage extends HookWidget {
             Expanded(
               child: _WorkOrderTypeDropdown(
                 selectedType: selectedType.value,
-                onChanged: (v) => selectedType.value = v,
+                onChanged: canEditCoreFields
+                    ? (v) => selectedType.value = v
+                    : null,
               ),
             ),
             gapW16,
             Expanded(
               child: _PriorityDropdown(
                 selectedPriority: selectedPriority.value,
-                onChanged: (v) => selectedPriority.value = v,
+                onChanged: canEditCoreFields
+                    ? (v) => selectedPriority.value = v
+                    : null,
               ),
             ),
           ],
         ),
       ),
-      if (workOrder != null) ...[
+      if (workOrder != null && !isProviderMode) ...[
         Padding(
           padding: const EdgeInsets.only(top: Sizes.p8),
           child: _WorkOrderStatusDropdown(
@@ -353,11 +394,13 @@ class _CreateUpdatePage extends HookWidget {
         padding: const EdgeInsets.only(top: Sizes.p8),
         child: _LocationDropdown(
           selectedId: selectedLocationId.value,
-          onChanged: (val) {
-            selectedLocationId.value = val;
-            selectedAreaId.value = null;
-            selectedAssetId.value = null;
-          },
+          onChanged: canEditCoreFields
+              ? (val) {
+                  selectedLocationId.value = val;
+                  selectedAreaId.value = null;
+                  selectedAssetId.value = null;
+                }
+              : null,
         ),
       ),
       Padding(
@@ -365,10 +408,12 @@ class _CreateUpdatePage extends HookWidget {
         child: _AreaDropdown(
           selectedAreaId: selectedAreaId.value,
           selectedLocationId: selectedLocationId.value,
-          onChanged: (val) {
-            selectedAreaId.value = val;
-            selectedAssetId.value = null;
-          },
+          onChanged: canEditCoreFields
+              ? (val) {
+                  selectedAreaId.value = val;
+                  selectedAssetId.value = null;
+                }
+              : null,
         ),
       ),
       Padding(
@@ -378,23 +423,28 @@ class _CreateUpdatePage extends HookWidget {
           selectedLocationId: selectedLocationId.value,
           selectedAreaId: selectedAreaId.value,
           applyAssociatedAreaId: (val) {
-            selectedAreaId.value = val;
+            if (canEditCoreFields) {
+              selectedAreaId.value = val;
+            }
           },
-          onChanged: (val) {
-            selectedAssetId.value = val;
-          },
+          onChanged: canEditCoreFields
+              ? (val) {
+                  selectedAssetId.value = val;
+                }
+              : null,
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _SlaPolicyDropdown(
-          selectedSlaPolicyId: selectedSlaPolicyId.value,
-          onChanged: (val) {
-            selectedSlaPolicyId.value = val;
-            durationController.clear();
-          },
+      if (canEditSlaPolicy)
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _SlaPolicyDropdown(
+            selectedSlaPolicyId: selectedSlaPolicyId.value,
+            onChanged: (val) {
+              selectedSlaPolicyId.value = val;
+              durationController.clear();
+            },
+          ),
         ),
-      ),
       IntrinsicHeight(
         child: SizedBox(
           height: Sizes.p80,
@@ -405,15 +455,22 @@ class _CreateUpdatePage extends HookWidget {
                 child: _DurationField(
                   controller: durationController,
                   descFocusNode: descFocusNode,
-                  onSubmit: selectedSlaPolicyId.value == null ? onSubmit : null,
-                  enabled: selectedSlaPolicyId.value == null,
+                  onSubmit: (canEditCoreFields &&
+                          selectedSlaPolicyId.value == null)
+                      ? onSubmit
+                      : null,
+                  enabled: canEditCoreFields &&
+                      selectedSlaPolicyId.value == null,
                 ),
               ),
               gapW16,
               Expanded(
                 child: _ProgrammedData(
+                  enabled: canEditCoreFields,
                   scheduledDate: selectedScheduledDate.value,
-                  onChanged: (v) => selectedScheduledDate.value = v,
+                  onChanged: canEditCoreFields
+                      ? (v) => selectedScheduledDate.value = v
+                      : null,
                 ),
               ),
             ],

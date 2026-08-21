@@ -9,7 +9,7 @@ class _ServiceProviderProfileDropdown extends StatelessWidget {
 
   final String? companyId;
   final String? selectedProfileId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {

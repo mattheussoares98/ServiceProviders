@@ -6,7 +6,7 @@ class _PriorityDropdown extends StatelessWidget {
     required this.selectedPriority,
   });
 
-  final ValueChanged<Priority> onChanged;
+  final ValueChanged<Priority>? onChanged;
   final Priority? selectedPriority;
 
   @override

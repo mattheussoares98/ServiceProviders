@@ -30,13 +30,22 @@ void main() {
   );
 
   group('providerModeAllows', () {
-    test('allows reading and executing assigned work orders', () {
+    test('allows reading, creating, updating and executing assigned work orders', () {
       expect(providerModeAllows(readWorkOrders), isTrue);
+      expect(
+        providerModeAllows(
+          const ActionPermission.resource(
+            resourceType: ResourceType.workOrders,
+            permissionAction: PermissionAction.create,
+          ),
+        ),
+        isTrue,
+      );
+      expect(providerModeAllows(updateWorkOrders), isTrue);
       expect(providerModeAllows(changeStatus), isTrue);
     });
 
-    test('denies editing, deleting and approving work orders', () {
-      expect(providerModeAllows(updateWorkOrders), isFalse);
+    test('denies deleting, reassigning and approving work orders', () {
       expect(providerModeAllows(deleteWorkOrders), isFalse);
       expect(providerModeAllows(managePendingRequests), isFalse);
       expect(
@@ -74,11 +83,13 @@ void main() {
           PermissionAction.update,
           PermissionAction.delete,
         ]) {
-          final isAllowedCreate =
-              action == PermissionAction.create &&
-              (resource == ResourceType.attachments ||
+          final isAllowedAction =
+              (action == PermissionAction.create &&
+                  (resource == ResourceType.attachments ||
+                      resource == ResourceType.workOrders)) ||
+              (action == PermissionAction.update &&
                   resource == ResourceType.workOrders);
-          if (isAllowedCreate) continue;
+          if (isAllowedAction) continue;
           expect(
             providerModeAllows(
               ActionPermission.resource(

@@ -11,7 +11,7 @@ class _AssetsDropdown extends StatelessWidget {
   final String? selectedAssetId;
   final String? selectedLocationId;
   final String? selectedAreaId;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
   final ValueChanged<String?> applyAssociatedAreaId;
 
   @override
@@ -48,14 +48,16 @@ class _AssetsDropdown extends StatelessWidget {
                 ? BaseText('Sem equipamentos cadastrados'.hardcoded)
                 : null),
       items: selectedLocationId == null ? null : assetDropdownItems,
-      onChanged: (value) {
-        onChanged.call(value);
+      onChanged: onChanged == null
+          ? null
+          : (value) {
+              onChanged!.call(value);
 
-        final respectiveAsset = filteredAssets.firstWhereOrNull(
-          (e) => e.id == value,
-        );
-        applyAssociatedAreaId.call(respectiveAsset?.areaId);
-      },
+              final respectiveAsset = filteredAssets.firstWhereOrNull(
+                (e) => e.id == value,
+              );
+              applyAssociatedAreaId.call(respectiveAsset?.areaId);
+            },
     );
   }
 }

@@ -7,7 +7,7 @@ class _ServiceProviderCompanyDropdown extends StatelessWidget {
   });
 
   final String? selectedCompanyId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {
