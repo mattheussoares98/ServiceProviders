@@ -61,6 +61,63 @@ void main() {
         ).called(1);
       });
 
+      test('should fetch locations by id for provider mode', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tLocationModel.toJson()]);
+
+        // Act
+        final result = await dataSource.getLocationsByIds([tLocationModel.id]);
+
+        // Assert
+        expect(result, isA<SuccessState<List<LocationModel>>>());
+        expect(result.data!.first.id, tLocationModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'locations',
+            filters: [
+              SupabaseFilter.inList('id', [tLocationModel.id]),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
+      });
+
+      test('should not query when the location id list is empty', () async {
+        // Act
+        final result = await dataSource.getLocationsByIds([]);
+
+        // Assert
+        expect(result, isA<SuccessState<List<LocationModel>>>());
+        expect(result.data, isEmpty);
+        verifyNever(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        );
+      });
+
+      test('should return FailureState when the by-id query throws', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception(faker.lorem.sentence()));
+
+        // Act
+        final result = await dataSource.getLocationsByIds([tLocationModel.id]);
+
+        // Assert
+        expect(result, isA<FailureState<List<LocationModel>>>());
+      });
+
       test('should return SuccessState<LocationModel> on create', () async {
         // Arrange
         when(
@@ -160,6 +217,63 @@ void main() {
             ],
           ),
         ).called(1);
+      });
+
+      test('should fetch areas by id for provider mode', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tAreaModel.toJson()]);
+
+        // Act
+        final result = await dataSource.getAreasByIds([tAreaModel.id]);
+
+        // Assert
+        expect(result, isA<SuccessState<List<AreaModel>>>());
+        expect(result.data!.first.id, tAreaModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'areas',
+            filters: [
+              SupabaseFilter.inList('id', [tAreaModel.id]),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
+      });
+
+      test('should not query when the area id list is empty', () async {
+        // Act
+        final result = await dataSource.getAreasByIds([]);
+
+        // Assert
+        expect(result, isA<SuccessState<List<AreaModel>>>());
+        expect(result.data, isEmpty);
+        verifyNever(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        );
+      });
+
+      test('should return FailureState when the by-id query throws', () async {
+        // Arrange
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception(faker.lorem.sentence()));
+
+        // Act
+        final result = await dataSource.getAreasByIds([tAreaModel.id]);
+
+        // Assert
+        expect(result, isA<FailureState<List<AreaModel>>>());
       });
 
       test('should return SuccessState<AreaModel> on create', () async {

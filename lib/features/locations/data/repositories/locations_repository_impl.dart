@@ -39,6 +39,20 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
+  FutureList<LocationEntity> getLocationsByIds(List<String> ids) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        LocationModel,
+        LocationEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getLocationsByIds(ids),
+        // Deliberately no localCallback and no onRemoteSuccess: this path exists
+        // for provider mode, which is online-only (V2 §1.4). The Drift database
+        // is scoped to one contracting company, so caching cross-company rows
+        // there would corrupt the internal-mode dataset.
+      );
+
+  @override
   FutureBool createLocation(LocationEntity location) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
@@ -112,6 +126,18 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         localCallback: () => _localDataSource.getAreas(companyId),
         onRemoteSuccess: _localDataSource.saveAreas,
       );
+
+  @override
+  FutureList<AreaEntity> getAreasByIds(
+    List<String> ids,
+  ) => RepositoryHandler.fetchWithFallbackAndMapList<AreaModel, AreaEntity>(
+    isInternetConnected: _internet.isConnected,
+    remoteCallback: () => _remoteDataSource.getAreasByIds(ids),
+    // Deliberately no localCallback and no onRemoteSuccess: this path exists
+    // for provider mode, which is online-only (V2 §1.4). The Drift database
+    // is scoped to one contracting company, so caching cross-company rows
+    // there would corrupt the internal-mode dataset.
+  );
 
   @override
   FutureBool createArea(AreaEntity area) =>

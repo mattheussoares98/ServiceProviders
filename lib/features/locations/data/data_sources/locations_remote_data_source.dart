@@ -10,11 +10,13 @@ import 'package:o_jogo_da_obra/features/locations/data/models/responses/location
 
 abstract interface class LocationsRemoteDataSource {
   FutureList<LocationModel> getLocations(String companyId);
+  FutureList<LocationModel> getLocationsByIds(List<String> ids);
   FutureData<LocationModel> createLocation(LocationModel request);
   FutureData<LocationModel> updateLocation(LocationModel request);
   FutureVoid deleteLocation(String id);
 
   FutureList<AreaModel> getAreas(String companyId);
+  FutureList<AreaModel> getAreasByIds(List<String> ids);
   FutureData<AreaModel> createArea(AreaRequestModel request);
   FutureData<AreaModel> updateArea(AreaRequestModel request);
   FutureVoid deleteArea(String id);
@@ -35,6 +37,23 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
           table: 'locations',
           filters: [
             SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(LocationModel.fromJson).toList();
+      });
+
+  // Provider mode reads lookups by id instead of by company: the rows belong to
+  // the contracting company, and RLS narrows them to the ones referenced by the
+  // provider's own work orders.
+  @override
+  FutureList<LocationModel> getLocationsByIds(List<String> ids) =>
+      SupabaseHandler.call(() async {
+        if (ids.isEmpty) return <LocationModel>[];
+        final response = await _database.selectList(
+          table: 'locations',
+          filters: [
+            SupabaseFilter.inList('id', ids),
             SupabaseFilter.isFilter('deleted_at', null),
           ],
         );
@@ -78,6 +97,20 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
           table: 'areas',
           filters: [
             SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(AreaModel.fromJson).toList();
+      });
+
+  @override
+  FutureList<AreaModel> getAreasByIds(List<String> ids) =>
+      SupabaseHandler.call(() async {
+        if (ids.isEmpty) return <AreaModel>[];
+        final response = await _database.selectList(
+          table: 'areas',
+          filters: [
+            SupabaseFilter.inList('id', ids),
             SupabaseFilter.isFilter('deleted_at', null),
           ],
         );
