@@ -2535,6 +2535,9 @@ void _providerModeTests() {
   mockGetServiceProviderCompaniesByIds;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
+  late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
+  late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
+  late WorkOrderEntity tWorkOrder;
   late MockGetAttachmentsUseCase mockGetAttachments;
   late UserProfileEntity tUserProfile;
   late List<ServiceProviderCompanyEntity> tCompanies;
@@ -2546,8 +2549,8 @@ void _providerModeTests() {
       getWorkOrders: mockGetWorkOrders,
       getWorkOrderById: MockGetWorkOrderByIdUseCase(),
       createWorkOrder: MockCreateWorkOrderUseCase(),
-      updateWorkOrder: MockUpdateWorkOrderUseCase(),
-      deleteWorkOrder: MockDeleteWorkOrderUseCase(),
+      updateWorkOrder: mockUpdateWorkOrder,
+      deleteWorkOrder: mockDeleteWorkOrder,
       getChangeRequests: MockGetWorkOrderChangeRequestsUseCase(),
       createChangeRequest: MockCreateWorkOrderChangeRequestUseCase(),
       reviewChangeRequest: MockReviewWorkOrderChangeRequestUseCase(),
@@ -2585,6 +2588,8 @@ void _providerModeTests() {
           MockGetServiceProviderCompaniesByIdsUseCase();
       mockGetSessionUser = MockGetSessionUserUseCase();
       mockGetSelectedMode = MockGetSelectedModeUseCase();
+      mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
+      mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
       when(
         () => mockGetAttachments(any()),
@@ -2592,6 +2597,11 @@ void _providerModeTests() {
 
       tUserProfile = EntityFactory.makeUserProfileEntity();
       tCompanies = EntityFactory.makeServiceProviderCompanyEntityList();
+      // A work order owned by a contracting company the provider serves —
+      // deliberately not the provider user's own internal company.
+      tWorkOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        serviceProviderCompanyId: tCompanies.first.id,
+      );
       tProfiles = [
         for (final company in tCompanies)
           EntityFactory.makeServiceProviderProfileEntity().copyWith(
@@ -2723,6 +2733,93 @@ void _providerModeTests() {
         expect(cubit.state.workOrders, isEmpty);
         expect(cubit.state.providerCompanies, isEmpty);
         verifyNever(() => mockGetProviderWorkOrders(any()));
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'reloads through the provider path after changing a status',
+      build: () {
+        when(
+          () => mockGetProviderWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrder]));
+        when(
+          () => mockUpdateWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        clearInteractions(mockGetProviderWorkOrders);
+        await cubit.changeWorkOrderStatus(
+          workOrder: tWorkOrder,
+          status: WorkOrderStatus.inProgress,
+        );
+      },
+      verify: (_) {
+        // The internal reload scopes by getActiveCompanyId(), which for a
+        // provider resolves to the wrong company and empties the list.
+        verifyNever(() => mockGetWorkOrders(any()));
+        verify(() => mockGetProviderWorkOrders(any())).called(1);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'reloads through the provider path after deleting a work order',
+      build: () {
+        when(
+          () => mockGetProviderWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrder]));
+        when(
+          () => mockDeleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        clearInteractions(mockGetProviderWorkOrders);
+        await cubit.deleteWorkOrder(tWorkOrder.id);
+      },
+      verify: (_) {
+        verifyNever(() => mockGetWorkOrders(any()));
+        verify(() => mockGetProviderWorkOrders(any())).called(1);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'editing keeps the work order company instead of the active one',
+      build: () {
+        when(
+          () => mockGetProviderWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrder]));
+        when(
+          () => mockUpdateWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetActiveCompanyId.call(),
+        ).thenReturn(tUserProfile.companyId);
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        await cubit.saveWorkOrder(
+          id: tWorkOrder.id,
+          isEditing: true,
+          locationId: tWorkOrder.locationId,
+          createdById: tWorkOrder.createdById,
+          title: tWorkOrder.title,
+          priority: tWorkOrder.priority,
+          status: tWorkOrder.status,
+          type: tWorkOrder.type,
+        );
+      },
+      verify: (_) {
+        final saved =
+            verify(() => mockUpdateWorkOrder(captureAny())).captured.last
+                as WorkOrderEntity;
+        // Reassigning the record to the active company would move it across
+        // tenants.
+        expect(saved.companyId, tWorkOrder.companyId);
+        expect(saved.companyId, isNot(tUserProfile.companyId));
       },
     );
 

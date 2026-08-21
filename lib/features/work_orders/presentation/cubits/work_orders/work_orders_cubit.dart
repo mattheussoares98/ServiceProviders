@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -42,6 +43,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   /// entry points shared with internal mode branch on it.
   bool get _isProviderMode =>
       AppMode.fromName(_useCases.getSelectedMode()) == AppMode.provider;
+
+  /// Reload after a write. Provider mode must never fall through to the
+  /// internal path: that one scopes by `getActiveCompanyId()`, which for a
+  /// provider resolves to the wrong company (or none) and empties the list.
+  Future<void> _refreshWorkOrders() => _isProviderMode
+      ? loadProviderWorkOrders(showLoading: false)
+      : loadWorkOrdersAndChangeRequests(showLoading: false);
 
   Future<bool> loadWorkOrdersAndChangeRequests({
     bool showLoading = true,
@@ -372,7 +380,15 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     emit(state.copyWith(status: StateStatus.saving));
 
     final now = DateTime.now();
-    final companyId = _useCases.getActiveCompanyId();
+
+    // An edit must keep the work order's own tenant. Deriving it from the
+    // session would reassign the record to whatever company is active — in
+    // provider mode that is the user's internal employer, or nothing at all.
+    // Only a brand new work order belongs to the active company.
+    final existing = isEditing
+        ? state.workOrders.firstWhereOrNull((workOrder) => workOrder.id == id)
+        : null;
+    final companyId = existing?.companyId ?? _useCases.getActiveCompanyId();
 
     final computedStartedAt =
         startedAt ?? (status == WorkOrderStatus.inProgress ? now : null);
@@ -489,7 +505,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         await attachmentsCubit.refreshAttachments();
       }
 
-      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      await _refreshWorkOrders();
       return true;
     } else {
       emit(
@@ -553,7 +569,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       }).toList();
       emit(state.copyWith(workOrders: updatedList));
 
-      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      await _refreshWorkOrders();
       return true;
     } else {
       emit(
@@ -608,7 +624,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }).toList();
     emit(state.copyWith(workOrders: updatedList));
 
-    await loadWorkOrdersAndChangeRequests(showLoading: false);
+    await _refreshWorkOrders();
     return true;
   }
 
@@ -653,7 +669,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           }).toList();
           emit(state.copyWith(workOrders: updatedList));
 
-          await loadWorkOrdersAndChangeRequests(showLoading: false);
+          await _refreshWorkOrders();
         }
       } else if (activePause != null) {
         success = await _resumePausedWorkOrder(
@@ -704,7 +720,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     emit(state.copyWith(workOrders: updatedList));
 
     if (syncRemotely) {
-      unawaited(loadWorkOrdersAndChangeRequests(showLoading: false));
+      unawaited(_refreshWorkOrders());
     }
   }
 
@@ -721,7 +737,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      await _refreshWorkOrders();
       return true;
     } else {
       emit(
@@ -744,7 +760,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showSuccessToast(
         'Solicitação de alteração enviada com sucesso'.hardcoded,
       );
-      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      await _refreshWorkOrders();
     } else {
       emit(
         state.copyWith(
@@ -765,7 +781,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showSuccessToast(
         'Solicitação de alteração avaliada com sucesso'.hardcoded,
       );
-      await loadWorkOrdersAndChangeRequests(showLoading: false);
+      await _refreshWorkOrders();
     } else {
       emit(
         state.copyWith(
