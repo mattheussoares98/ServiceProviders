@@ -17,6 +17,8 @@ const String kModeSwitcherPath = '/mode-switcher';
 
 const String kProviderHomeRoute = 'ProviderHomeRoute';
 const String kProviderHomePath = '/provider-home';
+const String kProviderWorkOrdersRoute = 'ProviderWorkOrdersRoute';
+const String kProviderWorkOrdersPath = '';
 
 // Dashboard
 const String kDashboardRoute = 'DashboardRoute';

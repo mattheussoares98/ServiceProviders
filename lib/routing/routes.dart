@@ -23,6 +23,19 @@ class AppRouter extends RootStackRouter {
       page: ProviderHomeRoute.page,
       path: kProviderHomePath,
       guards: const [AuthenticatedGuard()],
+      children: [
+        //* Provider mode reuses the internal work order pages. They are nested
+        //* here so they inherit the cubits ProviderHomePage provides.
+        AutoRoute(
+          page: ProviderWorkOrdersRoute.page,
+          path: kProviderWorkOrdersPath,
+          initial: true,
+        ),
+        AutoRoute(
+          page: WorkOrderDetailsRoute.page,
+          path: '$kWorkOrderDetailsRoute/$kWorkOrderDetailsPath',
+        ),
+      ],
     ),
     AutoRoute(
       path: kHomePath,
