@@ -24,29 +24,31 @@ class _TryAgainButton extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p16),
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            BaseText.error(error.join('\n')),
-            gapH32,
-            BaseButton(
-              onTap: () async {
-                await Future.wait([
-                  if (assetsError?.isNotEmpty == true)
-                    context.read<AssetsCubit>().loadAssets(),
-                  if (locationsError?.isNotEmpty == true)
-                    context.read<LocationsCubit>().loadLocationsAndAreas(),
-                  if (usersError?.isNotEmpty == true)
-                    context.read<UsersCubit>().loadUsers(),
-                  if (providersError?.isNotEmpty == true)
-                    context
-                        .read<ServiceProvidersCubit>()
-                        .loadCompaniesAndProfiles(),
-                ]);
-              },
-              text: 'Tentar novamente'.hardcoded,
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: .center,
+            children: [
+              BaseText.error(error.join('\n')),
+              gapH32,
+              BaseButton(
+                onTap: () async {
+                  await Future.wait([
+                    if (assetsError?.isNotEmpty == true)
+                      context.read<AssetsCubit>().loadAssets(),
+                    if (locationsError?.isNotEmpty == true)
+                      context.read<LocationsCubit>().loadLocationsAndAreas(),
+                    if (usersError?.isNotEmpty == true)
+                      context.read<UsersCubit>().loadUsers(),
+                    if (providersError?.isNotEmpty == true)
+                      context
+                          .read<ServiceProvidersCubit>()
+                          .loadCompaniesAndProfiles(),
+                  ]);
+                },
+                text: 'Tentar novamente'.hardcoded,
+              ),
+            ],
+          ),
         ),
       ),
     );
