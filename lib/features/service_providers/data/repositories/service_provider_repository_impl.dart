@@ -44,6 +44,21 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
       );
 
   @override
+  FutureList<ServiceProviderCompanyEntity> getServiceProviderCompaniesByIds(
+    List<String> ids,
+  ) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        ServiceProviderCompanyModel,
+        ServiceProviderCompanyEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () =>
+            _remoteDataSource.getServiceProviderCompaniesByIds(ids),
+        // Online-only: these companies belong to other contracting companies, so
+        // they must not be cached into the internal-mode Drift scope (V2 §1.4).
+      );
+
+  @override
   FutureData<ServiceProviderCompanyEntity> getServiceProviderCompanyById(
     String id,
   ) =>

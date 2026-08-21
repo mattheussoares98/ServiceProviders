@@ -16,6 +16,12 @@ abstract interface class ServiceProviderRemoteDataSource {
   FutureData<ServiceProviderCompanyModel> getServiceProviderCompanyById(
     String id,
   );
+
+  /// Provider mode. Loads the provider companies the signed-in user belongs to,
+  /// which span multiple contracting companies.
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompaniesByIds(
+    List<String> ids,
+  );
   FutureBool createServiceProviderCompany(ServiceProviderCompanyModel request);
   FutureBool updateServiceProviderCompany(ServiceProviderCompanyModel request);
 
@@ -60,6 +66,23 @@ final class ServiceProviderRemoteDataSourceImpl
       table: 'service_provider_companies',
       filters: [
         SupabaseFilter.eq('company_id', companyId),
+        SupabaseFilter.eq('is_active', true),
+      ],
+    );
+    return response.map(ServiceProviderCompanyModel.fromJson).toList();
+  });
+
+  @override
+  FutureList<ServiceProviderCompanyModel> getServiceProviderCompaniesByIds(
+    List<String> ids,
+  ) => SupabaseHandler.call(() async {
+    if (ids.isEmpty) {
+      return <ServiceProviderCompanyModel>[];
+    }
+    final response = await _database.selectList(
+      table: 'service_provider_companies',
+      filters: [
+        SupabaseFilter.inList('id', ids),
         SupabaseFilter.eq('is_active', true),
       ],
     );

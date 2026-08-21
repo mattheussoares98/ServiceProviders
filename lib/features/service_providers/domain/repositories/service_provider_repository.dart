@@ -10,6 +10,9 @@ abstract interface class ServiceProviderRepository {
   FutureData<ServiceProviderCompanyEntity> getServiceProviderCompanyById(
     String id,
   );
+  FutureList<ServiceProviderCompanyEntity> getServiceProviderCompaniesByIds(
+    List<String> ids,
+  );
   FutureBool createServiceProviderCompany(
     ServiceProviderCompanyEntity company,
   );
