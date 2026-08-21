@@ -52,7 +52,7 @@ Tell each specialist exactly which files to create/modify, which classes to defi
 3. Comments explain *why*, only for complex logic. No change-marker comments.
 4. DateTime: serialize with `.toIsoUtcString()`, parse with `(json['x'] as String?).toUtcDateTime()`.
 5. `MapDynamic`, never `Map<String, dynamic>`, in DTOs.
-6. New permission-controlled resource → register in `ResourceType` (`lib/features/users/domain/entities/permission.dart`).
+6. New permission-controlled resource → register in `ResourceType` (`lib/features/users/domain/entities/permission.dart`) **and** classify it in `permission/provider_mode_permission.dart` — provider mode never inherits internal RBAC.
 7. Implementation and its test land in the same turn.
 8. Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
 
