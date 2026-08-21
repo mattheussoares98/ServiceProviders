@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/provider_home/provider_home_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
@@ -50,6 +51,9 @@ class ProviderHomePage extends HookWidget {
         // branches, so these load normally in provider mode.
         BlocProvider<SlaPoliciesCubit>(
           create: (context) => GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
+        ),
+        BlocProvider<SectorsCubit>(
+          create: (context) => GetIt.I<SectorsCubit>()..loadSectors(),
         ),
         // Constructed but not loaded here: locations and assets cannot be fetched
         // by company in provider mode. `ProviderLookupsLoader` feeds them the ids
