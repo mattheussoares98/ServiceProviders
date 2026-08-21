@@ -34,7 +34,10 @@ bool providerModeAllows(ActionPermission permission) {
 
 bool _allowsResource(ResourceType resource, PermissionAction action) {
   return switch (resource) {
-    ResourceType.workOrders => action == PermissionAction.read,
+    // Opening a work order for a client is allowed (V2 §1.3 / Q5); editing and
+    // deleting one stay with the contracting company.
+    ResourceType.workOrders =>
+      action == PermissionAction.read || action == PermissionAction.create,
     ResourceType.attachments =>
       action == PermissionAction.read || action == PermissionAction.create,
     // Read-only lookups the work order details page renders as labels.

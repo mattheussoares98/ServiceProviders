@@ -41,7 +41,9 @@ void main() {
       expect(providerModeAllows(managePendingRequests), isFalse);
       expect(
         providerModeAllows(
-          const ActionPermission.workOrderSubAction(WorkOrderSubAction.reassign),
+          const ActionPermission.workOrderSubAction(
+            WorkOrderSubAction.reassign,
+          ),
         ),
         isFalse,
       );
@@ -72,10 +74,11 @@ void main() {
           PermissionAction.update,
           PermissionAction.delete,
         ]) {
-          if (resource == ResourceType.attachments &&
-              action == PermissionAction.create) {
-            continue;
-          }
+          final isAllowedCreate =
+              action == PermissionAction.create &&
+              (resource == ResourceType.attachments ||
+                  resource == ResourceType.workOrders);
+          if (isAllowedCreate) continue;
           expect(
             providerModeAllows(
               ActionPermission.resource(
