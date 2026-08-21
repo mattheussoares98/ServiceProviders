@@ -46,6 +46,16 @@ class IntegrationConfig {
     return value;
   }
 
+  static int _nameCounter = 0;
+
   /// Creates a test-identifiable name from an EntityFactory-generated name.
-  static String testName(String baseName) => '$testDataPrefix$baseName';
+  ///
+  /// A short run-unique suffix is appended because the fixture names come from
+  /// `faker.lorem.word()` and friends, whose vocabulary is small enough to
+  /// collide with the `[IT]` rows left behind by earlier runs — every affected
+  /// table has a case-insensitive unique index on (company_id, name).
+  static String testName(String baseName) {
+    final unique = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+    return '$testDataPrefix$baseName $unique${_nameCounter++}';
+  }
 }

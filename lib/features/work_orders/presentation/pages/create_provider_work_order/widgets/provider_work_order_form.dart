@@ -24,6 +24,13 @@ class _ProviderWorkOrderForm extends HookWidget {
     final selectedPriority = useState(Priority.medium);
     final selectedScheduledDate = useState<DateTime?>(null);
 
+    useEffect(() {
+      if (selectedCompany.value == null && companies.length == 1) {
+        selectedCompany.value = companies.first;
+      }
+      return null;
+    }, [companies]);
+
     // The registry belongs to the contracting company, so it can only be read
     // once the provider company — and with it the tenant — is known.
     useEffect(() {
