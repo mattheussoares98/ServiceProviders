@@ -5,7 +5,10 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_use_cases.dart';
@@ -25,8 +28,11 @@ class MockCreateWorkOrderObservationUseCase extends Mock
 class MockDeleteWorkOrderObservationUseCase extends Mock
     implements DeleteWorkOrderObservationUseCase {}
 
-class MockGetActiveCompanyIdUseCase extends Mock
-    implements GetActiveCompanyIdUseCase {}
+class MockGetSelectedModeUseCase extends Mock
+    implements GetSelectedModeUseCase {}
+
+class MockGetServiceProviderProfilesByAuthUserUseCase extends Mock
+    implements GetServiceProviderProfilesByAuthUserUseCase {}
 
 class MockGetSessionUserUseCase extends Mock
     implements GetSessionUserUseCase {}
@@ -35,7 +41,8 @@ void main() {
   late MockGetWorkOrderObservationsUseCase getUseCase;
   late MockCreateWorkOrderObservationUseCase createUseCase;
   late MockDeleteWorkOrderObservationUseCase deleteUseCase;
-  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
+  late MockGetServiceProviderProfilesByAuthUserUseCase mockGetProviderProfiles;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late WorkOrderObservationsCubitUseCases cubitUseCases;
   late MockNavigationClient mockNavigationClient;
@@ -48,14 +55,17 @@ void main() {
     getUseCase = MockGetWorkOrderObservationsUseCase();
     createUseCase = MockCreateWorkOrderObservationUseCase();
     deleteUseCase = MockDeleteWorkOrderObservationUseCase();
-    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockGetSelectedMode = MockGetSelectedModeUseCase();
+    mockGetProviderProfiles = MockGetServiceProviderProfilesByAuthUserUseCase();
+    when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
     mockGetSessionUser = MockGetSessionUserUseCase();
     cubitUseCases = WorkOrderObservationsCubitUseCases(
       getObservations: getUseCase,
       createObservation: createUseCase,
       deleteObservation: deleteUseCase,
-      getActiveCompanyId: mockGetActiveCompanyId,
       getSessionUser: mockGetSessionUser,
+      getSelectedMode: mockGetSelectedMode,
+      getServiceProviderProfilesByAuthUser: mockGetProviderProfiles,
     );
     mockNavigationClient = MockNavigationClient();
 
@@ -114,9 +124,6 @@ void main() {
     build: () {
       final createdObs = EntityFactory.makeWorkOrderObservationEntity();
       when(
-        () => mockGetActiveCompanyId.call(),
-      ).thenReturn(faker.guid.guid());
-      when(
         () => mockGetSessionUser.call(),
       ).thenReturn(EntityFactory.makeUserProfileEntity());
       when(
@@ -129,7 +136,7 @@ void main() {
       observations: [tObs],
     ),
     act: (cubit) => cubit.createObservation(
-      workOrderId: faker.guid.guid(),
+      workOrder: EntityFactory.makeWorkOrderEntity(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [
@@ -144,13 +151,102 @@ void main() {
     ],
   );
 
+  test(
+    'authors through the provider profile and the work order tenant in provider mode',
+    () async {
+      final workOrder = EntityFactory.makeWorkOrderEntity();
+      final profile = EntityFactory.makeServiceProviderProfileEntity()
+          .copyWith(
+            serviceProviderCompanyId: workOrder.serviceProviderCompanyId,
+          );
+
+      when(
+        () => mockGetSelectedMode.call(),
+      ).thenReturn(AppMode.provider.name);
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      when(
+        () => mockGetProviderProfiles.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: [profile]));
+      when(() => createUseCase.call(any())).thenAnswer(
+        (inv) async => SuccessState(
+          data: inv.positionalArguments.first as WorkOrderObservationEntity,
+        ),
+      );
+
+      final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+      final success = await cubit.createObservation(
+        workOrder: workOrder,
+        content: faker.lorem.sentence(),
+      );
+
+      expect(success, isTrue);
+      final sent =
+          verify(() => createUseCase.call(captureAny())).captured.last
+              as WorkOrderObservationEntity;
+      // author_id would violate the user_profiles foreign key for a provider.
+      expect(sent.authorId, isNull);
+      expect(sent.authorProviderProfileId, profile.id);
+      expect(sent.authorName, profile.name);
+      // The tenant is the contracting company, not the provider's employer.
+      expect(sent.companyId, workOrder.companyId);
+      await cubit.close();
+    },
+  );
+
+  test('fails cleanly in provider mode when no provider profile exists', () async {
+    when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
+    when(
+      () => mockGetSessionUser.call(),
+    ).thenReturn(EntityFactory.makeUserProfileEntity());
+    when(
+      () => mockGetProviderProfiles.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+
+    final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+    final success = await cubit.createObservation(
+      workOrder: EntityFactory.makeWorkOrderEntity(),
+      content: faker.lorem.sentence(),
+    );
+
+    expect(success, isFalse);
+    expect(cubit.state.status, StateStatus.savingError);
+    verifyNever(() => createUseCase.call(any()));
+    await cubit.close();
+  });
+
+  test('authors as the internal user in internal mode', () async {
+    final user = EntityFactory.makeUserProfileEntity();
+    final workOrder = EntityFactory.makeWorkOrderEntity();
+    when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
+    when(() => mockGetSessionUser.call()).thenReturn(user);
+    when(() => createUseCase.call(any())).thenAnswer(
+      (inv) async => SuccessState(
+        data: inv.positionalArguments.first as WorkOrderObservationEntity,
+      ),
+    );
+
+    final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+    await cubit.createObservation(
+      workOrder: workOrder,
+      content: faker.lorem.sentence(),
+    );
+
+    final sent =
+        verify(() => createUseCase.call(captureAny())).captured.last
+            as WorkOrderObservationEntity;
+    expect(sent.authorId, user.id);
+    expect(sent.authorProviderProfileId, isNull);
+    expect(sent.companyId, workOrder.companyId);
+    verifyNever(() => mockGetProviderProfiles.call(any()));
+    await cubit.close();
+  });
+
   blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
     'emits [saving, savingError] when createObservation fails',
     build: () {
       final errorMsg = faker.lorem.sentence();
-      when(
-        () => mockGetActiveCompanyId.call(),
-      ).thenReturn(faker.guid.guid());
       when(
         () => mockGetSessionUser.call(),
       ).thenReturn(EntityFactory.makeUserProfileEntity());
@@ -160,7 +256,7 @@ void main() {
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     act: (cubit) => cubit.createObservation(
-      workOrderId: faker.guid.guid(),
+      workOrder: EntityFactory.makeWorkOrderEntity(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [

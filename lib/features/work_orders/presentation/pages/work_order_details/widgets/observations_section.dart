@@ -43,7 +43,7 @@ class ObservationsSection extends HookWidget {
       if (content.isEmpty) return;
 
       final success = await cubit.createObservation(
-        workOrderId: workOrder.id,
+        workOrder: workOrder,
         content: content,
       );
 
