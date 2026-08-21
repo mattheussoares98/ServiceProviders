@@ -56,7 +56,7 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 **Blocks:** work order assignment notifications (V1 scope), pendency notifications ([V2 §4.2](/docs/cmms/v2_features.md)), and the entire escalation engine ([V2 §5](/docs/cmms/v2_features.md)).
 **Work:** device token table + migration, token registration/refresh on login, an Edge Function to dispatch by user.
 
-### Gap 2 — Provider Mode UI 🟡 PARTIALLY IMPLEMENTED
+### Gap 2 — Provider Mode UI ✅ IMPLEMENTED
 **Done (2026-08-20):**
 - `ProviderHomePage` is now a cubit shell hosting a nested router.
 - `ProviderWorkOrdersPage` lists every work order assigned to the provider across all contracting companies.
@@ -71,10 +71,14 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 
 **Attachments (2026-08-20)** — `AttachmentsCubit.pickAttachment` took `company_id` from the session. In provider mode `GetActiveCompanyIdUseCase` falls back to the user's own employer (empty for a provider-only user), because `saveSelectedCompanyId` is never called anywhere in `lib/` — the provider company filter lives only in `WorkOrdersCubit.state.activeFilter`. The tenant now comes from the work order being attached to.
 
-**Still to do:**
-- **Provider work order creation** ([V2 §1.3](/docs/cmms/v2_features.md), Q5). The shared create/update form reads locations, assets and users, all still scoped to `company_id` in RLS, so a provider would get empty dropdowns. Needs its own RLS pass and probably a reduced form.
+**Closed items:**
+- ~~**Provider work order creation.**~~ Done (2026-08-21). `CreateProviderWorkOrderPage` is a reduced form — contracting company, location, area, title, description, type, priority, scheduled date. Responsible, SLA policy and status are not offered: they belong to the contracting company, and the order is opened as `open`, assigned to the author's own provider company. Two migrations back it: `20260821140000_widen_provider_access_to_locations_and_areas.sql` and `20260821150000_allow_provider_created_work_orders.sql`, both applied 2026-08-21. The second mirrors the observations authorship split — `created_by_id` is now nullable with `created_by_provider_profile_id` beside it under a single-creator CHECK, because a provider-only user has no `user_profiles` row for the FK to point at. `providerModeAllows` now grants `work_orders.create`.
+
+  **⚠️ Open scope decision — revisit before a customer asks.** A provider now reads the **entire** location and area registry of every contracting company that hired it, including sites it has never worked at. This was accepted deliberately (2026-08-21) because the create form has to browse the registry before any work order exists, and the narrower per-work-order grant cannot serve it. If this becomes a concern, the fix is to restrict the create form's registry to locations where the provider already has work orders, or to add an explicit per-provider site allowlist. `assets` was **not** widened for the same reason — equipment stays on the per-work-order grant, which is why the provider form has no equipment field.
+
+  Not offered yet in the provider form: attachments at creation time, and the estimated duration field.
 - ~~**Provider observations.**~~ Done via `supabase/migrations/20260820140000_allow_provider_authored_observations.sql`: `author_id` is nullable, `author_provider_profile_id` was added with a single-author CHECK, and the INSERT/UPDATE policies key the provider branch off `is_own_provider_profile`. `WorkOrderObservationsCubit` resolves the session user's provider profile for the work order's provider company and stamps the tenant from the work order. Applied 2026-08-21.
-- ~~**Location and asset labels render blank in provider mode.**~~ Done (2026-08-21) via `supabase/migrations/20260821120000_add_provider_read_access_to_work_order_lookups.sql`: `locations`, `areas` and `assets` gained a provider SELECT branch, granted per work order rather than per contracting company — a provider reads only the rows its own assigned work orders point at. This also unblocks `getWorkOrderById`, whose `locations!inner` join made a provider's details reload return "not found". On the Flutter side those cubits cannot fetch by company in provider mode, so `getLocationsByIds` / `getAreasByIds` / `getAssetsByIds` were added down the stack (online-only, no Drift caching, same rationale as `getProviderWorkOrders`) and `ProviderLookupsLoader` feeds them the ids of the loaded work orders. Failures are silent — these are optional labels.
+- ~~**Location and asset labels render blank in provider mode.**~~ Done (2026-08-21) via `supabase/migrations/20260821120000_add_provider_read_access_to_work_order_lookups.sql`: `locations`, `areas` and `assets` gained a provider SELECT branch, granted per work order rather than per contracting company — a provider reads only the rows its own assigned work orders point at. (Locations and areas were widened the same day by `20260821140000` for the create form; `assets` still uses this grant.) This also unblocks `getWorkOrderById`, whose `locations!inner` join made a provider's details reload return "not found". On the Flutter side those cubits cannot fetch by company in provider mode, so `getLocationsByIds` / `getAreasByIds` / `getAssetsByIds` were added down the stack (online-only, no Drift caching, same rationale as `getProviderWorkOrders`) and `ProviderLookupsLoader` feeds them the ids of the loaded work orders. Failures are silent — these are optional labels.
 
 ### Gap 3 — Outbound sync does not exist 🔴
 Sync is pull-only (`syncWorkOrders`, work orders only). Offline writes land in Drift and are never pushed. `sync_audit_logs` is declared in the Drift schema but unused.
@@ -105,4 +109,4 @@ Not started. Low complexity, compliance value.
 ---
 
 ## Phase 2: Provider Mode (`AppMode.provider`) UI
-Provider Mode backend and cubit layers are already built. Blocked on Gap 2 above.
+Delivered — see Gap 2. What remains is shared with Company Mode: notifications (Gap 1), outbound sync (Gap 3) and real-time (Gap 4).
