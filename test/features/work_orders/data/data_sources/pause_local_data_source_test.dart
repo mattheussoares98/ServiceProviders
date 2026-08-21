@@ -101,7 +101,7 @@ void main() {
             id: workOrderId,
             companyId: companyId,
             locationId: locationId,
-            createdById: userId,
+            createdById: Value(userId),
             title: faker.job.title(),
             description: Value(faker.lorem.sentence()),
             assetId: Value(assetId),

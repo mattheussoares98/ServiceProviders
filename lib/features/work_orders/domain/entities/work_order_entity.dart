@@ -15,6 +15,7 @@ class WorkOrderEntity extends Equatable {
     required this.areaId,
     required this.assignedToId,
     required this.createdById,
+    this.createdByProviderProfileId,
     required this.maintenancePlanId,
     required this.title,
     required this.description,
@@ -52,7 +53,13 @@ class WorkOrderEntity extends Equatable {
   final String locationId;
   final String? areaId;
   final String? assignedToId;
-  final String createdById;
+
+  /// Null when the work order was opened from provider mode — mutually
+  /// exclusive with [createdByProviderProfileId].
+  final String? createdById;
+
+  /// Set when the work order was opened from provider mode.
+  final String? createdByProviderProfileId;
   final String? maintenancePlanId;
   final String title;
   final String? description;
@@ -92,6 +99,7 @@ class WorkOrderEntity extends Equatable {
     areaId,
     assignedToId,
     createdById,
+    createdByProviderProfileId,
     maintenancePlanId,
     title,
     description,
@@ -131,6 +139,7 @@ class WorkOrderEntity extends Equatable {
     String? areaId,
     String? assignedToId,
     String? createdById,
+    String? createdByProviderProfileId,
     String? maintenancePlanId,
     String? title,
     String? description,
@@ -193,6 +202,8 @@ class WorkOrderEntity extends Equatable {
           ? null
           : assignedToId ?? this.assignedToId,
       createdById: createdById ?? this.createdById,
+      createdByProviderProfileId:
+          createdByProviderProfileId ?? this.createdByProviderProfileId,
       maintenancePlanId: annulMaintenancePlanId == true
           ? null
           : maintenancePlanId ?? this.maintenancePlanId,

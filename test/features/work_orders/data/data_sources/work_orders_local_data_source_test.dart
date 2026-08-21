@@ -134,7 +134,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -205,7 +205,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -237,7 +237,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -271,7 +271,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -338,7 +338,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -377,7 +377,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tWorkOrderModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,
@@ -421,7 +421,7 @@ void main() {
 
         await insertDependencies(
           companyId: modelMatch.companyId,
-          userId: modelMatch.createdById,
+          userId: modelMatch.createdById!,
           locationId: modelMatch.locationId,
           areaId: faker.guid.guid(),
           assetId: modelMatch.assetId!,
@@ -505,7 +505,7 @@ void main() {
         // Arrange
         await insertDependencies(
           companyId: tTaskModel.companyId,
-          userId: tWorkOrderModel.createdById,
+          userId: tWorkOrderModel.createdById!,
           locationId: tWorkOrderModel.locationId,
           areaId: faker.guid.guid(),
           assetId: tWorkOrderModel.assetId!,

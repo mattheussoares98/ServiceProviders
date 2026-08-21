@@ -28,18 +28,23 @@ class WorkOrders extends Table {
       text().nullable().references(Assets, #id, onDelete: KeyAction.setNull)();
   TextColumn get locationId =>
       text().references(Locations, #id, onDelete: KeyAction.cascade)();
-  TextColumn get areaId => text().nullable().references(
-    Areas,
-    #id,
-    onDelete: KeyAction.setNull,
-  )();
+  TextColumn get areaId =>
+      text().nullable().references(Areas, #id, onDelete: KeyAction.setNull)();
   TextColumn get assignedToId => text().nullable().references(
     UserProfiles,
     #id,
     onDelete: KeyAction.setNull,
   )();
-  TextColumn get createdById =>
-      text().references(UserProfiles, #id, onDelete: KeyAction.cascade)();
+  TextColumn get createdById => text().nullable().references(
+    UserProfiles,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
+  TextColumn get createdByProviderProfileId => text().nullable().references(
+    ServiceProviderProfiles,
+    #id,
+    onDelete: KeyAction.restrict,
+  )();
   TextColumn get maintenancePlanId => text().nullable().references(
     MaintenancePlans,
     #id,
@@ -69,23 +74,19 @@ class WorkOrders extends Table {
     #id,
     onDelete: KeyAction.setNull,
   )();
-  TextColumn get openedBy =>
-      text().withDefault(const Constant('internal'))();
+  TextColumn get openedBy => text().withDefault(const Constant('internal'))();
   TextColumn get slaPolicyId => text().nullable().references(
-        SlaPolicies,
-        #id,
-        onDelete: KeyAction.setNull,
-      )();
+    SlaPolicies,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   DateTimeColumn get slaDeadlineAt => dateTime().nullable()();
   BoolColumn get slaBreached => boolean().nullable()();
   IntColumn get netActiveDuration => integer().nullable()();
   TextColumn get completionReason => text().nullable()();
   TextColumn get completionResponsibility => text().nullable()();
-  TextColumn get completionSectorId => text().nullable().references(
-        Sectors,
-        #id,
-        onDelete: KeyAction.setNull,
-      )();
+  TextColumn get completionSectorId =>
+      text().nullable().references(Sectors, #id, onDelete: KeyAction.setNull)();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -93,4 +94,3 @@ class WorkOrders extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
-

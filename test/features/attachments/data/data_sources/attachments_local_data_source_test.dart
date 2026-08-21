@@ -100,7 +100,7 @@ void main() {
             companyId: companyId,
             assetId: Value(assetId),
             locationId: locationId,
-            createdById: userId,
+            createdById: Value(userId),
             title: faker.company.name(),
             priority: const Value('medium'),
             status: const Value('open'),

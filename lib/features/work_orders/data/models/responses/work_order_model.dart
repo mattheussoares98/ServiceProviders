@@ -19,6 +19,7 @@ class WorkOrderModel extends WorkOrderEntity
     required super.areaId,
     required super.assignedToId,
     required super.createdById,
+    super.createdByProviderProfileId,
     required super.maintenancePlanId,
     required super.title,
     required super.description,
@@ -58,6 +59,7 @@ class WorkOrderModel extends WorkOrderEntity
     areaId: entity.areaId,
     assignedToId: entity.assignedToId,
     createdById: entity.createdById,
+    createdByProviderProfileId: entity.createdByProviderProfileId,
     maintenancePlanId: entity.maintenancePlanId,
     title: entity.title,
     description: entity.description,
@@ -96,7 +98,9 @@ class WorkOrderModel extends WorkOrderEntity
     locationId: json['location_id'] as String? ?? '',
     areaId: json['area_id'] as String?,
     assignedToId: json['assigned_to_id'] as String?,
-    createdById: json['created_by_id'] as String? ?? '',
+    createdById: json['created_by_id'] as String?,
+    createdByProviderProfileId:
+        json['created_by_provider_profile_id'] as String?,
     maintenancePlanId: json['maintenance_plan_id'] as String?,
     title: json['title'] as String? ?? '',
     description: json['description'] as String?,
@@ -112,9 +116,11 @@ class WorkOrderModel extends WorkOrderEntity
     partsCost: (json['parts_cost'] as num?)?.toDouble(),
     totalCost: (json['total_cost'] as num?)?.toDouble(),
     notes: json['notes'] as String?,
-    createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+    createdAt:
+        (json['created_at'] as String?).toUtcDateTime() ??
         DateTime.now().toUtc(),
-    updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+    updatedAt:
+        (json['updated_at'] as String?).toUtcDateTime() ??
         DateTime.now().toUtc(),
     deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     attachments:
@@ -149,6 +155,7 @@ class WorkOrderModel extends WorkOrderEntity
     'area_id': areaId,
     'assigned_to_id': assignedToId,
     'created_by_id': createdById,
+    'created_by_provider_profile_id': createdByProviderProfileId,
     'maintenance_plan_id': maintenancePlanId,
     'title': title,
     'description': description,
@@ -188,6 +195,7 @@ class WorkOrderModel extends WorkOrderEntity
     areaId: areaId,
     assignedToId: assignedToId,
     createdById: createdById,
+    createdByProviderProfileId: createdByProviderProfileId,
     maintenancePlanId: maintenancePlanId,
     title: title,
     description: description,

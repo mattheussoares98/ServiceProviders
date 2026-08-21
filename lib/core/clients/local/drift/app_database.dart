@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -202,6 +202,15 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('work_order_observations');
         await m.createTable(workOrderObservations);
+        await customStatement('PRAGMA foreign_keys = ON;');
+      }
+      if (from < 25) {
+        // created_by_id became nullable and created_by_provider_profile_id was
+        // added; SQLite cannot drop a NOT NULL, so the table is recreated. The
+        // rows are a read-through cache and refetch on the next load.
+        await customStatement('PRAGMA foreign_keys = OFF;');
+        await m.deleteTable('work_orders');
+        await m.createTable(workOrders);
         await customStatement('PRAGMA foreign_keys = ON;');
       }
     },

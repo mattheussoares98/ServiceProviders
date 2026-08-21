@@ -182,6 +182,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           areaId: order.areaId,
           assignedToId: order.assignedToId,
           createdById: order.createdById,
+          createdByProviderProfileId: order.createdByProviderProfileId,
           maintenancePlanId: order.maintenancePlanId,
           title: order.title,
           description: order.description,
@@ -272,6 +273,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         areaId: order.areaId,
         assignedToId: order.assignedToId,
         createdById: order.createdById,
+        createdByProviderProfileId: order.createdByProviderProfileId,
         maintenancePlanId: order.maintenancePlanId,
         title: order.title,
         description: order.description,
@@ -340,6 +342,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               locationId: Value(workOrder.locationId),
               assignedToId: Value(workOrder.assignedToId),
               createdById: Value(workOrder.createdById),
+              createdByProviderProfileId: Value(
+                workOrder.createdByProviderProfileId,
+              ),
               maintenancePlanId: Value(workOrder.maintenancePlanId),
               title: Value(workOrder.title),
               description: Value(workOrder.description),
@@ -392,10 +397,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
 
       await _database.batch((batch) {
         if (toDelete.isNotEmpty) {
-          batch.deleteWhere(
-            _database.workOrders,
-            (t) => t.id.isIn(toDelete),
-          );
+          batch.deleteWhere(_database.workOrders, (t) => t.id.isIn(toDelete));
         }
         if (toUpsert.isNotEmpty) {
           batch.insertAllOnConflictUpdate(_database.workOrders, toUpsert);
