@@ -4,7 +4,9 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_area_u
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
@@ -15,6 +17,8 @@ class LocationsCubitUseCases {
     required this.getActiveCompanyId,
     required this.getLocations,
     required this.getAreas,
+    required this.getLocationsByIds,
+    required this.getAreasByIds,
     required this.createLocation,
     required this.updateLocation,
     required this.deleteLocation,
@@ -26,6 +30,8 @@ class LocationsCubitUseCases {
   final GetActiveCompanyIdUseCase getActiveCompanyId;
   final GetLocationsUseCase getLocations;
   final GetAreasUseCase getAreas;
+  final GetLocationsByIdsUseCase getLocationsByIds;
+  final GetAreasByIdsUseCase getAreasByIds;
   final CreateLocationUseCase createLocation;
   final UpdateLocationUseCase updateLocation;
   final DeleteLocationUseCase deleteLocation;

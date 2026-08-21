@@ -63,6 +63,42 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
+  /// Provider mode counterpart of [loadLocationsAndAreas]. The provider has no
+  /// company of its own to scope by, so only the locations and areas referenced
+  /// by its own work orders are fetched — enough for the details page labels.
+  /// Silent on failure: these are optional labels, not the page's subject.
+  Future<void> loadLocationsAndAreasByIds({
+    required List<String> locationIds,
+    required List<String> areaIds,
+  }) async {
+    if (locationIds.isEmpty && areaIds.isEmpty) return;
+
+    final locationsResult = await _useCases.getLocationsByIds(locationIds);
+    final areasResult = await _useCases.getAreasByIds(areaIds);
+
+    if (isClosed) return;
+
+    if (locationsResult is! SuccessState<List<LocationEntity>> ||
+        areasResult is! SuccessState<List<AreaEntity>>) {
+      return;
+    }
+
+    final areas = areasResult.data ?? [];
+    final Map<String, List<AreaEntity>> areasByLocation = {};
+    for (final area in areas) {
+      areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
+    }
+    emit(
+      state.copyWith(
+        status: StateStatus.loaded,
+        locations: locationsResult.data,
+        areasByLocation: areasByLocation,
+        allAreas: areas,
+        annulErrorMessage: true,
+      ),
+    );
+  }
+
   Future<void> loadAreas() async {
     final companyId = _useCases.getActiveCompanyId();
     final dataState = await _useCases.getAreas(companyId);

@@ -11,7 +11,9 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_area_u
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
@@ -32,6 +34,11 @@ class MockGetLocationsUseCase extends Mock implements GetLocationsUseCase {}
 
 class MockGetAreasUseCase extends Mock implements GetAreasUseCase {}
 
+class MockGetLocationsByIdsUseCase extends Mock
+    implements GetLocationsByIdsUseCase {}
+
+class MockGetAreasByIdsUseCase extends Mock implements GetAreasByIdsUseCase {}
+
 class MockCreateLocationUseCase extends Mock implements CreateLocationUseCase {}
 
 class MockUpdateLocationUseCase extends Mock implements UpdateLocationUseCase {}
@@ -50,6 +57,8 @@ void main() {
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetLocationsUseCase mockGetLocations;
   late MockGetAreasUseCase mockGetAreas;
+  late MockGetLocationsByIdsUseCase mockGetLocationsByIds;
+  late MockGetAreasByIdsUseCase mockGetAreasByIds;
   late MockCreateLocationUseCase mockCreateLocation;
   late MockUpdateLocationUseCase mockUpdateLocation;
   late MockDeleteLocationUseCase mockDeleteLocation;
@@ -75,6 +84,8 @@ void main() {
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetLocations = MockGetLocationsUseCase();
     mockGetAreas = MockGetAreasUseCase();
+    mockGetLocationsByIds = MockGetLocationsByIdsUseCase();
+    mockGetAreasByIds = MockGetAreasByIdsUseCase();
     mockCreateLocation = MockCreateLocationUseCase();
     mockUpdateLocation = MockUpdateLocationUseCase();
     mockDeleteLocation = MockDeleteLocationUseCase();
@@ -97,6 +108,8 @@ void main() {
       getActiveCompanyId: mockGetActiveCompanyId,
       getLocations: mockGetLocations,
       getAreas: mockGetAreas,
+      getLocationsByIds: mockGetLocationsByIds,
+      getAreasByIds: mockGetAreasByIds,
       createLocation: mockCreateLocation,
       updateLocation: mockUpdateLocation,
       deleteLocation: mockDeleteLocation,
@@ -228,6 +241,61 @@ void main() {
           verify(() => mockGetLocations.call('')).called(1);
           verify(() => mockGetAreas.call('')).called(1);
         },
+      );
+    });
+
+    group('loadLocationsAndAreasByIds', () {
+      blocTest<LocationsCubit, LocationsState>(
+        'should emit loaded with the rows referenced by the ids',
+        build: () {
+          when(
+            () => mockGetLocationsByIds.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetAreasByIds.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadLocationsAndAreasByIds(
+          locationIds: [tLocations.first.id],
+          areaIds: [tAreas.first.id],
+        ),
+        expect: () => [
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.locations, 'locations', tLocations)
+              .having((s) => s.allAreas, 'allAreas', tAreas),
+        ],
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should not call the use cases when both id lists are empty',
+        build: () => cubit,
+        act: (cubit) =>
+            cubit.loadLocationsAndAreasByIds(locationIds: [], areaIds: []),
+        expect: () => <LocationsState>[],
+        verify: (_) {
+          verifyNever(() => mockGetLocationsByIds.call(any()));
+          verifyNever(() => mockGetAreasByIds.call(any()));
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should stay silent on failure — these are optional labels',
+        build: () {
+          when(() => mockGetLocationsByIds.call(any())).thenAnswer(
+            (_) async => FailureState<List<LocationEntity>>(message: 'Error'),
+          );
+          when(
+            () => mockGetAreasByIds.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadLocationsAndAreasByIds(
+          locationIds: [tLocations.first.id],
+          areaIds: [tAreas.first.id],
+        ),
+        expect: () => <LocationsState>[],
       );
     });
 
