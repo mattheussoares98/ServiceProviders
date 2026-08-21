@@ -1,5 +1,6 @@
 export 'permission/action_permission.dart';
 export 'permission/permission_action.dart';
+export 'permission/provider_mode_permission.dart';
 export 'permission/resource_permission_entity.dart';
 export 'permission/resource_type.dart';
 export 'permission/user_work_orders_permission_override_entity.dart';
