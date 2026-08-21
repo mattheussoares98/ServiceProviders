@@ -2,13 +2,19 @@
 
 Instances of preventive, corrective, or inspection tasks.
 
+> Exactly one creator: `created_by_id` for internal mode, or
+> `created_by_provider_profile_id` for provider mode
+> (`num_nonnulls(created_by_id, created_by_provider_profile_id) = 1`). A
+> provider-only user has no `user_profiles` row to point at.
+
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
 | `asset_id` | UUID | YES | - | FK → `assets.id` (Set Null) |
 | `location_id` | UUID | NO | - | FK → `locations.id` (Cascade) |
 | `area_id` | UUID | YES | - | FK → `areas.id` (Set Null) — must match `assets.area_id` when both are set |
 | `assigned_to_id` | UUID | YES | - | FK → `user_profiles.id` (Set Null) |
-| `created_by_id` | UUID | NO | - | FK → `user_profiles.id` (Cascade) |
+| `created_by_id` | UUID | YES | - | FK → `user_profiles.id` (Cascade). Null when opened from provider mode |
+| `created_by_provider_profile_id` | UUID | YES | `NULL` | FK → `service_provider_profiles.id` (Restrict). Set when opened from provider mode |
 | `maintenance_plan_id` | UUID | YES | - | FK → `maintenance_plans.id` (Set Null) |
 | `title` | VARCHAR(255) | NO | - | Summary of issue/task |
 | `description` | VARCHAR(2000) | YES | - | Details |
