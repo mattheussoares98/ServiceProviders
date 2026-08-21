@@ -55,6 +55,27 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     }
   }
 
+  /// Provider mode counterpart of [loadAssets]. The provider has no company of
+  /// its own to scope by, so only the assets referenced by its own work orders
+  /// are fetched — enough for the details page labels. Silent on failure: these
+  /// are optional labels, not the page's subject.
+  Future<void> loadAssetsByIds(List<String> ids) async {
+    if (ids.isEmpty) return;
+
+    final result = await _useCases.getAssetsByIds(ids);
+    if (isClosed) return;
+
+    if (result is SuccessState<List<AssetEntity>>) {
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          assets: result.data ?? [],
+          annulErrorMessage: true,
+        ),
+      );
+    }
+  }
+
   Future<bool> saveAsset({
     required String? id,
     required String areaId,

@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/create_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/delete_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_asset_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
@@ -29,6 +30,8 @@ class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 class MockGetAssetsUseCase extends Mock implements GetAssetsUseCase {}
 
+class MockGetAssetsByIdsUseCase extends Mock implements GetAssetsByIdsUseCase {}
+
 class MockGetAssetByIdUseCase extends Mock implements GetAssetByIdUseCase {}
 
 class MockCreateAssetUseCase extends Mock implements CreateAssetUseCase {}
@@ -47,6 +50,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockGetAssetsUseCase mockGetAssets;
+  late MockGetAssetsByIdsUseCase mockGetAssetsByIds;
   late MockGetAssetByIdUseCase mockGetAssetById;
   late MockCreateAssetUseCase mockCreateAsset;
   late MockUpdateAssetUseCase mockUpdateAsset;
@@ -64,6 +68,7 @@ void main() {
 
   setUp(() {
     mockGetAssets = MockGetAssetsUseCase();
+    mockGetAssetsByIds = MockGetAssetsByIdsUseCase();
     mockGetAssetById = MockGetAssetByIdUseCase();
     mockCreateAsset = MockCreateAssetUseCase();
     mockUpdateAsset = MockUpdateAssetUseCase();
@@ -80,6 +85,7 @@ void main() {
 
     final useCases = AssetsCubitUseCases(
       getAssets: mockGetAssets,
+      getAssetsByIds: mockGetAssetsByIds,
       getAssetById: mockGetAssetById,
       createAsset: mockCreateAsset,
       updateAsset: mockUpdateAsset,
@@ -93,6 +99,47 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('AssetsCubit Tests', () {
+    group('loadAssetsByIds', () {
+      blocTest<AssetsCubit, AssetsState>(
+        'should emit loaded with the assets referenced by the ids',
+        build: () {
+          when(() => mockGetAssetsByIds.call(any())).thenAnswer(
+            (_) async =>
+                SuccessState(data: EntityFactory.makeAssetEntityList()),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAssetsByIds([faker.guid.guid()]),
+        expect: () => [
+          isA<AssetsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.assets, 'assets', isNotEmpty),
+        ],
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'should not call the use case nor emit when the id list is empty',
+        build: () => cubit,
+        act: (cubit) => cubit.loadAssetsByIds([]),
+        expect: () => <AssetsState>[],
+        verify: (_) {
+          verifyNever(() => mockGetAssetsByIds.call(any()));
+        },
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'should stay silent on failure — these are optional labels',
+        build: () {
+          when(() => mockGetAssetsByIds.call(any())).thenAnswer(
+            (_) async => FailureState<List<AssetEntity>>(message: 'Error'),
+          );
+          return cubit;
+        },
+        act: (cubit) => cubit.loadAssetsByIds([faker.guid.guid()]),
+        expect: () => <AssetsState>[],
+      );
+    });
+
     group('loadAssets', () {
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading and loaded when assets load successfully',
