@@ -10,6 +10,7 @@ class WorkOrdersState extends BaseState {
     this.activeFilter = const WorkOrderFilter(),
     this.hasMorePages = true,
     this.isLoadingMore = false,
+    this.providerCompanies = const [],
     super.status = StateStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
@@ -22,6 +23,7 @@ class WorkOrdersState extends BaseState {
       activeFilter = const WorkOrderFilter(),
       hasMorePages = true,
       isLoadingMore = false,
+      providerCompanies = const [],
       super(status: StateStatus.initial, errorMessage: '');
 
   final List<WorkOrderEntity> workOrders;
@@ -31,6 +33,16 @@ class WorkOrdersState extends BaseState {
   final bool hasMorePages;
   final bool isLoadingMore;
 
+  /// Provider mode only. The provider companies the signed-in user belongs to.
+  /// The company filter is offered only when this holds more than one entry.
+  final List<ServiceProviderCompanyEntity> providerCompanies;
+
+  /// Provider mode only. Null means "Todas as empresas".
+  String? get selectedProviderCompanyId =>
+      activeFilter.serviceProviderCompanyIds.length == 1
+      ? activeFilter.serviceProviderCompanyIds.first
+      : null;
+
   WorkOrdersState copyWith({
     List<WorkOrderEntity>? workOrders,
     List<WorkOrderChangeRequestEntity>? changeRequests,
@@ -38,6 +50,7 @@ class WorkOrdersState extends BaseState {
     WorkOrderFilter? activeFilter,
     bool? hasMorePages,
     bool? isLoadingMore,
+    List<ServiceProviderCompanyEntity>? providerCompanies,
     Map<SectionKey, StateStatus>? sections,
     StateStatus? status,
     String? errorMessage,
@@ -50,6 +63,7 @@ class WorkOrdersState extends BaseState {
       activeFilter: activeFilter ?? this.activeFilter,
       hasMorePages: hasMorePages ?? this.hasMorePages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      providerCompanies: providerCompanies ?? this.providerCompanies,
       sections: sections ?? this.sections,
       status: status ?? this.status,
       errorMessage: annulErrorMessage == true
@@ -66,6 +80,7 @@ class WorkOrdersState extends BaseState {
     activeFilter,
     hasMorePages,
     isLoadingMore,
+    providerCompanies,
     sections,
     status,
     errorMessage,

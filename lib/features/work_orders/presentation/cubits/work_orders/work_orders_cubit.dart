@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -7,6 +6,8 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
@@ -15,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_h
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
@@ -35,6 +37,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   final WorkOrdersCubitUseCases _useCases;
 
   static const _pageSize = 50;
+
+  /// Provider mode changes how work orders are scoped and fetched, so the
+  /// entry points shared with internal mode branch on it.
+  bool get _isProviderMode =>
+      AppMode.fromName(_useCases.getSelectedMode()) == AppMode.provider;
 
   Future<bool> loadWorkOrdersAndChangeRequests({
     bool showLoading = true,
@@ -90,6 +97,133 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+
+  // ===========================================================================
+  // Provider mode (AppMode.provider)
+  // ===========================================================================
+  // Provider work orders span every contracting company the provider serves, so
+  // they are scoped by provider company instead of by `company_id`, and are
+  // fetched online-only (V2 §1.4). Everything downstream — details, execution,
+  // pauses, attachments — reuses the internal-mode widgets unchanged.
+
+  /// Loads the provider companies the user belongs to, then their work orders.
+  /// Call this instead of [loadWorkOrdersAndChangeRequests] in provider mode.
+  Future<bool> loadProviderWorkOrders({
+    bool showLoading = true,
+    WorkOrderFilter? filter,
+  }) async {
+    if (showLoading) {
+      emit(state.copyWith(status: StateStatus.loading));
+    }
+
+    final companies = await _loadProviderCompanies();
+    if (isClosed) return false;
+
+    if (companies.isEmpty) {
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          workOrders: const [],
+          providerCompanies: const [],
+          hasMorePages: false,
+          isLoadingMore: false,
+        ),
+      );
+      return true;
+    }
+
+    final activeFilter = filter ?? state.activeFilter;
+    final result = await _useCases.getProviderWorkOrders(
+      GetProviderWorkOrdersParams(
+        serviceProviderCompanyIds: companies.map((e) => e.id).toList(),
+        filter: activeFilter,
+      ),
+    );
+    if (isClosed) return false;
+
+    if (result is SuccessState<List<WorkOrderEntity>>) {
+      final fetched = result.data ?? [];
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          workOrders: fetched,
+          changeRequests: const [],
+          providerCompanies: companies,
+          activeFilter: activeFilter,
+          hasMorePages: fetched.length == _pageSize,
+          isLoadingMore: false,
+          annulErrorMessage: true,
+        ),
+      );
+      return true;
+    }
+
+    emit(
+      state.copyWith(
+        status: StateStatus.loadingError,
+        errorMessage: result.message,
+        providerCompanies: companies,
+      ),
+    );
+    return false;
+  }
+
+  /// Narrows the provider list to one company, or back to all of them when
+  /// [serviceProviderCompanyId] is null.
+  Future<void> selectProviderCompany(String? serviceProviderCompanyId) async {
+    final filter = state.activeFilter.copyWith(
+      serviceProviderCompanyIds: serviceProviderCompanyId == null
+          ? const []
+          : [serviceProviderCompanyId],
+    );
+    await loadProviderWorkOrders(filter: filter);
+  }
+
+  /// Applies a search or attribute filter while staying in provider scope.
+  Future<void> applyProviderFilter(WorkOrderFilter filter) =>
+      loadProviderWorkOrders(
+        filter: filter.copyWith(
+          serviceProviderCompanyIds:
+              state.activeFilter.serviceProviderCompanyIds,
+        ),
+      );
+
+  /// Resolves the provider companies from the signed-in user's provider
+  /// profiles. Returns the already-loaded list when it is available so that
+  /// filtering does not refetch it on every keystroke.
+  Future<List<ServiceProviderCompanyEntity>> _loadProviderCompanies() async {
+    if (state.providerCompanies.isNotEmpty) {
+      return state.providerCompanies;
+    }
+
+    final user = _useCases.getSessionUser();
+    if (user.id.isEmpty) return const [];
+
+    final profilesResult = await _useCases.getServiceProviderProfilesByAuthUser(
+      user.id,
+    );
+    if (profilesResult is! SuccessState<List<ServiceProviderProfileEntity>>) {
+      return const [];
+    }
+
+    final companyIds = (profilesResult.data ?? [])
+        .where((profile) => profile.isActive)
+        .map((profile) => profile.serviceProviderCompanyId)
+        .toSet()
+        .toList();
+    if (companyIds.isEmpty) return const [];
+
+    final companiesResult = await _useCases.getServiceProviderCompaniesByIds(
+      companyIds,
+    );
+    if (companiesResult is SuccessState<List<ServiceProviderCompanyEntity>>) {
+      final companies = [...companiesResult.data ?? <ServiceProviderCompanyEntity>[]]
+        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      return companies;
+    }
+    return const [];
+  }
+
   Future<bool> loadWorkOrderById(String id, {bool showLoading = false}) async {
     if (showLoading) {
       emit(state.copyWith(status: StateStatus.loading));
@@ -136,27 +270,39 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     return result is SuccessState<bool>;
   }
 
-  Future<void> applyFilter(WorkOrderFilter filter) =>
-      loadWorkOrdersAndChangeRequests(filter: filter);
+  Future<void> applyFilter(WorkOrderFilter filter) => _isProviderMode
+      ? applyProviderFilter(filter)
+      : loadWorkOrdersAndChangeRequests(filter: filter);
 
-  Future<void> clearFilter() =>
-      loadWorkOrdersAndChangeRequests(filter: const WorkOrderFilter());
+  Future<void> clearFilter() => _isProviderMode
+      // Keep the company selection: it is a scope, not one of the chip filters.
+      ? applyProviderFilter(const WorkOrderFilter())
+      : loadWorkOrdersAndChangeRequests(filter: const WorkOrderFilter());
 
   Future<void> loadNextPage() async {
     // isLoadingMore prevents duplicate concurrent requests for the same page
     // when multiple scroll trigger events fire within a short timeframe.
     if (!state.hasMorePages || state.isLoadingMore) return;
-    final companyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(isLoadingMore: true));
 
-    final dataState = await _useCases.getWorkOrders(
-      GetWorkOrdersParams(
-        companyId: companyId,
-        filter: state.activeFilter,
-        offset: state.workOrders.length,
-      ),
-    );
+    final dataState = _isProviderMode
+        ? await _useCases.getProviderWorkOrders(
+            GetProviderWorkOrdersParams(
+              serviceProviderCompanyIds: state.providerCompanies
+                  .map((company) => company.id)
+                  .toList(),
+              filter: state.activeFilter,
+              offset: state.workOrders.length,
+            ),
+          )
+        : await _useCases.getWorkOrders(
+            GetWorkOrdersParams(
+              companyId: _useCases.getActiveCompanyId(),
+              filter: state.activeFilter,
+              offset: state.workOrders.length,
+            ),
+          );
     if (isClosed) return;
 
     if (dataState is SuccessState<List<WorkOrderEntity>>) {

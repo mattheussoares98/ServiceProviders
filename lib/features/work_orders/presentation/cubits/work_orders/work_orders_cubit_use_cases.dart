@@ -1,13 +1,18 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_by_ids_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
@@ -35,6 +40,11 @@ class WorkOrdersCubitUseCases {
     required this.createAttachment,
     required this.cancelPause,
     required this.syncWorkOrders,
+    required this.getProviderWorkOrders,
+    required this.getServiceProviderProfilesByAuthUser,
+    required this.getServiceProviderCompaniesByIds,
+    required this.getSessionUser,
+    required this.getSelectedMode,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -53,5 +63,13 @@ class WorkOrdersCubitUseCases {
   final CreateAttachmentUseCase createAttachment;
   final CancelPauseUseCase cancelPause;
   final SyncWorkOrdersUseCase syncWorkOrders;
-}
 
+  // Provider mode
+  final GetProviderWorkOrdersUseCase getProviderWorkOrders;
+  final GetServiceProviderProfilesByAuthUserUseCase
+  getServiceProviderProfilesByAuthUser;
+  final GetServiceProviderCompaniesByIdsUseCase
+  getServiceProviderCompaniesByIds;
+  final GetSessionUserUseCase getSessionUser;
+  final GetSelectedModeUseCase getSelectedMode;
+}

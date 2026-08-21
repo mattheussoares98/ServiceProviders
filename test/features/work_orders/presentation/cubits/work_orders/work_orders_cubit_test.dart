@@ -11,6 +11,8 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachm
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
@@ -22,6 +24,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
@@ -107,6 +110,13 @@ void main() {
   late MockCreateAttachmentUseCase mockCreateAttachment;
   late MockCancelPauseUseCase mockCancelPause;
   late MockSyncWorkOrdersUseCase mockSyncWorkOrders;
+  late MockGetProviderWorkOrdersUseCase mockGetProviderWorkOrders;
+  late MockGetServiceProviderProfilesByAuthUserUseCase
+  mockGetServiceProviderProfilesByAuthUser;
+  late MockGetServiceProviderCompaniesByIdsUseCase
+  mockGetServiceProviderCompaniesByIds;
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -163,6 +173,13 @@ void main() {
     mockCreateAttachment = MockCreateAttachmentUseCase();
     mockCancelPause = MockCancelPauseUseCase();
     mockSyncWorkOrders = MockSyncWorkOrdersUseCase();
+    mockGetProviderWorkOrders = MockGetProviderWorkOrdersUseCase();
+    mockGetServiceProviderProfilesByAuthUser =
+        MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockGetServiceProviderCompaniesByIds =
+        MockGetServiceProviderCompaniesByIdsUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetSelectedMode = MockGetSelectedModeUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -171,6 +188,9 @@ void main() {
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
+    // Internal mode unless a provider test overrides it.
+    when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
+    when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
     when(
       () => mockGetAttachments(any()),
     ).thenAnswer((_) async => const SuccessState(data: []));
@@ -198,6 +218,12 @@ void main() {
       createAttachment: mockCreateAttachment,
       cancelPause: mockCancelPause,
       syncWorkOrders: mockSyncWorkOrders,
+      getProviderWorkOrders: mockGetProviderWorkOrders,
+      getServiceProviderProfilesByAuthUser:
+          mockGetServiceProviderProfilesByAuthUser,
+      getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
+      getSessionUser: mockGetSessionUser,
+      getSelectedMode: mockGetSelectedMode,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -345,11 +371,7 @@ void main() {
         act: (cubit) => cubit.loadWorkOrderById(tExistingOrder.id),
         expect: () => [
           isA<WorkOrdersState>()
-              .having(
-                (s) => s.workOrders.first.title,
-                'title',
-                'Updated Title',
-              )
+              .having((s) => s.workOrders.first.title, 'title', 'Updated Title')
               .having((s) => s.workOrders.length, 'length', 1),
         ],
         verify: (_) {
@@ -410,9 +432,7 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should emit loading and loadingError when showLoading is true and request fails',
         build: () {
-          when(
-            () => mockGetWorkOrderById.call(tNewOrder.id),
-          ).thenAnswer(
+          when(() => mockGetWorkOrderById.call(tNewOrder.id)).thenAnswer(
             (_) async => FailureState(message: 'Work order not found'),
           );
           return cubit;
@@ -1507,15 +1527,15 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should emit saving and loadingError and return true when updateWorkOrder succeeds but background reload fails',
           build: () {
-            when(() => mockUpdateWorkOrder.call(any())).thenAnswer(
-              (_) async => const SuccessState(data: true),
-            );
+            when(
+              () => mockUpdateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
             when(() => mockGetWorkOrders.call(any())).thenAnswer(
               (_) async => FailureState(message: faker.lorem.sentence()),
             );
-            when(() => mockGetChangeRequests.call(any())).thenAnswer(
-              (_) async => const SuccessState(data: []),
-            );
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
             return cubit;
           },
           act: (cubit) async {
@@ -1622,9 +1642,7 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should update local work order to inProgress and return true when cancelPause succeeds even if background reload fails',
           seed: () => const WorkOrdersState.initial().copyWith(
-            workOrders: [
-              tWorkOrder.copyWith(status: WorkOrderStatus.onHold),
-            ],
+            workOrders: [tWorkOrder.copyWith(status: WorkOrderStatus.onHold)],
           ),
           build: () {
             final tPause = EntityFactory.makePauseRequestEntity();
@@ -1638,9 +1656,7 @@ void main() {
             when(
               () => mockCancelPause.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
-            when(
-              () => mockGetWorkOrders.call(any()),
-            ).thenAnswer(
+            when(() => mockGetWorkOrders.call(any())).thenAnswer(
               (_) async => FailureState(message: faker.lorem.sentence()),
             );
             when(
@@ -1841,7 +1857,9 @@ void main() {
               ),
             ).called(1);
             verify(() => mockGetWorkOrders.call(any())).called(1);
-            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id)).called(1);
+            verify(
+              () => mockPauseCubit.loadPauseRequests(tWorkOrder.id),
+            ).called(1);
           },
         );
 
@@ -1919,7 +1937,9 @@ void main() {
               ),
             ).called(1);
             verify(() => mockGetWorkOrders.call(any())).called(1);
-            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id)).called(1);
+            verify(
+              () => mockPauseCubit.loadPauseRequests(tWorkOrder.id),
+            ).called(1);
           },
         );
 
@@ -1990,8 +2010,9 @@ void main() {
                 ),
               ),
             ).called(1);
-            verify(() => mockPauseCubit.loadPauseRequests(tWorkOrder.id))
-                .called(1);
+            verify(
+              () => mockPauseCubit.loadPauseRequests(tWorkOrder.id),
+            ).called(1);
           },
         );
       });
@@ -2067,9 +2088,7 @@ void main() {
             ],
           ),
           build: () {
-            when(
-              () => mockGetWorkOrders.call(any()),
-            ).thenAnswer(
+            when(() => mockGetWorkOrders.call(any())).thenAnswer(
               (_) async => FailureState(message: faker.lorem.sentence()),
             );
             when(
@@ -2089,11 +2108,7 @@ void main() {
               WorkOrderStatus.onHold,
             ),
             isA<WorkOrdersState>()
-                .having(
-                  (s) => s.status,
-                  'status',
-                  StateStatus.loadingError,
-                )
+                .having((s) => s.status, 'status', StateStatus.loadingError)
                 .having(
                   (s) => s.workOrders.first.status,
                   'work order status preserved',
@@ -2505,5 +2520,226 @@ void main() {
         verify(() => mockSyncWorkOrders.call(tUserProfile.companyId)).called(1);
       });
     });
+  });
+
+  _providerModeTests();
+}
+
+void _providerModeTests() {
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetWorkOrdersUseCase mockGetWorkOrders;
+  late MockGetProviderWorkOrdersUseCase mockGetProviderWorkOrders;
+  late MockGetServiceProviderProfilesByAuthUserUseCase
+  mockGetServiceProviderProfilesByAuthUser;
+  late MockGetServiceProviderCompaniesByIdsUseCase
+  mockGetServiceProviderCompaniesByIds;
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
+  late MockGetAttachmentsUseCase mockGetAttachments;
+  late UserProfileEntity tUserProfile;
+  late List<ServiceProviderCompanyEntity> tCompanies;
+  late List<ServiceProviderProfileEntity> tProfiles;
+
+  WorkOrdersCubit buildCubit() => WorkOrdersCubit(
+    useCases: WorkOrdersCubitUseCases(
+      getActiveCompanyId: mockGetActiveCompanyId,
+      getWorkOrders: mockGetWorkOrders,
+      getWorkOrderById: MockGetWorkOrderByIdUseCase(),
+      createWorkOrder: MockCreateWorkOrderUseCase(),
+      updateWorkOrder: MockUpdateWorkOrderUseCase(),
+      deleteWorkOrder: MockDeleteWorkOrderUseCase(),
+      getChangeRequests: MockGetWorkOrderChangeRequestsUseCase(),
+      createChangeRequest: MockCreateWorkOrderChangeRequestUseCase(),
+      reviewChangeRequest: MockReviewWorkOrderChangeRequestUseCase(),
+      getWorkOrderHistory: MockGetWorkOrderHistoryUseCase(),
+      getAttachments: mockGetAttachments,
+      uploadAttachment: MockUploadAttachmentUseCase(),
+      deleteAttachment: MockDeleteAttachmentUseCase(),
+      createAttachment: MockCreateAttachmentUseCase(),
+      cancelPause: MockCancelPauseUseCase(),
+      syncWorkOrders: MockSyncWorkOrdersUseCase(),
+      getProviderWorkOrders: mockGetProviderWorkOrders,
+      getServiceProviderProfilesByAuthUser:
+          mockGetServiceProviderProfilesByAuthUser,
+      getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
+      getSessionUser: mockGetSessionUser,
+      getSelectedMode: mockGetSelectedMode,
+    ),
+  );
+
+  group('provider mode', () {
+    setUpAll(() {
+      registerFallbackValue(
+        const GetProviderWorkOrdersParams(serviceProviderCompanyIds: []),
+      );
+      registerFallbackValue(const WorkOrderFilter());
+    });
+
+    setUp(() {
+      mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+      mockGetWorkOrders = MockGetWorkOrdersUseCase();
+      mockGetProviderWorkOrders = MockGetProviderWorkOrdersUseCase();
+      mockGetServiceProviderProfilesByAuthUser =
+          MockGetServiceProviderProfilesByAuthUserUseCase();
+      mockGetServiceProviderCompaniesByIds =
+          MockGetServiceProviderCompaniesByIdsUseCase();
+      mockGetSessionUser = MockGetSessionUserUseCase();
+      mockGetSelectedMode = MockGetSelectedModeUseCase();
+      mockGetAttachments = MockGetAttachmentsUseCase();
+      when(
+        () => mockGetAttachments(any()),
+      ).thenAnswer((_) async => const SuccessState(data: []));
+
+      tUserProfile = EntityFactory.makeUserProfileEntity();
+      tCompanies = EntityFactory.makeServiceProviderCompanyEntityList();
+      tProfiles = [
+        for (final company in tCompanies)
+          EntityFactory.makeServiceProviderProfileEntity().copyWith(
+            authUserId: tUserProfile.id,
+            serviceProviderCompanyId: company.id,
+          ),
+      ];
+
+      when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
+      when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+      when(
+        () => mockGetServiceProviderProfilesByAuthUser(any()),
+      ).thenAnswer((_) async => SuccessState(data: tProfiles));
+      when(
+        () => mockGetServiceProviderCompaniesByIds(any()),
+      ).thenAnswer((_) async => SuccessState(data: tCompanies));
+    });
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'loadProviderWorkOrders spans every provider company the user belongs to',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async =>
+              SuccessState(data: EntityFactory.makeWorkOrderEntityList()),
+        );
+        return buildCubit();
+      },
+      act: (cubit) => cubit.loadProviderWorkOrders(),
+      verify: (cubit) {
+        final params =
+            verify(
+                  () => mockGetProviderWorkOrders(captureAny()),
+                ).captured.single
+                as GetProviderWorkOrdersParams;
+        expect(
+          params.serviceProviderCompanyIds,
+          containsAll(tCompanies.map((company) => company.id)),
+        );
+        expect(cubit.state.providerCompanies, hasLength(tCompanies.length));
+        expect(cubit.state.status, StateStatus.loaded);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'never calls the internal company-scoped use case',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+        );
+        return buildCubit();
+      },
+      act: (cubit) => cubit.loadProviderWorkOrders(),
+      verify: (_) => verifyNever(() => mockGetWorkOrders(any())),
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'selectProviderCompany narrows the scope to one company',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+        );
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        await cubit.selectProviderCompany(tCompanies.first.id);
+      },
+      verify: (cubit) {
+        expect(cubit.state.selectedProviderCompanyId, tCompanies.first.id);
+        expect(cubit.state.activeFilter.serviceProviderCompanyIds, [
+          tCompanies.first.id,
+        ]);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'selectProviderCompany(null) restores every company',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+        );
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        await cubit.selectProviderCompany(tCompanies.first.id);
+        await cubit.selectProviderCompany(null);
+      },
+      verify: (cubit) {
+        expect(cubit.state.selectedProviderCompanyId, isNull);
+        expect(cubit.state.activeFilter.serviceProviderCompanyIds, isEmpty);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'applyFilter routes to the provider path and keeps the company scope',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+        );
+        return buildCubit();
+      },
+      act: (cubit) async {
+        await cubit.loadProviderWorkOrders();
+        await cubit.selectProviderCompany(tCompanies.first.id);
+        await cubit.applyFilter(
+          WorkOrderFilter(searchText: faker.lorem.word()),
+        );
+      },
+      verify: (cubit) {
+        verifyNever(() => mockGetWorkOrders(any()));
+        expect(cubit.state.activeFilter.serviceProviderCompanyIds, [
+          tCompanies.first.id,
+        ]);
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'emits loaded with no work orders when the user has no provider profile',
+      build: () {
+        when(
+          () => mockGetServiceProviderProfilesByAuthUser(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return buildCubit();
+      },
+      act: (cubit) => cubit.loadProviderWorkOrders(),
+      verify: (cubit) {
+        expect(cubit.state.status, StateStatus.loaded);
+        expect(cubit.state.workOrders, isEmpty);
+        expect(cubit.state.providerCompanies, isEmpty);
+        verifyNever(() => mockGetProviderWorkOrders(any()));
+      },
+    );
+
+    blocTest<WorkOrdersCubit, WorkOrdersState>(
+      'surfaces the failure message when the provider fetch fails',
+      build: () {
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async =>
+              FailureState<List<WorkOrderEntity>>(message: 'Sem internet'),
+        );
+        return buildCubit();
+      },
+      act: (cubit) => cubit.loadProviderWorkOrders(),
+      verify: (cubit) {
+        expect(cubit.state.status, StateStatus.loadingError);
+        expect(cubit.state.errorMessage, 'Sem internet');
+      },
+    );
   });
 }

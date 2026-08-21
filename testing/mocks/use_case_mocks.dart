@@ -2,6 +2,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
@@ -20,6 +21,7 @@ import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_u
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
@@ -39,6 +41,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
@@ -140,3 +143,12 @@ class MockResendInvitationUseCase extends Mock
     implements ResendInvitationUseCase {}
 
 class MockHasPermissionUseCase extends Mock implements HasPermissionUseCase {}
+
+class MockGetProviderWorkOrdersUseCase extends Mock
+    implements GetProviderWorkOrdersUseCase {}
+
+class MockGetServiceProviderCompaniesByIdsUseCase extends Mock
+    implements GetServiceProviderCompaniesByIdsUseCase {}
+
+class MockGetSelectedModeUseCase extends Mock
+    implements GetSelectedModeUseCase {}
