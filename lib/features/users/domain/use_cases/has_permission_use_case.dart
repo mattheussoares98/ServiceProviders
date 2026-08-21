@@ -5,9 +5,12 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/provider_mode_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -35,16 +38,24 @@ class HasPermissionUseCase implements UseCase<bool, HasPermissionParams> {
     required GetSessionUserUseCase getSessionUser,
     required GetPermissionGroupsUseCase getPermissionGroups,
     required GetActiveCompanyIdUseCase getActiveCompanyId,
+    required GetSelectedModeUseCase getSelectedMode,
   }) : _getSessionUser = getSessionUser,
        _getPermissionGroups = getPermissionGroups,
-       _getActiveCompanyId = getActiveCompanyId;
+       _getActiveCompanyId = getActiveCompanyId,
+       _getSelectedMode = getSelectedMode;
 
   final GetSessionUserUseCase _getSessionUser;
   final GetPermissionGroupsUseCase _getPermissionGroups;
   final GetActiveCompanyIdUseCase _getActiveCompanyId;
+  final GetSelectedModeUseCase _getSelectedMode;
 
   @override
   FutureBool call(HasPermissionParams request) async {
+    final mode = AppMode.fromName(_getSelectedMode()) ?? AppMode.internal;
+    if (mode == AppMode.provider) {
+      return SuccessState(data: providerModeAllows(request.permission));
+    }
+
     final user = request.user ?? _getSessionUser();
     if (user.isAdmin) {
       return const SuccessState(data: true);
@@ -65,6 +76,7 @@ class HasPermissionUseCase implements UseCase<bool, HasPermissionParams> {
       permission: request.permission,
       user: user,
       permissionGroups: groups ?? const [],
+      appMode: mode,
     );
 
     return SuccessState(data: hasPerm);
@@ -74,7 +86,11 @@ class HasPermissionUseCase implements UseCase<bool, HasPermissionParams> {
     required ActionPermission permission,
     required UserProfileEntity user,
     required List<PermissionGroupEntity> permissionGroups,
+    AppMode appMode = AppMode.internal,
   }) {
+    // Provider mode never inherits the internal RBAC of the user's employer.
+    if (appMode == AppMode.provider) return providerModeAllows(permission);
+
     if (user.isAdmin) return true;
 
     return switch (permission) {

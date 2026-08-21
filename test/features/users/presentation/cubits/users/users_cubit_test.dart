@@ -35,6 +35,7 @@ void main() {
   late MockResendInvitationUseCase mockResendInvitation;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
 
   late UsersCubit cubit;
   late UserProfileEntity tSessionUser;
@@ -71,6 +72,8 @@ void main() {
     mockResendInvitation = MockResendInvitationUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+    mockGetSelectedMode = MockGetSelectedModeUseCase();
+    when(() => mockGetSelectedMode.call()).thenReturn('internal');
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -95,6 +98,7 @@ void main() {
       revokeInvitation: mockRevokeInvitation,
       resendInvitation: mockResendInvitation,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+      getSelectedMode: mockGetSelectedMode,
     );
 
     cubit = UsersCubit(useCases: useCases);

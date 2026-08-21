@@ -32,6 +32,7 @@ void main() {
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetPermissionGroupsUseCase mockGetPermissionGroups;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetSelectedModeUseCase mockGetSelectedMode;
 
   // Use cases
   late GetUsersUseCase getUsersUseCase;
@@ -87,6 +88,8 @@ void main() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetPermissionGroups = MockGetPermissionGroupsUseCase();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockGetSelectedMode = MockGetSelectedModeUseCase();
+    when(() => mockGetSelectedMode.call()).thenReturn('internal');
     when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
     when(
       () => mockGetPermissionGroups.call(any()),
@@ -95,6 +98,7 @@ void main() {
       getSessionUser: mockGetSessionUser,
       getPermissionGroups: mockGetPermissionGroups,
       getActiveCompanyId: mockGetActiveCompanyId,
+      getSelectedMode: mockGetSelectedMode,
     );
   });
 

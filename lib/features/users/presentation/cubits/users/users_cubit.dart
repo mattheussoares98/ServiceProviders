@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
@@ -414,6 +415,8 @@ class UsersCubit extends BaseCubit<UsersState> {
   // ============================================
 
   bool hasPermission(ActionPermission permission) {
+    final appMode =
+        AppMode.fromName(_useCases.getSelectedMode()) ?? AppMode.internal;
     final sessionUser = _useCases.getSessionUser();
     final currentUser =
         state.users.firstWhereOrNull((u) => u.id == sessionUser.id) ??
@@ -423,6 +426,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       permission: permission,
       user: currentUser,
       permissionGroups: state.permissionGroups,
+      appMode: appMode,
     );
   }
 
