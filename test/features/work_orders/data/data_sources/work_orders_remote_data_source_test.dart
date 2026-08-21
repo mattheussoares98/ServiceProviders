@@ -21,6 +21,8 @@ import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
+  _providerWorkOrdersTests();
+
   late MockSupabaseDatabaseClient mockDatabase;
   late WorkOrdersRemoteDataSourceImpl dataSource;
 
@@ -619,5 +621,133 @@ void main() {
         ).called(1);
       },
     );
+  });
+}
+
+void _providerWorkOrdersTests() {
+  late MockSupabaseDatabaseClient mockDatabase;
+  late WorkOrdersRemoteDataSourceImpl dataSource;
+
+  setUp(() {
+    mockDatabase = MockSupabaseDatabaseClient();
+    dataSource = WorkOrdersRemoteDataSourceImpl(database: mockDatabase);
+  });
+
+  final tWorkOrderModel = WorkOrderModel.fromEntity(
+    EntityFactory.makeWorkOrderEntity(),
+  );
+  final tCompanyIds = [
+    EntityFactory.makeServiceProviderCompanyEntity().id,
+    EntityFactory.makeServiceProviderCompanyEntity().id,
+    EntityFactory.makeServiceProviderCompanyEntity().id,
+  ];
+
+  void stubSelectList() {
+    when(
+      () => mockDatabase.selectList(
+        table: any(named: 'table'),
+        columns: any(named: 'columns'),
+        filters: any(named: 'filters'),
+        orderBy: any(named: 'orderBy'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      ),
+    ).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+  }
+
+  List<SupabaseFilter> capturedFilters() =>
+      verify(
+            () => mockDatabase.selectList(
+              table: any(named: 'table'),
+              columns: any(named: 'columns'),
+              filters: captureAny(named: 'filters'),
+              orderBy: any(named: 'orderBy'),
+              limit: any(named: 'limit'),
+              offset: any(named: 'offset'),
+            ),
+          ).captured.single
+          as List<SupabaseFilter>;
+
+  group('getProviderWorkOrders', () {
+    test('returns an empty list without querying when memberships are empty', () async {
+      final result = await dataSource.getProviderWorkOrders(const []);
+
+      expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+      expect(result.data, isEmpty);
+      verifyNever(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+          orderBy: any(named: 'orderBy'),
+          limit: any(named: 'limit'),
+          offset: any(named: 'offset'),
+        ),
+      );
+    });
+
+    test('scopes by provider company instead of company_id', () async {
+      stubSelectList();
+
+      final result = await dataSource.getProviderWorkOrders(tCompanyIds);
+
+      expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+      final filters = capturedFilters();
+      expect(
+        filters.any((f) => f.column == 'service_provider_company_id'),
+        isTrue,
+      );
+      expect(filters.any((f) => f.column == 'company_id'), isFalse);
+    });
+
+    test('omits the locations join providers cannot read', () async {
+      stubSelectList();
+
+      await dataSource.getProviderWorkOrders(tCompanyIds);
+
+      verify(
+        () => mockDatabase.selectList(
+          table: 'work_orders',
+          columns: '*, attachments(*)',
+          filters: any(named: 'filters'),
+          orderBy: any(named: 'orderBy'),
+          limit: 50,
+          offset: 0,
+        ),
+      ).called(1);
+    });
+
+    test('narrows to the selected company when the filter names one', () async {
+      stubSelectList();
+
+      await dataSource.getProviderWorkOrders(
+        tCompanyIds,
+        filter: WorkOrderFilter(
+          serviceProviderCompanyIds: [tCompanyIds.first],
+        ),
+      );
+
+      final scope = capturedFilters().firstWhere(
+        (f) => f.column == 'service_provider_company_id',
+      );
+      expect(scope.value, [tCompanyIds.first]);
+    });
+
+    test('ignores a selected company the provider does not belong to', () async {
+      stubSelectList();
+      final foreignId = EntityFactory.makeServiceProviderCompanyEntity().id;
+
+      await dataSource.getProviderWorkOrders(
+        tCompanyIds,
+        filter: WorkOrderFilter(serviceProviderCompanyIds: [foreignId]),
+      );
+
+      // A stale or tampered selection must never widen the query beyond the
+      // provider's actual memberships.
+      final scope = capturedFilters().firstWhere(
+        (f) => f.column == 'service_provider_company_id',
+      );
+      expect(scope.value, tCompanyIds);
+    });
   });
 }

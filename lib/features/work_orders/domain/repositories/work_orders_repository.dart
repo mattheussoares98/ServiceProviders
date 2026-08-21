@@ -14,6 +14,15 @@ abstract interface class WorkOrdersRepository {
     int pageSize = 50,
     int offset = 0,
   });
+
+  /// Provider mode. Online-only (V2 §1.4) — no Drift fallback, because the
+  /// local database is scoped to a single contracting company.
+  FutureList<WorkOrderEntity> getProviderWorkOrders(
+    List<String> serviceProviderCompanyIds, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 50,
+    int offset = 0,
+  });
   FutureData<WorkOrderEntity> getWorkOrderById(String id);
   FutureBool createWorkOrder(WorkOrderEntity workOrder);
   FutureBool updateWorkOrder(WorkOrderEntity workOrder);

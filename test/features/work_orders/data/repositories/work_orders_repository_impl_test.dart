@@ -21,6 +21,8 @@ import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
+  _providerWorkOrdersTests();
+
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
@@ -1110,5 +1112,121 @@ void main() {
         verifyNever(() => mockLocalDataSource.getWorkOrderHistory(any()));
       },
     );
+  });
+}
+
+void _providerWorkOrdersTests() {
+  late MockInternetClient mockInternetClient;
+  late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
+  late MockWorkOrdersLocalDataSource mockLocalDataSource;
+  late WorkOrdersRepositoryImpl repository;
+
+  setUp(() {
+    mockInternetClient = MockInternetClient();
+    mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
+    mockLocalDataSource = MockWorkOrdersLocalDataSource();
+    repository = WorkOrdersRepositoryImpl(
+      internet: mockInternetClient,
+      remoteDataSource: mockRemoteDataSource,
+      localDataSource: mockLocalDataSource,
+    );
+  });
+
+  group('getProviderWorkOrders', () {
+    final tCompanyIds = [
+      EntityFactory.makeServiceProviderCompanyEntity().id,
+      EntityFactory.makeServiceProviderCompanyEntity().id,
+      EntityFactory.makeServiceProviderCompanyEntity().id,
+    ];
+    final tModels = [
+      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+    ];
+
+    test('returns mapped entities from remote when connected', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getProviderWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).thenAnswer((_) async => SuccessState(data: tModels));
+
+      final result = await repository.getProviderWorkOrders(tCompanyIds);
+
+      expect(result, isA<SuccessState<List<WorkOrderEntity>>>());
+      expect(result.data?.length, tModels.length);
+      verify(
+        () => mockRemoteDataSource.getProviderWorkOrders(
+          tCompanyIds,
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).called(1);
+    });
+
+    test('never caches provider results into the local database', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getProviderWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).thenAnswer((_) async => SuccessState(data: tModels));
+
+      await repository.getProviderWorkOrders(tCompanyIds);
+
+      // Provider mode is online-only (V2 §1.4). Caching cross-company orders
+      // would corrupt the internal-mode Drift scope.
+      verifyNever(() => mockLocalDataSource.saveWorkOrders(any()));
+    });
+
+    test('fails with no internet instead of falling back to local', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.getProviderWorkOrders(tCompanyIds);
+
+      expect(result, isA<FailureState<List<WorkOrderEntity>>>());
+      verifyNever(
+        () => mockRemoteDataSource.getProviderWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      );
+      verifyNever(
+        () => mockLocalDataSource.getWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      );
+    });
+
+    test('propagates remote failure', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      final tMessage = faker.lorem.sentence();
+      when(
+        () => mockRemoteDataSource.getProviderWorkOrders(
+          any(),
+          filter: any(named: 'filter'),
+          pageSize: any(named: 'pageSize'),
+          offset: any(named: 'offset'),
+        ),
+      ).thenAnswer((_) async => FailureState(message: tMessage));
+
+      final result = await repository.getProviderWorkOrders(tCompanyIds);
+
+      expect(result, isA<FailureState<List<WorkOrderEntity>>>());
+      expect(result.message, tMessage);
+    });
   });
 }

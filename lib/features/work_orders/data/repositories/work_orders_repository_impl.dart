@@ -64,6 +64,30 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
+  FutureList<WorkOrderEntity> getProviderWorkOrders(
+    List<String> serviceProviderCompanyIds, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 50,
+    int offset = 0,
+  }) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        WorkOrderModel,
+        WorkOrderEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getProviderWorkOrders(
+          serviceProviderCompanyIds,
+          filter: filter,
+          pageSize: pageSize,
+          offset: offset,
+        ),
+        // Deliberately no localCallback and no onRemoteSuccess: provider mode is
+        // online-only (V2 §1.4). The Drift database is scoped to one contracting
+        // company, so caching cross-company orders there would corrupt the
+        // internal-mode dataset. Offline yields FailureState.noInternet().
+      );
+
+  @override
   FutureData<WorkOrderEntity> getWorkOrderById(String id) =>
       RepositoryHandler.fetchWithFallbackAndMap<
         WorkOrderModel,

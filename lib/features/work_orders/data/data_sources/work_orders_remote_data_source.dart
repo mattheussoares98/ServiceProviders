@@ -25,6 +25,15 @@ abstract interface class WorkOrdersRemoteDataSource {
     required DateTime since,
     int limit = 100,
   });
+
+  /// Provider mode. Spans every contracting company, so it is scoped by the
+  /// provider companies the user belongs to instead of by `company_id`.
+  FutureList<WorkOrderModel> getProviderWorkOrders(
+    List<String> serviceProviderCompanyIds, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 50,
+    int offset = 0,
+  });
   FutureData<WorkOrderModel> getWorkOrderById(String id);
   FutureBool createWorkOrder(WorkOrderModel request);
   FutureBool updateWorkOrder(WorkOrderModel request);
@@ -122,6 +131,65 @@ final class WorkOrdersRemoteDataSourceImpl
       filters: filters,
       orderBy: [const SupabaseOrder(column: 'updated_at', ascending: true)],
       limit: limit,
+    );
+    return response.map(WorkOrderModel.fromJson).toList();
+  });
+
+  @override
+  FutureList<WorkOrderModel> getProviderWorkOrders(
+    List<String> serviceProviderCompanyIds, {
+    WorkOrderFilter filter = const WorkOrderFilter(),
+    int pageSize = 50,
+    int offset = 0,
+  }) => SupabaseHandler.call(() async {
+    if (serviceProviderCompanyIds.isEmpty) {
+      return <WorkOrderModel>[];
+    }
+
+    // The filter's own company selection narrows the provider's memberships;
+    // anything outside them is ignored so a stale selection cannot widen access.
+    final selected = filter.serviceProviderCompanyIds
+        .where(serviceProviderCompanyIds.contains)
+        .toList();
+    final scopedCompanyIds = selected.isEmpty
+        ? serviceProviderCompanyIds
+        : selected;
+
+    final filters = [
+      SupabaseFilter.inList('service_provider_company_id', scopedCompanyIds),
+      SupabaseFilter.isFilter('deleted_at', null),
+      if (filter.statuses.isNotEmpty)
+        SupabaseFilter.inList(
+          'status',
+          filter.statuses.map((s) => s.code).toList(),
+        ),
+      if (filter.priorities.isNotEmpty)
+        SupabaseFilter.inList(
+          'priority',
+          filter.priorities.map((p) => p.code).toList(),
+        ),
+      if (filter.type != null) SupabaseFilter.eq('type', filter.type!.code),
+      if (filter.scheduledDateFrom != null)
+        SupabaseFilter.gte(
+          'scheduled_date',
+          filter.scheduledDateFrom!.toIsoUtcString(),
+        ),
+      if (filter.scheduledDateTo != null)
+        SupabaseFilter.lte(
+          'scheduled_date',
+          filter.scheduledDateTo!.toIsoUtcString(),
+        ),
+      if (filter.searchText != null && filter.searchText!.isNotEmpty)
+        SupabaseFilter.ilike('title', '%${filter.searchText!}%'),
+    ];
+
+    final response = await _database.selectList(
+      table: 'work_orders',
+      columns: '*, attachments(*)',
+      filters: filters,
+      orderBy: [const SupabaseOrder(column: 'created_at')],
+      limit: pageSize,
+      offset: offset,
     );
     return response.map(WorkOrderModel.fromJson).toList();
   });
