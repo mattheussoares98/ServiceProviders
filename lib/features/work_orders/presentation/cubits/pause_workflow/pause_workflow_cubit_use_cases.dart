@@ -1,7 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
@@ -20,7 +19,6 @@ class PauseWorkflowCubitUseCases {
     required this.getPauseReasons,
     required this.getPauseRequests,
     required this.getActiveCompanyId,
-    required this.getSelectedMode,
     required this.hasPermission,
     required this.getSessionUser,
   });
@@ -31,7 +29,6 @@ class PauseWorkflowCubitUseCases {
   final GetPauseReasonsUseCase getPauseReasons;
   final GetPauseRequestsUseCase getPauseRequests;
   final GetActiveCompanyIdUseCase getActiveCompanyId;
-  final GetSelectedModeUseCase getSelectedMode;
   final HasPermissionUseCase hasPermission;
   final GetSessionUserUseCase getSessionUser;
 }

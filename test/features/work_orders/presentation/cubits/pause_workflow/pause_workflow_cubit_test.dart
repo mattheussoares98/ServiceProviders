@@ -158,7 +158,6 @@ void main() {
       requestCompletion: mockRequestCompletion,
       reviewCompletion: mockReviewCompletion,
       getActiveCompanyId: mockGetActiveCompanyId,
-      getSelectedMode: mockGetSelectedMode,
       hasPermission: mockHasPermission,
       getSessionUser: mockGetSessionUser,
     );
@@ -443,6 +442,10 @@ void main() {
         'creates pending pause request when user is in provider mode',
         () async {
           when(() => mockGetSelectedMode.call()).thenReturn('provider');
+          // In provider mode HasPermissionUseCase denies managePendingRequests.
+          when(
+            () => mockHasPermission.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: false));
           when(
             () => mockRequestPause.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));

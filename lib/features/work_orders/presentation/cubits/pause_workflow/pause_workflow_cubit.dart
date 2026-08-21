@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
@@ -122,10 +121,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   }
 
   Future<bool> _canDirectlyPause() async {
-    final mode = _useCases.getSelectedMode();
-    final isInternal = mode != AppMode.provider.name;
-    if (!isInternal) return false;
-
     final permResult = await _useCases.hasPermission(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
@@ -263,10 +258,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   }
 
   Future<bool> _canDirectlyComplete() async {
-    final mode = _useCases.getSelectedMode();
-    final isInternal = mode != AppMode.provider.name;
-    if (!isInternal) return false;
-
     final permResult = await _useCases.hasPermission(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
