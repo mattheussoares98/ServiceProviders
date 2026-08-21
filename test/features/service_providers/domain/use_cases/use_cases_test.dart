@@ -10,12 +10,14 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/creat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockServiceProviderRepository mockServiceProviderRepository;
@@ -271,6 +273,81 @@ void main() {
           tEmail,
         ),
       ).called(1);
+    });
+  });
+
+  group('GetSessionProviderProfileUseCase', () {
+    late MockGetSessionUserUseCase mockGetSessionUser;
+    late MockGetServiceProviderProfilesByAuthUserUseCase mockGetProfiles;
+    late GetSessionProviderProfileUseCase useCase;
+
+    setUp(() {
+      mockGetSessionUser = MockGetSessionUserUseCase();
+      mockGetProfiles = MockGetServiceProviderProfilesByAuthUserUseCase();
+      useCase = GetSessionProviderProfileUseCase(
+        getSessionUser: mockGetSessionUser,
+        getServiceProviderProfilesByAuthUser: mockGetProfiles,
+      );
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity());
+    });
+
+    test('picks the profile of the requested provider company', () async {
+      final wanted = EntityFactory.makeServiceProviderProfileEntity();
+      final other = EntityFactory.makeServiceProviderProfileEntity();
+      when(() => mockGetProfiles.call(any())).thenAnswer(
+        (_) async => SuccessState(data: [other, wanted]),
+      );
+
+      final result = await useCase(wanted.serviceProviderCompanyId);
+
+      expect(result, isA<SuccessState<ServiceProviderProfileEntity>>());
+      expect(result.data, wanted);
+    });
+
+    test('falls back to the only profile when the company does not match', () async {
+      final only = EntityFactory.makeServiceProviderProfileEntity();
+      when(
+        () => mockGetProfiles.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: [only]));
+
+      final result = await useCase('unrelated-company');
+
+      expect(result.data, only);
+    });
+
+    test('fails when the user has no provider profile', () async {
+      when(
+        () => mockGetProfiles.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: []));
+
+      final result = await useCase(null);
+
+      expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
+      expect(result.message, isNotNull);
+    });
+
+    test('fails without hitting the repository when there is no session', () async {
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity().copyWith(annulId: true));
+
+      final result = await useCase(null);
+
+      expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
+      verifyNever(() => mockGetProfiles.call(any()));
+    });
+
+    test('propagates a repository failure message', () async {
+      when(
+        () => mockGetProfiles.call(any()),
+      ).thenAnswer((_) async => FailureState(message: 'sem conexão'));
+
+      final result = await useCase(null);
+
+      expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
+      expect(result.message, 'sem conexão');
     });
   });
 }

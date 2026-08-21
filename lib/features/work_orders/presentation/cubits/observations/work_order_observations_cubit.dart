@@ -1,7 +1,5 @@
-import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -61,18 +59,20 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
     var authorName = user.name;
 
     if (isProviderMode) {
-      final profile = await _resolveProviderProfile(
+      final profileResult = await _useCases.getSessionProviderProfile(
         workOrder.serviceProviderCompanyId,
       );
-      if (profile == null) {
+      if (profileResult is! SuccessState<ServiceProviderProfileEntity> ||
+          profileResult.data == null) {
         emit(
           state.copyWith(
             status: StateStatus.savingError,
-            errorMessage: 'Perfil de prestador não encontrado.'.hardcoded,
+            errorMessage: profileResult.message,
           ),
         );
         return false;
       }
+      final profile = profileResult.data!;
       authorId = null;
       authorProviderProfileId = profile.id;
       authorName = profile.name;
@@ -113,28 +113,6 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
       case LoadingState():
         return false;
     }
-  }
-
-  /// The provider profile of the session user inside the provider company that
-  /// the work order is assigned to.
-  Future<ServiceProviderProfileEntity?> _resolveProviderProfile(
-    String? serviceProviderCompanyId,
-  ) async {
-    final user = _useCases.getSessionUser();
-    if (user.id.isEmpty) return null;
-
-    final result = await _useCases.getServiceProviderProfilesByAuthUser(
-      user.id,
-    );
-    if (result is! SuccessState<List<ServiceProviderProfileEntity>>) {
-      return null;
-    }
-
-    final profiles = result.data ?? const <ServiceProviderProfileEntity>[];
-    return profiles.firstWhereOrNull(
-          (e) => e.serviceProviderCompanyId == serviceProviderCompanyId,
-        ) ??
-        profiles.firstOrNull;
   }
 
   Future<bool> deleteObservation(String observationId) async {

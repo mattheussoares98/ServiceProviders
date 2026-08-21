@@ -7,7 +7,8 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
@@ -31,8 +32,8 @@ class MockDeleteWorkOrderObservationUseCase extends Mock
 class MockGetSelectedModeUseCase extends Mock
     implements GetSelectedModeUseCase {}
 
-class MockGetServiceProviderProfilesByAuthUserUseCase extends Mock
-    implements GetServiceProviderProfilesByAuthUserUseCase {}
+class MockGetSessionProviderProfileUseCase extends Mock
+    implements GetSessionProviderProfileUseCase {}
 
 class MockGetSessionUserUseCase extends Mock
     implements GetSessionUserUseCase {}
@@ -42,7 +43,7 @@ void main() {
   late MockCreateWorkOrderObservationUseCase createUseCase;
   late MockDeleteWorkOrderObservationUseCase deleteUseCase;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
-  late MockGetServiceProviderProfilesByAuthUserUseCase mockGetProviderProfiles;
+  late MockGetSessionProviderProfileUseCase mockGetProviderProfile;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late WorkOrderObservationsCubitUseCases cubitUseCases;
   late MockNavigationClient mockNavigationClient;
@@ -56,7 +57,7 @@ void main() {
     createUseCase = MockCreateWorkOrderObservationUseCase();
     deleteUseCase = MockDeleteWorkOrderObservationUseCase();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
-    mockGetProviderProfiles = MockGetServiceProviderProfilesByAuthUserUseCase();
+    mockGetProviderProfile = MockGetSessionProviderProfileUseCase();
     when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
     mockGetSessionUser = MockGetSessionUserUseCase();
     cubitUseCases = WorkOrderObservationsCubitUseCases(
@@ -65,7 +66,7 @@ void main() {
       deleteObservation: deleteUseCase,
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
-      getServiceProviderProfilesByAuthUser: mockGetProviderProfiles,
+      getSessionProviderProfile: mockGetProviderProfile,
     );
     mockNavigationClient = MockNavigationClient();
 
@@ -167,8 +168,8 @@ void main() {
         () => mockGetSessionUser.call(),
       ).thenReturn(EntityFactory.makeUserProfileEntity());
       when(
-        () => mockGetProviderProfiles.call(any()),
-      ).thenAnswer((_) async => SuccessState(data: [profile]));
+        () => mockGetProviderProfile.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: profile));
       when(() => createUseCase.call(any())).thenAnswer(
         (inv) async => SuccessState(
           data: inv.positionalArguments.first as WorkOrderObservationEntity,
@@ -200,9 +201,11 @@ void main() {
     when(
       () => mockGetSessionUser.call(),
     ).thenReturn(EntityFactory.makeUserProfileEntity());
-    when(
-      () => mockGetProviderProfiles.call(any()),
-    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(() => mockGetProviderProfile.call(any())).thenAnswer(
+      (_) async => FailureState<ServiceProviderProfileEntity>(
+        message: 'Perfil de prestador não encontrado.',
+      ),
+    );
 
     final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
     final success = await cubit.createObservation(
@@ -212,6 +215,7 @@ void main() {
 
     expect(success, isFalse);
     expect(cubit.state.status, StateStatus.savingError);
+    expect(cubit.state.errorMessage, 'Perfil de prestador não encontrado.');
     verifyNever(() => createUseCase.call(any()));
     await cubit.close();
   });
@@ -239,7 +243,7 @@ void main() {
     expect(sent.authorId, user.id);
     expect(sent.authorProviderProfileId, isNull);
     expect(sent.companyId, workOrder.companyId);
-    verifyNever(() => mockGetProviderProfiles.call(any()));
+    verifyNever(() => mockGetProviderProfile.call(any()));
     await cubit.close();
   });
 
