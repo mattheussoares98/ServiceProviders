@@ -10,6 +10,7 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
     required super.companyId,
     required super.workOrderId,
     required super.authorId,
+    required super.authorProviderProfileId,
     required super.authorName,
     required super.content,
     required super.createdAt,
@@ -23,6 +24,7 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
         companyId: entity.companyId,
         workOrderId: entity.workOrderId,
         authorId: entity.authorId,
+        authorProviderProfileId: entity.authorProviderProfileId,
         authorName: entity.authorName,
         content: entity.content,
         createdAt: entity.createdAt,
@@ -31,13 +33,18 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
 
   factory WorkOrderObservationModel.fromJson(MapDynamic json) {
     final authorMap = json['author'] as MapDynamic?;
+    final providerAuthorMap = json['provider_author'] as MapDynamic?;
 
     return WorkOrderObservationModel(
       id: json['id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',
       workOrderId: json['work_order_id'] as String? ?? '',
-      authorId: json['author_id'] as String? ?? '',
-      authorName: authorMap?['name'] as String? ?? 'Usuário',
+      authorId: json['author_id'] as String?,
+      authorProviderProfileId: json['author_provider_profile_id'] as String?,
+      authorName:
+          authorMap?['name'] as String? ??
+          providerAuthorMap?['name'] as String? ??
+          'Usuário',
       content: json['content'] as String? ?? '',
       createdAt: (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
@@ -52,6 +59,7 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
         'company_id': companyId,
         'work_order_id': workOrderId,
         'author_id': authorId,
+        'author_provider_profile_id': authorProviderProfileId,
         'content': content,
         'created_at': createdAt.toIsoUtcString(),
         'updated_at': updatedAt.toIsoUtcString(),
@@ -63,6 +71,7 @@ class WorkOrderObservationModel extends WorkOrderObservationEntity
         companyId: companyId,
         workOrderId: workOrderId,
         authorId: authorId,
+        authorProviderProfileId: authorProviderProfileId,
         authorName: authorName,
         content: content,
         createdAt: createdAt,

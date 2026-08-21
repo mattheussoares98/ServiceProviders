@@ -124,7 +124,7 @@ void main() {
       () async {
         await insertDependencies(
           companyId: tModel.companyId,
-          userId: tModel.authorId,
+          userId: tModel.authorId!,
           locationId: locationId,
           areaId: areaId,
           assetId: assetId,
@@ -149,7 +149,7 @@ void main() {
       () async {
         await insertDependencies(
           companyId: tModel.companyId,
-          userId: tModel.authorId,
+          userId: tModel.authorId!,
           locationId: locationId,
           areaId: areaId,
           assetId: assetId,
@@ -182,7 +182,7 @@ void main() {
       () async {
         await insertDependencies(
           companyId: tModel.companyId,
-          userId: tModel.authorId,
+          userId: tModel.authorId!,
           locationId: locationId,
           areaId: areaId,
           assetId: assetId,

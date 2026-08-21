@@ -6,6 +6,7 @@ class WorkOrderObservationEntity extends Equatable {
     required this.companyId,
     required this.workOrderId,
     required this.authorId,
+    required this.authorProviderProfileId,
     required this.authorName,
     required this.content,
     required this.createdAt,
@@ -15,7 +16,12 @@ class WorkOrderObservationEntity extends Equatable {
   final String id;
   final String companyId;
   final String workOrderId;
-  final String authorId;
+  /// Set when an internal employee wrote the observation. Mutually exclusive
+  /// with [authorProviderProfileId].
+  final String? authorId;
+
+  /// Set when the observation came from provider mode.
+  final String? authorProviderProfileId;
   final String authorName;
   final String content;
   final DateTime createdAt;
@@ -27,6 +33,7 @@ class WorkOrderObservationEntity extends Equatable {
     companyId,
     workOrderId,
     authorId,
+    authorProviderProfileId,
     authorName,
     content,
     createdAt,
@@ -38,6 +45,7 @@ class WorkOrderObservationEntity extends Equatable {
     String? companyId,
     String? workOrderId,
     String? authorId,
+    String? authorProviderProfileId,
     String? authorName,
     String? content,
     DateTime? createdAt,
@@ -48,6 +56,8 @@ class WorkOrderObservationEntity extends Equatable {
       companyId: companyId ?? this.companyId,
       workOrderId: workOrderId ?? this.workOrderId,
       authorId: authorId ?? this.authorId,
+      authorProviderProfileId:
+          authorProviderProfileId ?? this.authorProviderProfileId,
       authorName: authorName ?? this.authorName,
       content: content ?? this.content,
       createdAt: createdAt ?? this.createdAt,

@@ -694,6 +694,7 @@ abstract final class EntityFactory {
       companyId: _makeId(),
       workOrderId: _makeId(),
       authorId: _makeId(),
+      authorProviderProfileId: null,
       authorName: _makePhrase(),
       content: _makePhrase(),
       createdAt: _makeDateTime(),

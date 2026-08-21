@@ -23,12 +23,18 @@ final class WorkOrderObservationsRemoteDataSourceImpl
 
   final SupabaseDatabaseClient _database;
 
+  /// Authorship points at one of two identity tables: user_profiles for
+  /// internal employees, service_provider_profiles for provider mode.
+  static const _columns =
+      '*, author:user_profiles!author_id(name), '
+      'provider_author:service_provider_profiles!author_provider_profile_id(name)';
+
   @override
   FutureList<WorkOrderObservationModel> getObservations(String workOrderId) =>
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'work_order_observations',
-          columns: '*, author:user_profiles!author_id(name)',
+          columns: _columns,
           filters: [
             SupabaseFilter.eq('work_order_id', workOrderId),
             SupabaseFilter.isFilter('deleted_at', null),
@@ -44,7 +50,7 @@ final class WorkOrderObservationsRemoteDataSourceImpl
     final response = await _database.insert(
       table: 'work_order_observations',
       values: observation.toJson(),
-      columns: '*, author:user_profiles!author_id(name)',
+      columns: _columns,
     );
     return WorkOrderObservationModel.fromJson(response.first);
   });
