@@ -19,9 +19,17 @@ import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extensio
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 class Attachments extends StatelessWidget {
-  const Attachments({super.key, required this.isEditing, this.padding});
+  const Attachments({
+    super.key,
+    required this.isEditing,
+    this.padding,
+    this.workOrderCompanyId,
+  });
   final bool isEditing;
   final EdgeInsetsGeometry? padding;
+
+  /// Tenant that owns the work order. Null while creating a new one.
+  final String? workOrderCompanyId;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +67,8 @@ class Attachments extends StatelessWidget {
                 gapH8,
                 BaseButton(
                   color: Colors.red,
-                  onTap:
-                      () => context
-                          .read<AttachmentsCubit>()
-                          .refreshAttachments(),
+                  onTap: () =>
+                      context.read<AttachmentsCubit>().refreshAttachments(),
                   text: 'Tentar novamente'.hardcoded,
                 ),
               ],
@@ -79,13 +85,21 @@ class Attachments extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: ScreenType.phone.maxWidth),
-              child: _AttachmentsAndAddRow(isEditing: isEditing),
+              child: _AttachmentsAndAddRow(
+                isEditing: isEditing,
+                workOrderCompanyId: workOrderCompanyId,
+              ),
             ),
           ),
         ),
         gapSliverH8,
         if (attachments.isEmpty && processingCount == 0) ...[
-          SliverToBoxAdapter(child: _EmptyAttachment(isEditing: isEditing)),
+          SliverToBoxAdapter(
+            child: _EmptyAttachment(
+              isEditing: isEditing,
+              workOrderCompanyId: workOrderCompanyId,
+            ),
+          ),
           gapSliverH8,
         ],
         ResponsiveListFlow(
@@ -111,8 +125,12 @@ class Attachments extends StatelessWidget {
 }
 
 class _AttachmentsAndAddRow extends StatelessWidget {
-  const _AttachmentsAndAddRow({required this.isEditing});
+  const _AttachmentsAndAddRow({
+    required this.isEditing,
+    required this.workOrderCompanyId,
+  });
   final bool isEditing;
+  final String? workOrderCompanyId;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +146,10 @@ class _AttachmentsAndAddRow extends StatelessWidget {
               onPressed: () async {
                 final source = await AttachmentSourceSheet.show(context);
                 if (source != null && context.mounted) {
-                  await cubit.pickAttachment(source);
+                  await cubit.pickAttachment(
+                    source,
+                    workOrderCompanyId: workOrderCompanyId,
+                  );
                 }
               },
               text: 'Adicionar'.hardcoded,
@@ -144,8 +165,12 @@ class _AttachmentsAndAddRow extends StatelessWidget {
 }
 
 class _EmptyAttachment extends StatelessWidget {
-  const _EmptyAttachment({required this.isEditing});
+  const _EmptyAttachment({
+    required this.isEditing,
+    required this.workOrderCompanyId,
+  });
   final bool isEditing;
+  final String? workOrderCompanyId;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +179,10 @@ class _EmptyAttachment extends StatelessWidget {
           ? () async {
               final source = await AttachmentSourceSheet.show(context);
               if (source != null && context.mounted) {
-                await context.read<AttachmentsCubit>().pickAttachment(source);
+                await context.read<AttachmentsCubit>().pickAttachment(
+                  source,
+                  workOrderCompanyId: workOrderCompanyId,
+                );
               }
             }
           : null,

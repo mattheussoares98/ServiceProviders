@@ -72,12 +72,21 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     await _uploadAttachment(attachment);
   }
 
-  Future<void> pickAttachment(AttachmentSource source) async {
+  /// [workOrderCompanyId] is the tenant that owns the work order. It must come
+  /// from the work order itself, not from the session: in provider mode the
+  /// session company is the provider's own employer (or empty for a
+  /// provider-only user), never the contracting company being attached to.
+  Future<void> pickAttachment(
+    AttachmentSource source, {
+    String? workOrderCompanyId,
+  }) async {
     // Prune the sandbox before picking new files to prevent storage overflow
     await _useCases.pruneSandbox();
 
     final user = _useCases.getSessionUser();
-    final companyId = _useCases.getActiveCompanyId();
+    final companyId = workOrderCompanyId?.isNotEmpty == true
+        ? workOrderCompanyId!
+        : _useCases.getActiveCompanyId();
     final result = await _useCases.pickAttachment(
       PickAttachmentParams(
         source: source,

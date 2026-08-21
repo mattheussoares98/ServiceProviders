@@ -139,7 +139,11 @@ class _WorkOrderDetails extends HookWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           InfoItems(workOrder: workOrder, onRefresh: onRefresh),
-          const Attachments(isEditing: false, padding: EdgeInsets.zero),
+          Attachments(
+            isEditing: false,
+            padding: EdgeInsets.zero,
+            workOrderCompanyId: workOrder.companyId,
+          ),
           ObservationsSection(workOrder: workOrder),
           gapSliverH24,
         ],

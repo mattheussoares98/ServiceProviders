@@ -204,6 +204,59 @@ void main() {
       ],
     );
 
+    test(
+      'stamps the work order company on the picked file, not the session one',
+      () async {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        final cubit = AttachmentsCubit(
+          useCases: useCases,
+          workOrderId: tWorkOrderId,
+        );
+        await cubit.pickAttachment(
+          AttachmentSource.cameraPhoto,
+          workOrderCompanyId: 'contracting-company',
+        );
+
+        final params =
+            verify(() => mockPickAttachment(captureAny())).captured.last
+                as PickAttachmentParams;
+        expect(params.companyId, 'contracting-company');
+        await cubit.close();
+      },
+    );
+
+    test(
+      'falls back to the session company while creating a work order',
+      () async {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        final cubit = AttachmentsCubit(
+          useCases: useCases,
+          workOrderId: tWorkOrderId,
+        );
+        await cubit.pickAttachment(AttachmentSource.cameraPhoto);
+
+        final params =
+            verify(() => mockPickAttachment(captureAny())).captured.last
+                as PickAttachmentParams;
+        expect(params.companyId, 'abc');
+        await cubit.close();
+      },
+    );
+
     blocTest<AttachmentsCubit, AttachmentsState>(
       'picks multiple files and updates processingCount',
       build: () {

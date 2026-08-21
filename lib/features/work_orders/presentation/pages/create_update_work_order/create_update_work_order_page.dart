@@ -475,7 +475,10 @@ class _CreateUpdatePage extends HookWidget {
                       return item;
                     },
                   ),
-                  const Attachments(isEditing: true),
+                  Attachments(
+                    isEditing: true,
+                    workOrderCompanyId: workOrder?.companyId,
+                  ),
                 ],
               ),
             ),
