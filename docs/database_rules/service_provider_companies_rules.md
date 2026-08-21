@@ -6,6 +6,11 @@ CREATE POLICY "Company users read own service provider companies"
   ON public.service_provider_companies FOR SELECT TO authenticated
   USING (company_id = public.get_user_company_id());
 
+-- SELECT: provider users read their own companies
+CREATE POLICY "Provider users read their own provider companies"
+  ON public.service_provider_companies FOR SELECT TO authenticated
+  USING (public.is_provider_member_of_company(id));
+
 -- INSERT: requires service_providers.create
 CREATE POLICY "Company users insert service provider companies"
   ON public.service_provider_companies FOR INSERT TO authenticated

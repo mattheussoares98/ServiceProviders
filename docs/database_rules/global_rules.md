@@ -32,6 +32,65 @@ AS $$
 $$;
 ```
 
+### Provider Work Order Membership Helpers
+
+```sql
+CREATE OR REPLACE FUNCTION public.is_provider_member_of_work_order(
+  p_service_provider_company_id UUID,
+  p_provider_profile_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.service_provider_profiles spp
+    WHERE spp.auth_user_id = auth.uid()
+      AND spp.service_provider_company_id = p_service_provider_company_id
+      AND spp.is_active
+      AND (p_provider_profile_id IS NULL OR p_provider_profile_id = spp.id)
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_provider_member_of_work_order_id(p_work_order_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.work_orders wo
+    JOIN public.service_provider_profiles spp
+      ON spp.service_provider_company_id = wo.service_provider_company_id
+    WHERE wo.id = p_work_order_id
+      AND spp.auth_user_id = auth.uid()
+      AND spp.is_active
+      AND (wo.provider_profile_id IS NULL OR wo.provider_profile_id = spp.id)
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_provider_member_of_company(p_service_provider_company_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.service_provider_profiles spp
+    WHERE spp.service_provider_company_id = p_service_provider_company_id
+      AND spp.auth_user_id = auth.uid()
+      AND spp.is_active
+  );
+$$;
+```
+
 ---
 
 ## 2. Soft Delete Policy

@@ -5,8 +5,14 @@ CREATE POLICY "Users read own company work orders with permission"
   ON public.work_orders FOR SELECT
   TO authenticated
   USING (
-    company_id = public.get_user_company_id()
-    AND public.has_permission('work_orders.read')
+    (
+      company_id = public.get_user_company_id()
+      AND (
+        public.get_work_orders_read_scope() = 'all'
+        OR (public.get_work_orders_read_scope() = 'assigned' AND assigned_to_id = auth.uid())
+      )
+    )
+    OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
   );
 
 CREATE POLICY "Users insert own company work orders with permission"
@@ -17,11 +23,37 @@ CREATE POLICY "Users insert own company work orders with permission"
     AND public.has_permission('work_orders.create')
   );
 
+CREATE POLICY "Providers insert work orders for their companies"
+  ON public.work_orders FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+  );
+
 CREATE POLICY "Users update own company work orders with permission"
   ON public.work_orders FOR UPDATE
   TO authenticated
   USING (
-    company_id = public.get_user_company_id()
-    AND public.has_permission('work_orders.update')
+    (
+      company_id = public.get_user_company_id()
+      AND (
+        public.get_work_orders_update_scope() = 'all'
+        OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
+        OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+      )
+    )
+    OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+  )
+  WITH CHECK (
+    (
+      company_id = public.get_user_company_id()
+      AND (
+        public.get_work_orders_update_scope() = 'all'
+        OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
+        OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+      )
+    )
+    OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
   );
 ```
+
