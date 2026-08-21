@@ -9,9 +9,11 @@ CREATE POLICY "Users read own company locations with permission"
       company_id = public.get_user_company_id()
       AND public.has_permission('locations.read')
     )
-    -- Provider mode: read only the rows referenced by the work orders assigned
-    -- to a provider company the user actively belongs to.
-    OR public.is_provider_referenced_location(id)
+    -- Provider mode: read the whole registry of any contracting company that
+    -- hired a provider company the user actively belongs to. Wider than the
+    -- work-order-scoped grant on assets, because the create form has to browse
+    -- the registry before any work order exists.
+    OR public.is_provider_of_company(company_id)
   );
 
 CREATE POLICY "Users insert own company locations with permission"
