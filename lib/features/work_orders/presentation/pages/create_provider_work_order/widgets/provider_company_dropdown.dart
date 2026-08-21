@@ -13,17 +13,9 @@ class _ProviderCompanyDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (companies.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
-        child: BaseText(
-          'Nenhuma empresa contratante vinculada.'.hardcoded,
-          color: Theme.of(context).colorScheme.error,
-        ),
-      );
-    }
-    // Nothing to choose when the user serves a single client.
-    if (companies.length == 1) return const SizedBox.shrink();
+    // Nothing to choose when the user serves a single client. With none at all
+    // the cubit refuses the save and says why.
+    if (companies.length < 2) return const SizedBox.shrink();
 
     return BaseDropDown<ServiceProviderCompanyEntity>(
       key: const ValueKey('ProviderCompany'),

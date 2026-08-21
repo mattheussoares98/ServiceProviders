@@ -15,21 +15,29 @@ class _ProviderWorkOrderForm extends HookWidget {
           (cubit) => cubit.state.providerCompanies,
         );
 
-    final selectedCompany = useState<ServiceProviderCompanyEntity?>(
-      companies.length == 1 ? companies.first : null,
+    // Defaults to whatever the list page is already filtered to; the cubit
+    // resolves the rest when nothing was picked.
+    final preselectedId = context.select<WorkOrdersCubit, String?>(
+      (cubit) => cubit.state.selectedProviderCompanyId,
     );
+    final selectedCompany = useState<ServiceProviderCompanyEntity?>(null);
     final selectedLocationId = useState<String?>(null);
     final selectedAreaId = useState<String?>(null);
     final selectedType = useState(WorkOrderType.corrective);
     final selectedPriority = useState(Priority.medium);
     final selectedScheduledDate = useState<DateTime?>(null);
 
+    // providerCompanies arrives asynchronously with the work orders, so the
+    // default cannot be seeded at first build. Only ever fills an empty
+    // selection — a later reload must not overwrite what the user picked.
     useEffect(() {
-      if (selectedCompany.value == null && companies.length == 1) {
-        selectedCompany.value = companies.first;
-      }
+      selectedCompany.value ??=
+          companies.firstWhereOrNull(
+            (company) => company.id == preselectedId,
+          ) ??
+          (companies.length == 1 ? companies.first : null);
       return null;
-    }, [companies]);
+    }, [companies, preselectedId]);
 
     // The registry belongs to the contracting company, so it can only be read
     // once the provider company — and with it the tenant — is known.
@@ -62,6 +70,7 @@ class _ProviderWorkOrderForm extends HookWidget {
           ),
           gapH8,
           _ProviderLocationDropdown(
+            companyId: selectedCompany.value?.companyId,
             selectedId: selectedLocationId.value,
             onChanged: (id) {
               selectedLocationId.value = id;
@@ -70,6 +79,7 @@ class _ProviderWorkOrderForm extends HookWidget {
           ),
           gapH8,
           _ProviderAreaDropdown(
+            companyId: selectedCompany.value?.companyId,
             locationId: selectedLocationId.value,
             selectedId: selectedAreaId.value,
             onChanged: (id) => selectedAreaId.value = id,

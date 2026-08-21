@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -532,16 +533,33 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+  /// The provider company a new work order is opened for.
+  ///
+  /// [preferredId] is an explicit pick from the form, offered only when the
+  /// provider serves more than one client and has not narrowed the list. The
+  /// list filter's own selection comes next, and a provider that serves a
+  /// single client never has to choose at all.
+  ServiceProviderCompanyEntity? _providerCompanyToOpenFor(String? preferredId) {
+    final companies = state.providerCompanies;
+    final id = preferredId ?? state.selectedProviderCompanyId;
+
+    if (id == null) {
+      return companies.length == 1 ? companies.first : null;
+    }
+    return companies.firstWhereOrNull((company) => company.id == id);
+  }
+
   /// Opens a work order from provider mode (V2 §1.3 / Q5).
   ///
   /// The tenant is the contracting company that hired the provider company, and
   /// authorship is a `service_provider_profiles` row: a provider-only user has
   /// no `user_profiles` row for `created_by_id` to point at. The work order is
   /// assigned to the author's own provider company from the start.
+  ///
+  /// Both companies come from state — [serviceProviderCompanyId] only overrides
+  /// the resolution described in [_providerCompanyToOpenFor].
   Future<bool> createProviderWorkOrder({
     required String id,
-    required String companyId,
-    required String serviceProviderCompanyId,
     required String locationId,
     String? areaId,
     required String title,
@@ -550,13 +568,18 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     required WorkOrderType type,
     DateTime? scheduledDate,
     int? estimatedDuration,
+    String? serviceProviderCompanyId,
     AttachmentsCubit? attachmentsCubit,
   }) async {
+    final company = _providerCompanyToOpenFor(serviceProviderCompanyId);
+    if (company == null) {
+      showErrorToast('Selecione a empresa contratante'.hardcoded);
+      return false;
+    }
+
     emit(state.copyWith(status: StateStatus.saving));
 
-    final profileResult = await _useCases.getSessionProviderProfile(
-      serviceProviderCompanyId,
-    );
+    final profileResult = await _useCases.getSessionProviderProfile(company.id);
     if (isClosed) return false;
 
     if (profileResult is! SuccessState<ServiceProviderProfileEntity>) {
@@ -575,7 +598,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     return saveWorkOrder(
       id: id,
       isEditing: false,
-      companyId: companyId,
+      companyId: company.companyId,
       locationId: locationId,
       areaId: areaId,
       title: title,
@@ -585,7 +608,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       type: type,
       scheduledDate: scheduledDate,
       estimatedDuration: estimatedDuration,
-      serviceProviderCompanyId: serviceProviderCompanyId,
+      serviceProviderCompanyId: company.id,
       providerProfileId: profileId,
       createdByProviderProfileId: profileId,
       openedBy: AppMode.provider,

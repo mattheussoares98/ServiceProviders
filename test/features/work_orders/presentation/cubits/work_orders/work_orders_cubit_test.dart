@@ -2834,35 +2834,49 @@ void _providerModeTests() {
     );
 
     group('createProviderWorkOrder', () {
+      void stubCreation() {
+        when(
+          () => mockGetSessionProviderProfile(any()),
+        ).thenAnswer((_) async => SuccessState(data: tProfiles.first));
+        when(
+          () => mockCreateWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+        );
+      }
+
+      Future<void> create(
+        WorkOrdersCubit cubit, {
+        String? serviceProviderCompanyId,
+      }) => cubit.createProviderWorkOrder(
+        id: faker.guid.guid(),
+        locationId: faker.guid.guid(),
+        title: faker.lorem.sentence(),
+        priority: Priority.medium,
+        type: WorkOrderType.corrective,
+        serviceProviderCompanyId: serviceProviderCompanyId,
+      );
+
+      WorkOrderEntity capturedWorkOrder() =>
+          verify(() => mockCreateWorkOrder(captureAny())).captured.single
+              as WorkOrderEntity;
+
       blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'stamps the contracting tenant and the provider profile as creator',
+        'opens for the company the list is filtered to',
         build: () {
-          when(
-            () => mockGetSessionProviderProfile(any()),
-          ).thenAnswer((_) async => SuccessState(data: tProfiles.first));
-          when(
-            () => mockCreateWorkOrder(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
-          when(() => mockGetProviderWorkOrders(any())).thenAnswer(
-            (_) async => const SuccessState(data: <WorkOrderEntity>[]),
-          );
+          stubCreation();
           return buildCubit();
         },
-        act: (cubit) => cubit.createProviderWorkOrder(
-          id: faker.guid.guid(),
-          companyId: tCompanies.first.companyId,
-          serviceProviderCompanyId: tCompanies.first.id,
-          locationId: faker.guid.guid(),
-          title: faker.lorem.sentence(),
-          priority: Priority.medium,
-          type: WorkOrderType.corrective,
-        ),
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+          await cubit.selectProviderCompany(tCompanies.last.id);
+          await create(cubit);
+        },
         verify: (_) {
-          final created =
-              verify(() => mockCreateWorkOrder(captureAny())).captured.single
-                  as WorkOrderEntity;
-          expect(created.companyId, tCompanies.first.companyId);
-          expect(created.serviceProviderCompanyId, tCompanies.first.id);
+          final created = capturedWorkOrder();
+          expect(created.companyId, tCompanies.last.companyId);
+          expect(created.serviceProviderCompanyId, tCompanies.last.id);
           expect(created.providerProfileId, tProfiles.first.id);
           expect(created.createdByProviderProfileId, tProfiles.first.id);
           expect(created.createdById, isNull);
@@ -2872,8 +2886,43 @@ void _providerModeTests() {
       );
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'an explicit choice wins over the list filter',
+        build: () {
+          stubCreation();
+          return buildCubit();
+        },
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+          await cubit.selectProviderCompany(tCompanies.last.id);
+          await create(cubit, serviceProviderCompanyId: tCompanies.first.id);
+        },
+        verify: (_) {
+          final created = capturedWorkOrder();
+          expect(created.companyId, tCompanies.first.companyId);
+          expect(created.serviceProviderCompanyId, tCompanies.first.id);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'refuses to guess when several companies are unfiltered',
+        build: () {
+          stubCreation();
+          return buildCubit();
+        },
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+          await create(cubit);
+        },
+        verify: (_) {
+          verifyNever(() => mockCreateWorkOrder(any()));
+          verifyNever(() => mockGetSessionProviderProfile(any()));
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
         'does not create when the provider profile cannot be resolved',
         build: () {
+          stubCreation();
           when(() => mockGetSessionProviderProfile(any())).thenAnswer(
             (_) async => FailureState<ServiceProviderProfileEntity>(
               message: 'Perfil de prestador não encontrado.',
@@ -2881,15 +2930,11 @@ void _providerModeTests() {
           );
           return buildCubit();
         },
-        act: (cubit) => cubit.createProviderWorkOrder(
-          id: faker.guid.guid(),
-          companyId: tCompanies.first.companyId,
-          serviceProviderCompanyId: tCompanies.first.id,
-          locationId: faker.guid.guid(),
-          title: faker.lorem.sentence(),
-          priority: Priority.medium,
-          type: WorkOrderType.corrective,
-        ),
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+          await cubit.selectProviderCompany(tCompanies.first.id);
+          await create(cubit);
+        },
         verify: (cubit) {
           verifyNever(() => mockCreateWorkOrder(any()));
           expect(cubit.state.status, StateStatus.savingError);

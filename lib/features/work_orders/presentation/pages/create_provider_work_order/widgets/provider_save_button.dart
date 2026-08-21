@@ -26,18 +26,14 @@ class _ProviderSaveButton extends StatelessWidget {
   final DateTime? scheduledDate;
 
   Future<void> _save(BuildContext context) async {
-    final selectedCompany = company;
-    if (formKey.currentState?.validate() != true || selectedCompany == null) {
-      return;
-    }
+    if (formKey.currentState?.validate() != true) return;
 
     final description = descriptionController.text.trim();
     final succeeds = await context
         .read<WorkOrdersCubit>()
         .createProviderWorkOrder(
           id: workOrderId,
-          companyId: selectedCompany.companyId,
-          serviceProviderCompanyId: selectedCompany.id,
+          serviceProviderCompanyId: company?.id,
           locationId: locationId!,
           areaId: areaId,
           title: titleController.text.trim(),
