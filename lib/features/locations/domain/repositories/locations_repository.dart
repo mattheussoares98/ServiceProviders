@@ -6,6 +6,7 @@ abstract interface class LocationsRepository {
   // Locations
   FutureList<LocationEntity> getLocations(String companyId);
   FutureList<LocationEntity> getLocationsByIds(List<String> ids);
+  FutureList<LocationEntity> getProviderLocations(String companyId);
   FutureBool createLocation(LocationEntity location);
   FutureBool updateLocation(LocationEntity location);
   FutureBool deleteLocation(String id);
@@ -13,6 +14,7 @@ abstract interface class LocationsRepository {
   // Areas
   FutureList<AreaEntity> getAreas(String companyId);
   FutureList<AreaEntity> getAreasByIds(List<String> ids);
+  FutureList<AreaEntity> getProviderAreas(String companyId);
   FutureBool createArea(AreaEntity area);
   FutureBool updateArea(AreaEntity area);
   FutureBool deleteArea(String id);

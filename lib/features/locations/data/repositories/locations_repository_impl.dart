@@ -53,6 +53,20 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
+  FutureList<LocationEntity> getProviderLocations(String companyId) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        LocationModel,
+        LocationEntity
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getLocations(companyId),
+        // Deliberately no localCallback and no onRemoteSuccess: the rows belong
+        // to a contracting company, and the Drift database is scoped to the
+        // user's own. Caching them there would corrupt the internal-mode
+        // dataset — the same reason getProviderWorkOrders never caches.
+      );
+
+  @override
   FutureBool createLocation(LocationEntity location) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
@@ -138,6 +152,17 @@ final class LocationsRepositoryImpl implements LocationsRepository {
     // is scoped to one contracting company, so caching cross-company rows
     // there would corrupt the internal-mode dataset.
   );
+
+  @override
+  FutureList<AreaEntity> getProviderAreas(String companyId) =>
+      RepositoryHandler.fetchWithFallbackAndMapList<AreaModel, AreaEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getAreas(companyId),
+        // Deliberately no localCallback and no onRemoteSuccess: the rows belong
+        // to a contracting company, and the Drift database is scoped to the
+        // user's own. Caching them there would corrupt the internal-mode
+        // dataset — the same reason getProviderWorkOrders never caches.
+      );
 
   @override
   FutureBool createArea(AreaEntity area) =>

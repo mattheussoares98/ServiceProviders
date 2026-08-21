@@ -19,12 +19,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   final LocationsCubitUseCases _useCases;
 
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
-    final companyId = _useCases.getActiveCompanyId();
+    final targetCompanyId = _useCases.getActiveCompanyId();
 
     emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
 
-    final locationsResult = await _useCases.getLocations(companyId);
-    final areasResult = await _useCases.getAreas(companyId);
+    final locationsResult = await _useCases.getLocations(targetCompanyId);
+    final areasResult = await _useCases.getAreas(targetCompanyId);
 
     if (isClosed) return;
 
@@ -80,6 +80,48 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (locationsResult is! SuccessState<List<LocationEntity>> ||
         areasResult is! SuccessState<List<AreaEntity>>) {
+      return;
+    }
+
+    final areas = areasResult.data ?? [];
+    final Map<String, List<AreaEntity>> areasByLocation = {};
+    for (final area in areas) {
+      areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
+    }
+    emit(
+      state.copyWith(
+        status: StateStatus.loaded,
+        locations: locationsResult.data,
+        areasByLocation: areasByLocation,
+        allAreas: areas,
+        annulErrorMessage: true,
+      ),
+    );
+  }
+
+  /// Every location and area of one contracting company, for the provider
+  /// create form. Unlike [loadLocationsAndAreas] the rows are never cached
+  /// locally: they belong to another tenant.
+  Future<void> loadProviderRegistry(String companyId) async {
+    emit(state.copyWith(status: StateStatus.loading));
+
+    final locationsResult = await _useCases.getProviderLocations(companyId);
+    final areasResult = await _useCases.getProviderAreas(companyId);
+
+    if (isClosed) return;
+
+    if (locationsResult is! SuccessState<List<LocationEntity>> ||
+        areasResult is! SuccessState<List<AreaEntity>>) {
+      final failure = locationsResult is FailureState
+          ? locationsResult
+          : areasResult;
+      emit(
+        state.copyWith(
+          status: StateStatus.loadingError,
+          errorMessage: failure.message,
+        ),
+      );
+      showDataStateToast(failure);
       return;
     }
 

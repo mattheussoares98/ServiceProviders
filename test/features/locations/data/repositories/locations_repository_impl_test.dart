@@ -49,6 +49,56 @@ void main() {
   final tCompanyId = faker.guid.guid();
 
   group('LocationsRepositoryImpl', () {
+    group('getProviderLocations', () {
+      test('should fetch from remote without caching when online', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getLocations(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tLocationModel]));
+
+        final result = await repository.getProviderLocations(tCompanyId);
+
+        expect(result, isA<SuccessState<List<LocationEntity>>>());
+        expect(result.data!.first, equals(tLocationEntity));
+        verify(() => mockRemoteDataSource.getLocations(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.saveLocations(any()));
+      });
+
+      test('should return failure offline, with no local fallback', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+
+        final result = await repository.getProviderLocations(tCompanyId);
+
+        expect(result, isA<FailureState<List<LocationEntity>>>());
+        verifyNever(() => mockLocalDataSource.getLocations(any()));
+      });
+    });
+
+    group('getProviderAreas', () {
+      test('should fetch from remote without caching when online', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAreas(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAreaModel]));
+
+        final result = await repository.getProviderAreas(tCompanyId);
+
+        expect(result, isA<SuccessState<List<AreaEntity>>>());
+        expect(result.data!.first, equals(tAreaEntity));
+        verify(() => mockRemoteDataSource.getAreas(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.saveAreas(any()));
+      });
+
+      test('should return failure offline, with no local fallback', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+
+        final result = await repository.getProviderAreas(tCompanyId);
+
+        expect(result, isA<FailureState<List<AreaEntity>>>());
+        verifyNever(() => mockLocalDataSource.getAreas(any()));
+      });
+    });
+
     group('getLocationsByIds', () {
       test('should fetch from remote without caching when online', () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);

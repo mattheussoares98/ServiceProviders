@@ -8,6 +8,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
 
@@ -19,6 +21,8 @@ class LocationsCubitUseCases {
     required this.getAreas,
     required this.getLocationsByIds,
     required this.getAreasByIds,
+    required this.getProviderLocations,
+    required this.getProviderAreas,
     required this.createLocation,
     required this.updateLocation,
     required this.deleteLocation,
@@ -32,6 +36,8 @@ class LocationsCubitUseCases {
   final GetAreasUseCase getAreas;
   final GetLocationsByIdsUseCase getLocationsByIds;
   final GetAreasByIdsUseCase getAreasByIds;
+  final GetProviderLocationsUseCase getProviderLocations;
+  final GetProviderAreasUseCase getProviderAreas;
   final CreateLocationUseCase createLocation;
   final UpdateLocationUseCase updateLocation;
   final DeleteLocationUseCase deleteLocation;

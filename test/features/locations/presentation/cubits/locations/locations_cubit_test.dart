@@ -15,6 +15,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -39,6 +41,12 @@ class MockGetLocationsByIdsUseCase extends Mock
 
 class MockGetAreasByIdsUseCase extends Mock implements GetAreasByIdsUseCase {}
 
+class MockGetProviderLocationsUseCase extends Mock
+    implements GetProviderLocationsUseCase {}
+
+class MockGetProviderAreasUseCase extends Mock
+    implements GetProviderAreasUseCase {}
+
 class MockCreateLocationUseCase extends Mock implements CreateLocationUseCase {}
 
 class MockUpdateLocationUseCase extends Mock implements UpdateLocationUseCase {}
@@ -59,6 +67,8 @@ void main() {
   late MockGetAreasUseCase mockGetAreas;
   late MockGetLocationsByIdsUseCase mockGetLocationsByIds;
   late MockGetAreasByIdsUseCase mockGetAreasByIds;
+  late MockGetProviderLocationsUseCase mockGetProviderLocations;
+  late MockGetProviderAreasUseCase mockGetProviderAreas;
   late MockCreateLocationUseCase mockCreateLocation;
   late MockUpdateLocationUseCase mockUpdateLocation;
   late MockDeleteLocationUseCase mockDeleteLocation;
@@ -86,6 +96,8 @@ void main() {
     mockGetAreas = MockGetAreasUseCase();
     mockGetLocationsByIds = MockGetLocationsByIdsUseCase();
     mockGetAreasByIds = MockGetAreasByIdsUseCase();
+    mockGetProviderLocations = MockGetProviderLocationsUseCase();
+    mockGetProviderAreas = MockGetProviderAreasUseCase();
     mockCreateLocation = MockCreateLocationUseCase();
     mockUpdateLocation = MockUpdateLocationUseCase();
     mockDeleteLocation = MockDeleteLocationUseCase();
@@ -110,6 +122,8 @@ void main() {
       getAreas: mockGetAreas,
       getLocationsByIds: mockGetLocationsByIds,
       getAreasByIds: mockGetAreasByIds,
+      getProviderLocations: mockGetProviderLocations,
+      getProviderAreas: mockGetProviderAreas,
       createLocation: mockCreateLocation,
       updateLocation: mockUpdateLocation,
       deleteLocation: mockDeleteLocation,
@@ -296,6 +310,65 @@ void main() {
           areaIds: [tAreas.first.id],
         ),
         expect: () => <LocationsState>[],
+      );
+    });
+
+    group('loadProviderRegistry', () {
+      blocTest<LocationsCubit, LocationsState>(
+        'should emit loading and loaded with the contracting company registry',
+        build: () {
+          when(
+            () => mockGetProviderLocations.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocations));
+          when(
+            () => mockGetProviderAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadProviderRegistry(tUserProfile.companyId),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.locations, 'locations', tLocations)
+              .having((s) => s.allAreas, 'allAreas', tAreas),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGetProviderLocations.call(tUserProfile.companyId),
+          ).called(1);
+          verify(
+            () => mockGetProviderAreas.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should emit loadingError when the registry cannot be read',
+        build: () {
+          when(() => mockGetProviderLocations.call(any())).thenAnswer(
+            (_) async => FailureState<List<LocationEntity>>(message: 'Error'),
+          );
+          when(
+            () => mockGetProviderAreas.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        act: (cubit) => cubit.loadProviderRegistry(tUserProfile.companyId),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loading,
+          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.errorMessage, 'errorMessage', 'Error'),
+        ],
       );
     });
 

@@ -12,6 +12,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
 
@@ -32,6 +34,8 @@ void main() {
   late GetAreasUseCase getAreasUseCase;
   late GetLocationsByIdsUseCase getLocationsByIdsUseCase;
   late GetAreasByIdsUseCase getAreasByIdsUseCase;
+  late GetProviderLocationsUseCase getProviderLocationsUseCase;
+  late GetProviderAreasUseCase getProviderAreasUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeLocationEntity());
@@ -60,6 +64,12 @@ void main() {
       locationsRepository: mockRepository,
     );
     getAreasByIdsUseCase = GetAreasByIdsUseCase(
+      locationsRepository: mockRepository,
+    );
+    getProviderLocationsUseCase = GetProviderLocationsUseCase(
+      locationsRepository: mockRepository,
+    );
+    getProviderAreasUseCase = GetProviderAreasUseCase(
       locationsRepository: mockRepository,
     );
   });
@@ -310,6 +320,72 @@ void main() {
         // Assert
         expect(result, isA<FailureState<bool>>());
         verify(() => mockRepository.deleteArea(tId)).called(1);
+      });
+    });
+
+    group('GetProviderLocationsUseCase', () {
+      test(
+        'should call repository.getProviderLocations and return locations',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.getProviderLocations(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLocationList));
+
+          // Act
+          final result = await getProviderLocationsUseCase(tId);
+
+          // Assert
+          expect(result, isA<SuccessState<List<LocationEntity>>>());
+          expect(result.data, tLocationList);
+          verify(() => mockRepository.getProviderLocations(tId)).called(1);
+        },
+      );
+
+      test('should return FailureState when repository fails', () async {
+        // Arrange
+        when(() => mockRepository.getProviderLocations(any())).thenAnswer(
+          (_) async => FailureState<List<LocationEntity>>(message: 'Error'),
+        );
+
+        // Act
+        final result = await getProviderLocationsUseCase(tId);
+
+        // Assert
+        expect(result, isA<FailureState<List<LocationEntity>>>());
+      });
+    });
+
+    group('GetProviderAreasUseCase', () {
+      test(
+        'should call repository.getProviderAreas and return areas',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.getProviderAreas(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreaList));
+
+          // Act
+          final result = await getProviderAreasUseCase(tId);
+
+          // Assert
+          expect(result, isA<SuccessState<List<AreaEntity>>>());
+          expect(result.data, tAreaList);
+          verify(() => mockRepository.getProviderAreas(tId)).called(1);
+        },
+      );
+
+      test('should return FailureState when repository fails', () async {
+        // Arrange
+        when(() => mockRepository.getProviderAreas(any())).thenAnswer(
+          (_) async => FailureState<List<AreaEntity>>(message: 'Error'),
+        );
+
+        // Act
+        final result = await getProviderAreasUseCase(tId);
+
+        // Assert
+        expect(result, isA<FailureState<List<AreaEntity>>>());
       });
     });
 
