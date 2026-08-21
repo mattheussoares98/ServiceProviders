@@ -34,6 +34,18 @@ final class AssetsRepositoryImpl implements AssetsRepository {
       );
 
   @override
+  FutureList<AssetEntity> getAssetsByIds(
+    List<String> ids,
+  ) => RepositoryHandler.fetchWithFallbackAndMapList<AssetModel, AssetEntity>(
+    isInternetConnected: _internet.isConnected,
+    remoteCallback: () => _remoteDataSource.getAssetsByIds(ids),
+    // Deliberately no localCallback and no onRemoteSuccess: this path exists
+    // for provider mode, which is online-only (V2 §1.4). The Drift database
+    // is scoped to one contracting company, so caching cross-company rows
+    // there would corrupt the internal-mode dataset.
+  );
+
+  @override
   FutureData<AssetEntity> getAssetById(String id) =>
       RepositoryHandler.fetchWithFallbackAndMap<AssetModel, AssetEntity>(
         isInternetConnected: _internet.isConnected,

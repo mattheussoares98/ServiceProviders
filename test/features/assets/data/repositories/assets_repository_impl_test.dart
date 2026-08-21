@@ -43,6 +43,45 @@ void main() {
   final tCompanyId = faker.guid.guid();
 
   group('AssetsRepositoryImpl', () {
+    group('getAssetsByIds', () {
+      test('should fetch from remote without caching when online', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAssetsByIds(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAssetModel]));
+
+        final result = await repository.getAssetsByIds([tAssetEntity.id]);
+
+        expect(result, isA<SuccessState<List<AssetEntity>>>());
+        expect(result.data!.first, equals(tAssetEntity));
+        verify(
+          () => mockRemoteDataSource.getAssetsByIds([tAssetEntity.id]),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.saveAssets(any()));
+      });
+
+      test('should return failure when remote fails', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAssetsByIds(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.getAssetsByIds([tAssetEntity.id]);
+
+        expect(result, isA<FailureState<List<AssetEntity>>>());
+      });
+
+      test('should return failure offline, with no local fallback', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+
+        final result = await repository.getAssetsByIds([tAssetEntity.id]);
+
+        expect(result, isA<FailureState<List<AssetEntity>>>());
+        verifyNever(() => mockRemoteDataSource.getAssetsByIds(any()));
+        verifyNever(() => mockLocalDataSource.getAssets(any()));
+      });
+    });
+
     group('getAssets', () {
       test(
         'should fetch assets from remote, cache them locally, and return list on success when online',

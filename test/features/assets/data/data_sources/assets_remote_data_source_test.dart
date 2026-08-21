@@ -70,6 +70,55 @@ void main() {
       },
     );
 
+    test('should fetch assets by id for provider mode', () async {
+      when(
+        () => mockSupabaseDatabaseClient.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tAssetModel.toJson()]);
+
+      final result = await dataSource.getAssetsByIds([tAssetModel.id]);
+
+      expect(result, isA<SuccessState<List<AssetModel>>>());
+      expect(result.data!.first.id, tAssetModel.id);
+      verify(
+        () => mockSupabaseDatabaseClient.selectList(
+          table: 'assets',
+          filters: [
+            SupabaseFilter.inList('id', [tAssetModel.id]),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        ),
+      ).called(1);
+    });
+
+    test('should not query when the asset id list is empty', () async {
+      final result = await dataSource.getAssetsByIds([]);
+
+      expect(result, isA<SuccessState<List<AssetModel>>>());
+      expect(result.data, isEmpty);
+      verifyNever(
+        () => mockSupabaseDatabaseClient.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      );
+    });
+
+    test('should return FailureState when the by-id query throws', () async {
+      when(
+        () => mockSupabaseDatabaseClient.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenThrow(Exception(faker.lorem.sentence()));
+
+      final result = await dataSource.getAssetsByIds([tAssetModel.id]);
+
+      expect(result, isA<FailureState<List<AssetModel>>>());
+    });
+
     test('should return SuccessState<AssetModel> on selectOne success', () async {
       when(
         () => mockSupabaseDatabaseClient.selectOne(

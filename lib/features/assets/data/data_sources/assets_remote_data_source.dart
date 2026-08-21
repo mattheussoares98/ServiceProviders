@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model
 
 abstract interface class AssetsRemoteDataSource {
   FutureList<AssetModel> getAssets(String companyId);
+  FutureList<AssetModel> getAssetsByIds(List<String> ids);
   FutureData<AssetModel> getAssetById(String id);
   FutureData<AssetModel> createAsset(AssetRequestModel request);
   FutureData<AssetModel> updateAsset(AssetRequestModel request);
@@ -39,6 +40,25 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
     );
     return response.map(AssetModel.fromJson).toList();
   });
+
+  // Provider mode reads lookups by id instead of by company: the rows belong to
+  // the contracting company, and RLS narrows them to the ones referenced by the
+  // provider's own work orders. The areas!inner join is dropped on purpose —
+  // the provider is not granted read access to an asset's area unless one of its
+  // work orders points at that area too.
+  @override
+  FutureList<AssetModel> getAssetsByIds(List<String> ids) =>
+      SupabaseHandler.call(() async {
+        if (ids.isEmpty) return <AssetModel>[];
+        final response = await _database.selectList(
+          table: 'assets',
+          filters: [
+            SupabaseFilter.inList('id', ids),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.map(AssetModel.fromJson).toList();
+      });
 
   @override
   FutureData<AssetModel> getAssetById(

@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/create_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/delete_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_asset_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 
@@ -20,6 +21,7 @@ void main() {
   late UpdateAssetUseCase updateAssetUseCase;
   late DeleteAssetUseCase deleteAssetUseCase;
   late GetAssetsUseCase getAssetsUseCase;
+  late GetAssetsByIdsUseCase getAssetsByIdsUseCase;
   late GetAssetByIdUseCase getAssetByIdUseCase;
 
   setUpAll(() {
@@ -32,6 +34,9 @@ void main() {
     updateAssetUseCase = UpdateAssetUseCase(assetsRepository: mockRepository);
     deleteAssetUseCase = DeleteAssetUseCase(assetsRepository: mockRepository);
     getAssetsUseCase = GetAssetsUseCase(assetsRepository: mockRepository);
+    getAssetsByIdsUseCase = GetAssetsByIdsUseCase(
+      assetsRepository: mockRepository,
+    );
     getAssetByIdUseCase = GetAssetByIdUseCase(assetsRepository: mockRepository);
   });
 
@@ -173,6 +178,40 @@ void main() {
         // Assert
         expect(result, isA<FailureState<List<AssetEntity>>>());
         verify(() => mockRepository.getAssets(tId)).called(1);
+      });
+    });
+
+    group('GetAssetsByIdsUseCase', () {
+      test(
+        'should call repository.getAssetsByIds and return list of assets',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.getAssetsByIds(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAssetList));
+
+          // Act
+          final result = await getAssetsByIdsUseCase([tId]);
+
+          // Assert
+          expect(result, isA<SuccessState<List<AssetEntity>>>());
+          expect(result.data, tAssetList);
+          verify(() => mockRepository.getAssetsByIds([tId])).called(1);
+        },
+      );
+
+      test('should return FailureState when repository fails', () async {
+        // Arrange
+        when(() => mockRepository.getAssetsByIds(any())).thenAnswer(
+          (_) async => FailureState<List<AssetEntity>>(message: 'Error'),
+        );
+
+        // Act
+        final result = await getAssetsByIdsUseCase([tId]);
+
+        // Assert
+        expect(result, isA<FailureState<List<AssetEntity>>>());
+        verify(() => mockRepository.getAssetsByIds([tId])).called(1);
       });
     });
 
