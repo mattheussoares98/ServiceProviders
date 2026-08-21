@@ -18,9 +18,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 /// Provider mode landing page. Lists every work order assigned to the provider
 /// across all contracting companies, with an optional company filter.
 ///
-/// Creating work orders (V2 §1.3 / Q5) is not offered yet: the shared form reads
-/// locations, assets and users, which remain scoped to `company_id` in RLS, so a
-/// provider would see empty dropdowns. That needs its own RLS pass.
+/// Creating work orders (V2 §1.3 / Q5) goes through `CreateProviderWorkOrderPage`
+/// rather than the shared form, which reads registries a provider cannot see.
 @RoutePage()
 class ProviderWorkOrdersPage extends StatelessWidget {
   const ProviderWorkOrdersPage({super.key});
@@ -47,6 +46,13 @@ class ProviderWorkOrdersPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: cubit.navigateToCreateProviderWorkOrder,
+        child: const PlatformIcon(
+          materialIcon: Icons.add,
+          cupertinoIcon: CupertinoIcons.add,
+        ),
       ),
       body: const ProviderLookupsLoader(
         child: Column(

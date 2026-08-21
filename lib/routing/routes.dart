@@ -35,6 +35,10 @@ class AppRouter extends RootStackRouter {
           page: WorkOrderDetailsRoute.page,
           path: '$kWorkOrderDetailsRoute/$kWorkOrderDetailsPath',
         ),
+        AutoRoute(
+          page: CreateProviderWorkOrderRoute.page,
+          path: '$kCreateProviderWorkOrderRoute/$kCreateProviderWorkOrderPath',
+        ),
       ],
     ),
     AutoRoute(
@@ -112,38 +116,26 @@ class AppRouter extends RootStackRouter {
               '$kCreateServiceProviderCompanyRoute/$kCreateServiceProviderCompanyPath',
         ),
         //* Checklists
-        AutoRoute(
-          page: ChecklistsRoute.page,
-          path: kChecklistsPath,
-        ),
+        AutoRoute(page: ChecklistsRoute.page, path: kChecklistsPath),
         //* Maintenance Plans
         AutoRoute(
           page: MaintenancePlansRoute.page,
           path: kMaintenancePlansPath,
         ),
         //* Sectors
-        AutoRoute(
-          page: SectorsRoute.page,
-          path: kSectorsPath,
-        ),
+        AutoRoute(page: SectorsRoute.page, path: kSectorsPath),
         AutoRoute(
           page: CreateUpdateSectorRoute.page,
           path: '$kCreateUpdateSectorRoute/$kCreateUpdateSectorPath',
         ),
         //* Categories
-        AutoRoute(
-          page: CategoriesRoute.page,
-          path: kCategoriesPath,
-        ),
+        AutoRoute(page: CategoriesRoute.page, path: kCategoriesPath),
         AutoRoute(
           page: CreateUpdateCategoryRoute.page,
           path: '$kCreateUpdateCategoryRoute/$kCreateUpdateCategoryPath',
         ),
         //* SLA Policies
-        AutoRoute(
-          page: SlaPoliciesRoute.page,
-          path: kSlaPoliciesPath,
-        ),
+        AutoRoute(page: SlaPoliciesRoute.page, path: kSlaPoliciesPath),
         AutoRoute(
           page: CreateUpdateSlaPolicyRoute.page,
           path: '$kCreateUpdateSlaPolicyRoute/$kCreateUpdateSlaPolicyPath',

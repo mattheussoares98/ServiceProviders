@@ -36,6 +36,8 @@ const String kDashboardSubPath = 'dashboard';
 const String kWorkOrdersRoute = 'WorkOrdersRoute';
 const String kWorkOrdersPath = 'work-orders';
 
+const String kCreateProviderWorkOrderRoute = 'CreateProviderWorkOrderRoute';
+const String kCreateProviderWorkOrderPath = 'create-provider-work-order';
 const String kCreateUpdateWorkOrderRoute = 'CreateUpdateWorkOrderRoute';
 const String kCreateUpdateWorkOrderPath = 'create-update-work-order';
 
@@ -95,11 +97,14 @@ const String kEditUserPermissionsPath = 'edit-user';
 const String kServiceProvidersRoute = 'ServiceProvidersRoute';
 const String kServiceProvidersPath = 'service-providers';
 
-const String kCreateServiceProviderCompanyRoute = 'CreateServiceProviderCompanyRoute';
-const String kCreateServiceProviderCompanyPath = 'create-service-provider-company';
+const String kCreateServiceProviderCompanyRoute =
+    'CreateServiceProviderCompanyRoute';
+const String kCreateServiceProviderCompanyPath =
+    'create-service-provider-company';
 
 // Accept service provider invite (email deeplink)
-const String kAcceptServiceProviderInviteRoute = 'AcceptServiceProviderInviteRoute';
+const String kAcceptServiceProviderInviteRoute =
+    'AcceptServiceProviderInviteRoute';
 const String kAcceptServiceProviderInvitePath = '/accept-sp-invite';
 
 // Checklists
@@ -130,4 +135,3 @@ const String kSlaPoliciesPath = 'sla-policies';
 
 const String kCreateUpdateSlaPolicyRoute = 'CreateUpdateSlaPolicyRoute';
 const String kCreateUpdateSlaPolicyPath = 'create-update-sla-policy';
-
