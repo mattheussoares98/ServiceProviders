@@ -56,10 +56,21 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 **Blocks:** work order assignment notifications (V1 scope), pendency notifications ([V2 §4.2](/docs/cmms/v2_features.md)), and the entire escalation engine ([V2 §5](/docs/cmms/v2_features.md)).
 **Work:** device token table + migration, token registration/refresh on login, an Edge Function to dispatch by user.
 
-### Gap 2 — Provider Mode has no UI 🔴
-`ProviderHomePage` renders a placeholder `Text('Provider Home')`. The repository, use cases, `ServiceProvidersCubit`, and `ModeSwitcherCubit` routing are all built and reachable.
+### Gap 2 — Provider Mode UI 🟡 PARTIALLY IMPLEMENTED
+**Done (2026-08-20):**
+- `ProviderHomePage` is now a cubit shell hosting a nested router.
+- `ProviderWorkOrdersPage` lists every work order assigned to the provider across all contracting companies.
+- `ProviderCompanySelector` narrows to one provider company; shown only when the user belongs to more than one. Default is all companies.
+- `WorkOrdersCubit` gained `loadProviderWorkOrders` / `selectProviderCompany` / `applyProviderFilter`; `applyFilter`, `clearFilter` and `loadNextPage` branch on mode.
+- Data path is online-only per [V2 §1.4](/docs/cmms/v2_features.md) — `getProviderWorkOrders` deliberately has no Drift fallback and never caches.
+- `WorkOrderDetailsPage` is reused unchanged via nested routing.
 
-**Work:** provider work order list, provider-scoped detail/execution view, enterprise picker for providers belonging to multiple contracting companies. Per [V2 §1.4](/docs/cmms/v2_features.md), Provider Mode is **online-only** — no Drift caching.
+**RLS** — requires `supabase/migrations/20260820120000_add_provider_access_to_work_orders.sql`, applied 2026-08-20. It adds provider branches to `work_orders` (SELECT/UPDATE/INSERT), `attachments`, `work_order_observations`, and `service_provider_companies`. Without it every provider query returns empty.
+
+**Still to do:**
+- **Provider work order creation** ([V2 §1.3](/docs/cmms/v2_features.md), Q5). The shared create/update form reads locations, assets and users, all still scoped to `company_id` in RLS, so a provider would get empty dropdowns. Needs its own RLS pass and probably a reduced form.
+- **Provider observations.** RLS now allows them, but `work_order_observations.author_id` is `NOT NULL REFERENCES user_profiles(id)`. A provider-only user has no such row, so the insert still fails on the foreign key. Fixing it needs a schema decision, not a policy: either make `author_id` nullable and add `author_provider_profile_id UUID REFERENCES service_provider_profiles(id)` with a CHECK that exactly one is set, or repoint `author_id` at `auth.users(id)`. Either way it changes the Drift table, the Flutter model, and `docs/schema/work_order_observations.md`.
+- Location and asset labels render blank in provider mode for the same RLS reason.
 
 ### Gap 3 — Outbound sync does not exist 🔴
 Sync is pull-only (`syncWorkOrders`, work orders only). Offline writes land in Drift and are never pushed. `sync_audit_logs` is declared in the Drift schema but unused.
