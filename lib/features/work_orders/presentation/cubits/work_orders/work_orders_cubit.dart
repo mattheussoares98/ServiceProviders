@@ -105,7 +105,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
-
   // ===========================================================================
   // Provider mode (AppMode.provider)
   // ===========================================================================
@@ -225,8 +224,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       companyIds,
     );
     if (companiesResult is SuccessState<List<ServiceProviderCompanyEntity>>) {
-      final companies = [...companiesResult.data ?? <ServiceProviderCompanyEntity>[]]
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      final companies = [
+        ...companiesResult.data ?? <ServiceProviderCompanyEntity>[],
+      ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       return companies;
     }
     return const [];
@@ -354,7 +354,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     required String locationId,
     String? assignedToId,
     String? areaId,
-    required String createdById,
+    String? createdById,
+    String? createdByProviderProfileId,
+    String? companyId,
     String? maintenancePlanId,
     required String title,
     String? description,
@@ -388,7 +390,10 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final existing = isEditing
         ? state.workOrders.firstWhereOrNull((workOrder) => workOrder.id == id)
         : null;
-    final companyId = existing?.companyId ?? _useCases.getActiveCompanyId();
+    // A provider passes the contracting company explicitly: it has no active
+    // company of its own to fall back on.
+    final tenantId =
+        existing?.companyId ?? companyId ?? _useCases.getActiveCompanyId();
 
     final computedStartedAt =
         startedAt ?? (status == WorkOrderStatus.inProgress ? now : null);
@@ -404,12 +409,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
     final workOrder = WorkOrderEntity(
       id: id,
-      companyId: companyId,
+      companyId: tenantId,
       assetId: assetId?.trimToNull(),
       locationId: locationId,
       areaId: areaId,
       assignedToId: assignedToId?.trimToNull(),
       createdById: createdById,
+      createdByProviderProfileId: createdByProviderProfileId,
       maintenancePlanId: maintenancePlanId?.trimToNull(),
       title: title.trim(),
       description: description?.trimToNull(),
@@ -519,6 +525,67 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       showDataStateToast(dataState);
       return false;
     }
+  }
+
+  /// Opens a work order from provider mode (V2 §1.3 / Q5).
+  ///
+  /// The tenant is the contracting company that hired the provider company, and
+  /// authorship is a `service_provider_profiles` row: a provider-only user has
+  /// no `user_profiles` row for `created_by_id` to point at. The work order is
+  /// assigned to the author's own provider company from the start.
+  Future<bool> createProviderWorkOrder({
+    required String id,
+    required String companyId,
+    required String serviceProviderCompanyId,
+    required String locationId,
+    String? areaId,
+    required String title,
+    String? description,
+    required Priority priority,
+    required WorkOrderType type,
+    DateTime? scheduledDate,
+    int? estimatedDuration,
+    AttachmentsCubit? attachmentsCubit,
+  }) async {
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final profileResult = await _useCases.getSessionProviderProfile(
+      serviceProviderCompanyId,
+    );
+    if (isClosed) return false;
+
+    if (profileResult is! SuccessState<ServiceProviderProfileEntity>) {
+      emit(
+        state.copyWith(
+          status: StateStatus.savingError,
+          errorMessage: profileResult.message,
+        ),
+      );
+      showDataStateToast(profileResult);
+      return false;
+    }
+
+    final profileId = profileResult.data!.id;
+
+    return saveWorkOrder(
+      id: id,
+      isEditing: false,
+      companyId: companyId,
+      locationId: locationId,
+      areaId: areaId,
+      title: title,
+      description: description,
+      priority: priority,
+      status: WorkOrderStatus.open,
+      type: type,
+      scheduledDate: scheduledDate,
+      estimatedDuration: estimatedDuration,
+      serviceProviderCompanyId: serviceProviderCompanyId,
+      providerProfileId: profileId,
+      createdByProviderProfileId: profileId,
+      openedBy: AppMode.provider,
+      attachmentsCubit: attachmentsCubit,
+    );
   }
 
   Future<bool> changeWorkOrderStatus({
@@ -808,6 +875,10 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       //!since using getIt.get<AttachmentsCubit>() would get a new instance every time
       await attachmentsCubit?.refreshAttachments();
     }
+  }
+
+  Future<void> navigateToCreateProviderWorkOrder() async {
+    await pushRoute(const CreateProviderWorkOrderRoute());
   }
 
   Future<void> navigateToWorkOrderDetails(String workOrderId) async {

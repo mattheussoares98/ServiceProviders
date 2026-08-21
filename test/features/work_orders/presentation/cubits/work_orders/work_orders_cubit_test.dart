@@ -17,9 +17,11 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
@@ -111,6 +113,7 @@ void main() {
   late MockCancelPauseUseCase mockCancelPause;
   late MockSyncWorkOrdersUseCase mockSyncWorkOrders;
   late MockGetProviderWorkOrdersUseCase mockGetProviderWorkOrders;
+  late MockGetSessionProviderProfileUseCase mockGetSessionProviderProfile;
   late MockGetServiceProviderProfilesByAuthUserUseCase
   mockGetServiceProviderProfilesByAuthUser;
   late MockGetServiceProviderCompaniesByIdsUseCase
@@ -174,6 +177,7 @@ void main() {
     mockCancelPause = MockCancelPauseUseCase();
     mockSyncWorkOrders = MockSyncWorkOrdersUseCase();
     mockGetProviderWorkOrders = MockGetProviderWorkOrdersUseCase();
+    mockGetSessionProviderProfile = MockGetSessionProviderProfileUseCase();
     mockGetServiceProviderProfilesByAuthUser =
         MockGetServiceProviderProfilesByAuthUserUseCase();
     mockGetServiceProviderCompaniesByIds =
@@ -219,6 +223,7 @@ void main() {
       cancelPause: mockCancelPause,
       syncWorkOrders: mockSyncWorkOrders,
       getProviderWorkOrders: mockGetProviderWorkOrders,
+      getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
           mockGetServiceProviderProfilesByAuthUser,
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
@@ -2529,6 +2534,7 @@ void _providerModeTests() {
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetWorkOrdersUseCase mockGetWorkOrders;
   late MockGetProviderWorkOrdersUseCase mockGetProviderWorkOrders;
+  late MockGetSessionProviderProfileUseCase mockGetSessionProviderProfile;
   late MockGetServiceProviderProfilesByAuthUserUseCase
   mockGetServiceProviderProfilesByAuthUser;
   late MockGetServiceProviderCompaniesByIdsUseCase
@@ -2537,6 +2543,7 @@ void _providerModeTests() {
   late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
   late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
+  late MockCreateWorkOrderUseCase mockCreateWorkOrder;
   late WorkOrderEntity tWorkOrder;
   late MockGetAttachmentsUseCase mockGetAttachments;
   late UserProfileEntity tUserProfile;
@@ -2548,7 +2555,7 @@ void _providerModeTests() {
       getActiveCompanyId: mockGetActiveCompanyId,
       getWorkOrders: mockGetWorkOrders,
       getWorkOrderById: MockGetWorkOrderByIdUseCase(),
-      createWorkOrder: MockCreateWorkOrderUseCase(),
+      createWorkOrder: mockCreateWorkOrder,
       updateWorkOrder: mockUpdateWorkOrder,
       deleteWorkOrder: mockDeleteWorkOrder,
       getChangeRequests: MockGetWorkOrderChangeRequestsUseCase(),
@@ -2562,6 +2569,7 @@ void _providerModeTests() {
       cancelPause: MockCancelPauseUseCase(),
       syncWorkOrders: MockSyncWorkOrdersUseCase(),
       getProviderWorkOrders: mockGetProviderWorkOrders,
+      getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
           mockGetServiceProviderProfilesByAuthUser,
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
@@ -2582,6 +2590,7 @@ void _providerModeTests() {
       mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
       mockGetWorkOrders = MockGetWorkOrdersUseCase();
       mockGetProviderWorkOrders = MockGetProviderWorkOrdersUseCase();
+      mockGetSessionProviderProfile = MockGetSessionProviderProfileUseCase();
       mockGetServiceProviderProfilesByAuthUser =
           MockGetServiceProviderProfilesByAuthUserUseCase();
       mockGetServiceProviderCompaniesByIds =
@@ -2590,6 +2599,7 @@ void _providerModeTests() {
       mockGetSelectedMode = MockGetSelectedModeUseCase();
       mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
       mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
+      mockCreateWorkOrder = MockCreateWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
       when(
         () => mockGetAttachments(any()),
@@ -2822,6 +2832,70 @@ void _providerModeTests() {
         expect(saved.companyId, isNot(tUserProfile.companyId));
       },
     );
+
+    group('createProviderWorkOrder', () {
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'stamps the contracting tenant and the provider profile as creator',
+        build: () {
+          when(
+            () => mockGetSessionProviderProfile(any()),
+          ).thenAnswer((_) async => SuccessState(data: tProfiles.first));
+          when(
+            () => mockCreateWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetProviderWorkOrders(any())).thenAnswer(
+            (_) async => const SuccessState(data: <WorkOrderEntity>[]),
+          );
+          return buildCubit();
+        },
+        act: (cubit) => cubit.createProviderWorkOrder(
+          id: faker.guid.guid(),
+          companyId: tCompanies.first.companyId,
+          serviceProviderCompanyId: tCompanies.first.id,
+          locationId: faker.guid.guid(),
+          title: faker.lorem.sentence(),
+          priority: Priority.medium,
+          type: WorkOrderType.corrective,
+        ),
+        verify: (_) {
+          final created =
+              verify(() => mockCreateWorkOrder(captureAny())).captured.single
+                  as WorkOrderEntity;
+          expect(created.companyId, tCompanies.first.companyId);
+          expect(created.serviceProviderCompanyId, tCompanies.first.id);
+          expect(created.providerProfileId, tProfiles.first.id);
+          expect(created.createdByProviderProfileId, tProfiles.first.id);
+          expect(created.createdById, isNull);
+          expect(created.openedBy, AppMode.provider);
+          expect(created.status, WorkOrderStatus.open);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'does not create when the provider profile cannot be resolved',
+        build: () {
+          when(() => mockGetSessionProviderProfile(any())).thenAnswer(
+            (_) async => FailureState<ServiceProviderProfileEntity>(
+              message: 'Perfil de prestador não encontrado.',
+            ),
+          );
+          return buildCubit();
+        },
+        act: (cubit) => cubit.createProviderWorkOrder(
+          id: faker.guid.guid(),
+          companyId: tCompanies.first.companyId,
+          serviceProviderCompanyId: tCompanies.first.id,
+          locationId: faker.guid.guid(),
+          title: faker.lorem.sentence(),
+          priority: Priority.medium,
+          type: WorkOrderType.corrective,
+        ),
+        verify: (cubit) {
+          verifyNever(() => mockCreateWorkOrder(any()));
+          expect(cubit.state.status, StateStatus.savingError);
+        },
+      );
+    });
 
     blocTest<WorkOrdersCubit, WorkOrdersState>(
       'surfaces the failure message when the provider fetch fails',

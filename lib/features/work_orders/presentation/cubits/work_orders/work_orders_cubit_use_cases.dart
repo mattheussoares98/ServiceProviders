@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
@@ -42,6 +43,7 @@ class WorkOrdersCubitUseCases {
     required this.syncWorkOrders,
     required this.getProviderWorkOrders,
     required this.getServiceProviderProfilesByAuthUser,
+    required this.getSessionProviderProfile,
     required this.getServiceProviderCompaniesByIds,
     required this.getSessionUser,
     required this.getSelectedMode,
@@ -66,6 +68,7 @@ class WorkOrdersCubitUseCases {
 
   // Provider mode
   final GetProviderWorkOrdersUseCase getProviderWorkOrders;
+  final GetSessionProviderProfileUseCase getSessionProviderProfile;
   final GetServiceProviderProfilesByAuthUserUseCase
   getServiceProviderProfilesByAuthUser;
   final GetServiceProviderCompaniesByIdsUseCase

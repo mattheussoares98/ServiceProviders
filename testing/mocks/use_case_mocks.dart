@@ -26,6 +26,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -146,6 +147,9 @@ class MockHasPermissionUseCase extends Mock implements HasPermissionUseCase {}
 
 class MockGetProviderWorkOrdersUseCase extends Mock
     implements GetProviderWorkOrdersUseCase {}
+
+class MockGetSessionProviderProfileUseCase extends Mock
+    implements GetSessionProviderProfileUseCase {}
 
 class MockGetServiceProviderCompaniesByIdsUseCase extends Mock
     implements GetServiceProviderCompaniesByIdsUseCase {}
