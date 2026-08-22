@@ -50,9 +50,17 @@ Company Mode are completed and validated first.
 
 These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 Features](/docs/cmms/v2_features.md). Ordered by leverage.
 
-### Gap 1 — FCM Device Token Registration & Push Dispatch 🟡
-- ✅ **Device Token Registration & Storage**: Done (2026-08-22). Migration `20260822151500_create_user_device_tokens.sql` created `user_device_tokens` table tied directly to `auth.users(id)` with RLS. `NotificationsService` syncs tokens on login, token refresh, and app launch, and deletes tokens on logout.
-- **Remaining**: Edge Function / triggers to dispatch FCM payloads on work order assignment, pause requests, and SLA breaches.
+### Gap 1 — Push Notifications & Device Token Sync ✅ IMPLEMENTED
+**Done (2026-08-22):**
+- `user_device_tokens` table created with RLS and cascade deletion on `auth.users(id)` (`20260822151500_create_user_device_tokens.sql`).
+- `NotificationsService` syncs FCM tokens on login, startup, and token refresh, and removes tokens on logout.
+- `send-push-notification` Supabase Edge Function dispatches FCM HTTP v1 payloads and cleans up unregistered/stale tokens.
+- PostgreSQL database triggers (`20260822160000_add_push_notification_triggers.sql`) automatically dispatch notifications on:
+  - Work order assignment / reassignment (`tr_notify_work_order_assigned`).
+  - Pause and completion request creation / approval / rejection (`tr_notify_pause_request`).
+  - Work order observations (`tr_notify_observation`).
+- Triggers exclude self-action (`auth.uid()`).
+
 
 ### Gap 2 — Provider Mode UI ✅ IMPLEMENTED
 **Done (2026-08-20):**

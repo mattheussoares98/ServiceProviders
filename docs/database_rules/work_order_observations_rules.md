@@ -57,6 +57,15 @@ CREATE POLICY "Users can update observations of their company"
 
 > **Note:** `work_order_observations` uses actual SQL DELETE (for soft delete via `deleted_at`) controlled by the UPDATE policy. No hard-delete trigger is applied — the DELETE RLS policy from the original migration was removed in `20260811020000_fix_work_order_observations_rls.sql`.
 
+## Triggers
+
+```sql
+-- Push notification trigger for newly added observations
+CREATE TRIGGER tr_notify_observation
+AFTER INSERT ON public.work_order_observations
+FOR EACH ROW EXECUTE FUNCTION public.handle_notify_observation();
+```
+
 ## History
 
 | Migration | Change |
@@ -65,3 +74,5 @@ CREATE POLICY "Users can update observations of their company"
 | `20260811020000_fix_work_order_observations_rls.sql` | RLS rewritten: SELECT removed `deleted_at` filter; INSERT expanded to allow users with `work_orders.update`; DELETE removed; UPDATE expanded with `WITH CHECK` |
 | `20260820120000_add_provider_access_to_work_orders.sql` | Provider branches added to SELECT / INSERT / UPDATE |
 | `20260820140000_allow_provider_authored_observations.sql` | `author_id` made nullable, `author_provider_profile_id` added with a single-author CHECK; INSERT/UPDATE rewritten around `is_own_provider_profile` |
+| `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_observation` trigger to dispatch notifications for new observations |
+

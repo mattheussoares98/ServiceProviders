@@ -62,4 +62,13 @@ CREATE POLICY "Users update own company work orders with permission"
     OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
   );
 ```
+---
+
+## Triggers
+
+### `tr_notify_work_order_assigned`
+Fires `AFTER INSERT OR UPDATE OF assigned_to_id, provider_profile_id, service_provider_company_id ON public.work_orders`.
+- Resolves recipient user IDs (internal assignee or provider technician/company).
+- Calls `public.dispatch_push_notification()` to notify the assigned technician, excluding `auth.uid()`.
+
 

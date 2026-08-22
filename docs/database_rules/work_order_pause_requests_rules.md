@@ -83,6 +83,11 @@ CREATE POLICY "Users update work order pause requests"
 CREATE TRIGGER tr_prevent_delete_pause_requests
 BEFORE DELETE ON public.work_order_pause_requests
 FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
+
+-- Push notification trigger for pause and completion events
+CREATE TRIGGER tr_notify_pause_request
+AFTER INSERT OR UPDATE OF status ON public.work_order_pause_requests
+FOR EACH ROW EXECUTE FUNCTION public.handle_notify_pause_request();
 ```
 
 ## History
@@ -99,3 +104,5 @@ FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
 | `20260815150000_add_cancelled_status_to_pause_requests.sql` | Added `cancelled` status to check constraint; updated sync trigger; added explicit `WITH CHECK` on UPDATE policy to prevent new row RLS violation |
 | `20260815210000_update_work_order_pause_sync_trigger.sql` | Updated sync trigger function so pause reviews (approved/rejected) do not change work order status automatically; only completion reviews update work order status |
 | `20260817220000_fix_pause_sync_trigger_custom_reason.sql` | Fixed sync trigger function `handle_work_order_pause_request_sync` to use `custom_reason` instead of non-existent `reason` column |
+| `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_pause_request` trigger to dispatch notifications for pause/completion creation and reviews |
+

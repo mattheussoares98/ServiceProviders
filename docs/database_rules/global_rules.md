@@ -159,3 +159,15 @@ When inviting new users via the `invite-user` Edge Function:
 * Immediately after invoking `inviteUserByEmail`, the function calls `admin.updateUserById` to set their initial password to `'123456'`.
 * This ensures that when the user taps their email confirmation/invitation link, their password is already preset, avoiding the need to choose a password from scratch.
 
+---
+
+## 6. Push Notification Dispatch Trigger Infrastructure
+
+A shared security-definer helper `public.dispatch_push_notification(p_user_ids UUID[], p_title TEXT, p_body TEXT, p_data JSONB)` filters out the triggering actor (`auth.uid()`), ignores nulls/duplicates, and calls the `send-push-notification` Edge Function asynchronously via `net.http_post`.
+Triggers are attached to:
+- `work_orders`: assignment and reassignment notifications
+- `work_order_pause_requests`: pause and completion creation and evaluation notifications
+- `work_order_observations`: new observation notifications
+
+
+
