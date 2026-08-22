@@ -79,6 +79,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   Future<void> pickAttachment(
     AttachmentSource source, {
     String? workOrderCompanyId,
+    bool autoUpload = false,
   }) async {
     // Prune the sandbox before picking new files to prevent storage overflow
     await _useCases.pruneSandbox();
@@ -132,6 +133,12 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
         ..addAll(newAttachments);
       emit(state.copyWith(attachments: updatedList));
       await _loadVideoThumbnails(newAttachments);
+
+      if (autoUpload) {
+        for (final attachment in newAttachments) {
+          unawaited(_uploadAttachment(attachment));
+        }
+      }
     } else {
       showDataStateToast(
         result,
@@ -185,7 +192,21 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     }
   }
 
-  Future<bool> deleteAttachment(String id) async {
+  Future<bool> deleteAttachment(String id, {bool autoDelete = false}) async {
+    if (autoDelete) {
+      final result = await _useCases.deleteAttachment(id);
+      if (result is SuccessState<bool> && result.data == true) {
+        final updatedList = state.attachments
+            .where((item) => item.id != id)
+            .toList();
+        emit(state.copyWith(attachments: updatedList));
+        return true;
+      } else {
+        showDataStateToast(result, message: 'Falha ao remover anexo'.hardcoded);
+        return false;
+      }
+    }
+
     final pending = Set<String>.from(state.pendingDeletions)..add(id);
     final updatedList = state.attachments
         .where((item) => item.id != id)

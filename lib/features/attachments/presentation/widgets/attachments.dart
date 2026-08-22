@@ -32,6 +32,7 @@ class Attachments extends StatelessWidget {
     required this.isWorkOrderActive,
     this.padding,
     this.workOrderCompanyId,
+    this.autoUpload = false,
   });
 
   /// Whether the work order still accepts evidence. Caller knowledge: this
@@ -43,6 +44,10 @@ class Attachments extends StatelessWidget {
 
   /// Tenant that owns the work order. Null while creating a new one.
   final String? workOrderCompanyId;
+
+  /// Whether to automatically upload/delete attachments immediately (e.g. on details page)
+  /// instead of deferring to the work order form save action.
+  final bool autoUpload;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +106,7 @@ class Attachments extends StatelessWidget {
               child: _AttachmentsAndAddRow(
                 isWorkOrderActive: isWorkOrderActive,
                 workOrderCompanyId: workOrderCompanyId,
+                autoUpload: autoUpload,
               ),
             ),
           ),
@@ -111,6 +117,7 @@ class Attachments extends StatelessWidget {
             child: _EmptyAttachment(
               isWorkOrderActive: isWorkOrderActive,
               workOrderCompanyId: workOrderCompanyId,
+              autoUpload: autoUpload,
             ),
           ),
           gapSliverH8,
@@ -124,7 +131,10 @@ class Attachments extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index < attachments.length) {
               final attachment = attachments[index];
-              return AttachmentItem(attachment: attachment);
+              return AttachmentItem(
+                attachment: attachment,
+                autoDelete: autoUpload,
+              );
             }
             return const ProcessingAttachmentItem();
           },
@@ -138,9 +148,11 @@ class _AttachmentsAndAddRow extends StatelessWidget {
   const _AttachmentsAndAddRow({
     required this.isWorkOrderActive,
     required this.workOrderCompanyId,
+    required this.autoUpload,
   });
   final bool isWorkOrderActive;
   final String? workOrderCompanyId;
+  final bool autoUpload;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +172,7 @@ class _AttachmentsAndAddRow extends StatelessWidget {
                   await cubit.pickAttachment(
                     source,
                     workOrderCompanyId: workOrderCompanyId,
+                    autoUpload: autoUpload,
                   );
                 }
               },
@@ -179,9 +192,11 @@ class _EmptyAttachment extends StatelessWidget {
   const _EmptyAttachment({
     required this.isWorkOrderActive,
     required this.workOrderCompanyId,
+    required this.autoUpload,
   });
   final bool isWorkOrderActive;
   final String? workOrderCompanyId;
+  final bool autoUpload;
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +210,7 @@ class _EmptyAttachment extends StatelessWidget {
                 await context.read<AttachmentsCubit>().pickAttachment(
                   source,
                   workOrderCompanyId: workOrderCompanyId,
+                  autoUpload: autoUpload,
                 );
               }
             }

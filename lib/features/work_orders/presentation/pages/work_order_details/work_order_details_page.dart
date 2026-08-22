@@ -147,6 +147,7 @@ class _WorkOrderDetails extends HookWidget {
             isWorkOrderActive: workOrder.status.acceptsAttachments,
             padding: EdgeInsets.zero,
             workOrderCompanyId: workOrder.companyId,
+            autoUpload: true,
           ),
           ObservationsSection(workOrder: workOrder),
           gapSliverH24,

@@ -25,9 +25,14 @@ part 'processing_attachment_item.dart';
 const double _kAttachmentPreviewHeight = 200;
 
 class AttachmentItem extends StatelessWidget {
-  const AttachmentItem({super.key, required this.attachment});
+  const AttachmentItem({
+    super.key,
+    required this.attachment,
+    this.autoDelete = false,
+  });
 
   final AttachmentEntity attachment;
+  final bool autoDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,10 @@ class AttachmentItem extends StatelessWidget {
         defaultActionText: 'Sim'.hardcoded,
         cancelActionText: 'Não'.hardcoded,
         onOkPressed: () {
-          context.read<AttachmentsCubit>().deleteAttachment(attachment.id);
+          context.read<AttachmentsCubit>().deleteAttachment(
+            attachment.id,
+            autoDelete: autoDelete,
+          );
         },
       );
     }

@@ -204,6 +204,31 @@ void main() {
       ],
     );
 
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'picks attachment with autoUpload: true and triggers upload immediately',
+      build: () {
+        when(() => mockGetSessionUser()).thenReturn(tUser);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tPickedFile]));
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
+      },
+      act: (cubit) => cubit.pickAttachment(
+        AttachmentSource.cameraPhoto,
+        autoUpload: true,
+      ),
+      skip: 1, // Skip initial loaded from init
+      verify: (_) {
+        verify(() => mockUploadAttachment(tPickedFile)).called(1);
+      },
+    );
+
     test(
       'stamps the work order company on the picked file, not the session one',
       () async {
@@ -462,6 +487,47 @@ void main() {
               tUploadedAttachmentList.first.id,
             }),
       ],
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'calls useCases.deleteAttachment directly when autoDelete is true',
+      build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
+        when(
+          () => mockDeleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
+      },
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        await cubit.deleteAttachment(
+          tUploadedAttachmentList.first.id,
+          autoDelete: true,
+        );
+      },
+      expect: () => [
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tUploadedAttachmentList,
+            ),
+        isA<AttachmentsState>()
+            .having(
+              (s) => s.attachments.map((e) => e.id).toList(),
+              'attachments ids',
+              tUploadedAttachmentList.skip(1).map((e) => e.id).toList(),
+            )
+            .having((s) => s.pendingDeletions, 'pendingDeletions', isEmpty),
+      ],
+      verify: (_) {
+        verify(
+          () => mockDeleteAttachment(tUploadedAttachmentList.first.id),
+        ).called(1);
+      },
     );
   });
 
