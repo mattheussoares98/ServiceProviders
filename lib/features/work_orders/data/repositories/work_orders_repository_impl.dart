@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -25,13 +26,16 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required InternetClient internet,
     required WorkOrdersRemoteDataSource remoteDataSource,
     required WorkOrdersLocalDataSource localDataSource,
+    required OfflineTracker offlineTracker,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource;
+       _localDataSource = localDataSource,
+       _offlineTracker = offlineTracker;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;
+  final OfflineTracker _offlineTracker;
 
   @override
   FutureList<WorkOrderEntity> getWorkOrders(
@@ -103,9 +107,15 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool createWorkOrder(WorkOrderEntity workOrder) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveWorkOrder(
-          WorkOrderModel.fromEntity(workOrder),
-        ),
+        localCallback: () async {
+          final result = await _localDataSource.saveWorkOrder(
+            WorkOrderModel.fromEntity(workOrder),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.createWorkOrder(
             WorkOrderModel.fromEntity(workOrder),
@@ -129,9 +139,15 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool updateWorkOrder(WorkOrderEntity workOrder) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveWorkOrder(
-          WorkOrderModel.fromEntity(workOrder),
-        ),
+        localCallback: () async {
+          final result = await _localDataSource.saveWorkOrder(
+            WorkOrderModel.fromEntity(workOrder),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.updateWorkOrder(
             WorkOrderModel.fromEntity(workOrder),
@@ -155,7 +171,13 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool deleteWorkOrder(String id) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.deleteWorkOrder(id),
+        localCallback: () async {
+          final result = await _localDataSource.deleteWorkOrder(id);
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.deleteWorkOrder(id);
           if (result is SuccessState<bool> && result.data == true) {
@@ -192,6 +214,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       if (result is SuccessState<List<WorkOrderModel>>) {
         final list = result.data ?? [];
         await _localDataSource.saveWorkOrders(list);
+        _offlineTracker.reset();
         return const SuccessState(data: true);
       }
       return FailureState(
@@ -208,6 +231,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       if (result is SuccessState<List<WorkOrderModel>>) {
         final list = result.data ?? [];
         await _localDataSource.saveWorkOrders(list);
+        _offlineTracker.reset();
         return const SuccessState(data: true);
       }
       return FailureState(
@@ -236,8 +260,15 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool createTask(TaskEntity task) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () =>
-            _localDataSource.saveTask(TaskModel.fromEntity(task)),
+        localCallback: () async {
+          final result = await _localDataSource.saveTask(
+            TaskModel.fromEntity(task),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.createTask(
             TaskRequestModel.fromEntity(task),
@@ -259,8 +290,15 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool updateTask(TaskEntity task) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () =>
-            _localDataSource.saveTask(TaskModel.fromEntity(task)),
+        localCallback: () async {
+          final result = await _localDataSource.saveTask(
+            TaskModel.fromEntity(task),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.updateTask(
             TaskRequestModel.fromEntity(task),
@@ -281,7 +319,13 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   @override
   FutureBool deleteTask(String id) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.deleteTask(id),
+    localCallback: () async {
+      final result = await _localDataSource.deleteTask(id);
+      if (result is SuccessState<bool> && result.data == true) {
+        _offlineTracker.recordOfflineAction();
+      }
+      return result;
+    },
     remoteCallback: () async {
       final result = await _remoteDataSource.deleteTask(id);
       if (result is SuccessState<bool> && result.data == true) {
@@ -318,9 +362,15 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   FutureBool createChangeRequest(WorkOrderChangeRequestEntity request) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveChangeRequest(
-          WorkOrderChangeRequestModel.fromEntity(request),
-        ),
+        localCallback: () async {
+          final result = await _localDataSource.saveChangeRequest(
+            WorkOrderChangeRequestModel.fromEntity(request),
+          );
+          if (result is SuccessState<bool> && result.data == true) {
+            _offlineTracker.recordOfflineAction();
+          }
+          return result;
+        },
         remoteCallback: () async {
           final result = await _remoteDataSource.createChangeRequest(
             WorkOrderChangeRequestRequestModel.fromEntity(request),
@@ -348,12 +398,18 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required String reviewedById,
   }) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.reviewChangeRequest(
-      id: id,
-      status: status.code,
-      rejectionReason: rejectionReason,
-      reviewedById: reviewedById,
-    ),
+    localCallback: () async {
+      final result = await _localDataSource.reviewChangeRequest(
+        id: id,
+        status: status.code,
+        rejectionReason: rejectionReason,
+        reviewedById: reviewedById,
+      );
+      if (result is SuccessState<bool> && result.data == true) {
+        _offlineTracker.recordOfflineAction();
+      }
+      return result;
+    },
     remoteCallback: () async {
       final result = await _remoteDataSource.reviewChangeRequest(
         id: id,

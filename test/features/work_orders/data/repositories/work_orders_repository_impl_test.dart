@@ -26,6 +26,7 @@ void main() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
+  late MockOfflineTracker mockOfflineTracker;
   late WorkOrdersRepositoryImpl repository;
 
   setUpAll(() {
@@ -62,10 +63,15 @@ void main() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
+    mockOfflineTracker = MockOfflineTracker();
+    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
+    when(() => mockOfflineTracker.reset()).thenReturn(null);
+
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      offlineTracker: mockOfflineTracker,
     );
   });
 
@@ -1119,16 +1125,22 @@ void _providerWorkOrdersTests() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
+  late MockOfflineTracker mockOfflineTracker;
   late WorkOrdersRepositoryImpl repository;
 
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
+    mockOfflineTracker = MockOfflineTracker();
+    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
+    when(() => mockOfflineTracker.reset()).thenReturn(null);
+
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      offlineTracker: mockOfflineTracker,
     );
   });
 

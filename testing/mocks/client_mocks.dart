@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
+import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
@@ -46,3 +47,5 @@ class MockNavigationClient extends Mock implements NavigationClient {
 }
 
 class MockStorageClient extends Mock implements StorageClient {}
+
+class MockOfflineTracker extends Mock implements OfflineTracker {}
