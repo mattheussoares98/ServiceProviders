@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/core/initializations/notifications_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/data/data_sources/session_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_model.dart';
@@ -82,6 +83,7 @@ final class SessionRepositoryImpl implements SessionRepository {
 
   @override
   Future<void> logout() async {
+    await NotificationsService.instance.deleteDeviceToken();
     final cleanedUser = UserDataEntity.empty().copyWith(
       user: _userData.user.copyWith(email: _userData.user.email),
     );

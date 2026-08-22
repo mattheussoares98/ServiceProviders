@@ -50,11 +50,9 @@ Company Mode are completed and validated first.
 
 These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 Features](/docs/cmms/v2_features.md). Ordered by leverage.
 
-### Gap 1 — FCM cannot target a user 🔴
-`lib/core/initializations/notifications_initialization.dart` requests permission, registers background/foreground handlers, and shows local notifications. But **no device token is ever read or stored**: there is no token column, no table, and no migration for one. No server-side dispatch exists.
-
-**Blocks:** work order assignment notifications (V1 scope), pendency notifications ([V2 §4.2](/docs/cmms/v2_features.md)), and the entire escalation engine ([V2 §5](/docs/cmms/v2_features.md)).
-**Work:** device token table + migration, token registration/refresh on login, an Edge Function to dispatch by user.
+### Gap 1 — FCM Device Token Registration & Push Dispatch 🟡
+- ✅ **Device Token Registration & Storage**: Done (2026-08-22). Migration `20260822151500_create_user_device_tokens.sql` created `user_device_tokens` table tied directly to `auth.users(id)` with RLS. `NotificationsService` syncs tokens on login, token refresh, and app launch, and deletes tokens on logout.
+- **Remaining**: Edge Function / triggers to dispatch FCM payloads on work order assignment, pause requests, and SLA breaches.
 
 ### Gap 2 — Provider Mode UI ✅ IMPLEMENTED
 **Done (2026-08-20):**

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:o_jogo_da_obra/config/injector/injector.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
-import 'package:o_jogo_da_obra/core/initializations/notifications_initialization.dart';
+import 'package:o_jogo_da_obra/core/initializations/notifications_service.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/firebase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,6 +27,9 @@ abstract final class AppInitializer {
 
       final sessionRepo = GetIt.I<SessionRepository>();
       await sessionRepo.checkForUserCredential();
+      if (sessionRepo.isLoggedIn) {
+        unawaited(NotificationsService.instance.syncDeviceToken());
+      }
     });
   }
 

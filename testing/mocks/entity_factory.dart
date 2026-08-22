@@ -22,6 +22,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.da
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/notifications/domain/entities/device_token_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -747,5 +748,25 @@ abstract final class EntityFactory {
 
   static List<SectorEntity> makeSectorEntityList() {
     return [makeSectorEntity(), makeSectorEntity(), makeSectorEntity()];
+  }
+
+  // Device Token
+  static DeviceTokenEntity makeDeviceTokenEntity() {
+    return DeviceTokenEntity(
+      id: _makeId(),
+      userId: _makeId(),
+      deviceToken: _makeWord(),
+      platform: 'android',
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<DeviceTokenEntity> makeDeviceTokenEntityList() {
+    return [
+      makeDeviceTokenEntity(),
+      makeDeviceTokenEntity(),
+      makeDeviceTokenEntity(),
+    ];
   }
 }

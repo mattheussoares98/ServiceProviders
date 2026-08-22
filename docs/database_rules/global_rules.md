@@ -143,6 +143,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [service_provider_profiles_rules.md](service_provider_profiles_rules.md)
 - [service_provider_invitations_rules.md](service_provider_invitations_rules.md)
 - [user_configurations_rules.md](user_configurations_rules.md)
+- [user_device_tokens_rules.md](user_device_tokens_rules.md)
 
 ---
 

@@ -115,9 +115,7 @@ erDiagram
 | 25 | service_provider_profiles | [service_provider_profiles.md](service_provider_profiles.md) |
 | 26 | service_provider_invitations | [service_provider_invitations.md](service_provider_invitations.md) |
 | 27 | user_configurations | [user_configurations.md](user_configurations.md) |
-
-
-
+| 28 | user_device_tokens | [user_device_tokens.md](user_device_tokens.md) |
 
 ---
 

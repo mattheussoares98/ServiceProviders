@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_lo
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/notifications/data/data_sources/notifications_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_local_data_source.dart';
@@ -105,9 +106,13 @@ class MockSlaRemoteDataSource extends Mock implements SlaRemoteDataSource {}
 
 class MockSlaLocalDataSource extends Mock implements SlaLocalDataSource {}
 
-class MockPauseRemoteDataSource extends Mock implements PauseRemoteDataSource {}
+class MockPauseRemoteDataSource extends Mock
+    implements PauseRemoteDataSource {}
 
 class MockPauseLocalDataSource extends Mock implements PauseLocalDataSource {}
+
+class MockNotificationsRemoteDataSource extends Mock
+    implements NotificationsRemoteDataSource {}
 
 class MockWorkOrderObservationsRemoteDataSource extends Mock
     implements WorkOrderObservationsRemoteDataSource {}

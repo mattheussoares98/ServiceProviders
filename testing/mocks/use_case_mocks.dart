@@ -14,6 +14,8 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_cas
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
+import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
@@ -156,3 +158,9 @@ class MockGetServiceProviderCompaniesByIdsUseCase extends Mock
 
 class MockGetSelectedModeUseCase extends Mock
     implements GetSelectedModeUseCase {}
+
+class MockRegisterDeviceTokenUseCase extends Mock
+    implements RegisterDeviceTokenUseCase {}
+
+class MockDeleteDeviceTokenUseCase extends Mock
+    implements DeleteDeviceTokenUseCase {}
