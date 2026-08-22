@@ -538,7 +538,7 @@ class _CreateUpdatePage extends HookWidget {
                     },
                   ),
                   Attachments(
-                    isEditing: true,
+                    isWorkOrderActive: true,
                     workOrderCompanyId: workOrder?.companyId,
                   ),
                 ],

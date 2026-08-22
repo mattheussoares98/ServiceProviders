@@ -140,7 +140,11 @@ class _WorkOrderDetails extends HookWidget {
         slivers: [
           InfoItems(workOrder: workOrder, onRefresh: onRefresh),
           Attachments(
-            isEditing: false,
+            // Evidence can be added for as long as the work is being executed —
+            // by the provider too, who has no other way in since the edit form
+            // is closed to them. The attachment permissions are enforced by the
+            // widget itself.
+            isWorkOrderActive: workOrder.status.acceptsAttachments,
             padding: EdgeInsets.zero,
             workOrderCompanyId: workOrder.companyId,
           ),

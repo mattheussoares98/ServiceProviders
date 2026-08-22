@@ -13,7 +13,10 @@ CREATE POLICY "Users insert own company attachments with permission"
   ON public.attachments FOR INSERT TO authenticated
   WITH CHECK (
     (company_id = public.get_user_company_id() AND public.has_permission('attachments.create'))
-    OR public.is_provider_member_of_work_order_id(work_order_id)
+    OR (
+      public.is_provider_member_of_work_order_id(work_order_id)
+      AND public.work_order_accepts_attachments(work_order_id)
+    )
   );
 
 CREATE POLICY "Users update own company attachments with permission"

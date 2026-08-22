@@ -6,6 +6,9 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
@@ -22,17 +25,22 @@ part 'processing_attachment_item.dart';
 const double _kAttachmentPreviewHeight = 200;
 
 class AttachmentItem extends StatelessWidget {
-  const AttachmentItem({
-    super.key,
-    required this.attachment,
-    required this.isEditing,
-  });
+  const AttachmentItem({super.key, required this.attachment});
 
   final AttachmentEntity attachment;
-  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
+    // Read here rather than taken as a parameter: there is no caller that
+    // legitimately wants the remove affordance without `attachments.delete`,
+    // and provider mode denies it through `providerModeAllows`.
+    final canDelete = context.hasPermission(
+      const ActionPermission.resource(
+        resourceType: ResourceType.attachments,
+        permissionAction: PermissionAction.delete,
+      ),
+    );
+
     void onDelete() {
       showAlertDialog(
         context: context,
@@ -64,14 +72,14 @@ class AttachmentItem extends StatelessWidget {
       child: Stack(
         children: [
           _Preview(attachment: attachment),
-          if (isEditing) ...[
+          if (canDelete) ...[
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: Column(
                 children: [
-                  if (kDebugMode) ...[
+                  if (kDebugMode && attachment.fileSizeBytes != null) ...[
                     BaseText('Size showed on debug mode'.hardcoded),
                     BaseText.title(_formatSize(attachment.fileSizeBytes!)),
                   ],

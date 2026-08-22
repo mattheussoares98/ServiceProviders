@@ -7,6 +7,9 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_item.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachment_source_sheet.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
@@ -18,14 +21,24 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
+const _createAttachment = ActionPermission.resource(
+  resourceType: ResourceType.attachments,
+  permissionAction: PermissionAction.create,
+);
+
 class Attachments extends StatelessWidget {
   const Attachments({
     super.key,
-    required this.isEditing,
+    required this.isWorkOrderActive,
     this.padding,
     this.workOrderCompanyId,
   });
-  final bool isEditing;
+
+  /// Whether the work order still accepts evidence. Caller knowledge: this
+  /// widget only knows the tenant, and the create form has no status at all.
+  /// `attachments.create` / `attachments.delete` are enforced by the buttons
+  /// themselves, so no caller can forget them.
+  final bool isWorkOrderActive;
   final EdgeInsetsGeometry? padding;
 
   /// Tenant that owns the work order. Null while creating a new one.
@@ -86,7 +99,7 @@ class Attachments extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: ScreenType.phone.maxWidth),
               child: _AttachmentsAndAddRow(
-                isEditing: isEditing,
+                isWorkOrderActive: isWorkOrderActive,
                 workOrderCompanyId: workOrderCompanyId,
               ),
             ),
@@ -96,7 +109,7 @@ class Attachments extends StatelessWidget {
         if (attachments.isEmpty && processingCount == 0) ...[
           SliverToBoxAdapter(
             child: _EmptyAttachment(
-              isEditing: isEditing,
+              isWorkOrderActive: isWorkOrderActive,
               workOrderCompanyId: workOrderCompanyId,
             ),
           ),
@@ -111,10 +124,7 @@ class Attachments extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index < attachments.length) {
               final attachment = attachments[index];
-              return AttachmentItem(
-                attachment: attachment,
-                isEditing: isEditing,
-              );
+              return AttachmentItem(attachment: attachment);
             }
             return const ProcessingAttachmentItem();
           },
@@ -126,10 +136,10 @@ class Attachments extends StatelessWidget {
 
 class _AttachmentsAndAddRow extends StatelessWidget {
   const _AttachmentsAndAddRow({
-    required this.isEditing,
+    required this.isWorkOrderActive,
     required this.workOrderCompanyId,
   });
-  final bool isEditing;
+  final bool isWorkOrderActive;
   final String? workOrderCompanyId;
 
   @override
@@ -140,9 +150,10 @@ class _AttachmentsAndAddRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(child: BaseText.titleMedium('Anexos'.hardcoded)),
-        if (isEditing)
+        if (isWorkOrderActive)
           Flexible(
             child: BaseTextButton(
+              permission: _createAttachment,
               onPressed: () async {
                 final source = await AttachmentSourceSheet.show(context);
                 if (source != null && context.mounted) {
@@ -166,16 +177,18 @@ class _AttachmentsAndAddRow extends StatelessWidget {
 
 class _EmptyAttachment extends StatelessWidget {
   const _EmptyAttachment({
-    required this.isEditing,
+    required this.isWorkOrderActive,
     required this.workOrderCompanyId,
   });
-  final bool isEditing;
+  final bool isWorkOrderActive;
   final String? workOrderCompanyId;
 
   @override
   Widget build(BuildContext context) {
+    final canAdd = isWorkOrderActive && context.hasPermission(_createAttachment);
+
     return InkWell(
-      onTap: isEditing
+      onTap: canAdd
           ? () async {
               final source = await AttachmentSourceSheet.show(context);
               if (source != null && context.mounted) {
