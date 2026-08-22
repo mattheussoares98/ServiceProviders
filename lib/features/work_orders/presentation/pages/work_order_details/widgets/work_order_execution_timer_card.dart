@@ -57,6 +57,7 @@ class WorkOrderExecutionTimerCard extends StatelessWidget {
     final contentColor = statusColor;
 
     return Container(
+      margin: const EdgeInsets.only(bottom: Sizes.p8),
       padding: const EdgeInsets.all(Sizes.p16),
       decoration: BoxDecoration(
         color: cardBgColor,

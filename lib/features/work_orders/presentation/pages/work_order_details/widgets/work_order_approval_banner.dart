@@ -24,7 +24,7 @@ class WorkOrderApprovalBanner extends HookWidget {
     required this.onRefresh,
     super.key,
   });
-  //TODO check this entire code
+
   final WorkOrderEntity workOrder;
   final List<PauseRequestEntity> pauseRequests;
   final String currentUserId;
@@ -34,7 +34,14 @@ class WorkOrderApprovalBanner extends HookWidget {
   Widget build(BuildContext context) {
     if (!context.hasPermission(
       const ActionPermission.workOrderSubAction(.managePendingRequests),
-    )) {}
+    )) {
+      return Center(
+        child: BaseText.error(
+          'Seu usuário não possui permissão para manusear solicitações pendentes'
+              .hardcoded,
+        ),
+      );
+    }
 
     final pendingCount = pauseRequests
         .where((r) => r.status == PauseRequestStatus.pending)
@@ -54,6 +61,7 @@ class WorkOrderApprovalBanner extends HookWidget {
     final iconColor = color.withValues(alpha: 0.9);
 
     return Container(
+      margin: const EdgeInsets.only(bottom: Sizes.p8),
       padding: const EdgeInsets.all(Sizes.p16),
       decoration: BoxDecoration(
         color: bannerColor,

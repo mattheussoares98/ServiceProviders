@@ -21,6 +21,10 @@ class _PendingRequestCard extends StatelessWidget {
       ),
     );
 
+    final requestedBy = context.read<UsersCubit>().state.users.firstWhereOrNull(
+      (e) => e.id == request.requestedById,
+    );
+
     final cardBgColor = isPauseRequest ? Colors.amber[100]! : Colors.blue[100]!;
     final borderColor = isPauseRequest ? Colors.amber[700]! : Colors.blue[700]!;
     final iconColor = isPauseRequest ? Colors.amber[900]! : Colors.blue[900]!;
@@ -86,6 +90,15 @@ class _PendingRequestCard extends StatelessWidget {
             TitleAndSubtitle(
               title: 'Responsabilidade'.hardcoded,
               subtitle: request.responsibility!.label,
+              titleColor: Colors.black,
+              subtitleColor: Colors.black,
+            ),
+          ],
+          if (requestedBy != null) ...[
+            gapH4,
+            TitleAndSubtitle(
+              title: 'Solicitado por'.hardcoded,
+              subtitle: requestedBy.name,
               titleColor: Colors.black,
               subtitleColor: Colors.black,
             ),
