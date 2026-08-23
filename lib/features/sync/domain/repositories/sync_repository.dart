@@ -7,6 +7,8 @@ abstract interface class SyncRepository {
   FutureList<SyncQueueItemEntity> getPendingItems({int limit = 50});
   FutureBool markItemSyncing(String id);
   FutureBool markItemFailed(String id, String error);
+  FutureBool markItemDeadLetter(String id, String error);
+  FutureVoid cancelPendingForEntity(String entityId, String reason);
   FutureBool removeQueueItem(String id);
   FutureData<int> getPendingCount();
   FutureBool reportSyncError(SyncErrorEntity error);

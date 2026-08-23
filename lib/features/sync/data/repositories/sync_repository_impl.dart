@@ -45,6 +45,14 @@ final class SyncRepositoryImpl implements SyncRepository {
       _localDataSource.markItemFailed(id, error);
 
   @override
+  FutureBool markItemDeadLetter(String id, String error) =>
+      _localDataSource.markItemDeadLetter(id, error);
+
+  @override
+  FutureVoid cancelPendingForEntity(String entityId, String reason) =>
+      _localDataSource.cancelPendingForEntity(entityId, reason);
+
+  @override
   FutureBool removeQueueItem(String id) =>
       _localDataSource.removeQueueItem(id);
 

@@ -105,6 +105,48 @@ void main() {
       });
     });
 
+    group('markItemDeadLetter', () {
+      test('should call localDataSource.markItemDeadLetter', () async {
+        when(
+          () => mockLocalDataSource.markItemDeadLetter(any(), any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.markItemDeadLetter(
+          tQueueItemEntity.id,
+          'Permanent error',
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        verify(
+          () => mockLocalDataSource.markItemDeadLetter(
+            tQueueItemEntity.id,
+            'Permanent error',
+          ),
+        ).called(1);
+      });
+    });
+
+    group('cancelPendingForEntity', () {
+      test('should call localDataSource.cancelPendingForEntity', () async {
+        when(
+          () => mockLocalDataSource.cancelPendingForEntity(any(), any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+
+        final result = await repository.cancelPendingForEntity(
+          'wo-1',
+          'Parent creation failed',
+        );
+
+        expect(result, isA<SuccessState<void>>());
+        verify(
+          () => mockLocalDataSource.cancelPendingForEntity(
+            'wo-1',
+            'Parent creation failed',
+          ),
+        ).called(1);
+      });
+    });
+
     group('removeQueueItem', () {
       test('should call localDataSource.removeQueueItem', () async {
         when(
