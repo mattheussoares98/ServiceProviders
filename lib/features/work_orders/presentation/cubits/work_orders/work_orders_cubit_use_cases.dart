@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/services/sync_engine.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
@@ -41,6 +42,7 @@ class WorkOrdersCubitUseCases {
     required this.createAttachment,
     required this.cancelPause,
     required this.syncWorkOrders,
+    required this.syncEngine,
     required this.getProviderWorkOrders,
     required this.getServiceProviderProfilesByAuthUser,
     required this.getSessionProviderProfile,
@@ -65,6 +67,7 @@ class WorkOrdersCubitUseCases {
   final CreateAttachmentUseCase createAttachment;
   final CancelPauseUseCase cancelPause;
   final SyncWorkOrdersUseCase syncWorkOrders;
+  final SyncEngine syncEngine;
 
   // Provider mode
   final GetProviderWorkOrdersUseCase getProviderWorkOrders;

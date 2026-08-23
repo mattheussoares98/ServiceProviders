@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +46,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/services.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetWorkOrdersUseCase extends Mock implements GetWorkOrdersUseCase {}
@@ -112,6 +115,7 @@ void main() {
   late MockCreateAttachmentUseCase mockCreateAttachment;
   late MockCancelPauseUseCase mockCancelPause;
   late MockSyncWorkOrdersUseCase mockSyncWorkOrders;
+  late MockSyncEngine mockSyncEngine;
   late MockGetProviderWorkOrdersUseCase mockGetProviderWorkOrders;
   late MockGetSessionProviderProfileUseCase mockGetSessionProviderProfile;
   late MockGetServiceProviderProfilesByAuthUserUseCase
@@ -176,6 +180,7 @@ void main() {
     mockCreateAttachment = MockCreateAttachmentUseCase();
     mockCancelPause = MockCancelPauseUseCase();
     mockSyncWorkOrders = MockSyncWorkOrdersUseCase();
+    mockSyncEngine = MockSyncEngine();
     mockGetProviderWorkOrders = MockGetProviderWorkOrdersUseCase();
     mockGetSessionProviderProfile = MockGetSessionProviderProfileUseCase();
     mockGetServiceProviderProfilesByAuthUser =
@@ -189,6 +194,7 @@ void main() {
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
 
+    when(() => mockSyncEngine.onSyncCompleted).thenAnswer((_) => const Stream.empty());
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
@@ -222,6 +228,7 @@ void main() {
       createAttachment: mockCreateAttachment,
       cancelPause: mockCancelPause,
       syncWorkOrders: mockSyncWorkOrders,
+      syncEngine: mockSyncEngine,
       getProviderWorkOrders: mockGetProviderWorkOrders,
       getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
@@ -2524,6 +2531,53 @@ void main() {
         expect(result, false);
         verify(() => mockSyncWorkOrders.call(tUserProfile.companyId)).called(1);
       });
+
+      test('refreshes work orders when syncEngine emits onSyncCompleted', () async {
+        final syncController = StreamController<void>.broadcast();
+        when(() => mockSyncEngine.onSyncCompleted)
+            .thenAnswer((_) => syncController.stream);
+        when(() => mockGetWorkOrders(any())).thenAnswer(
+          (_) async => const SuccessState(data: []),
+        );
+        when(() => mockGetChangeRequests(any())).thenAnswer(
+          (_) async => const SuccessState(data: []),
+        );
+
+        final useCases = WorkOrdersCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getWorkOrders: mockGetWorkOrders,
+          getWorkOrderById: mockGetWorkOrderById,
+          createWorkOrder: mockCreateWorkOrder,
+          updateWorkOrder: mockUpdateWorkOrder,
+          deleteWorkOrder: mockDeleteWorkOrder,
+          getChangeRequests: mockGetChangeRequests,
+          createChangeRequest: mockCreateChangeRequest,
+          reviewChangeRequest: mockReviewChangeRequest,
+          getWorkOrderHistory: mockGetWorkOrderHistory,
+          getAttachments: mockGetAttachments,
+          uploadAttachment: mockUploadAttachment,
+          deleteAttachment: mockDeleteAttachment,
+          createAttachment: mockCreateAttachment,
+          cancelPause: mockCancelPause,
+          syncWorkOrders: mockSyncWorkOrders,
+          syncEngine: mockSyncEngine,
+          getProviderWorkOrders: mockGetProviderWorkOrders,
+          getSessionProviderProfile: mockGetSessionProviderProfile,
+          getServiceProviderProfilesByAuthUser:
+              mockGetServiceProviderProfilesByAuthUser,
+          getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
+          getSessionUser: mockGetSessionUser,
+          getSelectedMode: mockGetSelectedMode,
+        );
+
+        final testCubit = WorkOrdersCubit(useCases: useCases);
+        syncController.add(null);
+        await pumpEventQueue();
+
+        verify(() => mockGetWorkOrders(any())).called(1);
+        await testCubit.close();
+        await syncController.close();
+      });
     });
   });
 
@@ -2546,6 +2600,7 @@ void _providerModeTests() {
   late MockCreateWorkOrderUseCase mockCreateWorkOrder;
   late WorkOrderEntity tWorkOrder;
   late MockGetAttachmentsUseCase mockGetAttachments;
+  late MockSyncEngine mockSyncEngine;
   late UserProfileEntity tUserProfile;
   late List<ServiceProviderCompanyEntity> tCompanies;
   late List<ServiceProviderProfileEntity> tProfiles;
@@ -2568,6 +2623,7 @@ void _providerModeTests() {
       createAttachment: MockCreateAttachmentUseCase(),
       cancelPause: MockCancelPauseUseCase(),
       syncWorkOrders: MockSyncWorkOrdersUseCase(),
+      syncEngine: mockSyncEngine,
       getProviderWorkOrders: mockGetProviderWorkOrders,
       getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
@@ -2601,6 +2657,9 @@ void _providerModeTests() {
       mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
       mockCreateWorkOrder = MockCreateWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
+      mockSyncEngine = MockSyncEngine();
+      when(() => mockSyncEngine.onSyncCompleted)
+          .thenAnswer((_) => const Stream.empty());
       when(
         () => mockGetAttachments(any()),
       ).thenAnswer((_) async => const SuccessState(data: []));

@@ -6,11 +6,13 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_count_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
 
 abstract interface class SyncEngine {
   bool get isSyncing;
+  Stream<void> get onSyncCompleted;
   void init();
   void dispose();
   Future<int> processQueue();
@@ -21,23 +23,30 @@ final class SyncEngineImpl implements SyncEngine {
   SyncEngineImpl({
     required InternetClient internetClient,
     required ProcessSyncQueueUseCase processSyncQueueUseCase,
+    required GetPendingSyncCountUseCase getPendingSyncCountUseCase,
     required WorkOrdersRepository workOrdersRepository,
     required SessionRepository sessionRepository,
   }) : _internetClient = internetClient,
        _processSyncQueueUseCase = processSyncQueueUseCase,
+       _getPendingSyncCountUseCase = getPendingSyncCountUseCase,
        _workOrdersRepository = workOrdersRepository,
        _sessionRepository = sessionRepository;
 
   final InternetClient _internetClient;
   final ProcessSyncQueueUseCase _processSyncQueueUseCase;
+  final GetPendingSyncCountUseCase _getPendingSyncCountUseCase;
   final WorkOrdersRepository _workOrdersRepository;
   final SessionRepository _sessionRepository;
 
+  final _syncCompletedController = StreamController<void>.broadcast();
   StreamSubscription<InternetStatus>? _subscription;
   bool _isSyncing = false;
 
   @override
   bool get isSyncing => _isSyncing;
+
+  @override
+  Stream<void> get onSyncCompleted => _syncCompletedController.stream;
 
   @override
   void init() {
@@ -55,6 +64,7 @@ final class SyncEngineImpl implements SyncEngine {
   @override
   void dispose() {
     _subscription?.cancel();
+    _syncCompletedController.close();
   }
 
   @override
@@ -76,10 +86,20 @@ final class SyncEngineImpl implements SyncEngine {
       final result = await _processSyncQueueUseCase();
       final count = result is SuccessState<int> ? result.data ?? 0 : 0;
 
-      // After outbound queue is processed, trigger inbound delta sync
-      final companyId = _sessionRepository.getSelectedCompanyId();
-      if (companyId != null && companyId.isNotEmpty) {
-        await _workOrdersRepository.syncWorkOrders(companyId);
+      // Check if there are no more pending sync items in the queue
+      final pendingResult = await _getPendingSyncCountUseCase();
+      final hasNoPending =
+          pendingResult is SuccessState<int> && (pendingResult.data ?? 0) == 0;
+
+      if (hasNoPending) {
+        final companyId = _sessionRepository.getSelectedCompanyId();
+        if (companyId != null && companyId.isNotEmpty) {
+          await _workOrdersRepository.syncWorkOrders(companyId);
+        }
+
+        if (!_syncCompletedController.isClosed) {
+          _syncCompletedController.add(null);
+        }
       }
 
       return count;

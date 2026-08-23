@@ -34,9 +34,14 @@ part 'work_orders_state.dart';
 class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   WorkOrdersCubit({required WorkOrdersCubitUseCases useCases})
     : _useCases = useCases,
-      super(const WorkOrdersState.initial());
+      super(const WorkOrdersState.initial()) {
+    _syncSubscription = _useCases.syncEngine.onSyncCompleted.listen((_) {
+      _refreshWorkOrders();
+    });
+  }
 
   final WorkOrdersCubitUseCases _useCases;
+  StreamSubscription<void>? _syncSubscription;
 
   static const _pageSize = 50;
 
@@ -927,5 +932,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   Future<void> navigateToCreateSlaPolicy() async {
     await pushRoute(CreateUpdateSlaPolicyRoute());
+  }
+
+  @override
+  Future<void> close() {
+    _syncSubscription?.cancel();
+    return super.close();
   }
 }

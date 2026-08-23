@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/services/sync_engine.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_count_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -14,9 +15,13 @@ import '../../../../../testing/mocks/repository_mocks.dart';
 class MockProcessSyncQueueUseCase extends Mock
     implements ProcessSyncQueueUseCase {}
 
+class MockGetPendingSyncCountUseCase extends Mock
+    implements GetPendingSyncCountUseCase {}
+
 void main() {
   late MockInternetClient mockInternet;
   late MockProcessSyncQueueUseCase mockProcessSyncQueueUseCase;
+  late MockGetPendingSyncCountUseCase mockGetPendingSyncCountUseCase;
   late MockWorkOrdersRepository mockWorkOrdersRepository;
   late MockSessionRepository mockSessionRepository;
   late SyncEngineImpl syncEngine;
@@ -24,12 +29,14 @@ void main() {
   setUp(() {
     mockInternet = MockInternetClient();
     mockProcessSyncQueueUseCase = MockProcessSyncQueueUseCase();
+    mockGetPendingSyncCountUseCase = MockGetPendingSyncCountUseCase();
     mockWorkOrdersRepository = MockWorkOrdersRepository();
     mockSessionRepository = MockSessionRepository();
 
     syncEngine = SyncEngineImpl(
       internetClient: mockInternet,
       processSyncQueueUseCase: mockProcessSyncQueueUseCase,
+      getPendingSyncCountUseCase: mockGetPendingSyncCountUseCase,
       workOrdersRepository: mockWorkOrdersRepository,
       sessionRepository: mockSessionRepository,
     );
@@ -37,7 +44,7 @@ void main() {
 
   group('SyncEngineImpl', () {
     test(
-      'should process queue and trigger delta sync in internal mode when connected',
+      'should process queue, trigger delta sync, and emit onSyncCompleted in internal mode when connected and queue clear',
       () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
@@ -50,16 +57,26 @@ void main() {
           () => mockProcessSyncQueueUseCase.call(),
         ).thenAnswer((_) async => const SuccessState(data: 2));
         when(
+          () => mockGetPendingSyncCountUseCase.call(),
+        ).thenAnswer((_) async => const SuccessState(data: 0));
+        when(
           () => mockWorkOrdersRepository.syncWorkOrders('company-123'),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
+        final events = <void>[];
+        final sub = syncEngine.onSyncCompleted.listen(events.add);
+
         final processed = await syncEngine.processQueue();
+        await pumpEventQueue();
 
         expect(processed, equals(2));
+        expect(events.length, equals(1));
         verify(() => mockProcessSyncQueueUseCase.call()).called(1);
         verify(
           () => mockWorkOrdersRepository.syncWorkOrders('company-123'),
         ).called(1);
+
+        await sub.cancel();
       },
     );
 
@@ -92,6 +109,9 @@ void main() {
         when(
           () => mockProcessSyncQueueUseCase.call(),
         ).thenAnswer((_) async => const SuccessState(data: 1));
+        when(
+          () => mockGetPendingSyncCountUseCase.call(),
+        ).thenAnswer((_) async => const SuccessState(data: 0));
         when(
           () => mockWorkOrdersRepository.syncWorkOrders('c-1'),
         ).thenAnswer((_) async => const SuccessState(data: true));
