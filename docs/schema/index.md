@@ -116,6 +116,7 @@ erDiagram
 | 26 | service_provider_invitations | [service_provider_invitations.md](service_provider_invitations.md) |
 | 27 | user_configurations | [user_configurations.md](user_configurations.md) |
 | 28 | user_device_tokens | [user_device_tokens.md](user_device_tokens.md) |
+| 29 | sync_errors | [sync_errors.md](sync_errors.md) |
 
 ---
 
