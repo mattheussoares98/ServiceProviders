@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/initializations/notifications_service.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/services/sync_engine.dart';
 import 'package:o_jogo_da_obra/firebase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,6 +28,7 @@ abstract final class AppInitializer {
       await configureDependencies(environment: environment);
 
       await InternetUtil.I.subscribeConnectivity();
+      GetIt.I<SyncEngine>().init();
 
       final sessionRepo = GetIt.I<SessionRepository>();
       await sessionRepo.checkForUserCredential();
