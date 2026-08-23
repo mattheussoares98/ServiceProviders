@@ -129,7 +129,7 @@ void main() {
         verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
       });
 
-      test('should mark failed and report error telemetry when permanent remote failure occurs', () async {
+      test('should mark deadLetter, cascade cancel, and report error telemetry when permanent remote failure occurs', () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         final tItem = tQueueItem.copyWith(
           entityType: SyncEntityType.workOrder,
@@ -147,8 +147,56 @@ void main() {
           () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
         ).thenAnswer(
           (_) async => FailureState(
-            message: '400 Bad Request: Closed work order',
+            message: '400 Bad Request: Constraint failed',
             statusCode: 400,
+          ),
+        );
+        when(
+          () => mockSyncRepository.markItemDeadLetter(any(), any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockSyncRepository.cancelPendingForEntity(any(), any()),
+        ).thenAnswer((_) async => SuccessState.nil);
+        when(
+          () => mockSyncRepository.reportSyncError(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await processSyncQueueUseCase();
+
+        expect(result, isA<SuccessState<int>>());
+        expect(result.data, equals(0));
+        verify(() => mockSyncRepository.markItemDeadLetter(tItem.id, any())).called(1);
+        verify(
+          () => mockSyncRepository.cancelPendingForEntity(
+            tItem.entityId,
+            any(),
+          ),
+        ).called(1);
+        verify(() => mockSyncRepository.reportSyncError(any())).called(1);
+        verifyNever(() => mockSyncRepository.removeQueueItem(tItem.id));
+      });
+
+      test('should mark failed when transient server failure occurs and attempts < 3', () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        final tItem = tQueueItem.copyWith(
+          attempts: 0,
+          entityType: SyncEntityType.workOrder,
+          operation: SyncOperationType.update,
+          payload: '{"id": "wo-1", "title": "Updated"}',
+        );
+
+        when(
+          () => mockSyncRepository.getPendingItems(),
+        ).thenAnswer((_) async => SuccessState(data: [tItem]));
+        when(
+          () => mockSyncRepository.markItemSyncing(tItem.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+        ).thenAnswer(
+          (_) async => FailureState(
+            message: '503 Service Unavailable',
+            statusCode: 503,
           ),
         );
         when(
@@ -163,8 +211,7 @@ void main() {
         expect(result, isA<SuccessState<int>>());
         expect(result.data, equals(0));
         verify(() => mockSyncRepository.markItemFailed(tItem.id, any())).called(1);
-        verify(() => mockSyncRepository.reportSyncError(any())).called(1);
-        verifyNever(() => mockSyncRepository.removeQueueItem(tItem.id));
+        verifyNever(() => mockSyncRepository.markItemDeadLetter(any(), any()));
       });
     });
   });

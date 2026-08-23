@@ -39,6 +39,8 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
   final PauseRemoteDataSource _pauseRemoteDataSource;
   final InternetClient _internet;
 
+  static const int kMaxSyncAttempts = 3;
+
   @override
   FutureData<int> call() async {
     if (!_internet.isConnected) {
@@ -81,7 +83,27 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         }
 
         final errorMsg = failure.message ?? failure.error.toString();
-        await _syncRepository.markItemFailed(item.id, errorMsg);
+        final currentAttempts = item.attempts + 1;
+        final isPermanentError =
+            failure.statusCode == 400 ||
+            failure.statusCode == 404 ||
+            failure.statusCode == 409 ||
+            failure.statusCode == 422 ||
+            currentAttempts >= kMaxSyncAttempts;
+
+        if (isPermanentError) {
+          await _syncRepository.markItemDeadLetter(item.id, errorMsg);
+
+          // If a create operation fails permanently, cascade-cancel dependent operations on this entity
+          if (item.operation == SyncOperationType.create) {
+            await _syncRepository.cancelPendingForEntity(
+              item.entityId,
+              'Cancelled due to parent creation failure: $errorMsg',
+            );
+          }
+        } else {
+          await _syncRepository.markItemFailed(item.id, errorMsg);
+        }
 
         await _syncRepository.reportSyncError(
           SyncErrorEntity(
@@ -97,7 +119,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
                     ? 'HTTP_${failure.statusCode}'
                     : 'SyncError',
             errorMessage: errorMsg,
-            attempts: item.attempts + 1,
+            attempts: currentAttempts,
             createdAt: DateTime.now(),
           ),
         );
