@@ -42,6 +42,10 @@ void main() {
     );
   });
 
+  tearDown(() {
+    syncEngine.dispose();
+  });
+
   group('SyncEngineImpl', () {
     test(
       'should process queue, trigger delta sync, and emit onSyncCompleted in internal mode when connected and queue clear',

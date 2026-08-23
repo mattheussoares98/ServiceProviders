@@ -40,6 +40,7 @@ final class SyncEngineImpl implements SyncEngine {
 
   final _syncCompletedController = StreamController<void>.broadcast();
   StreamSubscription<InternetStatus>? _subscription;
+  Timer? _retryTimer;
   bool _isSyncing = false;
 
   @override
@@ -59,10 +60,17 @@ final class SyncEngineImpl implements SyncEngine {
     if (_internetClient.isConnected) {
       processQueue();
     }
+
+    _retryTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (_internetClient.isConnected && !_isSyncing) {
+        processQueue();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _retryTimer?.cancel();
     _subscription?.cancel();
     _syncCompletedController.close();
   }
