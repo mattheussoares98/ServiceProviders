@@ -6,6 +6,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_count_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
@@ -16,6 +18,10 @@ abstract interface class SyncEngine {
   void init();
   void dispose();
   Future<int> processQueue();
+  Stream<List<SyncQueueItemEntity>> watchDeadLetterItemsForEntity(
+    String entityId,
+  );
+  Future<void> retryEntity(String entityId);
 }
 
 @LazySingleton(as: SyncEngine)
@@ -26,17 +32,20 @@ final class SyncEngineImpl implements SyncEngine {
     required GetPendingSyncCountUseCase getPendingSyncCountUseCase,
     required WorkOrdersRepository workOrdersRepository,
     required SessionRepository sessionRepository,
+    required SyncRepository syncRepository,
   }) : _internetClient = internetClient,
        _processSyncQueueUseCase = processSyncQueueUseCase,
        _getPendingSyncCountUseCase = getPendingSyncCountUseCase,
        _workOrdersRepository = workOrdersRepository,
-       _sessionRepository = sessionRepository;
+       _sessionRepository = sessionRepository,
+       _syncRepository = syncRepository;
 
   final InternetClient _internetClient;
   final ProcessSyncQueueUseCase _processSyncQueueUseCase;
   final GetPendingSyncCountUseCase _getPendingSyncCountUseCase;
   final WorkOrdersRepository _workOrdersRepository;
   final SessionRepository _sessionRepository;
+  final SyncRepository _syncRepository;
 
   final _syncCompletedController = StreamController<void>.broadcast();
   StreamSubscription<InternetStatus>? _subscription;
@@ -114,5 +123,17 @@ final class SyncEngineImpl implements SyncEngine {
     } finally {
       _isSyncing = false;
     }
+  }
+
+  @override
+  Stream<List<SyncQueueItemEntity>> watchDeadLetterItemsForEntity(
+    String entityId,
+  ) =>
+      _syncRepository.watchDeadLetterItemsForEntity(entityId);
+
+  @override
+  Future<void> retryEntity(String entityId) async {
+    await _syncRepository.retryDeadLetterForEntity(entityId);
+    await processQueue();
   }
 }

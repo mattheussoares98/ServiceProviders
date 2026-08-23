@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_c
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 class MockProcessSyncQueueUseCase extends Mock
@@ -24,6 +25,7 @@ void main() {
   late MockGetPendingSyncCountUseCase mockGetPendingSyncCountUseCase;
   late MockWorkOrdersRepository mockWorkOrdersRepository;
   late MockSessionRepository mockSessionRepository;
+  late MockSyncRepository mockSyncRepository;
   late SyncEngineImpl syncEngine;
 
   setUp(() {
@@ -32,6 +34,7 @@ void main() {
     mockGetPendingSyncCountUseCase = MockGetPendingSyncCountUseCase();
     mockWorkOrdersRepository = MockWorkOrdersRepository();
     mockSessionRepository = MockSessionRepository();
+    mockSyncRepository = MockSyncRepository();
 
     syncEngine = SyncEngineImpl(
       internetClient: mockInternet,
@@ -39,6 +42,7 @@ void main() {
       getPendingSyncCountUseCase: mockGetPendingSyncCountUseCase,
       workOrdersRepository: mockWorkOrdersRepository,
       sessionRepository: mockSessionRepository,
+      syncRepository: mockSyncRepository,
     );
   });
 
@@ -131,5 +135,50 @@ void main() {
         await controller.close();
       },
     );
+
+    test('should stream dead-letter items from sync repository', () async {
+      final tEntity = EntityFactory.makeSyncQueueItemEntity();
+      when(
+        () => mockSyncRepository.watchDeadLetterItemsForEntity(any()),
+      ).thenAnswer((_) => Stream.value([tEntity]));
+
+      final stream = syncEngine.watchDeadLetterItemsForEntity('wo-123');
+      final result = await stream.first;
+
+      expect(result.length, equals(1));
+      expect(result.first.id, equals(tEntity.id));
+      verify(
+        () => mockSyncRepository.watchDeadLetterItemsForEntity('wo-123'),
+      ).called(1);
+    });
+
+    test('should call retryDeadLetterForEntity and processQueue on retryEntity', () async {
+      when(() => mockInternet.isConnected).thenReturn(true);
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.internal.name);
+      when(
+        () => mockSessionRepository.getSelectedCompanyId(),
+      ).thenReturn('company-1');
+      when(
+        () => mockSyncRepository.retryDeadLetterForEntity(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockProcessSyncQueueUseCase.call(),
+      ).thenAnswer((_) async => const SuccessState(data: 1));
+      when(
+        () => mockGetPendingSyncCountUseCase.call(),
+      ).thenAnswer((_) async => const SuccessState(data: 0));
+      when(
+        () => mockWorkOrdersRepository.syncWorkOrders('company-1'),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      await syncEngine.retryEntity('wo-123');
+
+      verify(
+        () => mockSyncRepository.retryDeadLetterForEntity('wo-123'),
+      ).called(1);
+      verify(() => mockProcessSyncQueueUseCase.call()).called(1);
+    });
   });
 }
