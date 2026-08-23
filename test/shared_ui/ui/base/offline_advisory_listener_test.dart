@@ -1,22 +1,46 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/offline_advisory_listener.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/provider_offline_blocker.dart';
 
 import '../../../../testing/mocks/client_mocks.dart';
 
+class TestOfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState>
+    implements OfflineAdvisoryCubit {
+  TestOfflineAdvisoryCubit([
+    super.initialState = const OfflineAdvisoryState(),
+  ]);
+
+  bool retryCalled = false;
+
+  void emitState(OfflineAdvisoryState newState) => emit(newState);
+
+  @override
+  void checkStartupOrResume() {}
+
+  @override
+  void checkProviderConnectivity({AppMode? activeMode}) {}
+
+  @override
+  Future<bool> retryConnection() async {
+    retryCalled = true;
+    return true;
+  }
+
+  @override
+  void dismissAlert() => emit(state.copyWith(annulAdvisoryEvent: true));
+}
+
 void main() {
   late MockNavigationClient mockNavigationClient;
-  late MockOfflineTracker mockOfflineTracker;
-  late StreamController<OfflineAdvisoryEvent> alertStreamController;
-  late OfflineAdvisoryCubit cubit;
+  late TestOfflineAdvisoryCubit cubit;
 
   setUpAll(() {
     mockNavigationClient = MockNavigationClient();
@@ -28,21 +52,11 @@ void main() {
   });
 
   setUp(() {
-    mockOfflineTracker = MockOfflineTracker();
-    alertStreamController = StreamController<OfflineAdvisoryEvent>.broadcast();
-    when(
-      () => mockOfflineTracker.alertStream,
-    ).thenAnswer((_) => alertStreamController.stream);
-    when(
-      () => mockOfflineTracker.checkStartupOrResumeStatus(),
-    ).thenReturn(false);
-
-    cubit = OfflineAdvisoryCubit(offlineTracker: mockOfflineTracker);
+    cubit = TestOfflineAdvisoryCubit();
   });
 
   tearDown(() {
     cubit.close();
-    alertStreamController.close();
   });
 
   Widget buildTestWidget() {
@@ -56,32 +70,55 @@ void main() {
     );
   }
 
-  testWidgets('displays alert dialog when OfflineAdvisoryState has event', (
-    tester,
-  ) async {
+  testWidgets('renders child normally when not blocked', (tester) async {
     await tester.pumpWidget(buildTestWidget());
     expect(find.text('Home Content'), findsOneWidget);
-    expect(find.text('Aviso de Modo Offline'), findsNothing);
-
-    const event = OfflineAdvisoryEvent(
-      trigger: OfflineAdvisoryTrigger.action,
-      offlineDuration: Duration(hours: 2),
-      pendingMutationCount: 10,
-      hasBreachedDuration: true,
-      hasBreachedRequests: true,
-    );
-
-    alertStreamController.add(event);
-    await pumpEventQueue();
-    await tester.pumpAndSettle();
-
-    expect(find.text('Aviso de Modo Offline'), findsOneWidget);
-    expect(find.text('Entendi'), findsOneWidget);
-
-    await tester.tap(find.text('Entendi'));
-    await tester.pumpAndSettle();
-
-    expect(cubit.state.shouldShowDialog, isFalse);
-    expect(find.text('Aviso de Modo Offline'), findsNothing);
+    expect(find.byType(ProviderOfflineBlocker), findsNothing);
   });
+
+  testWidgets(
+    'displays ProviderOfflineBlocker overlay when isProviderBlocked is true',
+    (tester) async {
+      await tester.pumpWidget(buildTestWidget());
+      expect(find.text('Home Content'), findsOneWidget);
+      expect(find.byType(ProviderOfflineBlocker), findsNothing);
+
+      cubit.emitState(const OfflineAdvisoryState(
+        status: StateStatus.loaded,
+        isProviderBlocked: true,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(ProviderOfflineBlocker), findsOneWidget);
+      expect(find.text('Sem conexão com a internet'), findsOneWidget);
+      expect(find.text('Tentar novamente'), findsOneWidget);
+
+      cubit.emitState(const OfflineAdvisoryState(
+        status: StateStatus.loaded,
+      ));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byType(ProviderOfflineBlocker), findsNothing);
+      expect(find.text('Home Content'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'tapping Tentar novamente calls retryConnection on cubit',
+    (tester) async {
+      cubit.emitState(const OfflineAdvisoryState(
+        status: StateStatus.loaded,
+        isProviderBlocked: true,
+      ));
+      await tester.pumpWidget(buildTestWidget());
+
+      expect(find.byType(ProviderOfflineBlocker), findsOneWidget);
+      expect(cubit.retryCalled, isFalse);
+
+      await tester.tap(find.text('Tentar novamente'));
+      await tester.pump();
+
+      expect(cubit.retryCalled, isTrue);
+    },
+  );
 }

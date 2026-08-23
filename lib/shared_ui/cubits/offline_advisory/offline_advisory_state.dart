@@ -7,9 +7,11 @@ final class OfflineAdvisoryState extends BaseState {
     super.errorMessage,
     super.sections,
     this.advisoryEvent,
+    this.isProviderBlocked = false,
   });
 
   final OfflineAdvisoryEvent? advisoryEvent;
+  final bool isProviderBlocked;
 
   bool get shouldShowDialog => advisoryEvent != null;
 
@@ -18,6 +20,7 @@ final class OfflineAdvisoryState extends BaseState {
     String? errorMessage,
     OfflineAdvisoryEvent? advisoryEvent,
     bool annulAdvisoryEvent = false,
+    bool? isProviderBlocked,
   }) {
     return OfflineAdvisoryState(
       status: status ?? this.status,
@@ -25,9 +28,16 @@ final class OfflineAdvisoryState extends BaseState {
       sections: sections,
       advisoryEvent:
           annulAdvisoryEvent ? null : (advisoryEvent ?? this.advisoryEvent),
+      isProviderBlocked: isProviderBlocked ?? this.isProviderBlocked,
     );
   }
 
   @override
-  List<Object?> get props => [status, errorMessage, sections, advisoryEvent];
+  List<Object?> get props => [
+        status,
+        errorMessage,
+        sections,
+        advisoryEvent,
+        isProviderBlocked,
+      ];
 }

@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/provider_offline_blocker.dart';
 
 class OfflineAdvisoryListener extends StatelessWidget {
   const OfflineAdvisoryListener({required this.child, super.key});
@@ -12,7 +13,7 @@ class OfflineAdvisoryListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<OfflineAdvisoryCubit, OfflineAdvisoryState>(
+    return BlocConsumer<OfflineAdvisoryCubit, OfflineAdvisoryState>(
       listenWhen: (previous, current) =>
           current.shouldShowDialog &&
           previous.advisoryEvent != current.advisoryEvent,
@@ -52,7 +53,17 @@ class OfflineAdvisoryListener extends StatelessWidget {
           },
         );
       },
-      child: child,
+      builder: (context, state) {
+        return Stack(
+          children: [
+            child,
+            if (state.isProviderBlocked)
+              const Positioned.fill(
+                child: ProviderOfflineBlocker(),
+              ),
+          ],
+        );
+      },
     );
   }
 }
