@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -35,20 +34,17 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required InternetClient internet,
     required WorkOrdersRemoteDataSource remoteDataSource,
     required WorkOrdersLocalDataSource localDataSource,
-    required OfflineTracker offlineTracker,
     required SessionRepository sessionRepository,
     required SyncRepository syncRepository,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
-       _offlineTracker = offlineTracker,
        _sessionRepository = sessionRepository,
        _syncRepository = syncRepository;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;
-  final OfflineTracker _offlineTracker;
   final SessionRepository _sessionRepository;
   final SyncRepository _syncRepository;
 
@@ -137,7 +133,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
                 final model = WorkOrderModel.fromEntity(workOrder);
                 final result = await _localDataSource.saveWorkOrder(model);
                 if (result is SuccessState<bool> && result.data == true) {
-                  _offlineTracker.recordOfflineAction();
                   await _syncRepository.enqueue(
                     SyncQueueItemEntity(
                       id: const Uuid().v4(),
@@ -190,7 +185,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
                 final model = WorkOrderModel.fromEntity(workOrder);
                 final result = await _localDataSource.saveWorkOrder(model);
                 if (result is SuccessState<bool> && result.data == true) {
-                  _offlineTracker.recordOfflineAction();
                   await _syncRepository.enqueue(
                     SyncQueueItemEntity(
                       id: const Uuid().v4(),
@@ -238,7 +232,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
         localCallback: () async {
           final result = await _localDataSource.deleteWorkOrder(id);
           if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
             final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
             final userId = _sessionRepository.userData.user.id;
             await _syncRepository.enqueue(
@@ -291,7 +284,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       if (result is SuccessState<List<WorkOrderModel>>) {
         final list = result.data ?? [];
         await _localDataSource.saveWorkOrders(list);
-        _offlineTracker.reset();
         return const SuccessState(data: true);
       }
       return FailureState(
@@ -308,7 +300,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       if (result is SuccessState<List<WorkOrderModel>>) {
         final list = result.data ?? [];
         await _localDataSource.saveWorkOrders(list);
-        _offlineTracker.reset();
         return const SuccessState(data: true);
       }
       return FailureState(
@@ -342,7 +333,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
             TaskModel.fromEntity(task),
           );
           if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
             final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
             final userId = _sessionRepository.userData.user.id;
             await _syncRepository.enqueue(
@@ -386,7 +376,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
             TaskModel.fromEntity(task),
           );
           if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
             final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
             final userId = _sessionRepository.userData.user.id;
             await _syncRepository.enqueue(
@@ -427,7 +416,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     localCallback: () async {
       final result = await _localDataSource.deleteTask(id);
       if (result is SuccessState<bool> && result.data == true) {
-        _offlineTracker.recordOfflineAction();
         final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
         final userId = _sessionRepository.userData.user.id;
         await _syncRepository.enqueue(
@@ -484,9 +472,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           final result = await _localDataSource.saveChangeRequest(
             WorkOrderChangeRequestModel.fromEntity(request),
           );
-          if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
-          }
           return result;
         },
         remoteCallback: () async {
@@ -523,9 +508,6 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
         rejectionReason: rejectionReason,
         reviewedById: reviewedById,
       );
-      if (result is SuccessState<bool> && result.data == true) {
-        _offlineTracker.recordOfflineAction();
-      }
       return result;
     },
     remoteCallback: () async {

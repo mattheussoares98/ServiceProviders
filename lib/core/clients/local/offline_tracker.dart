@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/constants/offline_limits.dart';
 
@@ -43,12 +45,17 @@ abstract interface class OfflineTracker {
 
 @LazySingleton(as: OfflineTracker)
 final class OfflineTrackerImpl implements OfflineTracker {
-  OfflineTrackerImpl({required InternetClient internetClient})
-    : _internetClient = internetClient;
+  OfflineTrackerImpl({
+    required InternetClient internetClient,
+    required AppDatabase database,
+  }) : _internetClient = internetClient,
+       _database = database;
 
   final InternetClient _internetClient;
+  final AppDatabase _database;
   final _alertController = StreamController<OfflineAdvisoryEvent>.broadcast();
-  StreamSubscription<InternetStatus>? _subscription;
+  StreamSubscription<InternetStatus>? _connectivitySubscription;
+  StreamSubscription<int>? _dbSubscription;
 
   DateTime? _offlineSince;
   int _offlineMutationCount = 0;
@@ -93,22 +100,62 @@ final class OfflineTrackerImpl implements OfflineTracker {
       _offlineSince = DateTime.now();
     }
 
-    _subscription = _internetClient.connectivityStream?.listen((status) {
+    _connectivitySubscription = _internetClient.connectivityStream?.listen((
+      status,
+    ) {
       if (status == InternetStatus.connected) {
         reset();
       } else if (status == InternetStatus.disconnected) {
         _offlineSince ??= DateTime.now();
       }
     });
+
+    final countExp = _database.syncAuditLogs.id.count();
+    final query =
+        _database.selectOnly(_database.syncAuditLogs)
+          ..addColumns([countExp])
+          ..where(
+            _database.syncAuditLogs.status.equals('pending') |
+                _database.syncAuditLogs.status.equals('syncing'),
+          );
+
+    _dbSubscription = query
+        .watchSingle()
+        .map((row) => row.read(countExp) ?? 0)
+        .listen(_onPendingCountChanged);
+  }
+
+  void _onPendingCountChanged(int count) {
+    final previousCount = _offlineMutationCount;
+    _offlineMutationCount = count;
+
+    if (!isOffline) return;
+
+    if (count > previousCount) {
+      _offlineSince ??= DateTime.now();
+
+      if (isThresholdBreached) {
+        // First time threshold is breached
+        if (_lastAlertMutationCount == 0) {
+          _lastAlertMutationCount = _offlineMutationCount;
+          _emitAlert(OfflineAdvisoryTrigger.action);
+        } else if ((_offlineMutationCount - _lastAlertMutationCount) >=
+            kOfflineAlertThrottleFrequency) {
+          _lastAlertMutationCount = _offlineMutationCount;
+          _emitAlert(OfflineAdvisoryTrigger.action);
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _connectivitySubscription?.cancel();
+    _dbSubscription?.cancel();
     _alertController.close();
   }
 
-  /// Increments offline action counter and returns true if an advisory alert should be shown.
+  /// Kept for backward compatibility; mutation counts are tracked reactively via Drift.
   @override
   bool recordOfflineAction() {
     if (!isOffline) return false;
@@ -118,14 +165,12 @@ final class OfflineTrackerImpl implements OfflineTracker {
 
     if (!isThresholdBreached) return false;
 
-    // First time threshold is breached
     if (_lastAlertMutationCount == 0) {
       _lastAlertMutationCount = _offlineMutationCount;
       _emitAlert(OfflineAdvisoryTrigger.action);
       return true;
     }
 
-    // Throttle: alert every [kOfflineAlertThrottleFrequency] subsequent actions
     if ((_offlineMutationCount - _lastAlertMutationCount) >=
         kOfflineAlertThrottleFrequency) {
       _lastAlertMutationCount = _offlineMutationCount;

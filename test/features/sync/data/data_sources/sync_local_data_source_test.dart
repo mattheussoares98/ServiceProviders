@@ -149,5 +149,23 @@ void main() {
       final countResult = await dataSource.getPendingCount();
       expect(countResult.data, equals(1));
     });
+
+    test('should emit updated pending counts from watchPendingCount stream', () async {
+      final tEntity = EntityFactory.makeSyncQueueItemEntity();
+      await insertTestPrerequisites(
+        companyId: tEntity.companyId,
+        userProfileId: tEntity.userProfileId,
+      );
+
+      final stream = dataSource.watchPendingCount();
+      final counts = <int>[];
+      final sub = stream.listen(counts.add);
+
+      await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity));
+      await pumpEventQueue();
+
+      expect(counts, contains(1));
+      await sub.cancel();
+    });
   });
 }

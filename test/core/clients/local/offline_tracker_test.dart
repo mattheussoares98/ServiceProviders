@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/constants/offline_limits.dart';
 import '../../../../testing/mocks/client_mocks.dart';
@@ -10,22 +12,28 @@ import '../../../../testing/mocks/client_mocks.dart';
 void main() {
   late MockInternetClient mockInternetClient;
   late StreamController<InternetStatus> connectivityController;
+  late AppDatabase database;
   late OfflineTrackerImpl tracker;
 
   setUp(() {
     mockInternetClient = MockInternetClient();
     connectivityController = StreamController<InternetStatus>.broadcast();
+    database = AppDatabase.forTesting(NativeDatabase.memory());
     when(
       () => mockInternetClient.connectivityStream,
     ).thenAnswer((_) => connectivityController.stream);
     when(() => mockInternetClient.isConnected).thenReturn(false);
 
-    tracker = OfflineTrackerImpl(internetClient: mockInternetClient);
+    tracker = OfflineTrackerImpl(
+      internetClient: mockInternetClient,
+      database: database,
+    );
   });
 
-  tearDown(() {
+  tearDown(() async {
     tracker.dispose();
-    connectivityController.close();
+    await connectivityController.close();
+    await database.close();
   });
 
   group('OfflineTracker', () {

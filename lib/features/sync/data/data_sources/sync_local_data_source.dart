@@ -16,6 +16,7 @@ abstract interface class SyncLocalDataSource {
   FutureBool markItemFailed(String id, String error);
   FutureBool removeQueueItem(String id);
   FutureData<int> getPendingCount();
+  Stream<int> watchPendingCount();
 }
 
 @LazySingleton(as: SyncLocalDataSource)
@@ -138,6 +139,20 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
     final result = await query.map((row) => row.read(countExp)).getSingle();
     return SuccessState(data: result ?? 0);
   });
+
+  @override
+  Stream<int> watchPendingCount() {
+    final countExp = _database.syncAuditLogs.id.count();
+    final query =
+        _database.selectOnly(_database.syncAuditLogs)
+          ..addColumns([countExp])
+          ..where(
+            _database.syncAuditLogs.status.equals(SyncStatus.pending.code) |
+                _database.syncAuditLogs.status.equals(SyncStatus.syncing.code),
+          );
+
+    return query.watchSingle().map((row) => row.read(countExp) ?? 0);
+  }
 
   Future<int> _getAttempts(String id) async {
     final query =

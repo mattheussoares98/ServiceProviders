@@ -28,7 +28,6 @@ void main() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
-  late MockOfflineTracker mockOfflineTracker;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
   late WorkOrdersRepositoryImpl repository;
@@ -68,11 +67,8 @@ void main() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
-    mockOfflineTracker = MockOfflineTracker();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
-    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
-    when(() => mockOfflineTracker.reset()).thenReturn(null);
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
@@ -90,7 +86,6 @@ void main() {
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
-      offlineTracker: mockOfflineTracker,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
     );
@@ -1146,7 +1141,6 @@ void _providerWorkOrdersTests() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
-  late MockOfflineTracker mockOfflineTracker;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
   late WorkOrdersRepositoryImpl repository;
@@ -1155,11 +1149,8 @@ void _providerWorkOrdersTests() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
-    mockOfflineTracker = MockOfflineTracker();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
-    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
-    when(() => mockOfflineTracker.reset()).thenReturn(null);
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.provider.name);
@@ -1168,7 +1159,6 @@ void _providerWorkOrdersTests() {
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
-      offlineTracker: mockOfflineTracker,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
     );
@@ -1318,7 +1308,6 @@ void _providerWorkOrdersTests() {
         () => mockRemoteDataSource.updateWorkOrder(tWorkOrderModel),
       ).called(1);
       verifyNever(() => mockLocalDataSource.saveWorkOrder(any()));
-      verifyNever(() => mockOfflineTracker.recordOfflineAction());
     });
 
     test('fails without saving locally when offline', () async {
@@ -1328,7 +1317,6 @@ void _providerWorkOrdersTests() {
 
       expect(result, isA<FailureState<bool>>());
       verifyNever(() => mockLocalDataSource.saveWorkOrder(any()));
-      verifyNever(() => mockOfflineTracker.recordOfflineAction());
     });
   });
 }

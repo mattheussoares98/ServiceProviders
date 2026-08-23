@@ -20,7 +20,6 @@ void main() {
   late MockPauseLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
-  late MockOfflineTracker mockOfflineTracker;
   late PauseRepositoryImpl repository;
 
   setUpAll(() {
@@ -39,7 +38,6 @@ void main() {
     mockLocalDataSource = MockPauseLocalDataSource();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
-    mockOfflineTracker = MockOfflineTracker();
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
@@ -52,7 +50,6 @@ void main() {
     when(
       () => mockSyncRepository.enqueue(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
-    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
 
     repository = PauseRepositoryImpl(
       internet: mockInternetClient,
@@ -60,7 +57,6 @@ void main() {
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
-      offlineTracker: mockOfflineTracker,
     );
   });
 

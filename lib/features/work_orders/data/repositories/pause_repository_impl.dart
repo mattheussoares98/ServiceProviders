@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:injectable/injectable.dart';
-import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
@@ -31,20 +30,17 @@ final class PauseRepositoryImpl implements PauseRepository {
     required PauseLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
     required SyncRepository syncRepository,
-    required OfflineTracker offlineTracker,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
        _sessionRepository = sessionRepository,
-       _syncRepository = syncRepository,
-       _offlineTracker = offlineTracker;
+       _syncRepository = syncRepository;
 
   final InternetClient _internet;
   final PauseRemoteDataSource _remoteDataSource;
   final PauseLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
   final SyncRepository _syncRepository;
-  final OfflineTracker _offlineTracker;
 
   bool get _isProviderMode =>
       AppMode.fromName(_sessionRepository.getSelectedMode()) ==
@@ -120,7 +116,6 @@ final class PauseRepositoryImpl implements PauseRepository {
                 final model = PauseRequestModel.fromEntity(pauseRequest);
                 final result = await _localDataSource.savePauseRequest(model);
                 if (result is SuccessState<bool> && result.data == true) {
-                  _offlineTracker.recordOfflineAction();
                   final companyId =
                       _sessionRepository.getSelectedCompanyId() ?? '';
                   final userId =
