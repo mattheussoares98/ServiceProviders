@@ -38,7 +38,6 @@ abstract interface class OfflineTracker {
 
   void init();
   void dispose();
-  bool recordOfflineAction();
   bool checkStartupOrResumeStatus();
   void reset();
 }
@@ -153,32 +152,6 @@ final class OfflineTrackerImpl implements OfflineTracker {
     _connectivitySubscription?.cancel();
     _dbSubscription?.cancel();
     _alertController.close();
-  }
-
-  /// Kept for backward compatibility; mutation counts are tracked reactively via Drift.
-  @override
-  bool recordOfflineAction() {
-    if (!isOffline) return false;
-
-    _offlineSince ??= DateTime.now();
-    _offlineMutationCount++;
-
-    if (!isThresholdBreached) return false;
-
-    if (_lastAlertMutationCount == 0) {
-      _lastAlertMutationCount = _offlineMutationCount;
-      _emitAlert(OfflineAdvisoryTrigger.action);
-      return true;
-    }
-
-    if ((_offlineMutationCount - _lastAlertMutationCount) >=
-        kOfflineAlertThrottleFrequency) {
-      _lastAlertMutationCount = _offlineMutationCount;
-      _emitAlert(OfflineAdvisoryTrigger.action);
-      return true;
-    }
-
-    return false;
   }
 
   /// Evaluates status on app startup or resume from background.
