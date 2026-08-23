@@ -16,6 +16,10 @@ abstract interface class SyncLocalDataSource {
   FutureBool markItemFailed(String id, String error);
   FutureBool markItemDeadLetter(String id, String error);
   FutureVoid cancelPendingForEntity(String entityId, String reason);
+  Stream<List<SyncQueueItemModel>> watchDeadLetterItemsForEntity(
+    String entityId,
+  );
+  FutureBool retryDeadLetterForEntity(String entityId);
   FutureBool removeQueueItem(String id);
   FutureData<int> getPendingCount();
   Stream<int> watchPendingCount();
@@ -139,21 +143,78 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
   FutureVoid cancelPendingForEntity(String entityId, String reason) =>
       ErrorHandler.execute(() async {
         await (_database.update(_database.syncAuditLogs)
-                  ..where(
-                    (t) =>
+              ..where(
+                (t) =>
                     (t.status.equals(SyncStatus.pending.code) |
                         t.status.equals(SyncStatus.syncing.code) |
                         t.status.equals(SyncStatus.failed.code)) &
                     (t.entityId.equals(entityId) |
                         t.payload.like('%$entityId%')),
               ))
+            .write(
+              SyncAuditLogsCompanion(
+                status: Value(SyncStatus.deadLetter.code),
+                lastError: Value(reason),
+              ),
+            );
+        return SuccessState.nil;
+      });
+
+  @override
+  Stream<List<SyncQueueItemModel>> watchDeadLetterItemsForEntity(
+    String entityId,
+  ) {
+    final query =
+        _database.select(_database.syncAuditLogs)
+          ..where(
+            (t) =>
+                t.status.equals(SyncStatus.deadLetter.code) &
+                (t.entityId.equals(entityId) | t.payload.like('%$entityId%')),
+          )
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]);
+
+    return query.watch().map(
+      (rows) =>
+          rows
+              .map(
+                (row) => SyncQueueItemModel(
+                  id: row.id,
+                  companyId: row.companyId,
+                  userProfileId: row.userProfileId,
+                  entityType: SyncEntityType.fromCode(row.entityType),
+                  entityId: row.entityId,
+                  operation: SyncOperationType.fromCode(row.operation),
+                  payload: row.payload,
+                  status: SyncStatus.fromCode(row.status),
+                  attempts: row.attempts,
+                  lastError: row.lastError,
+                  createdAt: row.createdAt,
+                  syncedAt: row.syncedAt,
+                ),
+              )
+              .toList(),
+    );
+  }
+
+  @override
+  FutureBool retryDeadLetterForEntity(String entityId) =>
+      ErrorHandler.execute(() async {
+        final count =
+            await (_database.update(_database.syncAuditLogs)
+                  ..where(
+                    (t) =>
+                        t.status.equals(SyncStatus.deadLetter.code) &
+                        (t.entityId.equals(entityId) |
+                            t.payload.like('%$entityId%')),
+                  ))
                 .write(
                   SyncAuditLogsCompanion(
-                    status: Value(SyncStatus.deadLetter.code),
-                    lastError: Value(reason),
+                    status: Value(SyncStatus.pending.code),
+                    attempts: const Value(0),
+                    lastError: const Value(null),
                   ),
                 );
-        return SuccessState.nil;
+        return SuccessState(data: count > 0);
       });
 
   @override

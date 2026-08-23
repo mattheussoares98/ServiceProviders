@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -236,5 +236,92 @@ void main() {
       expect(counts, contains(1));
       await sub.cancel();
     });
+
+    test(
+      'should emit dead-letter items matching entityId or payload from watchDeadLetterItemsForEntity',
+      () async {
+        final tEntity1 = EntityFactory.makeSyncQueueItemEntity().copyWith(
+          entityId: 'wo-100',
+        );
+        final tEntityChild = EntityFactory.makeSyncQueueItemEntity().copyWith(
+          companyId: tEntity1.companyId,
+          userProfileId: tEntity1.userProfileId,
+          entityId: 'obs-1',
+          payload: '{"workOrderId": "wo-100", "content": "note"}',
+        );
+        final tEntityOther = EntityFactory.makeSyncQueueItemEntity().copyWith(
+          companyId: tEntity1.companyId,
+          userProfileId: tEntity1.userProfileId,
+          entityId: 'wo-200',
+        );
+
+        await insertTestPrerequisites(
+          companyId: tEntity1.companyId,
+          userProfileId: tEntity1.userProfileId,
+        );
+
+        await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity1));
+        await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntityChild));
+        await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntityOther));
+
+        // Mark items as dead-letter
+        await dataSource.markItemDeadLetter(tEntity1.id, 'Error 1');
+        await dataSource.markItemDeadLetter(tEntityChild.id, 'Error 2');
+        await dataSource.markItemDeadLetter(tEntityOther.id, 'Error 3');
+
+        final stream = dataSource.watchDeadLetterItemsForEntity('wo-100');
+        final emissions = <List<SyncQueueItemModel>>[];
+        final sub = stream.listen(emissions.add);
+
+        await pumpEventQueue();
+
+        expect(emissions.isNotEmpty, isTrue);
+        final latest = emissions.last;
+        expect(latest.length, equals(2));
+        expect(latest.map((e) => e.id), containsAll([tEntity1.id, tEntityChild.id]));
+
+        await sub.cancel();
+      },
+    );
+
+    test(
+      'should reset dead-letter items back to pending with 0 attempts via retryDeadLetterForEntity',
+      () async {
+        final tEntity1 = EntityFactory.makeSyncQueueItemEntity().copyWith(
+          entityId: 'wo-100',
+        );
+        final tEntityChild = EntityFactory.makeSyncQueueItemEntity().copyWith(
+          companyId: tEntity1.companyId,
+          userProfileId: tEntity1.userProfileId,
+          entityId: 'obs-1',
+          payload: '{"workOrderId": "wo-100", "content": "note"}',
+        );
+
+        await insertTestPrerequisites(
+          companyId: tEntity1.companyId,
+          userProfileId: tEntity1.userProfileId,
+        );
+
+        await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity1));
+        await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntityChild));
+
+        await dataSource.markItemDeadLetter(tEntity1.id, 'Error 1');
+        await dataSource.markItemDeadLetter(tEntityChild.id, 'Error 2');
+
+        final retryResult = await dataSource.retryDeadLetterForEntity('wo-100');
+        expect(retryResult, isA<SuccessState<bool>>());
+        expect(retryResult.data, isTrue);
+
+        final allRows = await database.select(database.syncAuditLogs).get();
+        for (final row in allRows) {
+          expect(row.status, equals(SyncStatus.pending.code));
+          expect(row.attempts, equals(0));
+          expect(row.lastError, isNull);
+        }
+
+        final nonExistentResult = await dataSource.retryDeadLetterForEntity('wo-999');
+        expect(nonExistentResult.data, isFalse);
+      },
+    );
   });
 }
