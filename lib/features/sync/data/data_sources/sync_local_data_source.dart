@@ -138,31 +138,21 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
   @override
   FutureVoid cancelPendingForEntity(String entityId, String reason) =>
       ErrorHandler.execute(() async {
-        final allPending =
-            await (_database.select(_database.syncAuditLogs)
+        await (_database.update(_database.syncAuditLogs)
                   ..where(
                     (t) =>
-                        t.status.equals(SyncStatus.pending.code) |
+                    (t.status.equals(SyncStatus.pending.code) |
                         t.status.equals(SyncStatus.syncing.code) |
-                        t.status.equals(SyncStatus.failed.code),
-                  ))
-                .get();
-
-        for (final row in allPending) {
-          final isTargetEntity =
-              row.entityId == entityId ||
-              (row.payload != null && row.payload!.contains(entityId));
-          if (isTargetEntity) {
-            await (_database.update(_database.syncAuditLogs)
-                  ..where((t) => t.id.equals(row.id)))
+                        t.status.equals(SyncStatus.failed.code)) &
+                    (t.entityId.equals(entityId) |
+                        t.payload.like('%$entityId%')),
+              ))
                 .write(
                   SyncAuditLogsCompanion(
                     status: Value(SyncStatus.deadLetter.code),
                     lastError: Value(reason),
                   ),
                 );
-          }
-        }
         return SuccessState.nil;
       });
 
