@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -211,6 +211,12 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('work_orders');
         await m.createTable(workOrders);
+        await customStatement('PRAGMA foreign_keys = ON;');
+      }
+      if (from < 26) {
+        await customStatement('PRAGMA foreign_keys = OFF;');
+        await m.deleteTable('sync_audit_logs');
+        await m.createTable(syncAuditLogs);
         await customStatement('PRAGMA foreign_keys = ON;');
       }
     },
