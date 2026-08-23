@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
@@ -19,6 +20,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   _providerWorkOrdersTests();
@@ -27,6 +29,7 @@ void main() {
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockOfflineTracker mockOfflineTracker;
+  late MockSessionRepository mockSessionRepository;
   late WorkOrdersRepositoryImpl repository;
 
   setUpAll(() {
@@ -64,14 +67,19 @@ void main() {
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockOfflineTracker = MockOfflineTracker();
+    mockSessionRepository = MockSessionRepository();
     when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
     when(() => mockOfflineTracker.reset()).thenReturn(null);
+    when(
+      () => mockSessionRepository.getSelectedMode(),
+    ).thenReturn(AppMode.internal.name);
 
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       offlineTracker: mockOfflineTracker,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -1126,6 +1134,7 @@ void _providerWorkOrdersTests() {
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockOfflineTracker mockOfflineTracker;
+  late MockSessionRepository mockSessionRepository;
   late WorkOrdersRepositoryImpl repository;
 
   setUp(() {
@@ -1133,14 +1142,19 @@ void _providerWorkOrdersTests() {
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockOfflineTracker = MockOfflineTracker();
+    mockSessionRepository = MockSessionRepository();
     when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
     when(() => mockOfflineTracker.reset()).thenReturn(null);
+    when(
+      () => mockSessionRepository.getSelectedMode(),
+    ).thenReturn(AppMode.provider.name);
 
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       offlineTracker: mockOfflineTracker,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -1239,6 +1253,66 @@ void _providerWorkOrdersTests() {
 
       expect(result, isA<FailureState<List<WorkOrderEntity>>>());
       expect(result.message, tMessage);
+    });
+  });
+
+  group('getWorkOrderById in provider mode', () {
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
+    final tId = tWorkOrderEntity.id;
+
+    test('fetches from remote without caching locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getWorkOrderById(tId),
+      ).thenAnswer((_) async => SuccessState(data: tWorkOrderModel));
+
+      final result = await repository.getWorkOrderById(tId);
+
+      expect(result, isA<SuccessState<WorkOrderEntity>>());
+      expect(result.data, tWorkOrderEntity);
+      verify(() => mockRemoteDataSource.getWorkOrderById(tId)).called(1);
+      verifyNever(() => mockLocalDataSource.saveWorkOrder(any()));
+    });
+
+    test('returns failure without local fallback when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.getWorkOrderById(tId);
+
+      expect(result, isA<FailureState<WorkOrderEntity>>());
+      verifyNever(() => mockLocalDataSource.getWorkOrderById(any()));
+    });
+  });
+
+  group('updateWorkOrder in provider mode', () {
+    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
+
+    test('updates remotely without saving locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.updateWorkOrder(tWorkOrderModel),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.updateWorkOrder(tWorkOrderEntity);
+
+      expect(result, const SuccessState(data: true));
+      verify(
+        () => mockRemoteDataSource.updateWorkOrder(tWorkOrderModel),
+      ).called(1);
+      verifyNever(() => mockLocalDataSource.saveWorkOrder(any()));
+      verifyNever(() => mockOfflineTracker.recordOfflineAction());
+    });
+
+    test('fails without saving locally when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.updateWorkOrder(tWorkOrderEntity);
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(() => mockLocalDataSource.saveWorkOrder(any()));
+      verifyNever(() => mockOfflineTracker.recordOfflineAction());
     });
   });
 }

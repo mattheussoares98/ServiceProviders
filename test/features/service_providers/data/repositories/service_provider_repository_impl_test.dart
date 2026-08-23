@@ -289,7 +289,7 @@ void main() {
 
   group('getServiceProviderProfilesByCompanyIds', () {
     test(
-      'should return SuccessState with domain profiles list and save to local when online call succeeds',
+      'should return SuccessState with domain profiles list when online call succeeds',
       () async {
         final tCompanyIds = ['comp-1', 'comp-2'];
         when(
@@ -314,37 +314,23 @@ void main() {
             tCompanyIds,
           ),
         ).called(1);
-        verify(
-          () =>
-              mockLocalDataSource.saveServiceProviderProfiles([tProfileModel]),
-        ).called(1);
+        verifyNever(() => mockLocalDataSource.saveServiceProviderProfiles(any()));
       },
     );
 
-    test('should fetch profiles from local fallback when offline', () async {
+    test('should return FailureState without local fallback when offline', () async {
       final tCompanyIds = ['comp-1', 'comp-2'];
       when(() => mockInternet.isConnected).thenReturn(false);
-      when(
-        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(any()),
-      ).thenAnswer((_) async => SuccessState(data: [tProfileModel]));
 
       final result = await repository.getServiceProviderProfilesByCompanyIds(
         tCompanyIds,
       );
 
-      expect(result, isA<SuccessState<List<ServiceProviderProfileEntity>>>());
-      expect(
-        (result as SuccessState<List<ServiceProviderProfileEntity>>)
-            .data!
-            .first,
-        tProfileEntity,
-      );
+      expect(result, isA<FailureState<List<ServiceProviderProfileEntity>>>());
       verifyZeroInteractions(mockRemoteDataSource);
-      verify(
-        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(
-          tCompanyIds,
-        ),
-      ).called(1);
+      verifyNever(
+        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(any()),
+      );
     });
   });
 

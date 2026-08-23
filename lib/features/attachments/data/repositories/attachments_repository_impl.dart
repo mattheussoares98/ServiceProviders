@@ -15,6 +15,8 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.da
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/value_objects/attachment_file_validator.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
@@ -26,17 +28,24 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required StorageClient storageClient,
     required AttachmentsRemoteDataSource remoteDataSource,
     required AttachmentsLocalDataSource localDataSource,
+    required SessionRepository sessionRepository,
   }) : _internet = internet,
        _fileService = fileService,
        _storageClient = storageClient,
        _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource;
+       _localDataSource = localDataSource,
+       _sessionRepository = sessionRepository;
 
   final InternetClient _internet;
   final FileService _fileService;
   final StorageClient _storageClient;
   final AttachmentsRemoteDataSource _remoteDataSource;
   final AttachmentsLocalDataSource _localDataSource;
+  final SessionRepository _sessionRepository;
+
+  bool get _isProviderMode =>
+      AppMode.fromName(_sessionRepository.getSelectedMode()) ==
+      AppMode.provider;
 
   // ──────────────────────────────────────────
   // Standard CRUD
@@ -46,50 +55,67 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   FutureList<AttachmentEntity> getAttachmentsByWorkOrder(
     String workOrderId,
   ) async {
-    // When online, sync remote attachments (from other users/devices) into the
-    // local DB so they are visible offline and to the current user.
+    if (_isProviderMode && !_internet.isConnected) {
+      return FailureState.noInternet();
+    }
+
+    List<AttachmentModel> models = [];
+
     if (_internet.isConnected) {
       final remoteResult = await _remoteDataSource.getAttachmentsByWorkOrder(
         workOrderId,
       );
-      if (remoteResult is SuccessState<List<AttachmentModel>>) {
+      if (remoteResult is! SuccessState<List<AttachmentModel>>) {
+        if (_isProviderMode) {
+          return FailureState(
+            message: (remoteResult as FailureState).message,
+            error: remoteResult.error,
+            statusCode: remoteResult.statusCode,
+            response: remoteResult.response,
+          );
+        }
+      } else {
         final remoteModels = remoteResult.data ?? <AttachmentModel>[];
-        final remoteIds = remoteModels.map((m) => m.id).toSet();
-
-        await Future.wait([
-          for (final model in remoteModels)
-            _saveRemoteModelPreservingLocalPath(model),
-        ]);
-
-        // Find and delete local attachments that were deleted remotely
-        final localResult = await _localDataSource.getAttachmentsByWorkOrder(
-          workOrderId,
-        );
-        if (localResult is SuccessState<List<AttachmentModel>>) {
-          final localModels = localResult.data ?? <AttachmentModel>[];
+        if (_isProviderMode) {
+          models = remoteModels;
+        } else {
+          final remoteIds = remoteModels.map((m) => m.id).toSet();
           await Future.wait([
-            for (final localModel in localModels)
-              if (localModel.uploadStatus == UploadStatus.uploaded &&
-                  !remoteIds.contains(localModel.id))
-                _localDataSource.deleteAttachment(localModel.id),
+            for (final model in remoteModels)
+              _saveRemoteModelPreservingLocalPath(model),
           ]);
+
+          final localResult = await _localDataSource.getAttachmentsByWorkOrder(
+            workOrderId,
+          );
+          if (localResult is SuccessState<List<AttachmentModel>>) {
+            final localModels = localResult.data ?? <AttachmentModel>[];
+            await Future.wait([
+              for (final localModel in localModels)
+                if (localModel.uploadStatus == UploadStatus.uploaded &&
+                    !remoteIds.contains(localModel.id))
+                  _localDataSource.deleteAttachment(localModel.id),
+            ]);
+          }
         }
       }
     }
 
-    final localResult = await _localDataSource.getAttachmentsByWorkOrder(
-      workOrderId,
-    );
-    if (localResult is! SuccessState<List<AttachmentModel>>) {
-      return FailureState(
-        message: (localResult as FailureState).message,
-        error: localResult.error,
-        statusCode: localResult.statusCode,
-        response: localResult.response,
+    if (!_isProviderMode) {
+      final localResult = await _localDataSource.getAttachmentsByWorkOrder(
+        workOrderId,
       );
+      if (localResult is! SuccessState<List<AttachmentModel>>) {
+        return FailureState(
+          message: (localResult as FailureState).message,
+          error: localResult.error,
+          statusCode: localResult.statusCode,
+          response: localResult.response,
+        );
+      }
+      models = localResult.data ?? <AttachmentModel>[];
     }
 
-    final models = localResult.data ?? <AttachmentModel>[];
     final entities = await Future.wait(models.map(_toEntityWithResolvedPath));
     return SuccessState(data: entities);
   }
@@ -258,11 +284,20 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   }
 
   @override
-  FutureBool createAttachment(AttachmentEntity attachment) =>
-      _localDataSource.saveAttachment(AttachmentModel.fromEntity(attachment));
+  FutureBool createAttachment(AttachmentEntity attachment) => _isProviderMode
+      ? Future.value(const SuccessState(data: true))
+      : _localDataSource.saveAttachment(
+          AttachmentModel.fromEntity(attachment),
+        );
 
   @override
   FutureBool deleteAttachment(String id) async {
+    if (_isProviderMode) {
+      if (!_internet.isConnected) {
+        return FailureState.noInternet();
+      }
+      return _remoteDataSource.deleteAttachment(id);
+    }
     try {
       final localResult = await _localDataSource.getAttachment(id);
       if (localResult is! SuccessState<AttachmentModel?>) {
@@ -343,6 +378,49 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       final localPath = attachment.localPath;
       if (localPath == null || !await _fileService.fileExists(localPath)) {
         return FailureState(message: 'Arquivo local não encontrado'.hardcoded);
+      }
+
+      if (_isProviderMode) {
+        if (!_internet.isConnected) {
+          return FailureState.noInternet();
+        }
+        final ext = _getExtension(localPath, attachment.fileName);
+        final mimeType = _fileService.getMimeType(localPath);
+        final objectKey = StorageClient.buildObjectKey(
+          companyId: attachment.companyId,
+          workOrderId: attachment.workOrderId,
+          uuid: attachment.id,
+          extension: ext,
+        );
+
+        final presignedResult = await _remoteDataSource.getPresignedUploadUrl(
+          objectKey,
+        );
+        if (presignedResult is! SuccessState<PresignedUrlResponse>) {
+          return FailureState(
+            message: (presignedResult as FailureState).message,
+          );
+        }
+        final presigned = presignedResult.data!;
+
+        final uploadResult = await _storageClient.uploadFile(
+          presignedUrl: presigned.uploadUrl,
+          filePath: localPath,
+          mimeType: mimeType,
+        );
+        if (uploadResult is! SuccessState<String>) {
+          return FailureState(message: (uploadResult as FailureState).message);
+        }
+        final remoteUrl = presigned.publicUrl;
+
+        final updated = attachment.copyWith(
+          remoteUrl: remoteUrl,
+          uploadStatus: UploadStatus.uploaded,
+        );
+
+        return _remoteDataSource.confirmUpload(
+          AttachmentModel.fromEntity(updated),
+        );
       }
 
       // Check if identical attachment already exists remotely

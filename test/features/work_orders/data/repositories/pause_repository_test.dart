@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/pause_repository_impl.dart';
@@ -11,11 +12,13 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
   late MockPauseRemoteDataSource mockRemoteDataSource;
   late MockPauseLocalDataSource mockLocalDataSource;
+  late MockSessionRepository mockSessionRepository;
   late PauseRepositoryImpl repository;
 
   setUpAll(() {
@@ -31,10 +34,16 @@ void main() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockPauseRemoteDataSource();
     mockLocalDataSource = MockPauseLocalDataSource();
+    mockSessionRepository = MockSessionRepository();
+    when(
+      () => mockSessionRepository.getSelectedMode(),
+    ).thenReturn(AppMode.internal.name);
+
     repository = PauseRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -385,5 +394,56 @@ void main() {
         ).called(1);
       },
     );
+  });
+
+  group('PauseRepository in provider mode', () {
+    setUp(() {
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.provider.name);
+    });
+
+    test('requestPause sends remotely without caching locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.requestPause(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.requestPause(tRequestEntity);
+
+      expect(result, const SuccessState(data: true));
+      verify(() => mockRemoteDataSource.requestPause(any())).called(1);
+      verifyNever(() => mockLocalDataSource.savePauseRequest(any()));
+    });
+
+    test('requestPause fails without local fallback when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.requestPause(tRequestEntity);
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(() => mockLocalDataSource.savePauseRequest(any()));
+    });
+
+    test('getPauseRequests fetches remotely without caching locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getPauseRequests(any(), status: any(named: 'status')),
+      ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
+
+      final result = await repository.getPauseRequests(tRequestEntity.workOrderId);
+
+      expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
+      verifyNever(() => mockLocalDataSource.savePauseRequest(any()));
+    });
+
+    test('getPauseRequests fails without local fallback when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.getPauseRequests(tRequestEntity.workOrderId);
+
+      expect(result, isA<FailureState<List<PauseRequestEntity>>>());
+      verifyNever(() => mockLocalDataSource.getPauseRequests(any(), status: any(named: 'status')));
+    });
   });
 }

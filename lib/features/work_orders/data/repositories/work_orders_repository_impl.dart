@@ -4,6 +4,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
@@ -27,15 +29,22 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required WorkOrdersRemoteDataSource remoteDataSource,
     required WorkOrdersLocalDataSource localDataSource,
     required OfflineTracker offlineTracker,
+    required SessionRepository sessionRepository,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
-       _offlineTracker = offlineTracker;
+       _offlineTracker = offlineTracker,
+       _sessionRepository = sessionRepository;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;
   final OfflineTracker _offlineTracker;
+  final SessionRepository _sessionRepository;
+
+  bool get _isProviderMode =>
+      AppMode.fromName(_sessionRepository.getSelectedMode()) ==
+      AppMode.provider;
 
   @override
   FutureList<WorkOrderEntity> getWorkOrders(
@@ -92,80 +101,97 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
-  FutureData<WorkOrderEntity> getWorkOrderById(String id) =>
-      RepositoryHandler.fetchWithFallbackAndMap<
-        WorkOrderModel,
-        WorkOrderEntity
-      >(
-        isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.getWorkOrderById(id),
-        remoteCallback: () => _remoteDataSource.getWorkOrderById(id),
-        onRemoteSuccess: _localDataSource.saveWorkOrder,
-      );
+  FutureData<WorkOrderEntity> getWorkOrderById(String id) {
+    final isProvider = _isProviderMode;
+    return RepositoryHandler.fetchWithFallbackAndMap<
+      WorkOrderModel,
+      WorkOrderEntity
+    >(
+      isInternetConnected: _internet.isConnected,
+      localCallback:
+          isProvider ? null : () => _localDataSource.getWorkOrderById(id),
+      remoteCallback: () => _remoteDataSource.getWorkOrderById(id),
+      onRemoteSuccess: isProvider ? null : _localDataSource.saveWorkOrder,
+    );
+  }
 
   @override
-  FutureBool createWorkOrder(WorkOrderEntity workOrder) =>
-      RepositoryHandler.fetchWithFallback<bool>(
-        isInternetConnected: _internet.isConnected,
-        localCallback: () async {
-          final result = await _localDataSource.saveWorkOrder(
-            WorkOrderModel.fromEntity(workOrder),
-          );
-          if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
-          }
-          return result;
-        },
-        remoteCallback: () async {
-          final result = await _remoteDataSource.createWorkOrder(
-            WorkOrderModel.fromEntity(workOrder),
-          );
-          if (result is SuccessState<bool> && result.data == true) {
+  FutureBool createWorkOrder(WorkOrderEntity workOrder) {
+    final isProvider = _isProviderMode;
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback:
+          isProvider
+              ? null
+              : () async {
+                final result = await _localDataSource.saveWorkOrder(
+                  WorkOrderModel.fromEntity(workOrder),
+                );
+                if (result is SuccessState<bool> && result.data == true) {
+                  _offlineTracker.recordOfflineAction();
+                }
+                return result;
+              },
+      remoteCallback: () async {
+        final result = await _remoteDataSource.createWorkOrder(
+          WorkOrderModel.fromEntity(workOrder),
+        );
+        if (result is SuccessState<bool> && result.data == true) {
+          if (!isProvider) {
             await _localDataSource.saveWorkOrder(
               WorkOrderModel.fromEntity(workOrder),
             );
-            return const SuccessState(data: true);
           }
-          return FailureState(
-            message: result.message,
-            error: result.error,
-            statusCode: result.statusCode,
-            response: result.response,
-          );
-        },
-      );
+          return const SuccessState(data: true);
+        }
+        return FailureState(
+          message: result.message,
+          error: result.error,
+          statusCode: result.statusCode,
+          response: result.response,
+        );
+      },
+    );
+  }
 
   @override
-  FutureBool updateWorkOrder(WorkOrderEntity workOrder) =>
-      RepositoryHandler.fetchWithFallback<bool>(
-        isInternetConnected: _internet.isConnected,
-        localCallback: () async {
-          final result = await _localDataSource.saveWorkOrder(
-            WorkOrderModel.fromEntity(workOrder),
-          );
-          if (result is SuccessState<bool> && result.data == true) {
-            _offlineTracker.recordOfflineAction();
-          }
-          return result;
-        },
-        remoteCallback: () async {
-          final result = await _remoteDataSource.updateWorkOrder(
-            WorkOrderModel.fromEntity(workOrder),
-          );
-          if (result is SuccessState<bool> && result.data == true) {
+  FutureBool updateWorkOrder(WorkOrderEntity workOrder) {
+    final isProvider = _isProviderMode;
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      localCallback:
+          isProvider
+              ? null
+              : () async {
+                final result = await _localDataSource.saveWorkOrder(
+                  WorkOrderModel.fromEntity(workOrder),
+                );
+                if (result is SuccessState<bool> && result.data == true) {
+                  _offlineTracker.recordOfflineAction();
+                }
+                return result;
+              },
+      remoteCallback: () async {
+        final result = await _remoteDataSource.updateWorkOrder(
+          WorkOrderModel.fromEntity(workOrder),
+        );
+        if (result is SuccessState<bool> && result.data == true) {
+          if (!isProvider) {
             await _localDataSource.saveWorkOrder(
               WorkOrderModel.fromEntity(workOrder),
             );
-            return const SuccessState(data: true);
           }
-          return FailureState(
-            message: result.message,
-            error: result.error,
-            statusCode: result.statusCode,
-            response: result.response,
-          );
-        },
-      );
+          return const SuccessState(data: true);
+        }
+        return FailureState(
+          message: result.message,
+          error: result.error,
+          statusCode: result.statusCode,
+          response: result.response,
+        );
+      },
+    );
+  }
 
   @override
   FutureBool deleteWorkOrder(String id) =>

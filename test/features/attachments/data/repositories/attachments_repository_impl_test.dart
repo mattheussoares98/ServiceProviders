@@ -13,10 +13,12 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 
 class MockFile extends Mock implements File {}
@@ -25,6 +27,7 @@ void main() {
   late MockInternetClient mockInternet;
   late MockAttachmentsRemoteDataSource mockRemoteDataSource;
   late MockAttachmentsLocalDataSource mockLocalDataSource;
+  late MockSessionRepository mockSessionRepository;
   late AttachmentsRepositoryImpl repository;
   late MockFileService fileService;
   late MockStorageClient storageClient;
@@ -40,14 +43,20 @@ void main() {
     mockInternet = MockInternetClient();
     mockRemoteDataSource = MockAttachmentsRemoteDataSource();
     mockLocalDataSource = MockAttachmentsLocalDataSource();
+    mockSessionRepository = MockSessionRepository();
     fileService = MockFileService();
     storageClient = MockStorageClient();
+    when(
+      () => mockSessionRepository.getSelectedMode(),
+    ).thenReturn(AppMode.internal.name);
+
     repository = AttachmentsRepositoryImpl(
       internet: mockInternet,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       fileService: fileService,
       storageClient: storageClient,
+      sessionRepository: mockSessionRepository,
     );
     when(() => fileService.resolveSandboxPath(any())).thenAnswer((inv) async {
       final path = inv.positionalArguments[0] as String?;
@@ -1305,6 +1314,62 @@ void main() {
           ).called(1);
         },
       );
+    });
+  });
+
+  group('AttachmentsRepository in provider mode', () {
+    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tModel = AttachmentModel.fromEntity(tAttachment);
+
+    setUp(() {
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.provider.name);
+    });
+
+    test('getAttachmentsByWorkOrder fetches remotely without saving locally', () async {
+      when(() => mockInternet.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getAttachmentsByWorkOrder(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tModel]));
+
+      final result = await repository.getAttachmentsByWorkOrder(tAttachment.workOrderId);
+
+      expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+      verify(() => mockRemoteDataSource.getAttachmentsByWorkOrder(tAttachment.workOrderId)).called(1);
+      verifyNever(() => mockLocalDataSource.saveAttachment(any()));
+    });
+
+    test('getAttachmentsByWorkOrder returns failure without local fallback when offline', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
+
+      final result = await repository.getAttachmentsByWorkOrder(tAttachment.workOrderId);
+
+      expect(result, isA<FailureState<List<AttachmentEntity>>>());
+      verifyNever(() => mockLocalDataSource.getAttachmentsByWorkOrder(any()));
+    });
+
+    test('deleteAttachment deletes remotely without local interaction in provider mode', () async {
+      when(() => mockInternet.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.deleteAttachment(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.deleteAttachment(tAttachment.id);
+
+      expect(result, const SuccessState(data: true));
+      verify(() => mockRemoteDataSource.deleteAttachment(tAttachment.id)).called(1);
+      verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
+    });
+
+    test('deleteAttachment returns failure when offline in provider mode', () async {
+      when(() => mockInternet.isConnected).thenReturn(false);
+
+      final result = await repository.deleteAttachment(tAttachment.id);
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
+      verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
     });
   });
 }

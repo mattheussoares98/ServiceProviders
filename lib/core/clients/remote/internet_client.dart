@@ -45,6 +45,8 @@ final class InternetClientImpl implements InternetClient {
     _connectivityStream ??= _internetConnection.onStatusChange
         .asBroadcastStream();
 
+    _connection = await checkConnection();
+
     /// Listen to internet status changes
     _subscription ??= _connectivityStream?.listen((status) {
       _connection = status == InternetStatus.connected;

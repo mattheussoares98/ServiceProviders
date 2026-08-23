@@ -44,6 +44,23 @@ void main() {
   });
 
   group('subscribeConnectivity', () {
+    test('initializes _connection with checkConnection() result', () async {
+      final controller = StreamController<InternetStatus>.broadcast();
+      when(
+        () => mockInternetConnection.onStatusChange,
+      ).thenAnswer((_) => controller.stream);
+      when(
+        () => mockInternetConnection.hasInternetAccess,
+      ).thenAnswer((_) async => false);
+
+      await internetClient.subscribeConnectivity();
+
+      expect(internetClient.isConnected, false);
+      verify(() => mockInternetConnection.hasInternetAccess).called(1);
+
+      await controller.close();
+    });
+
     test('updates _connection on status change', () async {
       // Arrange: Create a stream controller for InternetStatus
       final controller = StreamController<InternetStatus>.broadcast();

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/work_order_observations_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
@@ -8,11 +9,13 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrderObservationsRemoteDataSource mockRemoteDataSource;
   late MockWorkOrderObservationsLocalDataSource mockLocalDataSource;
+  late MockSessionRepository mockSessionRepository;
   late WorkOrderObservationsRepositoryImpl repository;
 
   setUpAll(() {
@@ -28,10 +31,16 @@ void main() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrderObservationsRemoteDataSource();
     mockLocalDataSource = MockWorkOrderObservationsLocalDataSource();
+    mockSessionRepository = MockSessionRepository();
+    when(
+      () => mockSessionRepository.getSelectedMode(),
+    ).thenReturn(AppMode.internal.name);
+
     repository = WorkOrderObservationsRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -186,5 +195,57 @@ void main() {
         verifyZeroInteractions(mockLocalDataSource);
       },
     );
+  });
+
+  group('WorkOrderObservationsRepository in provider mode', () {
+    setUp(() {
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.provider.name);
+    });
+
+    test('getObservations fetches remotely without saving locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getObservations(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
+
+      final result = await repository.getObservations(tObservationEntity.workOrderId);
+
+      expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
+      verify(() => mockRemoteDataSource.getObservations(tObservationEntity.workOrderId)).called(1);
+      verifyNever(() => mockLocalDataSource.saveObservations(any()));
+    });
+
+    test('getObservations returns failure without local fallback when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.getObservations(tObservationEntity.workOrderId);
+
+      expect(result, isA<FailureState<List<WorkOrderObservationEntity>>>());
+      verifyNever(() => mockLocalDataSource.getObservations(any()));
+    });
+
+    test('createObservation posts remotely without saving locally', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.createObservation(any()),
+      ).thenAnswer((_) async => SuccessState(data: tObservationModel));
+
+      final result = await repository.createObservation(tObservationEntity);
+
+      expect(result, isA<SuccessState<WorkOrderObservationEntity>>());
+      verify(() => mockRemoteDataSource.createObservation(tObservationModel)).called(1);
+      verifyNever(() => mockLocalDataSource.saveObservation(any()));
+    });
+
+    test('createObservation fails without saving locally when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+
+      final result = await repository.createObservation(tObservationEntity);
+
+      expect(result, isA<FailureState<WorkOrderObservationEntity>>());
+      verifyNever(() => mockLocalDataSource.saveObservation(any()));
+    });
   });
 }

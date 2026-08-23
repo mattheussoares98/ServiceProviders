@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:o_jogo_da_obra/config/injector/injector.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/initializations/notifications_service.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
@@ -24,6 +25,8 @@ abstract final class AppInitializer {
 
       await Future.wait([_initFirebase(), _initSupabase()]);
       await configureDependencies(environment: environment);
+
+      await InternetUtil.I.subscribeConnectivity();
 
       final sessionRepo = GetIt.I<SessionRepository>();
       await sessionRepo.checkForUserCredential();

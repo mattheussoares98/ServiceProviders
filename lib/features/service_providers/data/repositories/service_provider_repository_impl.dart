@@ -145,9 +145,8 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
         isInternetConnected: _internet.isConnected,
         remoteCallback: () => _remoteDataSource
             .getServiceProviderProfilesByCompanyIds(serviceProviderCompanyIds),
-        localCallback: () => _localDataSource
-            .getServiceProviderProfilesByCompanyIds(serviceProviderCompanyIds),
-        onRemoteSuccess: _localDataSource.saveServiceProviderProfiles,
+        // Online-only: these profiles belong to other contracting companies, so
+        // they must not be cached into the internal-mode Drift scope (V2 §1.4).
       );
 
   @override
