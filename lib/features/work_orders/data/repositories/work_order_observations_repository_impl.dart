@@ -1,15 +1,23 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_order_observations_repository.dart';
+import 'package:uuid/uuid.dart';
 
 @LazySingleton(as: WorkOrderObservationsRepository)
 final class WorkOrderObservationsRepositoryImpl
@@ -19,15 +27,21 @@ final class WorkOrderObservationsRepositoryImpl
     required WorkOrderObservationsRemoteDataSource remoteDataSource,
     required WorkOrderObservationsLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
+    required SyncRepository syncRepository,
+    required OfflineTracker offlineTracker,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
-       _sessionRepository = sessionRepository;
+       _sessionRepository = sessionRepository,
+       _syncRepository = syncRepository,
+       _offlineTracker = offlineTracker;
 
   final InternetClient _internet;
   final WorkOrderObservationsRemoteDataSource _remoteDataSource;
   final WorkOrderObservationsLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
+  final SyncRepository _syncRepository;
+  final OfflineTracker _offlineTracker;
 
   bool get _isProviderMode =>
       AppMode.fromName(_sessionRepository.getSelectedMode()) ==
@@ -42,7 +56,9 @@ final class WorkOrderObservationsRepositoryImpl
     >(
       isInternetConnected: _internet.isConnected,
       localCallback:
-          isProvider ? null : () => _localDataSource.getObservations(workOrderId),
+          isProvider
+              ? null
+              : () => _localDataSource.getObservations(workOrderId),
       remoteCallback: () => _remoteDataSource.getObservations(workOrderId),
       onRemoteSuccess:
           isProvider
@@ -79,6 +95,21 @@ final class WorkOrderObservationsRepositoryImpl
               : () async {
                 final result = await _localDataSource.saveObservation(model);
                 if (result is SuccessState) {
+                  _offlineTracker.recordOfflineAction();
+                  await _syncRepository.enqueue(
+                    SyncQueueItemEntity(
+                      id: const Uuid().v4(),
+                      companyId: observation.companyId,
+                      userProfileId:
+                          observation.authorId ??
+                          _sessionRepository.userData.user.id,
+                      entityType: SyncEntityType.observation,
+                      entityId: observation.id,
+                      operation: SyncOperationType.create,
+                      payload: jsonEncode(model.toJson()),
+                      createdAt: DateTime.now(),
+                    ),
+                  );
                   return SuccessState(data: model);
                 }
                 return FailureState(message: (result as FailureState).message);
@@ -102,7 +133,29 @@ final class WorkOrderObservationsRepositoryImpl
       localCallback:
           isProvider
               ? null
-              : () => _localDataSource.deleteObservation(observationId),
+              : () async {
+                final result = await _localDataSource.deleteObservation(
+                  observationId,
+                );
+                if (result is SuccessState && result.data == true) {
+                  _offlineTracker.recordOfflineAction();
+                  final companyId =
+                      _sessionRepository.getSelectedCompanyId() ?? '';
+                  final userId = _sessionRepository.userData.user.id;
+                  await _syncRepository.enqueue(
+                    SyncQueueItemEntity(
+                      id: const Uuid().v4(),
+                      companyId: companyId,
+                      userProfileId: userId,
+                      entityType: SyncEntityType.observation,
+                      entityId: observationId,
+                      operation: SyncOperationType.delete,
+                      createdAt: DateTime.now(),
+                    ),
+                  );
+                }
+                return result;
+              },
     );
   }
 }

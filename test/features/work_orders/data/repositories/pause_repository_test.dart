@@ -19,9 +19,12 @@ void main() {
   late MockPauseRemoteDataSource mockRemoteDataSource;
   late MockPauseLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
+  late MockSyncRepository mockSyncRepository;
+  late MockOfflineTracker mockOfflineTracker;
   late PauseRepositoryImpl repository;
 
   setUpAll(() {
+    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
     registerFallbackValue(
       PauseReasonModel.fromEntity(EntityFactory.makePauseReasonEntity()),
     );
@@ -35,15 +38,29 @@ void main() {
     mockRemoteDataSource = MockPauseRemoteDataSource();
     mockLocalDataSource = MockPauseLocalDataSource();
     mockSessionRepository = MockSessionRepository();
+    mockSyncRepository = MockSyncRepository();
+    mockOfflineTracker = MockOfflineTracker();
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn('company-1');
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(EntityFactory.makeUserDataEntity());
+    when(
+      () => mockSyncRepository.enqueue(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
 
     repository = PauseRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
+      syncRepository: mockSyncRepository,
+      offlineTracker: mockOfflineTracker,
     );
   });
 

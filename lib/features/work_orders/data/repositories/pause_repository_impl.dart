@@ -1,10 +1,17 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
@@ -14,6 +21,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
+import 'package:uuid/uuid.dart';
 
 @LazySingleton(as: PauseRepository)
 final class PauseRepositoryImpl implements PauseRepository {
@@ -22,15 +30,21 @@ final class PauseRepositoryImpl implements PauseRepository {
     required PauseRemoteDataSource remoteDataSource,
     required PauseLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
+    required SyncRepository syncRepository,
+    required OfflineTracker offlineTracker,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
-       _sessionRepository = sessionRepository;
+       _sessionRepository = sessionRepository,
+       _syncRepository = syncRepository,
+       _offlineTracker = offlineTracker;
 
   final InternetClient _internet;
   final PauseRemoteDataSource _remoteDataSource;
   final PauseLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
+  final SyncRepository _syncRepository;
+  final OfflineTracker _offlineTracker;
 
   bool get _isProviderMode =>
       AppMode.fromName(_sessionRepository.getSelectedMode()) ==
@@ -102,9 +116,32 @@ final class PauseRepositoryImpl implements PauseRepository {
       localCallback:
           isProvider
               ? null
-              : () => _localDataSource.savePauseRequest(
-                PauseRequestModel.fromEntity(pauseRequest),
-              ),
+              : () async {
+                final model = PauseRequestModel.fromEntity(pauseRequest);
+                final result = await _localDataSource.savePauseRequest(model);
+                if (result is SuccessState<bool> && result.data == true) {
+                  _offlineTracker.recordOfflineAction();
+                  final companyId =
+                      _sessionRepository.getSelectedCompanyId() ?? '';
+                  final userId =
+                      _sessionRepository.userData.user.id.isNotEmpty
+                          ? _sessionRepository.userData.user.id
+                          : (pauseRequest.requestedById ?? '');
+                  await _syncRepository.enqueue(
+                    SyncQueueItemEntity(
+                      id: const Uuid().v4(),
+                      companyId: companyId,
+                      userProfileId: userId,
+                      entityType: SyncEntityType.pauseRequest,
+                      entityId: pauseRequest.id,
+                      operation: SyncOperationType.create,
+                      payload: jsonEncode(model.toJson()),
+                      createdAt: DateTime.now(),
+                    ),
+                  );
+                }
+                return result;
+              },
       remoteCallback: () async {
         final result = await _remoteDataSource.requestPause(
           PauseRequestModel.fromEntity(pauseRequest),

@@ -30,9 +30,11 @@ void main() {
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockOfflineTracker mockOfflineTracker;
   late MockSessionRepository mockSessionRepository;
+  late MockSyncRepository mockSyncRepository;
   late WorkOrdersRepositoryImpl repository;
 
   setUpAll(() {
+    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
     registerFallbackValue(
       WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
@@ -68,11 +70,21 @@ void main() {
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockOfflineTracker = MockOfflineTracker();
     mockSessionRepository = MockSessionRepository();
+    mockSyncRepository = MockSyncRepository();
     when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
     when(() => mockOfflineTracker.reset()).thenReturn(null);
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(EntityFactory.makeUserDataEntity());
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn(faker.guid.guid());
+    when(
+      () => mockSyncRepository.enqueue(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
@@ -80,6 +92,7 @@ void main() {
       localDataSource: mockLocalDataSource,
       offlineTracker: mockOfflineTracker,
       sessionRepository: mockSessionRepository,
+      syncRepository: mockSyncRepository,
     );
   });
 
@@ -1135,6 +1148,7 @@ void _providerWorkOrdersTests() {
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockOfflineTracker mockOfflineTracker;
   late MockSessionRepository mockSessionRepository;
+  late MockSyncRepository mockSyncRepository;
   late WorkOrdersRepositoryImpl repository;
 
   setUp(() {
@@ -1143,6 +1157,7 @@ void _providerWorkOrdersTests() {
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockOfflineTracker = MockOfflineTracker();
     mockSessionRepository = MockSessionRepository();
+    mockSyncRepository = MockSyncRepository();
     when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
     when(() => mockOfflineTracker.reset()).thenReturn(null);
     when(
@@ -1155,6 +1170,7 @@ void _providerWorkOrdersTests() {
       localDataSource: mockLocalDataSource,
       offlineTracker: mockOfflineTracker,
       sessionRepository: mockSessionRepository,
+      syncRepository: mockSyncRepository,
     );
   });
 

@@ -16,9 +16,12 @@ void main() {
   late MockWorkOrderObservationsRemoteDataSource mockRemoteDataSource;
   late MockWorkOrderObservationsLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
+  late MockSyncRepository mockSyncRepository;
+  late MockOfflineTracker mockOfflineTracker;
   late WorkOrderObservationsRepositoryImpl repository;
 
   setUpAll(() {
+    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
     registerFallbackValue(EntityFactory.makeWorkOrderObservationEntity());
     registerFallbackValue(
       WorkOrderObservationModel.fromEntity(
@@ -32,15 +35,29 @@ void main() {
     mockRemoteDataSource = MockWorkOrderObservationsRemoteDataSource();
     mockLocalDataSource = MockWorkOrderObservationsLocalDataSource();
     mockSessionRepository = MockSessionRepository();
+    mockSyncRepository = MockSyncRepository();
+    mockOfflineTracker = MockOfflineTracker();
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(EntityFactory.makeUserDataEntity());
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn('company-1');
+    when(
+      () => mockSyncRepository.enqueue(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(() => mockOfflineTracker.recordOfflineAction()).thenReturn(false);
 
     repository = WorkOrderObservationsRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
+      syncRepository: mockSyncRepository,
+      offlineTracker: mockOfflineTracker,
     );
   });
 
