@@ -57,28 +57,23 @@ codebase. It is **pull-only and on-demand**:
 
 It covers **work orders only**. No other feature has a sync path.
 
-### Bidirectional Sync Engine — `[NOT IMPLEMENTED]`
+### Outbound Synchronization Engine — Implemented
 
-The intended design is a background synchronizer that pushes local events
-(inserts, updates, soft deletes) to Supabase through a First-In, First-Out queue
-and pulls remote changes. The `sync_audit_logs` table exists in the Drift schema
-to back this, but **no code reads or writes it**. Nothing below in
-"Handling Closed Work Orders" that depends on outbound sync is active yet.
+The background synchronizer pushes local mutations (inserts, updates, pause/resume, observations, tasks) to Supabase through a **First-In, First-Out (FIFO) queue** backed by Drift's `sync_audit_logs` table.
+
+For full architectural details, retry strategies, and conflict preservation rules, see **[`docs/cmms/sync_engine.md`](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/cmms/sync_engine.md)**.
 
 ## What Can Be Done Offline?
 
-Not everything should be editable offline. Allowing unrestricted offline edits creates difficult conflict resolution problems. Here is the strategy:
+Offline mutations are stored locally and enqueued for outbound sync upon reconnect:
 
 | Operation | Offline? | Rule |
 |---|---|---|
-| **Create** a work order | ⚠️ Writes locally | UUID generated locally. **Never reaches the server** — outbound sync is not implemented. |
-| **Edit** an open work order **you created** | ⚠️ Writes locally | Safe because you own it, but the edit stays on-device. |
-| **Edit** an open work order **someone else created** | ⚠️ Writes locally | Intended to become a change request on sync; that redirection is server-side and is only reached by online writes today. |
-
-> [!NOTE]
-> Every row above is marked ⚠️ rather than ✅ because the write succeeds locally
-> but has no path to Supabase. This table becomes accurate once the outbound
-> sync queue is built.
+| **Create** a work order | ✅ Fully supported | UUID generated locally, saved in Drift, enqueued in `sync_audit_logs`. |
+| **Edit** an open work order **you created** | ✅ Fully supported | Updates Drift immediately, enqueued as `update` operation. |
+| **Edit** an open work order **someone else created** | ✅ Fully supported | Redirected via server triggers if closed; otherwise updates smoothly. |
+| **Checklist Tasks & Observations** | ✅ Fully supported | Saved locally and replayed remotely in FIFO order. |
+| **Attachments** | ✅ Fully supported | Cached in local sandbox, uploaded to Cloudflare R2 on reconnect. |
 
 ## Handling Closed Work Orders (Change Requests)
 
