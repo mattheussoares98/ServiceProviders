@@ -9,6 +9,10 @@ abstract interface class SyncRepository {
   FutureBool markItemFailed(String id, String error);
   FutureBool markItemDeadLetter(String id, String error);
   FutureVoid cancelPendingForEntity(String entityId, String reason);
+  Stream<List<SyncQueueItemEntity>> watchDeadLetterItemsForEntity(
+    String entityId,
+  );
+  FutureBool retryDeadLetterForEntity(String entityId);
   FutureBool removeQueueItem(String id);
   FutureData<int> getPendingCount();
   FutureBool reportSyncError(SyncErrorEntity error);

@@ -147,6 +147,39 @@ void main() {
       });
     });
 
+    group('watchDeadLetterItemsForEntity', () {
+      test('should return mapped stream from localDataSource', () async {
+        when(
+          () => mockLocalDataSource.watchDeadLetterItemsForEntity(any()),
+        ).thenAnswer((_) => Stream.value([tQueueItemModel]));
+
+        final stream = repository.watchDeadLetterItemsForEntity('wo-1');
+        final items = await stream.first;
+
+        expect(items.length, equals(1));
+        expect(items.first.id, equals(tQueueItemEntity.id));
+        verify(
+          () => mockLocalDataSource.watchDeadLetterItemsForEntity('wo-1'),
+        ).called(1);
+      });
+    });
+
+    group('retryDeadLetterForEntity', () {
+      test('should delegate to localDataSource.retryDeadLetterForEntity', () async {
+        when(
+          () => mockLocalDataSource.retryDeadLetterForEntity(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.retryDeadLetterForEntity('wo-1');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(
+          () => mockLocalDataSource.retryDeadLetterForEntity('wo-1'),
+        ).called(1);
+      });
+    });
+
     group('removeQueueItem', () {
       test('should call localDataSource.removeQueueItem', () async {
         when(

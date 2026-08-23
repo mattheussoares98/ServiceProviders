@@ -53,6 +53,18 @@ final class SyncRepositoryImpl implements SyncRepository {
       _localDataSource.cancelPendingForEntity(entityId, reason);
 
   @override
+  Stream<List<SyncQueueItemEntity>> watchDeadLetterItemsForEntity(
+    String entityId,
+  ) =>
+      _localDataSource
+          .watchDeadLetterItemsForEntity(entityId)
+          .map((items) => items.map((e) => e.toEntity()).toList());
+
+  @override
+  FutureBool retryDeadLetterForEntity(String entityId) =>
+      _localDataSource.retryDeadLetterForEntity(entityId);
+
+  @override
   FutureBool removeQueueItem(String id) =>
       _localDataSource.removeQueueItem(id);
 
