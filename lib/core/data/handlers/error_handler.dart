@@ -107,13 +107,18 @@ abstract final class ErrorHandler {
       _debugError(error, stackTrace);
 
       final errorStr = error.toString();
-      final message =
-          (errorStr.toLowerCase().contains('unique constraint failed') ||
-              errorStr.contains('code 2067'))
-          ? 'Já existe um registro com esses dados.'.hardcoded
-          : errorStr;
 
-      return FailureState<T>(message: message, error: errorStr);
+      String? message;
+      if (errorStr.toLowerCase().contains('unique constraint failed') ||
+          errorStr.contains('code 2067')) {
+        message = 'Já existe um registro com esses dados.'.hardcoded;
+      } else if (errorStr.toLowerCase().contains('failed host')) {
+        message =
+            'Não foi possível conectar com o servidor. Verifique se a sua internet está funcionando e tente novamente'
+                .hardcoded;
+      }
+
+      return FailureState<T>(message: message ?? errorStr, error: errorStr);
     }
   }
 
