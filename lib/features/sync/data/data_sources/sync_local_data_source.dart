@@ -14,6 +14,8 @@ abstract interface class SyncLocalDataSource {
   FutureList<SyncQueueItemModel> getPendingItems({int limit = 50});
   FutureBool markItemSyncing(String id);
   FutureBool markItemFailed(String id, String error);
+  FutureBool markItemDeadLetter(String id, String error);
+  FutureVoid cancelPendingForEntity(String entityId, String reason);
   FutureBool removeQueueItem(String id);
   FutureData<int> getPendingCount();
   Stream<int> watchPendingCount();
@@ -56,8 +58,10 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
             _database.select(_database.syncAuditLogs)
               ..where(
                 (t) =>
-                    t.status.equals(SyncStatus.pending.code) |
-                    t.status.equals(SyncStatus.syncing.code),
+                    (t.status.equals(SyncStatus.pending.code) |
+                        t.status.equals(SyncStatus.syncing.code) |
+                        t.status.equals(SyncStatus.failed.code)) &
+                    t.attempts.isSmallerThanValue(3),
               )
               ..orderBy([(t) => OrderingTerm.asc(t.createdAt)])
               ..limit(limit);
@@ -117,6 +121,52 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
       });
 
   @override
+  FutureBool markItemDeadLetter(String id, String error) =>
+      ErrorHandler.execute(() async {
+        final count =
+            await (_database.update(_database.syncAuditLogs)
+                  ..where((t) => t.id.equals(id)))
+                .write(
+                  SyncAuditLogsCompanion(
+                    status: Value(SyncStatus.deadLetter.code),
+                    lastError: Value(error),
+                  ),
+                );
+        return SuccessState(data: count > 0);
+      });
+
+  @override
+  FutureVoid cancelPendingForEntity(String entityId, String reason) =>
+      ErrorHandler.execute(() async {
+        final allPending =
+            await (_database.select(_database.syncAuditLogs)
+                  ..where(
+                    (t) =>
+                        t.status.equals(SyncStatus.pending.code) |
+                        t.status.equals(SyncStatus.syncing.code) |
+                        t.status.equals(SyncStatus.failed.code),
+                  ))
+                .get();
+
+        for (final row in allPending) {
+          final isTargetEntity =
+              row.entityId == entityId ||
+              (row.payload != null && row.payload!.contains(entityId));
+          if (isTargetEntity) {
+            await (_database.update(_database.syncAuditLogs)
+                  ..where((t) => t.id.equals(row.id)))
+                .write(
+                  SyncAuditLogsCompanion(
+                    status: Value(SyncStatus.deadLetter.code),
+                    lastError: Value(reason),
+                  ),
+                );
+          }
+        }
+        return SuccessState.nil;
+      });
+
+  @override
   FutureBool removeQueueItem(String id) => ErrorHandler.execute(() async {
     final count =
         await (_database.delete(
@@ -132,8 +182,14 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
         _database.selectOnly(_database.syncAuditLogs)
           ..addColumns([countExp])
           ..where(
-            _database.syncAuditLogs.status.equals(SyncStatus.pending.code) |
-                _database.syncAuditLogs.status.equals(SyncStatus.syncing.code),
+            (_database.syncAuditLogs.status.equals(SyncStatus.pending.code) |
+                    _database.syncAuditLogs.status.equals(
+                      SyncStatus.syncing.code,
+                    ) |
+                    _database.syncAuditLogs.status.equals(
+                      SyncStatus.failed.code,
+                    )) &
+                _database.syncAuditLogs.attempts.isSmallerThanValue(3),
           );
 
     final result = await query.map((row) => row.read(countExp)).getSingle();
@@ -147,8 +203,14 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
         _database.selectOnly(_database.syncAuditLogs)
           ..addColumns([countExp])
           ..where(
-            _database.syncAuditLogs.status.equals(SyncStatus.pending.code) |
-                _database.syncAuditLogs.status.equals(SyncStatus.syncing.code),
+            (_database.syncAuditLogs.status.equals(SyncStatus.pending.code) |
+                    _database.syncAuditLogs.status.equals(
+                      SyncStatus.syncing.code,
+                    ) |
+                    _database.syncAuditLogs.status.equals(
+                      SyncStatus.failed.code,
+                    )) &
+                _database.syncAuditLogs.attempts.isSmallerThanValue(3),
           );
 
     return query.watchSingle().map((row) => row.read(countExp) ?? 0);

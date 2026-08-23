@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sync/data/models/sync_queue_item_model.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -148,6 +149,74 @@ void main() {
       await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity));
       final countResult = await dataSource.getPendingCount();
       expect(countResult.data, equals(1));
+    });
+
+    test('should mark an item as deadLetter', () async {
+      final tEntity = EntityFactory.makeSyncQueueItemEntity();
+      await insertTestPrerequisites(
+        companyId: tEntity.companyId,
+        userProfileId: tEntity.userProfileId,
+      );
+
+      await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity));
+      final markResult = await dataSource.markItemDeadLetter(
+        tEntity.id,
+        'Permanent error',
+      );
+      expect(markResult, isA<SuccessState<bool>>());
+      expect(markResult.data, isTrue);
+
+      final query =
+          database.select(database.syncAuditLogs)
+            ..where((t) => t.id.equals(tEntity.id));
+      final row = await query.getSingle();
+      expect(row.status, equals(SyncStatus.deadLetter.code));
+      expect(row.lastError, equals('Permanent error'));
+
+      // Pending count should be 0 because deadLetter is excluded
+      final countResult = await dataSource.getPendingCount();
+      expect(countResult.data, equals(0));
+    });
+
+    test('should cancel all pending items for an entity with cancelPendingForEntity', () async {
+      final tEntity1 = EntityFactory.makeSyncQueueItemEntity().copyWith(
+        entityId: 'wo-100',
+        operation: SyncOperationType.create,
+      );
+      final tEntity2 = EntityFactory.makeSyncQueueItemEntity().copyWith(
+        companyId: tEntity1.companyId,
+        userProfileId: tEntity1.userProfileId,
+        entityId: 'wo-100',
+        operation: SyncOperationType.update,
+      );
+      final tEntityChild = EntityFactory.makeSyncQueueItemEntity().copyWith(
+        companyId: tEntity1.companyId,
+        userProfileId: tEntity1.userProfileId,
+        entityId: 'obs-1',
+        payload: '{"workOrderId": "wo-100", "content": "note"}',
+      );
+
+      await insertTestPrerequisites(
+        companyId: tEntity1.companyId,
+        userProfileId: tEntity1.userProfileId,
+      );
+
+      await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity1));
+      await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntity2));
+      await dataSource.enqueue(SyncQueueItemModel.fromEntity(tEntityChild));
+
+      final cancelResult = await dataSource.cancelPendingForEntity(
+        'wo-100',
+        'Parent creation failed',
+      );
+      expect(cancelResult, isA<SuccessState<void>>());
+
+      final allRows = await database.select(database.syncAuditLogs).get();
+      expect(allRows.length, equals(3));
+      for (final row in allRows) {
+        expect(row.status, equals(SyncStatus.deadLetter.code));
+        expect(row.lastError, equals('Parent creation failed'));
+      }
     });
 
     test('should emit updated pending counts from watchPendingCount stream', () async {
