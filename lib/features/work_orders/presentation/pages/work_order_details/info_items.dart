@@ -22,6 +22,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_approval_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_execution_timer_card.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_sync_error_banner.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -84,6 +85,7 @@ class InfoItems extends StatelessWidget {
           );
 
     final items = [
+      WorkOrderSyncErrorBanner(workOrder: workOrder),
       if (canManagePendingRequests)
         BlocSelector<
           PauseWorkflowCubit,
