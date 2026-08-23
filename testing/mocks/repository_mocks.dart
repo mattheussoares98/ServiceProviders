@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/repositories/ma
 import 'package:o_jogo_da_obra/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/repositories/service_provider_repository.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/repositories/sla_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
@@ -51,3 +52,6 @@ class MockPauseRepository extends Mock implements PauseRepository {}
 
 class MockNotificationsRepository extends Mock
     implements NotificationsRepository {}
+
+class MockSyncRepository extends Mock implements SyncRepository {}
+

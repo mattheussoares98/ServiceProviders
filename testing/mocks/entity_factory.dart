@@ -31,6 +31,10 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_error_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
@@ -767,6 +771,52 @@ abstract final class EntityFactory {
       makeDeviceTokenEntity(),
       makeDeviceTokenEntity(),
       makeDeviceTokenEntity(),
+    ];
+  }
+
+  // Sync Queue Item
+  static SyncQueueItemEntity makeSyncQueueItemEntity() {
+    return SyncQueueItemEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      userProfileId: _makeId(),
+      entityType: SyncEntityType.workOrder,
+      entityId: _makeId(),
+      operation: SyncOperationType.create,
+      payload: '{"title": "Test Work Order"}',
+      createdAt: _makeDateTime(),
+    );
+  }
+
+  static List<SyncQueueItemEntity> makeSyncQueueItemEntityList() {
+    return [
+      makeSyncQueueItemEntity(),
+      makeSyncQueueItemEntity(),
+      makeSyncQueueItemEntity(),
+    ];
+  }
+
+  // Sync Error
+  static SyncErrorEntity makeSyncErrorEntity() {
+    return SyncErrorEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      userId: _makeId(),
+      entityType: SyncEntityType.workOrder,
+      entityId: _makeId(),
+      operation: SyncOperationType.create,
+      payload: '{"title": "Test Work Order"}',
+      errorType: 'ConstraintViolation',
+      errorMessage: _makePhrase(),
+      createdAt: _makeDateTime(),
+    );
+  }
+
+  static List<SyncErrorEntity> makeSyncErrorEntityList() {
+    return [
+      makeSyncErrorEntity(),
+      makeSyncErrorEntity(),
+      makeSyncErrorEntity(),
     ];
   }
 }

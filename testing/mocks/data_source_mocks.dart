@@ -23,6 +23,8 @@ import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/serv
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
@@ -119,3 +121,8 @@ class MockWorkOrderObservationsRemoteDataSource extends Mock
 
 class MockWorkOrderObservationsLocalDataSource extends Mock
     implements WorkOrderObservationsLocalDataSource {}
+
+class MockSyncLocalDataSource extends Mock implements SyncLocalDataSource {}
+
+class MockSyncRemoteDataSource extends Mock implements SyncRemoteDataSource {}
+
