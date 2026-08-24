@@ -17,6 +17,8 @@ import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachme
 import 'package:o_jogo_da_obra/features/attachments/domain/value_objects/attachment_file_validator.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
@@ -29,12 +31,14 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required AttachmentsRemoteDataSource remoteDataSource,
     required AttachmentsLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
+    required CompanyRepository companyRepository,
   }) : _internet = internet,
        _fileService = fileService,
        _storageClient = storageClient,
        _remoteDataSource = remoteDataSource,
        _localDataSource = localDataSource,
-       _sessionRepository = sessionRepository;
+       _sessionRepository = sessionRepository,
+       _companyRepository = companyRepository;
 
   final InternetClient _internet;
   final FileService _fileService;
@@ -42,6 +46,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   final AttachmentsRemoteDataSource _remoteDataSource;
   final AttachmentsLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
+  final CompanyRepository _companyRepository;
 
   bool get _isProviderMode =>
       AppMode.fromName(_sessionRepository.getSelectedMode()) ==
@@ -214,8 +219,20 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       final sizeResult = await getSandboxSizeBytes();
       if (sizeResult is! SuccessState<int>) return SuccessState.nil;
 
+      int quotaBytes = kSandboxQuotaBytes;
+      final activeCompanyId = _sessionRepository.getSelectedCompanyId();
+      if (activeCompanyId != null && activeCompanyId.isNotEmpty) {
+        final paramsResult = await _companyRepository.getCompanyParameters(
+          activeCompanyId,
+        );
+        if (paramsResult is SuccessState<CompanyParameterEntity> &&
+            paramsResult.data != null) {
+          quotaBytes = paramsResult.data!.sandboxQuotaBytes;
+        }
+      }
+
       int currentSize = sizeResult.data ?? 0;
-      if (currentSize <= kSandboxQuotaBytes) {
+      if (currentSize <= quotaBytes) {
         return SuccessState.nil;
       }
 
@@ -227,7 +244,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
       final candidates = listResult.data ?? [];
       for (final candidate in candidates) {
-        if (currentSize <= kSandboxQuotaBytes) break;
+        if (currentSize <= quotaBytes) break;
 
         final localPath = candidate.localPath;
         if (localPath != null && localPath.isNotEmpty) {
@@ -251,6 +268,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       return FailureState(message: e.toString());
     }
   }
+
 
   @override
   FutureVoid clearLocalAttachments() async {
@@ -552,7 +570,19 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     final fileType = FileType.fromExtension(ext);
     final originalSize = await _fileService.getFileSizeBytes(originalPath);
 
-    final validation = AttachmentFileValidator.validate(ext, originalSize);
+    final paramsResult = await _companyRepository.getCompanyParameters(
+      companyId,
+    );
+    final parameters =
+        paramsResult is SuccessState<CompanyParameterEntity>
+            ? paramsResult.data
+            : null;
+
+    final validation = AttachmentFileValidator.validate(
+      ext,
+      originalSize,
+      parameters: parameters,
+    );
     if (validation is AttachmentInvalidType) {
       return FailureState(message: 'Tipo de arquivo não suportado: .$ext');
     }

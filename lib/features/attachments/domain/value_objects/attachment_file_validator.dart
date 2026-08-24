@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 
 /// Result type returned by [AttachmentFileValidator.validate].
 sealed class AttachmentValidationResult {
@@ -33,14 +34,13 @@ final class AttachmentInvalidType extends AttachmentValidationResult {
 /// Size limits are checked against the **original** file before any compression.
 /// Compression is applied afterwards only for images and videos.
 abstract final class AttachmentFileValidator {
-  // Original-file size limits (before compression).
-  static const _maxImageBytes =
+  // Default fallback original-file size limits (before compression).
+  static const _defaultImageBytes =
       (kIsWeb ? 2 : 20) * 1024 * 1024; // 2MB web && 20MB mobile
-  static const _maxVideoBytes =
+  static const _defaultVideoBytes =
       (kIsWeb ? 10 : 500) * 1024 * 1024; // 10MB web && 500MB mobile
-  //! only compres on mobile device. This is why mobile values are bigger
-  static const _maxPdfBytes = 10 * 1024 * 1024; // 10 MB
-  static const _maxDocumentBytes = 5 * 1024 * 1024; //  5 MB
+  static const _defaultPdfBytes = 10 * 1024 * 1024; // 10 MB
+  static const _defaultDocumentBytes = 5 * 1024 * 1024; // 5 MB
 
   static const _allowedExtensions = {
     'jpg', 'jpeg', 'png', 'webp', 'heic', // images
@@ -52,10 +52,17 @@ abstract final class AttachmentFileValidator {
 
   /// Validates [extension] (without leading dot) and [sizeBytes].
   ///
+  /// If [parameters] is provided, uses its configured limits; otherwise
+  /// falls back to defaults.
+  ///
   /// Returns [AttachmentValid] when both are within bounds,
   /// [AttachmentInvalidType] for unsupported extensions, or
   /// [AttachmentInvalidSize] when the file exceeds the type limit.
-  static AttachmentValidationResult validate(String extension, int sizeBytes) {
+  static AttachmentValidationResult validate(
+    String extension,
+    int sizeBytes, {
+    CompanyParameterEntity? parameters,
+  }) {
     final ext = extension.toLowerCase();
 
     if (!_allowedExtensions.contains(ext)) {
@@ -63,10 +70,17 @@ abstract final class AttachmentFileValidator {
     }
 
     final maxBytes = switch (ext) {
-      'pdf' => _maxPdfBytes,
-      'docx' || 'xlsx' => _maxDocumentBytes,
-      'mp4' || 'mov' => _maxVideoBytes,
-      _ => _maxImageBytes,
+      'pdf' => parameters?.maxPdfSizeBytes ?? _defaultPdfBytes,
+      'docx' || 'xlsx' =>
+        parameters?.maxDocumentSizeBytes ?? _defaultDocumentBytes,
+      'mp4' || 'mov' =>
+        kIsWeb
+            ? (10 * 1024 * 1024)
+            : (parameters?.maxVideoSizeBytes ?? _defaultVideoBytes),
+      _ =>
+        kIsWeb
+            ? (2 * 1024 * 1024)
+            : (parameters?.maxImageSizeBytes ?? _defaultImageBytes),
     };
 
     if (sizeBytes > maxBytes) {
@@ -76,3 +90,4 @@ abstract final class AttachmentFileValidator {
     return const AttachmentValid();
   }
 }
+
