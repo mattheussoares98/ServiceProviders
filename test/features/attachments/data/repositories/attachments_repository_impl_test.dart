@@ -28,6 +28,7 @@ void main() {
   late MockAttachmentsRemoteDataSource mockRemoteDataSource;
   late MockAttachmentsLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
+  late MockCompanyRepository mockCompanyRepository;
   late AttachmentsRepositoryImpl repository;
   late MockFileService fileService;
   late MockStorageClient storageClient;
@@ -44,11 +45,18 @@ void main() {
     mockRemoteDataSource = MockAttachmentsRemoteDataSource();
     mockLocalDataSource = MockAttachmentsLocalDataSource();
     mockSessionRepository = MockSessionRepository();
+    mockCompanyRepository = MockCompanyRepository();
     fileService = MockFileService();
     storageClient = MockStorageClient();
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn('');
+    when(
+      () => mockCompanyRepository.getCompanyParameters(any()),
+    ).thenAnswer((_) async => FailureState(message: 'none'));
 
     repository = AttachmentsRepositoryImpl(
       internet: mockInternet,
@@ -57,6 +65,7 @@ void main() {
       fileService: fileService,
       storageClient: storageClient,
       sessionRepository: mockSessionRepository,
+      companyRepository: mockCompanyRepository,
     );
     when(() => fileService.resolveSandboxPath(any())).thenAnswer((inv) async {
       final path = inv.positionalArguments[0] as String?;

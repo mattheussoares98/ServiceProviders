@@ -4,8 +4,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/requests/company_parameter_request_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/requests/company_request_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -27,6 +29,15 @@ void main() {
   final tCompanyEntity = EntityFactory.makeCompanyEntity();
   final tRequest = CompanyRequestModel.fromEntity(tCompanyEntity);
   final tResponse = CompanyModel.fromEntity(tCompanyEntity);
+
+  final tCompanyParameterEntity = EntityFactory.makeCompanyParameterEntity()
+      .copyWith(companyId: tCompanyEntity.id);
+  final tParameterRequest = CompanyParameterRequestModel.fromEntity(
+    tCompanyParameterEntity,
+  );
+  final tParameterResponse = CompanyParameterModel.fromEntity(
+    tCompanyParameterEntity,
+  );
 
   group('CompanyRemoteDataSourceImpl', () {
     group('createCompany', () {
@@ -102,7 +113,7 @@ void main() {
 
         expect(result, isA<FailureState<CompanyModel>>());
         final failure = result as FailureState<CompanyModel>;
-        expect(failure.message, 'Empresa não encontrada');
+        expect(failure.message, contains('Empresa não encontrada'));
       });
 
       test('should return FailureState when selectOne throws', () async {
@@ -119,5 +130,107 @@ void main() {
         expect(result, isA<FailureState<CompanyModel>>());
       });
     });
+
+    group('getCompanyParameters', () {
+      test('should return SuccessState when parameters are found', () async {
+        final companyId = tCompanyEntity.id;
+        when(
+          () => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => tParameterResponse.toJson());
+
+        final result = await dataSource.getCompanyParameters(companyId);
+
+        expect(result, isA<SuccessState<CompanyParameterModel>>());
+        expect(result.data, tParameterResponse);
+        verify(
+          () => mockDatabase.selectOne(
+            table: 'company_parameters',
+            filters: [
+              SupabaseFilter.eq('company_id', companyId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
+      });
+
+      test('should return FailureState when parameters are null', () async {
+        final companyId = tCompanyEntity.id;
+        when(
+          () => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        final result = await dataSource.getCompanyParameters(companyId);
+
+        expect(result, isA<FailureState<CompanyParameterModel>>());
+        final failure = result as FailureState<CompanyParameterModel>;
+        expect(failure.message, contains('Parâmetros da empresa não encontrados'));
+      });
+
+      test('should return FailureState when selectOne throws', () async {
+        final companyId = tCompanyEntity.id;
+        when(
+          () => mockDatabase.selectOne(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('database error'));
+
+        final result = await dataSource.getCompanyParameters(companyId);
+
+        expect(result, isA<FailureState<CompanyParameterModel>>());
+      });
+    });
+
+    group('saveCompanyParameters', () {
+      test(
+        'should upsert parameters and return SuccessState<CompanyParameterModel>',
+        () async {
+          when(
+            () => mockDatabase.upsert(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+              onConflict: any(named: 'onConflict'),
+            ),
+          ).thenAnswer((_) async => [tParameterResponse.toJson()]);
+
+          final result = await dataSource.saveCompanyParameters(
+            tParameterRequest,
+          );
+
+          expect(result, isA<SuccessState<CompanyParameterModel>>());
+          expect(result.data, tParameterResponse);
+          verify(
+            () => mockDatabase.upsert(
+              table: 'company_parameters',
+              values: tParameterRequest.toJson(),
+              onConflict: 'company_id',
+            ),
+          ).called(1);
+        },
+      );
+
+      test('should return FailureState when upsert throws', () async {
+        when(
+          () => mockDatabase.upsert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            onConflict: any(named: 'onConflict'),
+          ),
+        ).thenThrow(Exception('upsert failed'));
+
+        final result = await dataSource.saveCompanyParameters(
+          tParameterRequest,
+        );
+
+        expect(result, isA<FailureState<CompanyParameterModel>>());
+      });
+    });
   });
 }
+

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/value_objects/attachment_file_validator.dart';
 
+import '../../../../../testing/mocks/entity_factory.dart';
+
 void main() {
   group('AttachmentFileValidator.validate', () {
     test(
@@ -86,5 +88,34 @@ void main() {
       expect((result as AttachmentInvalidSize).maxBytes, maxBytes);
       expect(result.actualBytes, maxBytes + 1);
     });
+
+    test('should respect custom limits from CompanyParameterEntity', () {
+      final customParams = EntityFactory.makeCompanyParameterEntity().copyWith(
+        maxImageSizeMb: 50,
+        maxVideoSizeMb: 1000,
+        maxPdfSizeMb: 30,
+        maxDocumentSizeMb: 15,
+      );
+
+      // Under default (20MB) would fail, but under custom (50MB) succeeds
+      expect(
+        AttachmentFileValidator.validate(
+          'jpg',
+          35 * 1024 * 1024,
+          parameters: customParams,
+        ),
+        isA<AttachmentValid>(),
+      );
+
+      // Exceeds custom limit (50MB) fails
+      final result = AttachmentFileValidator.validate(
+        'jpg',
+        51 * 1024 * 1024,
+        parameters: customParams,
+      );
+      expect(result, isA<AttachmentInvalidSize>());
+      expect((result as AttachmentInvalidSize).maxBytes, 50 * 1024 * 1024);
+    });
   });
 }
+

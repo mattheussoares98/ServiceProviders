@@ -226,5 +226,75 @@ void main() {
         expect(tracker.offlineSince, isNull);
       },
     );
+
+    test('dynamically updates limits when company parameters change in database', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      tracker.init();
+
+      // Insert company & custom parameters in DB: max 3 pending requests
+      await database.into(database.companies).insert(
+        CompaniesCompanion(
+          id: const Value('c-custom'),
+          name: const Value('Custom Co'),
+          isActive: const Value(true),
+          createdAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      await database.into(database.companyParameters).insert(
+        CompanyParametersCompanion(
+          id: const Value('cp-1'),
+          companyId: const Value('c-custom'),
+          maxOfflinePendingRequests: const Value(3),
+          maxOfflineDurationHours: const Value(1),
+          offlineAlertThrottleFrequency: const Value(2),
+          createdAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      await pumpEventQueue();
+
+      final events = <OfflineAdvisoryEvent>[];
+      final sub = tracker.alertStream.listen(events.add);
+
+      // Insert 2 items: below custom limit (3)
+      for (var i = 1; i <= 2; i++) {
+        await database.into(database.syncAuditLogs).insert(
+          SyncAuditLogsCompanion(
+            id: Value('custom-$i'),
+            companyId: const Value('c-custom'),
+            userProfileId: const Value('u-1'),
+            entityType: const Value('work_order'),
+            entityId: Value('wo-$i'),
+            operation: const Value('create'),
+            payload: const Value('{}'),
+            status: const Value('pending'),
+          ),
+        );
+      }
+      await pumpEventQueue();
+      expect(events, isEmpty);
+
+      // Insert 3rd item: hits custom limit of 3
+      await database.into(database.syncAuditLogs).insert(
+        const SyncAuditLogsCompanion(
+          id: Value('custom-3'),
+          companyId: Value('c-custom'),
+          userProfileId: Value('u-1'),
+          entityType: Value('work_order'),
+          entityId: Value('wo-3'),
+          operation: Value('create'),
+          payload: Value('{}'),
+          status: Value('pending'),
+        ),
+      );
+      await pumpEventQueue();
+
+      expect(events.length, equals(1));
+      expect(events.first.hasBreachedRequests, isTrue);
+
+      await sub.cancel();
+    });
   });
 }
+

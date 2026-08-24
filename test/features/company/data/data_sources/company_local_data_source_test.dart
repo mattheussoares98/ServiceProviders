@@ -1,11 +1,12 @@
 import 'package:drift/native.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
+
+import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -20,24 +21,13 @@ void main() {
     await database.close();
   });
 
-  final tCompanyId = faker.guid.guid();
-  final tCompanyModel = CompanyModel(
-    id: tCompanyId,
-    name: faker.company.name(),
-    cnpj: '12345678000199', // CNPJ is a validated format
-    logoUrl: faker.internet.httpsUrl(),
-    isActive: true,
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
-  );
+  final tCompanyEntity = EntityFactory.makeCompanyEntity();
+  final tCompanyModel = CompanyModel.fromEntity(tCompanyEntity);
 
-  final tCompanyParameterModel = CompanyParameterModel(
-    id: faker.guid.guid(),
-    companyId: tCompanyId,
-    maxOfflineDurationHours: faker.randomGenerator.integer(24, min: 1),
-    maxOfflinePendingRequests: faker.randomGenerator.integer(50, min: 5),
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
+  final tCompanyParameterEntity = EntityFactory.makeCompanyParameterEntity()
+      .copyWith(companyId: tCompanyModel.id);
+  final tCompanyParameterModel = CompanyParameterModel.fromEntity(
+    tCompanyParameterEntity,
   );
 
   group('CompanyLocalDataSourceImpl', () {
@@ -103,6 +93,38 @@ void main() {
             getResult.data!.maxOfflinePendingRequests,
             tCompanyParameterModel.maxOfflinePendingRequests,
           );
+          expect(
+            getResult.data!.offlineAlertThrottleFrequency,
+            tCompanyParameterModel.offlineAlertThrottleFrequency,
+          );
+          expect(
+            getResult.data!.maxImageSizeMb,
+            tCompanyParameterModel.maxImageSizeMb,
+          );
+          expect(
+            getResult.data!.maxVideoSizeMb,
+            tCompanyParameterModel.maxVideoSizeMb,
+          );
+          expect(
+            getResult.data!.maxPdfSizeMb,
+            tCompanyParameterModel.maxPdfSizeMb,
+          );
+          expect(
+            getResult.data!.maxDocumentSizeMb,
+            tCompanyParameterModel.maxDocumentSizeMb,
+          );
+          expect(
+            getResult.data!.sandboxQuotaMb,
+            tCompanyParameterModel.sandboxQuotaMb,
+          );
+          expect(
+            getResult.data!.maxSyncAttempts,
+            tCompanyParameterModel.maxSyncAttempts,
+          );
+          expect(
+            getResult.data!.inviteExpiryHours,
+            tCompanyParameterModel.inviteExpiryHours,
+          );
         },
       );
 
@@ -118,3 +140,4 @@ void main() {
     });
   });
 }
+
