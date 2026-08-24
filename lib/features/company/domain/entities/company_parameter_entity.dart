@@ -6,6 +6,14 @@ class CompanyParameterEntity extends Equatable {
     required this.companyId,
     required this.maxOfflineDurationHours,
     required this.maxOfflinePendingRequests,
+    required this.offlineAlertThrottleFrequency,
+    required this.maxImageSizeMb,
+    required this.maxVideoSizeMb,
+    required this.maxPdfSizeMb,
+    required this.maxDocumentSizeMb,
+    required this.sandboxQuotaMb,
+    required this.maxSyncAttempts,
+    required this.inviteExpiryHours,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -15,9 +23,63 @@ class CompanyParameterEntity extends Equatable {
   final String companyId;
   final int maxOfflineDurationHours;
   final int maxOfflinePendingRequests;
+  final int offlineAlertThrottleFrequency;
+  final int maxImageSizeMb;
+  final int maxVideoSizeMb;
+  final int maxPdfSizeMb;
+  final int maxDocumentSizeMb;
+  final int sandboxQuotaMb;
+  final int maxSyncAttempts;
+  final int inviteExpiryHours;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+
+  int get maxImageSizeBytes => maxImageSizeMb * 1024 * 1024;
+  int get maxVideoSizeBytes => maxVideoSizeMb * 1024 * 1024;
+  int get maxPdfSizeBytes => maxPdfSizeMb * 1024 * 1024;
+  int get maxDocumentSizeBytes => maxDocumentSizeMb * 1024 * 1024;
+  int get sandboxQuotaBytes => sandboxQuotaMb * 1024 * 1024;
+
+  CompanyParameterEntity copyWith({
+    String? id,
+    String? companyId,
+    int? maxOfflineDurationHours,
+    int? maxOfflinePendingRequests,
+    int? offlineAlertThrottleFrequency,
+    int? maxImageSizeMb,
+    int? maxVideoSizeMb,
+    int? maxPdfSizeMb,
+    int? maxDocumentSizeMb,
+    int? sandboxQuotaMb,
+    int? maxSyncAttempts,
+    int? inviteExpiryHours,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+    bool? annulDeletedAt,
+  }) {
+    return CompanyParameterEntity(
+      id: id ?? this.id,
+      companyId: companyId ?? this.companyId,
+      maxOfflineDurationHours:
+          maxOfflineDurationHours ?? this.maxOfflineDurationHours,
+      maxOfflinePendingRequests:
+          maxOfflinePendingRequests ?? this.maxOfflinePendingRequests,
+      offlineAlertThrottleFrequency:
+          offlineAlertThrottleFrequency ?? this.offlineAlertThrottleFrequency,
+      maxImageSizeMb: maxImageSizeMb ?? this.maxImageSizeMb,
+      maxVideoSizeMb: maxVideoSizeMb ?? this.maxVideoSizeMb,
+      maxPdfSizeMb: maxPdfSizeMb ?? this.maxPdfSizeMb,
+      maxDocumentSizeMb: maxDocumentSizeMb ?? this.maxDocumentSizeMb,
+      sandboxQuotaMb: sandboxQuotaMb ?? this.sandboxQuotaMb,
+      maxSyncAttempts: maxSyncAttempts ?? this.maxSyncAttempts,
+      inviteExpiryHours: inviteExpiryHours ?? this.inviteExpiryHours,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -25,6 +87,14 @@ class CompanyParameterEntity extends Equatable {
     companyId,
     maxOfflineDurationHours,
     maxOfflinePendingRequests,
+    offlineAlertThrottleFrequency,
+    maxImageSizeMb,
+    maxVideoSizeMb,
+    maxPdfSizeMb,
+    maxDocumentSizeMb,
+    sandboxQuotaMb,
+    maxSyncAttempts,
+    inviteExpiryHours,
     createdAt,
     updatedAt,
     deletedAt,
