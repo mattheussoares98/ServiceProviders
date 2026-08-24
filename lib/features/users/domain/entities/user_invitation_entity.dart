@@ -22,16 +22,19 @@ class UserInvitationEntity extends Equatable {
   /// Null when the token has not been sent yet (rare edge case).
   final DateTime? confirmationSentAt;
 
-  /// Returns true when the invite link is older than 24 hours (Supabase default).
-  /// Update this constant if the OTP expiry is changed in the Supabase dashboard.
-  static const int _inviteExpiryHours = 24;
+  /// Default invite expiry hours if not specified by company parameters.
+  static const int kDefaultInviteExpiryHours = 24;
 
-  bool get isExpired {
+  /// Returns true when the invite link is older than [expiryHours] (default: 24 hours).
+  bool isExpiredByHours({int expiryHours = kDefaultInviteExpiryHours}) {
     final sentAt = confirmationSentAt;
     if (sentAt == null) return false;
     return DateTime.now().toUtc().difference(sentAt.toUtc()).inHours >=
-        _inviteExpiryHours;
+        expiryHours;
   }
+
+  /// Returns true when the invite link is older than 24 hours (Supabase default).
+  bool get isExpired => isExpiredByHours();
 
   UserInvitationEntity copyWith({
     String? id,

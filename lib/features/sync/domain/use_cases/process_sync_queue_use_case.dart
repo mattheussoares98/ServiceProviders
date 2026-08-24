@@ -5,6 +5,9 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_error_entity.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
@@ -27,17 +30,23 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     required WorkOrderObservationsRemoteDataSource observationsRemoteDataSource,
     required PauseRemoteDataSource pauseRemoteDataSource,
     required InternetClient internet,
+    required SessionRepository sessionRepository,
+    required CompanyRepository companyRepository,
   }) : _syncRepository = syncRepository,
        _workOrdersRemoteDataSource = workOrdersRemoteDataSource,
        _observationsRemoteDataSource = observationsRemoteDataSource,
        _pauseRemoteDataSource = pauseRemoteDataSource,
-       _internet = internet;
+       _internet = internet,
+       _sessionRepository = sessionRepository,
+       _companyRepository = companyRepository;
 
   final SyncRepository _syncRepository;
   final WorkOrdersRemoteDataSource _workOrdersRemoteDataSource;
   final WorkOrderObservationsRemoteDataSource _observationsRemoteDataSource;
   final PauseRemoteDataSource _pauseRemoteDataSource;
   final InternetClient _internet;
+  final SessionRepository _sessionRepository;
+  final CompanyRepository _companyRepository;
 
   static const int kMaxSyncAttempts = 3;
 
@@ -59,6 +68,18 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     final items = pendingResult.data ?? [];
     if (items.isEmpty) {
       return const SuccessState(data: 0);
+    }
+
+    int maxSyncAttempts = kMaxSyncAttempts;
+    final activeCompanyId = _sessionRepository.getSelectedCompanyId();
+    if (activeCompanyId != null && activeCompanyId.isNotEmpty) {
+      final paramsResult = await _companyRepository.getCompanyParameters(
+        activeCompanyId,
+      );
+      if (paramsResult is SuccessState<CompanyParameterEntity> &&
+          paramsResult.data != null) {
+        maxSyncAttempts = paramsResult.data!.maxSyncAttempts;
+      }
     }
 
     int processedCount = 0;
@@ -89,7 +110,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
             failure.statusCode == 404 ||
             failure.statusCode == 409 ||
             failure.statusCode == 422 ||
-            currentAttempts >= kMaxSyncAttempts;
+            currentAttempts >= maxSyncAttempts;
 
         if (isPermanentError) {
           await _syncRepository.markItemDeadLetter(item.id, errorMsg);

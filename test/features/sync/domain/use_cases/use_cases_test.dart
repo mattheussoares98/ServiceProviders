@@ -20,6 +20,8 @@ void main() {
   late MockWorkOrderObservationsRemoteDataSource mockObservationsRemoteDataSource;
   late MockPauseRemoteDataSource mockPauseRemoteDataSource;
   late MockInternetClient mockInternet;
+  late MockSessionRepository mockSessionRepository;
+  late MockCompanyRepository mockCompanyRepository;
 
   late EnqueueSyncItemUseCase enqueueUseCase;
   late GetPendingSyncCountUseCase getPendingCountUseCase;
@@ -28,6 +30,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
     registerFallbackValue(EntityFactory.makeSyncErrorEntity());
+    registerFallbackValue(EntityFactory.makeCompanyParameterEntity());
     registerFallbackValue(
       WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
     );
@@ -45,6 +48,10 @@ void main() {
         MockWorkOrderObservationsRemoteDataSource();
     mockPauseRemoteDataSource = MockPauseRemoteDataSource();
     mockInternet = MockInternetClient();
+    mockSessionRepository = MockSessionRepository();
+    mockCompanyRepository = MockCompanyRepository();
+
+    when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn(null);
 
     enqueueUseCase = EnqueueSyncItemUseCase(repository: mockSyncRepository);
     getPendingCountUseCase = GetPendingSyncCountUseCase(
@@ -56,6 +63,8 @@ void main() {
       observationsRemoteDataSource: mockObservationsRemoteDataSource,
       pauseRemoteDataSource: mockPauseRemoteDataSource,
       internet: mockInternet,
+      sessionRepository: mockSessionRepository,
+      companyRepository: mockCompanyRepository,
     );
   });
 
@@ -197,6 +206,53 @@ void main() {
           (_) async => FailureState(
             message: '503 Service Unavailable',
             statusCode: 503,
+          ),
+        );
+        when(
+          () => mockSyncRepository.markItemFailed(any(), any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockSyncRepository.reportSyncError(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await processSyncQueueUseCase();
+
+        expect(result, isA<SuccessState<int>>());
+        expect(result.data, equals(0));
+        verify(() => mockSyncRepository.markItemFailed(tItem.id, any())).called(1);
+        verifyNever(() => mockSyncRepository.markItemDeadLetter(any(), any()));
+      });
+
+      test('should respect dynamic maxSyncAttempts from CompanyParameterEntity', () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn('comp-123');
+        when(() => mockCompanyRepository.getCompanyParameters('comp-123')).thenAnswer(
+          (_) async => SuccessState(
+            data: EntityFactory.makeCompanyParameterEntity().copyWith(
+              maxSyncAttempts: 5,
+            ),
+          ),
+        );
+
+        final tItem = tQueueItem.copyWith(
+          attempts: 3,
+          entityType: SyncEntityType.workOrder,
+          operation: SyncOperationType.update,
+          payload: '{"id": "wo-1", "title": "Updated"}',
+        );
+
+        when(
+          () => mockSyncRepository.getPendingItems(),
+        ).thenAnswer((_) async => SuccessState(data: [tItem]));
+        when(
+          () => mockSyncRepository.markItemSyncing(tItem.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+        ).thenAnswer(
+          (_) async => FailureState(
+            message: '500 Internal Server Error',
+            statusCode: 500,
           ),
         );
         when(
