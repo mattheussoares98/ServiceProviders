@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ite
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/entities/configurations_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -350,6 +351,34 @@ abstract final class EntityFactory {
       updatedAt: _makeDateTime(),
       deletedAt: null,
     );
+  }
+
+  static CompanyParameterEntity makeCompanyParameterEntity() {
+    return CompanyParameterEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      maxOfflineDurationHours: 2,
+      maxOfflinePendingRequests: 10,
+      offlineAlertThrottleFrequency: 3,
+      maxImageSizeMb: 20,
+      maxVideoSizeMb: 500,
+      maxPdfSizeMb: 10,
+      maxDocumentSizeMb: 5,
+      sandboxQuotaMb: 1024,
+      maxSyncAttempts: 3,
+      inviteExpiryHours: 24,
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+      deletedAt: null,
+    );
+  }
+
+  static List<CompanyParameterEntity> makeCompanyParameterEntityList() {
+    return [
+      makeCompanyParameterEntity(),
+      makeCompanyParameterEntity(),
+      makeCompanyParameterEntity(),
+    ];
   }
 
   // UserProfile
