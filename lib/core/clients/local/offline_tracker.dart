@@ -55,10 +55,15 @@ final class OfflineTrackerImpl implements OfflineTracker {
   final _alertController = StreamController<OfflineAdvisoryEvent>.broadcast();
   StreamSubscription<InternetStatus>? _connectivitySubscription;
   StreamSubscription<int>? _dbSubscription;
+  StreamSubscription<CompanyParameter?>? _paramsSubscription;
 
   DateTime? _offlineSince;
   int _offlineMutationCount = 0;
   int _lastAlertMutationCount = 0;
+
+  int _maxOfflineDurationHours = kMaxOfflineDurationHours;
+  int _maxOfflinePendingRequests = kMaxOfflinePendingRequests;
+  int _offlineAlertThrottleFrequency = kOfflineAlertThrottleFrequency;
 
   @override
   Stream<OfflineAdvisoryEvent> get alertStream => _alertController.stream;
@@ -84,11 +89,11 @@ final class OfflineTrackerImpl implements OfflineTracker {
   @override
   bool get hasBreachedDuration =>
       _offlineSince != null &&
-      offlineDuration.inHours >= kMaxOfflineDurationHours;
+      offlineDuration.inHours >= _maxOfflineDurationHours;
 
   @override
   bool get hasBreachedRequests =>
-      _offlineMutationCount >= kMaxOfflinePendingRequests;
+      _offlineMutationCount >= _maxOfflinePendingRequests;
 
   @override
   bool get isThresholdBreached => hasBreachedDuration || hasBreachedRequests;
@@ -98,6 +103,18 @@ final class OfflineTrackerImpl implements OfflineTracker {
     if (isOffline && _offlineSince == null) {
       _offlineSince = DateTime.now();
     }
+
+    _paramsSubscription = _database
+        .select(_database.companyParameters)
+        .watchSingleOrNull()
+        .listen((params) {
+          if (params != null) {
+            _maxOfflineDurationHours = params.maxOfflineDurationHours;
+            _maxOfflinePendingRequests = params.maxOfflinePendingRequests;
+            _offlineAlertThrottleFrequency =
+                params.offlineAlertThrottleFrequency;
+          }
+        });
 
     _connectivitySubscription = _internetClient.connectivityStream?.listen((
       status,
@@ -139,7 +156,7 @@ final class OfflineTrackerImpl implements OfflineTracker {
           _lastAlertMutationCount = _offlineMutationCount;
           _emitAlert(OfflineAdvisoryTrigger.action);
         } else if ((_offlineMutationCount - _lastAlertMutationCount) >=
-            kOfflineAlertThrottleFrequency) {
+            _offlineAlertThrottleFrequency) {
           _lastAlertMutationCount = _offlineMutationCount;
           _emitAlert(OfflineAdvisoryTrigger.action);
         }
@@ -151,6 +168,7 @@ final class OfflineTrackerImpl implements OfflineTracker {
   void dispose() {
     _connectivitySubscription?.cancel();
     _dbSubscription?.cancel();
+    _paramsSubscription?.cancel();
     _alertController.close();
   }
 
@@ -190,3 +208,4 @@ final class OfflineTrackerImpl implements OfflineTracker {
     _lastAlertMutationCount = 0;
   }
 }
+
