@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/company/data/data_sources/company_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/company/data/data_sources/company_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/company/data/models/requests/company_parameter_request_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/requests/company_request_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
@@ -72,18 +73,36 @@ final class CompanyRepositoryImpl implements CompanyRepository {
 
   @override
   FutureData<CompanyParameterEntity> getCompanyParameters(String companyId) =>
-      RepositoryHandler.fetchFromLocalAndMap<
+      RepositoryHandler.fetchWithFallbackAndMap<
         CompanyParameterModel,
         CompanyParameterEntity
-      >(localCallback: () => _localDataSource.getCompanyParameters(companyId));
+      >(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getCompanyParameters(companyId),
+        localCallback: () => _localDataSource.getCompanyParameters(companyId),
+        onRemoteSuccess: _localDataSource.saveCompanyParameters,
+      );
 
   @override
   FutureBool saveCompany(CompanyEntity company) =>
       _localDataSource.saveCompany(CompanyModel.fromEntity(company));
 
   @override
-  FutureBool saveCompanyParameters(CompanyParameterEntity parameters) =>
-      _localDataSource.saveCompanyParameters(
-        CompanyParameterModel.fromEntity(parameters),
+  FutureBool saveCompanyParameters(CompanyParameterEntity parameters) async {
+    final model = CompanyParameterModel.fromEntity(parameters);
+    final requestModel = CompanyParameterRequestModel.fromEntity(parameters);
+    if (_internet.isConnected) {
+      final remoteResult = await _remoteDataSource.saveCompanyParameters(
+        requestModel,
       );
+      if (remoteResult is FailureState<CompanyParameterModel>) {
+        return FailureState(
+          message: remoteResult.message,
+          error: remoteResult.error,
+        );
+      }
+    }
+    return _localDataSource.saveCompanyParameters(model);
+  }
 }
+
