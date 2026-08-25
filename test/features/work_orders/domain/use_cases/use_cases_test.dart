@@ -7,6 +7,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
@@ -25,6 +27,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/kpi_period.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -53,6 +56,7 @@ void main() {
   late CancelPauseUseCase cancelPauseUseCase;
   late RequestCompletionUseCase requestCompletionUseCase;
   late ReviewCompletionUseCase reviewCompletionUseCase;
+  late CalculateWorkOrderKpisUseCase calculateWorkOrderKpisUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
@@ -151,6 +155,7 @@ void main() {
     reviewCompletionUseCase = ReviewCompletionUseCase(
       pauseRepository: mockPauseRepository,
     );
+    calculateWorkOrderKpisUseCase = const CalculateWorkOrderKpisUseCase();
   });
 
   group('CreateWorkOrderChangeRequestUseCase', () {
@@ -816,6 +821,142 @@ void main() {
       verify(
         () => mockRepository.watchRealtimeWorkOrders(companyId: 'company-123'),
       ).called(1);
+    });
+  });
+
+  group('CalculateWorkOrderKpisUseCase', () {
+    final now = DateTime(2026, 8, 25, 12, 0);
+
+    test('returns empty metrics when work order list is empty', () {
+      final result = calculateWorkOrderKpisUseCase(
+        const CalculateWorkOrderKpisParams(
+          workOrders: [],
+          period: KpiPeriod.allTime,
+        ),
+      );
+
+      expect(result.totalWorkOrders, 0);
+      expect(result.completedCount, 0);
+      expect(result.deliveryRate, 0.0);
+      expect(result.breachRate, 0.0);
+      expect(result.mttrMinutes, 0.0);
+    });
+
+    test('calculates counts, delivery rate, breach rate, and MTTR correctly', () {
+      final onTimeCompletedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+        createdAt: now.subtract(const Duration(days: 2)),
+        startedAt: now.subtract(const Duration(hours: 4)),
+        completedAt: now.subtract(const Duration(hours: 2)),
+        slaDeadlineAt: now.subtract(const Duration(hours: 1)),
+        slaBreached: false,
+        netActiveDuration: 120,
+      );
+
+      final breachedCompletedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+        createdAt: now.subtract(const Duration(days: 3)),
+        startedAt: now.subtract(const Duration(hours: 8)),
+        completedAt: now.subtract(const Duration(hours: 2)),
+        slaDeadlineAt: now.subtract(const Duration(hours: 5)),
+        slaBreached: true,
+        netActiveDuration: 360,
+      );
+
+      final openDelayedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.open,
+        createdAt: now.subtract(const Duration(days: 1)),
+        slaDeadlineAt: now.subtract(const Duration(hours: 2)),
+      );
+
+      final inProgressOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.inProgress,
+        createdAt: now.subtract(const Duration(days: 1)),
+        slaDeadlineAt: now.add(const Duration(hours: 2)),
+      );
+
+      final pendingApprovalOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.pendingConclusionApproval,
+        createdAt: now.subtract(const Duration(days: 1)),
+        slaDeadlineAt: now.add(const Duration(hours: 4)),
+      );
+
+      final workOrders = [
+        onTimeCompletedOrder,
+        breachedCompletedOrder,
+        openDelayedOrder,
+        inProgressOrder,
+        pendingApprovalOrder,
+      ];
+
+      final result = calculateWorkOrderKpisUseCase(
+        CalculateWorkOrderKpisParams(
+          workOrders: workOrders,
+          period: KpiPeriod.allTime,
+          referenceDate: now,
+        ),
+      );
+
+      expect(result.totalWorkOrders, 5);
+      expect(result.completedCount, 2);
+      expect(result.completedWithinSlaCount, 1);
+      expect(result.slaBreachedCount, 1);
+      expect(result.deliveryRate, 50.0);
+      expect(result.breachRate, 50.0);
+      expect(result.mttrMinutes, 240.0); // (120 + 360) / 2
+      expect(result.openCount, 1);
+      expect(result.inProgressCount, 1);
+      expect(result.pendingApprovalCount, 1);
+      expect(result.delayedCount, 1);
+    });
+
+    test('filters work orders according to KpiPeriod', () {
+      final recentOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+        createdAt: now.subtract(const Duration(days: 2)),
+        startedAt: now.subtract(const Duration(days: 2, hours: 2)),
+        completedAt: now.subtract(const Duration(days: 2)),
+        slaDeadlineAt: now.subtract(const Duration(days: 1)),
+        slaBreached: false,
+        netActiveDuration: 60,
+      );
+
+      final oldOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+        createdAt: now.subtract(const Duration(days: 40)),
+        completedAt: now.subtract(const Duration(days: 40)),
+        slaBreached: true,
+        netActiveDuration: 180,
+      );
+
+      final workOrders = [recentOrder, oldOrder];
+
+      final resultLast7Days = calculateWorkOrderKpisUseCase(
+        CalculateWorkOrderKpisParams(
+          workOrders: workOrders,
+          period: KpiPeriod.last7Days,
+          referenceDate: now,
+        ),
+      );
+
+      expect(resultLast7Days.totalWorkOrders, 1);
+      expect(resultLast7Days.completedCount, 1);
+      expect(resultLast7Days.completedWithinSlaCount, 1);
+      expect(resultLast7Days.deliveryRate, 100.0);
+      expect(resultLast7Days.breachRate, 0.0);
+      expect(resultLast7Days.mttrMinutes, 60.0);
+
+      final resultAllTime = calculateWorkOrderKpisUseCase(
+        CalculateWorkOrderKpisParams(
+          workOrders: workOrders,
+          period: KpiPeriod.allTime,
+          referenceDate: now,
+        ),
+      );
+
+      expect(resultAllTime.totalWorkOrders, 2);
+      expect(resultAllTime.completedCount, 2);
+      expect(resultAllTime.deliveryRate, 50.0);
     });
   });
 }
