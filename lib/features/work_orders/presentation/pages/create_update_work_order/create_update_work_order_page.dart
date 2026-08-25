@@ -346,6 +346,11 @@ class _CreateUpdatePage extends HookWidget {
             ? (val) {
                 selectedServiceProviderCompanyId.value = val;
                 selectedProviderProfileId.value = null;
+                if (val != null) {
+                  context.read<ServiceProvidersCubit>().ensureProfilesLoaded(
+                    val,
+                  );
+                }
               }
             : null,
       ),

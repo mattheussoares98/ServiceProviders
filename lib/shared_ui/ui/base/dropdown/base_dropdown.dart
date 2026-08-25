@@ -219,12 +219,16 @@ class BaseDropDown<T> extends StatelessWidget {
 
     final bool isDropdownEnabled =
         onChanged != null && (centeredItems?.length ?? 0) > 0;
+    final safeSelectedItem = centeredItems != null &&
+            centeredItems.any((item) => item.value == selectedItem)
+        ? selectedItem
+        : null;
 
     return FormField<T>(
       key: key,
       autovalidateMode: AutovalidateMode.onUserInteractionIfError,
       validator: validator,
-      initialValue: selectedItem,
+      initialValue: safeSelectedItem,
       builder: (state) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -253,7 +257,7 @@ class BaseDropDown<T> extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.only(left: Sizes.p8),
                         dropdownColor: theme.colorScheme.surface,
-                        initialValue: selectedItem,
+                        initialValue: safeSelectedItem,
                         isExpanded: true,
                         alignment: Alignment.center,
                         iconSize: 17,
