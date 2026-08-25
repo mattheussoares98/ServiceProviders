@@ -71,11 +71,11 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
   Future<void> navigateToCreateCompany() async {
     final user = _useCases.getSessionUser();
-    if (user.isAdmin) {
+    if (user.isSuperAdmin) {
       await pushRoute(const CreateCompanyRoute());
     } else {
       showErrorToast(
-        'Somente administradores podem acessar essa página. Essa opção nem deveria estar aparecendo para você já que você não é administrador'
+        'Somente super administradores podem acessar essa página. Essa opção não deveria estar disponível.'
             .hardcoded,
       );
     }

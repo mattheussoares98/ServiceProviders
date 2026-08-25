@@ -156,8 +156,13 @@ void main() {
 
   group('Navigate to create company', () {
     blocTest<CompanyCubit, CompanyState>(
-      'Should navigate if the user is admin (mocked with true value already)',
-      build: () => companyCubit,
+      'Should navigate if the user is super admin',
+      build: () {
+        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        return companyCubit;
+      },
       act: (cubit) => cubit.navigateToCreateCompany(),
       expect: () => <CompanyState>[],
       verify: (_) {
@@ -167,10 +172,10 @@ void main() {
       },
     );
     blocTest<CompanyCubit, CompanyState>(
-      'Should not navigate if the user is not admin',
+      'Should not navigate if the user is not super admin',
       build: () {
         userSession = EntityFactory.makeUserProfileEntity().copyWith(
-          isAdmin: false,
+          email: 'regular_user@example.com',
         );
 
         return companyCubit;

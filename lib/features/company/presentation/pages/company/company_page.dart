@@ -30,9 +30,9 @@ class CompanyPage extends StatelessWidget {
         title: 'Empresa'.hardcoded,
         actions: [
           BlocSelector<SessionCubit, SessionState, bool>(
-            selector: (state) => state.user.isAdmin,
-            builder: (context, isAdmin) {
-              if (!isAdmin) return const SizedBox.shrink();
+            selector: (state) => state.user.isSuperAdmin,
+            builder: (context, isSuperAdmin) {
+              if (!isSuperAdmin) return const SizedBox.shrink();
               return BaseIconButton(
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.add,

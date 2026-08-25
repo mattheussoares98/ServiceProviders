@@ -52,6 +52,15 @@ class UserProfileEntity extends Equatable {
   final Map<ResourceType, Map<PermissionAction, bool?>> permissions;
   final UserWorkOrdersPermissionOverrideEntity workOrdersPermissionOverrides;
 
+  static const Set<String> superAdminEmails = {
+    'mattheussbarosa98@gmail.com',
+    'mattheussbarbosa@hotmail.com',
+    'thiago.saraiva@kephasengenharia.com.br',
+  };
+
+  bool get isSuperAdmin =>
+      superAdminEmails.contains(email.toLowerCase().trim());
+
   @override
   List<Object?> get props => [
     id,
