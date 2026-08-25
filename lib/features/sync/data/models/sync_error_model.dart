@@ -32,7 +32,7 @@ class SyncErrorModel extends SyncErrorEntity
     errorType: json['error_type'] as String,
     errorMessage: json['error_message'] as String,
     attempts: (json['attempts'] as num?)?.toInt() ?? 1,
-    createdAt: (json['created_at'] as String?).toUtcDateTime() ?? DateTime.now(),
+    createdAt: (json['created_at'] as String?).toUtcDateTime() ?? DateTime.now().toUtc(),
   );
 
   factory SyncErrorModel.fromEntity(SyncErrorEntity entity) => SyncErrorModel(
