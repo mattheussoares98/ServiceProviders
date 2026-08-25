@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -33,6 +38,7 @@ void main() {
   late MockGetPendingInvitationsUseCase mockGetPendingInvitations;
   late MockRevokeInvitationUseCase mockRevokeInvitation;
   late MockResendInvitationUseCase mockResendInvitation;
+  late MockWatchUserProfilesRealtimeUseCase mockWatchUserProfilesRealtime;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
@@ -70,6 +76,7 @@ void main() {
     mockGetPendingInvitations = MockGetPendingInvitationsUseCase();
     mockRevokeInvitation = MockRevokeInvitationUseCase();
     mockResendInvitation = MockResendInvitationUseCase();
+    mockWatchUserProfilesRealtime = MockWatchUserProfilesRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
@@ -83,6 +90,14 @@ void main() {
     tUserInvitation = EntityFactory.makeUserInvitationEntity();
 
     when(() => mockGetSessionUser.call()).thenReturn(tSessionUser);
+    when(
+      () => mockGetActiveCompanyIdUseCase.call(),
+    ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchUserProfilesRealtime.call(
+        companyId: any(named: 'companyId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = UsersCubitUseCases(
       getSessionUser: mockGetSessionUser,
@@ -99,6 +114,7 @@ void main() {
       resendInvitation: mockResendInvitation,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
       getSelectedMode: mockGetSelectedMode,
+      watchUserProfilesRealtime: mockWatchUserProfilesRealtime,
     );
 
     cubit = UsersCubit(useCases: useCases);
@@ -1417,6 +1433,187 @@ void main() {
         cubit.popRoute();
         verify(() => mockNavigationClient.maybePop()).called(1);
       });
+    });
+
+    group('Realtime Events', () {
+      final tInitialUser = EntityFactory.makeUserProfileEntity();
+      final tNewUser = EntityFactory.makeUserProfileEntity();
+
+      blocTest<UsersCubit, UsersState>(
+        'prepends new user on insert event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<UserProfileEntity>>();
+          when(
+            () => mockWatchUserProfilesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = UsersCubit(
+            useCases: UsersCubitUseCases(
+              getSessionUser: mockGetSessionUser,
+              getUsers: mockGetUsers,
+              getUserProfileById: mockGetUserProfileById,
+              updateUserProfile: mockUpdateUserProfile,
+              deleteUserProfile: mockDeleteUserProfile,
+              getPermissionGroups: mockGetPermissionGroups,
+              createPermissionGroup: mockCreatePermissionGroup,
+              updatePermissionGroup: mockUpdatePermissionGroup,
+              deletePermissionGroup: mockDeletePermissionGroup,
+              getPendingInvitations: mockGetPendingInvitations,
+              revokeInvitation: mockRevokeInvitation,
+              resendInvitation: mockResendInvitation,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              getSelectedMode: mockGetSelectedMode,
+              watchUserProfilesRealtime: mockWatchUserProfilesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              users: [tInitialUser],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<UserProfileEntity>(
+              eventType: RealtimeEventType.insert,
+              id: tNewUser.id,
+              companyId: tUserProfile.companyId,
+              entity: tNewUser,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.users,
+            'users',
+            [tNewUser, tInitialUser],
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'updates existing user in-place on update event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<UserProfileEntity>>();
+          when(
+            () => mockWatchUserProfilesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = UsersCubit(
+            useCases: UsersCubitUseCases(
+              getSessionUser: mockGetSessionUser,
+              getUsers: mockGetUsers,
+              getUserProfileById: mockGetUserProfileById,
+              updateUserProfile: mockUpdateUserProfile,
+              deleteUserProfile: mockDeleteUserProfile,
+              getPermissionGroups: mockGetPermissionGroups,
+              createPermissionGroup: mockCreatePermissionGroup,
+              updatePermissionGroup: mockUpdatePermissionGroup,
+              deletePermissionGroup: mockDeletePermissionGroup,
+              getPendingInvitations: mockGetPendingInvitations,
+              revokeInvitation: mockRevokeInvitation,
+              resendInvitation: mockResendInvitation,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              getSelectedMode: mockGetSelectedMode,
+              watchUserProfilesRealtime: mockWatchUserProfilesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              users: [tInitialUser],
+            ),
+          );
+
+          final updatedUser = tInitialUser.copyWith(name: 'Updated User Name');
+
+          streamController.add(
+            RealtimeEvent<UserProfileEntity>(
+              eventType: RealtimeEventType.update,
+              id: tInitialUser.id,
+              companyId: tUserProfile.companyId,
+              entity: updatedUser,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.users.first.name,
+            'user name',
+            'Updated User Name',
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'removes user on delete event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<UserProfileEntity>>();
+          when(
+            () => mockWatchUserProfilesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = UsersCubit(
+            useCases: UsersCubitUseCases(
+              getSessionUser: mockGetSessionUser,
+              getUsers: mockGetUsers,
+              getUserProfileById: mockGetUserProfileById,
+              updateUserProfile: mockUpdateUserProfile,
+              deleteUserProfile: mockDeleteUserProfile,
+              getPermissionGroups: mockGetPermissionGroups,
+              createPermissionGroup: mockCreatePermissionGroup,
+              updatePermissionGroup: mockUpdatePermissionGroup,
+              deletePermissionGroup: mockDeletePermissionGroup,
+              getPendingInvitations: mockGetPendingInvitations,
+              revokeInvitation: mockRevokeInvitation,
+              resendInvitation: mockResendInvitation,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              getSelectedMode: mockGetSelectedMode,
+              watchUserProfilesRealtime: mockWatchUserProfilesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              users: [tInitialUser],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<UserProfileEntity>(
+              eventType: RealtimeEventType.delete,
+              id: tInitialUser.id,
+              companyId: tUserProfile.companyId,
+              entity: null,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.users,
+            'users',
+            isEmpty,
+          ),
+        ],
+      );
     });
   });
 }

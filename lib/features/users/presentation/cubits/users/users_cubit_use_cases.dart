@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 
 @LazySingleton()
 class UsersCubitUseCases {
@@ -31,6 +32,7 @@ class UsersCubitUseCases {
     required this.getPendingInvitations,
     required this.revokeInvitation,
     required this.resendInvitation,
+    required this.watchUserProfilesRealtime,
   });
 
   final GetSessionUserUseCase getSessionUser;
@@ -47,4 +49,5 @@ class UsersCubitUseCases {
   final GetPendingInvitationsUseCase getPendingInvitations;
   final RevokeInvitationUseCase revokeInvitation;
   final ResendInvitationUseCase resendInvitation;
+  final WatchUserProfilesRealtimeUseCase watchUserProfilesRealtime;
 }

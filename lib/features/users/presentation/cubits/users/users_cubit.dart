@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
@@ -21,9 +25,57 @@ enum UsersSections implements SectionKey { loadAll }
 class UsersCubit extends BaseCubit<UsersState> {
   UsersCubit({required UsersCubitUseCases useCases})
     : _useCases = useCases,
-      super(const UsersState.initial());
+      super(const UsersState.initial()) {
+    _initRealtime();
+  }
 
   final UsersCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<UserProfileEntity>>? _usersSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _usersSubscription = _useCases
+        .watchUserProfilesRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<UserProfileEntity> event) {
+    if (isClosed) return;
+
+    final currentUsers = List<UserProfileEntity>.from(state.users);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final index = currentUsers.indexWhere((u) => u.id == event.id);
+          if (index == -1) {
+            currentUsers.insert(0, event.entity!);
+          } else {
+            currentUsers[index] = event.entity!;
+          }
+          emit(state.copyWith(users: currentUsers));
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentUsers.indexWhere((u) => u.id == event.id);
+          if (index != -1) {
+            currentUsers[index] = event.entity!;
+          } else {
+            currentUsers.add(event.entity!);
+          }
+          emit(state.copyWith(users: currentUsers));
+        }
+        break;
+      case RealtimeEventType.delete:
+        final index = currentUsers.indexWhere((u) => u.id == event.id);
+        if (index != -1) {
+          currentUsers.removeAt(index);
+          emit(state.copyWith(users: currentUsers));
+        }
+        break;
+    }
+  }
 
   // ============================================
   // Load Operations
@@ -442,5 +494,11 @@ class UsersCubit extends BaseCubit<UsersState> {
 
   void popRoute() {
     popRouteAdaptively();
+  }
+
+  @override
+  Future<void> close() {
+    _usersSubscription?.cancel();
+    return super.close();
   }
 }
