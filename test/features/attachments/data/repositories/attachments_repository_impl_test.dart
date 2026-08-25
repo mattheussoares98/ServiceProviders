@@ -7,6 +7,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/repositories/attachments_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
@@ -1381,4 +1383,130 @@ void main() {
       verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
     });
   });
+
+  group('watchAttachmentsRealtime', () {
+    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tModel = AttachmentModel.fromEntity(tAttachment);
+
+    test('saves model locally and emits event on insert in internal mode', () async {
+      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
+      when(() => mockLocalDataSource.getAttachment(tModel.id))
+          .thenAnswer((_) async => const SuccessState(data: null));
+      when(() => mockLocalDataSource.saveAttachment(any()))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final remoteEvent = RealtimeEvent<AttachmentModel>(
+        eventType: RealtimeEventType.insert,
+        id: tModel.id,
+        entity: tModel,
+      );
+
+      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
+          .thenAnswer((_) => Stream.value(remoteEvent));
+
+      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+
+      await expectLater(
+        stream,
+        emits(
+          predicate<RealtimeEvent<AttachmentEntity>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tModel.id &&
+                event.entity?.fileName == tModel.fileName;
+          }),
+        ),
+      );
+
+      verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+    });
+
+    test('deletes locally on update with deletedAt in internal mode', () async {
+      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
+      when(() => mockLocalDataSource.deleteAttachment(tModel.id))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final deletedModel = AttachmentModel.fromEntity(
+        tAttachment.copyWith(deletedAt: DateTime.now()),
+      );
+      final remoteEvent = RealtimeEvent<AttachmentModel>(
+        eventType: RealtimeEventType.update,
+        id: deletedModel.id,
+        entity: deletedModel,
+      );
+
+      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
+          .thenAnswer((_) => Stream.value(remoteEvent));
+
+      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+
+      await expectLater(
+        stream,
+        emits(
+          predicate<RealtimeEvent<AttachmentEntity>>((event) {
+            return event.eventType == RealtimeEventType.update &&
+                event.id == deletedModel.id;
+          }),
+        ),
+      );
+
+      verify(() => mockLocalDataSource.deleteAttachment(deletedModel.id)).called(1);
+    });
+
+    test('deletes locally on delete event in internal mode', () async {
+      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
+      when(() => mockLocalDataSource.deleteAttachment(tModel.id))
+          .thenAnswer((_) async => const SuccessState(data: true));
+
+      final remoteEvent = RealtimeEvent<AttachmentModel>(
+        eventType: RealtimeEventType.delete,
+        id: tModel.id,
+      );
+
+      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
+          .thenAnswer((_) => Stream.value(remoteEvent));
+
+      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+
+      await expectLater(
+        stream,
+        emits(
+          predicate<RealtimeEvent<AttachmentEntity>>((event) {
+            return event.eventType == RealtimeEventType.delete &&
+                event.id == tModel.id;
+          }),
+        ),
+      );
+
+      verify(() => mockLocalDataSource.deleteAttachment(tModel.id)).called(1);
+    });
+
+    test('does not interact with local database in provider mode', () async {
+      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.provider.name);
+
+      final remoteEvent = RealtimeEvent<AttachmentModel>(
+        eventType: RealtimeEventType.insert,
+        id: tModel.id,
+        entity: tModel,
+      );
+
+      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
+          .thenAnswer((_) => Stream.value(remoteEvent));
+
+      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+
+      await expectLater(
+        stream,
+        emits(
+          predicate<RealtimeEvent<AttachmentEntity>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tModel.id;
+          }),
+        ),
+      );
+
+      verifyNever(() => mockLocalDataSource.saveAttachment(any()));
+      verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
+    });
+  });
 }
+

@@ -4,6 +4,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
@@ -298,6 +300,39 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       return SuccessState.nil;
     } catch (e) {
       return FailureState(message: e.toString());
+    }
+  }
+
+  @override
+  Stream<RealtimeEvent<AttachmentEntity>> watchAttachmentsRealtime({
+    required String workOrderId,
+  }) async* {
+    await for (final event in _remoteDataSource.watchAttachmentsRealtime(
+      workOrderId: workOrderId,
+    )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        if (!_isProviderMode) {
+          if (event.entity!.deletedAt != null) {
+            await _localDataSource.deleteAttachment(event.id);
+          } else {
+            await _saveRemoteModelPreservingLocalPath(event.entity!);
+          }
+        }
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        if (!_isProviderMode) {
+          await _localDataSource.deleteAttachment(event.id);
+        }
+      }
+
+      yield RealtimeEvent<AttachmentEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity?.toEntity(),
+      );
     }
   }
 
