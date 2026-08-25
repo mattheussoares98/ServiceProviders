@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -22,9 +26,124 @@ enum ServiceProviderSection implements SectionKey { selectCompany }
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   ServiceProvidersCubit({required ServiceProvidersCubitUseCases useCases})
     : _useCases = useCases,
-      super(const ServiceProvidersState.initial());
+      super(const ServiceProvidersState.initial()) {
+    _initRealtime();
+  }
 
   final ServiceProvidersCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<ServiceProviderCompanyEntity>>?
+  _companiesSubscription;
+  StreamSubscription<RealtimeEvent<ServiceProviderProfileEntity>>?
+  _profilesSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _companiesSubscription = _useCases.watchCompaniesRealtime
+        .call(companyId: companyId)
+        .listen(_handleCompanyRealtimeEvent);
+    _profilesSubscription = _useCases.watchProfilesRealtime
+        .call()
+        .listen(_handleProfileRealtimeEvent);
+  }
+
+  void _handleCompanyRealtimeEvent(
+    RealtimeEvent<ServiceProviderCompanyEntity> event,
+  ) {
+    if (isClosed) return;
+
+    final currentCompanies = List<ServiceProviderCompanyEntity>.from(
+      state.companies,
+    );
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final index = currentCompanies.indexWhere((c) => c.id == event.id);
+          if (index == -1) {
+            currentCompanies.insert(0, event.entity!);
+          } else {
+            currentCompanies[index] = event.entity!;
+          }
+          emit(state.copyWith(companies: currentCompanies));
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentCompanies.indexWhere((c) => c.id == event.id);
+          if (index != -1) {
+            currentCompanies[index] = event.entity!;
+          } else {
+            currentCompanies.add(event.entity!);
+          }
+          emit(state.copyWith(companies: currentCompanies));
+        }
+        break;
+      case RealtimeEventType.delete:
+        final index = currentCompanies.indexWhere((c) => c.id == event.id);
+        if (index != -1) {
+          currentCompanies.removeAt(index);
+          emit(state.copyWith(companies: currentCompanies));
+        }
+        break;
+    }
+  }
+
+  void _handleProfileRealtimeEvent(
+    RealtimeEvent<ServiceProviderProfileEntity> event,
+  ) {
+    if (isClosed) return;
+
+    final updatedProfiles =
+        Map<String, List<ServiceProviderProfileEntity>>.from(
+      state.profiles.map(
+        (key, value) =>
+            MapEntry(key, List<ServiceProviderProfileEntity>.from(value)),
+      ),
+    );
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final companyId = event.entity!.serviceProviderCompanyId;
+          final list = updatedProfiles.putIfAbsent(companyId, () => []);
+          final index = list.indexWhere((p) => p.id == event.id);
+          if (index == -1) {
+            list.insert(0, event.entity!);
+          } else {
+            list[index] = event.entity!;
+          }
+          emit(state.copyWith(profiles: updatedProfiles));
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final companyId = event.entity!.serviceProviderCompanyId;
+          final list = updatedProfiles.putIfAbsent(companyId, () => []);
+          final index = list.indexWhere((p) => p.id == event.id);
+          if (index != -1) {
+            list[index] = event.entity!;
+          } else {
+            list.add(event.entity!);
+          }
+          emit(state.copyWith(profiles: updatedProfiles));
+        }
+        break;
+      case RealtimeEventType.delete:
+        var changed = false;
+        for (final list in updatedProfiles.values) {
+          final index = list.indexWhere((p) => p.id == event.id);
+          if (index != -1) {
+            list.removeAt(index);
+            changed = true;
+            break;
+          }
+        }
+        if (changed) {
+          emit(state.copyWith(profiles: updatedProfiles));
+        }
+        break;
+    }
+  }
 
   Future<void> loadCompaniesAndProfiles({
     bool forceRefresh = false,
@@ -502,5 +621,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         serviceProviderCompanyId: serviceProviderCompanyId,
       ),
     );
+  }
+
+  @override
+  Future<void> close() {
+    _companiesSubscription?.cancel();
+    _profilesSubscription?.cancel();
+    return super.close();
   }
 }

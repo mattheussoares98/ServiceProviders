@@ -1,14 +1,21 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_company_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -35,6 +42,9 @@ void main() {
   late MockCreateServiceProviderProfileUseCase mockCreateProfile;
   late MockUpdateServiceProviderProfileUseCase mockUpdateProfile;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+  late MockWatchServiceProviderCompaniesRealtimeUseCase
+  mockWatchCompaniesRealtime;
+  late MockWatchServiceProviderProfilesRealtimeUseCase mockWatchProfilesRealtime;
   late ServiceProvidersCubitUseCases useCases;
   late ServiceProvidersCubit cubit;
   late MockNavigationClient mockNavigationClient;
@@ -68,11 +78,25 @@ void main() {
     mockCreateProfile = MockCreateServiceProviderProfileUseCase();
     mockUpdateProfile = MockUpdateServiceProviderProfileUseCase();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+    mockWatchCompaniesRealtime =
+        MockWatchServiceProviderCompaniesRealtimeUseCase();
+    mockWatchProfilesRealtime =
+        MockWatchServiceProviderProfilesRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     companyId = faker.guid.guid();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn(companyId);
+    when(
+      () => mockWatchCompaniesRealtime.call(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWatchProfilesRealtime.call(
+        serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
 
     useCases = ServiceProvidersCubitUseCases(
       getCompanies: mockGetCompanies,
@@ -86,6 +110,8 @@ void main() {
       createProfile: mockCreateProfile,
       updateProfile: mockUpdateProfile,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+      watchCompaniesRealtime: mockWatchCompaniesRealtime,
+      watchProfilesRealtime: mockWatchProfilesRealtime,
     );
 
     cubit = ServiceProvidersCubit(useCases: useCases);
@@ -950,7 +976,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockSendInvitation.call(any())).called(1);
-          verify(() => mockGetActiveCompanyIdUseCase.call()).called(1);
+          verify(() => mockGetActiveCompanyIdUseCase.call()).called(2);
           verify(() => mockGetCompanies.call('active-comp-1')).called(1);
           verify(() => mockGetInvitations.call('comp-1')).called(1);
         },
@@ -1019,7 +1045,7 @@ void main() {
         ],
         verify: (_) {
           verify(() => mockDeleteInvitation.call('inv-1')).called(1);
-          verify(() => mockGetActiveCompanyIdUseCase.call()).called(1);
+          verify(() => mockGetActiveCompanyIdUseCase.call()).called(2);
           verify(() => mockGetCompanies.call('active-comp-1')).called(1);
           verify(() => mockGetInvitations.call('comp-1')).called(1);
         },
@@ -1051,6 +1077,375 @@ void main() {
           ).called(1);
         },
       );
+    });
+
+    group('Realtime Events', () {
+      final tInitialCompany = EntityFactory.makeServiceProviderCompanyEntity();
+      final tNewCompany = EntityFactory.makeServiceProviderCompanyEntity();
+      final tInitialProfile = EntityFactory.makeServiceProviderProfileEntity();
+      final tNewProfile = EntityFactory.makeServiceProviderProfileEntity();
+
+      group('Companies', () {
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'prepends new company on insert event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderCompanyEntity>>();
+            when(
+              () => mockWatchCompaniesRealtime.call(
+                companyId: any(named: 'companyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                companies: [tInitialCompany],
+              ),
+            );
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderCompanyEntity>(
+                eventType: RealtimeEventType.insert,
+                id: tNewCompany.id,
+                companyId: companyId,
+                entity: tNewCompany,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s.companies,
+              'companies',
+              [tNewCompany, tInitialCompany],
+            ),
+          ],
+        );
+
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'updates existing company in-place on update event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderCompanyEntity>>();
+            when(
+              () => mockWatchCompaniesRealtime.call(
+                companyId: any(named: 'companyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                companies: [tInitialCompany],
+              ),
+            );
+
+            final updated = tInitialCompany.copyWith(name: 'Updated Company');
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderCompanyEntity>(
+                eventType: RealtimeEventType.update,
+                id: tInitialCompany.id,
+                companyId: companyId,
+                entity: updated,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s.companies.first.name,
+              'company name',
+              'Updated Company',
+            ),
+          ],
+        );
+
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'removes company on delete event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderCompanyEntity>>();
+            when(
+              () => mockWatchCompaniesRealtime.call(
+                companyId: any(named: 'companyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                companies: [tInitialCompany],
+              ),
+            );
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderCompanyEntity>(
+                eventType: RealtimeEventType.delete,
+                id: tInitialCompany.id,
+                companyId: companyId,
+                entity: null,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s.companies,
+              'companies',
+              isEmpty,
+            ),
+          ],
+        );
+      });
+
+      group('Profiles', () {
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'prepends new profile on insert event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderProfileEntity>>();
+            when(
+              () => mockWatchProfilesRealtime.call(
+                serviceProviderCompanyId:
+                    any(named: 'serviceProviderCompanyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                profiles: {
+                  tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
+                },
+              ),
+            );
+
+            final newProfileSameCompany = tNewProfile.copyWith(
+              serviceProviderCompanyId:
+                  tInitialProfile.serviceProviderCompanyId,
+            );
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderProfileEntity>(
+                eventType: RealtimeEventType.insert,
+                id: newProfileSameCompany.id,
+                companyId: companyId,
+                entity: newProfileSameCompany,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s.profiles[tInitialProfile.serviceProviderCompanyId]?.length,
+              'profiles length',
+              2,
+            ),
+          ],
+        );
+
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'updates existing profile in-place on update event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderProfileEntity>>();
+            when(
+              () => mockWatchProfilesRealtime.call(
+                serviceProviderCompanyId:
+                    any(named: 'serviceProviderCompanyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                profiles: {
+                  tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
+                },
+              ),
+            );
+
+            final updated = tInitialProfile.copyWith(name: 'Updated Profile');
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderProfileEntity>(
+                eventType: RealtimeEventType.update,
+                id: tInitialProfile.id,
+                companyId: companyId,
+                entity: updated,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s
+                  .profiles[tInitialProfile.serviceProviderCompanyId]
+                  ?.first
+                  .name,
+              'profile name',
+              'Updated Profile',
+            ),
+          ],
+        );
+
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'removes profile on delete event',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderProfileEntity>>();
+            when(
+              () => mockWatchProfilesRealtime.call(
+                serviceProviderCompanyId:
+                    any(named: 'serviceProviderCompanyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                profiles: {
+                  tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
+                },
+              ),
+            );
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderProfileEntity>(
+                eventType: RealtimeEventType.delete,
+                id: tInitialProfile.id,
+                companyId: companyId,
+                entity: null,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s
+                  .profiles[tInitialProfile.serviceProviderCompanyId],
+              'profiles list',
+              isEmpty,
+            ),
+          ],
+        );
+      });
     });
   });
 }

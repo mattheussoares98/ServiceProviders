@@ -10,6 +10,8 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
 
 @LazySingleton()
 class ServiceProvidersCubitUseCases {
@@ -25,6 +27,8 @@ class ServiceProvidersCubitUseCases {
     required this.createProfile,
     required this.updateProfile,
     required this.getActiveCompanyId,
+    required this.watchCompaniesRealtime,
+    required this.watchProfilesRealtime,
   });
 
   final GetServiceProviderCompaniesUseCase getCompanies;
@@ -38,4 +42,6 @@ class ServiceProvidersCubitUseCases {
   final CreateServiceProviderProfileUseCase createProfile;
   final UpdateServiceProviderProfileUseCase updateProfile;
   final GetActiveCompanyIdUseCase getActiveCompanyId;
+  final WatchServiceProviderCompaniesRealtimeUseCase watchCompaniesRealtime;
+  final WatchServiceProviderProfilesRealtimeUseCase watchProfilesRealtime;
 }
