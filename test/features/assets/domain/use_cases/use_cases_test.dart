@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_asset_by_id_
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -23,6 +24,7 @@ void main() {
   late GetAssetsUseCase getAssetsUseCase;
   late GetAssetsByIdsUseCase getAssetsByIdsUseCase;
   late GetAssetByIdUseCase getAssetByIdUseCase;
+  late WatchAssetsRealtimeUseCase watchAssetsRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAssetEntity());
@@ -38,6 +40,9 @@ void main() {
       assetsRepository: mockRepository,
     );
     getAssetByIdUseCase = GetAssetByIdUseCase(assetsRepository: mockRepository);
+    watchAssetsRealtimeUseCase = WatchAssetsRealtimeUseCase(
+      assetsRepository: mockRepository,
+    );
   });
 
   final tAssetEntity = EntityFactory.makeAssetEntity();
@@ -246,6 +251,22 @@ void main() {
         // Assert
         expect(result, isA<FailureState<AssetEntity>>());
         verify(() => mockRepository.getAssetById(tId)).called(1);
+      });
+    });
+
+    group('WatchAssetsRealtimeUseCase', () {
+      test('should return stream from repository', () {
+        final event = EntityFactory.makeRealtimeEvent<AssetEntity>(
+          entity: tAssetEntity,
+        );
+        when(
+          () => mockRepository.watchAssetsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final result = watchAssetsRealtimeUseCase(companyId: tId);
+
+        expect(result, emits(event));
+        verify(() => mockRepository.watchAssetsRealtime(companyId: tId)).called(1);
       });
     });
   });

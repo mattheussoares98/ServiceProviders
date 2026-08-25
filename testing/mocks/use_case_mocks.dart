@@ -1,5 +1,6 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
@@ -192,3 +193,6 @@ class MockWatchLocationsRealtimeUseCase extends Mock
 
 class MockWatchAreasRealtimeUseCase extends Mock
     implements WatchAreasRealtimeUseCase {}
+
+class MockWatchAssetsRealtimeUseCase extends Mock
+    implements WatchAssetsRealtimeUseCase {}
