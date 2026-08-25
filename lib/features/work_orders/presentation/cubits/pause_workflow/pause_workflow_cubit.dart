@@ -169,7 +169,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     final reviewedById = isDirectPause ? currentUserId : null;
     final companyId = _useCases.getActiveCompanyId();
 
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
       companyId: companyId,
@@ -302,7 +302,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
         : PauseRequestStatus.pending;
     final reviewedById = isDirectComplete ? currentUserId : null;
     final companyId = _useCases.getActiveCompanyId();
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final request = PauseRequestEntity(
       id: const Uuid().v4(),
       companyId: companyId,
