@@ -101,10 +101,10 @@ final class SlaRepositoryImpl implements SlaRepository {
   @override
   Stream<RealtimeEvent<SlaPolicyEntity>> watchSlaPoliciesRealtime({
     String? companyId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchSlaPoliciesRealtime(
-      companyId: companyId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchSlaPoliciesRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -114,12 +114,12 @@ final class SlaRepositoryImpl implements SlaRepository {
         await _localDataSource.deleteSlaPolicy(event.id);
       }
 
-      yield RealtimeEvent<SlaPolicyEntity>(
+      return RealtimeEvent<SlaPolicyEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 }

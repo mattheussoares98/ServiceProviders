@@ -100,10 +100,10 @@ final class UsersRepositoryImpl implements UsersRepository {
   @override
   Stream<RealtimeEvent<UserProfileEntity>> watchUserProfilesRealtime({
     String? companyId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchUserProfilesRealtime(
-      companyId: companyId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchUserProfilesRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -113,13 +113,13 @@ final class UsersRepositoryImpl implements UsersRepository {
         await _localDataSource.deleteUserProfile(event.id);
       }
 
-      yield RealtimeEvent<UserProfileEntity>(
+      return RealtimeEvent<UserProfileEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 
   @override

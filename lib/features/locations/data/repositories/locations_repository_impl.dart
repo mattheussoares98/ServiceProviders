@@ -234,10 +234,10 @@ final class LocationsRepositoryImpl implements LocationsRepository {
   @override
   Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({
     String? companyId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchLocationsRealtime(
-      companyId: companyId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchLocationsRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -247,22 +247,22 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         await _localDataSource.deleteLocation(event.id);
       }
 
-      yield RealtimeEvent<LocationEntity>(
+      return RealtimeEvent<LocationEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 
   @override
   Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({
     String? companyId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchAreasRealtime(
-      companyId: companyId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchAreasRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -272,12 +272,12 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         await _localDataSource.deleteArea(event.id);
       }
 
-      yield RealtimeEvent<AreaEntity>(
+      return RealtimeEvent<AreaEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 }

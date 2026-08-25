@@ -125,10 +125,10 @@ final class AssetsRepositoryImpl implements AssetsRepository {
   @override
   Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({
     String? companyId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchAssetsRealtime(
-      companyId: companyId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchAssetsRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -138,12 +138,12 @@ final class AssetsRepositoryImpl implements AssetsRepository {
         await _localDataSource.deleteAsset(event.id);
       }
 
-      yield RealtimeEvent<AssetEntity>(
+      return RealtimeEvent<AssetEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 }

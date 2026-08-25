@@ -119,9 +119,10 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
 
   @override
   Stream<RealtimeEvent<ServiceProviderCompanyEntity>>
-  watchServiceProviderCompaniesRealtime({String? companyId}) async* {
-    await for (final event in _remoteDataSource
-        .watchServiceProviderCompaniesRealtime(companyId: companyId)) {
+  watchServiceProviderCompaniesRealtime({String? companyId}) {
+    return _remoteDataSource
+        .watchServiceProviderCompaniesRealtime(companyId: companyId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -131,13 +132,13 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
         await _localDataSource.deleteServiceProviderCompany(event.id);
       }
 
-      yield RealtimeEvent<ServiceProviderCompanyEntity>(
+      return RealtimeEvent<ServiceProviderCompanyEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 
   @override
@@ -233,11 +234,12 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
   Stream<RealtimeEvent<ServiceProviderProfileEntity>>
   watchServiceProviderProfilesRealtime({
     String? serviceProviderCompanyId,
-  }) async* {
-    await for (final event in _remoteDataSource
+  }) {
+    return _remoteDataSource
         .watchServiceProviderProfilesRealtime(
           serviceProviderCompanyId: serviceProviderCompanyId,
-        )) {
+        )
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -247,13 +249,13 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
         await _localDataSource.deleteServiceProviderProfile(event.id);
       }
 
-      yield RealtimeEvent<ServiceProviderProfileEntity>(
+      return RealtimeEvent<ServiceProviderProfileEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity,
       );
-    }
+    });
   }
 
   @override

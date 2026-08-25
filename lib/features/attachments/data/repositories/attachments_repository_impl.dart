@@ -306,10 +306,10 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   @override
   Stream<RealtimeEvent<AttachmentEntity>> watchAttachmentsRealtime({
     required String workOrderId,
-  }) async* {
-    await for (final event in _remoteDataSource.watchAttachmentsRealtime(
-      workOrderId: workOrderId,
-    )) {
+  }) {
+    return _remoteDataSource
+        .watchAttachmentsRealtime(workOrderId: workOrderId)
+        .asyncMap((event) async {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
@@ -327,13 +327,13 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
         }
       }
 
-      yield RealtimeEvent<AttachmentEntity>(
+      return RealtimeEvent<AttachmentEntity>(
         eventType: event.eventType,
         id: event.id,
         companyId: event.companyId,
         entity: event.entity?.toEntity(),
       );
-    }
+    });
   }
 
   @override
