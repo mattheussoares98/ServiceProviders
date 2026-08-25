@@ -241,7 +241,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
     final activeCompanyId = _useCases.getActiveCompanyId();
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
 
     final isUpdate =
         serviceProviderCompanyId != null && serviceProviderCompanyId.isNotEmpty;
@@ -326,7 +326,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     String? profileId,
   }) async {
     emit(state.copyWith(status: StateStatus.saving));
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
 
     final isUpdate = profileId != null && profileId.isNotEmpty;
     final companyProfiles = state.profiles[serviceProviderCompanyId] ?? [];
