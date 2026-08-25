@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/integration_config.dart';
@@ -10,6 +11,7 @@ import 'core/integration_config.dart';
 class SupabaseIntegrationHelper {
   static SupabaseClient? _client;
   static SupabaseDatabaseClient? _databaseClient;
+  static SupabaseRealtimeClient? _realtimeClient;
 
   static Future<void> initialize() async {
     if (_client != null) return;
@@ -46,6 +48,7 @@ class SupabaseIntegrationHelper {
 
     _client = SupabaseClient(supabaseUrl, supabaseAnonKey);
     _databaseClient = SupabaseDatabaseClientImpl(_client!);
+    _realtimeClient = SupabaseRealtimeClientImpl(_client!);
 
     // Load integration config
     await IntegrationConfig.load();
@@ -67,6 +70,15 @@ class SupabaseIntegrationHelper {
       );
     }
     return _databaseClient!;
+  }
+
+  static SupabaseRealtimeClient get realtimeClient {
+    if (_realtimeClient == null) {
+      throw StateError(
+        'SupabaseIntegrationHelper must be initialized before accessing realtimeClient',
+      );
+    }
+    return _realtimeClient!;
   }
 
   /// Sign in with the admin user. Returns the user ID.

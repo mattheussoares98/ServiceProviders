@@ -28,8 +28,14 @@ void main() {
   setUpAll(() async {
     await SupabaseIntegrationHelper.initialize();
     db = SupabaseIntegrationHelper.databaseClient;
-    assetsRemote = AssetsRemoteDataSourceImpl(database: db);
-    locationsRemote = LocationsRemoteDataSourceImpl(database: db);
+    assetsRemote = AssetsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
+    locationsRemote = LocationsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     categoriesRemote = CategoriesRemoteDataSourceImpl(database: db);
     companyId = IntegrationConfig.companyId;
 

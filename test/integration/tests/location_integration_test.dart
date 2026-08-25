@@ -19,7 +19,10 @@ void main() {
   setUpAll(() async {
     await SupabaseIntegrationHelper.initialize();
     db = SupabaseIntegrationHelper.databaseClient;
-    locationsRemote = LocationsRemoteDataSourceImpl(database: db);
+    locationsRemote = LocationsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     companyId = IntegrationConfig.companyId;
 
     await SupabaseIntegrationHelper.signInAsAdmin();

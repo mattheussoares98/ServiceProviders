@@ -52,12 +52,24 @@ void main() {
     await SupabaseIntegrationHelper.initialize();
     db = SupabaseIntegrationHelper.databaseClient;
 
-    locationsRemote = LocationsRemoteDataSourceImpl(database: db);
+    locationsRemote = LocationsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     categoriesRemote = CategoriesRemoteDataSourceImpl(database: db);
-    assetsRemote = AssetsRemoteDataSourceImpl(database: db);
-    slaRemote = SlaRemoteDataSourceImpl(database: db);
+    assetsRemote = AssetsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
+    slaRemote = SlaRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     sectorsRemote = SectorsRemoteDataSourceImpl(database: db);
-    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(database: db);
+    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     pauseRemote = PauseRemoteDataSourceImpl(database: db);
 
     companyId = IntegrationConfig.companyId;
