@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/accept_service_provider_invitation_use_case.dart';
@@ -14,6 +15,8 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -34,6 +37,10 @@ void main() {
   deleteServiceProviderInvitationUseCase;
   late AcceptServiceProviderInvitationUseCase
   acceptServiceProviderInvitationUseCase;
+  late WatchServiceProviderCompaniesRealtimeUseCase
+  watchServiceProviderCompaniesRealtimeUseCase;
+  late WatchServiceProviderProfilesRealtimeUseCase
+  watchServiceProviderProfilesRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
@@ -69,6 +76,14 @@ void main() {
     acceptServiceProviderInvitationUseCase =
         AcceptServiceProviderInvitationUseCase(
           repository: mockServiceProviderRepository,
+        );
+    watchServiceProviderCompaniesRealtimeUseCase =
+        WatchServiceProviderCompaniesRealtimeUseCase(
+          serviceProviderRepository: mockServiceProviderRepository,
+        );
+    watchServiceProviderProfilesRealtimeUseCase =
+        WatchServiceProviderProfilesRealtimeUseCase(
+          serviceProviderRepository: mockServiceProviderRepository,
         );
   });
 
@@ -348,6 +363,64 @@ void main() {
 
       expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
       expect(result.message, 'sem conexão');
+    });
+  });
+
+  group('WatchServiceProviderCompaniesRealtimeUseCase', () {
+    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+    final tCompanyId = faker.guid.guid();
+
+    test('should return stream from repository', () {
+      final event =
+          EntityFactory.makeRealtimeEvent<ServiceProviderCompanyEntity>(
+            entity: tCompany,
+          );
+      when(
+        () => mockServiceProviderRepository
+            .watchServiceProviderCompaniesRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+      ).thenAnswer((_) => Stream.value(event));
+
+      final result = watchServiceProviderCompaniesRealtimeUseCase(
+        companyId: tCompanyId,
+      );
+
+      expect(result, emits(event));
+      verify(
+        () => mockServiceProviderRepository
+            .watchServiceProviderCompaniesRealtime(companyId: tCompanyId),
+      ).called(1);
+    });
+  });
+
+  group('WatchServiceProviderProfilesRealtimeUseCase', () {
+    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+    final tServiceProviderCompanyId = faker.guid.guid();
+
+    test('should return stream from repository', () {
+      final event =
+          EntityFactory.makeRealtimeEvent<ServiceProviderProfileEntity>(
+            entity: tProfile,
+          );
+      when(
+        () => mockServiceProviderRepository
+            .watchServiceProviderProfilesRealtime(
+              serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+            ),
+      ).thenAnswer((_) => Stream.value(event));
+
+      final result = watchServiceProviderProfilesRealtimeUseCase(
+        serviceProviderCompanyId: tServiceProviderCompanyId,
+      );
+
+      expect(result, emits(event));
+      verify(
+        () => mockServiceProviderRepository
+            .watchServiceProviderProfilesRealtime(
+              serviceProviderCompanyId: tServiceProviderCompanyId,
+            ),
+      ).called(1);
     });
   });
 }

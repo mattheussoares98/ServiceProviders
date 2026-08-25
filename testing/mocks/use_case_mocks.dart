@@ -38,6 +38,9 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
@@ -204,3 +207,9 @@ class MockWatchSlaPoliciesRealtimeUseCase extends Mock
 
 class MockWatchUserProfilesRealtimeUseCase extends Mock
     implements WatchUserProfilesRealtimeUseCase {}
+
+class MockWatchServiceProviderCompaniesRealtimeUseCase extends Mock
+    implements WatchServiceProviderCompaniesRealtimeUseCase {}
+
+class MockWatchServiceProviderProfilesRealtimeUseCase extends Mock
+    implements WatchServiceProviderProfilesRealtimeUseCase {}
