@@ -86,6 +86,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               createdAt: Value(user.createdAt),
               updatedAt: Value(user.updatedAt),
               deletedAt: Value(user.deletedAt),
+              permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           );
       return const SuccessState(data: true);
@@ -112,6 +113,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               createdAt: Value(user.createdAt),
               updatedAt: Value(user.updatedAt),
               deletedAt: Value(user.deletedAt),
+              permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           ),
         );

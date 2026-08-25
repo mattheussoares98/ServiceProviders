@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -131,6 +132,35 @@ void main() {
 
         expect(getResult, isA<SuccessState<UserProfileModel>>());
         expect(getResult.data, equals(tUserProfileModel));
+      });
+
+      test('should save a user profile with permission overrides and restore them', () async {
+        await insertTestCompany(tUserProfileModel.companyId);
+        final profileWithPermissions = UserProfileModel.fromEntity(
+          EntityFactory.makeUserProfileEntity().copyWith(
+            companyId: tUserProfileModel.companyId,
+            annulPermissionGroupId: true,
+            permissions: {
+              ResourceType.assets: {
+                PermissionAction.create: true,
+                PermissionAction.delete: false,
+              },
+            },
+            workOrders: const UserWorkOrdersPermissionOverrideEntity.empty().copyWith(
+              create: true,
+              readScope: WorkOrderReadScope.all,
+              updateScope: WorkOrderUpdateScope.assigned,
+            ),
+          ),
+        );
+
+        final saveResult = await dataSource.saveUserProfile(profileWithPermissions);
+        expect(saveResult, isA<SuccessState<bool>>());
+
+        final getResult = await dataSource.getUserProfileById(profileWithPermissions.id);
+        expect(getResult, isA<SuccessState<UserProfileModel>>());
+        expect(getResult.data!.permissions, equals(profileWithPermissions.permissions));
+        expect(getResult.data!.workOrdersPermissionOverrides, equals(profileWithPermissions.workOrdersPermissionOverrides));
       });
 
       test(
