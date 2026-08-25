@@ -56,6 +56,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_c
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_kpi_metrics_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -227,6 +228,22 @@ abstract final class EntityFactory {
       makeWorkOrderEntity(),
       makeWorkOrderEntity(),
     ];
+  }
+
+  static WorkOrderKpiMetricsEntity makeWorkOrderKpiMetricsEntity() {
+    return WorkOrderKpiMetricsEntity(
+      totalWorkOrders: _makeInt(100),
+      completedCount: _makeInt(50),
+      completedWithinSlaCount: _makeInt(45),
+      slaBreachedCount: _makeInt(5),
+      deliveryRate: _makeDouble() * 100,
+      breachRate: _makeDouble() * 100,
+      mttrMinutes: _makeDouble() * 300,
+      openCount: _makeInt(30),
+      inProgressCount: _makeInt(15),
+      delayedCount: _makeInt(5),
+      pendingApprovalCount: _makeInt(5),
+    );
   }
 
   // Task
