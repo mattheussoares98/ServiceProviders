@@ -140,9 +140,9 @@ final class ServiceProviderLocalDataSourceImpl
               contactPhone: Value(company.contactPhone),
               isActive: Value(company.isActive),
               invitationStatus: Value(company.invitationStatus?.value),
-              createdAt: Value(company.createdAt),
-              updatedAt: Value(company.updatedAt),
-              deletedAt: Value(company.deletedAt),
+              createdAt: Value(company.createdAt.toUtc()),
+              updatedAt: Value(company.updatedAt.toUtc()),
+              deletedAt: Value(company.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -169,9 +169,9 @@ final class ServiceProviderLocalDataSourceImpl
                   contactPhone: Value(company.contactPhone),
                   isActive: Value(company.isActive),
                   invitationStatus: Value(company.invitationStatus?.value),
-                  createdAt: Value(company.createdAt),
-                  updatedAt: Value(company.updatedAt),
-                  deletedAt: Value(company.deletedAt),
+                  createdAt: Value(company.createdAt.toUtc()),
+                  updatedAt: Value(company.updatedAt.toUtc()),
+                  deletedAt: Value(company.deletedAt?.toUtc()),
                 ),
               )
               .toList(),
@@ -261,8 +261,8 @@ final class ServiceProviderLocalDataSourceImpl
               email: Value(profile.email),
               phone: Value(profile.phone),
               isActive: Value(profile.isActive),
-              createdAt: Value(profile.createdAt),
-              updatedAt: Value(profile.updatedAt),
+              createdAt: Value(profile.createdAt.toUtc()),
+              updatedAt: Value(profile.updatedAt.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -289,8 +289,8 @@ final class ServiceProviderLocalDataSourceImpl
                   email: Value(profile.email),
                   phone: Value(profile.phone),
                   isActive: Value(profile.isActive),
-                  createdAt: Value(profile.createdAt),
-                  updatedAt: Value(profile.updatedAt),
+                  createdAt: Value(profile.createdAt.toUtc()),
+                  updatedAt: Value(profile.updatedAt.toUtc()),
                 ),
               )
               .toList(),
@@ -348,9 +348,9 @@ final class ServiceProviderLocalDataSourceImpl
                   ),
                   inviteToken: Value(invitation.inviteToken),
                   status: Value(invitation.status.value),
-                  createdAt: Value(invitation.createdAt),
-                  acceptedAt: Value(invitation.acceptedAt),
-                  expiresAt: Value(invitation.expiresAt),
+                  createdAt: Value(invitation.createdAt.toUtc()),
+                  acceptedAt: Value(invitation.acceptedAt?.toUtc()),
+                  expiresAt: Value(invitation.expiresAt?.toUtc()),
                 ),
               )
               .toList(),
