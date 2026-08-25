@@ -32,6 +32,7 @@ void main() {
   late MockGetCompanyUseCase mockGetCompanyUseCase;
   late MockGetAllCompaniesUseCase mockGetAllCompaniesUseCase;
   late MockSetSelectedCompanyIdUseCase mockSetSelectedCompanyIdUseCase;
+  late MockUpdateUserProfileUseCase mockUpdateUserProfileUseCase;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockUpdateCompanyLogoUseCase mockUpdateCompanyLogoUseCase;
   late MockPickAttachmentUseCase mockPickAttachmentUseCase;
@@ -40,6 +41,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCompanyEntity());
+    registerFallbackValue(EntityFactory.makeUserProfileEntity());
     registerFallbackValue(
       const PickAttachmentParams(
         source: AttachmentSource.gallery,
@@ -64,6 +66,7 @@ void main() {
     mockGetCompanyUseCase = MockGetCompanyUseCase();
     mockGetAllCompaniesUseCase = MockGetAllCompaniesUseCase();
     mockSetSelectedCompanyIdUseCase = MockSetSelectedCompanyIdUseCase();
+    mockUpdateUserProfileUseCase = MockUpdateUserProfileUseCase();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockUpdateCompanyLogoUseCase = MockUpdateCompanyLogoUseCase();
     mockPickAttachmentUseCase = MockPickAttachmentUseCase();
@@ -90,6 +93,9 @@ void main() {
       (_) async => SuccessState(data: EntityFactory.makeCompanyEntityList()),
     );
     when(() => mockSetSelectedCompanyIdUseCase.call(any())).thenAnswer((_) async {});
+    when(() => mockUpdateUserProfileUseCase.call(any())).thenAnswer(
+      (_) async => const SuccessState(data: true),
+    );
 
     companyCubit = CompanyCubit(
       useCases: CompanyCubitUseCases(
@@ -98,6 +104,7 @@ void main() {
         getCompany: mockGetCompanyUseCase,
         getAllCompanies: mockGetAllCompaniesUseCase,
         setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
+        updateUserProfile: mockUpdateUserProfileUseCase,
         getActiveCompanyId: mockGetActiveCompanyIdUseCase,
         updateCompanyLogo: mockUpdateCompanyLogoUseCase,
         pickAttachment: mockPickAttachmentUseCase,
@@ -379,17 +386,21 @@ void main() {
       act: (cubit) => cubit.switchCompany('target_company_id'),
       expect: () => <CompanyState>[],
       verify: (_) {
+        verifyNever(() => mockUpdateUserProfileUseCase.call(any()));
         verifyNever(() => mockSetSelectedCompanyIdUseCase.call(any()));
       },
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should call setSelectedCompanyId and update company in state when user is super admin',
+      'should call updateUserProfile and setSelectedCompanyId and update company in state when user is super admin and update succeeds',
       build: () {
         final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        when(() => mockUpdateUserProfileUseCase.call(any())).thenAnswer(
+          (_) async => const SuccessState(data: true),
+        );
         when(() => mockSetSelectedCompanyIdUseCase.call(any())).thenAnswer((_) async {});
         return companyCubit
           ..emit(
@@ -402,12 +413,47 @@ void main() {
       },
       act: (cubit) => cubit.switchCompany(companies[1].id),
       expect: () => [
+        isA<CompanyState>().having((s) => s.status, 'status', StateStatus.saving),
         isA<CompanyState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
             .having((s) => s.selectedCompanyId, 'selectedCompanyId', companies[1].id)
             .having((s) => s.company?.id, 'company.id', companies[1].id),
       ],
       verify: (_) {
+        verify(() => mockUpdateUserProfileUseCase.call(any())).called(1);
         verify(() => mockSetSelectedCompanyIdUseCase.call(companies[1].id)).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should not change company when updateUserProfile fails',
+      build: () {
+        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        when(() => mockUpdateUserProfileUseCase.call(any())).thenAnswer(
+          (_) async => FailureState(message: 'Update user profile failed'),
+        );
+        return companyCubit
+          ..emit(
+            CompanyState(
+              status: StateStatus.loaded,
+              companies: companies,
+              company: companies.first,
+            ),
+          );
+      },
+      act: (cubit) => cubit.switchCompany(companies[1].id),
+      expect: () => [
+        isA<CompanyState>().having((s) => s.status, 'status', StateStatus.saving),
+        isA<CompanyState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.company?.id, 'company.id', companies.first.id),
+      ],
+      verify: (_) {
+        verify(() => mockUpdateUserProfileUseCase.call(any())).called(1);
+        verifyNever(() => mockSetSelectedCompanyIdUseCase.call(any()));
       },
     );
   });
@@ -436,6 +482,7 @@ void main() {
             getCompany: mockGetCompanyUseCase,
             getAllCompanies: mockGetAllCompaniesUseCase,
             setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
+            updateUserProfile: mockUpdateUserProfileUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -459,6 +506,7 @@ void main() {
             getCompany: mockGetCompanyUseCase,
             getAllCompanies: mockGetAllCompaniesUseCase,
             setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
+            updateUserProfile: mockUpdateUserProfileUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -496,6 +544,7 @@ void main() {
             getCompany: mockGetCompanyUseCase,
             getAllCompanies: mockGetAllCompaniesUseCase,
             setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
+            updateUserProfile: mockUpdateUserProfileUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -534,6 +583,7 @@ void main() {
             getCompany: mockGetCompanyUseCase,
             getAllCompanies: mockGetAllCompaniesUseCase,
             setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
+            updateUserProfile: mockUpdateUserProfileUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,

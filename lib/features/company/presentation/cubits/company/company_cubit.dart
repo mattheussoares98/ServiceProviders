@@ -80,6 +80,18 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     final user = _useCases.getSessionUser();
     if (!user.isSuperAdmin) return;
 
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final updatedUser = user.copyWith(companyId: companyId);
+    final result = await _useCases.updateUserProfile(updatedUser);
+    if (isClosed) return;
+
+    if (result is! SuccessState<bool> || result.data != true) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      showDataStateToast(result);
+      return;
+    }
+
     await _useCases.setSelectedCompanyId(companyId);
     CompanyEntity? selectedCompany;
     if (state.companies.isNotEmpty) {
@@ -93,6 +105,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
+        status: StateStatus.loaded,
         company: selectedCompany,
         selectedCompanyId: companyId,
       ),

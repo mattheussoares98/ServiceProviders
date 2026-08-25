@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 
 @LazySingleton()
 class CompanyCubitUseCases {
@@ -17,6 +18,7 @@ class CompanyCubitUseCases {
     required this.getCompany,
     required this.getAllCompanies,
     required this.setSelectedCompanyId,
+    required this.updateUserProfile,
     required this.updateCompanyLogo,
     required this.pickAttachment,
   });
@@ -27,6 +29,7 @@ class CompanyCubitUseCases {
   final GetCompanyUseCase getCompany;
   final GetAllCompaniesUseCase getAllCompanies;
   final SetSelectedCompanyIdUseCase setSelectedCompanyId;
+  final UpdateUserProfileUseCase updateUserProfile;
   final UpdateCompanyLogoUseCase updateCompanyLogo;
   final PickAttachmentUseCase pickAttachment;
 }
