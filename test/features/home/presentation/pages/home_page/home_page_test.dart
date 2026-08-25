@@ -31,6 +31,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -93,6 +94,9 @@ class MockLocalStorageClient extends Mock implements LocalStorageClient {}
 class MockPauseWorkflowCubit extends MockCubit<PauseWorkflowState>
     implements PauseWorkflowCubit {}
 
+class MockDashboardKpisCubit extends MockCubit<DashboardKpisState>
+    implements DashboardKpisCubit {}
+
 class MockHomeCubit extends MockCubit<HomeState> implements HomeCubit {}
 
 void main() {
@@ -110,6 +114,7 @@ void main() {
   late MockSlaPoliciesCubit mockSlaPoliciesCubit;
   late MockServiceProvidersCubit mockServiceProvidersCubit;
   late MockPauseWorkflowCubit mockPauseWorkflowCubit;
+  late MockDashboardKpisCubit mockDashboardKpisCubit;
 
   late UserProfileEntity userProfile;
 
@@ -273,6 +278,14 @@ void main() {
       () => mockPauseWorkflowCubit.loadPauseReasons(),
     ).thenAnswer((_) async {});
 
+    mockDashboardKpisCubit = MockDashboardKpisCubit();
+    when(
+      () => mockDashboardKpisCubit.state,
+    ).thenReturn(const DashboardKpisState.initial());
+    when(
+      () => mockDashboardKpisCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
@@ -290,7 +303,8 @@ void main() {
       ..registerFactory<SectorsCubit>(() => mockSectorsCubit)
       ..registerFactory<SlaPoliciesCubit>(() => mockSlaPoliciesCubit)
       ..registerFactory<ServiceProvidersCubit>(() => mockServiceProvidersCubit)
-      ..registerFactory<PauseWorkflowCubit>(() => mockPauseWorkflowCubit);
+      ..registerFactory<PauseWorkflowCubit>(() => mockPauseWorkflowCubit)
+      ..registerFactory<DashboardKpisCubit>(() => mockDashboardKpisCubit);
 
     const screenDetails = ScreenDetails(
       logicalSize: Size(1920, 1280),
