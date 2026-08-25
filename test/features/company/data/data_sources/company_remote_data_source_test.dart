@@ -136,7 +136,10 @@ void main() {
         verify(
           () => mockDatabase.selectOne(
             table: 'companies',
-            filters: [SupabaseFilter.eq('id', id)],
+            filters: [
+              SupabaseFilter.eq('id', id),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
           ),
         ).called(1);
       });

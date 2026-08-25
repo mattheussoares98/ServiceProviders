@@ -65,7 +65,10 @@ final class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
       SupabaseHandler.call(() async {
         final company = await _database.selectOne(
           table: 'companies',
-          filters: [SupabaseFilter.eq('id', id)],
+          filters: [
+            SupabaseFilter.eq('id', id),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
         );
 
         if (company == null) {

@@ -57,6 +57,16 @@ void main() {
         final getResult = await dataSource.getCompany('non-existent-id');
         expect(getResult, isA<FailureState<CompanyModel>>());
       });
+
+      test('should return FailureState when company is soft-deleted', () async {
+        final deletedCompany = CompanyModel.fromEntity(
+          tCompanyEntity.copyWith(deletedAt: DateTime.now().toUtc()),
+        );
+        await dataSource.saveCompany(deletedCompany);
+
+        final getResult = await dataSource.getCompany(deletedCompany.id);
+        expect(getResult, isA<FailureState<CompanyModel>>());
+      });
     });
 
     group('saveCompanyParameters and getCompanyParameters', () {
@@ -133,6 +143,22 @@ void main() {
         () async {
           final getResult = await dataSource.getCompanyParameters(
             'non-existent-company-id',
+          );
+          expect(getResult, isA<FailureState<CompanyParameterModel>>());
+        },
+      );
+
+      test(
+        'should return FailureState when parameters are soft-deleted',
+        () async {
+          await dataSource.saveCompany(tCompanyModel);
+          final deletedParams = CompanyParameterModel.fromEntity(
+            tCompanyParameterEntity.copyWith(deletedAt: DateTime.now().toUtc()),
+          );
+          await dataSource.saveCompanyParameters(deletedParams);
+
+          final getResult = await dataSource.getCompanyParameters(
+            tCompanyModel.id,
           );
           expect(getResult, isA<FailureState<CompanyParameterModel>>());
         },

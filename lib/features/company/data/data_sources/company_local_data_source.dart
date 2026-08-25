@@ -27,7 +27,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
     return ErrorHandler.execute(() async {
       final company = await (_database.select(
         _database.companies,
-      )..where((t) => t.id.equals(id))).getSingleOrNull();
+      )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
 
       if (company != null) {
         return SuccessState(
@@ -54,7 +54,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
     return ErrorHandler.execute(() async {
       final params = await (_database.select(
         _database.companyParameters,
-      )..where((t) => t.companyId.equals(companyId))).getSingleOrNull();
+      )..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())).getSingleOrNull();
 
       if (params != null) {
         return SuccessState(
