@@ -71,4 +71,9 @@ Fires `AFTER INSERT OR UPDATE OF assigned_to_id, provider_profile_id, service_pr
 - Resolves recipient user IDs (internal assignee or provider technician/company).
 - Calls `public.dispatch_push_notification()` to notify the assigned technician, excluding `auth.uid()`.
 
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.work_orders;`) to enable granular realtime stream updates on clients.
+
 
