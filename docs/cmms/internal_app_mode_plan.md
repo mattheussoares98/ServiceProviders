@@ -106,8 +106,15 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - Active cubit integration in `WorkOrdersCubit`, `LocationsCubit`, `AssetsCubit`, `SlaPoliciesCubit`, `UsersCubit`, and `ServiceProvidersCubit`.
 - UI reactivity in pages (e.g. `WorkOrderDetailsPage`).
 
-### Gap 5 — Escalation engine ([V2 §5](/docs/cmms/v2_features.md)) 🟡
-Not started — no `escalation_policies` table, no Edge Function, no `pg_cron` job. Depends on Gap 1.
+### Gap 5 — Escalation Engine ([V2 §5](/docs/cmms/v2_features.md)) ✅ IMPLEMENTED
+**Done (2026-08-25):**
+- Configurable escalation parameters added to `company_parameters` (`advance_warning_minutes`, `advance_warning_group_ids`, `delayed_notification_interval_minutes`, `escalation_group_ids`).
+- Work order tracking columns added to `work_orders` (`advance_warning_sent_at`, `last_escalation_level`, `last_escalation_at`).
+- `public.evaluate_work_order_escalations()` evaluates active work orders and dispatches FCM push notifications to the assigned technician, advance warning groups, and cascading escalation tier groups via `dispatch_push_notification`.
+- Scheduled via `pg_cron` every 5 minutes.
+- Domain entities, response/request models, and Drift local cache (schema v28) updated.
+- `CompanyCubit` and `EscalationParametersCard` in `CompanyPage` for managing escalation parameters and reordering tiers.
+- Added `isDelayed` filter to `WorkOrderFilter`, data sources, `WorkOrderFilters` modal, and `ActiveFilters` bar.
 
 ### Gap 6 — KPI / reporting dashboard (Q4 in [V2 Resolved Questions](/docs/cmms/v2_features.md)) 🟡
 `DashboardPage` shows counts, active items, and recent work orders. "Taxa de entrega" (% completed within SLA), breach rate, and mean time-to-resolve are not reported anywhere — though the underlying SLA data is already captured.

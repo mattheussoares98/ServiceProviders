@@ -185,37 +185,27 @@ When `is_pending = true`, the system fires a **FCM push notification** to the re
 
 ---
 
-## 5. Escalation Engine
+## 5. Escalation Engine & Advance Warning — ✅ IMPLEMENTED
 
-### 5.1 Escalation Policy
-If a work order is not progressed within a configurable time window, notifications escalate automatically through the organizational hierarchy.
+### 5.1 Escalation & Advance Warning Parameters
+Rather than maintaining separate standalone escalation policy tables, escalation and advance warning configurations are centralized directly in `company_parameters`:
 
-**New table: `escalation_policies`**
-| Column | Type | Description |
-|---|---|---|
-| `company_id` | UUID | Tenant FK |
-| `name` | VARCHAR(100) | Policy name |
-| `trigger_after_minutes` | INT | Minutes of inactivity before triggering |
-| `escalation_order` | JSONB | Ordered list of roles/user_ids to notify |
+- `advance_warning_minutes` (INT, default 30): Lead time before SLA deadline to dispatch an advance expiration warning.
+- `advance_warning_group_ids` (JSONB): Permission groups to notify alongside the assigned technician.
+- `delayed_notification_interval_minutes` (INT, default 30): Re-notification interval for overdue work orders.
+- `escalation_group_ids` (JSONB): Ordered list of permission groups representing cascading escalation tiers.
 
-**Example `escalation_order`:**
-```json
-[
-  { "level": 1, "role": "supervisor", "delay_minutes": 0 },
-  { "level": 2, "role": "manager", "delay_minutes": 60 },
-  { "level": 3, "role": "admin", "delay_minutes": 120 }
-]
-```
-
-**`work_orders` additions:**
-| Column | Type | Description |
-|---|---|---|
-| `escalation_policy_id` | UUID? | FK → `escalation_policies.id` (Set Null) |
-| `last_escalation_level` | INT? | Current escalation level reached |
-| `last_escalation_at` | TIMESTAMP? | When last escalation was triggered |
+**`work_orders` tracking columns:**
+- `advance_warning_sent_at` (TIMESTAMP?): Stamped when advance warning notification is dispatched.
+- `last_escalation_level` (INT, default 0): Current escalation tier reached.
+- `last_escalation_at` (TIMESTAMP?): Timestamp of the last escalation notification cycle.
 
 ### 5.2 Escalation Engine Runtime
-The engine runs as a **Supabase Edge Function** triggered by a `pg_cron` job every N minutes, querying overdue work orders and dispatching FCM notifications.
+The engine runs via `public.evaluate_work_order_escalations()` triggered by a `pg_cron` schedule every 5 minutes:
+- Evaluates open / in-progress work orders approaching their SLA deadline and sends push notifications.
+- Evaluates overdue work orders whose elapsed delay exceeds `last_escalation_level * interval`, escalating notifications to the next group tier in the hierarchy.
+- Always notifies the assigned user (`assigned_to_id`) in every cycle.
+
 
 ---
 
