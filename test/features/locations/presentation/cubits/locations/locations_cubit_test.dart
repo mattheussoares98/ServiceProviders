@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -75,6 +79,8 @@ void main() {
   late MockCreateAreaUseCase mockCreateArea;
   late MockUpdateAreaUseCase mockUpdateArea;
   late MockDeleteAreaUseCase mockDeleteArea;
+  late MockWatchLocationsRealtimeUseCase mockWatchLocationsRealtime;
+  late MockWatchAreasRealtimeUseCase mockWatchAreasRealtime;
   late MockNavigationClient mockNavigationClient;
 
   late List<LocationEntity> tLocations;
@@ -104,6 +110,8 @@ void main() {
     mockCreateArea = MockCreateAreaUseCase();
     mockUpdateArea = MockUpdateAreaUseCase();
     mockDeleteArea = MockDeleteAreaUseCase();
+    mockWatchLocationsRealtime = MockWatchLocationsRealtimeUseCase();
+    mockWatchAreasRealtime = MockWatchAreasRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -115,6 +123,12 @@ void main() {
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = LocationsCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -130,6 +144,8 @@ void main() {
       createArea: mockCreateArea,
       updateArea: mockUpdateArea,
       deleteArea: mockDeleteArea,
+      watchLocationsRealtime: mockWatchLocationsRealtime,
+      watchAreasRealtime: mockWatchAreasRealtime,
     );
 
     cubit = LocationsCubit(useCases: useCases);
@@ -1062,6 +1078,183 @@ void main() {
         ).thenAnswer((_) async => true);
         cubit.popRoute();
         verify(() => mockNavigationClient.maybePop()).called(1);
+      });
+    });
+
+    group('Realtime Events', () {
+      test('prepends new location on insert event', () async {
+        final controller = StreamController<RealtimeEvent<LocationEntity>>();
+        when(
+          () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        final newLoc = EntityFactory.makeLocationEntity();
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: newLoc.id,
+            entity: newLoc,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(testCubit.state.locations, contains(newLoc));
+        await testCubit.close();
+        await controller.close();
+      });
+
+      test('updates existing location in-place on update event', () async {
+        final controller = StreamController<RealtimeEvent<LocationEntity>>();
+        when(
+          () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        final existingLoc = tLocations.first;
+        testCubit.emit(testCubit.state.copyWith(locations: tLocations));
+
+        final updatedLoc = existingLoc.copyWith(name: 'Updated Location Name');
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: updatedLoc.id,
+            entity: updatedLoc,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        final found = testCubit.state.locations.firstWhere((l) => l.id == existingLoc.id);
+        expect(found.name, 'Updated Location Name');
+        await testCubit.close();
+        await controller.close();
+      });
+
+      test('removes location on delete event', () async {
+        final controller = StreamController<RealtimeEvent<LocationEntity>>();
+        when(
+          () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        testCubit.emit(testCubit.state.copyWith(locations: tLocations));
+
+        final toDelete = tLocations.first;
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.delete,
+            id: toDelete.id,
+            entity: null,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(testCubit.state.locations.any((l) => l.id == toDelete.id), isFalse);
+        await testCubit.close();
+        await controller.close();
+      });
+
+      test('updates areas and rebuilds areasByLocation on area realtime event', () async {
+        final controller = StreamController<RealtimeEvent<AreaEntity>>();
+        when(
+          () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        final newArea = EntityFactory.makeAreaEntity();
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: newArea.id,
+            entity: newArea,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(testCubit.state.allAreas, contains(newArea));
+        expect(testCubit.state.areasByLocation[newArea.locationId], contains(newArea));
+        await testCubit.close();
+        await controller.close();
       });
     });
   });

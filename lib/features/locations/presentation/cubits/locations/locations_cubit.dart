@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -14,9 +18,112 @@ part 'locations_state.dart';
 class LocationsCubit extends BaseCubit<LocationsState> {
   LocationsCubit({required LocationsCubitUseCases useCases})
     : _useCases = useCases,
-      super(const LocationsState.initial());
+      super(const LocationsState.initial()) {
+    _initRealtime();
+  }
 
   final LocationsCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<LocationEntity>>? _locationsSubscription;
+  StreamSubscription<RealtimeEvent<AreaEntity>>? _areasSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _locationsSubscription = _useCases
+        .watchLocationsRealtime(companyId: companyId)
+        .listen(_handleLocationRealtimeEvent);
+    _areasSubscription = _useCases
+        .watchAreasRealtime(companyId: companyId)
+        .listen(_handleAreaRealtimeEvent);
+  }
+
+  void _handleLocationRealtimeEvent(RealtimeEvent<LocationEntity> event) {
+    if (isClosed) return;
+
+    final currentLocations = List<LocationEntity>.from(state.locations);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final index = currentLocations.indexWhere((l) => l.id == event.id);
+          if (index == -1) {
+            currentLocations.insert(0, event.entity!);
+          } else {
+            currentLocations[index] = event.entity!;
+          }
+          emit(state.copyWith(locations: currentLocations));
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentLocations.indexWhere((l) => l.id == event.id);
+          if (index != -1) {
+            currentLocations[index] = event.entity!;
+          } else {
+            currentLocations.add(event.entity!);
+          }
+          emit(state.copyWith(locations: currentLocations));
+        }
+        break;
+      case RealtimeEventType.delete:
+        final index = currentLocations.indexWhere((l) => l.id == event.id);
+        if (index != -1) {
+          currentLocations.removeAt(index);
+          emit(state.copyWith(locations: currentLocations));
+        }
+        break;
+    }
+  }
+
+  void _handleAreaRealtimeEvent(RealtimeEvent<AreaEntity> event) {
+    if (isClosed) return;
+
+    final currentAreas = List<AreaEntity>.from(state.allAreas);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final index = currentAreas.indexWhere((a) => a.id == event.id);
+          if (index == -1) {
+            currentAreas.insert(0, event.entity!);
+          } else {
+            currentAreas[index] = event.entity!;
+          }
+          _rebuildAreasState(currentAreas);
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentAreas.indexWhere((a) => a.id == event.id);
+          if (index != -1) {
+            currentAreas[index] = event.entity!;
+          } else {
+            currentAreas.add(event.entity!);
+          }
+          _rebuildAreasState(currentAreas);
+        }
+        break;
+      case RealtimeEventType.delete:
+        final index = currentAreas.indexWhere((a) => a.id == event.id);
+        if (index != -1) {
+          currentAreas.removeAt(index);
+          _rebuildAreasState(currentAreas);
+        }
+        break;
+    }
+  }
+
+  void _rebuildAreasState(List<AreaEntity> areas) {
+    final Map<String, List<AreaEntity>> areasByLocation = {};
+    for (final area in areas) {
+      areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
+    }
+    emit(
+      state.copyWith(
+        allAreas: areas,
+        areasByLocation: areasByLocation,
+      ),
+    );
+  }
 
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
     final targetCompanyId = _useCases.getActiveCompanyId();
@@ -329,5 +436,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
   void popRoute() {
     popRouteAdaptively();
+  }
+
+  @override
+  Future<void> close() {
+    _locationsSubscription?.cancel();
+    _areasSubscription?.cancel();
+    return super.close();
   }
 }

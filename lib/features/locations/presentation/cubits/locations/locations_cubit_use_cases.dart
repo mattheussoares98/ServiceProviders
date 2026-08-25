@@ -12,6 +12,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 
 @LazySingleton()
 class LocationsCubitUseCases {
@@ -29,6 +31,8 @@ class LocationsCubitUseCases {
     required this.createArea,
     required this.updateArea,
     required this.deleteArea,
+    required this.watchLocationsRealtime,
+    required this.watchAreasRealtime,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -44,4 +48,6 @@ class LocationsCubitUseCases {
   final CreateAreaUseCase createArea;
   final UpdateAreaUseCase updateArea;
   final DeleteAreaUseCase deleteArea;
+  final WatchLocationsRealtimeUseCase watchLocationsRealtime;
+  final WatchAreasRealtimeUseCase watchAreasRealtime;
 }
