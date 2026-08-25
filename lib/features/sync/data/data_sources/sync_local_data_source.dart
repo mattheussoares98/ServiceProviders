@@ -85,8 +85,8 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
                     status: SyncStatus.fromCode(row.status),
                     attempts: row.attempts,
                     lastError: row.lastError,
-                    createdAt: row.createdAt,
-                    syncedAt: row.syncedAt,
+                    createdAt: row.createdAt.toUtc(),
+                    syncedAt: row.syncedAt?.toUtc(),
                   ),
                 )
                 .toList();
@@ -188,8 +188,8 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
                   status: SyncStatus.fromCode(row.status),
                   attempts: row.attempts,
                   lastError: row.lastError,
-                  createdAt: row.createdAt,
-                  syncedAt: row.syncedAt,
+                  createdAt: row.createdAt.toUtc(),
+                  syncedAt: row.syncedAt?.toUtc(),
                 ),
               )
               .toList(),
