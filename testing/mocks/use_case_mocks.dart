@@ -38,6 +38,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/updat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/create_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_permission_group_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_pending_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
@@ -180,3 +181,6 @@ class MockGetAllCompaniesUseCase extends Mock
 
 class MockSetSelectedCompanyIdUseCase extends Mock
     implements SetSelectedCompanyIdUseCase {}
+
+class MockWatchWorkOrdersRealtimeUseCase extends Mock
+    implements WatchWorkOrdersRealtimeUseCase {}

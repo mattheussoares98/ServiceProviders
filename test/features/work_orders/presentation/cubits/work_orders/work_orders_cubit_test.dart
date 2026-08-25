@@ -20,6 +20,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -124,9 +126,11 @@ void main() {
   mockGetServiceProviderCompaniesByIds;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
+  late MockWatchWorkOrdersRealtimeUseCase mockWatchWorkOrdersRealtime;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
+  late WorkOrdersCubitUseCases useCases;
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
@@ -189,12 +193,16 @@ void main() {
         MockGetServiceProviderCompaniesByIdsUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
+    mockWatchWorkOrdersRealtime = MockWatchWorkOrdersRealtimeUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
 
     when(() => mockSyncEngine.onSyncCompleted).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWatchWorkOrdersRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
@@ -211,7 +219,7 @@ void main() {
       () => mockDeleteAttachment(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
 
-    final useCases = WorkOrdersCubitUseCases(
+    useCases = WorkOrdersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
       getWorkOrders: mockGetWorkOrders,
       getWorkOrderById: mockGetWorkOrderById,
@@ -229,6 +237,7 @@ void main() {
       cancelPause: mockCancelPause,
       syncWorkOrders: mockSyncWorkOrders,
       syncEngine: mockSyncEngine,
+      watchWorkOrdersRealtime: mockWatchWorkOrdersRealtime,
       getProviderWorkOrders: mockGetProviderWorkOrders,
       getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
@@ -2561,6 +2570,7 @@ void main() {
           cancelPause: mockCancelPause,
           syncWorkOrders: mockSyncWorkOrders,
           syncEngine: mockSyncEngine,
+          watchWorkOrdersRealtime: mockWatchWorkOrdersRealtime,
           getProviderWorkOrders: mockGetProviderWorkOrders,
           getSessionProviderProfile: mockGetSessionProviderProfile,
           getServiceProviderProfilesByAuthUser:
@@ -2579,6 +2589,93 @@ void main() {
         await syncController.close();
       });
     });
+
+    group('Realtime Work Order Events', () {
+      late StreamController<RealtimeWorkOrderEvent> realtimeController;
+
+      setUp(() {
+        realtimeController = StreamController<RealtimeWorkOrderEvent>.broadcast();
+        when(
+          () => mockWatchWorkOrdersRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => realtimeController.stream);
+        cubit = WorkOrdersCubit(useCases: useCases);
+      });
+
+      tearDown(() {
+        realtimeController.close();
+      });
+
+      test('updates work order in-place when UPDATE event arrives', () async {
+        final existingOrder = EntityFactory.makeWorkOrderEntity();
+        final updatedOrder = existingOrder.copyWith(title: 'Updated in Realtime');
+
+        when(
+          () => mockGetWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [existingOrder]));
+        when(
+          () => mockGetChangeRequests(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        await cubit.loadWorkOrdersAndChangeRequests();
+
+        expect(cubit.state.workOrders.first.title, existingOrder.title);
+
+        realtimeController.add(
+          RealtimeWorkOrderEvent(
+            eventType: RealtimeWorkOrderEventType.update,
+            workOrderId: existingOrder.id,
+            workOrder: updatedOrder,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(cubit.state.workOrders.first.title, 'Updated in Realtime');
+      });
+
+      test('prepends new work order when INSERT event arrives', () async {
+        final newOrder = EntityFactory.makeWorkOrderEntity();
+
+        realtimeController.add(
+          RealtimeWorkOrderEvent(
+            eventType: RealtimeWorkOrderEventType.insert,
+            workOrderId: newOrder.id,
+            workOrder: newOrder,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(cubit.state.workOrders, contains(newOrder));
+      });
+
+      test('removes work order when DELETE event arrives', () async {
+        final existingOrder = EntityFactory.makeWorkOrderEntity();
+
+        when(
+          () => mockGetWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [existingOrder]));
+        when(
+          () => mockGetChangeRequests(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        await cubit.loadWorkOrdersAndChangeRequests();
+        expect(cubit.state.workOrders.length, 1);
+
+        realtimeController.add(
+          RealtimeWorkOrderEvent(
+            eventType: RealtimeWorkOrderEventType.delete,
+            workOrderId: existingOrder.id,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(cubit.state.workOrders, isEmpty);
+      });
+    });
   });
 
   _providerModeTests();
@@ -2595,6 +2692,7 @@ void _providerModeTests() {
   mockGetServiceProviderCompaniesByIds;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
+  late MockWatchWorkOrdersRealtimeUseCase mockWatchWorkOrdersRealtime;
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
   late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
   late MockCreateWorkOrderUseCase mockCreateWorkOrder;
@@ -2624,6 +2722,7 @@ void _providerModeTests() {
       cancelPause: MockCancelPauseUseCase(),
       syncWorkOrders: MockSyncWorkOrdersUseCase(),
       syncEngine: mockSyncEngine,
+      watchWorkOrdersRealtime: mockWatchWorkOrdersRealtime,
       getProviderWorkOrders: mockGetProviderWorkOrders,
       getSessionProviderProfile: mockGetSessionProviderProfile,
       getServiceProviderProfilesByAuthUser:
@@ -2653,6 +2752,7 @@ void _providerModeTests() {
           MockGetServiceProviderCompaniesByIdsUseCase();
       mockGetSessionUser = MockGetSessionUserUseCase();
       mockGetSelectedMode = MockGetSelectedModeUseCase();
+      mockWatchWorkOrdersRealtime = MockWatchWorkOrdersRealtimeUseCase();
       mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
       mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
       mockCreateWorkOrder = MockCreateWorkOrderUseCase();
@@ -2660,6 +2760,9 @@ void _providerModeTests() {
       mockSyncEngine = MockSyncEngine();
       when(() => mockSyncEngine.onSyncCompleted)
           .thenAnswer((_) => const Stream.empty());
+      when(
+        () => mockWatchWorkOrdersRealtime(companyId: any(named: 'companyId')),
+      ).thenAnswer((_) => const Stream.empty());
       when(
         () => mockGetAttachments(any()),
       ).thenAnswer((_) async => const SuccessState(data: []));

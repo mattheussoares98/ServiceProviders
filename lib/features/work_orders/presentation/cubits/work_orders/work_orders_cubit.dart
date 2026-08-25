@@ -12,6 +12,8 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
@@ -38,10 +40,62 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     _syncSubscription = _useCases.syncEngine.onSyncCompleted.listen((_) {
       _refreshWorkOrders();
     });
+    _initRealtime();
   }
 
   final WorkOrdersCubitUseCases _useCases;
   StreamSubscription<void>? _syncSubscription;
+  StreamSubscription<RealtimeWorkOrderEvent>? _realtimeSubscription;
+  final _realtimeEventsController =
+      StreamController<RealtimeWorkOrderEvent>.broadcast();
+
+  Stream<RealtimeWorkOrderEvent> get realtimeEvents =>
+      _realtimeEventsController.stream;
+
+  void _initRealtime() {
+    _realtimeSubscription?.cancel();
+    final companyId = _isProviderMode ? null : _useCases.getActiveCompanyId();
+    _realtimeSubscription = _useCases
+        .watchWorkOrdersRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeWorkOrderEvent event) {
+    if (isClosed) return;
+
+    switch (event.eventType) {
+      case RealtimeWorkOrderEventType.update:
+        if (event.workOrder != null) {
+          final exists = state.workOrders.any((wo) => wo.id == event.workOrderId);
+          if (exists) {
+            final updated = state.workOrders
+                .map((wo) => wo.id == event.workOrderId ? event.workOrder! : wo)
+                .toList();
+            emit(state.copyWith(workOrders: updated));
+          }
+        }
+      case RealtimeWorkOrderEventType.insert:
+        if (event.workOrder != null) {
+          final exists = state.workOrders.any((wo) => wo.id == event.workOrderId);
+          if (!exists) {
+            emit(
+              state.copyWith(
+                workOrders: [event.workOrder!, ...state.workOrders],
+              ),
+            );
+          }
+        }
+      case RealtimeWorkOrderEventType.delete:
+        final updated = state.workOrders
+            .where((wo) => wo.id != event.workOrderId)
+            .toList();
+        emit(state.copyWith(workOrders: updated));
+    }
+
+    if (!_realtimeEventsController.isClosed) {
+      _realtimeEventsController.add(event);
+    }
+  }
 
   static const _pageSize = 50;
 
@@ -937,6 +991,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   @override
   Future<void> close() {
     _syncSubscription?.cancel();
+    _realtimeSubscription?.cancel();
+    _realtimeEventsController.close();
     return super.close();
   }
 }
