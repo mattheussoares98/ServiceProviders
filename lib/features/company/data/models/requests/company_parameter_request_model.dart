@@ -18,6 +18,10 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     required super.sandboxQuotaMb,
     required super.maxSyncAttempts,
     required super.inviteExpiryHours,
+    super.advanceWarningMinutes = 60,
+    super.advanceWarningGroupIds = const [],
+    super.delayedNotificationIntervalMinutes = 60,
+    super.escalationGroupIds = const [],
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
@@ -38,6 +42,11 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     sandboxQuotaMb: entity.sandboxQuotaMb,
     maxSyncAttempts: entity.maxSyncAttempts,
     inviteExpiryHours: entity.inviteExpiryHours,
+    advanceWarningMinutes: entity.advanceWarningMinutes,
+    advanceWarningGroupIds: entity.advanceWarningGroupIds,
+    delayedNotificationIntervalMinutes:
+        entity.delayedNotificationIntervalMinutes,
+    escalationGroupIds: entity.escalationGroupIds,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     deletedAt: entity.deletedAt,
@@ -59,6 +68,19 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
         sandboxQuotaMb: json['sandbox_quota_mb'] as int? ?? 1024,
         maxSyncAttempts: json['max_sync_attempts'] as int? ?? 3,
         inviteExpiryHours: json['invite_expiry_hours'] as int? ?? 24,
+        advanceWarningMinutes: json['advance_warning_minutes'] as int? ?? 60,
+        advanceWarningGroupIds:
+            (json['advance_warning_group_ids'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+        delayedNotificationIntervalMinutes:
+            json['delayed_notification_interval_minutes'] as int? ?? 60,
+        escalationGroupIds:
+            (json['escalation_group_ids'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
         createdAt: (json['created_at'] as String?).toUtcDateTime() ??
             DateTime.now().toUtc(),
         updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
@@ -79,6 +101,10 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     'sandbox_quota_mb': sandboxQuotaMb,
     'max_sync_attempts': maxSyncAttempts,
     'invite_expiry_hours': inviteExpiryHours,
+    'advance_warning_minutes': advanceWarningMinutes,
+    'advance_warning_group_ids': advanceWarningGroupIds,
+    'delayed_notification_interval_minutes': delayedNotificationIntervalMinutes,
+    'escalation_group_ids': escalationGroupIds,
     'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
@@ -96,6 +122,10 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     sandboxQuotaMb: sandboxQuotaMb,
     maxSyncAttempts: maxSyncAttempts,
     inviteExpiryHours: inviteExpiryHours,
+    advanceWarningMinutes: advanceWarningMinutes,
+    advanceWarningGroupIds: advanceWarningGroupIds,
+    delayedNotificationIntervalMinutes: delayedNotificationIntervalMinutes,
+    escalationGroupIds: escalationGroupIds,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
