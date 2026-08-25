@@ -58,15 +58,15 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
           manufacturer: asset.manufacturer,
           model: asset.model,
           serialNumber: asset.serialNumber,
-          installDate: asset.installDate,
-          warrantyExpiration: asset.warrantyExpiration,
-          revisionForecast: asset.revisionForecast,
+          installDate: asset.installDate?.toUtc(),
+          warrantyExpiration: asset.warrantyExpiration?.toUtc(),
+          revisionForecast: asset.revisionForecast?.toUtc(),
           status: AssetStatus.fromCode(asset.status),
           criticality: AssetCriticality.fromCode(asset.criticality),
           notes: asset.notes,
-          createdAt: asset.createdAt,
-          updatedAt: asset.updatedAt,
-          deletedAt: asset.deletedAt,
+          createdAt: asset.createdAt.toUtc(),
+          updatedAt: asset.updatedAt.toUtc(),
+          deletedAt: asset.deletedAt?.toUtc(),
         );
       }).toList();
 
@@ -111,15 +111,15 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
         manufacturer: asset.manufacturer,
         model: asset.model,
         serialNumber: asset.serialNumber,
-        installDate: asset.installDate,
-        warrantyExpiration: asset.warrantyExpiration,
-        revisionForecast: asset.revisionForecast,
+        installDate: asset.installDate?.toUtc(),
+        warrantyExpiration: asset.warrantyExpiration?.toUtc(),
+        revisionForecast: asset.revisionForecast?.toUtc(),
         status: AssetStatus.fromCode(asset.status),
         criticality: AssetCriticality.fromCode(asset.criticality),
         notes: asset.notes,
-        createdAt: asset.createdAt,
-        updatedAt: asset.updatedAt,
-        deletedAt: asset.deletedAt,
+        createdAt: asset.createdAt.toUtc(),
+        updatedAt: asset.updatedAt.toUtc(),
+        deletedAt: asset.deletedAt?.toUtc(),
       );
 
       return SuccessState(data: model);
