@@ -47,6 +47,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
@@ -854,6 +856,24 @@ abstract final class EntityFactory {
       makeSyncErrorEntity(),
       makeSyncErrorEntity(),
       makeSyncErrorEntity(),
+    ];
+  }
+
+  // Realtime Work Order Event
+  static RealtimeWorkOrderEvent makeRealtimeWorkOrderEvent() {
+    return RealtimeWorkOrderEvent(
+      eventType: RealtimeWorkOrderEventType.update,
+      workOrderId: _makeId(),
+      companyId: _makeId(),
+      workOrder: makeWorkOrderEntity(),
+    );
+  }
+
+  static List<RealtimeWorkOrderEvent> makeRealtimeWorkOrderEventList() {
+    return [
+      makeRealtimeWorkOrderEvent(),
+      makeRealtimeWorkOrderEvent(),
+      makeRealtimeWorkOrderEvent(),
     ];
   }
 }
