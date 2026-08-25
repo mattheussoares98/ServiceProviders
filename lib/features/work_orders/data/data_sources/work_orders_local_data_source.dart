@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -235,7 +236,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       final row = await query.getSingleOrNull();
 
       if (row == null) {
-        return FailureState(message: 'Work order not found');
+        return FailureState(
+          message: 'Ordem de serviço não encontrada'.hardcoded,
+        );
       }
 
       final attachmentsQuery = _database.select(_database.attachments)
@@ -351,18 +354,18 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               priority: Value(workOrder.priority.code),
               status: Value(workOrder.status.code),
               type: Value(workOrder.type.code),
-              scheduledDate: Value(workOrder.scheduledDate),
-              startedAt: Value(workOrder.startedAt),
-              completedAt: Value(workOrder.completedAt),
+              scheduledDate: Value(workOrder.scheduledDate?.toUtc()),
+              startedAt: Value(workOrder.startedAt?.toUtc()),
+              completedAt: Value(workOrder.completedAt?.toUtc()),
               estimatedDuration: Value(workOrder.estimatedDuration),
               actualDuration: Value(workOrder.actualDuration),
               laborCost: Value(workOrder.laborCost),
               partsCost: Value(workOrder.partsCost),
               totalCost: Value(workOrder.totalCost),
               notes: Value(workOrder.notes),
-              createdAt: Value(workOrder.createdAt),
-              updatedAt: Value(workOrder.updatedAt),
-              deletedAt: Value(workOrder.deletedAt),
+              createdAt: Value(workOrder.createdAt.toUtc()),
+              updatedAt: Value(workOrder.updatedAt.toUtc()),
+              deletedAt: Value(workOrder.deletedAt?.toUtc()),
               slaPolicyId: Value(workOrder.slaPolicyId),
               completionReason: Value(workOrder.completionReason),
               completionResponsibility: Value(
@@ -386,8 +389,8 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
                 fileSizeBytes: Value(attachment.fileSizeBytes),
                 isCompressed: Value(attachment.isCompressed),
                 uploadStatus: Value(attachment.uploadStatus.code),
-                createdAt: Value(attachment.createdAt),
-                deletedAt: Value(attachment.deletedAt),
+                createdAt: Value(attachment.createdAt.toUtc()),
+                deletedAt: Value(attachment.deletedAt?.toUtc()),
                 originalPath: Value(attachment.originalPath),
               ),
             );
@@ -482,12 +485,12 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               title: Value(task.title),
               description: Value(task.description),
               isCompleted: Value(task.isCompleted),
-              completedAt: Value(task.completedAt),
+              completedAt: Value(task.completedAt?.toUtc()),
               completedById: Value(task.completedById),
               sortOrder: Value(task.sortOrder),
-              createdAt: Value(task.createdAt),
-              updatedAt: Value(task.updatedAt),
-              deletedAt: Value(task.deletedAt),
+              createdAt: Value(task.createdAt.toUtc()),
+              updatedAt: Value(task.updatedAt.toUtc()),
+              deletedAt: Value(task.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -499,7 +502,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.tasks)
         ..where((t) => t.id.equals(id));
-      await query.write(TasksCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(
+        TasksCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -554,9 +559,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               status: Value(request.status.code),
               reviewedById: Value(request.reviewedById),
               rejectionReason: Value(request.rejectionReason),
-              createdAt: Value(request.createdAt),
-              updatedAt: Value(request.updatedAt),
-              deletedAt: Value(request.deletedAt),
+              createdAt: Value(request.createdAt.toUtc()),
+              updatedAt: Value(request.updatedAt.toUtc()),
+              deletedAt: Value(request.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -578,7 +583,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           status: Value(status),
           rejectionReason: Value(rejectionReason),
           reviewedById: Value(reviewedById),
-          updatedAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now().toUtc()),
         ),
       );
       return const SuccessState(data: true);
@@ -629,7 +634,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               action: Value(history.action),
               oldValue: Value(history.oldValue),
               newValue: Value(history.newValue),
-              createdAt: Value(history.createdAt),
+              createdAt: Value(history.createdAt.toUtc()),
             ),
           );
       return const SuccessState(data: true);
