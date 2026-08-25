@@ -63,8 +63,8 @@ final class WorkOrderObservationsLocalDataSourceImpl
               ),
               authorName: observation.authorName,
               content: observation.content,
-              createdAt: Value(observation.createdAt),
-              updatedAt: Value(observation.updatedAt),
+              createdAt: Value(observation.createdAt.toUtc()),
+              updatedAt: Value(observation.updatedAt.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -87,8 +87,8 @@ final class WorkOrderObservationsLocalDataSourceImpl
                   authorProviderProfileId: Value(o.authorProviderProfileId),
                   authorName: o.authorName,
                   content: o.content,
-                  createdAt: Value(o.createdAt),
-                  updatedAt: Value(o.updatedAt),
+                  createdAt: Value(o.createdAt.toUtc()),
+                  updatedAt: Value(o.updatedAt.toUtc()),
                 ),
               )
               .toList(),
@@ -105,7 +105,7 @@ final class WorkOrderObservationsLocalDataSourceImpl
         ..where((t) => t.id.equals(observationId));
       await query.write(
         WorkOrderObservationsCompanion(
-          deletedAt: Value(DateTime.now()),
+          deletedAt: Value(DateTime.now().toUtc()),
         ),
       );
       return const SuccessState(data: true);
