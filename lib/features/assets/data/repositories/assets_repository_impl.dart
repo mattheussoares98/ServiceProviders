@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
@@ -119,4 +121,29 @@ final class AssetsRepositoryImpl implements AssetsRepository {
         },
         localCallback: () => _localDataSource.deleteAsset(id),
       );
+
+  @override
+  Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({
+    String? companyId,
+  }) async* {
+    await for (final event in _remoteDataSource.watchAssetsRealtime(
+      companyId: companyId,
+    )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveAsset(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteAsset(event.id);
+      }
+
+      yield RealtimeEvent<AssetEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
+  }
 }

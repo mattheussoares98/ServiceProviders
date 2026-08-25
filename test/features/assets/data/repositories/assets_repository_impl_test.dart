@@ -2,6 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
 import 'package:o_jogo_da_obra/features/assets/data/repositories/assets_repository_impl.dart';
@@ -329,6 +331,82 @@ void main() {
           verify(
             () => mockLocalDataSource.deleteAsset(tAssetEntity.id),
           ).called(1);
+        },
+      );
+    });
+
+    group('Realtime', () {
+      test(
+        'watchAssetsRealtime caches insert/update in local and emits event',
+        () async {
+          final event = RealtimeEvent<AssetModel>(
+            eventType: RealtimeEventType.insert,
+            id: tAssetModel.id,
+            companyId: tCompanyId,
+            entity: tAssetModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAssetsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.saveAsset(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAssetsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AssetEntity>>((e) {
+                return e.eventType == RealtimeEventType.insert &&
+                    e.id == tAssetModel.id &&
+                    e.entity?.name == tAssetModel.name;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.saveAsset(tAssetModel)).called(1);
+        },
+      );
+
+      test(
+        'watchAssetsRealtime deletes from local and emits event on delete',
+        () async {
+          final event = RealtimeEvent<AssetModel>(
+            eventType: RealtimeEventType.delete,
+            id: tAssetModel.id,
+            companyId: tCompanyId,
+            entity: null,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAssetsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteAsset(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAssetsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AssetEntity>>((e) {
+                return e.eventType == RealtimeEventType.delete &&
+                    e.id == tAssetModel.id &&
+                    e.entity == null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteAsset(tAssetModel.id)).called(1);
         },
       );
     });
