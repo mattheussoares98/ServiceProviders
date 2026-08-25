@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 
@@ -7,4 +8,7 @@ abstract interface class SlaRepository {
   FutureBool createSlaPolicy(SlaPolicyEntity policy);
   FutureBool updateSlaPolicy(SlaPolicyEntity policy);
   FutureBool deleteSlaPolicy(String id);
+  Stream<RealtimeEvent<SlaPolicyEntity>> watchSlaPoliciesRealtime({
+    String? companyId,
+  });
 }

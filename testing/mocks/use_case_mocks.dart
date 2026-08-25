@@ -23,6 +23,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_r
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
@@ -196,3 +197,6 @@ class MockWatchAreasRealtimeUseCase extends Mock
 
 class MockWatchAssetsRealtimeUseCase extends Mock
     implements WatchAssetsRealtimeUseCase {}
+
+class MockWatchSlaPoliciesRealtimeUseCase extends Mock
+    implements WatchSlaPoliciesRealtimeUseCase {}

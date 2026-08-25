@@ -2,11 +2,13 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla_policy_use_case.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -19,6 +21,7 @@ void main() {
   late CreateSlaPolicyUseCase createSlaPolicyUseCase;
   late UpdateSlaPolicyUseCase updateSlaPolicyUseCase;
   late DeleteSlaPolicyUseCase deleteSlaPolicyUseCase;
+  late WatchSlaPoliciesRealtimeUseCase watchSlaPoliciesRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeSlaPolicyEntity());
@@ -40,6 +43,9 @@ void main() {
       slaRepository: mockSlaRepository,
     );
     deleteSlaPolicyUseCase = DeleteSlaPolicyUseCase(
+      slaRepository: mockSlaRepository,
+    );
+    watchSlaPoliciesRealtimeUseCase = WatchSlaPoliciesRealtimeUseCase(
       slaRepository: mockSlaRepository,
     );
   });
@@ -123,6 +129,29 @@ void main() {
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
       verify(() => mockSlaRepository.deleteSlaPolicy(tId)).called(1);
+    });
+  });
+
+  group('WatchSlaPoliciesRealtimeUseCase', () {
+    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+    final tCompanyId = faker.guid.guid();
+
+    test('should return stream from repository', () {
+      final event = EntityFactory.makeRealtimeEvent<SlaPolicyEntity>(
+        entity: tSlaPolicy,
+      );
+      when(
+        () => mockSlaRepository.watchSlaPoliciesRealtime(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer((_) => Stream.value(event));
+
+      final result = watchSlaPoliciesRealtimeUseCase(companyId: tCompanyId);
+
+      expect(result, emits(event));
+      verify(
+        () => mockSlaRepository.watchSlaPoliciesRealtime(companyId: tCompanyId),
+      ).called(1);
     });
   });
 }
