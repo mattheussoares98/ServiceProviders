@@ -54,9 +54,9 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
               id: Value(sector.id),
               companyId: Value(sector.companyId),
               name: Value(sector.name),
-              createdAt: Value(sector.createdAt),
-              updatedAt: Value(sector.updatedAt),
-              deletedAt: Value(sector.deletedAt),
+              createdAt: Value(sector.createdAt.toUtc()),
+              updatedAt: Value(sector.updatedAt.toUtc()),
+              deletedAt: Value(sector.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -75,9 +75,9 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
                   id: Value(sector.id),
                   companyId: Value(sector.companyId),
                   name: Value(sector.name),
-                  createdAt: Value(sector.createdAt),
-                  updatedAt: Value(sector.updatedAt),
-                  deletedAt: Value(sector.deletedAt),
+                  createdAt: Value(sector.createdAt.toUtc()),
+                  updatedAt: Value(sector.updatedAt.toUtc()),
+                  deletedAt: Value(sector.deletedAt?.toUtc()),
                 ),
               )
               .toList(),
@@ -90,7 +90,7 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
   @override
   FutureBool deleteSector(String id) {
     return ErrorHandler.execute(() async {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       await (_database.update(_database.sectors)..where((t) => t.id.equals(id)))
           .write(SectorsCompanion(deletedAt: Value(now)));
       return const SuccessState(data: true);
