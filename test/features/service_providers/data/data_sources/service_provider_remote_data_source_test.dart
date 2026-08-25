@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
@@ -13,6 +15,7 @@ import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late ServiceProviderRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -25,7 +28,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = ServiceProviderRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = ServiceProviderRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
@@ -526,5 +533,99 @@ void main() {
         ).called(1);
       },
     );
+  });
+
+  group('watchServiceProviderCompaniesRealtime', () {
+    test('maps raw postgres change payload to RealtimeEvent', () async {
+      final payload = PostgresChangePayload(
+        eventType: PostgresChangeEvent.insert,
+        newRecord: tCompanyModel.toJson(),
+        oldRecord: const {},
+        schema: 'public',
+        table: 'service_provider_companies',
+        errors: const [],
+        commitTimestamp: DateTime.now(),
+      );
+
+      when(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'service_provider_companies',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => Stream.value(payload));
+
+      final stream = dataSource.watchServiceProviderCompaniesRealtime(
+        companyId: tCompanyEntity.companyId,
+      );
+
+      expect(
+        stream,
+        emits(
+          predicate<RealtimeEvent<ServiceProviderCompanyModel>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tCompanyModel.id &&
+                event.entity?.name == tCompanyModel.name;
+          }),
+        ),
+      );
+
+      verify(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'service_provider_companies',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: any(named: 'filter'),
+        ),
+      ).called(1);
+    });
+  });
+
+  group('watchServiceProviderProfilesRealtime', () {
+    test('maps raw postgres change payload to RealtimeEvent', () async {
+      final payload = PostgresChangePayload(
+        eventType: PostgresChangeEvent.insert,
+        newRecord: tProfileModel.toJson(),
+        oldRecord: const {},
+        schema: 'public',
+        table: 'service_provider_profiles',
+        errors: const [],
+        commitTimestamp: DateTime.now(),
+      );
+
+      when(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'service_provider_profiles',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => Stream.value(payload));
+
+      final stream = dataSource.watchServiceProviderProfilesRealtime(
+        serviceProviderCompanyId: tProfileEntity.serviceProviderCompanyId,
+      );
+
+      expect(
+        stream,
+        emits(
+          predicate<RealtimeEvent<ServiceProviderProfileModel>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tProfileModel.id &&
+                event.entity?.name == tProfileModel.name;
+          }),
+        ),
+      );
+
+      verify(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'service_provider_profiles',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: any(named: 'filter'),
+        ),
+      ).called(1);
+    });
   });
 }

@@ -1,7 +1,10 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
@@ -25,6 +28,9 @@ abstract interface class ServiceProviderRemoteDataSource {
   FutureBool createServiceProviderCompany(ServiceProviderCompanyModel request);
   FutureBool updateServiceProviderCompany(ServiceProviderCompanyModel request);
 
+  Stream<RealtimeEvent<ServiceProviderCompanyModel>>
+  watchServiceProviderCompaniesRealtime({String? companyId});
+
   FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   );
@@ -37,6 +43,9 @@ abstract interface class ServiceProviderRemoteDataSource {
   );
   FutureBool createServiceProviderProfile(ServiceProviderProfileModel request);
   FutureBool updateServiceProviderProfile(ServiceProviderProfileModel request);
+
+  Stream<RealtimeEvent<ServiceProviderProfileModel>>
+  watchServiceProviderProfilesRealtime({String? serviceProviderCompanyId});
 
   FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
     String serviceProviderCompanyId,
@@ -54,9 +63,12 @@ final class ServiceProviderRemoteDataSourceImpl
     implements ServiceProviderRemoteDataSource {
   const ServiceProviderRemoteDataSourceImpl({
     required SupabaseDatabaseClient database,
-  }) : _database = database;
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   @override
   FutureList<ServiceProviderCompanyModel> getServiceProviderCompanies(
@@ -130,6 +142,32 @@ final class ServiceProviderRemoteDataSourceImpl
   });
 
   @override
+  Stream<RealtimeEvent<ServiceProviderCompanyModel>>
+  watchServiceProviderCompaniesRealtime({String? companyId}) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(
+          table: 'service_provider_companies',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: filter,
+        )
+        .map(
+          (payload) => RealtimePayloadMapper.map<ServiceProviderCompanyModel>(
+            payload,
+            ServiceProviderCompanyModel.fromJson,
+          ),
+        );
+  }
+
+  @override
   FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   ) => SupabaseHandler.call(() async {
@@ -196,6 +234,33 @@ final class ServiceProviderRemoteDataSourceImpl
     );
     return true;
   });
+
+  @override
+  Stream<RealtimeEvent<ServiceProviderProfileModel>>
+  watchServiceProviderProfilesRealtime({String? serviceProviderCompanyId}) {
+    final filter = serviceProviderCompanyId != null &&
+            serviceProviderCompanyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'service_provider_company_id',
+            value: serviceProviderCompanyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(
+          table: 'service_provider_profiles',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: filter,
+        )
+        .map(
+          (payload) => RealtimePayloadMapper.map<ServiceProviderProfileModel>(
+            payload,
+            ServiceProviderProfileModel.fromJson,
+          ),
+        );
+  }
 
   @override
   FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
