@@ -72,9 +72,9 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
               city: Value(location.city),
               state: Value(location.state),
               isActive: Value(location.isActive),
-              createdAt: Value(location.createdAt),
-              updatedAt: Value(location.updatedAt),
-              deletedAt: Value(location.deletedAt),
+              createdAt: Value(location.createdAt.toUtc()),
+              updatedAt: Value(location.updatedAt.toUtc()),
+              deletedAt: Value(location.deletedAt?.toUtc()),
               complement: Value(location.complement),
               number: Value(location.number),
               neighborhood: Value(location.neighborhood),
@@ -101,9 +101,9 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
                   city: Value(location.city),
                   state: Value(location.state),
                   isActive: Value(location.isActive),
-                  createdAt: Value(location.createdAt),
-                  updatedAt: Value(location.updatedAt),
-                  deletedAt: Value(location.deletedAt),
+                  createdAt: Value(location.createdAt.toUtc()),
+                  updatedAt: Value(location.updatedAt.toUtc()),
+                  deletedAt: Value(location.deletedAt?.toUtc()),
                   complement: Value(location.complement),
                   number: Value(location.number),
                   neighborhood: Value(location.neighborhood),
@@ -122,7 +122,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.locations)
         ..where((t) => t.id.equals(id));
-      await query.write(LocationsCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(LocationsCompanion(deletedAt: Value(DateTime.now().toUtc())));
       return const SuccessState(data: true);
     });
   }
@@ -167,9 +167,9 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
               name: Value(area.name),
               floor: Value(area.floor),
               description: Value(area.description),
-              createdAt: Value(area.createdAt),
-              updatedAt: Value(area.updatedAt),
-              deletedAt: Value(area.deletedAt),
+              createdAt: Value(area.createdAt.toUtc()),
+              updatedAt: Value(area.updatedAt.toUtc()),
+              deletedAt: Value(area.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -181,7 +181,7 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.areas)
         ..where((t) => t.id.equals(id));
-      await query.write(AreasCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(AreasCompanion(deletedAt: Value(DateTime.now().toUtc())));
       return const SuccessState(data: true);
     });
   }
@@ -201,9 +201,9 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
                   name: Value(area.name),
                   floor: Value(area.floor),
                   description: Value(area.description),
-                  createdAt: Value(area.createdAt),
-                  updatedAt: Value(area.updatedAt),
-                  deletedAt: Value(area.deletedAt),
+                  createdAt: Value(area.createdAt.toUtc()),
+                  updatedAt: Value(area.updatedAt.toUtc()),
+                  deletedAt: Value(area.deletedAt?.toUtc()),
                 ),
               )
               .toList(),
