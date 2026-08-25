@@ -3,21 +3,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_selected_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
+import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockAuthRepository mockAuthRepository;
   late MockSessionRepository mockSessionRepository;
+  late MockLocalStorageClient mockLocalStorageClient;
 
   // Use cases
   late LoginUseCase loginUseCase;
@@ -28,6 +35,10 @@ void main() {
   late GetAuthUserUseCase getAuthUserUseCase;
   late WatchAuthUserUseCase watchAuthUserUseCase;
   late VerifyOtpUseCase verifyOtpUseCase;
+  late GetActiveCompanyIdUseCase getActiveCompanyIdUseCase;
+  late SetSelectedCompanyIdUseCase setSelectedCompanyIdUseCase;
+  late SaveSelectedModeUseCase saveSelectedModeUseCase;
+  late GetSelectedModeUseCase getSelectedModeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAuthentication());
@@ -39,6 +50,7 @@ void main() {
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     mockSessionRepository = MockSessionRepository();
+    mockLocalStorageClient = MockLocalStorageClient();
     loginUseCase = LoginUseCase(authRepository: mockAuthRepository);
     signUpUseCase = SignUpUseCase(authRepository: mockAuthRepository);
     verifyOtpUseCase = VerifyOtpUseCase(authRepository: mockAuthRepository);
@@ -55,6 +67,14 @@ void main() {
     watchAuthUserUseCase = WatchAuthUserUseCase(
       sessionRepository: mockSessionRepository,
     );
+    getActiveCompanyIdUseCase = GetActiveCompanyIdUseCase(
+      sessionRepository: mockSessionRepository,
+    );
+    setSelectedCompanyIdUseCase = SetSelectedCompanyIdUseCase(
+      sessionRepository: mockSessionRepository,
+    );
+    saveSelectedModeUseCase = SaveSelectedModeUseCase(mockLocalStorageClient);
+    getSelectedModeUseCase = GetSelectedModeUseCase(mockLocalStorageClient);
   });
 
   // Test data
@@ -316,6 +336,66 @@ void main() {
           ).called(1);
         },
       );
+    });
+
+    group('GetActiveCompanyIdUseCase', () {
+      test('should return selectedCompanyId from sessionRepository when user is super admin', () {
+        final superAdminUser = tUserData.copyWith(
+          user: tUserData.user.copyWith(email: 'mattheussbarosa98@gmail.com'),
+        );
+        when(() => mockSessionRepository.getSelectedMode()).thenReturn('internal');
+        when(() => mockSessionRepository.userData).thenReturn(superAdminUser);
+        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn('selected_comp_123');
+
+        final result = getActiveCompanyIdUseCase();
+
+        expect(result, 'selected_comp_123');
+      });
+
+      test('should return user.companyId when selectedCompanyId is null', () {
+        when(() => mockSessionRepository.getSelectedMode()).thenReturn('internal');
+        when(() => mockSessionRepository.userData).thenReturn(tUserData);
+        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn(null);
+
+        final result = getActiveCompanyIdUseCase();
+
+        expect(result, tUserData.user.companyId);
+      });
+    });
+
+    group('SetSelectedCompanyIdUseCase', () {
+      test('should call sessionRepository.setSelectedCompanyId', () async {
+        when(() => mockSessionRepository.setSelectedCompanyId(any())).thenAnswer((_) async {});
+
+        await setSelectedCompanyIdUseCase('new_comp_123');
+
+        verify(() => mockSessionRepository.setSelectedCompanyId('new_comp_123')).called(1);
+      });
+    });
+
+    group('SelectedModeUseCases', () {
+      test('SaveSelectedModeUseCase should call localStorageClient.saveSelectedMode with mode', () async {
+        when(
+          () => mockLocalStorageClient.saveSelectedMode(any()),
+        ).thenAnswer((_) async {});
+
+        await saveSelectedModeUseCase.call(AppMode.provider.name);
+
+        verify(
+          () => mockLocalStorageClient.saveSelectedMode(AppMode.provider.name),
+        ).called(1);
+      });
+
+      test('GetSelectedModeUseCase should return selected mode from localStorageClient', () {
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn(AppMode.provider.name);
+
+        final result = getSelectedModeUseCase.call();
+
+        expect(result, AppMode.provider.name);
+        verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+      });
     });
   });
 }

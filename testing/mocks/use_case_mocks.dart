@@ -9,11 +9,13 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.d
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/reset_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_selected_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
@@ -172,3 +174,8 @@ class MockPickAttachmentUseCase extends Mock implements PickAttachmentUseCase {}
 class MockUpdateCompanyLogoUseCase extends Mock
     implements UpdateCompanyLogoUseCase {}
 
+class MockGetAllCompaniesUseCase extends Mock
+    implements GetAllCompaniesUseCase {}
+
+class MockSetSelectedCompanyIdUseCase extends Mock
+    implements SetSelectedCompanyIdUseCase {}

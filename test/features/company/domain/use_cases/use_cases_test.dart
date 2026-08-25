@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
@@ -20,6 +21,7 @@ void main() {
   late MockCompanyRepository mockRepository;
   late CreateCompanyUseCase createCompanyUseCase;
   late GetCompanyUseCase getCompanyUseCase;
+  late GetAllCompaniesUseCase getAllCompaniesUseCase;
   late SaveCompanyUseCase saveCompanyUseCase;
   late GetCompanyParametersUseCase getCompanyParametersUseCase;
   late SaveCompanyParametersUseCase saveCompanyParametersUseCase;
@@ -38,6 +40,7 @@ void main() {
       companyRepository: mockRepository,
     );
     getCompanyUseCase = GetCompanyUseCase(companyRepository: mockRepository);
+    getAllCompaniesUseCase = GetAllCompaniesUseCase(repository: mockRepository);
     saveCompanyUseCase = SaveCompanyUseCase(companyRepository: mockRepository);
     getCompanyParametersUseCase = GetCompanyParametersUseCase(
       companyRepository: mockRepository,
@@ -357,6 +360,30 @@ void main() {
 
         expect(result, isA<FailureState<CompanyEntity>>());
         expect(result.message, 'Save failed');
+      });
+    });
+
+    group('GetAllCompaniesUseCase', () {
+      test('should call repository.getAllCompanies and return list on success', () async {
+        when(
+          () => mockRepository.getAllCompanies(),
+        ).thenAnswer((_) async => SuccessState(data: [tCompanyEntity]));
+
+        final result = await getAllCompaniesUseCase();
+
+        expect(result, isA<SuccessState<List<CompanyEntity>>>());
+        expect(result.data?.first, tCompanyEntity);
+        verify(() => mockRepository.getAllCompanies()).called(1);
+      });
+
+      test('should return FailureState when repository fails', () async {
+        when(
+          () => mockRepository.getAllCompanies(),
+        ).thenAnswer((_) async => FailureState(message: 'Get all failed'));
+
+        final result = await getAllCompaniesUseCase();
+
+        expect(result, isA<FailureState<List<CompanyEntity>>>());
       });
     });
   });

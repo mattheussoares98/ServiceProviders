@@ -353,6 +353,14 @@ abstract final class EntityFactory {
     );
   }
 
+  static List<CompanyEntity> makeCompanyEntityList() {
+    return [
+      makeCompanyEntity(),
+      makeCompanyEntity(),
+      makeCompanyEntity(),
+    ];
+  }
+
   static CompanyParameterEntity makeCompanyParameterEntity() {
     return CompanyParameterEntity(
       id: _makeId(),

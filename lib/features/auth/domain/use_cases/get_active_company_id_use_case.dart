@@ -21,6 +21,13 @@ class GetActiveCompanyIdUseCase {
       }
     }
 
+    if (_sessionRepository.userData.user.isSuperAdmin) {
+      final selectedCompanyId = _sessionRepository.getSelectedCompanyId();
+      if (selectedCompanyId != null && selectedCompanyId.isNotEmpty) {
+        return selectedCompanyId;
+      }
+    }
+
     return _sessionRepository.userData.user.companyId;
   }
 }
