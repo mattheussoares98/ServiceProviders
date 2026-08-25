@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attach
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/watch_attachments_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 
 @LazySingleton()
@@ -25,6 +26,7 @@ class AttachmentsCubitUseCases {
     required this.pruneSandbox,
     required this.getSandboxSize,
     required this.touchLastAccessed,
+    required this.watchAttachmentsRealtime,
   });
 
   final GetAttachmentsUseCase getAttachments;
@@ -38,4 +40,6 @@ class AttachmentsCubitUseCases {
   final PruneSandboxUseCase pruneSandbox;
   final GetSandboxSizeUseCase getSandboxSize;
   final TouchLastAccessedUseCase touchLastAccessed;
+  final WatchAttachmentsRealtimeUseCase watchAttachmentsRealtime;
 }
+

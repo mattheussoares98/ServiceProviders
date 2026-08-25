@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -22,10 +23,30 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
        _workOrderId = workOrderId,
        super(const AttachmentsState.empty()) {
     refreshAttachments();
+    _initRealtime();
   }
 
   final AttachmentsCubitUseCases _useCases;
   final String _workOrderId;
+  StreamSubscription<RealtimeEvent<AttachmentEntity>>? _realtimeSubscription;
+
+  void _initRealtime() {
+    _realtimeSubscription?.cancel();
+    _realtimeSubscription = _useCases
+        .watchAttachmentsRealtime(workOrderId: _workOrderId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<AttachmentEntity> event) {
+    if (isClosed) return;
+    refreshAttachments();
+  }
+
+  @override
+  Future<void> close() {
+    _realtimeSubscription?.cancel();
+    return super.close();
+  }
 
   Future<void> refreshAttachments() async {
     emit(state.copyWith(status: StateStatus.loading));

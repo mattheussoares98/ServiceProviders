@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -18,6 +20,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attach
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/watch_attachments_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -52,6 +55,9 @@ class MockGetSandboxSizeUseCase extends Mock implements GetSandboxSizeUseCase {}
 class MockTouchLastAccessedUseCase extends Mock
     implements TouchLastAccessedUseCase {}
 
+class MockWatchAttachmentsRealtimeUseCase extends Mock
+    implements WatchAttachmentsRealtimeUseCase {}
+
 void main() {
   final faker = Faker();
   late MockGetAttachmentsUseCase mockGetAttachments;
@@ -65,6 +71,7 @@ void main() {
   late MockPruneSandboxUseCase mockPruneSandbox;
   late MockGetSandboxSizeUseCase mockGetSandboxSize;
   late MockTouchLastAccessedUseCase mockTouchLastAccessed;
+  late MockWatchAttachmentsRealtimeUseCase mockWatchAttachmentsRealtime;
   late AttachmentsCubitUseCases useCases;
   late MockNavigationClient mockNavigationClient;
 
@@ -104,6 +111,7 @@ void main() {
     mockPruneSandbox = MockPruneSandboxUseCase();
     mockGetSandboxSize = MockGetSandboxSizeUseCase();
     mockTouchLastAccessed = MockTouchLastAccessedUseCase();
+    mockWatchAttachmentsRealtime = MockWatchAttachmentsRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -116,6 +124,11 @@ void main() {
     when(
       () => mockGetAttachments(any()),
     ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
+    when(
+      () => mockWatchAttachmentsRealtime(
+        workOrderId: any(named: 'workOrderId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
 
     useCases = AttachmentsCubitUseCases(
       getAttachments: mockGetAttachments,
@@ -129,6 +142,7 @@ void main() {
       pruneSandbox: mockPruneSandbox,
       getSandboxSize: mockGetSandboxSize,
       touchLastAccessed: mockTouchLastAccessed,
+      watchAttachmentsRealtime: mockWatchAttachmentsRealtime,
     );
   });
 
@@ -171,7 +185,49 @@ void main() {
             .having((s) => s.errorMessage, 'errorMessage', 'Error fetching'),
       ],
     );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'refreshes attachments when realtime event is received',
+      build: () {
+        when(
+          () => mockWatchAttachmentsRealtime(
+            workOrderId: any(named: 'workOrderId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<AttachmentEntity>(
+              eventType: RealtimeEventType.insert,
+              id: tUploadedAttachmentList.first.id,
+              entity: tUploadedAttachmentList.first,
+            ),
+          ),
+        );
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
+      },
+      expect: () => [
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tUploadedAttachmentList,
+            ),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loading),
+        isA<AttachmentsState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tUploadedAttachmentList,
+            ),
+      ],
+    );
   });
+
 
   group('AttachmentsCubit - pickAttachment & upload', () {
     late AttachmentEntity tPickedFile;
