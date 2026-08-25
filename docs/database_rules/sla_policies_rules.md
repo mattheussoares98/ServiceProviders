@@ -30,3 +30,8 @@ CREATE POLICY "Company users update own company sla policies"
 CREATE TRIGGER tr_prevent_delete_sla_policies
 BEFORE DELETE ON public.sla_policies FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.sla_policies;`) to enable granular realtime stream updates on clients.

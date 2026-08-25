@@ -61,3 +61,8 @@ CREATE TRIGGER tr_check_at_least_one_admin
   FOR EACH ROW
   EXECUTE FUNCTION public.check_at_least_one_admin();
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.user_profiles;`) to enable granular realtime stream updates on clients.

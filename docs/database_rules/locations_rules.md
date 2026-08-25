@@ -73,3 +73,8 @@ CREATE OR REPLACE TRIGGER tr_prevent_delete_locations_with_relations
   FOR EACH ROW
   EXECUTE FUNCTION public.check_location_before_delete();
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.locations;`) to enable granular realtime stream updates on clients.

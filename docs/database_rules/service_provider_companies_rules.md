@@ -43,3 +43,8 @@ CREATE TRIGGER trg_validate_sp_company_contact_email
   BEFORE INSERT OR UPDATE OF contact_email ON public.service_provider_companies FOR EACH ROW
   EXECUTE FUNCTION public.validate_sp_company_contact_email_trg();
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.service_provider_companies;`) to enable granular realtime stream updates on clients.

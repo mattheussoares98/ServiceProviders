@@ -30,3 +30,8 @@ CREATE POLICY "Users update own company assets with permission"
     AND public.has_permission('assets.update')
   );
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.assets;`) to enable granular realtime stream updates on clients.

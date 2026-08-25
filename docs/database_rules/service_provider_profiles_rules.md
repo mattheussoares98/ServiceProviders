@@ -44,3 +44,8 @@ CREATE TRIGGER trg_validate_sp_profile_email
   ON public.service_provider_profiles FOR EACH ROW
   EXECUTE FUNCTION public.validate_sp_profile_email_trg();
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.service_provider_profiles;`) to enable granular realtime stream updates on clients.

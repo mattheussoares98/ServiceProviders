@@ -32,3 +32,8 @@ CREATE POLICY "Users update own company areas with permission"
     AND public.has_permission('locations.update')
   );
 ```
+
+---
+
+## Realtime Publication
+Added to `supabase_realtime` publication (`ALTER PUBLICATION supabase_realtime ADD TABLE public.areas;`) to enable granular realtime stream updates on clients.
