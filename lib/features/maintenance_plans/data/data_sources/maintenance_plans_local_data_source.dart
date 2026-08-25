@@ -98,7 +98,7 @@ final class MaintenancePlansLocalDataSourceImpl
       }
 
       return FailureState<MaintenancePlanModel>(
-        message: 'Maintenance plan not found'.hardcoded,
+        message: 'Plano de manutenção não encontrado'.hardcoded,
       );
     });
   }

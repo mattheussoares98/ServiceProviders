@@ -58,9 +58,9 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                 name: t.name,
                 description: t.description,
                 categoryId: t.categoryId,
-                createdAt: t.createdAt,
-                updatedAt: t.updatedAt,
-                deletedAt: t.deletedAt,
+                createdAt: t.createdAt.toUtc(),
+                updatedAt: t.updatedAt.toUtc(),
+                deletedAt: t.deletedAt?.toUtc(),
               ),
             )
             .toList(),
@@ -89,9 +89,9 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
           name: item.name,
           description: item.description,
           categoryId: item.categoryId,
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt,
-          deletedAt: item.deletedAt,
+          createdAt: item.createdAt.toUtc(),
+          updatedAt: item.updatedAt.toUtc(),
+          deletedAt: item.deletedAt?.toUtc(),
         ),
       );
     });
@@ -157,8 +157,8 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                           .toList()
                     : null,
                 sortOrder: t.sortOrder,
-                createdAt: t.createdAt,
-                deletedAt: t.deletedAt,
+                createdAt: t.createdAt.toUtc(),
+                deletedAt: t.deletedAt?.toUtc(),
               ),
             )
             .toList(),

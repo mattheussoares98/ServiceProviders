@@ -36,9 +36,9 @@ final class SlaLocalDataSourceImpl implements SlaLocalDataSource {
               name: r.name,
               targetHours: r.targetHours,
               appliesTo: SlaAppliesTo.fromValue(r.appliesTo),
-              createdAt: r.createdAt,
-              updatedAt: r.updatedAt,
-              deletedAt: r.deletedAt,
+              createdAt: r.createdAt.toUtc(),
+              updatedAt: r.updatedAt.toUtc(),
+              deletedAt: r.deletedAt?.toUtc(),
             ),
           )
           .toList();
@@ -63,9 +63,9 @@ final class SlaLocalDataSourceImpl implements SlaLocalDataSource {
         name: r.name,
         targetHours: r.targetHours,
         appliesTo: SlaAppliesTo.fromValue(r.appliesTo),
-        createdAt: r.createdAt,
-        updatedAt: r.updatedAt,
-        deletedAt: r.deletedAt,
+        createdAt: r.createdAt.toUtc(),
+        updatedAt: r.updatedAt.toUtc(),
+        deletedAt: r.deletedAt?.toUtc(),
       );
       return SuccessState(data: model);
     });
