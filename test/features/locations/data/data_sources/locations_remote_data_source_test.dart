@@ -4,21 +4,27 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
+  late MockSupabaseRealtimeClient mockSupabaseRealtimeClient;
   late LocationsRemoteDataSourceImpl dataSource;
 
   setUp(() {
     mockSupabaseDatabaseClient = MockSupabaseDatabaseClient();
+    mockSupabaseRealtimeClient = MockSupabaseRealtimeClient();
     dataSource = LocationsRemoteDataSourceImpl(
       database: mockSupabaseDatabaseClient,
+      realtimeClient: mockSupabaseRealtimeClient,
     );
   });
 
@@ -346,6 +352,76 @@ void main() {
             filters: [SupabaseFilter.eq('id', tAreaModel.id)],
           ),
         ).called(1);
+      });
+    });
+
+    group('Realtime', () {
+      test('watchLocationsRealtime streams realtime events', () async {
+        final payload = PostgresChangePayload(
+          eventType: PostgresChangeEvent.insert,
+          newRecord: tLocationModel.toJson(),
+          oldRecord: {},
+          schema: 'public',
+          table: 'locations',
+          errors: [],
+          commitTimestamp: DateTime.now(),
+        );
+
+        when(
+          () => mockSupabaseRealtimeClient.streamTableChanges(
+            table: 'locations',
+            schema: 'public',
+            event: PostgresChangeEvent.all,
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => Stream.value(payload));
+
+        final stream = dataSource.watchLocationsRealtime(companyId: tCompanyId);
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<LocationModel>>((event) {
+              return event.eventType == RealtimeEventType.insert &&
+                  event.id == tLocationModel.id &&
+                  event.entity?.name == tLocationModel.name;
+            }),
+          ),
+        );
+      });
+
+      test('watchAreasRealtime streams realtime events', () async {
+        final payload = PostgresChangePayload(
+          eventType: PostgresChangeEvent.update,
+          newRecord: tAreaModel.toJson(),
+          oldRecord: {'id': tAreaModel.id},
+          schema: 'public',
+          table: 'areas',
+          errors: [],
+          commitTimestamp: DateTime.now(),
+        );
+
+        when(
+          () => mockSupabaseRealtimeClient.streamTableChanges(
+            table: 'areas',
+            schema: 'public',
+            event: PostgresChangeEvent.all,
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => Stream.value(payload));
+
+        final stream = dataSource.watchAreasRealtime(companyId: tCompanyId);
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<AreaModel>>((event) {
+              return event.eventType == RealtimeEventType.update &&
+                  event.id == tAreaModel.id &&
+                  event.entity?.name == tAreaModel.name;
+            }),
+          ),
+        );
       });
     });
   });
