@@ -113,10 +113,10 @@ final class AttachmentsLocalDataSourceImpl
               fileSizeBytes: Value(attachment.fileSizeBytes),
               isCompressed: Value(attachment.isCompressed),
               uploadStatus: Value(attachment.uploadStatus.code),
-              createdAt: Value(attachment.createdAt),
-              deletedAt: Value(attachment.deletedAt),
+              createdAt: Value(attachment.createdAt.toUtc()),
+              deletedAt: Value(attachment.deletedAt?.toUtc()),
               originalPath: Value(attachment.originalPath),
-              lastAccessedAt: Value(attachment.lastAccessedAt),
+              lastAccessedAt: Value(attachment.lastAccessedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -128,7 +128,9 @@ final class AttachmentsLocalDataSourceImpl
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.attachments)
         ..where((t) => t.id.equals(id));
-      await query.write(AttachmentsCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(
+        AttachmentsCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -149,7 +151,7 @@ final class AttachmentsLocalDataSourceImpl
       final query = _database.update(_database.attachments)
         ..where((t) => t.id.equals(id));
       await query.write(
-        AttachmentsCompanion(lastAccessedAt: Value(DateTime.now())),
+        AttachmentsCompanion(lastAccessedAt: Value(DateTime.now().toUtc())),
       );
       return SuccessState.nil;
     });
