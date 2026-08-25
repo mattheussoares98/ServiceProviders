@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_avatar_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -46,6 +47,7 @@ void main() {
   late InviteUserUseCase inviteUserUseCase;
   late ResendInvitationUseCase resendInvitationUseCase;
   late HasPermissionUseCase hasPermissionUseCase;
+  late WatchUserProfilesRealtimeUseCase watchUserProfilesRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
@@ -83,6 +85,9 @@ void main() {
     );
     inviteUserUseCase = InviteUserUseCase(usersRepository: mockRepository);
     resendInvitationUseCase = ResendInvitationUseCase(
+      usersRepository: mockRepository,
+    );
+    watchUserProfilesRealtimeUseCase = WatchUserProfilesRealtimeUseCase(
       usersRepository: mockRepository,
     );
     mockGetSessionUser = MockGetSessionUserUseCase();
@@ -515,6 +520,29 @@ void main() {
         );
 
         expect(result, const SuccessState(data: false));
+      });
+    });
+
+    group('WatchUserProfilesRealtimeUseCase', () {
+      final tUserProfile = EntityFactory.makeUserProfileEntity();
+      final tCompanyId = faker.guid.guid();
+
+      test('should return stream from repository', () {
+        final event = EntityFactory.makeRealtimeEvent<UserProfileEntity>(
+          entity: tUserProfile,
+        );
+        when(
+          () => mockRepository.watchUserProfilesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final result = watchUserProfilesRealtimeUseCase(companyId: tCompanyId);
+
+        expect(result, emits(event));
+        verify(
+          () => mockRepository.watchUserProfilesRealtime(companyId: tCompanyId),
+        ).called(1);
       });
     });
   });
