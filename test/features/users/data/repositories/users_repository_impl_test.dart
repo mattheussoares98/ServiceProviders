@@ -678,7 +678,6 @@ void main() {
             eventType: RealtimeEventType.delete,
             id: tUserProfileModel.id,
             companyId: tUserProfileModel.companyId,
-            entity: null,
           );
 
           when(

@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_re
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -104,8 +103,6 @@ final class SlaRemoteDataSourceImpl implements SlaRemoteDataSource {
     return _realtimeClient
         .streamTableChanges(
           table: 'sla_policies',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map((payload) => RealtimePayloadMapper.map(payload, SlaPolicyModel.fromJson));

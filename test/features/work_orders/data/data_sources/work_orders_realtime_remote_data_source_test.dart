@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:async';
 
 import 'package:faker/faker.dart';
@@ -7,6 +9,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
@@ -43,114 +46,124 @@ void main() {
     streamController.close();
   });
 
-  test('watchWorkOrders passes correct table and filter when companyId is provided', () {
-    final companyId = faker.guid.guid();
-    dataSource.watchWorkOrders(companyId: companyId);
+  test(
+    'watchWorkOrders passes correct table and filter when companyId is provided',
+    () {
+      final companyId = faker.guid.guid();
+      dataSource.watchWorkOrders(companyId: companyId);
 
-    verify(
-      () => mockRealtimeClient.streamTableChanges(
-        table: 'work_orders',
-        schema: 'public',
-        event: PostgresChangeEvent.all,
-        filter: any(named: 'filter'),
-      ),
-    ).called(1);
-  });
+      verify(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'work_orders',
+          filter: any(named: 'filter'),
+        ),
+      ).called(1);
+    },
+  );
 
-  test('watchWorkOrders maps INSERT payload to RealtimeWorkOrderEvent with workOrder', () async {
-    final entity = EntityFactory.makeWorkOrderEntity();
-    final model = WorkOrderModel.fromEntity(entity);
-    final json = model.toJson();
+  test(
+    'watchWorkOrders maps INSERT payload to RealtimeWorkOrderEvent with workOrder',
+    () async {
+      final entity = EntityFactory.makeWorkOrderEntity();
+      final model = WorkOrderModel.fromEntity(entity);
+      final json = model.toJson();
 
-    final stream = dataSource.watchWorkOrders();
+      final stream = dataSource.watchWorkOrders();
 
-    final expectation = expectLater(
-      stream,
-      emits(
-        predicate<dynamic>((event) {
-          return event.eventType == RealtimeWorkOrderEventType.insert &&
-              event.workOrderId == entity.id &&
-              event.workOrder?.id == entity.id;
-        }),
-      ),
-    );
+      final expectation = expectLater(
+        stream,
+        emits(
+          predicate<dynamic>((event) {
+            return event.eventType == RealtimeWorkOrderEventType.insert &&
+                event.workOrderId == entity.id &&
+                event.workOrder?.id == entity.id;
+          }),
+        ),
+      );
 
-    streamController.add(
-      PostgresChangePayload(
-        eventType: PostgresChangeEvent.insert,
-        newRecord: json,
-        oldRecord: const {},
-        schema: 'public',
-        table: 'work_orders',
-        commitTimestamp: DateTime.now(),
-        errors: const [],
-      ),
-    );
+      streamController.add(
+        PostgresChangePayload(
+          eventType: PostgresChangeEvent.insert,
+          newRecord: json,
+          oldRecord: const {},
+          schema: 'public',
+          table: 'work_orders',
+          commitTimestamp: DateTime.now(),
+          errors: const <dynamic>[],
+        ),
+      );
 
-    await expectation;
-  });
+      await expectation;
+    },
+  );
 
-  test('watchWorkOrders maps UPDATE payload to RealtimeWorkOrderEvent', () async {
-    final entity = EntityFactory.makeWorkOrderEntity();
-    final model = WorkOrderModel.fromEntity(entity);
-    final json = model.toJson();
+  test(
+    'watchWorkOrders maps UPDATE payload to RealtimeWorkOrderEvent',
+    () async {
+      final entity = EntityFactory.makeWorkOrderEntity();
+      final model = WorkOrderModel.fromEntity(entity);
+      final json = model.toJson();
 
-    final stream = dataSource.watchWorkOrders();
+      final stream = dataSource.watchWorkOrders();
 
-    final expectation = expectLater(
-      stream,
-      emits(
-        predicate<dynamic>((event) {
-          return event.eventType == RealtimeWorkOrderEventType.update &&
-              event.workOrderId == entity.id &&
-              event.workOrder?.title == entity.title;
-        }),
-      ),
-    );
+      final expectation = expectLater(
+        stream,
+        emits(
+          predicate<dynamic>((event) {
+            return event.eventType == RealtimeWorkOrderEventType.update &&
+                event.workOrderId == entity.id &&
+                event.workOrder?.title == entity.title;
+          }),
+        ),
+      );
 
-    streamController.add(
-      PostgresChangePayload(
-        eventType: PostgresChangeEvent.update,
-        newRecord: json,
-        oldRecord: const {},
-        schema: 'public',
-        table: 'work_orders',
-        commitTimestamp: DateTime.now(),
-        errors: const [],
-      ),
-    );
+      streamController.add(
+        PostgresChangePayload(
+          eventType: PostgresChangeEvent.update,
+          newRecord: json,
+          oldRecord: const {},
+          schema: 'public',
+          table: 'work_orders',
+          commitTimestamp: DateTime.now(),
+          errors: const <dynamic>[],
+        ),
+      );
 
-    await expectation;
-  });
+      await expectation;
+    },
+  );
 
-  test('watchWorkOrders maps DELETE payload to RealtimeWorkOrderEvent with workOrderId from oldRecord', () async {
-    final workOrderId = faker.guid.guid();
+  test(
+    'watchWorkOrders maps DELETE payload to RealtimeWorkOrderEvent with workOrderId from oldRecord',
+    () async {
+      final workOrderId = faker.guid.guid();
 
-    final stream = dataSource.watchWorkOrders();
+      final stream = dataSource.watchWorkOrders();
 
-    final expectation = expectLater(
-      stream,
-      emits(
-        predicate<dynamic>((event) {
-          return event.eventType == RealtimeWorkOrderEventType.delete &&
-              event.workOrderId == workOrderId &&
-              event.workOrder == null;
-        }),
-      ),
-    );
+      final expectation = expectLater(
+        stream,
+        emits(
+          predicate<dynamic>((event) {
+            return event.eventType == RealtimeWorkOrderEventType.delete &&
+                event.workOrderId == workOrderId &&
+                event.workOrder == null;
+          }),
+        ),
+      );
 
-    streamController.add(
-      PostgresChangePayload(
-        eventType: PostgresChangeEvent.delete,
-        newRecord: const {},
-        oldRecord: {'id': workOrderId},
-        schema: 'public',
-        table: 'work_orders',
-        commitTimestamp: DateTime.now(),
-        errors: const [],
-      ),
-    );
+      streamController.add(
+        PostgresChangePayload(
+          eventType: PostgresChangeEvent.delete,
+          newRecord: const {},
+          oldRecord: {'id': workOrderId},
+          schema: 'public',
+          table: 'work_orders',
+          commitTimestamp: DateTime.now(),
+          errors: const <dynamic>[],
+        ),
+      );
 
-    await expectation;
-  });
+      await expectation;
+    },
+  );
 }

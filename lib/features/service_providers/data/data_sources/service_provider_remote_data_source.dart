@@ -155,8 +155,6 @@ final class ServiceProviderRemoteDataSourceImpl
     return _realtimeClient
         .streamTableChanges(
           table: 'service_provider_companies',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map(
@@ -250,8 +248,6 @@ final class ServiceProviderRemoteDataSourceImpl
     return _realtimeClient
         .streamTableChanges(
           table: 'service_provider_profiles',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map(

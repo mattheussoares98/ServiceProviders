@@ -186,22 +186,20 @@ void main() {
     });
 
     group('watchUserProfilesRealtime', () {
-      test('streams realtime events for user profiles', () async {
+      test('streams realtime events for user profiles', () {
         final payload = PostgresChangePayload(
           eventType: PostgresChangeEvent.insert,
           newRecord: tUserProfileModel.toJson(),
           oldRecord: {},
           schema: 'public',
           table: 'user_profiles',
-          errors: [],
+          errors: <dynamic>[],
           commitTimestamp: DateTime.now(),
         );
 
         when(
           () => mockRealtimeClient.streamTableChanges(
             table: 'user_profiles',
-            schema: 'public',
-            event: PostgresChangeEvent.all,
             filter: any(named: 'filter'),
           ),
         ).thenAnswer((_) => Stream.value(payload));

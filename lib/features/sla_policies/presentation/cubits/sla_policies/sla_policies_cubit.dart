@@ -48,7 +48,6 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
           }
           emit(state.copyWith(slaPolicies: currentPolicies));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentPolicies.indexWhere((p) => p.id == event.id);
@@ -59,14 +58,12 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
           }
           emit(state.copyWith(slaPolicies: currentPolicies));
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentPolicies.indexWhere((p) => p.id == event.id);
         if (index != -1) {
           currentPolicies.removeAt(index);
           emit(state.copyWith(slaPolicies: currentPolicies));
         }
-        break;
     }
   }
 

@@ -322,7 +322,6 @@ void main() {
           eventType: RealtimeEventType.delete,
           id: tSlaPolicyModel.id,
           companyId: tSlaPolicyModel.companyId,
-          entity: null,
         );
 
         when(

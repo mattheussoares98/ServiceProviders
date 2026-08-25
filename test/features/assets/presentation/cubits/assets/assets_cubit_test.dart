@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/create_asset_use_case.dart';
@@ -23,10 +25,6 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
-import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -837,7 +835,6 @@ void main() {
               eventType: RealtimeEventType.delete,
               id: tInitialAsset.id,
               companyId: tUserProfile.companyId,
-              entity: null,
             ),
           );
 

@@ -536,22 +536,20 @@ void main() {
   });
 
   group('watchServiceProviderCompaniesRealtime', () {
-    test('maps raw postgres change payload to RealtimeEvent', () async {
+    test('maps raw postgres change payload to RealtimeEvent', () {
       final payload = PostgresChangePayload(
         eventType: PostgresChangeEvent.insert,
         newRecord: tCompanyModel.toJson(),
         oldRecord: const {},
         schema: 'public',
         table: 'service_provider_companies',
-        errors: const [],
+        errors: const <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
       when(
         () => mockRealtimeClient.streamTableChanges(
           table: 'service_provider_companies',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).thenAnswer((_) => Stream.value(payload));
@@ -574,8 +572,6 @@ void main() {
       verify(
         () => mockRealtimeClient.streamTableChanges(
           table: 'service_provider_companies',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).called(1);
@@ -583,22 +579,20 @@ void main() {
   });
 
   group('watchServiceProviderProfilesRealtime', () {
-    test('maps raw postgres change payload to RealtimeEvent', () async {
+    test('maps raw postgres change payload to RealtimeEvent', () {
       final payload = PostgresChangePayload(
         eventType: PostgresChangeEvent.insert,
         newRecord: tProfileModel.toJson(),
         oldRecord: const {},
         schema: 'public',
         table: 'service_provider_profiles',
-        errors: const [],
+        errors: const <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
       when(
         () => mockRealtimeClient.streamTableChanges(
           table: 'service_provider_profiles',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).thenAnswer((_) => Stream.value(payload));
@@ -621,8 +615,6 @@ void main() {
       verify(
         () => mockRealtimeClient.streamTableChanges(
           table: 'service_provider_profiles',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).called(1);

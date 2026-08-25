@@ -12,7 +12,7 @@ void main() {
         oldRecord: {},
         schema: 'public',
         table: 'locations',
-        errors: [],
+        errors: <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
@@ -34,7 +34,7 @@ void main() {
         oldRecord: {'id': 'loc-2'},
         schema: 'public',
         table: 'locations',
-        errors: [],
+        errors: <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
@@ -56,7 +56,7 @@ void main() {
         oldRecord: {'id': 'loc-3', 'company_id': 'comp-1'},
         schema: 'public',
         table: 'locations',
-        errors: [],
+        errors: <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
@@ -71,25 +71,28 @@ void main() {
       expect(event.entity, isNull);
     });
 
-    test('handles JSON parse exceptions gracefully by setting entity to null', () {
-      final payload = PostgresChangePayload(
-        eventType: PostgresChangeEvent.insert,
-        newRecord: {'id': 'loc-4'},
-        oldRecord: {},
-        schema: 'public',
-        table: 'locations',
-        errors: [],
-        commitTimestamp: DateTime.now(),
-      );
+    test(
+      'handles JSON parse exceptions gracefully by setting entity to null',
+      () {
+        final payload = PostgresChangePayload(
+          eventType: PostgresChangeEvent.insert,
+          newRecord: {'id': 'loc-4'},
+          oldRecord: {},
+          schema: 'public',
+          table: 'locations',
+          errors: <dynamic>[],
+          commitTimestamp: DateTime.now(),
+        );
 
-      final event = RealtimePayloadMapper.map<String>(
-        payload,
-        (json) => throw const FormatException('Invalid data'),
-      );
+        final event = RealtimePayloadMapper.map<String>(
+          payload,
+          (json) => throw const FormatException('Invalid data'),
+        );
 
-      expect(event.eventType, RealtimeEventType.insert);
-      expect(event.id, 'loc-4');
-      expect(event.entity, isNull);
-    });
+        expect(event.eventType, RealtimeEventType.insert);
+        expect(event.id, 'loc-4');
+        expect(event.entity, isNull);
+      },
+    );
   });
 }

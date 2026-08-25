@@ -133,8 +133,6 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
     return _realtimeClient
         .streamTableChanges(
           table: 'assets',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map((payload) => RealtimePayloadMapper.map(payload, AssetModel.fromJson));

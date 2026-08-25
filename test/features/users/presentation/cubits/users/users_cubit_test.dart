@@ -12,7 +12,6 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
@@ -1600,7 +1599,6 @@ void main() {
               eventType: RealtimeEventType.delete,
               id: tInitialUser.id,
               companyId: tUserProfile.companyId,
-              entity: null,
             ),
           );
 

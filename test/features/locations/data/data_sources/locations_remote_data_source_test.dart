@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
@@ -356,22 +356,20 @@ void main() {
     });
 
     group('Realtime', () {
-      test('watchLocationsRealtime streams realtime events', () async {
+      test('watchLocationsRealtime streams realtime events', () {
         final payload = PostgresChangePayload(
           eventType: PostgresChangeEvent.insert,
           newRecord: tLocationModel.toJson(),
           oldRecord: {},
           schema: 'public',
           table: 'locations',
-          errors: [],
+          errors: <dynamic>[],
           commitTimestamp: DateTime.now(),
         );
 
         when(
           () => mockSupabaseRealtimeClient.streamTableChanges(
             table: 'locations',
-            schema: 'public',
-            event: PostgresChangeEvent.all,
             filter: any(named: 'filter'),
           ),
         ).thenAnswer((_) => Stream.value(payload));
@@ -390,22 +388,20 @@ void main() {
         );
       });
 
-      test('watchAreasRealtime streams realtime events', () async {
+      test('watchAreasRealtime streams realtime events', () {
         final payload = PostgresChangePayload(
           eventType: PostgresChangeEvent.update,
           newRecord: tAreaModel.toJson(),
           oldRecord: {'id': tAreaModel.id},
           schema: 'public',
           table: 'areas',
-          errors: [],
+          errors: <dynamic>[],
           commitTimestamp: DateTime.now(),
         );
 
         when(
           () => mockSupabaseRealtimeClient.streamTableChanges(
             table: 'areas',
-            schema: 'public',
-            event: PostgresChangeEvent.all,
             filter: any(named: 'filter'),
           ),
         ).thenAnswer((_) => Stream.value(payload));

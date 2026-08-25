@@ -380,7 +380,6 @@ void main() {
             eventType: RealtimeEventType.delete,
             id: tAssetModel.id,
             companyId: tCompanyId,
-            entity: null,
           );
 
           when(

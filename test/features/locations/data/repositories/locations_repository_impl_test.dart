@@ -2,11 +2,11 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/repositories/locations_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -857,7 +857,6 @@ void main() {
             eventType: RealtimeEventType.delete,
             id: tLocationModel.id,
             companyId: tCompanyId,
-            entity: null,
           );
 
           when(
@@ -931,7 +930,6 @@ void main() {
             eventType: RealtimeEventType.delete,
             id: tAreaModel.id,
             companyId: tCompanyId,
-            entity: null,
           );
 
           when(

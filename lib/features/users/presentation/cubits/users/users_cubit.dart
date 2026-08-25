@@ -55,7 +55,6 @@ class UsersCubit extends BaseCubit<UsersState> {
           }
           emit(state.copyWith(users: currentUsers));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentUsers.indexWhere((u) => u.id == event.id);
@@ -66,14 +65,12 @@ class UsersCubit extends BaseCubit<UsersState> {
           }
           emit(state.copyWith(users: currentUsers));
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentUsers.indexWhere((u) => u.id == event.id);
         if (index != -1) {
           currentUsers.removeAt(index);
           emit(state.copyWith(users: currentUsers));
         }
-        break;
     }
   }
 

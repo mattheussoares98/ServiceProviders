@@ -43,8 +43,6 @@ void main() {
   test('streamTableChanges subscribes to channel with correct parameters', () {
     final stream = realtimeClient.streamTableChanges(
       table: 'work_orders',
-      schema: 'public',
-      event: PostgresChangeEvent.all,
     );
 
     expect(stream, isA<Stream<PostgresChangePayload>>());
@@ -54,7 +52,6 @@ void main() {
         event: PostgresChangeEvent.all,
         schema: 'public',
         table: 'work_orders',
-        filter: null,
         callback: any(named: 'callback'),
       ),
     ).called(1);

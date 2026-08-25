@@ -2,11 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
-
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -231,22 +230,20 @@ void main() {
   });
 
   group('watchSlaPoliciesRealtime', () {
-    test('streams realtime events for sla policies', () async {
+    test('streams realtime events for sla policies', () {
       final payload = PostgresChangePayload(
         eventType: PostgresChangeEvent.insert,
         newRecord: tSlaPolicyModel.toJson(),
         oldRecord: {},
         schema: 'public',
         table: 'sla_policies',
-        errors: [],
+        errors: <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
       when(
         () => mockRealtimeClient.streamTableChanges(
           table: 'sla_policies',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).thenAnswer((_) => Stream.value(payload));

@@ -125,8 +125,6 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
     return _realtimeClient
         .streamTableChanges(
           table: 'user_profiles',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map(

@@ -66,7 +66,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           }
           emit(state.copyWith(companies: currentCompanies));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentCompanies.indexWhere((c) => c.id == event.id);
@@ -77,14 +76,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           }
           emit(state.copyWith(companies: currentCompanies));
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentCompanies.indexWhere((c) => c.id == event.id);
         if (index != -1) {
           currentCompanies.removeAt(index);
           emit(state.copyWith(companies: currentCompanies));
         }
-        break;
     }
   }
 
@@ -114,7 +111,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           }
           emit(state.copyWith(profiles: updatedProfiles));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final companyId = event.entity!.serviceProviderCompanyId;
@@ -127,7 +123,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           }
           emit(state.copyWith(profiles: updatedProfiles));
         }
-        break;
       case RealtimeEventType.delete:
         var changed = false;
         for (final list in updatedProfiles.values) {
@@ -141,7 +136,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         if (changed) {
           emit(state.copyWith(profiles: updatedProfiles));
         }
-        break;
     }
   }
 

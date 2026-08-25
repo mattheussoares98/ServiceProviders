@@ -562,7 +562,6 @@ void main() {
           eventType: RealtimeEventType.delete,
           id: tCompanyModel.id,
           companyId: tCompanyModel.companyId,
-          entity: null,
         );
 
         when(
@@ -640,7 +639,6 @@ void main() {
           eventType: RealtimeEventType.delete,
           id: tProfileModel.id,
           companyId: tProfileModel.serviceProviderCompanyId,
-          entity: null,
         );
 
         when(

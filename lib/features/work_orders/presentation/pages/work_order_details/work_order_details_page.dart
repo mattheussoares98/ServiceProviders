@@ -39,11 +39,8 @@ class WorkOrderDetailsPage extends HookWidget {
     );
 
     useEffect(() {
-      final cubit = context.read<WorkOrdersCubit>();
-      cubit.loadWorkOrderById(
-        workOrderId,
-        showLoading: workOrderInState == null,
-      );
+      final cubit = context.read<WorkOrdersCubit>()
+        ..loadWorkOrderById(workOrderId, showLoading: workOrderInState == null);
       final sub = cubit.realtimeEvents.listen((event) {
         if (event.workOrderId == workOrderId &&
             event.eventType == RealtimeWorkOrderEventType.update) {

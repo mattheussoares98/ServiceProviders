@@ -31,8 +31,6 @@ final class WorkOrdersRealtimeRemoteDataSourceImpl
 
     final stream = _realtimeClient.streamTableChanges(
       table: 'work_orders',
-      schema: 'public',
-      event: PostgresChangeEvent.all,
       filter: filter,
     );
 

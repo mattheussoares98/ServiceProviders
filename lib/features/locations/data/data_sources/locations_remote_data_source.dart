@@ -169,8 +169,6 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
     return _realtimeClient
         .streamTableChanges(
           table: 'locations',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map((payload) => RealtimePayloadMapper.map(payload, LocationModel.fromJson));
@@ -189,8 +187,6 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
     return _realtimeClient
         .streamTableChanges(
           table: 'areas',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: filter,
         )
         .map((payload) => RealtimePayloadMapper.map(payload, AreaModel.fromJson));

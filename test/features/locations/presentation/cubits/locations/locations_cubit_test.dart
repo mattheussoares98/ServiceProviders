@@ -1203,7 +1203,6 @@ void main() {
           RealtimeEvent(
             eventType: RealtimeEventType.delete,
             id: toDelete.id,
-            entity: null,
           ),
         );
 

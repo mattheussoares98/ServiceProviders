@@ -49,7 +49,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
           }
           emit(state.copyWith(assets: currentAssets));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentAssets.indexWhere((a) => a.id == event.id);
@@ -60,14 +59,12 @@ class AssetsCubit extends BaseCubit<AssetsState> {
           }
           emit(state.copyWith(assets: currentAssets));
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentAssets.indexWhere((a) => a.id == event.id);
         if (index != -1) {
           currentAssets.removeAt(index);
           emit(state.copyWith(assets: currentAssets));
         }
-        break;
     }
   }
 

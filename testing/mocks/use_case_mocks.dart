@@ -23,8 +23,6 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_r
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
-import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
@@ -38,15 +36,14 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_service_provider_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/update_service_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/create_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_permission_group_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/delete_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_pending_invitations_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
@@ -57,6 +54,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/resend_invitation
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 

@@ -52,7 +52,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           }
           emit(state.copyWith(locations: currentLocations));
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentLocations.indexWhere((l) => l.id == event.id);
@@ -63,14 +62,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           }
           emit(state.copyWith(locations: currentLocations));
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentLocations.indexWhere((l) => l.id == event.id);
         if (index != -1) {
           currentLocations.removeAt(index);
           emit(state.copyWith(locations: currentLocations));
         }
-        break;
     }
   }
 
@@ -90,7 +87,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           }
           _rebuildAreasState(currentAreas);
         }
-        break;
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentAreas.indexWhere((a) => a.id == event.id);
@@ -101,14 +97,12 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           }
           _rebuildAreasState(currentAreas);
         }
-        break;
       case RealtimeEventType.delete:
         final index = currentAreas.indexWhere((a) => a.id == event.id);
         if (index != -1) {
           currentAreas.removeAt(index);
           _rebuildAreasState(currentAreas);
         }
-        break;
     }
   }
 

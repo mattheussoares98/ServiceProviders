@@ -13,7 +13,6 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla_policy_use_case.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -566,7 +565,6 @@ void main() {
               eventType: RealtimeEventType.delete,
               id: tInitialPolicy.id,
               companyId: tUserProfile.companyId,
-              entity: null,
             ),
           );
 

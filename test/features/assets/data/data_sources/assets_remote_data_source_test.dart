@@ -3,12 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
-
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -244,22 +243,20 @@ void main() {
       ).called(1);
     });
 
-    test('watchAssetsRealtime streams realtime events', () async {
+    test('watchAssetsRealtime streams realtime events', () {
       final payload = PostgresChangePayload(
         eventType: PostgresChangeEvent.insert,
         newRecord: tAssetModel.toJson(),
         oldRecord: {},
         schema: 'public',
         table: 'assets',
-        errors: [],
+        errors: <dynamic>[],
         commitTimestamp: DateTime.now(),
       );
 
       when(
         () => mockSupabaseRealtimeClient.streamTableChanges(
           table: 'assets',
-          schema: 'public',
-          event: PostgresChangeEvent.all,
           filter: any(named: 'filter'),
         ),
       ).thenAnswer((_) => Stream.value(payload));
