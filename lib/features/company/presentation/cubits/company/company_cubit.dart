@@ -1,7 +1,11 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -74,6 +78,71 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         'Somente administradores podem acessar essa página. Essa opção nem deveria estar aparecendo para você já que você não é administrador'
             .hardcoded,
       );
+    }
+  }
+
+  Future<void> changeLogo(AttachmentSource source) async {
+    final company = state.company;
+    if (company == null) return;
+
+    final user = _useCases.getSessionUser();
+    if (!user.isAdmin) {
+      showErrorToast(
+        'Somente administradores podem alterar a imagem da empresa'.hardcoded,
+      );
+      return;
+    }
+
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final pickResult = await _useCases.pickAttachment.call(
+      PickAttachmentParams(
+        source: source,
+        workOrderId: 'logo',
+        companyId: company.id,
+        userId: user.id,
+        multiple: false,
+      ),
+    );
+
+    if (isClosed) return;
+
+    if (pickResult is! SuccessState<List<AttachmentEntity>>) {
+      showDataStateToast(pickResult);
+      emit(state.copyWith(status: StateStatus.loaded));
+      return;
+    }
+
+    final attachments = pickResult.data ?? [];
+    if (attachments.isEmpty) {
+      emit(state.copyWith(status: StateStatus.loaded));
+      return;
+    }
+
+    final localPath = attachments.first.localPath;
+    if (localPath == null || localPath.isEmpty) {
+      showErrorToast('Erro ao obter o arquivo da imagem'.hardcoded);
+      emit(state.copyWith(status: StateStatus.loaded));
+      return;
+    }
+
+    final uploadResult = await _useCases.updateCompanyLogo.call(
+      UpdateCompanyLogoParams(company: company, localPath: localPath),
+    );
+
+    if (isClosed) return;
+
+    if (uploadResult is SuccessState<CompanyEntity>) {
+      showSuccessToast('Logo da empresa atualizada com sucesso'.hardcoded);
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          company: uploadResult.data,
+        ),
+      );
+    } else {
+      showDataStateToast(uploadResult);
+      emit(state.copyWith(status: StateStatus.savingError));
     }
   }
 }

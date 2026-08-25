@@ -17,8 +17,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
-import '../../../../attachments/presentation/cubits/attachments/attachments_cubit_test.dart'
-    hide MockGetSessionUserUseCase;
 
 class MockClearLocalAttachmentsUseCase extends Mock
     implements ClearLocalAttachmentsUseCase {}

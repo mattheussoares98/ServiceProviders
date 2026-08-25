@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
@@ -8,9 +9,12 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_par
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 
+import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/services.dart';
 
 void main() {
   late MockCompanyRepository mockRepository;
@@ -19,6 +23,9 @@ void main() {
   late SaveCompanyUseCase saveCompanyUseCase;
   late GetCompanyParametersUseCase getCompanyParametersUseCase;
   late SaveCompanyParametersUseCase saveCompanyParametersUseCase;
+  late MockStorageClient mockStorageClient;
+  late MockFileService mockFileService;
+  late UpdateCompanyLogoUseCase updateCompanyLogoUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCompanyEntity());
@@ -37,6 +44,13 @@ void main() {
     );
     saveCompanyParametersUseCase = SaveCompanyParametersUseCase(
       companyRepository: mockRepository,
+    );
+    mockStorageClient = MockStorageClient();
+    mockFileService = MockFileService();
+    updateCompanyLogoUseCase = UpdateCompanyLogoUseCase(
+      storageClient: mockStorageClient,
+      companyRepository: mockRepository,
+      fileService: mockFileService,
     );
   });
 
@@ -205,5 +219,146 @@ void main() {
         ).called(1);
       });
     });
+
+    group('UpdateCompanyLogoUseCase', () {
+      const tLocalPath = '/path/to/logo.png';
+      const tPresigned = PresignedUrlResponse(
+        uploadUrl: 'https://upload.url',
+        fileKey: 'attachments/company/logos/company.png',
+        publicUrl: 'https://public.url/logo.png',
+      );
+
+      test(
+        'should upload logo and save company with updated logoUrl',
+        () async {
+          when(
+            () => mockFileService.getMimeType(any()),
+          ).thenReturn('image/png');
+          when(
+            () => mockStorageClient.getPresignedUploadUrl(any()),
+          ).thenAnswer((_) async => const SuccessState(data: tPresigned));
+          when(
+            () => mockStorageClient.uploadFile(
+              presignedUrl: any(named: 'presignedUrl'),
+              filePath: any(named: 'filePath'),
+              mimeType: any(named: 'mimeType'),
+            ),
+          ).thenAnswer((_) async => const SuccessState(data: 'https://public.url/logo.png'));
+          when(
+            () => mockRepository.saveCompany(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await updateCompanyLogoUseCase(
+            UpdateCompanyLogoParams(
+              company: tCompanyEntity,
+              localPath: tLocalPath,
+            ),
+          );
+
+          expect(result, isA<SuccessState<CompanyEntity>>());
+          expect(result.data?.logoUrl, 'https://public.url/logo.png');
+          verify(
+            () => mockStorageClient.getPresignedUploadUrl(
+              'attachments/${tCompanyEntity.id}/logos/${tCompanyEntity.id}.png',
+            ),
+          ).called(1);
+          verify(
+            () => mockStorageClient.uploadFile(
+              presignedUrl: 'https://upload.url',
+              filePath: tLocalPath,
+              mimeType: 'image/png',
+            ),
+          ).called(1);
+          verify(
+            () => mockRepository.saveCompany(
+              tCompanyEntity.copyWith(logoUrl: 'https://public.url/logo.png'),
+            ),
+          ).called(1);
+        },
+      );
+
+      test('should return FailureState when getPresignedUploadUrl fails', () async {
+        when(
+          () => mockFileService.getMimeType(any()),
+        ).thenReturn('image/png');
+        when(
+          () => mockStorageClient.getPresignedUploadUrl(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Presigned failed'));
+
+        final result = await updateCompanyLogoUseCase(
+          UpdateCompanyLogoParams(
+            company: tCompanyEntity,
+            localPath: tLocalPath,
+          ),
+        );
+
+        expect(result, isA<FailureState<CompanyEntity>>());
+        expect(result.message, 'Presigned failed');
+        verifyNever(
+          () => mockStorageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        );
+      });
+
+      test('should return FailureState when uploadFile fails', () async {
+        when(
+          () => mockFileService.getMimeType(any()),
+        ).thenReturn('image/png');
+        when(
+          () => mockStorageClient.getPresignedUploadUrl(any()),
+        ).thenAnswer((_) async => const SuccessState(data: tPresigned));
+        when(
+          () => mockStorageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
+
+        final result = await updateCompanyLogoUseCase(
+          UpdateCompanyLogoParams(
+            company: tCompanyEntity,
+            localPath: tLocalPath,
+          ),
+        );
+
+        expect(result, isA<FailureState<CompanyEntity>>());
+        expect(result.message, 'Upload failed');
+        verifyNever(() => mockRepository.saveCompany(any()));
+      });
+
+      test('should return FailureState when saveCompany fails', () async {
+        when(
+          () => mockFileService.getMimeType(any()),
+        ).thenReturn('image/png');
+        when(
+          () => mockStorageClient.getPresignedUploadUrl(any()),
+        ).thenAnswer((_) async => const SuccessState(data: tPresigned));
+        when(
+          () => mockStorageClient.uploadFile(
+            presignedUrl: any(named: 'presignedUrl'),
+            filePath: any(named: 'filePath'),
+            mimeType: any(named: 'mimeType'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: 'https://public.url/logo.png'));
+        when(
+          () => mockRepository.saveCompany(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Save failed'));
+
+        final result = await updateCompanyLogoUseCase(
+          UpdateCompanyLogoParams(
+            company: tCompanyEntity,
+            localPath: tLocalPath,
+          ),
+        );
+
+        expect(result, isA<FailureState<CompanyEntity>>());
+        expect(result.message, 'Save failed');
+      });
+    });
   });
 }
+

@@ -4,9 +4,12 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -28,11 +31,28 @@ void main() {
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late MockGetCompanyUseCase mockGetCompanyUseCase;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+  late MockUpdateCompanyLogoUseCase mockUpdateCompanyLogoUseCase;
+  late MockPickAttachmentUseCase mockPickAttachmentUseCase;
   late CompanyCubit companyCubit;
   late UserProfileEntity userSession;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCompanyEntity());
+    registerFallbackValue(
+      const PickAttachmentParams(
+        source: AttachmentSource.gallery,
+        workOrderId: '',
+        companyId: '',
+        userId: '',
+        multiple: false,
+      ),
+    );
+    registerFallbackValue(
+      UpdateCompanyLogoParams(
+        company: EntityFactory.makeCompanyEntity(),
+        localPath: '',
+      ),
+    );
   });
 
   setUp(() {
@@ -41,6 +61,8 @@ void main() {
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
     mockGetCompanyUseCase = MockGetCompanyUseCase();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+    mockUpdateCompanyLogoUseCase = MockUpdateCompanyLogoUseCase();
+    mockPickAttachmentUseCase = MockPickAttachmentUseCase();
 
     userSession = EntityFactory.makeUserProfileEntity().copyWith(isAdmin: true);
 
@@ -64,6 +86,8 @@ void main() {
         getSessionUser: mockGetSessionUserUseCase,
         getCompany: mockGetCompanyUseCase,
         getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+        updateCompanyLogo: mockUpdateCompanyLogoUseCase,
+        pickAttachment: mockPickAttachmentUseCase,
       ),
     );
   });
@@ -263,6 +287,144 @@ void main() {
           () => mockGetCompanyUseCase.call(any(), forceRefresh: true),
         ).called(1);
       },
+    );
+  });
+
+  group('changeLogo', () {
+    final tCompany = EntityFactory.makeCompanyEntity();
+    final tAttachment = EntityFactory.makeAttachmentEntity();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should not emit anything when company in state is null',
+      build: () => companyCubit,
+      act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
+      expect: () => <CompanyState>[],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should show error toast and not proceed when user is not admin',
+      build: () {
+        when(() => mockGetSessionUserUseCase.call()).thenAnswer(
+          (_) => EntityFactory.makeUserProfileEntity().copyWith(isAdmin: false),
+        );
+        return CompanyCubit(
+          useCases: CompanyCubitUseCases(
+            createCompany: mockCreateCompanyUseCase,
+            getSessionUser: mockGetSessionUserUseCase,
+            getCompany: mockGetCompanyUseCase,
+            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
+            pickAttachment: mockPickAttachmentUseCase,
+          ),
+        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+      },
+      act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
+      expect: () => <CompanyState>[],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit saving and loaded when pickAttachment returns empty',
+      build: () {
+        when(
+          () => mockPickAttachmentUseCase.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        return CompanyCubit(
+          useCases: CompanyCubitUseCases(
+            createCompany: mockCreateCompanyUseCase,
+            getSessionUser: mockGetSessionUserUseCase,
+            getCompany: mockGetCompanyUseCase,
+            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
+            pickAttachment: mockPickAttachmentUseCase,
+          ),
+        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+      },
+      act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loaded,
+        ),
+      ],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit saving and savingError when updateCompanyLogo fails',
+      build: () {
+        when(
+          () => mockPickAttachmentUseCase.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
+        when(
+          () => mockUpdateCompanyLogoUseCase.call(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
+        return CompanyCubit(
+          useCases: CompanyCubitUseCases(
+            createCompany: mockCreateCompanyUseCase,
+            getSessionUser: mockGetSessionUserUseCase,
+            getCompany: mockGetCompanyUseCase,
+            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
+            pickAttachment: mockPickAttachmentUseCase,
+          ),
+        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+      },
+      act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.savingError,
+        ),
+      ],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit saving and loaded with updated company when update succeeds',
+      build: () {
+        final updatedCompany = tCompany.copyWith(logoUrl: 'https://logo.png');
+        when(
+          () => mockPickAttachmentUseCase.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
+        when(
+          () => mockUpdateCompanyLogoUseCase.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: updatedCompany));
+        return CompanyCubit(
+          useCases: CompanyCubitUseCases(
+            createCompany: mockCreateCompanyUseCase,
+            getSessionUser: mockGetSessionUserUseCase,
+            getCompany: mockGetCompanyUseCase,
+            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
+            pickAttachment: mockPickAttachmentUseCase,
+          ),
+        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+      },
+      act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.saving,
+        ),
+        isA<CompanyState>()
+            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having(
+              (state) => state.company?.logoUrl,
+              'logoUrl',
+              'https://logo.png',
+            ),
+      ],
     );
   });
 }

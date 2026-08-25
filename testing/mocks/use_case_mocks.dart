@@ -1,5 +1,6 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
@@ -14,6 +15,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_cas
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
@@ -164,3 +166,9 @@ class MockRegisterDeviceTokenUseCase extends Mock
 
 class MockDeleteDeviceTokenUseCase extends Mock
     implements DeleteDeviceTokenUseCase {}
+
+class MockPickAttachmentUseCase extends Mock implements PickAttachmentUseCase {}
+
+class MockUpdateCompanyLogoUseCase extends Mock
+    implements UpdateCompanyLogoUseCase {}
+
