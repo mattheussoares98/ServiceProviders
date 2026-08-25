@@ -5,6 +5,8 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/repositories/locations_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -806,6 +808,156 @@ void main() {
             () => mockRemoteDataSource.deleteArea(tAreaEntity.id),
           ).called(1);
           verifyNever(() => mockLocalDataSource.deleteArea(any()));
+        },
+      );
+    });
+
+    group('Realtime', () {
+      test(
+        'watchLocationsRealtime caches insert/update in local and emits event',
+        () async {
+          final event = RealtimeEvent<LocationModel>(
+            eventType: RealtimeEventType.insert,
+            id: tLocationModel.id,
+            companyId: tCompanyId,
+            entity: tLocationModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchLocationsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.saveLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<LocationEntity>>((e) {
+                return e.eventType == RealtimeEventType.insert &&
+                    e.id == tLocationModel.id &&
+                    e.entity?.name == tLocationModel.name;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+        },
+      );
+
+      test(
+        'watchLocationsRealtime deletes from local and emits event on delete',
+        () async {
+          final event = RealtimeEvent<LocationModel>(
+            eventType: RealtimeEventType.delete,
+            id: tLocationModel.id,
+            companyId: tCompanyId,
+            entity: null,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchLocationsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<LocationEntity>>((e) {
+                return e.eventType == RealtimeEventType.delete &&
+                    e.id == tLocationModel.id &&
+                    e.entity == null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteLocation(tLocationModel.id)).called(1);
+        },
+      );
+
+      test(
+        'watchAreasRealtime caches insert/update in local and emits event',
+        () async {
+          final event = RealtimeEvent<AreaModel>(
+            eventType: RealtimeEventType.update,
+            id: tAreaModel.id,
+            companyId: tCompanyId,
+            entity: tAreaModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAreasRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.saveArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAreasRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AreaEntity>>((e) {
+                return e.eventType == RealtimeEventType.update &&
+                    e.id == tAreaModel.id &&
+                    e.entity?.name == tAreaModel.name;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        },
+      );
+
+      test(
+        'watchAreasRealtime deletes from local and emits event on delete',
+        () async {
+          final event = RealtimeEvent<AreaModel>(
+            eventType: RealtimeEventType.delete,
+            id: tAreaModel.id,
+            companyId: tCompanyId,
+            entity: null,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAreasRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAreasRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AreaEntity>>((e) {
+                return e.eventType == RealtimeEventType.delete &&
+                    e.id == tAreaModel.id &&
+                    e.entity == null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteArea(tAreaModel.id)).called(1);
         },
       );
     });

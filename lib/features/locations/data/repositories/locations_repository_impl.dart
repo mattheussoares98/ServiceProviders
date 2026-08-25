@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
@@ -228,4 +230,54 @@ final class LocationsRepositoryImpl implements LocationsRepository {
     },
     localCallback: () => _localDataSource.deleteArea(id),
   );
+
+  @override
+  Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({
+    String? companyId,
+  }) async* {
+    await for (final event in _remoteDataSource.watchLocationsRealtime(
+      companyId: companyId,
+    )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveLocation(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteLocation(event.id);
+      }
+
+      yield RealtimeEvent<LocationEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
+  }
+
+  @override
+  Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({
+    String? companyId,
+  }) async* {
+    await for (final event in _remoteDataSource.watchAreasRealtime(
+      companyId: companyId,
+    )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveArea(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteArea(event.id);
+      }
+
+      yield RealtimeEvent<AreaEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
+  }
 }
