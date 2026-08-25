@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/repositories/sla_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
@@ -269,6 +271,86 @@ void main() {
         verify(
           () => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyEntity.id),
         ).called(1);
+      },
+    );
+  });
+
+  group('Realtime', () {
+    test(
+      'watchSlaPoliciesRealtime caches insert/update in local and emits event',
+      () async {
+        final event = RealtimeEvent<SlaPolicyModel>(
+          eventType: RealtimeEventType.insert,
+          id: tSlaPolicyModel.id,
+          companyId: tSlaPolicyModel.companyId,
+          entity: tSlaPolicyModel,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchSlaPoliciesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+        when(
+          () => mockLocalDataSource.saveSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchSlaPoliciesRealtime(
+          companyId: tSlaPolicyModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<SlaPolicyEntity>>((e) {
+              return e.eventType == RealtimeEventType.insert &&
+                  e.id == tSlaPolicyModel.id &&
+                  e.entity?.name == tSlaPolicyModel.name;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(() => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel)).called(1);
+      },
+    );
+
+    test(
+      'watchSlaPoliciesRealtime deletes from local and emits event on delete',
+      () async {
+        final event = RealtimeEvent<SlaPolicyModel>(
+          eventType: RealtimeEventType.delete,
+          id: tSlaPolicyModel.id,
+          companyId: tSlaPolicyModel.companyId,
+          entity: null,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchSlaPoliciesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+        when(
+          () => mockLocalDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchSlaPoliciesRealtime(
+          companyId: tSlaPolicyModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<SlaPolicyEntity>>((e) {
+              return e.eventType == RealtimeEventType.delete &&
+                  e.id == tSlaPolicyModel.id &&
+                  e.entity == null;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(() => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyModel.id)).called(1);
       },
     );
   });
