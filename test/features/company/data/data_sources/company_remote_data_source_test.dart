@@ -78,6 +78,47 @@ void main() {
       });
     });
 
+    group('updateCompany', () {
+      test(
+        'should update company and return SuccessState<CompanyModel>',
+        () async {
+          when(
+            () => mockDatabase.update(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+              filters: any(named: 'filters'),
+            ),
+          ).thenAnswer((_) async => [tResponse.toJson()]);
+
+          final result = await dataSource.updateCompany(tRequest);
+
+          expect(result, isA<SuccessState<CompanyModel>>());
+          expect(result.data, tResponse);
+          verify(
+            () => mockDatabase.update(
+              table: 'companies',
+              values: tRequest.toJson(),
+              filters: [SupabaseFilter.eq('id', tRequest.id)],
+            ),
+          ).called(1);
+        },
+      );
+
+      test('should return FailureState when update throws', () async {
+        when(
+          () => mockDatabase.update(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('update failed'));
+
+        final result = await dataSource.updateCompany(tRequest);
+
+        expect(result, isA<FailureState<CompanyModel>>());
+      });
+    });
+
     group('getCompany', () {
       test('should return SuccessState when company is found', () async {
         final id = faker.guid.guid();

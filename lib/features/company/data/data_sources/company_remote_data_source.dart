@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/company/data/models/responses/company_pa
 
 abstract interface class CompanyRemoteDataSource {
   FutureData<CompanyModel> createCompany(CompanyRequestModel request);
+  FutureData<CompanyModel> updateCompany(CompanyRequestModel request);
   FutureData<CompanyModel> getCompany(String id);
   FutureData<CompanyParameterModel> getCompanyParameters(String companyId);
   FutureData<CompanyParameterModel> saveCompanyParameters(
@@ -32,6 +33,20 @@ final class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
           table: 'companies',
           values: request.toJson(),
         );
+        return CompanyModel.fromJson(rows.first);
+      });
+
+  @override
+  FutureData<CompanyModel> updateCompany(CompanyRequestModel request) =>
+      SupabaseHandler.call(() async {
+        final rows = await _database.update(
+          table: 'companies',
+          values: request.toJson(),
+          filters: [SupabaseFilter.eq('id', request.id)],
+        );
+        if (rows.isEmpty) {
+          throw Exception('Empresa não encontrada'.hardcoded);
+        }
         return CompanyModel.fromJson(rows.first);
       });
 

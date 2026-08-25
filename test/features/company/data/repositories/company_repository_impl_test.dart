@@ -309,8 +309,12 @@ void main() {
 
     group('saveCompany', () {
       test(
-        'should call localDataSource.saveCompany and return true on success',
+        'should call remote and local when online and return true on success',
         () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateCompany(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCompanyModel));
           when(
             () => mockLocalDataSource.saveCompany(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -319,7 +323,55 @@ void main() {
 
           expect(result, isA<SuccessState<bool>>());
           expect(result.data, isTrue);
-          verify(() => mockLocalDataSource.saveCompany(any())).called(1);
+          verify(
+            () => mockRemoteDataSource.updateCompany(
+              CompanyRequestModel.fromEntity(tCompanyModel),
+            ),
+          ).called(1);
+          verify(
+            () => mockLocalDataSource.saveCompany(tCompanyModel),
+          ).called(1);
+        },
+      );
+
+      test(
+        'should return FailureState when online and remote update fails',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.updateCompany(any()),
+          ).thenAnswer(
+            (_) async => FailureState<CompanyModel>(message: 'Error'),
+          );
+
+          final result = await repository.saveCompany(tCompanyModel.toEntity());
+
+          expect(result, isA<FailureState<bool>>());
+          verify(
+            () => mockRemoteDataSource.updateCompany(
+              CompanyRequestModel.fromEntity(tCompanyModel),
+            ),
+          ).called(1);
+          verifyNever(() => mockLocalDataSource.saveCompany(any()));
+        },
+      );
+
+      test(
+        'should call only localDataSource when offline and return true on success',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.saveCompany(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.saveCompany(tCompanyModel.toEntity());
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verifyNever(() => mockRemoteDataSource.updateCompany(any()));
+          verify(
+            () => mockLocalDataSource.saveCompany(tCompanyModel),
+          ).called(1);
         },
       );
     });

@@ -84,8 +84,24 @@ final class CompanyRepositoryImpl implements CompanyRepository {
       );
 
   @override
-  FutureBool saveCompany(CompanyEntity company) =>
-      _localDataSource.saveCompany(CompanyModel.fromEntity(company));
+  FutureBool saveCompany(CompanyEntity company) async {
+    final model = CompanyModel.fromEntity(company);
+    final requestModel = CompanyRequestModel.fromEntity(company);
+    if (_internet.isConnected) {
+      final remoteResult = await _remoteDataSource.updateCompany(requestModel);
+      if (remoteResult is FailureState<CompanyModel>) {
+        return FailureState(
+          message: remoteResult.message,
+          error: remoteResult.error,
+        );
+      }
+    }
+    final localResult = await _localDataSource.saveCompany(model);
+    if (localResult is SuccessState<bool> && localResult.data == true) {
+      _cachedCompany = company;
+    }
+    return localResult;
+  }
 
   @override
   FutureBool saveCompanyParameters(CompanyParameterEntity parameters) async {
