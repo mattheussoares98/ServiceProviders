@@ -66,9 +66,9 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               companyId: r.companyId,
               name: r.name,
               isActive: r.isActive,
-              createdAt: r.createdAt,
-              updatedAt: r.updatedAt,
-              deletedAt: r.deletedAt,
+              createdAt: r.createdAt.toUtc(),
+              updatedAt: r.updatedAt.toUtc(),
+              deletedAt: r.deletedAt?.toUtc(),
             ),
           )
           .toList();
@@ -127,14 +127,14 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
                   : null,
               sectorId: r.sectorId,
               status: PauseRequestStatus.fromValue(r.status),
-              pausedAt: r.pausedAt,
-              resumedAt: r.resumedAt,
+              pausedAt: r.pausedAt.toUtc(),
+              resumedAt: r.resumedAt?.toUtc(),
               resumedById: r.resumedById,
               reviewedById: r.reviewedById,
               reviewObservation: r.reviewObservation,
               affectsSla: r.affectsSla,
-              createdAt: r.createdAt,
-              updatedAt: r.updatedAt,
+              createdAt: r.createdAt.toUtc(),
+              updatedAt: r.updatedAt.toUtc(),
             ),
           )
           .toList();

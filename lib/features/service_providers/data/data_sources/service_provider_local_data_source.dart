@@ -77,9 +77,9 @@ final class ServiceProviderLocalDataSourceImpl
                       row.invitationStatus!,
                     )
                   : null,
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
-              deletedAt: row.deletedAt,
+              createdAt: row.createdAt.toUtc(),
+              updatedAt: row.updatedAt.toUtc(),
+              deletedAt: row.deletedAt?.toUtc(),
             ),
           )
           .toList();
@@ -115,9 +115,9 @@ final class ServiceProviderLocalDataSourceImpl
         invitationStatus: row.invitationStatus != null
             ? ServiceProviderInvitationStatus.fromString(row.invitationStatus!)
             : null,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt,
-        deletedAt: row.deletedAt,
+        createdAt: row.createdAt.toUtc(),
+        updatedAt: row.updatedAt.toUtc(),
+        deletedAt: row.deletedAt?.toUtc(),
       );
 
       return SuccessState(data: model);
@@ -202,8 +202,8 @@ final class ServiceProviderLocalDataSourceImpl
               email: row.email,
               phone: row.phone,
               isActive: row.isActive,
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
+              createdAt: row.createdAt.toUtc(),
+              updatedAt: row.updatedAt.toUtc(),
             ),
           )
           .toList();
@@ -237,8 +237,8 @@ final class ServiceProviderLocalDataSourceImpl
               email: row.email,
               phone: row.phone,
               isActive: row.isActive,
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
+              createdAt: row.createdAt.toUtc(),
+              updatedAt: row.updatedAt.toUtc(),
             ),
           )
           .toList();
@@ -319,9 +319,9 @@ final class ServiceProviderLocalDataSourceImpl
               serviceProviderCompanyId: row.serviceProviderCompanyId,
               inviteToken: row.inviteToken,
               status: ServiceProviderInvitationStatus.fromString(row.status),
-              createdAt: row.createdAt,
-              acceptedAt: row.acceptedAt,
-              expiresAt: row.expiresAt,
+              createdAt: row.createdAt.toUtc(),
+              acceptedAt: row.acceptedAt?.toUtc(),
+              expiresAt: row.expiresAt?.toUtc(),
             ),
           )
           .toList();

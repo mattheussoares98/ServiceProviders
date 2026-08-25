@@ -40,8 +40,8 @@ final class WorkOrderObservationsLocalDataSourceImpl
               authorProviderProfileId: r.authorProviderProfileId,
               authorName: r.authorName,
               content: r.content,
-              createdAt: r.createdAt,
-              updatedAt: r.updatedAt,
+              createdAt: r.createdAt.toUtc(),
+              updatedAt: r.updatedAt.toUtc(),
             ),
           )
           .toList();
