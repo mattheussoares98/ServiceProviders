@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/foundation.dart';
@@ -104,6 +106,10 @@ void main() {
   late MockWorkOrdersCubit mockWorkOrdersCubit;
   late MockCategoriesCubit mockCategoriesCubit;
   late MockSessionCubit mockSessionCubit;
+  late MockSectorsCubit mockSectorsCubit;
+  late MockSlaPoliciesCubit mockSlaPoliciesCubit;
+  late MockServiceProvidersCubit mockServiceProvidersCubit;
+  late MockPauseWorkflowCubit mockPauseWorkflowCubit;
 
   late UserProfileEntity userProfile;
 
@@ -218,9 +224,7 @@ void main() {
     when(
       () => mockSplashCubit.state,
     ).thenReturn(const SplashState(target: SplashRouteTarget.home));
-    when(() => mockSplashCubit.stream).thenAnswer(
-      (_) => Stream.value(const SplashState(target: SplashRouteTarget.home)),
-    );
+    when(() => mockSplashCubit.stream).thenAnswer((_) => const Stream.empty());
 
     final mockModeSwitcherCubit = MockModeSwitcherCubit();
     when(
@@ -233,21 +237,21 @@ void main() {
       mockModeSwitcherCubit.checkEligibilityAndLoadMode,
     ).thenAnswer((_) async {});
 
-    final mockSectorsCubit = MockSectorsCubit();
+    mockSectorsCubit = MockSectorsCubit();
     when(() => mockSectorsCubit.state).thenReturn(const SectorsState.initial());
     when(() => mockSectorsCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(mockSectorsCubit.loadSectors).thenAnswer((_) async {});
+    when(() => mockSectorsCubit.loadSectors()).thenAnswer((_) async {});
 
-    final mockSlaPoliciesCubit = MockSlaPoliciesCubit();
+    mockSlaPoliciesCubit = MockSlaPoliciesCubit();
     when(
       () => mockSlaPoliciesCubit.state,
     ).thenReturn(const SlaPoliciesState.initial());
     when(
       () => mockSlaPoliciesCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
-    when(mockSlaPoliciesCubit.loadSlaPolicies).thenAnswer((_) async {});
+    when(() => mockSlaPoliciesCubit.loadSlaPolicies()).thenAnswer((_) async {});
 
-    final mockServiceProvidersCubit = MockServiceProvidersCubit();
+    mockServiceProvidersCubit = MockServiceProvidersCubit();
     when(
       () => mockServiceProvidersCubit.state,
     ).thenReturn(const ServiceProvidersState.initial());
@@ -255,17 +259,19 @@ void main() {
       () => mockServiceProvidersCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
     when(
-      mockServiceProvidersCubit.loadCompaniesAndProfiles,
+      () => mockServiceProvidersCubit.loadCompaniesAndProfiles(),
     ).thenAnswer((_) async {});
 
-    final mockPauseWorkflowCubit = MockPauseWorkflowCubit();
+    mockPauseWorkflowCubit = MockPauseWorkflowCubit();
     when(
       () => mockPauseWorkflowCubit.state,
     ).thenReturn(const PauseWorkflowState.initial());
     when(
       () => mockPauseWorkflowCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
-    when(mockPauseWorkflowCubit.loadPauseReasons).thenAnswer((_) async {});
+    when(
+      () => mockPauseWorkflowCubit.loadPauseReasons(),
+    ).thenAnswer((_) async {});
 
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
@@ -367,4 +373,96 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     }
   });
+
+  patrolWidgetTest(
+    'HomePage reloads all feature cubits when selectedCompanyId changes in CompanyCubit',
+    ($) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final mockScreenObserverCubit = MockScreenObserverCubit();
+        when(
+          () => mockScreenObserverCubit.state,
+        ).thenReturn(ScreenObserverState.initial());
+        when(
+          () => mockScreenObserverCubit.stream,
+        ).thenAnswer((_) => const Stream.empty());
+
+        final companyStateController =
+            StreamController<CompanyState>.broadcast();
+        when(
+          () => mockCompanyCubit.stream,
+        ).thenAnswer((_) => companyStateController.stream);
+        when(() => mockCompanyCubit.state).thenReturn(
+          const CompanyState(
+            status: StateStatus.loaded,
+            selectedCompanyId: 'comp-1',
+          ),
+        );
+
+        await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+
+        final appRouter = AppRouter();
+
+        await $.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<ScreenObserverCubit>(
+                create: (_) => mockScreenObserverCubit,
+              ),
+              BlocProvider<UsersCubit>(create: (_) => mockUsersCubit),
+              BlocProvider<SessionCubit>(create: (_) => mockSessionCubit),
+            ],
+            child: MaterialApp.router(
+              theme: lightTheme,
+              routerConfig: appRouter.config(
+                deepLinkBuilder: (_) => const DeepLink.path('/home'),
+              ),
+            ),
+          ),
+        );
+
+        await $.pumpAndSettle();
+
+        // Emit new company ID
+        companyStateController.add(
+          const CompanyState(
+            status: StateStatus.loaded,
+            selectedCompanyId: 'comp-2',
+          ),
+        );
+        await $.pumpAndSettle();
+
+        verify(
+          () => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockAssetsCubit.loadAssets(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockLocationsCubit.loadLocationsAndAreas(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(() => mockUsersCubit.loadAll()).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockCategoriesCubit.loadCategories(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockSectorsCubit.loadSectors(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockSlaPoliciesCubit.loadSlaPolicies(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockServiceProvidersCubit.loadCompaniesAndProfiles(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockPauseWorkflowCubit.loadPauseReasons(),
+        ).called(greaterThanOrEqualTo(2));
+
+        await companyStateController.close();
+        await $.tester.pump(const Duration(seconds: 1));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
 }

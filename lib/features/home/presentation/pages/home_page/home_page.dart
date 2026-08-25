@@ -79,33 +79,50 @@ class HomePage extends HookWidget {
       ],
       child: Builder(
         builder: (context) {
-          return BaseScaffold(
-            usePadding: false,
-            isScrollable: false,
-            body: BlocBuilder<UsersCubit, UsersState>(
-              builder: (context, state) {
-                final sectionStatus = state.sections[UsersSections.loadAll];
-                final isLoading = sectionStatus != null
-                    ? sectionStatus == StateStatus.loading
-                    : state.status == StateStatus.loading;
-                final hasError = sectionStatus != null
-                    ? sectionStatus == StateStatus.loadingError
-                    : state.status == StateStatus.loadingError;
+          return BlocListener<CompanyCubit, CompanyState>(
+            listenWhen: (previous, current) =>
+                previous.selectedCompanyId != null &&
+                current.selectedCompanyId != null &&
+                previous.selectedCompanyId != current.selectedCompanyId,
+            listener: (context, state) {
+              context.read<WorkOrdersCubit>().loadWorkOrdersAndChangeRequests();
+              context.read<AssetsCubit>().loadAssets();
+              context.read<LocationsCubit>().loadLocationsAndAreas();
+              context.read<UsersCubit>().loadAll();
+              context.read<CategoriesCubit>().loadCategories();
+              context.read<SectorsCubit>().loadSectors();
+              context.read<SlaPoliciesCubit>().loadSlaPolicies();
+              context.read<ServiceProvidersCubit>().loadCompaniesAndProfiles();
+              context.read<PauseWorkflowCubit>().loadPauseReasons();
+            },
+            child: BaseScaffold(
+              usePadding: false,
+              isScrollable: false,
+              body: BlocBuilder<UsersCubit, UsersState>(
+                builder: (context, state) {
+                  final sectionStatus = state.sections[UsersSections.loadAll];
+                  final isLoading = sectionStatus != null
+                      ? sectionStatus == StateStatus.loading
+                      : state.status == StateStatus.loading;
+                  final hasError = sectionStatus != null
+                      ? sectionStatus == StateStatus.loadingError
+                      : state.status == StateStatus.loadingError;
 
-                if (state.users.isEmpty && state.permissionGroups.isEmpty) {
-                  if (isLoading) {
-                    return const LoadingCircle();
+                  if (state.users.isEmpty && state.permissionGroups.isEmpty) {
+                    if (isLoading) {
+                      return const LoadingCircle();
+                    }
+                    if (hasError) {
+                      return const ErrorPage();
+                    }
                   }
-                  if (hasError) {
-                    return const ErrorPage();
-                  }
-                }
 
-                return HeroControllerScope(
-                  controller: controller,
-                  child: const AutoRouter(),
-                );
-              },
+                  return HeroControllerScope(
+                    controller: controller,
+                    child: const AutoRouter(),
+                  );
+                },
+              ),
             ),
           );
         },
