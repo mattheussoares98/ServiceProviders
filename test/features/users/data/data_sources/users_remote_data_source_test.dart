@@ -5,6 +5,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
@@ -19,6 +21,7 @@ class MockFunctionResponse extends Mock implements FunctionResponse {}
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late UsersRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -36,7 +39,11 @@ void main() {
   setUp(() {
     GetIt.I.registerLazySingleton<AppConfig>(() => const TestAppConfig());
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = UsersRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = UsersRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   tearDown(() => GetIt.I.reset());
@@ -175,6 +182,44 @@ void main() {
             filters: [SupabaseFilter.eq('id', tId)],
           ),
         ).called(1);
+      });
+    });
+
+    group('watchUserProfilesRealtime', () {
+      test('streams realtime events for user profiles', () async {
+        final payload = PostgresChangePayload(
+          eventType: PostgresChangeEvent.insert,
+          newRecord: tUserProfileModel.toJson(),
+          oldRecord: {},
+          schema: 'public',
+          table: 'user_profiles',
+          errors: [],
+          commitTimestamp: DateTime.now(),
+        );
+
+        when(
+          () => mockRealtimeClient.streamTableChanges(
+            table: 'user_profiles',
+            schema: 'public',
+            event: PostgresChangeEvent.all,
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => Stream.value(payload));
+
+        final stream = dataSource.watchUserProfilesRealtime(
+          companyId: tCompanyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<UserProfileModel>>((event) {
+              return event.eventType == RealtimeEventType.insert &&
+                  event.id == tUserProfileModel.id &&
+                  event.entity?.name == tUserProfileModel.name;
+            }),
+          ),
+        );
       });
     });
 

@@ -2,7 +2,10 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/config/app_config.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
@@ -18,6 +21,9 @@ abstract interface class UsersRemoteDataSource {
   FutureData<UserProfileModel> getUserProfileById(String id);
   FutureData<UserProfileModel> updateUserProfile(UserProfileModel request);
   FutureVoid deleteUserProfile(String id);
+  Stream<RealtimeEvent<UserProfileModel>> watchUserProfilesRealtime({
+    String? companyId,
+  });
   FutureVoid inviteUser({
     required String email,
     required String companyId,
@@ -40,10 +46,14 @@ abstract interface class UsersRemoteDataSource {
 
 @LazySingleton(as: UsersRemoteDataSource)
 final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
-  const UsersRemoteDataSourceImpl({required SupabaseDatabaseClient database})
-    : _database = database;
+  const UsersRemoteDataSourceImpl({
+    required SupabaseDatabaseClient database,
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   // ============================================
   // User Profiles
@@ -99,6 +109,31 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       filters: [SupabaseFilter.eq('id', id)],
     );
   });
+
+  @override
+  Stream<RealtimeEvent<UserProfileModel>> watchUserProfilesRealtime({
+    String? companyId,
+  }) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(
+          table: 'user_profiles',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: filter,
+        )
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, UserProfileModel.fromJson),
+        );
+  }
 
   @override
   FutureVoid inviteUser({
