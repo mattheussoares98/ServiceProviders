@@ -2,6 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_group_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_invitation_model.dart';
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
@@ -625,6 +627,90 @@ void main() {
           },
         );
       });
+    });
+
+    group('Realtime', () {
+      test(
+        'watchUserProfilesRealtime caches insert/update in local and emits event',
+        () async {
+          final event = RealtimeEvent<UserProfileModel>(
+            eventType: RealtimeEventType.insert,
+            id: tUserProfileModel.id,
+            companyId: tUserProfileModel.companyId,
+            entity: tUserProfileModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchUserProfilesRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.saveUserProfile(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchUserProfilesRealtime(
+            companyId: tUserProfileModel.companyId,
+          );
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<UserProfileEntity>>((e) {
+                return e.eventType == RealtimeEventType.insert &&
+                    e.id == tUserProfileModel.id &&
+                    e.entity?.name == tUserProfileModel.name;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(
+            () => mockLocalDataSource.saveUserProfile(tUserProfileModel),
+          ).called(1);
+        },
+      );
+
+      test(
+        'watchUserProfilesRealtime deletes from local and emits event on delete',
+        () async {
+          final event = RealtimeEvent<UserProfileModel>(
+            eventType: RealtimeEventType.delete,
+            id: tUserProfileModel.id,
+            companyId: tUserProfileModel.companyId,
+            entity: null,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchUserProfilesRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteUserProfile(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchUserProfilesRealtime(
+            companyId: tUserProfileModel.companyId,
+          );
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<UserProfileEntity>>((e) {
+                return e.eventType == RealtimeEventType.delete &&
+                    e.id == tUserProfileModel.id &&
+                    e.entity == null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(
+            () => mockLocalDataSource.deleteUserProfile(tUserProfileModel.id),
+          ).called(1);
+        },
+      );
     });
   });
 }

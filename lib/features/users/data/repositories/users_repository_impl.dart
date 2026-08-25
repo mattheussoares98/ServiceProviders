@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
@@ -94,6 +96,31 @@ final class UsersRepositoryImpl implements UsersRepository {
           );
         },
       );
+
+  @override
+  Stream<RealtimeEvent<UserProfileEntity>> watchUserProfilesRealtime({
+    String? companyId,
+  }) async* {
+    await for (final event in _remoteDataSource.watchUserProfilesRealtime(
+      companyId: companyId,
+    )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveUserProfile(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteUserProfile(event.id);
+      }
+
+      yield RealtimeEvent<UserProfileEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
+  }
 
   @override
   FutureVoid inviteUser({
