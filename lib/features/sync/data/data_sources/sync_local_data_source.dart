@@ -48,8 +48,8 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
             status: Value(item.status.code),
             attempts: Value(item.attempts),
             lastError: Value(item.lastError),
-            createdAt: Value(item.createdAt),
-            syncedAt: Value(item.syncedAt),
+            createdAt: Value(item.createdAt.toUtc()),
+            syncedAt: Value(item.syncedAt?.toUtc()),
           ),
         );
     return const SuccessState(data: true);
