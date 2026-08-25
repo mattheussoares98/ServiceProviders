@@ -32,6 +32,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remo
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_realtime_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
@@ -125,4 +126,7 @@ class MockWorkOrderObservationsLocalDataSource extends Mock
 class MockSyncLocalDataSource extends Mock implements SyncLocalDataSource {}
 
 class MockSyncRemoteDataSource extends Mock implements SyncRemoteDataSource {}
+
+class MockWorkOrdersRealtimeRemoteDataSource extends Mock
+    implements WorkOrdersRealtimeRemoteDataSource {}
 
