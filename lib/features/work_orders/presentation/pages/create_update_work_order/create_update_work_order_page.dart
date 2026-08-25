@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
@@ -25,7 +26,6 @@ import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_pol
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -140,7 +140,8 @@ class _CreateUpdatePage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final selectedModeName = GetIt.I<GetSelectedModeUseCase>().call();
-    final isProviderMode = AppMode.fromName(selectedModeName) == AppMode.provider;
+    final isProviderMode =
+        AppMode.fromName(selectedModeName) == AppMode.provider;
     final isEditing = workOrder != null;
 
     final (assetsError, assetsLoading) = context.select(
@@ -162,15 +163,15 @@ class _CreateUpdatePage extends HookWidget {
     final isLoading = isProviderMode
         ? providersLoading
         : (assetsLoading ||
-            locationsLoading ||
-            usersLoading ||
-            providersLoading);
+              locationsLoading ||
+              usersLoading ||
+              providersLoading);
     final hasError = isProviderMode
         ? providersError?.isNotEmpty == true
         : (assetsError?.isNotEmpty == true ||
-            locationsError?.isNotEmpty == true ||
-            usersError?.isNotEmpty == true ||
-            providersError?.isNotEmpty == true);
+              locationsError?.isNotEmpty == true ||
+              usersError?.isNotEmpty == true ||
+              providersError?.isNotEmpty == true);
 
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
@@ -239,12 +240,12 @@ class _CreateUpdatePage extends HookWidget {
       if (!isEditing) return null;
       final cubit = context.read<WorkOrdersCubit>();
       final sub = cubit.realtimeEvents.listen((event) {
-        if (event.workOrderId == workOrderId &&
-            event.eventType == RealtimeWorkOrderEventType.update &&
-            event.workOrder != null) {
-          externalChangedWorkOrder.value = event.workOrder;
+        if (event.id == workOrderId &&
+            event.eventType == RealtimeEventType.update &&
+            event.entity != null) {
+          externalChangedWorkOrder.value = event.entity;
           ToastUtil.showSuccess(
-            'A ordem de serviço foi alterada externamente.'.hardcoded,
+            'A ordem de serviço foi alterada externamente'.hardcoded,
           );
         }
       });
@@ -325,7 +326,9 @@ class _CreateUpdatePage extends HookWidget {
             ? workOrder?.createdById
             : sessionUser.id,
         createdByProviderProfileId: workOrder?.createdByProviderProfileId,
-        openedBy: workOrder?.openedBy ?? (isProviderMode ? AppMode.provider : AppMode.internal),
+        openedBy:
+            workOrder?.openedBy ??
+            (isProviderMode ? AppMode.provider : AppMode.internal),
         title: titleController.text.trim(),
         description: descController.text.trim().isEmpty
             ? null
@@ -363,10 +366,7 @@ class _CreateUpdatePage extends HookWidget {
         _WorkOrderExternalChangeBanner(
           onReload: () => applyWorkOrder(externalChangedWorkOrder.value!),
         ),
-      _TitleField(
-        controller: titleController,
-        enabled: canEditCoreFields,
-      ),
+      _TitleField(controller: titleController, enabled: canEditCoreFields),
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
         child: _DescriptionField(
@@ -503,12 +503,12 @@ class _CreateUpdatePage extends HookWidget {
                 child: _DurationField(
                   controller: durationController,
                   descFocusNode: descFocusNode,
-                  onSubmit: (canEditCoreFields &&
-                          selectedSlaPolicyId.value == null)
+                  onSubmit:
+                      (canEditCoreFields && selectedSlaPolicyId.value == null)
                       ? onSubmit
                       : null,
-                  enabled: canEditCoreFields &&
-                      selectedSlaPolicyId.value == null,
+                  enabled:
+                      canEditCoreFields && selectedSlaPolicyId.value == null,
                 ),
               ),
               gapW16,

@@ -49,8 +49,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reques
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
@@ -217,7 +215,6 @@ abstract final class EntityFactory {
       completionResponsibility: PauseResponsibility.shared,
       completionSectorId: _makeId(),
       advanceWarningSentAt: _makeDateTime(),
-      lastEscalationLevel: 0,
       lastEscalationAt: _makeDateTime(),
     );
   }
@@ -378,11 +375,7 @@ abstract final class EntityFactory {
   }
 
   static List<CompanyEntity> makeCompanyEntityList() {
-    return [
-      makeCompanyEntity(),
-      makeCompanyEntity(),
-      makeCompanyEntity(),
-    ];
+    return [makeCompanyEntity(), makeCompanyEntity(), makeCompanyEntity()];
   }
 
   static CompanyParameterEntity makeCompanyParameterEntity() {
@@ -399,9 +392,7 @@ abstract final class EntityFactory {
       sandboxQuotaMb: 1024,
       maxSyncAttempts: 3,
       inviteExpiryHours: 24,
-      advanceWarningMinutes: 60,
       advanceWarningGroupIds: [_makeId(), _makeId(), _makeId()],
-      delayedNotificationIntervalMinutes: 60,
       escalationGroupIds: [_makeId(), _makeId(), _makeId()],
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
@@ -882,24 +873,6 @@ abstract final class EntityFactory {
       makeSyncErrorEntity(),
       makeSyncErrorEntity(),
       makeSyncErrorEntity(),
-    ];
-  }
-
-  // Realtime Work Order Event
-  static RealtimeWorkOrderEvent makeRealtimeWorkOrderEvent() {
-    return RealtimeWorkOrderEvent(
-      eventType: RealtimeWorkOrderEventType.update,
-      workOrderId: _makeId(),
-      companyId: _makeId(),
-      workOrder: makeWorkOrderEntity(),
-    );
-  }
-
-  static List<RealtimeWorkOrderEvent> makeRealtimeWorkOrderEventList() {
-    return [
-      makeRealtimeWorkOrderEvent(),
-      makeRealtimeWorkOrderEvent(),
-      makeRealtimeWorkOrderEvent(),
     ];
   }
 

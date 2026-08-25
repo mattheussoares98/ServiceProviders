@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
@@ -20,8 +22,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -199,7 +199,9 @@ void main() {
 
     tUserProfile = EntityFactory.makeUserProfileEntity();
 
-    when(() => mockSyncEngine.onSyncCompleted).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockSyncEngine.onSyncCompleted,
+    ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockWatchWorkOrdersRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
@@ -2541,64 +2543,68 @@ void main() {
         verify(() => mockSyncWorkOrders.call(tUserProfile.companyId)).called(1);
       });
 
-      test('refreshes work orders when syncEngine emits onSyncCompleted', () async {
-        final syncController = StreamController<void>.broadcast();
-        when(() => mockSyncEngine.onSyncCompleted)
-            .thenAnswer((_) => syncController.stream);
-        when(() => mockGetWorkOrders(any())).thenAnswer(
-          (_) async => const SuccessState(data: []),
-        );
-        when(() => mockGetChangeRequests(any())).thenAnswer(
-          (_) async => const SuccessState(data: []),
-        );
+      test(
+        'refreshes work orders when syncEngine emits onSyncCompleted',
+        () async {
+          final syncController = StreamController<void>.broadcast();
+          when(
+            () => mockSyncEngine.onSyncCompleted,
+          ).thenAnswer((_) => syncController.stream);
+          when(
+            () => mockGetWorkOrders(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetChangeRequests(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
 
-        final useCases = WorkOrdersCubitUseCases(
-          getActiveCompanyId: mockGetActiveCompanyId,
-          getWorkOrders: mockGetWorkOrders,
-          getWorkOrderById: mockGetWorkOrderById,
-          createWorkOrder: mockCreateWorkOrder,
-          updateWorkOrder: mockUpdateWorkOrder,
-          deleteWorkOrder: mockDeleteWorkOrder,
-          getChangeRequests: mockGetChangeRequests,
-          createChangeRequest: mockCreateChangeRequest,
-          reviewChangeRequest: mockReviewChangeRequest,
-          getWorkOrderHistory: mockGetWorkOrderHistory,
-          getAttachments: mockGetAttachments,
-          uploadAttachment: mockUploadAttachment,
-          deleteAttachment: mockDeleteAttachment,
-          createAttachment: mockCreateAttachment,
-          cancelPause: mockCancelPause,
-          syncWorkOrders: mockSyncWorkOrders,
-          syncEngine: mockSyncEngine,
-          watchWorkOrdersRealtime: mockWatchWorkOrdersRealtime,
-          getProviderWorkOrders: mockGetProviderWorkOrders,
-          getSessionProviderProfile: mockGetSessionProviderProfile,
-          getServiceProviderProfilesByAuthUser:
-              mockGetServiceProviderProfilesByAuthUser,
-          getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
-          getSessionUser: mockGetSessionUser,
-          getSelectedMode: mockGetSelectedMode,
-        );
+          final useCases = WorkOrdersCubitUseCases(
+            getActiveCompanyId: mockGetActiveCompanyId,
+            getWorkOrders: mockGetWorkOrders,
+            getWorkOrderById: mockGetWorkOrderById,
+            createWorkOrder: mockCreateWorkOrder,
+            updateWorkOrder: mockUpdateWorkOrder,
+            deleteWorkOrder: mockDeleteWorkOrder,
+            getChangeRequests: mockGetChangeRequests,
+            createChangeRequest: mockCreateChangeRequest,
+            reviewChangeRequest: mockReviewChangeRequest,
+            getWorkOrderHistory: mockGetWorkOrderHistory,
+            getAttachments: mockGetAttachments,
+            uploadAttachment: mockUploadAttachment,
+            deleteAttachment: mockDeleteAttachment,
+            createAttachment: mockCreateAttachment,
+            cancelPause: mockCancelPause,
+            syncWorkOrders: mockSyncWorkOrders,
+            syncEngine: mockSyncEngine,
+            watchWorkOrdersRealtime: mockWatchWorkOrdersRealtime,
+            getProviderWorkOrders: mockGetProviderWorkOrders,
+            getSessionProviderProfile: mockGetSessionProviderProfile,
+            getServiceProviderProfilesByAuthUser:
+                mockGetServiceProviderProfilesByAuthUser,
+            getServiceProviderCompaniesByIds:
+                mockGetServiceProviderCompaniesByIds,
+            getSessionUser: mockGetSessionUser,
+            getSelectedMode: mockGetSelectedMode,
+          );
 
-        final testCubit = WorkOrdersCubit(useCases: useCases);
-        syncController.add(null);
-        await pumpEventQueue();
+          final testCubit = WorkOrdersCubit(useCases: useCases);
+          syncController.add(null);
+          await pumpEventQueue();
 
-        verify(() => mockGetWorkOrders(any())).called(1);
-        await testCubit.close();
-        await syncController.close();
-      });
+          verify(() => mockGetWorkOrders(any())).called(1);
+          await testCubit.close();
+          await syncController.close();
+        },
+      );
     });
 
     group('Realtime Work Order Events', () {
-      late StreamController<RealtimeWorkOrderEvent> realtimeController;
+      late StreamController<RealtimeEvent<WorkOrderEntity>> realtimeController;
 
       setUp(() {
-        realtimeController = StreamController<RealtimeWorkOrderEvent>.broadcast();
+        realtimeController =
+            StreamController<RealtimeEvent<WorkOrderEntity>>.broadcast();
         when(
-          () => mockWatchWorkOrdersRealtime(
-            companyId: any(named: 'companyId'),
-          ),
+          () => mockWatchWorkOrdersRealtime(companyId: any(named: 'companyId')),
         ).thenAnswer((_) => realtimeController.stream);
         cubit = WorkOrdersCubit(useCases: useCases);
       });
@@ -2609,7 +2615,9 @@ void main() {
 
       test('updates work order in-place when UPDATE event arrives', () async {
         final existingOrder = EntityFactory.makeWorkOrderEntity();
-        final updatedOrder = existingOrder.copyWith(title: 'Updated in Realtime');
+        final updatedOrder = existingOrder.copyWith(
+          title: 'Updated in Realtime',
+        );
 
         when(
           () => mockGetWorkOrders(any()),
@@ -2623,10 +2631,10 @@ void main() {
         expect(cubit.state.workOrders.first.title, existingOrder.title);
 
         realtimeController.add(
-          RealtimeWorkOrderEvent(
-            eventType: RealtimeWorkOrderEventType.update,
-            workOrderId: existingOrder.id,
-            workOrder: updatedOrder,
+          RealtimeEvent<WorkOrderEntity>(
+            eventType: RealtimeEventType.update,
+            id: existingOrder.id,
+            entity: updatedOrder,
           ),
         );
 
@@ -2639,10 +2647,10 @@ void main() {
         final newOrder = EntityFactory.makeWorkOrderEntity();
 
         realtimeController.add(
-          RealtimeWorkOrderEvent(
-            eventType: RealtimeWorkOrderEventType.insert,
-            workOrderId: newOrder.id,
-            workOrder: newOrder,
+          RealtimeEvent<WorkOrderEntity>(
+            eventType: RealtimeEventType.insert,
+            id: newOrder.id,
+            entity: newOrder,
           ),
         );
 
@@ -2665,9 +2673,9 @@ void main() {
         expect(cubit.state.workOrders.length, 1);
 
         realtimeController.add(
-          RealtimeWorkOrderEvent(
-            eventType: RealtimeWorkOrderEventType.delete,
-            workOrderId: existingOrder.id,
+          RealtimeEvent<WorkOrderEntity>(
+            eventType: RealtimeEventType.delete,
+            id: existingOrder.id,
           ),
         );
 
@@ -2758,8 +2766,9 @@ void _providerModeTests() {
       mockCreateWorkOrder = MockCreateWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
       mockSyncEngine = MockSyncEngine();
-      when(() => mockSyncEngine.onSyncCompleted)
-          .thenAnswer((_) => const Stream.empty());
+      when(
+        () => mockSyncEngine.onSyncCompleted,
+      ).thenAnswer((_) => const Stream.empty());
       when(
         () => mockWatchWorkOrdersRealtime(companyId: any(named: 'companyId')),
       ).thenAnswer((_) => const Stream.empty());

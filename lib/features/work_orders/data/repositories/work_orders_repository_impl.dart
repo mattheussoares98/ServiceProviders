@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
@@ -21,8 +23,6 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -120,8 +120,9 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       WorkOrderEntity
     >(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider ? null : () => _localDataSource.getWorkOrderById(id),
+      localCallback: isProvider
+          ? null
+          : () => _localDataSource.getWorkOrderById(id),
       remoteCallback: () => _remoteDataSource.getWorkOrderById(id),
       onRemoteSuccess: isProvider ? null : _localDataSource.saveWorkOrder,
     );
@@ -132,31 +133,30 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallback<bool>(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider
-              ? null
-              : () async {
-                final model = WorkOrderModel.fromEntity(workOrder);
-                final result = await _localDataSource.saveWorkOrder(model);
-                if (result is SuccessState<bool> && result.data == true) {
-                  await _syncRepository.enqueue(
-                    SyncQueueItemEntity(
-                      id: const Uuid().v4(),
-                      companyId: workOrder.companyId,
-                      userProfileId:
-                          _sessionRepository.userData.user.id.isNotEmpty
-                              ? _sessionRepository.userData.user.id
-                              : (workOrder.createdById ?? ''),
-                      entityType: SyncEntityType.workOrder,
-                      entityId: workOrder.id,
-                      operation: SyncOperationType.create,
-                      payload: jsonEncode(model.toJson()),
-                      createdAt: DateTime.now(),
-                    ),
-                  );
-                }
-                return result;
-              },
+      localCallback: isProvider
+          ? null
+          : () async {
+              final model = WorkOrderModel.fromEntity(workOrder);
+              final result = await _localDataSource.saveWorkOrder(model);
+              if (result is SuccessState<bool> && result.data == true) {
+                await _syncRepository.enqueue(
+                  SyncQueueItemEntity(
+                    id: const Uuid().v4(),
+                    companyId: workOrder.companyId,
+                    userProfileId:
+                        _sessionRepository.userData.user.id.isNotEmpty
+                        ? _sessionRepository.userData.user.id
+                        : (workOrder.createdById ?? ''),
+                    entityType: SyncEntityType.workOrder,
+                    entityId: workOrder.id,
+                    operation: SyncOperationType.create,
+                    payload: jsonEncode(model.toJson()),
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              }
+              return result;
+            },
       remoteCallback: () async {
         final result = await _remoteDataSource.createWorkOrder(
           WorkOrderModel.fromEntity(workOrder),
@@ -184,31 +184,30 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallback<bool>(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider
-              ? null
-              : () async {
-                final model = WorkOrderModel.fromEntity(workOrder);
-                final result = await _localDataSource.saveWorkOrder(model);
-                if (result is SuccessState<bool> && result.data == true) {
-                  await _syncRepository.enqueue(
-                    SyncQueueItemEntity(
-                      id: const Uuid().v4(),
-                      companyId: workOrder.companyId,
-                      userProfileId:
-                          _sessionRepository.userData.user.id.isNotEmpty
-                              ? _sessionRepository.userData.user.id
-                              : (workOrder.createdById ?? ''),
-                      entityType: SyncEntityType.workOrder,
-                      entityId: workOrder.id,
-                      operation: SyncOperationType.update,
-                      payload: jsonEncode(model.toJson()),
-                      createdAt: DateTime.now(),
-                    ),
-                  );
-                }
-                return result;
-              },
+      localCallback: isProvider
+          ? null
+          : () async {
+              final model = WorkOrderModel.fromEntity(workOrder);
+              final result = await _localDataSource.saveWorkOrder(model);
+              if (result is SuccessState<bool> && result.data == true) {
+                await _syncRepository.enqueue(
+                  SyncQueueItemEntity(
+                    id: const Uuid().v4(),
+                    companyId: workOrder.companyId,
+                    userProfileId:
+                        _sessionRepository.userData.user.id.isNotEmpty
+                        ? _sessionRepository.userData.user.id
+                        : (workOrder.createdById ?? ''),
+                    entityType: SyncEntityType.workOrder,
+                    entityId: workOrder.id,
+                    operation: SyncOperationType.update,
+                    payload: jsonEncode(model.toJson()),
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              }
+              return result;
+            },
       remoteCallback: () async {
         final result = await _remoteDataSource.updateWorkOrder(
           WorkOrderModel.fromEntity(workOrder),
@@ -558,21 +557,26 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
-  Stream<RealtimeWorkOrderEvent> watchRealtimeWorkOrders({String? companyId}) {
+  Stream<RealtimeEvent<WorkOrderEntity>> watchRealtimeWorkOrders({
+    String? companyId,
+  }) {
     final stream = _realtimeRemoteDataSource.watchWorkOrders(
       companyId: companyId,
     );
     return stream.asyncMap((event) async {
       if (!_isProviderMode) {
-        if (event.eventType == RealtimeWorkOrderEventType.delete) {
-          await _localDataSource.deleteWorkOrder(event.workOrderId);
-        } else if (event.workOrder != null) {
-          await _localDataSource.saveWorkOrders([
-            WorkOrderModel.fromEntity(event.workOrder!),
-          ]);
+        if (event.eventType == RealtimeEventType.delete) {
+          await _localDataSource.deleteWorkOrder(event.id);
+        } else if (event.entity != null) {
+          await _localDataSource.saveWorkOrders([event.entity!]);
         }
       }
-      return event;
+      return RealtimeEvent<WorkOrderEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
     });
   }
 }

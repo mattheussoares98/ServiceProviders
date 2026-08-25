@@ -1,13 +1,12 @@
-// ignore_for_file: avoid_dynamic_calls
-
 import 'dart:async';
 
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_realtime_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -62,7 +61,7 @@ void main() {
   );
 
   test(
-    'watchWorkOrders maps INSERT payload to RealtimeWorkOrderEvent with workOrder',
+    'watchWorkOrders maps INSERT payload to RealtimeEvent with entity',
     () async {
       final entity = EntityFactory.makeWorkOrderEntity();
       final model = WorkOrderModel.fromEntity(entity);
@@ -73,10 +72,10 @@ void main() {
       final expectation = expectLater(
         stream,
         emits(
-          predicate<dynamic>((event) {
-            return event.eventType == RealtimeWorkOrderEventType.insert &&
-                event.workOrderId == entity.id &&
-                event.workOrder?.id == entity.id;
+          predicate<RealtimeEvent<WorkOrderModel>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == entity.id &&
+                event.entity?.id == entity.id;
           }),
         ),
       );
@@ -97,44 +96,41 @@ void main() {
     },
   );
 
-  test(
-    'watchWorkOrders maps UPDATE payload to RealtimeWorkOrderEvent',
-    () async {
-      final entity = EntityFactory.makeWorkOrderEntity();
-      final model = WorkOrderModel.fromEntity(entity);
-      final json = model.toJson();
+  test('watchWorkOrders maps UPDATE payload to RealtimeEvent', () async {
+    final entity = EntityFactory.makeWorkOrderEntity();
+    final model = WorkOrderModel.fromEntity(entity);
+    final json = model.toJson();
 
-      final stream = dataSource.watchWorkOrders();
+    final stream = dataSource.watchWorkOrders();
 
-      final expectation = expectLater(
-        stream,
-        emits(
-          predicate<dynamic>((event) {
-            return event.eventType == RealtimeWorkOrderEventType.update &&
-                event.workOrderId == entity.id &&
-                event.workOrder?.title == entity.title;
-          }),
-        ),
-      );
+    final expectation = expectLater(
+      stream,
+      emits(
+        predicate<RealtimeEvent<WorkOrderModel>>((event) {
+          return event.eventType == RealtimeEventType.update &&
+              event.id == entity.id &&
+              event.entity?.title == entity.title;
+        }),
+      ),
+    );
 
-      streamController.add(
-        PostgresChangePayload(
-          eventType: PostgresChangeEvent.update,
-          newRecord: json,
-          oldRecord: const {},
-          schema: 'public',
-          table: 'work_orders',
-          commitTimestamp: DateTime.now(),
-          errors: const <dynamic>[],
-        ),
-      );
+    streamController.add(
+      PostgresChangePayload(
+        eventType: PostgresChangeEvent.update,
+        newRecord: json,
+        oldRecord: const {},
+        schema: 'public',
+        table: 'work_orders',
+        commitTimestamp: DateTime.now(),
+        errors: const <dynamic>[],
+      ),
+    );
 
-      await expectation;
-    },
-  );
+    await expectation;
+  });
 
   test(
-    'watchWorkOrders maps DELETE payload to RealtimeWorkOrderEvent with workOrderId from oldRecord',
+    'watchWorkOrders maps DELETE payload to RealtimeEvent with id from oldRecord',
     () async {
       final workOrderId = faker.guid.guid();
 
@@ -143,10 +139,10 @@ void main() {
       final expectation = expectLater(
         stream,
         emits(
-          predicate<dynamic>((event) {
-            return event.eventType == RealtimeWorkOrderEventType.delete &&
-                event.workOrderId == workOrderId &&
-                event.workOrder == null;
+          predicate<RealtimeEvent<WorkOrderModel>>((event) {
+            return event.eventType == RealtimeEventType.delete &&
+                event.id == workOrderId &&
+                event.entity == null;
           }),
         ),
       );

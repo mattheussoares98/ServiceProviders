@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
@@ -12,8 +14,6 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
@@ -45,11 +45,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   final WorkOrdersCubitUseCases _useCases;
   StreamSubscription<void>? _syncSubscription;
-  StreamSubscription<RealtimeWorkOrderEvent>? _realtimeSubscription;
+  StreamSubscription<RealtimeEvent<WorkOrderEntity>>? _realtimeSubscription;
   final _realtimeEventsController =
-      StreamController<RealtimeWorkOrderEvent>.broadcast();
+      StreamController<RealtimeEvent<WorkOrderEntity>>.broadcast();
 
-  Stream<RealtimeWorkOrderEvent> get realtimeEvents =>
+  Stream<RealtimeEvent<WorkOrderEntity>> get realtimeEvents =>
       _realtimeEventsController.stream;
 
   void _initRealtime() {
@@ -60,34 +60,32 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         .listen(_handleRealtimeEvent);
   }
 
-  void _handleRealtimeEvent(RealtimeWorkOrderEvent event) {
+  void _handleRealtimeEvent(RealtimeEvent<WorkOrderEntity> event) {
     if (isClosed) return;
 
     switch (event.eventType) {
-      case RealtimeWorkOrderEventType.update:
-        if (event.workOrder != null) {
-          final exists = state.workOrders.any((wo) => wo.id == event.workOrderId);
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final exists = state.workOrders.any((wo) => wo.id == event.id);
           if (exists) {
             final updated = state.workOrders
-                .map((wo) => wo.id == event.workOrderId ? event.workOrder! : wo)
+                .map((wo) => wo.id == event.id ? event.entity! : wo)
                 .toList();
             emit(state.copyWith(workOrders: updated));
           }
         }
-      case RealtimeWorkOrderEventType.insert:
-        if (event.workOrder != null) {
-          final exists = state.workOrders.any((wo) => wo.id == event.workOrderId);
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final exists = state.workOrders.any((wo) => wo.id == event.id);
           if (!exists) {
             emit(
-              state.copyWith(
-                workOrders: [event.workOrder!, ...state.workOrders],
-              ),
+              state.copyWith(workOrders: [event.entity!, ...state.workOrders]),
             );
           }
         }
-      case RealtimeWorkOrderEventType.delete:
+      case RealtimeEventType.delete:
         final updated = state.workOrders
-            .where((wo) => wo.id != event.workOrderId)
+            .where((wo) => wo.id != event.id)
             .toList();
         emit(state.copyWith(workOrders: updated));
     }

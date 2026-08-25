@@ -474,9 +474,7 @@ void main() {
 
     test('should return FailureState when repository fails', () async {
       // Arrange
-      when(
-        () => mockRepository.getWorkOrderById(any()),
-      ).thenAnswer(
+      when(() => mockRepository.getWorkOrderById(any())).thenAnswer(
         (_) async => FailureState<WorkOrderEntity>(message: 'Not found'),
       );
 
@@ -807,32 +805,35 @@ void main() {
   });
 
   group('WatchWorkOrdersRealtimeUseCase', () {
-    test('should delegate to watchRealtimeWorkOrders on workOrdersRepository', () {
-      final tEvent = EntityFactory.makeRealtimeWorkOrderEvent();
-      when(
-        () => mockRepository.watchRealtimeWorkOrders(
-          companyId: any(named: 'companyId'),
-        ),
-      ).thenAnswer((_) => Stream.value(tEvent));
+    test(
+      'should delegate to watchRealtimeWorkOrders on workOrdersRepository',
+      () {
+        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderEntity>(
+          entity: EntityFactory.makeWorkOrderEntity(),
+        );
+        when(
+          () => mockRepository.watchRealtimeWorkOrders(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
 
-      final stream = watchWorkOrdersRealtimeUseCase(companyId: 'company-123');
+        final stream = watchWorkOrdersRealtimeUseCase(companyId: 'company-123');
 
-      expect(stream, emits(tEvent));
-      verify(
-        () => mockRepository.watchRealtimeWorkOrders(companyId: 'company-123'),
-      ).called(1);
-    });
+        expect(stream, emits(tEvent));
+        verify(
+          () =>
+              mockRepository.watchRealtimeWorkOrders(companyId: 'company-123'),
+        ).called(1);
+      },
+    );
   });
 
   group('CalculateWorkOrderKpisUseCase', () {
-    final now = DateTime(2026, 8, 25, 12, 0);
+    final now = DateTime(2026, 8, 25, 12);
 
     test('returns empty metrics when work order list is empty', () {
       final result = calculateWorkOrderKpisUseCase(
-        const CalculateWorkOrderKpisParams(
-          workOrders: [],
-          period: KpiPeriod.allTime,
-        ),
+        const CalculateWorkOrderKpisParams(workOrders: []),
       );
 
       expect(result.totalWorkOrders, 0);
@@ -842,73 +843,78 @@ void main() {
       expect(result.mttrMinutes, 0.0);
     });
 
-    test('calculates counts, delivery rate, breach rate, and MTTR correctly', () {
-      final onTimeCompletedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-        status: WorkOrderStatus.completed,
-        createdAt: now.subtract(const Duration(days: 2)),
-        startedAt: now.subtract(const Duration(hours: 4)),
-        completedAt: now.subtract(const Duration(hours: 2)),
-        slaDeadlineAt: now.subtract(const Duration(hours: 1)),
-        slaBreached: false,
-        netActiveDuration: 120,
-      );
+    test(
+      'calculates counts, delivery rate, breach rate, and MTTR correctly',
+      () {
+        final onTimeCompletedOrder = EntityFactory.makeWorkOrderEntity()
+            .copyWith(
+              status: WorkOrderStatus.completed,
+              createdAt: now.subtract(const Duration(days: 2)),
+              startedAt: now.subtract(const Duration(hours: 4)),
+              completedAt: now.subtract(const Duration(hours: 2)),
+              slaDeadlineAt: now.subtract(const Duration(hours: 1)),
+              slaBreached: false,
+              netActiveDuration: 120,
+            );
 
-      final breachedCompletedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-        status: WorkOrderStatus.completed,
-        createdAt: now.subtract(const Duration(days: 3)),
-        startedAt: now.subtract(const Duration(hours: 8)),
-        completedAt: now.subtract(const Duration(hours: 2)),
-        slaDeadlineAt: now.subtract(const Duration(hours: 5)),
-        slaBreached: true,
-        netActiveDuration: 360,
-      );
+        final breachedCompletedOrder = EntityFactory.makeWorkOrderEntity()
+            .copyWith(
+              status: WorkOrderStatus.completed,
+              createdAt: now.subtract(const Duration(days: 3)),
+              startedAt: now.subtract(const Duration(hours: 8)),
+              completedAt: now.subtract(const Duration(hours: 2)),
+              slaDeadlineAt: now.subtract(const Duration(hours: 5)),
+              slaBreached: true,
+              netActiveDuration: 360,
+            );
 
-      final openDelayedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-        status: WorkOrderStatus.open,
-        createdAt: now.subtract(const Duration(days: 1)),
-        slaDeadlineAt: now.subtract(const Duration(hours: 2)),
-      );
+        final openDelayedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+          status: WorkOrderStatus.open,
+          createdAt: now.subtract(const Duration(days: 1)),
+          slaDeadlineAt: now.subtract(const Duration(hours: 2)),
+        );
 
-      final inProgressOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-        status: WorkOrderStatus.inProgress,
-        createdAt: now.subtract(const Duration(days: 1)),
-        slaDeadlineAt: now.add(const Duration(hours: 2)),
-      );
+        final inProgressOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+          status: WorkOrderStatus.inProgress,
+          createdAt: now.subtract(const Duration(days: 1)),
+          slaDeadlineAt: now.add(const Duration(hours: 2)),
+        );
 
-      final pendingApprovalOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-        status: WorkOrderStatus.pendingConclusionApproval,
-        createdAt: now.subtract(const Duration(days: 1)),
-        slaDeadlineAt: now.add(const Duration(hours: 4)),
-      );
+        final pendingApprovalOrder = EntityFactory.makeWorkOrderEntity()
+            .copyWith(
+              status: WorkOrderStatus.pendingConclusionApproval,
+              createdAt: now.subtract(const Duration(days: 1)),
+              slaDeadlineAt: now.add(const Duration(hours: 4)),
+            );
 
-      final workOrders = [
-        onTimeCompletedOrder,
-        breachedCompletedOrder,
-        openDelayedOrder,
-        inProgressOrder,
-        pendingApprovalOrder,
-      ];
+        final workOrders = [
+          onTimeCompletedOrder,
+          breachedCompletedOrder,
+          openDelayedOrder,
+          inProgressOrder,
+          pendingApprovalOrder,
+        ];
 
-      final result = calculateWorkOrderKpisUseCase(
-        CalculateWorkOrderKpisParams(
-          workOrders: workOrders,
-          period: KpiPeriod.allTime,
-          referenceDate: now,
-        ),
-      );
+        final result = calculateWorkOrderKpisUseCase(
+          CalculateWorkOrderKpisParams(
+            workOrders: workOrders,
+            referenceDate: now,
+          ),
+        );
 
-      expect(result.totalWorkOrders, 5);
-      expect(result.completedCount, 2);
-      expect(result.completedWithinSlaCount, 1);
-      expect(result.slaBreachedCount, 1);
-      expect(result.deliveryRate, 50.0);
-      expect(result.breachRate, 50.0);
-      expect(result.mttrMinutes, 240.0); // (120 + 360) / 2
-      expect(result.openCount, 1);
-      expect(result.inProgressCount, 1);
-      expect(result.pendingApprovalCount, 1);
-      expect(result.delayedCount, 1);
-    });
+        expect(result.totalWorkOrders, 5);
+        expect(result.completedCount, 2);
+        expect(result.completedWithinSlaCount, 1);
+        expect(result.slaBreachedCount, 1);
+        expect(result.deliveryRate, 50.0);
+        expect(result.breachRate, 50.0);
+        expect(result.mttrMinutes, 240.0); // (120 + 360) / 2
+        expect(result.openCount, 1);
+        expect(result.inProgressCount, 1);
+        expect(result.pendingApprovalCount, 1);
+        expect(result.delayedCount, 1);
+      },
+    );
 
     test('filters work orders according to KpiPeriod', () {
       final recentOrder = EntityFactory.makeWorkOrderEntity().copyWith(
@@ -949,7 +955,6 @@ void main() {
       final resultAllTime = calculateWorkOrderKpisUseCase(
         CalculateWorkOrderKpisParams(
           workOrders: workOrders,
-          period: KpiPeriod.allTime,
           referenceDate: now,
         ),
       );

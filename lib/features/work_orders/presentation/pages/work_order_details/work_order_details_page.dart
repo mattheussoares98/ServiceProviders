@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -42,10 +42,10 @@ class WorkOrderDetailsPage extends HookWidget {
       final cubit = context.read<WorkOrdersCubit>()
         ..loadWorkOrderById(workOrderId, showLoading: workOrderInState == null);
       final sub = cubit.realtimeEvents.listen((event) {
-        if (event.workOrderId == workOrderId &&
-            event.eventType == RealtimeWorkOrderEventType.update) {
+        if (event.id == workOrderId &&
+            event.eventType == RealtimeEventType.update) {
           ToastUtil.showSuccess(
-            'Ordem de serviço atualizada em tempo real.'.hardcoded,
+            'Ordem de serviço atualizada em tempo real'.hardcoded,
           );
         }
       });
