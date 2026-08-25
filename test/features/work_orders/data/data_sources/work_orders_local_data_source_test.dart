@@ -195,7 +195,7 @@ void main() {
 
         // Assert
         expect(result, isA<FailureState<WorkOrderModel>>());
-        expect(result.message, 'Work order not found');
+        expect(result.message, 'Ordem de serviço não encontrada');
       },
     );
 
