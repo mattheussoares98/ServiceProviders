@@ -1,4 +1,6 @@
 import 'package:faker/faker.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
@@ -874,6 +876,24 @@ abstract final class EntityFactory {
       makeRealtimeWorkOrderEvent(),
       makeRealtimeWorkOrderEvent(),
       makeRealtimeWorkOrderEvent(),
+    ];
+  }
+
+  // Generic Realtime Event
+  static RealtimeEvent<T> makeRealtimeEvent<T>({T? entity}) {
+    return RealtimeEvent<T>(
+      eventType: RealtimeEventType.update,
+      id: _makeId(),
+      companyId: _makeId(),
+      entity: entity,
+    );
+  }
+
+  static List<RealtimeEvent<T>> makeRealtimeEventList<T>({T? entity}) {
+    return [
+      makeRealtimeEvent<T>(entity: entity),
+      makeRealtimeEvent<T>(entity: entity),
+      makeRealtimeEvent<T>(entity: entity),
     ];
   }
 }
