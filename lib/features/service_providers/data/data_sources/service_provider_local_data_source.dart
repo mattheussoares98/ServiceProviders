@@ -22,6 +22,7 @@ abstract interface class ServiceProviderLocalDataSource {
   FutureBool saveServiceProviderCompanies(
     List<ServiceProviderCompanyModel> companies,
   );
+  FutureBool deleteServiceProviderCompany(String companyId);
 
   FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
@@ -34,6 +35,7 @@ abstract interface class ServiceProviderLocalDataSource {
   FutureBool saveServiceProviderProfiles(
     List<ServiceProviderProfileModel> profiles,
   );
+  FutureBool deleteServiceProviderProfile(String profileId);
 
   FutureList<ServiceProviderInvitationModel> getServiceProviderInvitations(
     String serviceProviderCompanyId,
@@ -182,6 +184,16 @@ final class ServiceProviderLocalDataSourceImpl
   }
 
   @override
+  FutureBool deleteServiceProviderCompany(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.delete(_database.serviceProviderCompanies)
+        ..where((t) => t.id.equals(companyId));
+      await query.go();
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
   FutureList<ServiceProviderProfileModel> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   ) {
@@ -296,6 +308,16 @@ final class ServiceProviderLocalDataSourceImpl
               .toList(),
         );
       });
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deleteServiceProviderProfile(String profileId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.delete(_database.serviceProviderProfiles)
+        ..where((t) => t.id.equals(profileId));
+      await query.go();
       return const SuccessState(data: true);
     });
   }

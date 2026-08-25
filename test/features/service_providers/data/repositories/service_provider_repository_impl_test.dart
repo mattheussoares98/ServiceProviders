@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_company_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_invitation_model.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/service_provider_profile_model.dart';
@@ -63,6 +65,12 @@ void main() {
     ).thenAnswer((_) async => const SuccessState(data: true));
     when(
       () => mockLocalDataSource.deleteServiceProviderInvitation(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.deleteServiceProviderCompany(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.deleteServiceProviderProfile(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
 
     repository = ServiceProviderRepositoryImpl(
@@ -506,5 +514,163 @@ void main() {
         ),
       ).called(1);
     });
+  });
+
+  group('Realtime', () {
+    test(
+      'watchServiceProviderCompaniesRealtime caches insert/update in local and emits event',
+      () async {
+        final event = RealtimeEvent<ServiceProviderCompanyModel>(
+          eventType: RealtimeEventType.insert,
+          id: tCompanyModel.id,
+          companyId: tCompanyModel.companyId,
+          entity: tCompanyModel,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchServiceProviderCompaniesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = repository.watchServiceProviderCompaniesRealtime(
+          companyId: tCompanyModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<ServiceProviderCompanyEntity>>((e) {
+              return e.eventType == RealtimeEventType.insert &&
+                  e.id == tCompanyModel.id &&
+                  e.entity?.name == tCompanyModel.name;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.saveServiceProviderCompany(tCompanyModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'watchServiceProviderCompaniesRealtime deletes from local and emits event on delete',
+      () async {
+        final event = RealtimeEvent<ServiceProviderCompanyModel>(
+          eventType: RealtimeEventType.delete,
+          id: tCompanyModel.id,
+          companyId: tCompanyModel.companyId,
+          entity: null,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchServiceProviderCompaniesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = repository.watchServiceProviderCompaniesRealtime(
+          companyId: tCompanyModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<ServiceProviderCompanyEntity>>((e) {
+              return e.eventType == RealtimeEventType.delete &&
+                  e.id == tCompanyModel.id &&
+                  e.entity == null;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.deleteServiceProviderCompany(
+            tCompanyModel.id,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'watchServiceProviderProfilesRealtime caches insert/update in local and emits event',
+      () async {
+        final event = RealtimeEvent<ServiceProviderProfileModel>(
+          eventType: RealtimeEventType.insert,
+          id: tProfileModel.id,
+          companyId: tProfileModel.serviceProviderCompanyId,
+          entity: tProfileModel,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchServiceProviderProfilesRealtime(
+            serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = repository.watchServiceProviderProfilesRealtime(
+          serviceProviderCompanyId: tProfileModel.serviceProviderCompanyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<ServiceProviderProfileEntity>>((e) {
+              return e.eventType == RealtimeEventType.insert &&
+                  e.id == tProfileModel.id &&
+                  e.entity?.name == tProfileModel.name;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.saveServiceProviderProfile(tProfileModel),
+        ).called(1);
+      },
+    );
+
+    test(
+      'watchServiceProviderProfilesRealtime deletes from local and emits event on delete',
+      () async {
+        final event = RealtimeEvent<ServiceProviderProfileModel>(
+          eventType: RealtimeEventType.delete,
+          id: tProfileModel.id,
+          companyId: tProfileModel.serviceProviderCompanyId,
+          entity: null,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchServiceProviderProfilesRealtime(
+            serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = repository.watchServiceProviderProfilesRealtime(
+          serviceProviderCompanyId: tProfileModel.serviceProviderCompanyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<ServiceProviderProfileEntity>>((e) {
+              return e.eventType == RealtimeEventType.delete &&
+                  e.id == tProfileModel.id &&
+                  e.entity == null;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.deleteServiceProviderProfile(
+            tProfileModel.id,
+          ),
+        ).called(1);
+      },
+    );
   });
 }

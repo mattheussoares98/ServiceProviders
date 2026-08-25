@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
@@ -116,6 +118,29 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
   }
 
   @override
+  Stream<RealtimeEvent<ServiceProviderCompanyEntity>>
+  watchServiceProviderCompaniesRealtime({String? companyId}) async* {
+    await for (final event in _remoteDataSource
+        .watchServiceProviderCompaniesRealtime(companyId: companyId)) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveServiceProviderCompany(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteServiceProviderCompany(event.id);
+      }
+
+      yield RealtimeEvent<ServiceProviderCompanyEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
+  }
+
+  @override
   FutureList<ServiceProviderProfileEntity> getServiceProviderProfiles(
     String serviceProviderCompanyId,
   ) =>
@@ -202,6 +227,33 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
         return result;
       },
     );
+  }
+
+  @override
+  Stream<RealtimeEvent<ServiceProviderProfileEntity>>
+  watchServiceProviderProfilesRealtime({
+    String? serviceProviderCompanyId,
+  }) async* {
+    await for (final event in _remoteDataSource
+        .watchServiceProviderProfilesRealtime(
+          serviceProviderCompanyId: serviceProviderCompanyId,
+        )) {
+      if (event.entity != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        await _localDataSource.saveServiceProviderProfile(event.entity!);
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await _localDataSource.deleteServiceProviderProfile(event.id);
+      }
+
+      yield RealtimeEvent<ServiceProviderProfileEntity>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: event.entity,
+      );
+    }
   }
 
   @override
