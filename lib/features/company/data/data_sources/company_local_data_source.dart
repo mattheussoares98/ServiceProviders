@@ -37,9 +37,9 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
             cnpj: company.cnpj,
             logoUrl: company.logoUrl,
             isActive: company.isActive,
-            createdAt: company.createdAt,
-            updatedAt: company.updatedAt,
-            deletedAt: company.deletedAt,
+            createdAt: company.createdAt.toUtc(),
+            updatedAt: company.updatedAt.toUtc(),
+            deletedAt: company.deletedAt?.toUtc(),
           ),
         );
       }
@@ -71,9 +71,9 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
             sandboxQuotaMb: params.sandboxQuotaMb,
             maxSyncAttempts: params.maxSyncAttempts,
             inviteExpiryHours: params.inviteExpiryHours,
-            createdAt: params.createdAt,
-            updatedAt: params.updatedAt,
-            deletedAt: params.deletedAt,
+            createdAt: params.createdAt.toUtc(),
+            updatedAt: params.updatedAt.toUtc(),
+            deletedAt: params.deletedAt?.toUtc(),
           ),
         );
       }
@@ -95,9 +95,9 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
               cnpj: Value(company.cnpj),
               logoUrl: Value(company.logoUrl),
               isActive: Value(company.isActive),
-              createdAt: Value(company.createdAt),
-              updatedAt: Value(company.updatedAt),
-              deletedAt: Value(company.deletedAt),
+              createdAt: Value(company.createdAt.toUtc()),
+              updatedAt: Value(company.updatedAt.toUtc()),
+              deletedAt: Value(company.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -129,9 +129,9 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
               sandboxQuotaMb: Value(parameters.sandboxQuotaMb),
               maxSyncAttempts: Value(parameters.maxSyncAttempts),
               inviteExpiryHours: Value(parameters.inviteExpiryHours),
-              createdAt: Value(parameters.createdAt),
-              updatedAt: Value(parameters.updatedAt),
-              deletedAt: Value(parameters.deletedAt),
+              createdAt: Value(parameters.createdAt.toUtc()),
+              updatedAt: Value(parameters.updatedAt.toUtc()),
+              deletedAt: Value(parameters.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
