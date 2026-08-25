@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart'
@@ -57,4 +58,10 @@ abstract interface class AttachmentsRepository {
 
   /// Clears all local sandbox cache files for uploaded attachments (e.g. on logout).
   FutureVoid clearLocalAttachments();
+
+  /// Subscribes to real-time changes on the attachments table for a specific work order.
+  Stream<RealtimeEvent<AttachmentEntity>> watchAttachmentsRealtime({
+    required String workOrderId,
+  });
 }
+

@@ -2,6 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
@@ -11,6 +13,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_sandbox
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/watch_attachments_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -29,6 +32,7 @@ void main() {
   late PruneSandboxUseCase pruneSandboxUseCase;
   late ClearLocalAttachmentsUseCase clearLocalAttachmentsUseCase;
   late TouchLastAccessedUseCase touchLastAccessedUseCase;
+  late WatchAttachmentsRealtimeUseCase watchAttachmentsRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeAttachmentEntity());
@@ -59,6 +63,9 @@ void main() {
       attachmentsRepository: mockRepository,
     );
     touchLastAccessedUseCase = TouchLastAccessedUseCase(
+      attachmentsRepository: mockRepository,
+    );
+    watchAttachmentsRealtimeUseCase = WatchAttachmentsRealtimeUseCase(
       attachmentsRepository: mockRepository,
     );
   });
@@ -276,5 +283,33 @@ void main() {
         verify(() => mockRepository.touchLastAccessed(id)).called(1);
       });
     });
+
+    group('WatchAttachmentsRealtimeUseCase', () {
+      test('should call repository.watchAttachmentsRealtime', () {
+        final event = RealtimeEvent<AttachmentEntity>(
+          eventType: RealtimeEventType.insert,
+          id: tAttachment.id,
+          entity: tAttachment,
+        );
+
+        when(
+          () => mockRepository.watchAttachmentsRealtime(
+            workOrderId: tWorkOrderId,
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = watchAttachmentsRealtimeUseCase(
+          workOrderId: tWorkOrderId,
+        );
+
+        expect(stream, emits(event));
+        verify(
+          () => mockRepository.watchAttachmentsRealtime(
+            workOrderId: tWorkOrderId,
+          ),
+        ).called(1);
+      });
+    });
   });
 }
+
