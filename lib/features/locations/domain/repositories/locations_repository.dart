@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
@@ -10,6 +11,7 @@ abstract interface class LocationsRepository {
   FutureBool createLocation(LocationEntity location);
   FutureBool updateLocation(LocationEntity location);
   FutureBool deleteLocation(String id);
+  Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({String? companyId});
 
   // Areas
   FutureList<AreaEntity> getAreas(String companyId);
@@ -18,4 +20,5 @@ abstract interface class LocationsRepository {
   FutureBool createArea(AreaEntity area);
   FutureBool updateArea(AreaEntity area);
   FutureBool deleteArea(String id);
+  Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({String? companyId});
 }

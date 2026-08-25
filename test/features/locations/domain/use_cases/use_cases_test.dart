@@ -16,6 +16,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -36,6 +38,8 @@ void main() {
   late GetAreasByIdsUseCase getAreasByIdsUseCase;
   late GetProviderLocationsUseCase getProviderLocationsUseCase;
   late GetProviderAreasUseCase getProviderAreasUseCase;
+  late WatchLocationsRealtimeUseCase watchLocationsRealtimeUseCase;
+  late WatchAreasRealtimeUseCase watchAreasRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeLocationEntity());
@@ -70,6 +74,12 @@ void main() {
       locationsRepository: mockRepository,
     );
     getProviderAreasUseCase = GetProviderAreasUseCase(
+      locationsRepository: mockRepository,
+    );
+    watchLocationsRealtimeUseCase = WatchLocationsRealtimeUseCase(
+      locationsRepository: mockRepository,
+    );
+    watchAreasRealtimeUseCase = WatchAreasRealtimeUseCase(
       locationsRepository: mockRepository,
     );
   });
@@ -485,6 +495,38 @@ void main() {
         // Assert
         expect(result, isA<FailureState<List<AreaEntity>>>());
         verify(() => mockRepository.getAreas(tId)).called(1);
+      });
+    });
+
+    group('WatchLocationsRealtimeUseCase', () {
+      test('should return stream from repository', () {
+        final event = EntityFactory.makeRealtimeEvent<LocationEntity>(
+          entity: tLocationEntity,
+        );
+        when(
+          () => mockRepository.watchLocationsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final result = watchLocationsRealtimeUseCase(companyId: tId);
+
+        expect(result, emits(event));
+        verify(() => mockRepository.watchLocationsRealtime(companyId: tId)).called(1);
+      });
+    });
+
+    group('WatchAreasRealtimeUseCase', () {
+      test('should return stream from repository', () {
+        final event = EntityFactory.makeRealtimeEvent<AreaEntity>(
+          entity: tAreaEntity,
+        );
+        when(
+          () => mockRepository.watchAreasRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final result = watchAreasRealtimeUseCase(companyId: tId);
+
+        expect(result, emits(event));
+        verify(() => mockRepository.watchAreasRealtime(companyId: tId)).called(1);
       });
     });
   });
