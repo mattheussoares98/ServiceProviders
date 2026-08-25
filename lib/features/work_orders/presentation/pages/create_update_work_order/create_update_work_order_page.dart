@@ -234,6 +234,7 @@ class _CreateUpdatePage extends HookWidget {
       selectedProviderProfileId.value = updated.providerProfileId;
       selectedSlaPolicyId.value = updated.slaPolicyId;
       externalChangedWorkOrder.value = null;
+      context.read<AttachmentsCubit>().refreshAttachments();
     }
 
     useEffect(() {
