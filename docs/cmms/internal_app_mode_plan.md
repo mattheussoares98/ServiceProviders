@@ -116,8 +116,13 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - `CompanyCubit` and `EscalationParametersCard` in `CompanyPage` for managing escalation parameters and reordering tiers.
 - Added `isDelayed` filter to `WorkOrderFilter`, data sources, `WorkOrderFilters` modal, and `ActiveFilters` bar.
 
-### Gap 6 — KPI / reporting dashboard (Q4 in [V2 Resolved Questions](/docs/cmms/v2_features.md)) 🟡
-`DashboardPage` shows counts, active items, and recent work orders. "Taxa de entrega" (% completed within SLA), breach rate, and mean time-to-resolve are not reported anywhere — though the underlying SLA data is already captured.
+### Gap 6 — KPI / reporting dashboard (Q4 in [V2 Resolved Questions](/docs/cmms/v2_features.md)) ✅ IMPLEMENTED
+**Done (2026-08-25):**
+- Domain entity `WorkOrderKpiMetricsEntity` and value object `KpiPeriod` (`last7Days`, `last30Days`, `thisMonth`, `allTime`).
+- `CalculateWorkOrderKpisUseCase` computing delivery rate (% completed within SLA), SLA breach rate, MTTR (Mean Time to Resolve), and volume counts.
+- `DashboardKpisCubit` managing reactive KPI calculations and period transitions.
+- `SlaKpiDashboardCard` and `KpiPeriodFilterSelector` integrated into `DashboardPage` with responsive cards, gauge colors, and MTTR formatting.
+- Unit and widget test coverage across use case, cubit, and UI components.
 
 ### Gap 7 — History consultation by period ([V2 §8](/docs/cmms/v2_features.md)) 🟢
 Cheapest item. `GetWorkOrderHistoryUseCase` exists; needs a date-range filter and UI. No schema change required.
