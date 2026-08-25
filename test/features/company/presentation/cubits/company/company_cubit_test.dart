@@ -36,12 +36,16 @@ void main() {
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockUpdateCompanyLogoUseCase mockUpdateCompanyLogoUseCase;
   late MockPickAttachmentUseCase mockPickAttachmentUseCase;
+  late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
+  late MockSaveCompanyParametersUseCase mockSaveCompanyParametersUseCase;
+  late MockGetPermissionGroupsUseCase mockGetPermissionGroupsUseCase;
   late CompanyCubit companyCubit;
   late UserProfileEntity userSession;
 
   setUpAll(() {
     registerFallbackValue(EntityFactory.makeCompanyEntity());
     registerFallbackValue(EntityFactory.makeUserProfileEntity());
+    registerFallbackValue(EntityFactory.makeCompanyParameterEntity());
     registerFallbackValue(
       const PickAttachmentParams(
         source: AttachmentSource.gallery,
@@ -70,6 +74,9 @@ void main() {
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockUpdateCompanyLogoUseCase = MockUpdateCompanyLogoUseCase();
     mockPickAttachmentUseCase = MockPickAttachmentUseCase();
+    mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
+    mockSaveCompanyParametersUseCase = MockSaveCompanyParametersUseCase();
+    mockGetPermissionGroupsUseCase = MockGetPermissionGroupsUseCase();
 
     userSession = EntityFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
@@ -96,6 +103,15 @@ void main() {
     when(() => mockUpdateUserProfileUseCase.call(any())).thenAnswer(
       (_) async => const SuccessState(data: true),
     );
+    when(() => mockGetCompanyParametersUseCase.call(any())).thenAnswer(
+      (_) async => SuccessState(data: EntityFactory.makeCompanyParameterEntity()),
+    );
+    when(() => mockSaveCompanyParametersUseCase.call(any())).thenAnswer(
+      (_) async => const SuccessState(data: true),
+    );
+    when(() => mockGetPermissionGroupsUseCase.call(any())).thenAnswer(
+      (_) async => const SuccessState(data: []),
+    );
 
     companyCubit = CompanyCubit(
       useCases: CompanyCubitUseCases(
@@ -108,6 +124,9 @@ void main() {
         getActiveCompanyId: mockGetActiveCompanyIdUseCase,
         updateCompanyLogo: mockUpdateCompanyLogoUseCase,
         pickAttachment: mockPickAttachmentUseCase,
+        getCompanyParameters: mockGetCompanyParametersUseCase,
+        saveCompanyParameters: mockSaveCompanyParametersUseCase,
+        getPermissionGroups: mockGetPermissionGroupsUseCase,
       ),
     );
   });
@@ -475,19 +494,8 @@ void main() {
         when(() => mockGetSessionUserUseCase.call()).thenAnswer(
           (_) => EntityFactory.makeUserProfileEntity().copyWith(isAdmin: false),
         );
-        return CompanyCubit(
-          useCases: CompanyCubitUseCases(
-            createCompany: mockCreateCompanyUseCase,
-            getSessionUser: mockGetSessionUserUseCase,
-            getCompany: mockGetCompanyUseCase,
-            getAllCompanies: mockGetAllCompaniesUseCase,
-            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
-            updateUserProfile: mockUpdateUserProfileUseCase,
-            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
-            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
-            pickAttachment: mockPickAttachmentUseCase,
-          ),
-        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => <CompanyState>[],
@@ -499,19 +507,8 @@ void main() {
         when(
           () => mockPickAttachmentUseCase.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
-        return CompanyCubit(
-          useCases: CompanyCubitUseCases(
-            createCompany: mockCreateCompanyUseCase,
-            getSessionUser: mockGetSessionUserUseCase,
-            getCompany: mockGetCompanyUseCase,
-            getAllCompanies: mockGetAllCompaniesUseCase,
-            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
-            updateUserProfile: mockUpdateUserProfileUseCase,
-            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
-            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
-            pickAttachment: mockPickAttachmentUseCase,
-          ),
-        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
@@ -537,19 +534,8 @@ void main() {
         when(
           () => mockUpdateCompanyLogoUseCase.call(any()),
         ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
-        return CompanyCubit(
-          useCases: CompanyCubitUseCases(
-            createCompany: mockCreateCompanyUseCase,
-            getSessionUser: mockGetSessionUserUseCase,
-            getCompany: mockGetCompanyUseCase,
-            getAllCompanies: mockGetAllCompaniesUseCase,
-            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
-            updateUserProfile: mockUpdateUserProfileUseCase,
-            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
-            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
-            pickAttachment: mockPickAttachmentUseCase,
-          ),
-        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
@@ -576,19 +562,8 @@ void main() {
         when(
           () => mockUpdateCompanyLogoUseCase.call(any()),
         ).thenAnswer((_) async => SuccessState(data: updatedCompany));
-        return CompanyCubit(
-          useCases: CompanyCubitUseCases(
-            createCompany: mockCreateCompanyUseCase,
-            getSessionUser: mockGetSessionUserUseCase,
-            getCompany: mockGetCompanyUseCase,
-            getAllCompanies: mockGetAllCompaniesUseCase,
-            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
-            updateUserProfile: mockUpdateUserProfileUseCase,
-            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
-            updateCompanyLogo: mockUpdateCompanyLogoUseCase,
-            pickAttachment: mockPickAttachmentUseCase,
-          ),
-        )..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
@@ -604,6 +579,64 @@ void main() {
               'logoUrl',
               'https://logo.png',
             ),
+      ],
+    );
+  });
+
+  group('updateEscalationParameters', () {
+    final tParams = EntityFactory.makeCompanyParameterEntity();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should do nothing when parameters in state is null',
+      build: () => companyCubit,
+      act: (cubit) => cubit.updateEscalationParameters(
+        advanceWarningMinutes: 30,
+      ),
+      expect: () => <CompanyState>[],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit saving and loaded with updated parameters on success',
+      build: () {
+        when(() => mockSaveCompanyParametersUseCase.call(any())).thenAnswer(
+          (_) async => const SuccessState(data: true),
+        );
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, parameters: tParams));
+      },
+      act: (cubit) => cubit.updateEscalationParameters(
+        advanceWarningMinutes: 45,
+        advanceWarningGroupIds: ['grp-1'],
+        delayedNotificationIntervalMinutes: 30,
+        escalationGroupIds: ['grp-2'],
+      ),
+      expect: () => [
+        isA<CompanyState>().having((s) => s.status, 'status', StateStatus.saving),
+        isA<CompanyState>()
+            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.parameters?.advanceWarningMinutes, 'advanceWarningMinutes', 45)
+            .having((s) => s.parameters?.delayedNotificationIntervalMinutes, 'delayedInterval', 30),
+      ],
+      verify: (_) {
+        verify(() => mockSaveCompanyParametersUseCase.call(any())).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit saving and loaded on save failure',
+      build: () {
+        when(() => mockSaveCompanyParametersUseCase.call(any())).thenAnswer(
+          (_) async => FailureState(message: 'Save failed'),
+        );
+        return companyCubit
+          ..emit(CompanyState(status: StateStatus.loaded, parameters: tParams));
+      },
+      act: (cubit) => cubit.updateEscalationParameters(
+        advanceWarningMinutes: 45,
+      ),
+      expect: () => [
+        isA<CompanyState>().having((s) => s.status, 'status', StateStatus.saving),
+        isA<CompanyState>().having((s) => s.status, 'status', StateStatus.loaded),
       ],
     );
   });

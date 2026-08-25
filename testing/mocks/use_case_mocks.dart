@@ -17,7 +17,9 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_cas
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
@@ -211,3 +213,9 @@ class MockWatchServiceProviderCompaniesRealtimeUseCase extends Mock
 
 class MockWatchServiceProviderProfilesRealtimeUseCase extends Mock
     implements WatchServiceProviderProfilesRealtimeUseCase {}
+
+class MockGetCompanyParametersUseCase extends Mock
+    implements GetCompanyParametersUseCase {}
+
+class MockSaveCompanyParametersUseCase extends Mock
+    implements SaveCompanyParametersUseCase {}

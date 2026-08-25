@@ -5,8 +5,10 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -38,12 +40,27 @@ class CompanyCubit extends BaseCubit<CompanyState> {
             orElse: () => companies.first,
           );
         }
+
+        final targetId = activeCompany?.id ?? activeCompanyId;
+        final paramsState = await _useCases.getCompanyParameters(targetId);
+        final groupsState = await _useCases.getPermissionGroups(targetId);
+
+        if (isClosed) return;
+
         emit(
           state.copyWith(
             status: StateStatus.loaded,
             companies: companies,
             company: activeCompany,
             selectedCompanyId: activeCompany?.id,
+            parameters:
+                paramsState is SuccessState<CompanyParameterEntity>
+                    ? paramsState.data
+                    : null,
+            permissionGroups:
+                groupsState is SuccessState<List<PermissionGroupEntity>>
+                    ? (groupsState.data ?? [])
+                    : const [],
           ),
         );
         return;
@@ -62,12 +79,25 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<CompanyEntity>) {
+      final paramsState = await _useCases.getCompanyParameters(companyId);
+      final groupsState = await _useCases.getPermissionGroups(companyId);
+
+      if (isClosed) return;
+
       emit(
         state.copyWith(
           status: StateStatus.loaded,
           company: dataState.data,
           companies: dataState.data != null ? [dataState.data!] : const [],
           selectedCompanyId: dataState.data?.id,
+          parameters:
+              paramsState is SuccessState<CompanyParameterEntity>
+                  ? paramsState.data
+                  : null,
+          permissionGroups:
+              groupsState is SuccessState<List<PermissionGroupEntity>>
+                  ? (groupsState.data ?? [])
+                  : const [],
         ),
       );
     } else {
@@ -103,14 +133,60 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       }
     }
 
+    final paramsState = await _useCases.getCompanyParameters(companyId);
+    final groupsState = await _useCases.getPermissionGroups(companyId);
+
+    if (isClosed) return;
+
     emit(
       state.copyWith(
         status: StateStatus.loaded,
         company: selectedCompany,
         selectedCompanyId: companyId,
+        parameters:
+            paramsState is SuccessState<CompanyParameterEntity>
+                ? paramsState.data
+                : null,
+        permissionGroups:
+            groupsState is SuccessState<List<PermissionGroupEntity>>
+                ? (groupsState.data ?? [])
+                : const [],
       ),
     );
     showSuccessToast('Empresa ativa alterada com sucesso'.hardcoded);
+  }
+
+  Future<void> updateEscalationParameters({
+    int? advanceWarningMinutes,
+    List<String>? advanceWarningGroupIds,
+    int? delayedNotificationIntervalMinutes,
+    List<String>? escalationGroupIds,
+  }) async {
+    final params = state.parameters;
+    if (params == null) return;
+
+    emit(state.copyWith(status: StateStatus.saving));
+
+    final updated = params.copyWith(
+      advanceWarningMinutes: advanceWarningMinutes,
+      advanceWarningGroupIds: advanceWarningGroupIds,
+      delayedNotificationIntervalMinutes: delayedNotificationIntervalMinutes,
+      escalationGroupIds: escalationGroupIds,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    final result = await _useCases.saveCompanyParameters(updated);
+    if (isClosed) return;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(state.copyWith(status: StateStatus.loaded, parameters: updated));
+      showSuccessToast(
+        'Parâmetros de escalonamento salvos com sucesso'.hardcoded,
+      );
+    } else {
+      emit(state.copyWith(status: StateStatus.loaded));
+      showDataStateToast(result);
+    }
   }
 
   Future<void> createCompany({required String name, String? cnpj}) async {
