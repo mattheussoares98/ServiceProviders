@@ -12,6 +12,8 @@ abstract interface class SessionLocalDataSource {
   String? getSelectedMode();
 
   String? getSelectedCompanyId();
+
+  Future<void> saveSelectedCompanyId(String? companyId);
 }
 
 @LazySingleton(as: SessionLocalDataSource)
@@ -43,4 +45,9 @@ final class SessionLocalDataSourceImpl implements SessionLocalDataSource {
 
   @override
   String? getSelectedCompanyId() => _localStorageClient.getSelectedCompanyId();
+
+  @override
+  Future<void> saveSelectedCompanyId(String? companyId) async {
+    await _localStorageClient.saveSelectedCompanyId(companyId);
+  }
 }

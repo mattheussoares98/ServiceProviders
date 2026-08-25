@@ -124,5 +124,20 @@ void main() {
         verify(() => mockLocalStorageClient.getSelectedCompanyId()).called(1);
       });
     });
+
+    group('saveSelectedCompanyId', () {
+      test('should call saveSelectedCompanyId on LocalStorageClient', () async {
+        const companyId = 'company_123';
+        when(
+          () => mockLocalStorageClient.saveSelectedCompanyId(any()),
+        ).thenAnswer((_) async {});
+
+        await sessionLocalDataSource.saveSelectedCompanyId(companyId);
+
+        verify(
+          () => mockLocalStorageClient.saveSelectedCompanyId(companyId),
+        ).called(1);
+      });
+    });
   });
 }

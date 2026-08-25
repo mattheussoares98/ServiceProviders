@@ -13,6 +13,7 @@ abstract interface class CompanyRemoteDataSource {
   FutureData<CompanyModel> createCompany(CompanyRequestModel request);
   FutureData<CompanyModel> updateCompany(CompanyRequestModel request);
   FutureData<CompanyModel> getCompany(String id);
+  FutureList<CompanyModel> getAllCompanies();
   FutureData<CompanyParameterModel> getCompanyParameters(String companyId);
   FutureData<CompanyParameterModel> saveCompanyParameters(
     CompanyParameterRequestModel request,
@@ -25,6 +26,15 @@ final class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
     : _database = database;
 
   final SupabaseDatabaseClient _database;
+
+  @override
+  FutureList<CompanyModel> getAllCompanies() => SupabaseHandler.call(() async {
+    final list = await _database.selectList(
+      table: 'companies',
+      filters: [SupabaseFilter.isFilter('deleted_at', null)],
+    );
+    return list.map(CompanyModel.fromJson).toList();
+  });
 
   @override
   FutureData<CompanyModel> createCompany(CompanyRequestModel request) =>

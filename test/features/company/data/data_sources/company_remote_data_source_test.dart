@@ -272,6 +272,37 @@ void main() {
         expect(result, isA<FailureState<CompanyParameterModel>>());
       });
     });
+
+    group('getAllCompanies', () {
+      test('should return SuccessState<List<CompanyModel>> when database succeeds', () async {
+        final tList = [tResponse.toJson()];
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => tList);
+
+        final result = await dataSource.getAllCompanies();
+
+        expect(result, isA<SuccessState<List<CompanyModel>>>());
+        expect(result.data?.length, 1);
+        expect(result.data?.first, tResponse);
+      });
+
+      test('should return FailureState when database throws', () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenThrow(Exception('selectList failed'));
+
+        final result = await dataSource.getAllCompanies();
+
+        expect(result, isA<FailureState<List<CompanyModel>>>());
+      });
+    });
   });
 }
 
