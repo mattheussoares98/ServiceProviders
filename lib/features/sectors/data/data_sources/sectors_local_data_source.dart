@@ -33,9 +33,9 @@ final class SectorsLocalDataSourceImpl implements SectorsLocalDataSource {
               id: row.id,
               companyId: row.companyId,
               name: row.name,
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
-              deletedAt: row.deletedAt,
+              createdAt: row.createdAt.toUtc(),
+              updatedAt: row.updatedAt.toUtc(),
+              deletedAt: row.deletedAt?.toUtc(),
             ),
           )
           .toList();
