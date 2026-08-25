@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
@@ -14,9 +18,57 @@ part 'sla_policies_state.dart';
 class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   SlaPoliciesCubit({required SlaPoliciesCubitUseCases useCases})
     : _useCases = useCases,
-      super(const SlaPoliciesState.initial());
+      super(const SlaPoliciesState.initial()) {
+    _initRealtime();
+  }
 
   final SlaPoliciesCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<SlaPolicyEntity>>? _slaSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _slaSubscription = _useCases
+        .watchSlaPoliciesRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<SlaPolicyEntity> event) {
+    if (isClosed) return;
+
+    final currentPolicies = List<SlaPolicyEntity>.from(state.slaPolicies);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null) {
+          final index = currentPolicies.indexWhere((p) => p.id == event.id);
+          if (index == -1) {
+            currentPolicies.insert(0, event.entity!);
+          } else {
+            currentPolicies[index] = event.entity!;
+          }
+          emit(state.copyWith(slaPolicies: currentPolicies));
+        }
+        break;
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentPolicies.indexWhere((p) => p.id == event.id);
+          if (index != -1) {
+            currentPolicies[index] = event.entity!;
+          } else {
+            currentPolicies.add(event.entity!);
+          }
+          emit(state.copyWith(slaPolicies: currentPolicies));
+        }
+        break;
+      case RealtimeEventType.delete:
+        final index = currentPolicies.indexWhere((p) => p.id == event.id);
+        if (index != -1) {
+          currentPolicies.removeAt(index);
+          emit(state.copyWith(slaPolicies: currentPolicies));
+        }
+        break;
+    }
+  }
 
   Future<void> loadSlaPolicies({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
@@ -134,5 +186,11 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     if (result == true) {
       await loadSlaPolicies();
     }
+  }
+
+  @override
+  Future<void> close() {
+    _slaSubscription?.cancel();
+    return super.close();
   }
 }

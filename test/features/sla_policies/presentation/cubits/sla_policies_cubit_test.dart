@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla_policy_use_case.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -43,6 +48,7 @@ void main() {
   late MockCreateSlaPolicyUseCase mockCreateSlaPolicy;
   late MockUpdateSlaPolicyUseCase mockUpdateSlaPolicy;
   late MockDeleteSlaPolicyUseCase mockDeleteSlaPolicy;
+  late MockWatchSlaPoliciesRealtimeUseCase mockWatchSlaPoliciesRealtime;
   late MockNavigationClient mockNavigationClient;
 
   late SlaPoliciesCubit cubit;
@@ -60,6 +66,7 @@ void main() {
     mockCreateSlaPolicy = MockCreateSlaPolicyUseCase();
     mockUpdateSlaPolicy = MockUpdateSlaPolicyUseCase();
     mockDeleteSlaPolicy = MockDeleteSlaPolicyUseCase();
+    mockWatchSlaPoliciesRealtime = MockWatchSlaPoliciesRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -68,6 +75,9 @@ void main() {
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchSlaPoliciesRealtime.call(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = SlaPoliciesCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -76,6 +86,7 @@ void main() {
       createSlaPolicy: mockCreateSlaPolicy,
       updateSlaPolicy: mockUpdateSlaPolicy,
       deleteSlaPolicy: mockDeleteSlaPolicy,
+      watchSlaPoliciesRealtime: mockWatchSlaPoliciesRealtime,
     );
 
     cubit = SlaPoliciesCubit(useCases: useCases);
@@ -411,6 +422,163 @@ void main() {
           ).called(1);
           verifyNever(() => mockGetSlaPolicies.call(any()));
         },
+      );
+    });
+
+    group('Realtime Events', () {
+      final tInitialPolicy = EntityFactory.makeSlaPolicyEntity();
+      final tNewPolicy = EntityFactory.makeSlaPolicyEntity();
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'prepends new policy on insert event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<SlaPolicyEntity>>();
+          when(
+            () => mockWatchSlaPoliciesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = SlaPoliciesCubit(
+            useCases: SlaPoliciesCubitUseCases(
+              getActiveCompanyId: mockGetActiveCompanyId,
+              getSlaPolicies: mockGetSlaPolicies,
+              getSlaPolicyById: mockGetSlaPolicyById,
+              createSlaPolicy: mockCreateSlaPolicy,
+              updateSlaPolicy: mockUpdateSlaPolicy,
+              deleteSlaPolicy: mockDeleteSlaPolicy,
+              watchSlaPoliciesRealtime: mockWatchSlaPoliciesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              slaPolicies: [tInitialPolicy],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<SlaPolicyEntity>(
+              eventType: RealtimeEventType.insert,
+              id: tNewPolicy.id,
+              companyId: tUserProfile.companyId,
+              entity: tNewPolicy,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.slaPolicies,
+            'slaPolicies',
+            [tNewPolicy, tInitialPolicy],
+          ),
+        ],
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'updates existing policy in-place on update event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<SlaPolicyEntity>>();
+          when(
+            () => mockWatchSlaPoliciesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = SlaPoliciesCubit(
+            useCases: SlaPoliciesCubitUseCases(
+              getActiveCompanyId: mockGetActiveCompanyId,
+              getSlaPolicies: mockGetSlaPolicies,
+              getSlaPolicyById: mockGetSlaPolicyById,
+              createSlaPolicy: mockCreateSlaPolicy,
+              updateSlaPolicy: mockUpdateSlaPolicy,
+              deleteSlaPolicy: mockDeleteSlaPolicy,
+              watchSlaPoliciesRealtime: mockWatchSlaPoliciesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              slaPolicies: [tInitialPolicy],
+            ),
+          );
+
+          final updatedPolicy = tInitialPolicy.copyWith(name: 'Updated Policy');
+
+          streamController.add(
+            RealtimeEvent<SlaPolicyEntity>(
+              eventType: RealtimeEventType.update,
+              id: tInitialPolicy.id,
+              companyId: tUserProfile.companyId,
+              entity: updatedPolicy,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.slaPolicies.first.name,
+            'policy name',
+            'Updated Policy',
+          ),
+        ],
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'removes policy on delete event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<SlaPolicyEntity>>();
+          when(
+            () => mockWatchSlaPoliciesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = SlaPoliciesCubit(
+            useCases: SlaPoliciesCubitUseCases(
+              getActiveCompanyId: mockGetActiveCompanyId,
+              getSlaPolicies: mockGetSlaPolicies,
+              getSlaPolicyById: mockGetSlaPolicyById,
+              createSlaPolicy: mockCreateSlaPolicy,
+              updateSlaPolicy: mockUpdateSlaPolicy,
+              deleteSlaPolicy: mockDeleteSlaPolicy,
+              watchSlaPoliciesRealtime: mockWatchSlaPoliciesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              slaPolicies: [tInitialPolicy],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<SlaPolicyEntity>(
+              eventType: RealtimeEventType.delete,
+              id: tInitialPolicy.id,
+              companyId: tUserProfile.companyId,
+              entity: null,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.slaPolicies,
+            'slaPolicies',
+            isEmpty,
+          ),
+        ],
       );
     });
   });

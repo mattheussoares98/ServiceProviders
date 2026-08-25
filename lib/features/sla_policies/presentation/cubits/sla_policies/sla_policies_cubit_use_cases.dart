@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policies_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_policy_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla_policy_use_case.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 
 @LazySingleton()
 class SlaPoliciesCubitUseCases {
@@ -15,6 +16,7 @@ class SlaPoliciesCubitUseCases {
     required this.createSlaPolicy,
     required this.updateSlaPolicy,
     required this.deleteSlaPolicy,
+    required this.watchSlaPoliciesRealtime,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -23,4 +25,5 @@ class SlaPoliciesCubitUseCases {
   final CreateSlaPolicyUseCase createSlaPolicy;
   final UpdateSlaPolicyUseCase updateSlaPolicy;
   final DeleteSlaPolicyUseCase deleteSlaPolicy;
+  final WatchSlaPoliciesRealtimeUseCase watchSlaPoliciesRealtime;
 }
