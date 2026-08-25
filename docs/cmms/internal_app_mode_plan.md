@@ -98,8 +98,13 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - Inbound delta sync overwrite prevention: `syncWorkOrders` only runs when pending queue count reaches 0, emitting `onSyncCompleted` to reload UI in `WorkOrdersCubit`.
 - Work orders, checklist tasks, observations, and pause requests offline mutation handlers wired.
 
-### Gap 4 — No real-time ([V2 §11](/docs/cmms/v2_features.md)) 🟡
-Supabase Realtime is not referenced anywhere in `lib/`. Lists refresh only on manual pull or cubit init. Design is already resolved (Option A toast / Option B scroll-aware buffering).
+### Gap 4 — Real-time Updates (Supabase Realtime) ✅ IMPLEMENTED
+**Done:**
+- Database migrations for `supabase_realtime` publication and `REPLICA IDENTITY FULL` across `work_orders`, `locations`, `areas`, `assets`, `sla_policies`, `user_profiles`, `service_provider_companies`, and `service_provider_profiles`.
+- `SupabaseRealtimeClient` and `RealtimePayloadMapper` in `lib/core/clients/remote/supabase/realtime/`.
+- Remote data sources, repositories (with local Drift cache synchronization), and dedicated `Watch*RealtimeUseCase`s.
+- Active cubit integration in `WorkOrdersCubit`, `LocationsCubit`, `AssetsCubit`, `SlaPoliciesCubit`, `UsersCubit`, and `ServiceProvidersCubit`.
+- UI reactivity in pages (e.g. `WorkOrderDetailsPage`).
 
 ### Gap 5 — Escalation engine ([V2 §5](/docs/cmms/v2_features.md)) 🟡
 Not started — no `escalation_policies` table, no Edge Function, no `pg_cron` job. Depends on Gap 1.
