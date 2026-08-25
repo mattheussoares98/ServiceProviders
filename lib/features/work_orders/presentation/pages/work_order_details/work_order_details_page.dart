@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -22,6 +23,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends HookWidget {
@@ -37,11 +39,20 @@ class WorkOrderDetailsPage extends HookWidget {
     );
 
     useEffect(() {
-      context.read<WorkOrdersCubit>().loadWorkOrderById(
+      final cubit = context.read<WorkOrdersCubit>();
+      cubit.loadWorkOrderById(
         workOrderId,
         showLoading: workOrderInState == null,
       );
-      return null;
+      final sub = cubit.realtimeEvents.listen((event) {
+        if (event.workOrderId == workOrderId &&
+            event.eventType == RealtimeWorkOrderEventType.update) {
+          ToastUtil.showSuccess(
+            'Ordem de serviço atualizada em tempo real.'.hardcoded,
+          );
+        }
+      });
+      return sub.cancel;
     }, [workOrderId]);
 
     return MultiBlocProvider(

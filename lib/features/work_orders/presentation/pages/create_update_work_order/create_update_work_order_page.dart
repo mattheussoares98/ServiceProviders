@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
@@ -24,6 +25,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_pol
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -46,6 +48,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
@@ -64,6 +67,7 @@ part './widgets/service_provider_profile_dropdown.dart';
 part './widgets/sla_policy_dropdown.dart';
 part './widgets/title_field.dart';
 part './widgets/try_again_button.dart';
+part './widgets/work_order_external_change_banner.dart';
 part './widgets/work_order_status_dropdown.dart';
 part './widgets/work_order_type_dropdown.dart';
 
@@ -211,6 +215,41 @@ class _CreateUpdatePage extends HookWidget {
       initialProviderProfileId,
     );
     final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
+    final externalChangedWorkOrder = useState<WorkOrderEntity?>(null);
+
+    void applyWorkOrder(WorkOrderEntity updated) {
+      titleController.text = updated.title;
+      descController.text = updated.description ?? '';
+      durationController.text = updated.estimatedDuration?.toString() ?? '';
+      selectedLocationId.value = updated.locationId;
+      selectedAreaId.value = updated.areaId;
+      selectedAssetId.value = updated.assetId;
+      selectedAssignedToId.value = updated.assignedToId;
+      selectedPriority.value = updated.priority;
+      selectedType.value = updated.type;
+      selectedStatus.value = updated.status;
+      selectedScheduledDate.value = updated.scheduledDate;
+      selectedServiceProviderCompanyId.value = updated.serviceProviderCompanyId;
+      selectedProviderProfileId.value = updated.providerProfileId;
+      selectedSlaPolicyId.value = updated.slaPolicyId;
+      externalChangedWorkOrder.value = null;
+    }
+
+    useEffect(() {
+      if (!isEditing) return null;
+      final cubit = context.read<WorkOrdersCubit>();
+      final sub = cubit.realtimeEvents.listen((event) {
+        if (event.workOrderId == workOrderId &&
+            event.eventType == RealtimeWorkOrderEventType.update &&
+            event.workOrder != null) {
+          externalChangedWorkOrder.value = event.workOrder;
+          ToastUtil.showSuccess(
+            'A ordem de serviço foi alterada externamente.'.hardcoded,
+          );
+        }
+      });
+      return sub.cancel;
+    }, [workOrderId, isEditing]);
 
     useEffect(() {
       if (initialServiceProviderCompanyId != null) {
@@ -320,6 +359,10 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     final items = [
+      if (externalChangedWorkOrder.value != null)
+        _WorkOrderExternalChangeBanner(
+          onReload: () => applyWorkOrder(externalChangedWorkOrder.value!),
+        ),
       _TitleField(
         controller: titleController,
         enabled: canEditCoreFields,
