@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
@@ -23,7 +22,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 @RoutePage()
 class WorkOrderDetailsPage extends HookWidget {
@@ -39,17 +37,11 @@ class WorkOrderDetailsPage extends HookWidget {
     );
 
     useEffect(() {
-      final cubit = context.read<WorkOrdersCubit>()
-        ..loadWorkOrderById(workOrderId, showLoading: workOrderInState == null);
-      final sub = cubit.realtimeEvents.listen((event) {
-        if (event.id == workOrderId &&
-            event.eventType == RealtimeEventType.update) {
-          ToastUtil.showSuccess(
-            'Ordem de serviço atualizada em tempo real'.hardcoded,
-          );
-        }
-      });
-      return sub.cancel;
+      context.read<WorkOrdersCubit>().loadWorkOrderById(
+        workOrderId,
+        showLoading: workOrderInState == null,
+      );
+      return null;
     }, [workOrderId]);
 
     return MultiBlocProvider(
