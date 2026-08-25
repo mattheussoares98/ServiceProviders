@@ -45,6 +45,9 @@ class WorkOrderEntity extends Equatable {
     required this.completionReason,
     required this.completionResponsibility,
     required this.completionSectorId,
+    this.advanceWarningSentAt,
+    this.lastEscalationLevel = 0,
+    this.lastEscalationAt,
   });
 
   final String id;
@@ -89,6 +92,9 @@ class WorkOrderEntity extends Equatable {
   final String? completionReason;
   final PauseResponsibility? completionResponsibility;
   final String? completionSectorId;
+  final DateTime? advanceWarningSentAt;
+  final int lastEscalationLevel;
+  final DateTime? lastEscalationAt;
 
   @override
   List<Object?> get props => [
@@ -129,6 +135,9 @@ class WorkOrderEntity extends Equatable {
     completionReason,
     completionResponsibility,
     completionSectorId,
+    advanceWarningSentAt,
+    lastEscalationLevel,
+    lastEscalationAt,
   ];
 
   WorkOrderEntity copyWith({
@@ -169,6 +178,9 @@ class WorkOrderEntity extends Equatable {
     String? completionReason,
     PauseResponsibility? completionResponsibility,
     String? completionSectorId,
+    DateTime? advanceWarningSentAt,
+    int? lastEscalationLevel,
+    DateTime? lastEscalationAt,
     bool? annulCreatedById,
     bool? annulCreatedByProviderProfileId,
     bool? annulAssetId,
@@ -193,6 +205,8 @@ class WorkOrderEntity extends Equatable {
     bool? annulCompletionReason,
     bool? annulCompletionResponsibility,
     bool? annulCompletionSectorId,
+    bool? annulAdvanceWarningSentAt,
+    bool? annulLastEscalationAt,
   }) {
     return WorkOrderEntity(
       id: id ?? this.id,
@@ -264,6 +278,13 @@ class WorkOrderEntity extends Equatable {
       completionSectorId: annulCompletionSectorId == true
           ? null
           : completionSectorId ?? this.completionSectorId,
+      advanceWarningSentAt: annulAdvanceWarningSentAt == true
+          ? null
+          : advanceWarningSentAt ?? this.advanceWarningSentAt,
+      lastEscalationLevel: lastEscalationLevel ?? this.lastEscalationLevel,
+      lastEscalationAt: annulLastEscalationAt == true
+          ? null
+          : lastEscalationAt ?? this.lastEscalationAt,
     );
   }
 }

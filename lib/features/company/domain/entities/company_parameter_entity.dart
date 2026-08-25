@@ -14,6 +14,10 @@ class CompanyParameterEntity extends Equatable {
     required this.sandboxQuotaMb,
     required this.maxSyncAttempts,
     required this.inviteExpiryHours,
+    this.advanceWarningMinutes = 60,
+    this.advanceWarningGroupIds = const [],
+    this.delayedNotificationIntervalMinutes = 60,
+    this.escalationGroupIds = const [],
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -31,6 +35,10 @@ class CompanyParameterEntity extends Equatable {
   final int sandboxQuotaMb;
   final int maxSyncAttempts;
   final int inviteExpiryHours;
+  final int advanceWarningMinutes;
+  final List<String> advanceWarningGroupIds;
+  final int delayedNotificationIntervalMinutes;
+  final List<String> escalationGroupIds;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -54,6 +62,10 @@ class CompanyParameterEntity extends Equatable {
     int? sandboxQuotaMb,
     int? maxSyncAttempts,
     int? inviteExpiryHours,
+    int? advanceWarningMinutes,
+    List<String>? advanceWarningGroupIds,
+    int? delayedNotificationIntervalMinutes,
+    List<String>? escalationGroupIds,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -75,6 +87,14 @@ class CompanyParameterEntity extends Equatable {
       sandboxQuotaMb: sandboxQuotaMb ?? this.sandboxQuotaMb,
       maxSyncAttempts: maxSyncAttempts ?? this.maxSyncAttempts,
       inviteExpiryHours: inviteExpiryHours ?? this.inviteExpiryHours,
+      advanceWarningMinutes:
+          advanceWarningMinutes ?? this.advanceWarningMinutes,
+      advanceWarningGroupIds:
+          advanceWarningGroupIds ?? this.advanceWarningGroupIds,
+      delayedNotificationIntervalMinutes:
+          delayedNotificationIntervalMinutes ??
+          this.delayedNotificationIntervalMinutes,
+      escalationGroupIds: escalationGroupIds ?? this.escalationGroupIds,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
@@ -95,6 +115,10 @@ class CompanyParameterEntity extends Equatable {
     sandboxQuotaMb,
     maxSyncAttempts,
     inviteExpiryHours,
+    advanceWarningMinutes,
+    advanceWarningGroupIds,
+    delayedNotificationIntervalMinutes,
+    escalationGroupIds,
     createdAt,
     updatedAt,
     deletedAt,

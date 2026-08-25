@@ -215,6 +215,9 @@ abstract final class EntityFactory {
       completionReason: _makePhrase(),
       completionResponsibility: PauseResponsibility.shared,
       completionSectorId: _makeId(),
+      advanceWarningSentAt: _makeDateTime(),
+      lastEscalationLevel: 0,
+      lastEscalationAt: _makeDateTime(),
     );
   }
 
@@ -379,6 +382,10 @@ abstract final class EntityFactory {
       sandboxQuotaMb: 1024,
       maxSyncAttempts: 3,
       inviteExpiryHours: 24,
+      advanceWarningMinutes: 60,
+      advanceWarningGroupIds: [_makeId(), _makeId(), _makeId()],
+      delayedNotificationIntervalMinutes: 60,
+      escalationGroupIds: [_makeId(), _makeId(), _makeId()],
       createdAt: _makeDateTime(),
       updatedAt: _makeDateTime(),
       deletedAt: null,

@@ -13,6 +13,7 @@ class WorkOrderFilter extends Equatable {
     this.scheduledDateTo,
     this.searchText,
     this.serviceProviderCompanyIds = const [],
+    this.isDelayed = false,
   });
 
   final List<WorkOrderStatus> statuses;
@@ -27,6 +28,9 @@ class WorkOrderFilter extends Equatable {
   /// provider companies. Empty means every company the provider belongs to.
   final List<String> serviceProviderCompanyIds;
 
+  /// Filter to retrieve only active work orders that are overdue/delayed.
+  final bool isDelayed;
+
   bool get isEmpty =>
       statuses.isEmpty &&
       priorities.isEmpty &&
@@ -35,7 +39,8 @@ class WorkOrderFilter extends Equatable {
       scheduledDateFrom == null &&
       scheduledDateTo == null &&
       (searchText == null || searchText!.isEmpty) &&
-      serviceProviderCompanyIds.isEmpty;
+      serviceProviderCompanyIds.isEmpty &&
+      !isDelayed;
 
   int get activeCount {
     var count = 0;
@@ -46,6 +51,7 @@ class WorkOrderFilter extends Equatable {
     if (scheduledDateFrom != null || scheduledDateTo != null) count++;
     if (searchText != null && searchText!.isNotEmpty) count++;
     if (serviceProviderCompanyIds.isNotEmpty) count++;
+    if (isDelayed) count++;
     return count;
   }
 
@@ -58,6 +64,7 @@ class WorkOrderFilter extends Equatable {
     DateTime? scheduledDateTo,
     String? searchText,
     List<String>? serviceProviderCompanyIds,
+    bool? isDelayed,
     bool annulType = false,
     bool annulAssignedToId = false,
     bool annulScheduledDateFrom = false,
@@ -80,6 +87,7 @@ class WorkOrderFilter extends Equatable {
           annulSearchText ? null : searchText ?? this.searchText,
       serviceProviderCompanyIds:
           serviceProviderCompanyIds ?? this.serviceProviderCompanyIds,
+      isDelayed: isDelayed ?? this.isDelayed,
     );
   }
 
@@ -93,5 +101,6 @@ class WorkOrderFilter extends Equatable {
     scheduledDateTo,
     searchText,
     serviceProviderCompanyIds,
+    isDelayed,
   ];
 }
