@@ -57,8 +57,8 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
               name: Value(category.name),
               description: Value(category.description),
               color: Value(category.color),
-              createdAt: Value(category.createdAt),
-              deletedAt: Value(category.deletedAt),
+              createdAt: Value(category.createdAt.toUtc()),
+              deletedAt: Value(category.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -70,7 +70,9 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.categories)
         ..where((t) => t.id.equals(id));
-      await query.write(CategoriesCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(
+        CategoriesCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -89,8 +91,8 @@ final class CategoriesLocalDataSourceImpl implements CategoriesLocalDataSource {
                   name: Value(category.name),
                   description: Value(category.description),
                   color: Value(category.color),
-                  createdAt: Value(category.createdAt),
-                  deletedAt: Value(category.deletedAt),
+                  createdAt: Value(category.createdAt.toUtc()),
+                  deletedAt: Value(category.deletedAt?.toUtc()),
                 ),
               )
               .toList(),
