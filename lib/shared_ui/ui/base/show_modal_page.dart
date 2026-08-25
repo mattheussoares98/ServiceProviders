@@ -15,7 +15,6 @@ Future<T?> showModalPage<T>(
     context: context,
     isScrollControlled: isScrollControlled,
     backgroundColor: Colors.transparent,
-    useSafeArea: true,
     builder: (context) {
       if (!useDraggable) {
         return Stack(
@@ -25,7 +24,7 @@ Future<T?> showModalPage<T>(
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: SafeArea(child: _Body(body: body, expand: false)),
+              child: _Body(body: body, expand: false),
             ),
           ],
         );
@@ -64,6 +63,7 @@ class _Body extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -90,7 +90,6 @@ class _Body extends StatelessWidget {
               Flexible(
                 child: Material(color: Colors.transparent, child: body),
               ),
-            // const SizedBox(height: Sizes.p12),
           ],
         ),
       ),
