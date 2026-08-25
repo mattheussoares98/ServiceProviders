@@ -30,6 +30,7 @@ class _PendingRequestCard extends StatelessWidget {
     final iconColor = isPauseRequest ? Colors.amber[900]! : Colors.blue[900]!;
 
     return Container(
+      margin: const EdgeInsets.only(bottom: Sizes.p8),
       padding: const EdgeInsets.all(Sizes.p16),
       decoration: BoxDecoration(
         color: cardBgColor,
