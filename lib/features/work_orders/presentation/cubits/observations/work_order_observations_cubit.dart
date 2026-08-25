@@ -86,8 +86,8 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
       authorProviderProfileId: authorProviderProfileId,
       authorName: authorName,
       content: content.trim(),
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: DateTime.now().toUtc(),
+      updatedAt: DateTime.now().toUtc(),
     );
 
     emit(state.copyWith(status: StateStatus.saving));
