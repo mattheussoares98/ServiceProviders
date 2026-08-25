@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_realtime_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
@@ -20,6 +21,8 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -33,17 +36,20 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   WorkOrdersRepositoryImpl({
     required InternetClient internet,
     required WorkOrdersRemoteDataSource remoteDataSource,
+    required WorkOrdersRealtimeRemoteDataSource realtimeRemoteDataSource,
     required WorkOrdersLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
     required SyncRepository syncRepository,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
+       _realtimeRemoteDataSource = realtimeRemoteDataSource,
        _localDataSource = localDataSource,
        _sessionRepository = sessionRepository,
        _syncRepository = syncRepository;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
+  final WorkOrdersRealtimeRemoteDataSource _realtimeRemoteDataSource;
   final WorkOrdersLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
   final SyncRepository _syncRepository;
@@ -550,4 +556,23 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           return const SuccessState(data: true);
         },
       );
+
+  @override
+  Stream<RealtimeWorkOrderEvent> watchRealtimeWorkOrders({String? companyId}) {
+    final stream = _realtimeRemoteDataSource.watchWorkOrders(
+      companyId: companyId,
+    );
+    return stream.asyncMap((event) async {
+      if (!_isProviderMode) {
+        if (event.eventType == RealtimeWorkOrderEventType.delete) {
+          await _localDataSource.deleteWorkOrder(event.workOrderId);
+        } else if (event.workOrder != null) {
+          await _localDataSource.saveWorkOrders([
+            WorkOrderModel.fromEntity(event.workOrder!),
+          ]);
+        }
+      }
+      return event;
+    });
+  }
 }

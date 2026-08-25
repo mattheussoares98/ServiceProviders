@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/work_orders_repository_impl.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -27,6 +28,7 @@ void main() {
 
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
+  late MockWorkOrdersRealtimeRemoteDataSource mockRealtimeRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
@@ -66,6 +68,7 @@ void main() {
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
+    mockRealtimeRemoteDataSource = MockWorkOrdersRealtimeRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
@@ -85,6 +88,7 @@ void main() {
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
+      realtimeRemoteDataSource: mockRealtimeRemoteDataSource,
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
@@ -1135,11 +1139,74 @@ void main() {
       },
     );
   });
+
+  group('watchRealtimeWorkOrders', () {
+    test(
+      'should emit event and cache work order locally on update in internal mode',
+      () async {
+        final tEvent = EntityFactory.makeRealtimeWorkOrderEvent();
+        when(
+          () => mockRealtimeRemoteDataSource.watchWorkOrders(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
+        when(
+          () => mockLocalDataSource.saveWorkOrders(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchRealtimeWorkOrders(
+          companyId: tCompanyId,
+        );
+
+        expect(stream, emits(tEvent));
+        await pumpEventQueue();
+
+        verify(
+          () => mockRealtimeRemoteDataSource.watchWorkOrders(
+            companyId: tCompanyId,
+          ),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.saveWorkOrders(any()),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should emit event and delete work order locally on delete in internal mode',
+      () async {
+        final tEvent = EntityFactory.makeRealtimeWorkOrderEvent().copyWith(
+          eventType: RealtimeWorkOrderEventType.delete,
+          annulWorkOrder: true,
+        );
+        when(
+          () => mockRealtimeRemoteDataSource.watchWorkOrders(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
+        when(
+          () => mockLocalDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchRealtimeWorkOrders(
+          companyId: tCompanyId,
+        );
+
+        expect(stream, emits(tEvent));
+        await pumpEventQueue();
+
+        verify(
+          () => mockLocalDataSource.deleteWorkOrder(tEvent.workOrderId),
+        ).called(1);
+      },
+    );
+  });
 }
 
 void _providerWorkOrdersTests() {
   late MockInternetClient mockInternetClient;
   late MockWorkOrdersRemoteDataSource mockRemoteDataSource;
+  late MockWorkOrdersRealtimeRemoteDataSource mockRealtimeRemoteDataSource;
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
@@ -1148,6 +1215,7 @@ void _providerWorkOrdersTests() {
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockWorkOrdersRemoteDataSource();
+    mockRealtimeRemoteDataSource = MockWorkOrdersRealtimeRemoteDataSource();
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
@@ -1158,6 +1226,7 @@ void _providerWorkOrdersTests() {
     repository = WorkOrdersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
+      realtimeRemoteDataSource: mockRealtimeRemoteDataSource,
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
