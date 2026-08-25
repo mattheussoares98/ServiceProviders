@@ -422,7 +422,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.workOrders)
         ..where((t) => t.id.equals(id));
-      await query.write(WorkOrdersCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(
+        WorkOrdersCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
