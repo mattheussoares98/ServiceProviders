@@ -5,11 +5,16 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late SlaRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -19,7 +24,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = SlaRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = SlaRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   final tSlaPolicyEntity = EntityFactory.makeSlaPolicyEntity();
@@ -218,6 +227,44 @@ void main() {
       final result = await dataSource.deleteSlaPolicy(tSlaPolicyModel.id);
 
       expect(result, isA<FailureState<dynamic>>());
+    });
+  });
+
+  group('watchSlaPoliciesRealtime', () {
+    test('streams realtime events for sla policies', () async {
+      final payload = PostgresChangePayload(
+        eventType: PostgresChangeEvent.insert,
+        newRecord: tSlaPolicyModel.toJson(),
+        oldRecord: {},
+        schema: 'public',
+        table: 'sla_policies',
+        errors: [],
+        commitTimestamp: DateTime.now(),
+      );
+
+      when(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'sla_policies',
+          schema: 'public',
+          event: PostgresChangeEvent.all,
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => Stream.value(payload));
+
+      final stream = dataSource.watchSlaPoliciesRealtime(
+        companyId: tSlaPolicyEntity.companyId,
+      );
+
+      expect(
+        stream,
+        emits(
+          predicate<RealtimeEvent<SlaPolicyModel>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tSlaPolicyModel.id &&
+                event.entity?.name == tSlaPolicyModel.name;
+          }),
+        ),
+      );
     });
   });
 }
