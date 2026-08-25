@@ -2,7 +2,10 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
@@ -34,6 +37,11 @@ abstract interface class AttachmentsRemoteDataSource {
     required String id,
     required String uploadedById,
   });
+
+  /// Subscribes to real-time changes on the attachments table for a specific work order.
+  Stream<RealtimeEvent<AttachmentModel>> watchAttachmentsRealtime({
+    required String workOrderId,
+  });
 }
 
 @LazySingleton(as: AttachmentsRemoteDataSource)
@@ -41,9 +49,12 @@ final class AttachmentsRemoteDataSourceImpl
     implements AttachmentsRemoteDataSource {
   const AttachmentsRemoteDataSourceImpl({
     required SupabaseDatabaseClient database,
-  }) : _database = database;
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   @override
   FutureData<PresignedUrlResponse> getPresignedUploadUrl(String objectKey) =>
@@ -124,4 +135,22 @@ final class AttachmentsRemoteDataSourceImpl
     );
     return true;
   });
+
+  @override
+  Stream<RealtimeEvent<AttachmentModel>> watchAttachmentsRealtime({
+    required String workOrderId,
+  }) {
+    final filter = PostgresChangeFilter(
+      type: PostgresChangeFilterType.eq,
+      column: 'work_order_id',
+      value: workOrderId,
+    );
+
+    return _realtimeClient
+        .streamTableChanges(table: 'attachments', filter: filter)
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, AttachmentModel.fromJson),
+        );
+  }
 }

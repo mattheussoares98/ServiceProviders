@@ -3,7 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +17,7 @@ import '../../../../../testing/mocks/entity_factory.dart';
 void main() {
   final faker = Faker();
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late AttachmentsRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -23,7 +27,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = AttachmentsRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = AttachmentsRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   group('getPresignedUploadUrl', () {
@@ -254,5 +262,46 @@ void main() {
         expect(result, isA<FailureState<bool>>());
       },
     );
+  });
+
+  group('watchAttachmentsRealtime', () {
+    final tWorkOrderId = faker.guid.guid();
+    final tAttachmentModel = AttachmentModel.fromEntity(
+      EntityFactory.makeAttachmentEntity(),
+    );
+
+    test('should stream RealtimeEvent<AttachmentModel>', () {
+      final payload = PostgresChangePayload(
+        eventType: PostgresChangeEvent.insert,
+        newRecord: tAttachmentModel.toJson(),
+        oldRecord: const <String, dynamic>{},
+        schema: 'public',
+        table: 'attachments',
+        errors: <dynamic>[],
+        commitTimestamp: DateTime.now(),
+      );
+
+      when(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'attachments',
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => Stream.value(payload));
+
+      final stream = dataSource.watchAttachmentsRealtime(
+        workOrderId: tWorkOrderId,
+      );
+
+      expect(
+        stream,
+        emits(
+          predicate<RealtimeEvent<AttachmentModel>>((event) {
+            return event.eventType == RealtimeEventType.insert &&
+                event.id == tAttachmentModel.id &&
+                event.entity?.fileName == tAttachmentModel.fileName;
+          }),
+        ),
+      );
+    });
   });
 }
