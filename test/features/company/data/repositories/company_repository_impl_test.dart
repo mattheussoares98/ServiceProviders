@@ -444,5 +444,35 @@ void main() {
         },
       );
     });
+
+    group('getAllCompanies', () {
+      test('should call remoteDataSource when online and return mapped entities', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAllCompanies(),
+        ).thenAnswer((_) async => SuccessState(data: [tCompanyModel]));
+
+        final result = await repository.getAllCompanies();
+
+        expect(result, isA<SuccessState<List<CompanyEntity>>>());
+        expect(result.data?.length, 1);
+        expect(result.data?.first, tCompanyModel.toEntity());
+        verify(() => mockRemoteDataSource.getAllCompanies()).called(1);
+      });
+
+      test('should return FailureState when remote fails', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAllCompanies(),
+        ).thenAnswer(
+          (_) async =>
+              FailureState<List<CompanyModel>>(message: 'Remote error'),
+        );
+
+        final result = await repository.getAllCompanies();
+
+        expect(result, isA<FailureState<List<CompanyEntity>>>());
+      });
+    });
   });
 }

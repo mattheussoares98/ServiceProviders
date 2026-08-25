@@ -295,5 +295,23 @@ void main() {
         expect(await stream.first, userId);
       });
     });
+
+    group('setSelectedCompanyId', () {
+      test('should save to localDataSource and update session userData', () async {
+        final newCompanyId = faker.guid.guid();
+        when(
+          () => mockSessionLocalDataSource.saveSelectedCompanyId(any()),
+        ).thenAnswer((_) async {});
+
+        sessionRepository.setUserData = userData;
+
+        await sessionRepository.setSelectedCompanyId(newCompanyId);
+
+        verify(
+          () => mockSessionLocalDataSource.saveSelectedCompanyId(newCompanyId),
+        ).called(1);
+        expect(sessionRepository.userData.user.companyId, newCompanyId);
+      });
+    });
   });
 }

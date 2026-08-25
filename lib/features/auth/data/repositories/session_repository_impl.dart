@@ -99,4 +99,16 @@ final class SessionRepositoryImpl implements SessionRepository {
 
   @override
   String? getSelectedCompanyId() => _localDataSource.getSelectedCompanyId();
+
+  @override
+  Future<void> setSelectedCompanyId(String? companyId) async {
+    await _localDataSource.saveSelectedCompanyId(companyId);
+    if (companyId != null && _userData.user.id.isNotEmpty) {
+      final updatedUser = _userData.copyWith(
+        user: _userData.user.copyWith(companyId: companyId),
+      );
+      _userData = updatedUser;
+      _sessionController.add(updatedUser);
+    }
+  }
 }

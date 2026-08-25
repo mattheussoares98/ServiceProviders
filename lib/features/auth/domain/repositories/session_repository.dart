@@ -12,4 +12,5 @@ abstract interface class SessionRepository {
   Future<void> logout();
   String? getSelectedMode();
   String? getSelectedCompanyId();
+  Future<void> setSelectedCompanyId(String? companyId);
 }
