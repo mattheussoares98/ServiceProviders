@@ -42,6 +42,9 @@ void main() {
         tEntity.providerProfileId,
       );
       expect(responseModelFromJson.openedBy, tEntity.openedBy);
+      expect(resultEntity.advanceWarningSentAt, tEntity.advanceWarningSentAt);
+      expect(resultEntity.lastEscalationLevel, tEntity.lastEscalationLevel);
+      expect(resultEntity.lastEscalationAt, tEntity.lastEscalationAt);
     });
   });
 

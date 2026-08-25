@@ -101,6 +101,18 @@ final class WorkOrdersRemoteDataSourceImpl
         ),
       if (filter.searchText != null && filter.searchText!.isNotEmpty)
         SupabaseFilter.ilike('title', '%${filter.searchText!}%'),
+      if (filter.isDelayed) ...[
+        if (filter.statuses.isEmpty)
+          SupabaseFilter.inList('status', const [
+            'open',
+            'in_progress',
+            'on_hold',
+          ]),
+        SupabaseFilter.lt(
+          'sla_deadline_at',
+          DateTime.now().toUtc().toIsoUtcString(),
+        ),
+      ],
     ];
 
     final response = await _database.selectList(
@@ -181,6 +193,18 @@ final class WorkOrdersRemoteDataSourceImpl
         ),
       if (filter.searchText != null && filter.searchText!.isNotEmpty)
         SupabaseFilter.ilike('title', '%${filter.searchText!}%'),
+      if (filter.isDelayed) ...[
+        if (filter.statuses.isEmpty)
+          SupabaseFilter.inList('status', const [
+            'open',
+            'in_progress',
+            'on_hold',
+          ]),
+        SupabaseFilter.lt(
+          'sla_deadline_at',
+          DateTime.now().toUtc().toIsoUtcString(),
+        ),
+      ],
     ];
 
     final response = await _database.selectList(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
@@ -57,6 +59,17 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
       )..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())).getSingleOrNull();
 
       if (params != null) {
+        List<String> parseGroupIds(String raw) {
+          try {
+            return (jsonDecode(raw) as List<dynamic>?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                const [];
+          } catch (_) {
+            return const [];
+          }
+        }
+
         return SuccessState(
           data: CompanyParameterModel(
             id: params.id,
@@ -71,6 +84,11 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
             sandboxQuotaMb: params.sandboxQuotaMb,
             maxSyncAttempts: params.maxSyncAttempts,
             inviteExpiryHours: params.inviteExpiryHours,
+            advanceWarningMinutes: params.advanceWarningMinutes,
+            advanceWarningGroupIds: parseGroupIds(params.advanceWarningGroupIds),
+            delayedNotificationIntervalMinutes:
+                params.delayedNotificationIntervalMinutes,
+            escalationGroupIds: parseGroupIds(params.escalationGroupIds),
             createdAt: params.createdAt.toUtc(),
             updatedAt: params.updatedAt.toUtc(),
             deletedAt: params.deletedAt?.toUtc(),
@@ -129,6 +147,16 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
               sandboxQuotaMb: Value(parameters.sandboxQuotaMb),
               maxSyncAttempts: Value(parameters.maxSyncAttempts),
               inviteExpiryHours: Value(parameters.inviteExpiryHours),
+              advanceWarningMinutes: Value(parameters.advanceWarningMinutes),
+              advanceWarningGroupIds: Value(
+                jsonEncode(parameters.advanceWarningGroupIds),
+              ),
+              delayedNotificationIntervalMinutes: Value(
+                parameters.delayedNotificationIntervalMinutes,
+              ),
+              escalationGroupIds: Value(
+                jsonEncode(parameters.escalationGroupIds),
+              ),
               createdAt: Value(parameters.createdAt.toUtc()),
               updatedAt: Value(parameters.updatedAt.toUtc()),
               deletedAt: Value(parameters.deletedAt?.toUtc()),

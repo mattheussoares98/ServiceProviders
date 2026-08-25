@@ -20,6 +20,14 @@ class CompanyParameters extends Table {
   IntColumn get maxSyncAttempts => integer().withDefault(const Constant(3))();
   IntColumn get inviteExpiryHours =>
       integer().withDefault(const Constant(24))();
+  IntColumn get advanceWarningMinutes =>
+      integer().withDefault(const Constant(60))();
+  TextColumn get advanceWarningGroupIds =>
+      text().withDefault(const Constant('[]'))();
+  IntColumn get delayedNotificationIntervalMinutes =>
+      integer().withDefault(const Constant(60))();
+  TextColumn get escalationGroupIds =>
+      text().withDefault(const Constant('[]'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

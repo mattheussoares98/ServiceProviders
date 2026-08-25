@@ -87,6 +87,10 @@ class WorkOrders extends Table {
   TextColumn get completionResponsibility => text().nullable()();
   TextColumn get completionSectorId =>
       text().nullable().references(Sectors, #id, onDelete: KeyAction.setNull)();
+  DateTimeColumn get advanceWarningSentAt => dateTime().nullable()();
+  IntColumn get lastEscalationLevel =>
+      integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastEscalationAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

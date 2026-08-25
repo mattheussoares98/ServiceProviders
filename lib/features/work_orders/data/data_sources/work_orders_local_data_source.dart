@@ -130,6 +130,19 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
             condition &
             _database.workOrders.title.like('%${filter.searchText!}%');
       }
+      if (filter.isDelayed) {
+        condition =
+            condition &
+            _database.workOrders.status.isIn([
+              WorkOrderStatus.open.code,
+              WorkOrderStatus.inProgress.code,
+              WorkOrderStatus.onHold.code,
+            ]) &
+            _database.workOrders.slaDeadlineAt.isNotNull() &
+            _database.workOrders.slaDeadlineAt.isSmallerThanValue(
+              DateTime.now().toUtc(),
+            );
+      }
 
       // The 'offset' determines how many rows to skip before fetching.
       // E.g., offset = 0 gets the first page, offset = 20 skips 20 and gets the second page.
@@ -212,6 +225,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               ? PauseResponsibility.fromValue(order.completionResponsibility!)
               : null,
           completionSectorId: order.completionSectorId,
+          advanceWarningSentAt: order.advanceWarningSentAt?.toUtc(),
+          lastEscalationLevel: order.lastEscalationLevel,
+          lastEscalationAt: order.lastEscalationAt?.toUtc(),
         );
       }).toList();
 
@@ -305,6 +321,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
             ? PauseResponsibility.fromValue(order.completionResponsibility!)
             : null,
         completionSectorId: order.completionSectorId,
+        advanceWarningSentAt: order.advanceWarningSentAt?.toUtc(),
+        lastEscalationLevel: order.lastEscalationLevel,
+        lastEscalationAt: order.lastEscalationAt?.toUtc(),
       );
 
       return SuccessState(data: model);
@@ -367,11 +386,18 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               updatedAt: Value(workOrder.updatedAt.toUtc()),
               deletedAt: Value(workOrder.deletedAt?.toUtc()),
               slaPolicyId: Value(workOrder.slaPolicyId),
+              slaDeadlineAt: Value(workOrder.slaDeadlineAt?.toUtc()),
+              slaBreached: Value(workOrder.slaBreached),
               completionReason: Value(workOrder.completionReason),
               completionResponsibility: Value(
                 workOrder.completionResponsibility?.value,
               ),
               completionSectorId: Value(workOrder.completionSectorId),
+              advanceWarningSentAt: Value(
+                workOrder.advanceWarningSentAt?.toUtc(),
+              ),
+              lastEscalationLevel: Value(workOrder.lastEscalationLevel),
+              lastEscalationAt: Value(workOrder.lastEscalationAt?.toUtc()),
             ),
           );
 

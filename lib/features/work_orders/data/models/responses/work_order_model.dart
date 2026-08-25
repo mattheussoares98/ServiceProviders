@@ -49,6 +49,9 @@ class WorkOrderModel extends WorkOrderEntity
     required super.completionReason,
     required super.completionResponsibility,
     required super.completionSectorId,
+    super.advanceWarningSentAt,
+    super.lastEscalationLevel = 0,
+    super.lastEscalationAt,
   });
 
   factory WorkOrderModel.fromEntity(WorkOrderEntity entity) => WorkOrderModel(
@@ -89,6 +92,9 @@ class WorkOrderModel extends WorkOrderEntity
     completionReason: entity.completionReason,
     completionResponsibility: entity.completionResponsibility,
     completionSectorId: entity.completionSectorId,
+    advanceWarningSentAt: entity.advanceWarningSentAt,
+    lastEscalationLevel: entity.lastEscalationLevel,
+    lastEscalationAt: entity.lastEscalationAt,
   );
 
   factory WorkOrderModel.fromJson(MapDynamic json) => WorkOrderModel(
@@ -144,6 +150,11 @@ class WorkOrderModel extends WorkOrderEntity
           )
         : null,
     completionSectorId: json['completion_sector_id'] as String?,
+    advanceWarningSentAt:
+        (json['advance_warning_sent_at'] as String?).toUtcDateTime(),
+    lastEscalationLevel: json['last_escalation_level'] as int? ?? 0,
+    lastEscalationAt:
+        (json['last_escalation_at'] as String?).toUtcDateTime(),
   );
 
   @override
@@ -184,6 +195,9 @@ class WorkOrderModel extends WorkOrderEntity
     'completion_reason': completionReason,
     'completion_responsibility': completionResponsibility?.value,
     'completion_sector_id': completionSectorId,
+    'advance_warning_sent_at': advanceWarningSentAt?.toIsoUtcString(),
+    'last_escalation_level': lastEscalationLevel,
+    'last_escalation_at': lastEscalationAt?.toIsoUtcString(),
   };
 
   @override
@@ -225,5 +239,8 @@ class WorkOrderModel extends WorkOrderEntity
     completionReason: completionReason,
     completionResponsibility: completionResponsibility,
     completionSectorId: completionSectorId,
+    advanceWarningSentAt: advanceWarningSentAt,
+    lastEscalationLevel: lastEscalationLevel,
+    lastEscalationAt: lastEscalationAt,
   );
 }
