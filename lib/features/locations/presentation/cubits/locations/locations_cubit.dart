@@ -207,7 +207,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -228,7 +228,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(
           status: StateStatus.deletingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -275,7 +275,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -298,7 +298,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       emit(
         state.copyWith(
           status: StateStatus.deletingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
