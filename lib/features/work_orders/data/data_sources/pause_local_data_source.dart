@@ -87,9 +87,9 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               companyId: Value(reason.companyId),
               name: Value(reason.name),
               isActive: Value(reason.isActive),
-              createdAt: Value(reason.createdAt),
-              updatedAt: Value(reason.updatedAt),
-              deletedAt: Value(reason.deletedAt),
+              createdAt: Value(reason.createdAt.toUtc()),
+              updatedAt: Value(reason.updatedAt.toUtc()),
+              deletedAt: Value(reason.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -161,14 +161,14 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
                 responsibility: Value(request.responsibility?.value),
                 sectorId: Value(request.sectorId),
                 status: Value(request.status.value),
-                pausedAt: Value(request.pausedAt),
-                resumedAt: Value(request.resumedAt),
+                pausedAt: Value(request.pausedAt.toUtc()),
+                resumedAt: Value(request.resumedAt?.toUtc()),
                 resumedById: Value(request.resumedById),
                 reviewedById: Value(request.reviewedById),
                 reviewObservation: Value(request.reviewObservation),
                 affectsSla: Value(request.affectsSla),
-                createdAt: Value(request.createdAt),
-                updatedAt: Value(request.updatedAt),
+                createdAt: Value(request.createdAt.toUtc()),
+                updatedAt: Value(request.updatedAt.toUtc()),
               ),
             );
 
@@ -180,7 +180,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
             await woQuery.write(
               WorkOrdersCompanion(
                 status: Value(WorkOrderStatus.completed.code),
-                completedAt: Value(DateTime.now()),
+                completedAt: Value(DateTime.now().toUtc()),
                 completionReason: request.customReason != null
                     ? Value(request.customReason)
                     : const Value.absent(),
@@ -190,14 +190,14 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
                 completionSectorId: request.sectorId != null
                     ? Value(request.sectorId)
                     : const Value.absent(),
-                updatedAt: Value(DateTime.now()),
+                updatedAt: Value(DateTime.now().toUtc()),
               ),
             );
           } else {
             await woQuery.write(
               WorkOrdersCompanion(
                 status: Value(WorkOrderStatus.pendingConclusionApproval.code),
-                updatedAt: Value(DateTime.now()),
+                updatedAt: Value(DateTime.now().toUtc()),
               ),
             );
           }
@@ -205,7 +205,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           await woQuery.write(
             WorkOrdersCompanion(
               status: Value(WorkOrderStatus.onHold.code),
-              updatedAt: Value(DateTime.now()),
+              updatedAt: Value(DateTime.now().toUtc()),
             ),
           );
         }
@@ -238,7 +238,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           responsibility: responsibility != null
               ? Value(responsibility)
               : const Value.absent(),
-          updatedAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now().toUtc()),
         ),
       );
       return const SuccessState(data: true);
@@ -270,7 +270,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
             responsibility: responsibility != null
                 ? Value(responsibility)
                 : const Value.absent(),
-            updatedAt: Value(DateTime.now()),
+            updatedAt: Value(DateTime.now().toUtc()),
           ),
         );
 
@@ -282,7 +282,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           await woQuery.write(
             WorkOrdersCompanion(
               status: Value(WorkOrderStatus.completed.code),
-              completedAt: Value(DateTime.now()),
+              completedAt: Value(DateTime.now().toUtc()),
               completionReason: completionReason != null
                   ? Value(completionReason)
                   : const Value.absent(),
@@ -292,7 +292,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
               completionSectorId: completionSectorId != null
                   ? Value(completionSectorId)
                   : const Value.absent(),
-              updatedAt: Value(DateTime.now()),
+              updatedAt: Value(DateTime.now().toUtc()),
             ),
           );
         } else {
@@ -300,7 +300,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
             WorkOrdersCompanion(
               status: Value(WorkOrderStatus.inProgress.code),
               completedAt: const Value(null),
-              updatedAt: Value(DateTime.now()),
+              updatedAt: Value(DateTime.now().toUtc()),
             ),
           );
         }
@@ -322,9 +322,9 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           ..where((t) => t.id.equals(id));
         await query.write(
           WorkOrderPauseRequestsCompanion(
-            resumedAt: Value(resumedAt),
+            resumedAt: Value(resumedAt.toUtc()),
             resumedById: Value(resumedById),
-            updatedAt: Value(DateTime.now()),
+            updatedAt: Value(DateTime.now().toUtc()),
           ),
         );
 
@@ -333,7 +333,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
         await woQuery.write(
           WorkOrdersCompanion(
             status: Value(WorkOrderStatus.inProgress.code),
-            updatedAt: Value(DateTime.now()),
+            updatedAt: Value(DateTime.now().toUtc()),
           ),
         );
       });
