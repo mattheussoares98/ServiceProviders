@@ -843,7 +843,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       emit(
         state.copyWith(
           status: StateStatus.deletingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -865,7 +865,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -886,7 +886,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       emit(
         state.copyWith(
           status: StateStatus.savingError,
-          errorMessage: state.errorMessage,
+          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
