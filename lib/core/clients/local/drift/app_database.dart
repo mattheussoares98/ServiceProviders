@@ -75,6 +75,16 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      // Local Drift SQLite operates as an offline read-through cache for Supabase.
+      // Remote API responses arrive asynchronously and independently (e.g. child records
+      // like user profiles, observations, or attachments can be cached before parent records
+      // like companies or work orders are fetched). Disabling runtime foreign key enforcement
+      // in the local cache prevents SQLite constraint failures (code 787) on out-of-order writes
+      // while preserving schema definitions, indexes, and Drift join queries. Relational
+      // integrity is enforced server-side by PostgreSQL on Supabase.
+      await customStatement('PRAGMA foreign_keys = OFF;');
+    },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.addColumn(userProfiles, userProfiles.isAdmin);
