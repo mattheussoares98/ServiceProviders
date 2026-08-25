@@ -55,7 +55,6 @@ void main() {
     );
     workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
       database: db,
-      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
 
     companyId = IntegrationConfig.companyId;

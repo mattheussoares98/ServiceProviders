@@ -89,10 +89,14 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - ~~**Provider observations.**~~ Done via `supabase/migrations/20260820140000_allow_provider_authored_observations.sql`: `author_id` is nullable, `author_provider_profile_id` was added with a single-author CHECK, and the INSERT/UPDATE policies key the provider branch off `is_own_provider_profile`. `WorkOrderObservationsCubit` resolves the session user's provider profile for the work order's provider company and stamps the tenant from the work order. Applied 2026-08-21.
 - ~~**Location and asset labels render blank in provider mode.**~~ Done (2026-08-21) via `supabase/migrations/20260821120000_add_provider_read_access_to_work_order_lookups.sql`: `locations`, `areas` and `assets` gained a provider SELECT branch, granted per work order rather than per contracting company — a provider reads only the rows its own assigned work orders point at. (Locations and areas were widened the same day by `20260821140000` for the create form; `assets` still uses this grant.) This also unblocks `getWorkOrderById`, whose `locations!inner` join made a provider's details reload return "not found". On the Flutter side those cubits cannot fetch by company in provider mode, so `getLocationsByIds` / `getAreasByIds` / `getAssetsByIds` were added down the stack (online-only, no Drift caching, same rationale as `getProviderWorkOrders`) and `ProviderLookupsLoader` feeds them the ids of the loaded work orders. Failures are silent — these are optional labels.
 
-### Gap 3 — Outbound sync does not exist 🔴
-Sync is pull-only (`syncWorkOrders`, work orders only). Offline writes land in Drift and are never pushed. `sync_audit_logs` is declared in the Drift schema but unused.
-
-**Impact:** the offline-first promise in [Architecture](/docs/cmms/architecture.md) is not met. Data created in the field without connectivity is silently lost to the server.
+### Gap 3 — Outbound Sync & Sync Engine ✅ IMPLEMENTED
+**Done:**
+- Local FIFO mutation queue backed by Drift [`SyncAuditLogs`](file:///Users/mattheus/Development/Projects/ServiceProviders/lib/core/clients/local/drift/tables/sync_audit_logs_table.dart).
+- `SyncEngine` (`lib/features/sync/domain/services/sync_engine.dart`) auto-syncs on network reconnection and on a 30s periodic timer.
+- `ProcessSyncQueueUseCase` with dynamic company max attempts retry limits, cascading cancellation of dependent child entities on parent create failure, and error telemetry dispatch to remote `sync_errors`.
+- `WorkOrderSyncErrorBanner` and `SyncEngine.watchDeadLetterItemsForEntity` for inspecting dead letters and manual retry.
+- Inbound delta sync overwrite prevention: `syncWorkOrders` only runs when pending queue count reaches 0, emitting `onSyncCompleted` to reload UI in `WorkOrdersCubit`.
+- Work orders, checklist tasks, observations, and pause requests offline mutation handlers wired.
 
 ### Gap 4 — No real-time ([V2 §11](/docs/cmms/v2_features.md)) 🟡
 Supabase Realtime is not referenced anywhere in `lib/`. Lists refresh only on manual pull or cubit init. Design is already resolved (Option A toast / Option B scroll-aware buffering).

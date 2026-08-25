@@ -68,7 +68,6 @@ void main() {
     sectorsRemote = SectorsRemoteDataSourceImpl(database: db);
     workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
       database: db,
-      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
     pauseRemote = PauseRemoteDataSourceImpl(database: db);
 
