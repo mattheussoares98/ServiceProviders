@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +23,10 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
@@ -55,6 +61,7 @@ void main() {
   late MockCreateAssetUseCase mockCreateAsset;
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
+  late MockWatchAssetsRealtimeUseCase mockWatchAssetsRealtime;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
 
@@ -73,6 +80,7 @@ void main() {
     mockCreateAsset = MockCreateAssetUseCase();
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
+    mockWatchAssetsRealtime = MockWatchAssetsRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
@@ -82,6 +90,9 @@ void main() {
     when(
       () => mockGetActiveCompanyIdUseCase.call(),
     ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = AssetsCubitUseCases(
       getAssets: mockGetAssets,
@@ -91,6 +102,7 @@ void main() {
       updateAsset: mockUpdateAsset,
       deleteAsset: mockDeleteAsset,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+      watchAssetsRealtime: mockWatchAssetsRealtime,
     );
 
     cubit = AssetsCubit(useCases: useCases);
@@ -681,6 +693,163 @@ void main() {
             ),
           ).called(1);
         },
+      );
+    });
+
+    group('Realtime Events', () {
+      final tInitialAsset = EntityFactory.makeAssetEntity();
+      final tNewAsset = EntityFactory.makeAssetEntity();
+
+      blocTest<AssetsCubit, AssetsState>(
+        'prepends new asset on insert event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<AssetEntity>>();
+          when(
+            () =>
+                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = AssetsCubit(
+            useCases: AssetsCubitUseCases(
+              getAssets: mockGetAssets,
+              getAssetsByIds: mockGetAssetsByIds,
+              getAssetById: mockGetAssetById,
+              createAsset: mockCreateAsset,
+              updateAsset: mockUpdateAsset,
+              deleteAsset: mockDeleteAsset,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              watchAssetsRealtime: mockWatchAssetsRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              assets: [tInitialAsset],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<AssetEntity>(
+              eventType: RealtimeEventType.insert,
+              id: tNewAsset.id,
+              companyId: tUserProfile.companyId,
+              entity: tNewAsset,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.assets,
+            'assets',
+            [tNewAsset, tInitialAsset],
+          ),
+        ],
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'updates existing asset in-place on update event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<AssetEntity>>();
+          when(
+            () =>
+                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = AssetsCubit(
+            useCases: AssetsCubitUseCases(
+              getAssets: mockGetAssets,
+              getAssetsByIds: mockGetAssetsByIds,
+              getAssetById: mockGetAssetById,
+              createAsset: mockCreateAsset,
+              updateAsset: mockUpdateAsset,
+              deleteAsset: mockDeleteAsset,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              watchAssetsRealtime: mockWatchAssetsRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              assets: [tInitialAsset],
+            ),
+          );
+
+          final updatedAsset = tInitialAsset.copyWith(name: 'Updated Asset');
+
+          streamController.add(
+            RealtimeEvent<AssetEntity>(
+              eventType: RealtimeEventType.update,
+              id: tInitialAsset.id,
+              companyId: tUserProfile.companyId,
+              entity: updatedAsset,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.assets.first.name,
+            'asset name',
+            'Updated Asset',
+          ),
+        ],
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'removes asset on delete event',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<AssetEntity>>();
+          when(
+            () =>
+                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = AssetsCubit(
+            useCases: AssetsCubitUseCases(
+              getAssets: mockGetAssets,
+              getAssetsByIds: mockGetAssetsByIds,
+              getAssetById: mockGetAssetById,
+              createAsset: mockCreateAsset,
+              updateAsset: mockUpdateAsset,
+              deleteAsset: mockDeleteAsset,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              watchAssetsRealtime: mockWatchAssetsRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              assets: [tInitialAsset],
+            ),
+          );
+
+          streamController.add(
+            RealtimeEvent<AssetEntity>(
+              eventType: RealtimeEventType.delete,
+              id: tInitialAsset.id,
+              companyId: tUserProfile.companyId,
+              entity: null,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.assets,
+            'assets',
+            isEmpty,
+          ),
+        ],
       );
     });
   });
