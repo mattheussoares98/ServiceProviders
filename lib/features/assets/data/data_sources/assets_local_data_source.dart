@@ -143,15 +143,15 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
               manufacturer: Value(asset.manufacturer),
               model: Value(asset.model),
               serialNumber: Value(asset.serialNumber),
-              installDate: Value(asset.installDate),
-              warrantyExpiration: Value(asset.warrantyExpiration),
-              revisionForecast: Value(asset.revisionForecast),
+              installDate: Value(asset.installDate?.toUtc()),
+              warrantyExpiration: Value(asset.warrantyExpiration?.toUtc()),
+              revisionForecast: Value(asset.revisionForecast?.toUtc()),
               status: Value(asset.status.code),
               criticality: Value(asset.criticality.code),
               notes: Value(asset.notes),
-              createdAt: Value(asset.createdAt),
-              updatedAt: Value(asset.updatedAt),
-              deletedAt: Value(asset.deletedAt),
+              createdAt: Value(asset.createdAt.toUtc()),
+              updatedAt: Value(asset.updatedAt.toUtc()),
+              deletedAt: Value(asset.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -163,7 +163,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.assets)
         ..where((t) => t.id.equals(id));
-      await query.write(AssetsCompanion(deletedAt: Value(DateTime.now())));
+      await query.write(
+        AssetsCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -187,15 +189,15 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
                   manufacturer: Value(asset.manufacturer),
                   model: Value(asset.model),
                   serialNumber: Value(asset.serialNumber),
-                  installDate: Value(asset.installDate),
-                  warrantyExpiration: Value(asset.warrantyExpiration),
-                  revisionForecast: Value(asset.revisionForecast),
+                  installDate: Value(asset.installDate?.toUtc()),
+                  warrantyExpiration: Value(asset.warrantyExpiration?.toUtc()),
+                  revisionForecast: Value(asset.revisionForecast?.toUtc()),
                   status: Value(asset.status.code),
                   criticality: Value(asset.criticality.code),
                   notes: Value(asset.notes),
-                  createdAt: Value(asset.createdAt),
-                  updatedAt: Value(asset.updatedAt),
-                  deletedAt: Value(asset.deletedAt),
+                  createdAt: Value(asset.createdAt.toUtc()),
+                  updatedAt: Value(asset.updatedAt.toUtc()),
+                  deletedAt: Value(asset.deletedAt?.toUtc()),
                 ),
               )
               .toList(),
