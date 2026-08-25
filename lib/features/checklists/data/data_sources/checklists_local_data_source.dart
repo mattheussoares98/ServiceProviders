@@ -109,9 +109,9 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
               name: Value(template.name),
               description: Value(template.description),
               categoryId: Value(template.categoryId),
-              createdAt: Value(template.createdAt),
-              updatedAt: Value(template.updatedAt),
-              deletedAt: Value(template.deletedAt),
+              createdAt: Value(template.createdAt.toUtc()),
+              updatedAt: Value(template.updatedAt.toUtc()),
+              deletedAt: Value(template.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -123,7 +123,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
     return ErrorHandler.execute(() async {
       await (_database.update(_database.checklistTemplates)
             ..where((t) => t.id.equals(id)))
-          .write(ChecklistTemplatesCompanion(deletedAt: Value(DateTime.now())));
+          .write(
+            ChecklistTemplatesCompanion(
+              deletedAt: Value(DateTime.now().toUtc()),
+            ),
+          );
       return const SuccessState(data: true);
     });
   }
@@ -183,8 +187,8 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                 item.options != null ? jsonEncode(item.options) : null,
               ),
               sortOrder: Value(item.sortOrder),
-              createdAt: Value(item.createdAt),
-              deletedAt: Value(item.deletedAt),
+              createdAt: Value(item.createdAt.toUtc()),
+              deletedAt: Value(item.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -196,7 +200,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
     return ErrorHandler.execute(() async {
       await (_database.update(_database.checklistItems)
             ..where((t) => t.id.equals(id)))
-          .write(ChecklistItemsCompanion(deletedAt: Value(DateTime.now())));
+          .write(
+            ChecklistItemsCompanion(
+              deletedAt: Value(DateTime.now().toUtc()),
+            ),
+          );
       return const SuccessState(data: true);
     });
   }
@@ -220,8 +228,8 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                 workOrderId: t.workOrderId,
                 checklistItemId: t.title,
                 booleanValue: t.isCompleted,
-                createdAt: t.createdAt,
-                updatedAt: t.updatedAt,
+                createdAt: t.createdAt.toUtc(),
+                updatedAt: t.updatedAt.toUtc(),
               ),
             )
             .toList(),
@@ -240,8 +248,8 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
               workOrderId: Value(response.workOrderId),
               title: Value(response.checklistItemId),
               isCompleted: Value(response.booleanValue ?? false),
-              createdAt: Value(response.createdAt),
-              updatedAt: Value(response.updatedAt),
+              createdAt: Value(response.createdAt.toUtc()),
+              updatedAt: Value(response.updatedAt.toUtc()),
             ),
           );
       return const SuccessState(data: true);
