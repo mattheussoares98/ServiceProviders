@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_detail_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_switcher_section.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
@@ -76,7 +77,6 @@ class _CompanyBody extends StatelessWidget {
                 return Center(
                   child: BaseText.bodyLarge(
                     'Nenhuma empresa foi encontrada'.hardcoded,
-                    color: context.colorScheme.error,
                   ),
                 );
               }
@@ -97,6 +97,11 @@ class _CompanyBody extends StatelessWidget {
                       );
                     },
                   ),
+                  if (state.parameters != null)
+                    EscalationParametersCard(
+                      parameters: state.parameters!,
+                      permissionGroups: state.permissionGroups,
+                    ),
                 ],
               );
           }
