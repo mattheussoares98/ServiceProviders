@@ -30,6 +30,8 @@ void main() {
   late MockNavigationClient mockNavigationClient;
   late MockGetSessionUserUseCase mockGetSessionUserUseCase;
   late MockGetCompanyUseCase mockGetCompanyUseCase;
+  late MockGetAllCompaniesUseCase mockGetAllCompaniesUseCase;
+  late MockSetSelectedCompanyIdUseCase mockSetSelectedCompanyIdUseCase;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late MockUpdateCompanyLogoUseCase mockUpdateCompanyLogoUseCase;
   late MockPickAttachmentUseCase mockPickAttachmentUseCase;
@@ -60,11 +62,16 @@ void main() {
     mockNavigationClient = MockNavigationClient();
     mockGetSessionUserUseCase = MockGetSessionUserUseCase();
     mockGetCompanyUseCase = MockGetCompanyUseCase();
+    mockGetAllCompaniesUseCase = MockGetAllCompaniesUseCase();
+    mockSetSelectedCompanyIdUseCase = MockSetSelectedCompanyIdUseCase();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockUpdateCompanyLogoUseCase = MockUpdateCompanyLogoUseCase();
     mockPickAttachmentUseCase = MockPickAttachmentUseCase();
 
-    userSession = EntityFactory.makeUserProfileEntity().copyWith(isAdmin: true);
+    userSession = EntityFactory.makeUserProfileEntity().copyWith(
+      isAdmin: true,
+      email: 'regular@example.com',
+    );
 
     locator
       ..registerSingleton<CreateCompanyUseCase>(mockCreateCompanyUseCase)
@@ -79,12 +86,18 @@ void main() {
     when(() => mockGetCompanyUseCase.call(any())).thenAnswer(
       (_) async => SuccessState(data: EntityFactory.makeCompanyEntity()),
     );
+    when(() => mockGetAllCompaniesUseCase.call()).thenAnswer(
+      (_) async => SuccessState(data: EntityFactory.makeCompanyEntityList()),
+    );
+    when(() => mockSetSelectedCompanyIdUseCase.call(any())).thenAnswer((_) async {});
 
     companyCubit = CompanyCubit(
       useCases: CompanyCubitUseCases(
         createCompany: mockCreateCompanyUseCase,
         getSessionUser: mockGetSessionUserUseCase,
         getCompany: mockGetCompanyUseCase,
+        getAllCompanies: mockGetAllCompaniesUseCase,
+        setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
         getActiveCompanyId: mockGetActiveCompanyIdUseCase,
         updateCompanyLogo: mockUpdateCompanyLogoUseCase,
         pickAttachment: mockPickAttachmentUseCase,
@@ -274,6 +287,7 @@ void main() {
       build: () {
         userSession = EntityFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
+          email: 'regular@example.com',
         );
         when(
           () => mockGetSessionUserUseCase.call(),
@@ -291,6 +305,109 @@ void main() {
         verify(
           () => mockGetCompanyUseCase.call(any(), forceRefresh: true),
         ).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should call getAllCompanies when user is super admin',
+      build: () {
+        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        final companies = EntityFactory.makeCompanyEntityList();
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        when(() => mockGetAllCompaniesUseCase.call()).thenAnswer(
+          (_) async => SuccessState(data: companies),
+        );
+        when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn(companies.first.id);
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<CompanyState>()
+            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having((state) => state.companies.length, 'companies.length', 3)
+            .having((state) => state.company?.id, 'company.id', isNotEmpty),
+      ],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit loadingError when getAllCompanies fails for super admin',
+      build: () {
+        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        when(() => mockGetAllCompaniesUseCase.call()).thenAnswer(
+          (_) async => FailureState(message: 'Failed to load all'),
+        );
+        return companyCubit;
+      },
+      act: (cubit) => cubit.loadCompany(),
+      expect: () => [
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loading,
+        ),
+        isA<CompanyState>().having(
+          (state) => state.status,
+          'status',
+          StateStatus.loadingError,
+        ),
+      ],
+    );
+  });
+
+  group('switchCompany', () {
+    final companies = EntityFactory.makeCompanyEntityList();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should do nothing when user is not super admin',
+      build: () {
+        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'regular@example.com',
+        );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(regularUser);
+        return companyCubit;
+      },
+      act: (cubit) => cubit.switchCompany('target_company_id'),
+      expect: () => <CompanyState>[],
+      verify: (_) {
+        verifyNever(() => mockSetSelectedCompanyIdUseCase.call(any()));
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should call setSelectedCompanyId and update company in state when user is super admin',
+      build: () {
+        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        when(() => mockSetSelectedCompanyIdUseCase.call(any())).thenAnswer((_) async {});
+        return companyCubit
+          ..emit(
+            CompanyState(
+              status: StateStatus.loaded,
+              companies: companies,
+              company: companies.first,
+            ),
+          );
+      },
+      act: (cubit) => cubit.switchCompany(companies[1].id),
+      expect: () => [
+        isA<CompanyState>()
+            .having((s) => s.selectedCompanyId, 'selectedCompanyId', companies[1].id)
+            .having((s) => s.company?.id, 'company.id', companies[1].id),
+      ],
+      verify: (_) {
+        verify(() => mockSetSelectedCompanyIdUseCase.call(companies[1].id)).called(1);
       },
     );
   });
@@ -317,6 +434,8 @@ void main() {
             createCompany: mockCreateCompanyUseCase,
             getSessionUser: mockGetSessionUserUseCase,
             getCompany: mockGetCompanyUseCase,
+            getAllCompanies: mockGetAllCompaniesUseCase,
+            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -338,6 +457,8 @@ void main() {
             createCompany: mockCreateCompanyUseCase,
             getSessionUser: mockGetSessionUserUseCase,
             getCompany: mockGetCompanyUseCase,
+            getAllCompanies: mockGetAllCompaniesUseCase,
+            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -373,6 +494,8 @@ void main() {
             createCompany: mockCreateCompanyUseCase,
             getSessionUser: mockGetSessionUserUseCase,
             getCompany: mockGetCompanyUseCase,
+            getAllCompanies: mockGetAllCompaniesUseCase,
+            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,
@@ -409,6 +532,8 @@ void main() {
             createCompany: mockCreateCompanyUseCase,
             getSessionUser: mockGetSessionUserUseCase,
             getCompany: mockGetCompanyUseCase,
+            getAllCompanies: mockGetAllCompaniesUseCase,
+            setSelectedCompanyId: mockSetSelectedCompanyIdUseCase,
             getActiveCompanyId: mockGetActiveCompanyIdUseCase,
             updateCompanyLogo: mockUpdateCompanyLogoUseCase,
             pickAttachment: mockPickAttachmentUseCase,

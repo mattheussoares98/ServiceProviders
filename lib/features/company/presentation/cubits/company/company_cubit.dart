@@ -21,10 +21,40 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   final CompanyCubitUseCases _useCases;
 
   Future<void> loadCompany({bool forceRefresh = false}) async {
-    final companyId = _useCases.getActiveCompanyId();
-
+    final user = _useCases.getSessionUser();
     emit(state.copyWith(status: StateStatus.loading));
 
+    if (user.isSuperAdmin) {
+      final allCompaniesState = await _useCases.getAllCompanies();
+      if (isClosed) return;
+
+      if (allCompaniesState is SuccessState<List<CompanyEntity>>) {
+        final companies = allCompaniesState.data ?? [];
+        final activeCompanyId = _useCases.getActiveCompanyId();
+        CompanyEntity? activeCompany;
+        if (companies.isNotEmpty) {
+          activeCompany = companies.firstWhere(
+            (c) => c.id == activeCompanyId,
+            orElse: () => companies.first,
+          );
+        }
+        emit(
+          state.copyWith(
+            status: StateStatus.loaded,
+            companies: companies,
+            company: activeCompany,
+            selectedCompanyId: activeCompany?.id,
+          ),
+        );
+        return;
+      } else {
+        emit(state.copyWith(status: StateStatus.loadingError));
+        showDataStateToast(allCompaniesState);
+        return;
+      }
+    }
+
+    final companyId = _useCases.getActiveCompanyId();
     final dataState = await _useCases.getCompany(
       companyId,
       forceRefresh: forceRefresh,
@@ -32,11 +62,42 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<CompanyEntity>) {
-      emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
+      emit(
+        state.copyWith(
+          status: StateStatus.loaded,
+          company: dataState.data,
+          companies: dataState.data != null ? [dataState.data!] : const [],
+          selectedCompanyId: dataState.data?.id,
+        ),
+      );
     } else {
       emit(state.copyWith(status: StateStatus.loadingError));
       showDataStateToast(dataState);
     }
+  }
+
+  Future<void> switchCompany(String companyId) async {
+    final user = _useCases.getSessionUser();
+    if (!user.isSuperAdmin) return;
+
+    await _useCases.setSelectedCompanyId(companyId);
+    CompanyEntity? selectedCompany;
+    if (state.companies.isNotEmpty) {
+      for (final c in state.companies) {
+        if (c.id == companyId) {
+          selectedCompany = c;
+          break;
+        }
+      }
+    }
+
+    emit(
+      state.copyWith(
+        company: selectedCompany,
+        selectedCompanyId: companyId,
+      ),
+    );
+    showSuccessToast('Empresa ativa alterada com sucesso'.hardcoded);
   }
 
   Future<void> createCompany({required String name, String? cnpj}) async {
