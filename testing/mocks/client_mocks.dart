@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -49,3 +50,5 @@ class MockNavigationClient extends Mock implements NavigationClient {
 class MockStorageClient extends Mock implements StorageClient {}
 
 class MockOfflineTracker extends Mock implements OfflineTracker {}
+
+class MockSupabaseRealtimeClient extends Mock implements SupabaseRealtimeClient {}
