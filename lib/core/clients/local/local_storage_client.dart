@@ -12,7 +12,7 @@ abstract interface class LocalStorageClient {
   bool getPushNotifications();
   Future<void> saveSelectedMode(String? mode);
   String? getSelectedMode();
-  Future<void> saveSelectedCompanyId(String companyId);
+  Future<void> saveSelectedCompanyId(String? companyId);
   String? getSelectedCompanyId();
   Future<void> saveUserSession(UserDataEntity userSession);
   UserDataEntity? getUserSession();
@@ -133,7 +133,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
   String? getSelectedMode() => _selectedMode;
 
   @override
-  Future<void> saveSelectedCompanyId(String companyId) async {
+  Future<void> saveSelectedCompanyId(String? companyId) async {
     _selectedCompanyId = companyId;
     await _database
         .into(_database.appSettings)
