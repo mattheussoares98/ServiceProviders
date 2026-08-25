@@ -124,11 +124,11 @@ final class MaintenancePlansLocalDataSourceImpl
               assignedToId: Value(plan.assignedToId),
               priority: Value(plan.priority.code),
               isActive: Value(plan.isActive),
-              lastGeneratedAt: Value(plan.lastGeneratedAt),
-              nextDueDate: Value(plan.nextDueDate),
-              createdAt: Value(plan.createdAt),
-              updatedAt: Value(plan.updatedAt),
-              deletedAt: Value(plan.deletedAt),
+              lastGeneratedAt: Value(plan.lastGeneratedAt?.toUtc()),
+              nextDueDate: Value(plan.nextDueDate?.toUtc()),
+              createdAt: Value(plan.createdAt.toUtc()),
+              updatedAt: Value(plan.updatedAt.toUtc()),
+              deletedAt: Value(plan.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -140,7 +140,11 @@ final class MaintenancePlansLocalDataSourceImpl
     return ErrorHandler.execute(() async {
       await (_database.update(_database.maintenancePlans)
             ..where((t) => t.id.equals(id)))
-          .write(MaintenancePlansCompanion(deletedAt: Value(DateTime.now())));
+          .write(
+            MaintenancePlansCompanion(
+              deletedAt: Value(DateTime.now().toUtc()),
+            ),
+          );
       return const SuccessState(data: true);
     });
   }
