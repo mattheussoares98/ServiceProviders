@@ -172,13 +172,13 @@ $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    -- Unschedule existing job if present
-    PERFORM cron.unschedule('evaluate-work-order-escalations');
-  EXCEPTION
-    WHEN OTHERS THEN NULL;
-  END;
-  
-  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    BEGIN
+      -- Unschedule existing job if present
+      PERFORM cron.unschedule('evaluate-work-order-escalations');
+    EXCEPTION
+      WHEN OTHERS THEN NULL;
+    END;
+    
     PERFORM cron.schedule(
       'evaluate-work-order-escalations',
       '*/5 * * * *',
