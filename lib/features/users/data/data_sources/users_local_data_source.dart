@@ -83,9 +83,9 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               permissionGroupId: Value(user.permissionGroupId),
               avatarUrl: Value(user.avatarUrl),
               isActive: Value(user.isActive),
-              createdAt: Value(user.createdAt),
-              updatedAt: Value(user.updatedAt),
-              deletedAt: Value(user.deletedAt),
+              createdAt: Value(user.createdAt.toUtc()),
+              updatedAt: Value(user.updatedAt.toUtc()),
+              deletedAt: Value(user.deletedAt?.toUtc()),
               permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           );
@@ -110,9 +110,9 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               permissionGroupId: Value(user.permissionGroupId),
               avatarUrl: Value(user.avatarUrl),
               isActive: Value(user.isActive),
-              createdAt: Value(user.createdAt),
-              updatedAt: Value(user.updatedAt),
-              deletedAt: Value(user.deletedAt),
+              createdAt: Value(user.createdAt.toUtc()),
+              updatedAt: Value(user.updatedAt.toUtc()),
+              deletedAt: Value(user.deletedAt?.toUtc()),
               permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           ),
@@ -127,7 +127,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
     return ErrorHandler.execute(() async {
       await (_database.update(_database.userProfiles)
             ..where((t) => t.id.equals(id)))
-          .write(UserProfilesCompanion(deletedAt: Value(DateTime.now())));
+          .write(UserProfilesCompanion(deletedAt: Value(DateTime.now().toUtc())));
       return const SuccessState(data: true);
     });
   }
@@ -161,8 +161,8 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               name: Value(group.name),
               permissions: Value(jsonEncode(group.toJson()['permissions'])),
               isDefault: Value(group.isDefault),
-              createdAt: Value(group.createdAt),
-              deletedAt: Value(group.deletedAt),
+              createdAt: Value(group.createdAt.toUtc()),
+              deletedAt: Value(group.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -182,8 +182,8 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               name: Value(group.name),
               permissions: Value(jsonEncode(group.toJson()['permissions'])),
               isDefault: Value(group.isDefault),
-              createdAt: Value(group.createdAt),
-              deletedAt: Value(group.deletedAt),
+              createdAt: Value(group.createdAt.toUtc()),
+              deletedAt: Value(group.deletedAt?.toUtc()),
             ),
           ),
         );
@@ -197,7 +197,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
     return ErrorHandler.execute(() async {
       await (_database.update(_database.permissionGroups)
             ..where((t) => t.id.equals(id)))
-          .write(PermissionGroupsCompanion(deletedAt: Value(DateTime.now())));
+          .write(PermissionGroupsCompanion(deletedAt: Value(DateTime.now().toUtc())));
       return const SuccessState(data: true);
     });
   }
