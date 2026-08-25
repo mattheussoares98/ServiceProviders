@@ -71,6 +71,13 @@ class _ActiveFilters extends StatelessWidget {
             filter.copyWith(annulSearchText: true),
           ),
         ),
+      if (filter.isDelayed)
+        BaseRemovableChip(
+          label: 'Atrasadas'.hardcoded,
+          onRemove: () => context.read<WorkOrdersCubit>().applyFilter(
+            filter.copyWith(isDelayed: false),
+          ),
+        ),
     ];
 
     if (PlatformUtil.isMobile) {

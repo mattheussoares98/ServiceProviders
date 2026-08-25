@@ -32,6 +32,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
   String? _assignedToId;
   DateTime? _scheduledDateFrom;
   DateTime? _scheduledDateTo;
+  bool _isDelayed = false;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -43,6 +44,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
     _assignedToId = widget.currentFilter.assignedToId;
     _scheduledDateFrom = widget.currentFilter.scheduledDateFrom;
     _scheduledDateTo = widget.currentFilter.scheduledDateTo;
+    _isDelayed = widget.currentFilter.isDelayed;
     _searchController.text = widget.currentFilter.searchText ?? '';
   }
 
@@ -81,6 +83,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
       scheduledDateFrom: _scheduledDateFrom,
       scheduledDateTo: _scheduledDateTo,
       searchText: _searchController.text.trimToNull(),
+      isDelayed: _isDelayed,
     );
     context.read<WorkOrdersCubit>().applyFilter(filter);
     Navigator.of(context).pop();
@@ -94,6 +97,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
       _assignedToId = null;
       _scheduledDateFrom = null;
       _scheduledDateTo = null;
+      _isDelayed = false;
       _searchController.clear();
     });
   }
@@ -233,6 +237,16 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                     ),
                   ),
                 ],
+              ),
+              gapH20,
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: BaseText('Apenas ordens atrasadas'.hardcoded),
+                subtitle: BaseText.bodySmall(
+                  'Filtrar ordens não concluídas com SLA vencido'.hardcoded,
+                ),
+                value: _isDelayed,
+                onChanged: (val) => setState(() => _isDelayed = val),
               ),
               gapH24,
             ],
