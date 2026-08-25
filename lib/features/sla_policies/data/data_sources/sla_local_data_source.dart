@@ -83,9 +83,9 @@ final class SlaLocalDataSourceImpl implements SlaLocalDataSource {
               name: Value(slaPolicy.name),
               targetHours: Value(slaPolicy.targetHours),
               appliesTo: Value(slaPolicy.appliesTo.value),
-              createdAt: Value(slaPolicy.createdAt),
-              updatedAt: Value(slaPolicy.updatedAt),
-              deletedAt: Value(slaPolicy.deletedAt),
+              createdAt: Value(slaPolicy.createdAt.toUtc()),
+              updatedAt: Value(slaPolicy.updatedAt.toUtc()),
+              deletedAt: Value(slaPolicy.deletedAt?.toUtc()),
             ),
           );
       return const SuccessState(data: true);
@@ -95,7 +95,7 @@ final class SlaLocalDataSourceImpl implements SlaLocalDataSource {
   @override
   FutureBool deleteSlaPolicy(String id) {
     return ErrorHandler.execute(() async {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       await (_database.update(_database.slaPolicies)..where((t) => t.id.equals(id)))
           .write(SlaPoliciesCompanion(deletedAt: Value(now)));
       return const SuccessState(data: true);
