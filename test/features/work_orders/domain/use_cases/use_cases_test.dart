@@ -24,6 +24,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -43,6 +44,7 @@ void main() {
   late ReviewWorkOrderChangeRequestUseCase reviewWorkOrderChangeRequestUseCase;
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
   late SyncWorkOrdersUseCase syncWorkOrdersUseCase;
+  late WatchWorkOrdersRealtimeUseCase watchWorkOrdersRealtimeUseCase;
 
   late GetPauseReasonsUseCase getPauseReasonsUseCase;
   late GetPauseRequestsUseCase getPauseRequestsUseCase;
@@ -123,6 +125,9 @@ void main() {
       workOrdersRepository: mockRepository,
     );
     syncWorkOrdersUseCase = SyncWorkOrdersUseCase(
+      workOrdersRepository: mockRepository,
+    );
+    watchWorkOrdersRealtimeUseCase = WatchWorkOrdersRealtimeUseCase(
       workOrdersRepository: mockRepository,
     );
     getPauseReasonsUseCase = GetPauseReasonsUseCase(
@@ -794,5 +799,23 @@ void main() {
         ).called(1);
       },
     );
+  });
+
+  group('WatchWorkOrdersRealtimeUseCase', () {
+    test('should delegate to watchRealtimeWorkOrders on workOrdersRepository', () {
+      final tEvent = EntityFactory.makeRealtimeWorkOrderEvent();
+      when(
+        () => mockRepository.watchRealtimeWorkOrders(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer((_) => Stream.value(tEvent));
+
+      final stream = watchWorkOrdersRealtimeUseCase(companyId: 'company-123');
+
+      expect(stream, emits(tEvent));
+      verify(
+        () => mockRepository.watchRealtimeWorkOrders(companyId: 'company-123'),
+      ).called(1);
+    });
   });
 }

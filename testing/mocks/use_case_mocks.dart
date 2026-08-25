@@ -49,6 +49,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/revoke_invitation
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission_group_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 

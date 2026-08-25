@@ -1,5 +1,6 @@
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/realtime_work_order_event.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -48,4 +49,7 @@ abstract interface class WorkOrdersRepository {
 
   // History
   FutureList<WorkOrderHistoryEntity> getWorkOrderHistory(String workOrderId);
+
+  // Realtime
+  Stream<RealtimeWorkOrderEvent> watchRealtimeWorkOrders({String? companyId});
 }
