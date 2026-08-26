@@ -100,7 +100,6 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 5) {
         // Disable foreign keys temporarily during table recreation
-        await customStatement('PRAGMA foreign_keys = OFF;');
 
         await m.deleteTable('assets');
         await m.deleteTable('areas');
@@ -111,13 +110,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(categories);
         await m.createTable(areas);
         await m.createTable(assets);
-
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 6) {
         // Recreate tables to apply the case-insensitive COLLATE NOCASE constraints.
         // Disable foreign keys temporarily during table recreation
-        await customStatement('PRAGMA foreign_keys = OFF;');
 
         await m.deleteTable('assets');
         await m.deleteTable('areas');
@@ -128,8 +124,6 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(categories);
         await m.createTable(areas);
         await m.createTable(assets);
-
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 7) {
         await m.addColumn(userProfiles, userProfiles.permissions);
@@ -200,49 +194,37 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 23) {
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('work_order_pause_requests');
         await m.createTable(workOrderPauseRequests);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 24) {
         // author_id became nullable and author_provider_profile_id was added;
         // SQLite cannot drop a NOT NULL, so the table is recreated. The rows
         // are a read-through cache and refetch on the next load.
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('work_order_observations');
         await m.createTable(workOrderObservations);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 25) {
         // created_by_id became nullable and created_by_provider_profile_id was
         // added; SQLite cannot drop a NOT NULL, so the table is recreated. The
         // rows are a read-through cache and refetch on the next load.
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('work_orders');
         await m.createTable(workOrders);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 26) {
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('sync_audit_logs');
         await m.createTable(syncAuditLogs);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 27) {
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('company_parameters');
         await m.createTable(companyParameters);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
       if (from < 28) {
-        await customStatement('PRAGMA foreign_keys = OFF;');
         await m.deleteTable('company_parameters');
         await m.createTable(companyParameters);
         await m.addColumn(workOrders, workOrders.advanceWarningSentAt);
         await m.addColumn(workOrders, workOrders.lastEscalationLevel);
         await m.addColumn(workOrders, workOrders.lastEscalationAt);
-        await customStatement('PRAGMA foreign_keys = ON;');
       }
     },
   );
