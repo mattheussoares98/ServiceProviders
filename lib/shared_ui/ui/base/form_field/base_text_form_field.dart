@@ -24,6 +24,7 @@ class BaseTextFormField extends StatelessWidget {
     this.hintText,
     this.prefixIcon,
     this.suffixIcon,
+    this.suffixText,
     this.errorText,
     this.autovalidateMode,
     this.focusNode,
@@ -46,6 +47,7 @@ class BaseTextFormField extends StatelessWidget {
   final String? hintText;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
+  final String? suffixText;
   final String? errorText;
   final bool obscureText;
   final AutovalidateMode? autovalidateMode;
@@ -103,6 +105,7 @@ class BaseTextFormField extends StatelessWidget {
           hintText: hintText,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
+          suffixText: suffixText,
           errorText: errorText,
           isMultiLine: (maxLines ?? 1) > 1,
         ),

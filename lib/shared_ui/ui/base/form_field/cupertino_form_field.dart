@@ -167,9 +167,27 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                 prefix: dtf.prefixIcon == null
                     ? null
                     : _BuildIcon(widget: dtf.prefixIcon!),
-                suffix: dtf.suffixIcon == null
-                    ? null
-                    : _BuildIcon(widget: dtf.suffixIcon!),
+                suffix: dtf.suffixIcon != null || dtf.suffixText != null
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (dtf.suffixText != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: Sizes.p12,
+                              ),
+                              child: BaseText.bodySmall(
+                                dtf.suffixText!,
+                                color: isEnabled
+                                    ? colorScheme.onSurface.withAlpha(150)
+                                    : colorScheme.onSurface.withAlpha(100),
+                              ),
+                            ),
+                          if (dtf.suffixIcon != null)
+                            _BuildIcon(widget: dtf.suffixIcon!),
+                        ],
+                      )
+                    : null,
               ),
             ),
             if (state.hasError)

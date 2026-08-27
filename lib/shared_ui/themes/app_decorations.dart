@@ -10,6 +10,7 @@ class AppDecorations {
     String? hintText,
     Widget? prefixIcon,
     Widget? suffixIcon,
+    String? suffixText,
     String? errorText,
     bool? isMultiLine,
   }) {
@@ -42,6 +43,7 @@ class AppDecorations {
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
+      suffixText: suffixText,
       errorText: errorText,
       floatingLabelBehavior: FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
@@ -53,6 +55,12 @@ class AppDecorations {
       hintStyle: TextStyle(
         color: enabled
             ? colorScheme.onSurface.withAlpha(125)
+            : colorScheme.onSurface.withAlpha(100),
+        fontSize: 12,
+      ),
+      suffixStyle: TextStyle(
+        color: enabled
+            ? colorScheme.onSurface.withAlpha(150)
             : colorScheme.onSurface.withAlpha(100),
         fontSize: 12,
       ),
