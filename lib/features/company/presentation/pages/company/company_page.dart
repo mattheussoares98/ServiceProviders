@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_detail_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_switcher_section.dart';
-import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card/escalation_parameters_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
@@ -15,7 +15,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
@@ -25,7 +24,6 @@ class CompanyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
-      observeScreenChanges: true,
       onRefresh: () =>
           context.read<CompanyCubit>().loadCompany(forceRefresh: true),
       appBar: BaseAppBar(
@@ -56,57 +54,53 @@ class _CompanyBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(Sizes.p8),
-      child: BlocBuilder<CompanyCubit, CompanyState>(
-        builder: (context, state) {
-          switch (state.status) {
-            case StateStatus.loading:
-              return const Center(child: LoadingCircle());
-            case StateStatus.loadingError:
+    return BlocBuilder<CompanyCubit, CompanyState>(
+      builder: (context, state) {
+        switch (state.status) {
+          case StateStatus.loading:
+            return const Center(child: LoadingCircle());
+          case StateStatus.loadingError:
+            return Center(
+              child: BaseText.bodyLarge(
+                'Erro ao carregar dados da empresa'.hardcoded,
+                color: context.colorScheme.error,
+              ),
+            );
+          case StateStatus.loaded:
+          default:
+            final company = state.company;
+            if (company == null) {
               return Center(
                 child: BaseText.bodyLarge(
-                  'Erro ao carregar dados da empresa'.hardcoded,
-                  color: context.colorScheme.error,
+                  'Nenhuma empresa foi encontrada'.hardcoded,
                 ),
               );
-            case StateStatus.loaded:
-            default:
-              final company = state.company;
-              if (company == null) {
-                return Center(
-                  child: BaseText.bodyLarge(
-                    'Nenhuma empresa foi encontrada'.hardcoded,
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CompanyDetailCard(company: company),
+                BlocSelector<SessionCubit, SessionState, bool>(
+                  selector: (s) => s.user.isSuperAdmin,
+                  builder: (context, isSuperAdmin) {
+                    if (!isSuperAdmin || state.companies.length <= 1) {
+                      return const SizedBox.shrink();
+                    }
+                    return CompanySwitcherSection(
+                      companies: state.companies,
+                      selectedCompanyId: state.selectedCompanyId ?? company.id,
+                    );
+                  },
+                ),
+                if (state.parameters != null)
+                  EscalationParametersCard(
+                    parameters: state.parameters!,
+                    permissionGroups: state.permissionGroups,
                   ),
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CompanyDetailCard(company: company),
-                  BlocSelector<SessionCubit, SessionState, bool>(
-                    selector: (s) => s.user.isSuperAdmin,
-                    builder: (context, isSuperAdmin) {
-                      if (!isSuperAdmin || state.companies.length <= 1) {
-                        return const SizedBox.shrink();
-                      }
-                      return CompanySwitcherSection(
-                        companies: state.companies,
-                        selectedCompanyId:
-                            state.selectedCompanyId ?? company.id,
-                      );
-                    },
-                  ),
-                  if (state.parameters != null)
-                    EscalationParametersCard(
-                      parameters: state.parameters!,
-                      permissionGroups: state.permissionGroups,
-                    ),
-                ],
-              );
-          }
-        },
-      ),
+              ],
+            );
+        }
+      },
     );
   }
 }

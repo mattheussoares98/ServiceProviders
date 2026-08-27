@@ -19,8 +19,8 @@ void main() {
         sandboxQuotaMb: 1024,
         maxSyncAttempts: 3,
         inviteExpiryHours: 24,
-        createdAt: DateTime(2026, 1, 1),
-        updatedAt: DateTime(2026, 1, 1),
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
         deletedAt: null,
       );
 
