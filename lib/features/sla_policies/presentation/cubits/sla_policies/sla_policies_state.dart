@@ -6,12 +6,17 @@ class SlaPoliciesState extends BaseState {
     this.selectedSlaPolicy,
     super.status = StateStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const SlaPoliciesState.initial()
       : slaPolicies = const [],
         selectedSlaPolicy = null,
-        super(status: StateStatus.initial, errorMessage: '');
+        super(
+          status: StateStatus.initial,
+          errorMessage: '',
+          sections: const {},
+        );
 
   final List<SlaPolicyEntity> slaPolicies;
   final SlaPolicyEntity? selectedSlaPolicy;
@@ -23,6 +28,7 @@ class SlaPoliciesState extends BaseState {
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, StateStatus>? sections,
   }) {
     return SlaPoliciesState(
       slaPolicies: slaPolicies ?? this.slaPolicies,
@@ -33,6 +39,7 @@ class SlaPoliciesState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -42,5 +49,6 @@ class SlaPoliciesState extends BaseState {
         selectedSlaPolicy,
         status,
         errorMessage,
+        sections,
       ];
 }

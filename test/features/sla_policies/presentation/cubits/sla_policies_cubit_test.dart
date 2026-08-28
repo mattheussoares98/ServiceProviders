@@ -202,7 +202,7 @@ void main() {
       final tPolicy = EntityFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should emit saving and loaded, and reload policies when creation succeeds',
+        'should emit saving and loaded section states, and reload policies when creation succeeds',
         build: () {
           when(
             () => mockCreateSlaPolicy.call(any()),
@@ -219,20 +219,18 @@ void main() {
         ),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+            'sections[saveSlaPolicy]',
             StateStatus.saving,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+            'sections[saveSlaPolicy]',
             StateStatus.loaded,
           ),
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<SlaPoliciesState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
           verify(
@@ -256,7 +254,7 @@ void main() {
       );
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should emit saving and loaded when updating policy succeeds',
+        'should emit saving and loaded section states when updating policy succeeds',
         build: () {
           when(
             () => mockUpdateSlaPolicy.call(any()),
@@ -274,23 +272,57 @@ void main() {
         ),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+            'sections[saveSlaPolicy]',
             StateStatus.saving,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+            'sections[saveSlaPolicy]',
             StateStatus.loaded,
           ),
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<SlaPoliciesState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
           verify(() => mockUpdateSlaPolicy.call(any())).called(1);
+          verify(
+            () => mockGetSlaPolicies.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should emit saving and savingError section states when saving fails',
+        build: () {
+          when(
+            () => mockCreateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Erro ao salvar'));
+          return cubit;
+        },
+        act: (cubit) => cubit.saveSlaPolicy(
+          name: tPolicy.name,
+          targetHours: tPolicy.targetHours,
+          appliesTo: tPolicy.appliesTo,
+        ),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+            'sections[saveSlaPolicy]',
+            StateStatus.saving,
+          ),
+          isA<SlaPoliciesState>()
+              .having(
+                (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
+                'sections[saveSlaPolicy]',
+                StateStatus.savingError,
+              )
+              .having((s) => s.errorMessage, 'errorMessage', 'Erro ao salvar'),
+        ],
+        verify: (_) {
+          verify(() => mockCreateSlaPolicy.call(any())).called(1);
+          verifyNever(() => mockGetSlaPolicies.call(any()));
         },
       );
     });
@@ -299,7 +331,7 @@ void main() {
       final tPolicy = EntityFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should emit deleting and loaded when deletion succeeds',
+        'should emit deleting and loaded section states when deletion succeeds',
         build: () {
           when(
             () => mockDeleteSlaPolicy.call(any()),
@@ -312,23 +344,53 @@ void main() {
         act: (cubit) => cubit.deleteSlaPolicy(tPolicy.id),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
+            'sections[deleteSlaPolicy]',
             StateStatus.deleting,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
+            'sections[deleteSlaPolicy]',
             StateStatus.loaded,
           ),
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<SlaPoliciesState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.slaPolicies, 'slaPolicies', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteSlaPolicy.call(tPolicy.id)).called(1);
+          verify(
+            () => mockGetSlaPolicies.call(tUserProfile.companyId),
+          ).called(1);
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'should emit deleting and deletingError section states when deletion fails',
+        build: () {
+          when(
+            () => mockDeleteSlaPolicy.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Erro ao excluir'));
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteSlaPolicy(tPolicy.id),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
+            'sections[deleteSlaPolicy]',
+            StateStatus.deleting,
+          ),
+          isA<SlaPoliciesState>()
+              .having(
+                (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
+                'sections[deleteSlaPolicy]',
+                StateStatus.deletingError,
+              )
+              .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
+        ],
+        verify: (_) {
+          verify(() => mockDeleteSlaPolicy.call(tPolicy.id)).called(1);
+          verifyNever(() => mockGetSlaPolicies.call(any()));
         },
       );
     });
