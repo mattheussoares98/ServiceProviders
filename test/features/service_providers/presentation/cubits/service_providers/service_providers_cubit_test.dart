@@ -658,13 +658,18 @@ void main() {
         ),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
             StateStatus.saving,
           ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.companies, 'companies', isNotEmpty),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
+            StateStatus.loaded,
+          ),
         ],
         verify: (cubit) {
           verify(
@@ -706,12 +711,16 @@ void main() {
         ),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
             StateStatus.saving,
           ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[ServiceProviderSection.saveCompany],
+                'sections[saveCompany]',
+                StateStatus.savingError,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -766,13 +775,18 @@ void main() {
         ),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
             StateStatus.saving,
           ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.companies, 'companies', isNotEmpty),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
+            StateStatus.loaded,
+          ),
         ],
         verify: (cubit) {
           verify(
@@ -826,15 +840,19 @@ void main() {
         ),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[ServiceProviderSection.saveCompany],
+            'sections[saveCompany]',
             StateStatus.saving,
           ),
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
               .having((s) => s.companies, 'companies', isNotEmpty),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[ServiceProviderSection.saveCompany],
+                'sections[saveCompany]',
+                StateStatus.savingError,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',

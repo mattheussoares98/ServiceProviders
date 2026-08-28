@@ -20,7 +20,7 @@ import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
 
-enum ServiceProviderSection implements SectionKey { selectCompany }
+enum ServiceProviderSection implements SectionKey { selectCompany, saveCompany }
 
 @injectable
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
@@ -41,9 +41,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     _companiesSubscription = _useCases.watchCompaniesRealtime
         .call(companyId: companyId)
         .listen(_handleCompanyRealtimeEvent);
-    _profilesSubscription = _useCases.watchProfilesRealtime
-        .call()
-        .listen(_handleProfileRealtimeEvent);
+    _profilesSubscription = _useCases.watchProfilesRealtime.call().listen(
+      _handleProfileRealtimeEvent,
+    );
   }
 
   void _handleCompanyRealtimeEvent(
@@ -92,11 +92,11 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     final updatedProfiles =
         Map<String, List<ServiceProviderProfileEntity>>.from(
-      state.profiles.map(
-        (key, value) =>
-            MapEntry(key, List<ServiceProviderProfileEntity>.from(value)),
-      ),
-    );
+          state.profiles.map(
+            (key, value) =>
+                MapEntry(key, List<ServiceProviderProfileEntity>.from(value)),
+          ),
+        );
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
@@ -352,7 +352,14 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     String? contactPhone,
     bool sendInvite = false,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          ServiceProviderSection.saveCompany,
+          StateStatus.saving,
+        ),
+      ),
+    );
     final activeCompanyId = _useCases.getActiveCompanyId();
     final now = DateTime.now().toUtc();
 
@@ -410,19 +417,34 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       if (sentInvitation is FailureState) {
         emit(
           state.copyWith(
-            status: StateStatus.savingError,
+            sections: withSection(
+              ServiceProviderSection.saveCompany,
+              StateStatus.savingError,
+            ),
             errorMessage: sentInvitation?.message,
           ),
         );
         showErrorToast(
           'Erro para enviar o convite: ${sentInvitation?.message}',
         );
+      } else {
+        emit(
+          state.copyWith(
+            sections: withSection(
+              ServiceProviderSection.saveCompany,
+              StateStatus.loaded,
+            ),
+          ),
+        );
       }
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            ServiceProviderSection.saveCompany,
+            StateStatus.savingError,
+          ),
           errorMessage: result.message,
         ),
       );

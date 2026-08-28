@@ -48,7 +48,10 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<ServiceProvidersCubit>(),
-        statuses: {StateStatus.saving},
+        statuses: const {},
+        sections: {
+          ServiceProviderSection.saveCompany: {StateStatus.saving},
+        },
       ),
     ]);
     final formKey = useMemoized(GlobalKey<FormState>.new);
