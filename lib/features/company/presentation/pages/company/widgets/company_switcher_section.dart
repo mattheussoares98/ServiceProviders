@@ -36,9 +36,7 @@ class CompanySwitcherSection extends StatelessWidget {
             color: context.colorScheme.onSurface,
           ),
         ),
-        gapH8,
         Card(
-          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Sizes.p16),
             side: BorderSide(
@@ -59,18 +57,21 @@ class CompanySwitcherSection extends StatelessWidget {
               final isSelected = company.id == selectedCompanyId;
 
               return ListTile(
+                contentPadding: const .symmetric(horizontal: Sizes.p8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(Sizes.p16),
                 ),
+                horizontalTitleGap: Sizes.p12,
                 leading: SizedBox(
                   width: Sizes.p40,
                   height: Sizes.p40,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(Sizes.p8),
+                    borderRadius: BorderRadius.circular(Sizes.p4),
                     child:
                         company.logoUrl != null && company.logoUrl!.isNotEmpty
                         ? BaseImageWidget(
                             source: BaseImageSource.network(company.logoUrl),
+                            enableFullScreenOnTap: true,
                           )
                         : Container(
                             color: context.colorScheme.primaryContainer,
