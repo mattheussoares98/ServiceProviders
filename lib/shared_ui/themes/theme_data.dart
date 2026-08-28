@@ -188,3 +188,16 @@ CardThemeData get darkCardTheme => const CardThemeData(
   color: AppColors.fadeLight,
   elevation: 0,
 );
+
+/// Slider Theme
+SliderThemeData getSliderTheme(ColorScheme colorScheme) => SliderThemeData(
+  activeTrackColor: colorScheme.primary,
+  inactiveTrackColor: colorScheme.primary.withValues(alpha: 0.2),
+  thumbColor: colorScheme.primary,
+  overlayColor: colorScheme.primary.withValues(alpha: 0.12),
+  rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 6),
+  rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
+  trackHeight: 3,
+  showValueIndicator: ShowValueIndicator.never,
+);
+

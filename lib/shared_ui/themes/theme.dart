@@ -23,6 +23,7 @@ ThemeData lightTheme = ThemeData(
   bottomNavigationBarTheme: bottomNavigationBarTheme,
   expansionTileTheme: expansionTileThemeData,
   cardTheme: cardTheme,
+  sliderTheme: getSliderTheme(colorScheme),
 );
 
 ThemeData darkTheme = ThemeData(
@@ -43,4 +44,5 @@ ThemeData darkTheme = ThemeData(
   bottomNavigationBarTheme: darkBottomNavigationBarTheme,
   expansionTileTheme: darkExpansionTileThemeData,
   cardTheme: darkCardTheme,
+  sliderTheme: getSliderTheme(darkColorScheme),
 );
