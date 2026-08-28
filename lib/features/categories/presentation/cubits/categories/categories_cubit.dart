@@ -5,9 +5,15 @@ import 'package:o_jogo_da_obra/features/categories/domain/entities/category_enti
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'categories_state.dart';
+
+enum CategoriesSection implements SectionKey {
+  saveCategory,
+  deleteCategory,
+}
 
 @injectable
 class CategoriesCubit extends BaseCubit<CategoriesState> {
@@ -50,7 +56,14 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     String? color,
     DateTime? createdAt,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CategoriesSection.saveCategory,
+          StateStatus.saving,
+        ),
+      ),
+    );
 
     final isUpdate = id != null;
     final now = DateTime.now();
@@ -73,12 +86,26 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CategoriesSection.saveCategory,
+            StateStatus.loaded,
+          ),
+        ),
+      );
       await loadCategories(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao salvar categoria'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            CategoriesSection.saveCategory,
+            StateStatus.savingError,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -88,7 +115,10 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
   Future<bool> deleteCategory(String id) async {
     emit(
       state.copyWith(
-        status: StateStatus.deleting,
+        sections: withSection(
+          CategoriesSection.deleteCategory,
+          StateStatus.deleting,
+        ),
         deletingIds: {...state.deletingIds, id},
       ),
     );
@@ -97,21 +127,25 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadCategories(emitLoading: false);
-      if (isClosed) return false;
-
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          sections: withSection(
+            CategoriesSection.deleteCategory,
+            StateStatus.loaded,
+          ),
           deletingIds: {...state.deletingIds}..remove(id),
         ),
       );
+      await loadCategories(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao excluir categoria'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          sections: withSection(
+            CategoriesSection.deleteCategory,
+            StateStatus.deletingError,
+          ),
           errorMessage: message,
           deletingIds: {...state.deletingIds}..remove(id),
         ),

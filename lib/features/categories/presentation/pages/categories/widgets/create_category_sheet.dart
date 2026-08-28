@@ -22,7 +22,13 @@ class CreateCategorySheet extends HookWidget {
     final categoriesCubit = context.read<CategoriesCubit>();
 
     observeLoading([
-      ObservedLoadingTarget(categoriesCubit, statuses: {StateStatus.saving}),
+      ObservedLoadingTarget(
+        categoriesCubit,
+        statuses: const {},
+        sections: {
+          CategoriesSection.saveCategory: {StateStatus.saving},
+        },
+      ),
     ]);
 
     Future<void> submit() async {

@@ -6,17 +6,26 @@ class CategoriesState extends BaseState {
     this.deletingIds = const {},
     super.status = StateStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const CategoriesState.initial()
     : categories = const [],
       deletingIds = const {},
-      super(status: StateStatus.initial, errorMessage: '');
+      super(
+        status: StateStatus.initial,
+        errorMessage: '',
+        sections: const {},
+      );
 
   const CategoriesState.empty()
     : categories = const [],
       deletingIds = const {},
-      super(status: StateStatus.initial, errorMessage: '');
+      super(
+        status: StateStatus.initial,
+        errorMessage: '',
+        sections: const {},
+      );
 
   final List<CategoryEntity> categories;
   final Set<String> deletingIds;
@@ -27,6 +36,7 @@ class CategoriesState extends BaseState {
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, StateStatus>? sections,
   }) {
     return CategoriesState(
       categories: categories ?? this.categories,
@@ -35,6 +45,7 @@ class CategoriesState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -44,5 +55,6 @@ class CategoriesState extends BaseState {
         deletingIds,
         status,
         errorMessage,
+        sections,
       ];
 }

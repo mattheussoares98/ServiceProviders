@@ -171,7 +171,7 @@ void main() {
 
     group('saveCategory', () {
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit saving, call createCategory and refresh on success',
+        'should emit saving and loaded section states, call createCategory and refresh on success',
         build: () {
           when(
             () => mockCreateCategory.call(any()),
@@ -203,12 +203,18 @@ void main() {
           expect(captured.description, tCategory.description);
           expect(captured.color, tCategory.color);
           expect(captured.createdAt, tCategory.createdAt);
+          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
             StateStatus.saving,
+          ),
+          isA<CategoriesState>().having(
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
+            StateStatus.loaded,
           ),
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
@@ -217,7 +223,7 @@ void main() {
       );
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit saving, call updateCategory and refresh on success',
+        'should emit saving and loaded section states, call updateCategory and refresh on success',
         build: () {
           when(
             () => mockUpdateCategory.call(any()),
@@ -249,9 +255,14 @@ void main() {
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
             StateStatus.saving,
+          ),
+          isA<CategoriesState>().having(
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
+            StateStatus.loaded,
           ),
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
@@ -260,14 +271,11 @@ void main() {
       );
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit error status when create returns false on save',
+        'should emit saving and savingError section states when create returns false on save',
         build: () {
           when(
             () => mockCreateCategory.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: false));
-          when(
-            () => mockGetCategories.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tCategory]));
           return cubit;
         },
         act: (cubit) async {
@@ -279,20 +287,23 @@ void main() {
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
             StateStatus.saving,
           ),
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loadingError,
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
+            StateStatus.savingError,
           ),
         ],
+        verify: (_) {
+          verifyNever(() => mockGetCategories.call(any()));
+        },
       );
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit error and show error toast when save fails',
+        'should emit saving and savingError section states when save fails',
         build: () {
           when(
             () => mockCreateCategory.call(any()),
@@ -302,14 +313,21 @@ void main() {
         act: (cubit) => cubit.saveCategory(id: null, name: tCategory.name),
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[CategoriesSection.saveCategory],
+            'sections[saveCategory]',
             StateStatus.saving,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.sections[CategoriesSection.saveCategory],
+                'sections[saveCategory]',
+                StateStatus.savingError,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
         ],
+        verify: (_) {
+          verifyNever(() => mockGetCategories.call(any()));
+        },
       );
     });
 
@@ -318,7 +336,7 @@ void main() {
       final tId = tCategory.id;
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit deleting, call deleteCategory and refresh on success',
+        'should emit deleting and loaded section states, call deleteCategory and refresh on success',
         build: () {
           when(
             () => mockDeleteCategory.call(any()),
@@ -331,21 +349,31 @@ void main() {
         act: (cubit) async => expect(await cubit.deleteCategory(tId), isTrue),
         expect: () => [
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[CategoriesSection.deleteCategory],
+                'sections[deleteCategory]',
+                StateStatus.deleting,
+              )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingIds, 'deletingIds', {tId})
-              .having((s) => s.categories, 'categories', isEmpty),
+              .having(
+                (s) => s.sections[CategoriesSection.deleteCategory],
+                'sections[deleteCategory]',
+                StateStatus.loaded,
+              )
+              .having((s) => s.deletingIds, 'deletingIds', isEmpty),
           isA<CategoriesState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingIds, 'deletingIds', isEmpty)
               .having((s) => s.categories, 'categories', isEmpty),
         ],
+        verify: (_) {
+          verify(() => mockDeleteCategory.call(tId)).called(1);
+          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+        },
       );
 
       blocTest<CategoriesCubit, CategoriesState>(
-        'should emit error and show error toast when deletion fails',
+        'should emit deleting and deletingError section states when deletion fails',
         build: () {
           when(
             () => mockDeleteCategory.call(any()),
@@ -355,13 +383,25 @@ void main() {
         act: (cubit) async => expect(await cubit.deleteCategory(tId), isFalse),
         expect: () => [
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[CategoriesSection.deleteCategory],
+                'sections[deleteCategory]',
+                StateStatus.deleting,
+              )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having(
+                (s) => s.sections[CategoriesSection.deleteCategory],
+                'sections[deleteCategory]',
+                StateStatus.deletingError,
+              )
               .having((s) => s.deletingIds, 'deletingIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],
+        verify: (_) {
+          verify(() => mockDeleteCategory.call(tId)).called(1);
+          verifyNever(() => mockGetCategories.call(any()));
+        },
       );
     });
 

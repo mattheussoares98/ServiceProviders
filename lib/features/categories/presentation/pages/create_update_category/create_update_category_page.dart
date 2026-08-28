@@ -33,7 +33,11 @@ class CreateUpdateCategoryPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<CategoriesCubit>(),
-        statuses: {StateStatus.saving, StateStatus.deleting},
+        statuses: const {},
+        sections: {
+          CategoriesSection.saveCategory: {StateStatus.saving},
+          CategoriesSection.deleteCategory: {StateStatus.deleting},
+        },
       ),
     ]);
 
