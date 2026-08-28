@@ -24,23 +24,30 @@ class HomeDrawer extends StatelessWidget {
       width: ScreenUtil.I.widthPart(85, max: 400),
       child: const Column(
         children: [
-          HomeDrawerHeader(),
-          UserDrawerItem(),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  HomeDrawerHeader(),
+                  UserDrawerItem(),
 
-          ModeSwitcherDrawerItem(),
-          CategoriesDrawerItem(),
-          // ChecklistsDrawerItem(),
-          SettingsDrawerItem(),
-          CompanyDrawerItem(),
-          // MaintenancePlansDrawerItem(),
-          ServiceProvidersDrawerItem(),
-          SlaPoliciesDrawerItem(),
+                  ModeSwitcherDrawerItem(),
+                  CategoriesDrawerItem(),
+                  // ChecklistsDrawerItem(),
+                  SettingsDrawerItem(),
+                  CompanyDrawerItem(),
+                  // MaintenancePlansDrawerItem(),
+                  ServiceProvidersDrawerItem(),
+                  SlaPoliciesDrawerItem(),
 
-          // HomeDrawerItem(),
-          // ProfileDrawerItem(),
-          SectorsDrawerItem(),
-          PermissionsDrawerItem(),
-          Spacer(),
+                  // HomeDrawerItem(),
+                  // ProfileDrawerItem(),
+                  SectorsDrawerItem(),
+                  PermissionsDrawerItem(),
+                ],
+              ),
+            ),
+          ),
           Divider(height: 1),
           LogoutDrawerItem(),
           gapH16,
