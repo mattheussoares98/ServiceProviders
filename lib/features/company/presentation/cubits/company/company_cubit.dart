@@ -53,14 +53,13 @@ class CompanyCubit extends BaseCubit<CompanyState> {
             companies: companies,
             company: activeCompany,
             selectedCompanyId: activeCompany?.id,
-            parameters:
-                paramsState is SuccessState<CompanyParameterEntity>
-                    ? paramsState.data
-                    : null,
+            parameters: paramsState is SuccessState<CompanyParameterEntity>
+                ? paramsState.data
+                : null,
             permissionGroups:
                 groupsState is SuccessState<List<PermissionGroupEntity>>
-                    ? (groupsState.data ?? [])
-                    : const [],
+                ? (groupsState.data ?? [])
+                : const [],
           ),
         );
         return;
@@ -90,14 +89,13 @@ class CompanyCubit extends BaseCubit<CompanyState> {
           company: dataState.data,
           companies: dataState.data != null ? [dataState.data!] : const [],
           selectedCompanyId: dataState.data?.id,
-          parameters:
-              paramsState is SuccessState<CompanyParameterEntity>
-                  ? paramsState.data
-                  : null,
+          parameters: paramsState is SuccessState<CompanyParameterEntity>
+              ? paramsState.data
+              : null,
           permissionGroups:
               groupsState is SuccessState<List<PermissionGroupEntity>>
-                  ? (groupsState.data ?? [])
-                  : const [],
+              ? (groupsState.data ?? [])
+              : const [],
         ),
       );
     } else {
@@ -143,14 +141,13 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         status: StateStatus.loaded,
         company: selectedCompany,
         selectedCompanyId: companyId,
-        parameters:
-            paramsState is SuccessState<CompanyParameterEntity>
-                ? paramsState.data
-                : null,
+        parameters: paramsState is SuccessState<CompanyParameterEntity>
+            ? paramsState.data
+            : null,
         permissionGroups:
             groupsState is SuccessState<List<PermissionGroupEntity>>
-                ? (groupsState.data ?? [])
-                : const [],
+            ? (groupsState.data ?? [])
+            : const [],
       ),
     );
     showSuccessToast('Empresa ativa alterada com sucesso'.hardcoded);
@@ -283,12 +280,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (isClosed) return;
 
     if (uploadResult is SuccessState<CompanyEntity>) {
-      showSuccessToast('Logo da empresa atualizada com sucesso'.hardcoded);
       emit(
-        state.copyWith(
-          status: StateStatus.loaded,
-          company: uploadResult.data,
-        ),
+        state.copyWith(status: StateStatus.loaded, company: uploadResult.data),
       );
     } else {
       showDataStateToast(uploadResult);
