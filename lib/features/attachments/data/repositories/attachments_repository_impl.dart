@@ -271,7 +271,6 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     }
   }
 
-
   @override
   FutureVoid clearLocalAttachments() async {
     try {
@@ -310,38 +309,36 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     return _remoteDataSource
         .watchAttachmentsRealtime(workOrderId: workOrderId)
         .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        if (!_isProviderMode) {
-          if (event.entity!.deletedAt != null) {
-            await _localDataSource.deleteAttachment(event.id);
-          } else {
-            await _saveRemoteModelPreservingLocalPath(event.entity!);
+          if (event.entity != null &&
+              (event.eventType == RealtimeEventType.insert ||
+                  event.eventType == RealtimeEventType.update)) {
+            if (!_isProviderMode) {
+              if (event.entity!.deletedAt != null) {
+                await _localDataSource.deleteAttachment(event.id);
+              } else {
+                await _saveRemoteModelPreservingLocalPath(event.entity!);
+              }
+            }
+          } else if (event.eventType == RealtimeEventType.delete &&
+              event.id.isNotEmpty) {
+            if (!_isProviderMode) {
+              await _localDataSource.deleteAttachment(event.id);
+            }
           }
-        }
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        if (!_isProviderMode) {
-          await _localDataSource.deleteAttachment(event.id);
-        }
-      }
 
-      return RealtimeEvent<AttachmentEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity?.toEntity(),
-      );
-    });
+          return RealtimeEvent<AttachmentEntity>(
+            eventType: event.eventType,
+            id: event.id,
+            companyId: event.companyId,
+            entity: event.entity?.toEntity(),
+          );
+        });
   }
 
   @override
   FutureBool createAttachment(AttachmentEntity attachment) => _isProviderMode
       ? Future.value(const SuccessState(data: true))
-      : _localDataSource.saveAttachment(
-          AttachmentModel.fromEntity(attachment),
-        );
+      : _localDataSource.saveAttachment(AttachmentModel.fromEntity(attachment));
 
   @override
   FutureBool deleteAttachment(String id) async {
@@ -363,7 +360,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
       final isUploaded = attachment.uploadStatus == UploadStatus.uploaded;
 
-      return RepositoryHandler.fetchWithFallback<bool>(
+      return await RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
         remoteCallback: () => isUploaded
             ? _remoteDataSource.deleteAttachment(id)
@@ -471,7 +468,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
           uploadStatus: UploadStatus.uploaded,
         );
 
-        return _remoteDataSource.confirmUpload(
+        return await _remoteDataSource.confirmUpload(
           AttachmentModel.fromEntity(updated),
         );
       }
@@ -564,7 +561,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       }
 
       // 4. Update the local record with the final remoteUrl and uploaded status.
-      return _localDataSource.saveAttachment(
+      return await _localDataSource.saveAttachment(
         AttachmentModel.fromEntity(updated),
       );
     } catch (error) {
@@ -608,10 +605,9 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     final paramsResult = await _companyRepository.getCompanyParameters(
       companyId,
     );
-    final parameters =
-        paramsResult is SuccessState<CompanyParameterEntity>
-            ? paramsResult.data
-            : null;
+    final parameters = paramsResult is SuccessState<CompanyParameterEntity>
+        ? paramsResult.data
+        : null;
 
     final validation = AttachmentFileValidator.validate(
       ext,

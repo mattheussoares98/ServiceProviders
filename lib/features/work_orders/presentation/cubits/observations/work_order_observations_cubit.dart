@@ -26,8 +26,8 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
     final result = await _useCases.getObservations(workOrderId);
     switch (result) {
       case SuccessState(:final data):
-        final list = List<WorkOrderObservationEntity>.from(data!);
-        list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        final list = List<WorkOrderObservationEntity>.from(data!)
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         emit(state.copyWith(status: StateStatus.loaded, observations: list));
       case FailureState(:final message):
         emit(

@@ -23,3 +23,9 @@ analyzer:
     unsafe_variance: ignore
   exclude:
     - bricks**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**

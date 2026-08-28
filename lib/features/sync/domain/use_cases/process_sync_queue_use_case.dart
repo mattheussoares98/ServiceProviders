@@ -135,10 +135,9 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
             entityId: item.entityId,
             operation: item.operation,
             payload: item.payload,
-            errorType:
-                failure.statusCode != null
-                    ? 'HTTP_${failure.statusCode}'
-                    : 'SyncError',
+            errorType: failure.statusCode != null
+                ? 'HTTP_${failure.statusCode}'
+                : 'SyncError',
             errorMessage: errorMsg,
             attempts: currentAttempts,
             createdAt: DateTime.now(),
@@ -152,12 +151,11 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
 
   FutureData<bool> _dispatchItem(SyncQueueItemEntity item) async {
     try {
-      final payloadMap =
-          item.payload != null && item.payload!.isNotEmpty
-              ? jsonDecode(item.payload!) as MapDynamic
-              : <String, dynamic>{};
+      final payloadMap = item.payload != null && item.payload!.isNotEmpty
+          ? jsonDecode(item.payload!) as MapDynamic
+          : <String, dynamic>{};
 
-      return switch (item.entityType) {
+      return await switch (item.entityType) {
         SyncEntityType.workOrder => _dispatchWorkOrder(item, payloadMap),
         SyncEntityType.task => _dispatchTask(item, payloadMap),
         SyncEntityType.observation => _dispatchObservation(item, payloadMap),
@@ -211,10 +209,10 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         return res is SuccessState
             ? const SuccessState(data: true)
             : FailureState<bool>(
-              message: (res as FailureState).message,
-              error: res.error,
-              statusCode: res.statusCode,
-            );
+                message: (res as FailureState).message,
+                error: res.error,
+                statusCode: res.statusCode,
+              );
       }(),
       SyncOperationType.delete =>
         _observationsRemoteDataSource.deleteObservation(item.entityId),
