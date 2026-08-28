@@ -10,10 +10,7 @@ import 'package:uuid/uuid.dart';
 
 part 'sectors_state.dart';
 
-enum SectorsSection implements SectionKey {
-  saveSector,
-  deleteSector,
-}
+enum SectorsSection implements SectionKey { saveSector, deleteSector }
 
 @injectable
 class SectorsCubit extends BaseCubit<SectorsState> {
@@ -71,10 +68,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   Future<bool> saveSector({String? id, required String name}) async {
     emit(
       state.copyWith(
-        sections: withSection(
-          SectorsSection.saveSector,
-          StateStatus.saving,
-        ),
+        sections: withSection(SectorsSection.saveSector, StateStatus.saving),
       ),
     );
 
@@ -106,10 +100,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(
-            SectorsSection.saveSector,
-            StateStatus.loaded,
-          ),
+          sections: withSection(SectorsSection.saveSector, StateStatus.loaded),
         ),
       );
       await loadSectors(emitLoading: false);

@@ -10,10 +10,7 @@ import 'package:uuid/uuid.dart';
 
 part 'categories_state.dart';
 
-enum CategoriesSection implements SectionKey {
-  saveCategory,
-  deleteCategory,
-}
+enum CategoriesSection implements SectionKey { saveCategory, deleteCategory }
 
 @injectable
 class CategoriesCubit extends BaseCubit<CategoriesState> {

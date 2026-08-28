@@ -15,10 +15,7 @@ import 'package:uuid/uuid.dart';
 
 part 'sla_policies_state.dart';
 
-enum SlaPoliciesSection implements SectionKey {
-  deleteSlaPolicy,
-  saveSlaPolicy,
-}
+enum SlaPoliciesSection implements SectionKey { deleteSlaPolicy, saveSlaPolicy }
 
 @injectable
 class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
