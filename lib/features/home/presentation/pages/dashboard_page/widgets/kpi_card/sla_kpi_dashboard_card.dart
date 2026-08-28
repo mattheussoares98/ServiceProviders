@@ -1,31 +1,25 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/kpi_period_filter_selector.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/stats_card.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/formatted_duration_timer_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
+
+part './kpi_date_range_slider.dart';
 
 class SlaKpiDashboardCard extends StatelessWidget {
   const SlaKpiDashboardCard({super.key});
-
-  static String formatDurationMinutes(double minutes) {
-    if (minutes <= 0) return '0m'.hardcoded;
-    if (minutes < 60) {
-      return '${minutes.round()}m'.hardcoded;
-    }
-    final hours = (minutes / 60).floor();
-    final remainingMinutes = (minutes % 60).round();
-    if (remainingMinutes > 0) {
-      return '${hours}h ${remainingMinutes}m'.hardcoded;
-    }
-    return '${hours}h'.hardcoded;
-  }
 
   Color _getDeliveryRateColor(double rate, int completedCount) {
     if (completedCount == 0) return Colors.blue;
@@ -36,7 +30,7 @@ class SlaKpiDashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final workOrders = context.select<WorkOrdersCubit, List<dynamic>>(
+    final workOrders = context.select<WorkOrdersCubit, List<WorkOrderEntity>>(
       (cubit) => cubit.state.workOrders,
     );
 
@@ -53,10 +47,11 @@ class SlaKpiDashboardCard extends StatelessWidget {
         final cards = [
           StatsCard(
             title: metrics.completedCount > 0
-                ? '${metrics.completedWithinSlaCount}/${metrics.completedCount} no prazo'.hardcoded
+                ? '${metrics.completedWithinSlaCount}/${metrics.completedCount} no prazo'
+                      .hardcoded
                 : 'Sem OS concluídas'.hardcoded,
             value: metrics.completedCount > 0
-                ? '${metrics.deliveryRate.toStringAsFixed(1)}%'
+                ? '${metrics.deliveryRate.toString().toBrazilianNumber()}%'
                 : '--',
             icon: const PlatformIcon(
               materialIcon: Icons.verified_outlined,
@@ -66,9 +61,19 @@ class SlaKpiDashboardCard extends StatelessWidget {
           ),
           StatsCard(
             title: 'Tempo médio de resolução'.hardcoded,
-            value: metrics.completedCount > 0
-                ? formatDurationMinutes(metrics.mttrMinutes)
-                : '--',
+            valueWidget: metrics.completedCount > 0
+                ? FormattedDurationTimerText(
+                    initialAccumulatedSeconds: (metrics.mttrMinutes * 60)
+                        .round(),
+                    isRunning: false,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w900,
+                  )
+                : BaseText.headline(
+                    '--',
+                    fontWeight: FontWeight.w900,
+                    color: Colors.blue,
+                  ),
             icon: const PlatformIcon(
               materialIcon: Icons.timer_outlined,
               cupertinoIcon: CupertinoIcons.timer,
@@ -80,7 +85,7 @@ class SlaKpiDashboardCard extends StatelessWidget {
                 ? '${metrics.slaBreachedCount} fora do prazo'.hardcoded
                 : 'Sem quebras'.hardcoded,
             value: metrics.completedCount > 0
-                ? '${metrics.breachRate.toStringAsFixed(1)}%'
+                ? '${metrics.breachRate.toString().toBrazilianNumber()}%'
                 : '0%',
             icon: const PlatformIcon(
               materialIcon: Icons.warning_amber_rounded,
@@ -107,25 +112,18 @@ class SlaKpiDashboardCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             gapH8,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: BaseText.title(
-                    'INDICADORES DE SLA & DESEMPENHO'.hardcoded,
-                  ),
-                ),
-                KpiPeriodFilterSelector(
-                  selectedPeriod: kpisState.selectedPeriod,
-                  onPeriodSelected: (period) {
-                    final cubit = context.read<WorkOrdersCubit>();
-                    context.read<DashboardKpisCubit>().changePeriod(
-                          period,
-                          cubit.state.workOrders,
-                        );
-                  },
-                ),
-              ],
+            BaseText.title('INDICADORES DE SLA & DESEMPENHO'.hardcoded),
+            gapH8,
+            KpiDateRangeSlider(
+              startDate: kpisState.startDate,
+              endDate: kpisState.endDate,
+              onDateRangeChanged: (start, end) {
+                context.read<DashboardKpisCubit>().changeDateRange(
+                  start,
+                  end,
+                  workOrders,
+                );
+              },
             ),
             gapH12,
             if (isPhone)

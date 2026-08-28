@@ -27,7 +27,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/kpi_period.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
@@ -916,52 +915,47 @@ void main() {
       },
     );
 
-    test('filters work orders according to KpiPeriod', () {
-      final recentOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+    test('filters work orders according to custom startDate and endDate', () {
+      final order1 = EntityFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.completed,
-        createdAt: now.subtract(const Duration(days: 2)),
-        startedAt: now.subtract(const Duration(days: 2, hours: 2)),
-        completedAt: now.subtract(const Duration(days: 2)),
-        slaDeadlineAt: now.subtract(const Duration(days: 1)),
+        createdAt: DateTime(2026, 8, 10),
+        completedAt: DateTime(2026, 8, 10, 10),
         slaBreached: false,
         netActiveDuration: 60,
       );
 
-      final oldOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+      final order2 = EntityFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.completed,
-        createdAt: now.subtract(const Duration(days: 40)),
-        completedAt: now.subtract(const Duration(days: 40)),
+        createdAt: DateTime(2026, 8, 15),
+        completedAt: DateTime(2026, 8, 15, 12),
         slaBreached: true,
-        netActiveDuration: 180,
+        netActiveDuration: 120,
       );
 
-      final workOrders = [recentOrder, oldOrder];
+      final order3 = EntityFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+        createdAt: DateTime(2026, 8, 20),
+        completedAt: DateTime(2026, 8, 20, 15),
+        slaBreached: false,
+        netActiveDuration: 45,
+      );
 
-      final resultLast7Days = calculateWorkOrderKpisUseCase(
+      final workOrders = [order1, order2, order3];
+
+      final result = calculateWorkOrderKpisUseCase(
         CalculateWorkOrderKpisParams(
           workOrders: workOrders,
-          period: KpiPeriod.last7Days,
-          referenceDate: now,
+          startDate: DateTime(2026, 8, 12),
+          endDate: DateTime(2026, 8, 18),
         ),
       );
 
-      expect(resultLast7Days.totalWorkOrders, 1);
-      expect(resultLast7Days.completedCount, 1);
-      expect(resultLast7Days.completedWithinSlaCount, 1);
-      expect(resultLast7Days.deliveryRate, 100.0);
-      expect(resultLast7Days.breachRate, 0.0);
-      expect(resultLast7Days.mttrMinutes, 60.0);
-
-      final resultAllTime = calculateWorkOrderKpisUseCase(
-        CalculateWorkOrderKpisParams(
-          workOrders: workOrders,
-          referenceDate: now,
-        ),
-      );
-
-      expect(resultAllTime.totalWorkOrders, 2);
-      expect(resultAllTime.completedCount, 2);
-      expect(resultAllTime.deliveryRate, 50.0);
+      expect(result.totalWorkOrders, 1);
+      expect(result.completedCount, 1);
+      expect(result.slaBreachedCount, 1);
+      expect(result.deliveryRate, 0.0);
+      expect(result.breachRate, 100.0);
+      expect(result.mttrMinutes, 120.0);
     });
   });
 }

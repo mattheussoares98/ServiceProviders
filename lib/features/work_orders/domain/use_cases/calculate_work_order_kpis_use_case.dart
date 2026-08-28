@@ -4,21 +4,22 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_kpi_metrics_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/kpi_period.dart';
 
 class CalculateWorkOrderKpisParams extends Equatable {
   const CalculateWorkOrderKpisParams({
     required this.workOrders,
-    this.period = KpiPeriod.allTime,
+    this.startDate,
+    this.endDate,
     this.referenceDate,
   });
 
   final List<WorkOrderEntity> workOrders;
-  final KpiPeriod period;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final DateTime? referenceDate;
 
   @override
-  List<Object?> get props => [workOrders, period, referenceDate];
+  List<Object?> get props => [workOrders, startDate, endDate, referenceDate];
 }
 
 @LazySingleton()
@@ -37,7 +38,15 @@ class CalculateWorkOrderKpisUseCase
     final scopedOrders = request.workOrders.where((wo) {
       if (wo.deletedAt != null) return false;
       final targetDate = wo.completedAt ?? wo.createdAt;
-      return request.period.isWithinPeriod(targetDate, now);
+
+      if (request.startDate != null &&
+          targetDate.isBefore(request.startDate!)) {
+        return false;
+      }
+      if (request.endDate != null && targetDate.isAfter(request.endDate!)) {
+        return false;
+      }
+      return true;
     }).toList();
 
     if (scopedOrders.isEmpty) {

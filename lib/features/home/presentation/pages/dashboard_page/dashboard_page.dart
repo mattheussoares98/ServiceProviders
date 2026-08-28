@@ -6,9 +6,9 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/active_work_items.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/fast_actions.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/hello_user.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/kpi_card/sla_kpi_dashboard_card.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/not_closed_work_orders.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/recent_work_orders.dart';
-import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/widgets/sla_kpi_dashboard_card.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -28,8 +28,9 @@ class DashboardPage extends StatelessWidget {
     final workOrdersCubit = context.read<WorkOrdersCubit>();
 
     return BlocProvider<DashboardKpisCubit>(
-      create: (context) => GetIt.I<DashboardKpisCubit>()
-        ..computeKpis(workOrdersCubit.state.workOrders),
+      create: (context) =>
+          GetIt.I<DashboardKpisCubit>()
+            ..computeKpis(workOrdersCubit.state.workOrders),
       child: Builder(
         builder: (context) {
           return BlocListener<WorkOrdersCubit, WorkOrdersState>(

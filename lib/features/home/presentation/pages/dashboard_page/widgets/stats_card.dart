@@ -8,14 +8,19 @@ class StatsCard extends StatelessWidget {
   const StatsCard({
     super.key,
     required this.title,
-    required this.value,
+    this.value,
+    this.valueWidget,
     required this.icon,
     required this.color,
     this.onTap,
-  });
+  }) : assert(
+          value != null || valueWidget != null,
+          'Either value or valueWidget must be provided',
+        );
 
   final String title;
-  final String value;
+  final String? value;
+  final Widget? valueWidget;
   final PlatformIcon icon;
   final Color color;
   final VoidCallback? onTap;
@@ -76,12 +81,13 @@ class StatsCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: .start,
                 children: [
-                  BaseText.headline(
-                    value,
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  valueWidget ??
+                      BaseText.headline(
+                        value ?? '',
+                        fontWeight: FontWeight.w900,
+                        color: color,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                   gapH4,
                   BaseText(
                     title,

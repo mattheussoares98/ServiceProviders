@@ -3,7 +3,8 @@ part of 'dashboard_kpis_cubit.dart';
 class DashboardKpisState extends BaseState {
   const DashboardKpisState({
     required this.metrics,
-    this.selectedPeriod = KpiPeriod.last30Days,
+    this.startDate,
+    this.endDate,
     super.status = StateStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
@@ -11,15 +12,20 @@ class DashboardKpisState extends BaseState {
 
   const DashboardKpisState.initial()
     : metrics = const WorkOrderKpiMetricsEntity.empty(),
-      selectedPeriod = KpiPeriod.last30Days,
+      startDate = null,
+      endDate = null,
       super(status: StateStatus.initial, errorMessage: '');
 
   final WorkOrderKpiMetricsEntity metrics;
-  final KpiPeriod selectedPeriod;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   DashboardKpisState copyWith({
     WorkOrderKpiMetricsEntity? metrics,
-    KpiPeriod? selectedPeriod,
+    DateTime? startDate,
+    bool? annulStartDate,
+    DateTime? endDate,
+    bool? annulEndDate,
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
@@ -27,7 +33,8 @@ class DashboardKpisState extends BaseState {
   }) {
     return DashboardKpisState(
       metrics: metrics ?? this.metrics,
-      selectedPeriod: selectedPeriod ?? this.selectedPeriod,
+      startDate: annulStartDate == true ? null : startDate ?? this.startDate,
+      endDate: annulEndDate == true ? null : endDate ?? this.endDate,
       status: status ?? this.status,
       errorMessage: annulErrorMessage == true
           ? null
@@ -39,7 +46,8 @@ class DashboardKpisState extends BaseState {
   @override
   List<Object?> get props => [
     metrics,
-    selectedPeriod,
+    startDate,
+    endDate,
     status,
     errorMessage,
     sections,
