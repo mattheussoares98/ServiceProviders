@@ -4,6 +4,7 @@ class SectorsState extends BaseState {
   const SectorsState({
     super.status,
     super.errorMessage,
+    super.sections = const {},
     this.sectors = const [],
     this.selectedSector,
   });
@@ -17,6 +18,7 @@ class SectorsState extends BaseState {
     StateStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, StateStatus>? sections,
     List<SectorEntity>? sectors,
     SectorEntity? selectedSector,
     bool? annulSelectedSector,
@@ -25,6 +27,7 @@ class SectorsState extends BaseState {
       status: status ?? this.status,
       errorMessage:
           annulErrorMessage == true ? null : (errorMessage ?? this.errorMessage),
+      sections: sections ?? this.sections,
       sectors: sectors ?? this.sectors,
       selectedSector: annulSelectedSector == true
           ? null

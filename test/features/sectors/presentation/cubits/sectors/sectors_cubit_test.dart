@@ -151,7 +151,7 @@ void main() {
 
     group('saveSector', () {
       blocTest<SectorsCubit, SectorsState>(
-        'should emit saving and loaded when creating sector succeeds',
+        'should emit saving and loaded section states, and reload sectors when creating sector succeeds',
         build: () {
           when(
             () => mockCreateSector.call(any()),
@@ -167,28 +167,27 @@ void main() {
         act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.saveSector],
+            'sections[saveSector]',
             StateStatus.saving,
           ),
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.saveSector],
+            'sections[saveSector]',
             StateStatus.loaded,
           ),
-          isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<SectorsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
           verify(() => mockCreateSector.call(any())).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<SectorsCubit, SectorsState>(
-        'should emit saving and loaded when updating sector succeeds',
+        'should emit saving and loaded section states when updating sector succeeds',
         seed: () => SectorsState(sectors: [tSector]),
         build: () {
           when(
@@ -205,23 +204,27 @@ void main() {
         act: (cubit) => cubit.saveSector(id: tSector.id, name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.saveSector],
+            'sections[saveSector]',
             StateStatus.saving,
           ),
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.saveSector],
+            'sections[saveSector]',
             StateStatus.loaded,
           ),
+          isA<SectorsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
           verify(() => mockUpdateSector.call(any())).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
 
       blocTest<SectorsCubit, SectorsState>(
-        'should emit saving and savingError when creation fails',
+        'should emit saving and savingError section states when creation fails',
         build: () {
           when(
             () => mockCreateSector.call(any()),
@@ -234,20 +237,28 @@ void main() {
         act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.saveSector],
+            'sections[saveSector]',
             StateStatus.saving,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[SectorsSection.saveSector],
+                'sections[saveSector]',
+                StateStatus.savingError,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
         ],
+        verify: (_) {
+          verify(() => mockCreateSector.call(any())).called(1);
+          verifyNever(() => mockGetSectors.call(any()));
+        },
       );
     });
 
     group('deleteSector', () {
       blocTest<SectorsCubit, SectorsState>(
-        'should emit deleting and loaded when deleting sector succeeds',
+        'should emit deleting and loaded section states when deleting sector succeeds',
         build: () {
           when(
             () => mockDeleteSector.call(any()),
@@ -263,18 +274,54 @@ void main() {
         act: (cubit) => cubit.deleteSector(tSector.id),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.deleteSector],
+            'sections[deleteSector]',
             StateStatus.deleting,
           ),
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
+            (s) => s.sections[SectorsSection.deleteSector],
+            'sections[deleteSector]',
             StateStatus.loaded,
           ),
+          isA<SectorsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.sectors, 'sectors', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteSector.call(tSector.id)).called(1);
+          verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
+        },
+      );
+
+      blocTest<SectorsCubit, SectorsState>(
+        'should emit deleting and deletingError section states when deleting sector fails',
+        build: () {
+          when(
+            () => mockDeleteSector.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Delete failed'));
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tUserProfile.companyId);
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteSector(tSector.id),
+        expect: () => [
+          isA<SectorsState>().having(
+            (s) => s.sections[SectorsSection.deleteSector],
+            'sections[deleteSector]',
+            StateStatus.deleting,
+          ),
+          isA<SectorsState>()
+              .having(
+                (s) => s.sections[SectorsSection.deleteSector],
+                'sections[deleteSector]',
+                StateStatus.deletingError,
+              )
+              .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
+        ],
+        verify: (_) {
+          verify(() => mockDeleteSector.call(tSector.id)).called(1);
+          verifyNever(() => mockGetSectors.call(any()));
         },
       );
     });

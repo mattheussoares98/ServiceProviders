@@ -5,9 +5,15 @@ import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.da
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'sectors_state.dart';
+
+enum SectorsSection implements SectionKey {
+  saveSector,
+  deleteSector,
+}
 
 @injectable
 class SectorsCubit extends BaseCubit<SectorsState> {
@@ -63,7 +69,14 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   }
 
   Future<bool> saveSector({String? id, required String name}) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          SectorsSection.saveSector,
+          StateStatus.saving,
+        ),
+      ),
+    );
 
     final isUpdate = id != null;
     final now = DateTime.now();
@@ -91,13 +104,26 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SectorsSection.saveSector,
+            StateStatus.loaded,
+          ),
+        ),
+      );
       await loadSectors(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao salvar setor'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            SectorsSection.saveSector,
+            StateStatus.savingError,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -105,19 +131,39 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   }
 
   Future<bool> deleteSector(String id) async {
-    emit(state.copyWith(status: StateStatus.deleting));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          SectorsSection.deleteSector,
+          StateStatus.deleting,
+        ),
+      ),
+    );
 
     final result = await _useCases.deleteSector(id);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SectorsSection.deleteSector,
+            StateStatus.loaded,
+          ),
+        ),
+      );
       await loadSectors(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao excluir setor'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            SectorsSection.deleteSector,
+            StateStatus.deletingError,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
