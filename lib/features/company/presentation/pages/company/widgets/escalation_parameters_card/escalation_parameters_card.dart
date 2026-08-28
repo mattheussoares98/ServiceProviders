@@ -66,9 +66,6 @@ class EscalationParametersCard extends HookWidget {
     final isAdmin = context.select<SessionCubit, bool>(
       (cubit) => cubit.state.user.isAdmin,
     );
-    final isSaving = context.select<CompanyCubit, bool>(
-      (cubit) => cubit.state.status == StateStatus.saving,
-    );
 
     final availableGroupsForEscalation = permissionGroups
         .where((g) => !escalationGroupIds.value.contains(g.id))
@@ -155,10 +152,7 @@ class EscalationParametersCard extends HookWidget {
               onRemoveGroup: removeEscalationGroup,
               onReorder: moveEscalationGroup,
             ),
-            if (isAdmin) ...[
-              gapH20,
-              _SaveEscalationButton(isSaving: isSaving, onSave: save),
-            ],
+            if (isAdmin) ...[gapH20, _SaveEscalationButton(onSave: save)],
           ],
         ),
       ),

@@ -3,6 +3,8 @@ part of 'company_cubit.dart';
 class CompanyState extends BaseState {
   const CompanyState({
     super.status,
+    super.errorMessage = '',
+    super.sections = const {},
     this.company,
     this.companies = const [],
     this.selectedCompanyId,
@@ -15,7 +17,8 @@ class CompanyState extends BaseState {
       companies = const [],
       selectedCompanyId = null,
       parameters = null,
-      permissionGroups = const [];
+      permissionGroups = const [],
+      super(status: StateStatus.initial, errorMessage: '', sections: const {});
 
   final CompanyEntity? company;
   final List<CompanyEntity> companies;
@@ -25,6 +28,8 @@ class CompanyState extends BaseState {
 
   CompanyState copyWith({
     StateStatus? status,
+    String? errorMessage,
+    Map<SectionKey, StateStatus>? sections,
     CompanyEntity? company,
     List<CompanyEntity>? companies,
     String? selectedCompanyId,
@@ -36,6 +41,8 @@ class CompanyState extends BaseState {
   }) {
     return CompanyState(
       status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
       company: annulCompany ? null : company ?? this.company,
       companies: companies ?? this.companies,
       selectedCompanyId: annulSelectedCompanyId
@@ -49,6 +56,8 @@ class CompanyState extends BaseState {
   @override
   List<Object?> get props => [
     status,
+    errorMessage,
+    sections,
     company,
     companies,
     selectedCompanyId,

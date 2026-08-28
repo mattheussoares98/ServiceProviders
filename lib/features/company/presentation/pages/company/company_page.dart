@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_detail_card.dart';
@@ -13,16 +14,28 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 @RoutePage()
-class CompanyPage extends StatelessWidget {
+class CompanyPage extends HookWidget {
   const CompanyPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    observeLoading([
+      ObservedLoadingTarget(
+        context.read<CompanyCubit>(),
+        statuses: const {},
+        sections: const {
+          CompanySection.switchCompany: {StateStatus.loading},
+          CompanySection.updateEscalationParameters: {StateStatus.loading},
+        },
+      ),
+    ]);
+
     return BaseScaffold(
       onRefresh: () =>
           context.read<CompanyCubit>().loadCompany(forceRefresh: true),

@@ -11,8 +11,14 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'company_state.dart';
+
+enum CompanySection implements SectionKey {
+  switchCompany,
+  updateEscalationParameters,
+}
 
 @injectable
 class CompanyCubit extends BaseCubit<CompanyState> {
@@ -108,14 +114,28 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     final user = _useCases.getSessionUser();
     if (!user.isSuperAdmin) return;
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CompanySection.switchCompany,
+          StateStatus.loading,
+        ),
+      ),
+    );
 
     final updatedUser = user.copyWith(companyId: companyId);
     final result = await _useCases.updateUserProfile(updatedUser);
     if (isClosed) return;
 
     if (result is! SuccessState<bool> || result.data != true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySection.switchCompany,
+            StateStatus.loaded,
+          ),
+        ),
+      );
       showDataStateToast(result);
       return;
     }
@@ -138,7 +158,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        status: StateStatus.loaded,
+        sections: withSection(CompanySection.switchCompany, StateStatus.loaded),
         company: selectedCompany,
         selectedCompanyId: companyId,
         parameters: paramsState is SuccessState<CompanyParameterEntity>
@@ -150,7 +170,6 @@ class CompanyCubit extends BaseCubit<CompanyState> {
             : const [],
       ),
     );
-    showSuccessToast('Empresa ativa alterada com sucesso'.hardcoded);
   }
 
   Future<void> updateEscalationParameters({
@@ -162,7 +181,14 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     final params = state.parameters;
     if (params == null) return;
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CompanySection.updateEscalationParameters,
+          StateStatus.loading,
+        ),
+      ),
+    );
 
     final updated = params.copyWith(
       advanceWarningMinutes: advanceWarningMinutes,
@@ -176,12 +202,24 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded, parameters: updated));
-      showSuccessToast(
-        'Parâmetros de escalonamento salvos com sucesso'.hardcoded,
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySection.updateEscalationParameters,
+            StateStatus.loaded,
+          ),
+          parameters: updated,
+        ),
       );
     } else {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySection.updateEscalationParameters,
+            StateStatus.loaded,
+          ),
+        ),
+      );
       showDataStateToast(result);
     }
   }
