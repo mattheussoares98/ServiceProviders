@@ -5,7 +5,6 @@ import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.da
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'sectors_state.dart';
@@ -100,10 +99,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(
-            SectorsSections.save,
-            SectionStatus.success,
-          ),
+          sections: withSection(SectorsSections.save, SectionStatus.success),
         ),
       );
       await loadSectors(emitLoading: false);
@@ -112,10 +108,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       final message = result.message ?? 'Erro ao salvar setor'.hardcoded;
       emit(
         state.copyWith(
-          sections: withSection(
-            SectorsSections.save,
-            SectionStatus.error,
-          ),
+          sections: withSection(SectorsSections.save, SectionStatus.error),
           errorMessage: message,
         ),
       );
@@ -139,10 +132,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       emit(
         state.copyWith(
           sectors: updatedSectors,
-          sections: withSection(
-            SectorsSections.delete,
-            SectionStatus.success,
-          ),
+          sections: withSection(SectorsSections.delete, SectionStatus.success),
         ),
       );
       await loadSectors(emitLoading: false);
@@ -151,10 +141,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       final message = result.message ?? 'Erro ao excluir setor'.hardcoded;
       emit(
         state.copyWith(
-          sections: withSection(
-            SectorsSections.delete,
-            SectionStatus.error,
-          ),
+          sections: withSection(SectorsSections.delete, SectionStatus.error),
           errorMessage: message,
         ),
       );

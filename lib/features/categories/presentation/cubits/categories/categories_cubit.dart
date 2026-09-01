@@ -5,7 +5,6 @@ import 'package:o_jogo_da_obra/features/categories/domain/entities/category_enti
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'categories_state.dart';
@@ -55,10 +54,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
   }) async {
     emit(
       state.copyWith(
-        sections: withSection(
-          CategoriesSections.save,
-          SectionStatus.running,
-        ),
+        sections: withSection(CategoriesSections.save, SectionStatus.running),
       ),
     );
 
@@ -85,10 +81,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(
-            CategoriesSections.save,
-            SectionStatus.success,
-          ),
+          sections: withSection(CategoriesSections.save, SectionStatus.success),
         ),
       );
       await loadCategories(emitLoading: false);
@@ -97,10 +90,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       final message = result.message ?? 'Erro ao salvar categoria'.hardcoded;
       emit(
         state.copyWith(
-          sections: withSection(
-            CategoriesSections.save,
-            SectionStatus.error,
-          ),
+          sections: withSection(CategoriesSections.save, SectionStatus.error),
           errorMessage: message,
         ),
       );
@@ -112,10 +102,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
   Future<bool> deleteCategory(String id) async {
     emit(
       state.copyWith(
-        sections: withSection(
-          CategoriesSections.delete,
-          SectionStatus.running,
-        ),
+        sections: withSection(CategoriesSections.delete, SectionStatus.running),
         deletingIds: {...state.deletingIds, id},
       ),
     );
@@ -143,10 +130,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       final message = result.message ?? 'Erro ao excluir categoria'.hardcoded;
       emit(
         state.copyWith(
-          sections: withSection(
-            CategoriesSections.delete,
-            SectionStatus.error,
-          ),
+          sections: withSection(CategoriesSections.delete, SectionStatus.error),
           errorMessage: message,
           deletingIds: {...state.deletingIds}..remove(id),
         ),

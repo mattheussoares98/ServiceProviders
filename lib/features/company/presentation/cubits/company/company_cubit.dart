@@ -11,7 +11,6 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'company_state.dart';
 
@@ -117,7 +116,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        sections: withSection(CompanySections.switchCompany, SectionStatus.running),
+        sections: withSection(
+          CompanySections.switchCompany,
+          SectionStatus.running,
+        ),
       ),
     );
 
@@ -156,7 +158,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        sections: withSection(CompanySections.switchCompany, SectionStatus.success),
+        sections: withSection(
+          CompanySections.switchCompany,
+          SectionStatus.success,
+        ),
         company: selectedCompany,
         selectedCompanyId: companyId,
         parameters: paramsState is SuccessState<CompanyParameterEntity>
@@ -278,7 +283,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        sections: withSection(CompanySections.changeLogo, SectionStatus.running),
+        sections: withSection(
+          CompanySections.changeLogo,
+          SectionStatus.running,
+        ),
       ),
     );
 
@@ -298,7 +306,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       showDataStateToast(pickResult);
       emit(
         state.copyWith(
-          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+          sections: withSection(
+            CompanySections.changeLogo,
+            SectionStatus.error,
+          ),
         ),
       );
       return;
@@ -319,7 +330,10 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       showErrorToast('Erro ao obter o arquivo da imagem'.hardcoded);
       emit(
         state.copyWith(
-          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+          sections: withSection(
+            CompanySections.changeLogo,
+            SectionStatus.error,
+          ),
         ),
       );
       return;
@@ -335,14 +349,20 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       emit(
         state.copyWith(
           company: uploadResult.data,
-          sections: withSection(CompanySections.changeLogo, SectionStatus.success),
+          sections: withSection(
+            CompanySections.changeLogo,
+            SectionStatus.success,
+          ),
         ),
       );
     } else {
       showDataStateToast(uploadResult);
       emit(
         state.copyWith(
-          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+          sections: withSection(
+            CompanySections.changeLogo,
+            SectionStatus.error,
+          ),
         ),
       );
     }

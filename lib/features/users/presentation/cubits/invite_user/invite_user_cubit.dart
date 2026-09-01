@@ -4,7 +4,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_usecases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'invite_user_state.dart';
 
@@ -40,7 +39,10 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
     if (dataState is SuccessState<void>) {
       emit(
         state.copyWith(
-          sections: withSection(InviteUserSections.invite, SectionStatus.success),
+          sections: withSection(
+            InviteUserSections.invite,
+            SectionStatus.success,
+          ),
         ),
       );
       return true;

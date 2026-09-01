@@ -15,7 +15,6 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_us
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'users_state.dart';
 
@@ -337,7 +336,10 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.updateUser, SectionStatus.success),
+          sections: withSection(
+            UsersSections.updateUser,
+            SectionStatus.success,
+          ),
         ),
       );
       await loadUsers(emitLoading: false);
@@ -381,7 +383,10 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.updateUser, SectionStatus.success),
+          sections: withSection(
+            UsersSections.updateUser,
+            SectionStatus.success,
+          ),
         ),
       );
       await loadUsers(emitLoading: false);
@@ -416,7 +421,10 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           users: updatedUsers,
-          sections: withSection(UsersSections.deleteUser, SectionStatus.success),
+          sections: withSection(
+            UsersSections.deleteUser,
+            SectionStatus.success,
+          ),
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
       );
@@ -492,7 +500,10 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.deleteGroup, SectionStatus.success),
+          sections: withSection(
+            UsersSections.deleteGroup,
+            SectionStatus.success,
+          ),
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),
       );

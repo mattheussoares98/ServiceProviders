@@ -5,7 +5,6 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'permissions_state.dart';
 
@@ -170,10 +169,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
 
     emit(
       state.copyWith(
-        sections: withSection(
-          PermissionsSections.save,
-          SectionStatus.running,
-        ),
+        sections: withSection(PermissionsSections.save, SectionStatus.running),
       ),
     );
 
@@ -205,10 +201,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     } else {
       emit(
         state.copyWith(
-          sections: withSection(
-            PermissionsSections.save,
-            SectionStatus.error,
-          ),
+          sections: withSection(PermissionsSections.save, SectionStatus.error),
         ),
       );
       return false;
@@ -397,10 +390,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
 
     emit(
       state.copyWith(
-        sections: withSection(
-          PermissionsSections.save,
-          SectionStatus.running,
-        ),
+        sections: withSection(PermissionsSections.save, SectionStatus.running),
       ),
     );
 
@@ -445,10 +435,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     } else {
       emit(
         state.copyWith(
-          sections: withSection(
-            PermissionsSections.save,
-            SectionStatus.error,
-          ),
+          sections: withSection(PermissionsSections.save, SectionStatus.error),
         ),
       );
       return false;

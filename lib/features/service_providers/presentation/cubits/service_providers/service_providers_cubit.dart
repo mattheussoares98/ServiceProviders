@@ -15,7 +15,6 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/send_
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
@@ -682,11 +681,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
               state.invitations,
             );
         finalInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
-        emit(
-          state.copyWith(
-            invitations: finalInvitations,
-          ),
-        );
+        emit(state.copyWith(invitations: finalInvitations));
       }
       return true;
     } else {

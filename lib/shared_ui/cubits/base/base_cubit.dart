@@ -39,4 +39,12 @@ abstract class BaseState extends Equatable {
 abstract class BaseCubit<T extends BaseState> extends Cubit<T>
     with ClientMixin {
   BaseCubit(super.initialState);
+
+  /// Returns a **new** sections map with [key] set to [status].
+  Map<SectionKey, SectionStatus> withSection(
+    SectionKey key,
+    SectionStatus status,
+  ) {
+    return Map<SectionKey, SectionStatus>.from(state.sections)..[key] = status;
+  }
 }

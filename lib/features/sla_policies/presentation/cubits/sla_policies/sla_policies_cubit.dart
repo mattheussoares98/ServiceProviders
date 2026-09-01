@@ -10,7 +10,6 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'sla_policies_state.dart';
@@ -132,10 +131,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   }) async {
     emit(
       state.copyWith(
-        sections: withSection(
-          SlaPoliciesSections.save,
-          SectionStatus.running,
-        ),
+        sections: withSection(SlaPoliciesSections.save, SectionStatus.running),
       ),
     );
 
@@ -176,10 +172,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
           result.message ?? 'Erro ao salvar política de SLA'.hardcoded;
       emit(
         state.copyWith(
-          sections: withSection(
-            SlaPoliciesSections.save,
-            SectionStatus.error,
-          ),
+          sections: withSection(SlaPoliciesSections.save, SectionStatus.error),
           errorMessage: message,
         ),
       );

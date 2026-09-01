@@ -10,7 +10,6 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_avatar_use_case.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'home_state.dart';
 
