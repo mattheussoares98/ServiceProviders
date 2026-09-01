@@ -53,7 +53,7 @@ void main() {
 
     when(() => mockCompanyCubit.state).thenReturn(
       CompanyState(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         parameters: tParameters,
         permissionGroups: tGroups,
       ),
@@ -62,12 +62,9 @@ void main() {
     final adminUser = EntityFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
     );
-    when(() => mockSessionCubit.state).thenReturn(
-      SessionState(
-        user: adminUser,
-        isLoggedIn: true,
-      ),
-    );
+    when(
+      () => mockSessionCubit.state,
+    ).thenReturn(SessionState(user: adminUser, isLoggedIn: true));
   });
 
   Widget buildWidget({
@@ -139,44 +136,45 @@ void main() {
     ).called(1);
   });
 
-  testWidgets('toggling advance group chip updates advanceWarningGroupIds on save', (
-    tester,
-  ) async {
-    when(
-      () => mockCompanyCubit.updateEscalationParameters(
-        advanceWarningMinutes: any(named: 'advanceWarningMinutes'),
-        advanceWarningGroupIds: any(named: 'advanceWarningGroupIds'),
-        delayedNotificationIntervalMinutes: any(
-          named: 'delayedNotificationIntervalMinutes',
+  testWidgets(
+    'toggling advance group chip updates advanceWarningGroupIds on save',
+    (tester) async {
+      when(
+        () => mockCompanyCubit.updateEscalationParameters(
+          advanceWarningMinutes: any(named: 'advanceWarningMinutes'),
+          advanceWarningGroupIds: any(named: 'advanceWarningGroupIds'),
+          delayedNotificationIntervalMinutes: any(
+            named: 'delayedNotificationIntervalMinutes',
+          ),
+          escalationGroupIds: any(named: 'escalationGroupIds'),
         ),
-        escalationGroupIds: any(named: 'escalationGroupIds'),
-      ),
-    ).thenAnswer((_) async {});
+      ).thenAnswer((_) async {});
 
-    await tester.pumpWidget(
-      buildWidget(parameters: tParameters, permissionGroups: tGroups),
-    );
+      await tester.pumpWidget(
+        buildWidget(parameters: tParameters, permissionGroups: tGroups),
+      );
 
-    // Toggle 'Gerentes' in advance warning chips
-    final gerentesChip = find.widgetWithText(FilterChip, 'Gerentes');
-    await tester.ensureVisible(gerentesChip);
-    await tester.tap(gerentesChip);
-    await tester.pumpAndSettle();
+      // Toggle 'Gerentes' in advance warning chips
+      final gerentesChip = find.widgetWithText(FilterChip, 'Gerentes');
+      await tester.ensureVisible(gerentesChip);
+      await tester.tap(gerentesChip);
+      await tester.pumpAndSettle();
 
-    final saveButton = find.text('Salvar parâmetros de escalonamento');
-    await tester.ensureVisible(saveButton);
-    await tester.tap(saveButton);
-    await tester.pump();
+      final saveButton = find.text('Salvar parâmetros de escalonamento');
+      await tester.ensureVisible(saveButton);
+      await tester.tap(saveButton);
+      await tester.pump();
 
-    verify(
-      () => mockCompanyCubit.updateEscalationParameters(
-        advanceWarningMinutes: 30,
-        advanceWarningGroupIds: ['grp-1', 'grp-2'],
-        delayedNotificationIntervalMinutes: 45,
-        escalationGroupIds: ['grp-1', 'grp-2'],
-      ),
-    ).called(1);
-  });
+      verify(
+        () => mockCompanyCubit.updateEscalationParameters(
+          advanceWarningMinutes: 30,
+          advanceWarningGroupIds: ['grp-1', 'grp-2'],
+          delayedNotificationIntervalMinutes: 45,
+          escalationGroupIds: ['grp-1', 'grp-2'],
+        ),
+      ).called(1);
+    },
+  );
 
   testWidgets('removing escalation group updates escalationGroupIds on save', (
     tester,
@@ -223,12 +221,9 @@ void main() {
     final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
       isAdmin: false,
     );
-    when(() => mockSessionCubit.state).thenReturn(
-      SessionState(
-        user: regularUser,
-        isLoggedIn: true,
-      ),
-    );
+    when(
+      () => mockSessionCubit.state,
+    ).thenReturn(SessionState(user: regularUser, isLoggedIn: true));
 
     await tester.pumpWidget(
       buildWidget(parameters: tParameters, permissionGroups: tGroups),

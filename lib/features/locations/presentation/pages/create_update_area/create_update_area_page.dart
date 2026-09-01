@@ -42,7 +42,10 @@ class CreateUpdateAreaPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<LocationsCubit>(),
-        statuses: {StateStatus.saving, StateStatus.deleting},
+        sections: const {
+          LocationsSections.saveArea: {SectionStatus.running},
+          LocationsSections.deleteArea: {SectionStatus.running},
+        },
       ),
     ]);
 
@@ -93,7 +96,9 @@ class CreateUpdateAreaPage extends HookWidget {
             ),
             gapH32,
             BlocSelector<LocationsCubit, LocationsState, bool>(
-              selector: (state) => state.status == StateStatus.saving,
+              selector: (state) =>
+                  state.sections[LocationsSections.saveArea] ==
+                  SectionStatus.running,
               builder: (_, loading) {
                 return BaseButton(
                   onTap: submit,

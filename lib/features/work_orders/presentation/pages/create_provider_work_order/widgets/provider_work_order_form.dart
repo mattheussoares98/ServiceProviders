@@ -54,7 +54,9 @@ class _ProviderWorkOrderForm extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
-        statuses: {StateStatus.saving},
+        sections: const {
+          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
+        },
       ),
     ]);
 

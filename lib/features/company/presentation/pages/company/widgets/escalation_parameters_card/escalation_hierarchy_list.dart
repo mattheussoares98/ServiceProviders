@@ -82,7 +82,7 @@ class _EscalationHierarchyList extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: escalationGroupIds.length,
-            onReorderItem: isAdmin ? onReorder : null,
+            onReorderItem: isAdmin ? onReorder : (_, _) {},
             itemBuilder: (context, index) {
               final groupId = escalationGroupIds[index];
               final groupName = _getGroupName(groupId);

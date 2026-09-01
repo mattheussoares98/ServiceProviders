@@ -19,9 +19,17 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_paus
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'pause_workflow_state.dart';
+
+enum PauseWorkflowSections implements SectionKey {
+  requestPause,
+  reviewPause,
+  requestCompletion,
+  reviewCompletion,
+}
 
 @injectable
 class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
@@ -33,7 +41,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   Future<void> loadPauseReasons([bool force = false]) async {
     if (!force && state.pauseReasons.isNotEmpty) return;
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
 
     final companyId = _useCases.getActiveCompanyId();
 
@@ -43,7 +51,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (result is SuccessState<List<PauseReasonEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           pauseReasons: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -52,7 +60,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       final message =
           result.message ?? 'Erro ao carregar motivos de pausa'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
     }
@@ -62,7 +70,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String workOrderId, {
     PauseRequestStatus? status,
   }) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
     final result = await _useCases.getPauseRequests(
       GetPauseRequestsParams(workOrderId: workOrderId, status: status),
     );
@@ -71,7 +79,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (result is SuccessState<List<PauseRequestEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           pauseRequests: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -80,7 +88,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       final message =
           result.message ?? 'Erro ao carregar solicitações de pausa'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
     }
@@ -144,7 +152,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if ((reasonId?.isEmpty ?? true) && (customReason?.trim().isEmpty ?? true)) {
       final message = 'Informe o motivo da pausa'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestPause,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -155,7 +169,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           'Existe uma solicitação de conclusão pendente para esta ordem de serviço'
               .hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestPause,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -190,12 +210,26 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       reviewedById: reviewedById,
     );
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PauseWorkflowSections.requestPause,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final result = await _useCases.requestPause(request);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestPause,
+            SectionStatus.success,
+          ),
+        ),
+      );
       if (isDirectPause) {
         workOrdersCubit.updateLocalWorkOrderStatus(
           workOrderId,
@@ -212,7 +246,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     } else {
       final message = result.message ?? 'Erro ao solicitar pausa'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestPause,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -229,7 +269,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? reviewedById,
   }) async {
     final currentUserId = reviewedById ?? _useCases.getSessionUser().id;
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PauseWorkflowSections.reviewPause,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final result = await _useCases.reviewPause(
       ReviewPauseParams(
         id: id,
@@ -244,13 +291,26 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.reviewPause,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadPauseRequests(workOrderId);
       return true;
     } else {
       final message = result.message ?? 'Erro ao revisar pausa'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.reviewPause,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -278,7 +338,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (customReason.trim().isEmpty) {
       final message = 'Informe a justificativa de conclusão'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestCompletion,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -289,7 +355,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           'Já existe uma solicitação de conclusão pendente para esta ordem de serviço'
               .hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestCompletion,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -323,12 +395,26 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       reviewedById: reviewedById,
     );
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PauseWorkflowSections.requestCompletion,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final result = await _useCases.requestCompletion(request);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestCompletion,
+            SectionStatus.success,
+          ),
+        ),
+      );
       workOrdersCubit.updateLocalWorkOrderStatus(
         workOrderId,
         isDirectComplete
@@ -341,7 +427,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     } else {
       final message = result.message ?? 'Erro ao solicitar conclusão'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestCompletion,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -358,7 +450,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? reviewedById,
   }) async {
     final currentUserId = reviewedById ?? _useCases.getSessionUser().id;
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PauseWorkflowSections.reviewCompletion,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final result = await _useCases.reviewCompletion(
       ReviewCompletionParams(
         id: id,
@@ -373,7 +472,14 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.reviewCompletion,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadPauseRequests(workOrderId);
       return true;
     } else {
@@ -381,7 +487,13 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           result.message ??
           'Erro ao revisar solicitação de conclusão'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.reviewCompletion,
+            SectionStatus.error,
+          ),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;

@@ -18,7 +18,7 @@ class CompanyState extends BaseState {
       selectedCompanyId = null,
       parameters = null,
       permissionGroups = const [],
-      super(status: StateStatus.initial, errorMessage: '', sections: const {});
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   final CompanyEntity? company;
   final List<CompanyEntity> companies;
@@ -27,9 +27,9 @@ class CompanyState extends BaseState {
   final List<PermissionGroupEntity> permissionGroups;
 
   CompanyState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
     CompanyEntity? company,
     List<CompanyEntity>? companies,
     String? selectedCompanyId,

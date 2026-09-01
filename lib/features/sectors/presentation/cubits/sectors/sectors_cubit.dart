@@ -10,7 +10,7 @@ import 'package:uuid/uuid.dart';
 
 part 'sectors_state.dart';
 
-enum SectorsSection implements SectionKey { saveSector, deleteSector }
+enum SectorsSections implements SectionKey { save, delete }
 
 @injectable
 class SectorsCubit extends BaseCubit<SectorsState> {
@@ -24,7 +24,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getSectors(companyId);
@@ -33,7 +33,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (result is SuccessState<List<SectorEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           sectors: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -41,7 +41,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     } else {
       final message = result.message ?? 'Erro ao carregar setores'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
     }
@@ -68,7 +68,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   Future<bool> saveSector({String? id, required String name}) async {
     emit(
       state.copyWith(
-        sections: withSection(SectorsSection.saveSector, StateStatus.saving),
+        sections: withSection(SectorsSections.save, SectionStatus.running),
       ),
     );
 
@@ -100,7 +100,10 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (result is SuccessState<bool> && result.data == true) {
       emit(
         state.copyWith(
-          sections: withSection(SectorsSection.saveSector, StateStatus.loaded),
+          sections: withSection(
+            SectorsSections.save,
+            SectionStatus.success,
+          ),
         ),
       );
       await loadSectors(emitLoading: false);
@@ -110,8 +113,8 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       emit(
         state.copyWith(
           sections: withSection(
-            SectorsSection.saveSector,
-            StateStatus.savingError,
+            SectorsSections.save,
+            SectionStatus.error,
           ),
           errorMessage: message,
         ),
@@ -124,10 +127,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   Future<bool> deleteSector(String id) async {
     emit(
       state.copyWith(
-        sections: withSection(
-          SectorsSection.deleteSector,
-          StateStatus.deleting,
-        ),
+        sections: withSection(SectorsSections.delete, SectionStatus.running),
       ),
     );
 
@@ -140,8 +140,8 @@ class SectorsCubit extends BaseCubit<SectorsState> {
         state.copyWith(
           sectors: updatedSectors,
           sections: withSection(
-            SectorsSection.deleteSector,
-            StateStatus.loaded,
+            SectorsSections.delete,
+            SectionStatus.success,
           ),
         ),
       );
@@ -152,8 +152,8 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       emit(
         state.copyWith(
           sections: withSection(
-            SectorsSection.deleteSector,
-            StateStatus.deletingError,
+            SectorsSections.delete,
+            SectionStatus.error,
           ),
           errorMessage: message,
         ),

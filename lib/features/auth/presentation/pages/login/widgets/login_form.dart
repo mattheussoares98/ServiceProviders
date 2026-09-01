@@ -28,7 +28,7 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select(
-      (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+      (LoginCubit cubit) => cubit.state.status == DataStatus.loading,
     );
 
     return BlocBuilder<LoginCubit, LoginState>(

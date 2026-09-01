@@ -27,7 +27,7 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
     _refreshState();
   }
 
-  void _refreshState([StateStatus status = StateStatus.loaded]) {
+  void _refreshState([DataStatus status = DataStatus.loaded]) {
     emit(
       ChangePasswordState(
         passwordVisibility: _passwordVisibility,
@@ -38,7 +38,7 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
   }
 
   Future<void> changePassword(String password) async {
-    _refreshState(StateStatus.loading);
+    _refreshState(DataStatus.loading);
 
     final dataState = await _useCases.changePassword.call(password);
     if (isClosed) return;
@@ -52,7 +52,7 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
       _refreshState();
       await replaceAllRoute(const LoginRoute());
     } else {
-      _refreshState(StateStatus.loadingError);
+      _refreshState(DataStatus.loadingError);
     }
   }
 }

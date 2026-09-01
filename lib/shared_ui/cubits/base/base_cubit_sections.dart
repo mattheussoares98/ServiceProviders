@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart'
 
 /// Provides section-scoped state helpers for any [BaseCubit].
 ///
-/// Import this file in cubits that need to emit [StateStatus] changes for
+/// Import this file in cubits that need to emit [SectionStatus] changes for
 /// specific named sections without affecting the global [BaseState.status].
 ///
 /// ## Usage
@@ -17,7 +17,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart'
 /// 2. Emit section status changes via [withSection]:
 /// ```dart
 /// emit(state.copyWith(
-///   sections: withSection(MyFeatureSection.details, StateStatus.loading),
+///   sections: withSection(MyFeatureSection.details, SectionStatus.loading),
 /// ));
 /// ```
 ///
@@ -29,11 +29,15 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart'
 /// )
 /// ```
 extension BaseCubitSections<T extends BaseState> on BaseCubit<T> {
+  //TODO change to mixin and use inside the cubits
   /// Returns a **new** sections map with [key] set to [status].
   ///
   /// Pass the result to your state's `copyWith(sections: ...)`.
   /// This is the only sanctioned way to update [BaseState.sections].
-  Map<SectionKey, StateStatus> withSection(SectionKey key, StateStatus status) {
-    return Map<SectionKey, StateStatus>.from(state.sections)..[key] = status;
+  Map<SectionKey, SectionStatus> withSection(
+    SectionKey key,
+    SectionStatus status,
+  ) {
+    return Map<SectionKey, SectionStatus>.from(state.sections)..[key] = status;
   }
 }

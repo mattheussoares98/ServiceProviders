@@ -1,6 +1,13 @@
 part of 'work_orders_cubit.dart';
 
-enum WorkOrdersSection implements SectionKey { resumeWork }
+enum WorkOrdersSections implements SectionKey {
+  saveWorkOrder,
+  deleteWorkOrder,
+  changeStatus,
+  resumeWork,
+  createChangeRequest,
+  reviewChangeRequest,
+}
 
 class WorkOrdersState extends BaseState {
   const WorkOrdersState({
@@ -11,7 +18,7 @@ class WorkOrdersState extends BaseState {
     this.hasMorePages = true,
     this.isLoadingMore = false,
     this.providerCompanies = const [],
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
@@ -24,7 +31,7 @@ class WorkOrdersState extends BaseState {
       hasMorePages = true,
       isLoadingMore = false,
       providerCompanies = const [],
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   final List<WorkOrderEntity> workOrders;
   final List<WorkOrderChangeRequestEntity> changeRequests;
@@ -51,8 +58,8 @@ class WorkOrdersState extends BaseState {
     bool? hasMorePages,
     bool? isLoadingMore,
     List<ServiceProviderCompanyEntity>? providerCompanies,
-    Map<SectionKey, StateStatus>? sections,
-    StateStatus? status,
+    Map<SectionKey, SectionStatus>? sections,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
   }) {

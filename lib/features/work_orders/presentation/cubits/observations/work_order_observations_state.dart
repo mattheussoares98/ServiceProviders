@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 class WorkOrderObservationsState extends BaseState {
   const WorkOrderObservationsState({
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     this.observations = const [],
     super.errorMessage,
     super.sections,
@@ -15,10 +15,10 @@ class WorkOrderObservationsState extends BaseState {
   List<Object?> get props => [status, observations, errorMessage, sections];
 
   WorkOrderObservationsState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     List<WorkOrderObservationEntity>? observations,
     String? errorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return WorkOrderObservationsState(
       status: status ?? this.status,

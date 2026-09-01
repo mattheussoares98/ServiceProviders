@@ -11,27 +11,30 @@ class AttachmentsState extends BaseState {
     super.errorMessage,
   });
 
-  const AttachmentsState.empty() : this(status: StateStatus.initial);
+  const AttachmentsState.empty() : this(status: DataStatus.initial);
 
   final List<AttachmentEntity> attachments;
-  final Set<String> uploadingIds; // tracks which items show a progress indicator
-  final Set<String> pendingDeletions; // tracks which items are marked for deletion in the UI
-  final Map<String, String> videoThumbnails; // maps attachment ID to local thumbnail path
+  final Set<String>
+  uploadingIds; // tracks which items show a progress indicator
+  final Set<String>
+  pendingDeletions; // tracks which items are marked for deletion in the UI
+  final Map<String, String>
+  videoThumbnails; // maps attachment ID to local thumbnail path
   final int processingCount;
 
   @override
   List<Object?> get props => [
-        status,
-        attachments,
-        uploadingIds,
-        pendingDeletions,
-        videoThumbnails,
-        processingCount,
-        errorMessage,
-      ];
+    status,
+    attachments,
+    uploadingIds,
+    pendingDeletions,
+    videoThumbnails,
+    processingCount,
+    errorMessage,
+  ];
 
   AttachmentsState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     List<AttachmentEntity>? attachments,
     Set<String>? uploadingIds,
     Set<String>? pendingDeletions,

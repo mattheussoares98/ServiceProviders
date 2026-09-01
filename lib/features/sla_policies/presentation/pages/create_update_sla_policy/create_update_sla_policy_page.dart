@@ -34,10 +34,9 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<SlaPoliciesCubit>(),
-        statuses: const {},
         sections: {
-          SlaPoliciesSection.saveSlaPolicy: {StateStatus.saving},
-          SlaPoliciesSection.deleteSlaPolicy: {StateStatus.deleting},
+          SlaPoliciesSections.save: {SectionStatus.running},
+          SlaPoliciesSections.delete: {SectionStatus.running},
         },
       ),
     ]);

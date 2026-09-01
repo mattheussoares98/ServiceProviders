@@ -90,7 +90,9 @@ class CompanyDetailCard extends StatelessWidget {
       (cubit) => cubit.state.user.isAdmin,
     );
     final isSaving = context.select<CompanyCubit, bool>(
-      (cubit) => cubit.state.status == StateStatus.saving,
+      (cubit) =>
+          cubit.state.sections[CompanySections.changeLogo] ==
+          SectionStatus.running,
     );
 
     return Container(

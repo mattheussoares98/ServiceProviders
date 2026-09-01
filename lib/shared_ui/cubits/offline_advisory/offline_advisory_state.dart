@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 final class OfflineAdvisoryState extends BaseState {
   const OfflineAdvisoryState({
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage,
     super.sections,
     this.advisoryEvent,
@@ -16,7 +16,7 @@ final class OfflineAdvisoryState extends BaseState {
   bool get shouldShowDialog => advisoryEvent != null;
 
   OfflineAdvisoryState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     OfflineAdvisoryEvent? advisoryEvent,
     bool annulAdvisoryEvent = false,
@@ -26,18 +26,19 @@ final class OfflineAdvisoryState extends BaseState {
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
       sections: sections,
-      advisoryEvent:
-          annulAdvisoryEvent ? null : (advisoryEvent ?? this.advisoryEvent),
+      advisoryEvent: annulAdvisoryEvent
+          ? null
+          : (advisoryEvent ?? this.advisoryEvent),
       isProviderBlocked: isProviderBlocked ?? this.isProviderBlocked,
     );
   }
 
   @override
   List<Object?> get props => [
-        status,
-        errorMessage,
-        sections,
-        advisoryEvent,
-        isProviderBlocked,
-      ];
+    status,
+    errorMessage,
+    sections,
+    advisoryEvent,
+    isProviderBlocked,
+  ];
 }

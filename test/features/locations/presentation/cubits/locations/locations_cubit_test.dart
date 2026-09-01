@@ -171,10 +171,10 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.errorMessage, 'errorMessage', isNull)
               .having((s) => s.locations, 'locations', isNotEmpty)
               .having((s) => s.allAreas, 'allAreas', tAreas),
@@ -200,10 +200,10 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.initial,
+            DataStatus.initial,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.errorMessage, 'errorMessage', isNull)
               .having((s) => s.locations, 'locations', isNotEmpty),
         ],
@@ -230,10 +230,10 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
         ],
         verify: (_) {
@@ -259,12 +259,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            DataStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -292,7 +292,7 @@ void main() {
         ),
         expect: () => [
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.locations, 'locations', tLocations)
               .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
@@ -346,10 +346,10 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.locations, 'locations', tLocations)
               .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
@@ -379,10 +379,10 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error'),
         ],
       );
@@ -459,14 +459,19 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.running,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.success,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -537,14 +542,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -586,14 +591,19 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.running,
+          ),
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.success,
           ),
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -671,14 +681,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -709,19 +719,23 @@ void main() {
         act: (cubit) => cubit.deleteLocation(tLocations.first.id),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
+            (s) => s.sections[LocationsSections.deleteLocation],
+            'sections[deleteLocation]',
+            SectionStatus.running,
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.sections[LocationsSections.deleteLocation],
+                'sections[deleteLocation]',
+                SectionStatus.success,
+              )
               .having(
                 (s) => s.locations.any((l) => l.id == tLocations.first.id),
                 'hasDeletedLocation',
                 isFalse,
               ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.locations, 'locations', isEmpty),
         ],
         verify: (_) {
@@ -741,14 +755,14 @@ void main() {
         act: (cubit) => cubit.deleteLocation(tId),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
+            (s) => s.sections[LocationsSections.deleteLocation],
+            'sections[deleteLocation]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deletingError,
+            (s) => s.sections[LocationsSections.deleteLocation],
+            'sections[deleteLocation]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -786,14 +800,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.success,
           ),
         ],
         verify: (_) {
@@ -843,14 +857,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -885,14 +899,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.success,
           ),
         ],
         verify: (_) {
@@ -945,14 +959,14 @@ void main() {
         },
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -981,14 +995,14 @@ void main() {
             expect(await cubit.deleteArea(tId, tLocationId), isTrue),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
+            (s) => s.sections[LocationsSections.deleteArea],
+            'sections[deleteArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            (s) => s.sections[LocationsSections.deleteArea],
+            'sections[deleteArea]',
+            SectionStatus.success,
           ),
         ],
         verify: (_) {
@@ -1009,14 +1023,14 @@ void main() {
             expect(await cubit.deleteArea(tId, tLocationId), isFalse),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
+            (s) => s.sections[LocationsSections.deleteArea],
+            'sections[deleteArea]',
+            SectionStatus.running,
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deletingError,
+            (s) => s.sections[LocationsSections.deleteArea],
+            'sections[deleteArea]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -1170,7 +1184,9 @@ void main() {
 
         await pumpEventQueue();
 
-        final found = testCubit.state.locations.firstWhere((l) => l.id == existingLoc.id);
+        final found = testCubit.state.locations.firstWhere(
+          (l) => l.id == existingLoc.id,
+        );
         expect(found.name, 'Updated Location Name');
         await testCubit.close();
         await controller.close();
@@ -1206,106 +1222,119 @@ void main() {
         final toDelete = tLocations.first;
 
         controller.add(
-          RealtimeEvent(
-            eventType: RealtimeEventType.delete,
-            id: toDelete.id,
-          ),
+          RealtimeEvent(eventType: RealtimeEventType.delete, id: toDelete.id),
         );
 
         await pumpEventQueue();
 
-        expect(testCubit.state.locations.any((l) => l.id == toDelete.id), isFalse);
+        expect(
+          testCubit.state.locations.any((l) => l.id == toDelete.id),
+          isFalse,
+        );
         await testCubit.close();
         await controller.close();
       });
 
-      test('removes location on update event when deletedAt is not null', () async {
-        final controller = StreamController<RealtimeEvent<LocationEntity>>();
-        when(
-          () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
-        ).thenAnswer((_) => controller.stream);
+      test(
+        'removes location on update event when deletedAt is not null',
+        () async {
+          final controller = StreamController<RealtimeEvent<LocationEntity>>();
+          when(
+            () =>
+                mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => controller.stream);
 
-        final useCases = LocationsCubitUseCases(
-          getActiveCompanyId: mockGetActiveCompanyId,
-          getLocations: mockGetLocations,
-          getAreas: mockGetAreas,
-          getLocationsByIds: mockGetLocationsByIds,
-          getAreasByIds: mockGetAreasByIds,
-          getProviderLocations: mockGetProviderLocations,
-          getProviderAreas: mockGetProviderAreas,
-          createLocation: mockCreateLocation,
-          updateLocation: mockUpdateLocation,
-          deleteLocation: mockDeleteLocation,
-          createArea: mockCreateArea,
-          updateArea: mockUpdateArea,
-          deleteArea: mockDeleteArea,
-          watchLocationsRealtime: mockWatchLocationsRealtime,
-          watchAreasRealtime: mockWatchAreasRealtime,
-        );
+          final useCases = LocationsCubitUseCases(
+            getActiveCompanyId: mockGetActiveCompanyId,
+            getLocations: mockGetLocations,
+            getAreas: mockGetAreas,
+            getLocationsByIds: mockGetLocationsByIds,
+            getAreasByIds: mockGetAreasByIds,
+            getProviderLocations: mockGetProviderLocations,
+            getProviderAreas: mockGetProviderAreas,
+            createLocation: mockCreateLocation,
+            updateLocation: mockUpdateLocation,
+            deleteLocation: mockDeleteLocation,
+            createArea: mockCreateArea,
+            updateArea: mockUpdateArea,
+            deleteArea: mockDeleteArea,
+            watchLocationsRealtime: mockWatchLocationsRealtime,
+            watchAreasRealtime: mockWatchAreasRealtime,
+          );
 
-        final testCubit = LocationsCubit(useCases: useCases);
-        testCubit.emit(testCubit.state.copyWith(locations: tLocations));
+          final testCubit = LocationsCubit(useCases: useCases);
+          testCubit.emit(testCubit.state.copyWith(locations: tLocations));
 
-        final toDelete = tLocations.first;
-        final softDeletedLoc = toDelete.copyWith(deletedAt: DateTime.now());
+          final toDelete = tLocations.first;
+          final softDeletedLoc = toDelete.copyWith(deletedAt: DateTime.now());
 
-        controller.add(
-          RealtimeEvent(
-            eventType: RealtimeEventType.update,
-            id: toDelete.id,
-            entity: softDeletedLoc,
-          ),
-        );
+          controller.add(
+            RealtimeEvent(
+              eventType: RealtimeEventType.update,
+              id: toDelete.id,
+              entity: softDeletedLoc,
+            ),
+          );
 
-        await pumpEventQueue();
+          await pumpEventQueue();
 
-        expect(testCubit.state.locations.any((l) => l.id == toDelete.id), isFalse);
-        await testCubit.close();
-        await controller.close();
-      });
+          expect(
+            testCubit.state.locations.any((l) => l.id == toDelete.id),
+            isFalse,
+          );
+          await testCubit.close();
+          await controller.close();
+        },
+      );
 
-      test('updates areas and rebuilds areasByLocation on area realtime event', () async {
-        final controller = StreamController<RealtimeEvent<AreaEntity>>();
-        when(
-          () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
-        ).thenAnswer((_) => controller.stream);
+      test(
+        'updates areas and rebuilds areasByLocation on area realtime event',
+        () async {
+          final controller = StreamController<RealtimeEvent<AreaEntity>>();
+          when(
+            () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => controller.stream);
 
-        final useCases = LocationsCubitUseCases(
-          getActiveCompanyId: mockGetActiveCompanyId,
-          getLocations: mockGetLocations,
-          getAreas: mockGetAreas,
-          getLocationsByIds: mockGetLocationsByIds,
-          getAreasByIds: mockGetAreasByIds,
-          getProviderLocations: mockGetProviderLocations,
-          getProviderAreas: mockGetProviderAreas,
-          createLocation: mockCreateLocation,
-          updateLocation: mockUpdateLocation,
-          deleteLocation: mockDeleteLocation,
-          createArea: mockCreateArea,
-          updateArea: mockUpdateArea,
-          deleteArea: mockDeleteArea,
-          watchLocationsRealtime: mockWatchLocationsRealtime,
-          watchAreasRealtime: mockWatchAreasRealtime,
-        );
+          final useCases = LocationsCubitUseCases(
+            getActiveCompanyId: mockGetActiveCompanyId,
+            getLocations: mockGetLocations,
+            getAreas: mockGetAreas,
+            getLocationsByIds: mockGetLocationsByIds,
+            getAreasByIds: mockGetAreasByIds,
+            getProviderLocations: mockGetProviderLocations,
+            getProviderAreas: mockGetProviderAreas,
+            createLocation: mockCreateLocation,
+            updateLocation: mockUpdateLocation,
+            deleteLocation: mockDeleteLocation,
+            createArea: mockCreateArea,
+            updateArea: mockUpdateArea,
+            deleteArea: mockDeleteArea,
+            watchLocationsRealtime: mockWatchLocationsRealtime,
+            watchAreasRealtime: mockWatchAreasRealtime,
+          );
 
-        final testCubit = LocationsCubit(useCases: useCases);
-        final newArea = EntityFactory.makeAreaEntity();
+          final testCubit = LocationsCubit(useCases: useCases);
+          final newArea = EntityFactory.makeAreaEntity();
 
-        controller.add(
-          RealtimeEvent(
-            eventType: RealtimeEventType.insert,
-            id: newArea.id,
-            entity: newArea,
-          ),
-        );
+          controller.add(
+            RealtimeEvent(
+              eventType: RealtimeEventType.insert,
+              id: newArea.id,
+              entity: newArea,
+            ),
+          );
 
-        await pumpEventQueue();
+          await pumpEventQueue();
 
-        expect(testCubit.state.allAreas, contains(newArea));
-        expect(testCubit.state.areasByLocation[newArea.locationId], contains(newArea));
-        await testCubit.close();
-        await controller.close();
-      });
+          expect(testCubit.state.allAreas, contains(newArea));
+          expect(
+            testCubit.state.areasByLocation[newArea.locationId],
+            contains(newArea),
+          );
+          await testCubit.close();
+          await controller.close();
+        },
+      );
 
       test('removes area on update event when deletedAt is not null', () async {
         final controller = StreamController<RealtimeEvent<AreaEntity>>();
@@ -1354,7 +1383,10 @@ void main() {
 
         await pumpEventQueue();
 
-        expect(testCubit.state.allAreas.any((a) => a.id == initialArea.id), isFalse);
+        expect(
+          testCubit.state.allAreas.any((a) => a.id == initialArea.id),
+          isFalse,
+        );
         await testCubit.close();
         await controller.close();
       });

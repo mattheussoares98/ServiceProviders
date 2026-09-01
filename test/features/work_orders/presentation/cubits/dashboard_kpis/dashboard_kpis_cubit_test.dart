@@ -18,11 +18,7 @@ void main() {
   late DashboardKpisCubitUseCases useCases;
 
   setUpAll(() {
-    registerFallbackValue(
-      const CalculateWorkOrderKpisParams(
-        workOrders: [],
-      ),
-    );
+    registerFallbackValue(const CalculateWorkOrderKpisParams(workOrders: []));
   });
 
   setUp(() {
@@ -43,7 +39,7 @@ void main() {
 
     test('initial state has empty metrics and initial status', () {
       final cubit = DashboardKpisCubit(useCases: useCases);
-      expect(cubit.state.status, StateStatus.initial);
+      expect(cubit.state.status, DataStatus.initial);
       expect(cubit.state.startDate, isNull);
       expect(cubit.state.endDate, isNull);
       expect(cubit.state.metrics.totalWorkOrders, 0);
@@ -60,7 +56,7 @@ void main() {
       act: (cubit) => cubit.computeKpis(tWorkOrders),
       expect: () => [
         isA<DashboardKpisState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.metrics, 'metrics', tMetrics),
       ],
       verify: (_) {
@@ -83,7 +79,7 @@ void main() {
       ),
       expect: () => [
         isA<DashboardKpisState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.metrics, 'metrics', tMetrics)
             .having((s) => s.startDate, 'startDate', DateTime(2026, 8))
             .having(
@@ -97,11 +93,7 @@ void main() {
           () => mockCalculateWorkOrderKpisUseCase.call(
             any(
               that: isA<CalculateWorkOrderKpisParams>()
-                  .having(
-                    (p) => p.startDate,
-                    'startDate',
-                    DateTime(2026, 8),
-                  )
+                  .having((p) => p.startDate, 'startDate', DateTime(2026, 8))
                   .having(
                     (p) => p.endDate,
                     'endDate',

@@ -5,15 +5,16 @@ class LocationsState extends BaseState {
     required this.locations,
     required this.allAreas,
     required this.areasByLocation,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const LocationsState.initial()
     : locations = const [],
       areasByLocation = const <String, List<AreaEntity>>{},
       allAreas = const [],
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   final List<LocationEntity> locations;
   final Map<String, List<AreaEntity>> areasByLocation;
@@ -23,9 +24,10 @@ class LocationsState extends BaseState {
     List<LocationEntity>? locations,
     List<AreaEntity>? allAreas,
     Map<String, List<AreaEntity>>? areasByLocation,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return LocationsState(
       locations: locations ?? this.locations,
@@ -35,6 +37,7 @@ class LocationsState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -45,5 +48,6 @@ class LocationsState extends BaseState {
     allAreas,
     status,
     errorMessage,
+    sections,
   ];
 }

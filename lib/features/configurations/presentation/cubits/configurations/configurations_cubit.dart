@@ -19,16 +19,16 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
   final ConfigurationsCubitUseCases _useCases;
 
   Future<void> loadConfigurations() async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
     final result = await _useCases.getConfigurations();
     if (result is SuccessState<ConfigurationsEntity>) {
       emit(
-        state.copyWith(configurations: result.data, status: StateStatus.loaded),
+        state.copyWith(configurations: result.data, status: DataStatus.loaded),
       );
     } else if (result is FailureState<ConfigurationsEntity>) {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: result.message,
         ),
       );
@@ -41,7 +41,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         configurations: state.configurations.copyWith(
           pushNotificationsEnabled: enabled,
         ),
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
     unawaited(_useCases.saveConfigurations(enabled));
@@ -51,14 +51,14 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
     emit(
       state.copyWith(
         configurations: state.configurations.copyWith(themeMode: mode.name),
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
     unawaited(_useCases.saveThemeMode(mode.name));
   }
 
   Future<void> clearAppCache() async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
     await _useCases.clearAppCache();
     emit(
       state.copyWith(
@@ -67,7 +67,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
           themeMode: 'system',
           systemNotificationsEnabled: true,
         ),
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
     await replaceAllRoute(const LoginRoute());

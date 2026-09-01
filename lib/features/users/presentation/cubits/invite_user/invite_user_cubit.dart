@@ -4,8 +4,11 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/invite_user_params.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/invite_user_usecases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'invite_user_state.dart';
+
+enum InviteUserSections implements SectionKey { invite }
 
 @injectable
 class InviteUserCubit extends BaseCubit<InviteUserState> {
@@ -18,14 +21,14 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
   Future<bool> invite({required String email, required String groupId}) async {
     final companyId = _useCases.getActiveCompanyId();
 
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(InviteUserSections.invite, SectionStatus.running),
+      ),
+    );
 
     final dataState = await _useCases.inviteUser(
-      InviteUserParams(
-        email: email,
-        companyId: companyId,
-        groupId: groupId,
-      ),
+      InviteUserParams(email: email, companyId: companyId, groupId: groupId),
     );
 
     showDataStateToast(
@@ -34,10 +37,20 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
           'Convite enviado com sucesso. Cheque o e-mail para aceitar o convite'
               .hardcoded,
     );
-    emit(state.copyWith(status: StateStatus.loaded));
     if (dataState is SuccessState<void>) {
+      emit(
+        state.copyWith(
+          sections: withSection(InviteUserSections.invite, SectionStatus.success),
+        ),
+      );
       return true;
     } else {
+      emit(
+        state.copyWith(
+          sections: withSection(InviteUserSections.invite, SectionStatus.error),
+          errorMessage: dataState.message,
+        ),
+      );
       return false;
     }
   }

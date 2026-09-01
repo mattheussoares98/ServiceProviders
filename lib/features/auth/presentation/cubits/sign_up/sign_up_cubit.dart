@@ -17,7 +17,7 @@ class SignUpCubit extends BaseCubit<SignUpState> {
   bool _passwordVisibility = false;
   bool _confirmPasswordVisibility = false;
 
-  void _refreshState([StateStatus status = StateStatus.loaded]) {
+  void _refreshState([DataStatus status = DataStatus.loaded]) {
     emit(
       SignUpState(
         passwordVisibility: _passwordVisibility,
@@ -42,7 +42,7 @@ class SignUpCubit extends BaseCubit<SignUpState> {
     required String email,
     required String password,
   }) async {
-    _refreshState(StateStatus.loading);
+    _refreshState(DataStatus.loading);
 
     final signUpEntity = SignUpEntity(
       name: name,

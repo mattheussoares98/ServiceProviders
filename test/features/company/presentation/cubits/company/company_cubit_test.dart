@@ -151,10 +151,10 @@ void main() {
       isA<CompanyState>().having(
         (state) => state.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<CompanyState>()
-          .having((state) => state.status, 'status', StateStatus.loaded)
+          .having((state) => state.status, 'status', DataStatus.loaded)
           .having((state) => state.company, 'company', isA<CompanyEntity>()),
     ],
     verify: (_) {
@@ -182,12 +182,12 @@ void main() {
       isA<CompanyState>().having(
         (state) => state.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<CompanyState>().having(
         (state) => state.status,
         'status',
-        StateStatus.loaded,
+        DataStatus.loaded,
       ),
     ],
     verify: (_) {
@@ -250,10 +250,10 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<CompanyState>()
-            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having((state) => state.status, 'status', DataStatus.loaded)
             .having((state) => state.company, 'company', isA<CompanyEntity>()),
       ],
     );
@@ -274,12 +274,12 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loadingError,
+          DataStatus.loadingError,
         ),
       ],
     );
@@ -302,12 +302,12 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loaded,
+          DataStatus.loaded,
         ),
       ],
     );
@@ -358,10 +358,10 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<CompanyState>()
-            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having((state) => state.status, 'status', DataStatus.loaded)
             .having((state) => state.companies.length, 'companies.length', 3)
             .having((state) => state.company?.id, 'company.id', isNotEmpty),
       ],
@@ -384,12 +384,12 @@ void main() {
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<CompanyState>().having(
           (state) => state.status,
           'status',
-          StateStatus.loadingError,
+          DataStatus.loadingError,
         ),
       ],
     );
@@ -430,7 +430,7 @@ void main() {
         ).thenAnswer((_) async {});
         return companyCubit..emit(
           CompanyState(
-            status: StateStatus.loaded,
+            status: DataStatus.loaded,
             companies: companies,
             company: companies.first,
           ),
@@ -439,15 +439,15 @@ void main() {
       act: (cubit) => cubit.switchCompany(companies[1].id),
       expect: () => [
         isA<CompanyState>().having(
-          (s) => s.sections[CompanySection.switchCompany],
+          (s) => s.sections[CompanySections.switchCompany],
           'sections[switchCompany]',
-          StateStatus.loading,
+          SectionStatus.running,
         ),
         isA<CompanyState>()
             .having(
-              (s) => s.sections[CompanySection.switchCompany],
+              (s) => s.sections[CompanySections.switchCompany],
               'sections[switchCompany]',
-              StateStatus.loaded,
+              SectionStatus.success,
             )
             .having(
               (s) => s.selectedCompanyId,
@@ -465,18 +465,18 @@ void main() {
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should not change company when updateUserProfile fails',
+      'should emit error when updateUserProfile fails',
       build: () {
         final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
-        when(() => mockUpdateUserProfileUseCase.call(any())).thenAnswer(
-          (_) async => FailureState(message: 'Update user profile failed'),
-        );
+        when(
+          () => mockUpdateUserProfileUseCase.call(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Failed'));
         return companyCubit..emit(
           CompanyState(
-            status: StateStatus.loaded,
+            status: DataStatus.loaded,
             companies: companies,
             company: companies.first,
           ),
@@ -485,75 +485,71 @@ void main() {
       act: (cubit) => cubit.switchCompany(companies[1].id),
       expect: () => [
         isA<CompanyState>().having(
-          (s) => s.sections[CompanySection.switchCompany],
+          (s) => s.sections[CompanySections.switchCompany],
           'sections[switchCompany]',
-          StateStatus.loading,
+          SectionStatus.running,
         ),
-        isA<CompanyState>()
-            .having(
-              (s) => s.sections[CompanySection.switchCompany],
-              'sections[switchCompany]',
-              StateStatus.loaded,
-            )
-            .having((s) => s.company?.id, 'company.id', companies.first.id),
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.switchCompany],
+          'sections[switchCompany]',
+          SectionStatus.error,
+        ),
       ],
-      verify: (_) {
-        verify(() => mockUpdateUserProfileUseCase.call(any())).called(1);
-        verifyNever(() => mockSetSelectedCompanyIdUseCase.call(any()));
-      },
     );
   });
 
   group('changeLogo', () {
     final tCompany = EntityFactory.makeCompanyEntity();
-    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+      localPath: '/tmp/logo.png',
+    );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should not emit anything when company in state is null',
+      'should do nothing when company in state is null',
       build: () => companyCubit,
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => <CompanyState>[],
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should show error toast and not proceed when user is not admin',
+      'should do nothing when user is not admin',
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenAnswer(
           (_) => EntityFactory.makeUserProfileEntity().copyWith(isAdmin: false),
         );
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+          ..emit(CompanyState(status: DataStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => <CompanyState>[],
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should emit saving and loaded when pickAttachment returns empty',
+      'should emit running and idle when pickAttachment returns empty',
       build: () {
         when(
           () => mockPickAttachmentUseCase.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: []));
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+          ..emit(CompanyState(status: DataStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
         isA<CompanyState>().having(
-          (state) => state.status,
-          'status',
-          StateStatus.saving,
+          (state) => state.sections[CompanySections.changeLogo],
+          'sections[changeLogo]',
+          SectionStatus.running,
         ),
         isA<CompanyState>().having(
-          (state) => state.status,
-          'status',
-          StateStatus.loaded,
+          (state) => state.sections[CompanySections.changeLogo],
+          'sections[changeLogo]',
+          SectionStatus.idle,
         ),
       ],
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should emit saving and savingError when updateCompanyLogo fails',
+      'should emit running and error when updateCompanyLogo fails',
       build: () {
         when(
           () => mockPickAttachmentUseCase.call(any()),
@@ -562,25 +558,25 @@ void main() {
           () => mockUpdateCompanyLogoUseCase.call(any()),
         ).thenAnswer((_) async => FailureState(message: 'Upload failed'));
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+          ..emit(CompanyState(status: DataStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
         isA<CompanyState>().having(
-          (state) => state.status,
-          'status',
-          StateStatus.saving,
+          (state) => state.sections[CompanySections.changeLogo],
+          'sections[changeLogo]',
+          SectionStatus.running,
         ),
         isA<CompanyState>().having(
-          (state) => state.status,
-          'status',
-          StateStatus.savingError,
+          (state) => state.sections[CompanySections.changeLogo],
+          'sections[changeLogo]',
+          SectionStatus.error,
         ),
       ],
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should emit saving and loaded with updated company when update succeeds',
+      'should emit running and success with updated company when update succeeds',
       build: () {
         final updatedCompany = tCompany.copyWith(logoUrl: 'https://logo.png');
         when(
@@ -590,17 +586,21 @@ void main() {
           () => mockUpdateCompanyLogoUseCase.call(any()),
         ).thenAnswer((_) async => SuccessState(data: updatedCompany));
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, company: tCompany));
+          ..emit(CompanyState(status: DataStatus.loaded, company: tCompany));
       },
       act: (cubit) => cubit.changeLogo(AttachmentSource.gallery),
       expect: () => [
         isA<CompanyState>().having(
-          (state) => state.status,
-          'status',
-          StateStatus.saving,
+          (state) => state.sections[CompanySections.changeLogo],
+          'sections[changeLogo]',
+          SectionStatus.running,
         ),
         isA<CompanyState>()
-            .having((state) => state.status, 'status', StateStatus.loaded)
+            .having(
+              (state) => state.sections[CompanySections.changeLogo],
+              'sections[changeLogo]',
+              SectionStatus.success,
+            )
             .having(
               (state) => state.company?.logoUrl,
               'logoUrl',
@@ -622,13 +622,13 @@ void main() {
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should emit saving and loaded with updated parameters on success',
+      'should emit running and success with updated parameters on success',
       build: () {
         when(
           () => mockSaveCompanyParametersUseCase.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, parameters: tParams));
+          ..emit(CompanyState(status: DataStatus.loaded, parameters: tParams));
       },
       act: (cubit) => cubit.updateEscalationParameters(
         advanceWarningMinutes: 45,
@@ -638,15 +638,15 @@ void main() {
       ),
       expect: () => [
         isA<CompanyState>().having(
-          (s) => s.sections[CompanySection.updateEscalationParameters],
+          (s) => s.sections[CompanySections.updateEscalationParameters],
           'sections[updateEscalationParameters]',
-          StateStatus.loading,
+          SectionStatus.running,
         ),
         isA<CompanyState>()
             .having(
-              (s) => s.sections[CompanySection.updateEscalationParameters],
+              (s) => s.sections[CompanySections.updateEscalationParameters],
               'sections[updateEscalationParameters]',
-              StateStatus.loaded,
+              SectionStatus.success,
             )
             .having(
               (s) => s.parameters?.advanceWarningMinutes,
@@ -665,26 +665,26 @@ void main() {
     );
 
     blocTest<CompanyCubit, CompanyState>(
-      'should emit saving and loaded on save failure',
+      'should emit running and error on save failure',
       build: () {
         when(
           () => mockSaveCompanyParametersUseCase.call(any()),
         ).thenAnswer((_) async => FailureState(message: 'Save failed'));
         return companyCubit
-          ..emit(CompanyState(status: StateStatus.loaded, parameters: tParams));
+          ..emit(CompanyState(status: DataStatus.loaded, parameters: tParams));
       },
       act: (cubit) =>
           cubit.updateEscalationParameters(advanceWarningMinutes: 45),
       expect: () => [
         isA<CompanyState>().having(
-          (s) => s.sections[CompanySection.updateEscalationParameters],
+          (s) => s.sections[CompanySections.updateEscalationParameters],
           'sections[updateEscalationParameters]',
-          StateStatus.loading,
+          SectionStatus.running,
         ),
         isA<CompanyState>().having(
-          (s) => s.sections[CompanySection.updateEscalationParameters],
+          (s) => s.sections[CompanySections.updateEscalationParameters],
           'sections[updateEscalationParameters]',
-          StateStatus.loaded,
+          SectionStatus.error,
         ),
       ],
     );

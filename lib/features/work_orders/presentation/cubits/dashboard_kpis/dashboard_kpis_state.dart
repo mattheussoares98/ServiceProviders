@@ -5,7 +5,7 @@ class DashboardKpisState extends BaseState {
     required this.metrics,
     this.startDate,
     this.endDate,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
@@ -14,7 +14,7 @@ class DashboardKpisState extends BaseState {
     : metrics = const WorkOrderKpiMetricsEntity.empty(),
       startDate = null,
       endDate = null,
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   final WorkOrderKpiMetricsEntity metrics;
   final DateTime? startDate;
@@ -26,10 +26,10 @@ class DashboardKpisState extends BaseState {
     bool? annulStartDate,
     DateTime? endDate,
     bool? annulEndDate,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return DashboardKpisState(
       metrics: metrics ?? this.metrics,

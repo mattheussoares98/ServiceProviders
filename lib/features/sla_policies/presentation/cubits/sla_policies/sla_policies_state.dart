@@ -4,19 +4,15 @@ class SlaPoliciesState extends BaseState {
   const SlaPoliciesState({
     required this.slaPolicies,
     this.selectedSlaPolicy,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
 
   const SlaPoliciesState.initial()
-      : slaPolicies = const [],
-        selectedSlaPolicy = null,
-        super(
-          status: StateStatus.initial,
-          errorMessage: '',
-          sections: const {},
-        );
+    : slaPolicies = const [],
+      selectedSlaPolicy = null,
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   final List<SlaPolicyEntity> slaPolicies;
   final SlaPolicyEntity? selectedSlaPolicy;
@@ -25,10 +21,10 @@ class SlaPoliciesState extends BaseState {
     List<SlaPolicyEntity>? slaPolicies,
     SlaPolicyEntity? selectedSlaPolicy,
     bool? annulSelectedSlaPolicy,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return SlaPoliciesState(
       slaPolicies: slaPolicies ?? this.slaPolicies,
@@ -45,10 +41,10 @@ class SlaPoliciesState extends BaseState {
 
   @override
   List<Object?> get props => [
-        slaPolicies,
-        selectedSlaPolicy,
-        status,
-        errorMessage,
-        sections,
-      ];
+    slaPolicies,
+    selectedSlaPolicy,
+    status,
+    errorMessage,
+    sections,
+  ];
 }

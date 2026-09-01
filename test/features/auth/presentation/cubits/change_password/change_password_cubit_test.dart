@@ -49,7 +49,7 @@ void main() {
       const ChangePasswordState(
         passwordVisibility: true,
         confirmPasswordVisibility: false,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     ],
   );
@@ -62,7 +62,7 @@ void main() {
       const ChangePasswordState(
         passwordVisibility: false,
         confirmPasswordVisibility: true,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     ],
   );
@@ -82,12 +82,12 @@ void main() {
       isA<ChangePasswordState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<ChangePasswordState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loaded,
+        DataStatus.loaded,
       ),
     ],
     verify: (_) {
@@ -111,12 +111,12 @@ void main() {
       isA<ChangePasswordState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<ChangePasswordState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loadingError,
+        DataStatus.loadingError,
       ),
     ],
     verify: (_) {

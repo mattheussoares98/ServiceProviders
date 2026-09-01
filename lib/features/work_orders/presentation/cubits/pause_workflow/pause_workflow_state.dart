@@ -4,14 +4,15 @@ class PauseWorkflowState extends BaseState {
   const PauseWorkflowState({
     required this.pauseReasons,
     required this.pauseRequests,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   const PauseWorkflowState.initial()
     : pauseReasons = const [],
       pauseRequests = const [],
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   final List<PauseReasonEntity> pauseReasons;
   final List<PauseRequestEntity> pauseRequests;
@@ -19,9 +20,10 @@ class PauseWorkflowState extends BaseState {
   PauseWorkflowState copyWith({
     List<PauseReasonEntity>? pauseReasons,
     List<PauseRequestEntity>? pauseRequests,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return PauseWorkflowState(
       pauseReasons: pauseReasons ?? this.pauseReasons,
@@ -30,6 +32,7 @@ class PauseWorkflowState extends BaseState {
       errorMessage: annulErrorMessage == true
           ? null
           : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -39,5 +42,6 @@ class PauseWorkflowState extends BaseState {
     pauseRequests,
     status,
     errorMessage,
+    sections,
   ];
 }

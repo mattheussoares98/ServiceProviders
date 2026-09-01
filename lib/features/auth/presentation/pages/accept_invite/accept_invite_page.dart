@@ -42,7 +42,7 @@ class AcceptInvitePage extends HookWidget {
         },
         builder: (context, state) {
           final cubit = context.read<AcceptInviteCubit>();
-          final isLoading = state.status == StateStatus.loading;
+          final isLoading = state.status == DataStatus.loading;
 
           return BaseScaffold(
             isScrollable: false,

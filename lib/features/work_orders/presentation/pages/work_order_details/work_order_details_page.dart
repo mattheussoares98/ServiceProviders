@@ -16,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -105,12 +106,24 @@ class _WorkOrderDetails extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
-        statuses: {.deleting, .saving},
-        sections: {
-          WorkOrdersSection.resumeWork: {.saving},
+        sections: const {
+          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
+          WorkOrdersSections.deleteWorkOrder: {SectionStatus.running},
+          WorkOrdersSections.changeStatus: {SectionStatus.running},
+          WorkOrdersSections.resumeWork: {SectionStatus.running},
+          WorkOrdersSections.createChangeRequest: {SectionStatus.running},
+          WorkOrdersSections.reviewChangeRequest: {SectionStatus.running},
         },
       ),
-      ObservedLoadingTarget(pauseCubit, statuses: {.deleting, .saving}),
+      ObservedLoadingTarget(
+        pauseCubit,
+        sections: const {
+          PauseWorkflowSections.requestPause: {SectionStatus.running},
+          PauseWorkflowSections.reviewPause: {SectionStatus.running},
+          PauseWorkflowSections.requestCompletion: {SectionStatus.running},
+          PauseWorkflowSections.reviewCompletion: {SectionStatus.running},
+        },
+      ),
     ]);
 
     Future<void> onRefresh() async {

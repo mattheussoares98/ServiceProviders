@@ -28,7 +28,7 @@ class ChangePasswordForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select(
-      (ChangePasswordCubit cubit) => cubit.state.status == StateStatus.loading,
+      (ChangePasswordCubit cubit) => cubit.state.status == DataStatus.loading,
     );
 
     return Column(

@@ -94,10 +94,10 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -120,7 +120,7 @@ void main() {
         act: (cubit) => cubit.loadCategories(emitLoading: false),
         expect: () => [
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.categories, 'categories', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -139,10 +139,10 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.categories, 'categories', isEmpty),
         ],
       );
@@ -160,10 +160,10 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
         ],
       );
@@ -203,21 +203,23 @@ void main() {
           expect(captured.description, tCategory.description);
           expect(captured.color, tCategory.color);
           expect(captured.createdAt, tCategory.createdAt);
-          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+          verify(
+            () => mockGetCategories.call(tUserProfile.companyId),
+          ).called(1);
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.saving,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.loaded,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.categories, 'categories', isNotEmpty),
         ],
       );
@@ -255,17 +257,17 @@ void main() {
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.saving,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.loaded,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.categories, 'categories', isNotEmpty),
         ],
       );
@@ -287,14 +289,14 @@ void main() {
         },
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.saving,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.savingError,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -313,15 +315,15 @@ void main() {
         act: (cubit) => cubit.saveCategory(id: null, name: tCategory.name),
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.sections[CategoriesSection.saveCategory],
-            'sections[saveCategory]',
-            StateStatus.saving,
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<CategoriesState>()
               .having(
-                (s) => s.sections[CategoriesSection.saveCategory],
-                'sections[saveCategory]',
-                StateStatus.savingError,
+                (s) => s.sections[CategoriesSections.save],
+                'sections[save]',
+                SectionStatus.error,
               )
               .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
         ],
@@ -350,25 +352,27 @@ void main() {
         expect: () => [
           isA<CategoriesState>()
               .having(
-                (s) => s.sections[CategoriesSection.deleteCategory],
-                'sections[deleteCategory]',
-                StateStatus.deleting,
+                (s) => s.sections[CategoriesSections.delete],
+                'sections[delete]',
+                SectionStatus.running,
               )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
               .having(
-                (s) => s.sections[CategoriesSection.deleteCategory],
-                'sections[deleteCategory]',
-                StateStatus.loaded,
+                (s) => s.sections[CategoriesSections.delete],
+                'sections[delete]',
+                SectionStatus.success,
               )
               .having((s) => s.deletingIds, 'deletingIds', isEmpty),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.categories, 'categories', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteCategory.call(tId)).called(1);
-          verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+          verify(
+            () => mockGetCategories.call(tUserProfile.companyId),
+          ).called(1);
         },
       );
 
@@ -384,16 +388,16 @@ void main() {
         expect: () => [
           isA<CategoriesState>()
               .having(
-                (s) => s.sections[CategoriesSection.deleteCategory],
-                'sections[deleteCategory]',
-                StateStatus.deleting,
+                (s) => s.sections[CategoriesSections.delete],
+                'sections[delete]',
+                SectionStatus.running,
               )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
               .having(
-                (s) => s.sections[CategoriesSection.deleteCategory],
-                'sections[deleteCategory]',
-                StateStatus.deletingError,
+                (s) => s.sections[CategoriesSections.delete],
+                'sections[delete]',
+                SectionStatus.error,
               )
               .having((s) => s.deletingIds, 'deletingIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),

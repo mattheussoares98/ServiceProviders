@@ -7,36 +7,21 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 final class ObservedLoadingTarget {
-  const ObservedLoadingTarget(
-    this.cubit, {
-    this.statuses = const {StateStatus.loading},
-    this.sections = const {},
-  });
+  const ObservedLoadingTarget(this.cubit, {this.sections = const {}});
 
   /// Convenient constructor when only observing specific sections of a cubit.
   factory ObservedLoadingTarget.section(
     BaseCubit<BaseState> cubit,
     SectionKey section, {
-    Set<StateStatus> statuses = const {StateStatus.loading},
-  }) => ObservedLoadingTarget(
-    cubit,
-    statuses: const {},
-    sections: {section: statuses},
-  );
+    Set<SectionStatus> statuses = const {SectionStatus.running},
+  }) => ObservedLoadingTarget(cubit, sections: {section: statuses});
 
   final BaseCubit<BaseState> cubit;
 
-  /// Statuses checked against the root `cubit.state.status`.
-  final Set<StateStatus> statuses;
-
   /// Map of specific sections to the statuses that trigger loading for that section.
-  final Map<SectionKey, Set<StateStatus>> sections;
+  final Map<SectionKey, Set<SectionStatus>> sections;
 
   bool get isLoading {
-    if (statuses.contains(cubit.state.status)) {
-      return true;
-    }
-
     for (final entry in sections.entries) {
       final sectionStatus = cubit.state.sections[entry.key];
       if (sectionStatus != null && entry.value.contains(sectionStatus)) {

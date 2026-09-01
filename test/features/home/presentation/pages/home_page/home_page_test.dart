@@ -168,7 +168,7 @@ void main() {
       UsersState(
         users: [userProfile],
         permissionGroups: const [],
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
@@ -177,12 +177,12 @@ void main() {
 
     when(
       () => mockCompanyCubit.state,
-    ).thenReturn(const CompanyState(status: StateStatus.loaded));
+    ).thenReturn(const CompanyState(status: DataStatus.loaded));
     when(() => mockCompanyCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCompanyCubit.loadCompany()).thenAnswer((_) async {});
 
     when(() => mockLocationsCubit.state).thenReturn(
-      const LocationsState.initial().copyWith(status: StateStatus.loaded),
+      const LocationsState.initial().copyWith(status: DataStatus.loaded),
     );
     when(
       () => mockLocationsCubit.stream,
@@ -192,13 +192,13 @@ void main() {
     ).thenAnswer((_) async {});
 
     when(() => mockAssetsCubit.state).thenReturn(
-      const AssetsState.initial().copyWith(status: StateStatus.loaded),
+      const AssetsState.initial().copyWith(status: DataStatus.loaded),
     );
     when(() => mockAssetsCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockAssetsCubit.loadAssets()).thenAnswer((_) async {});
 
     when(() => mockWorkOrdersCubit.state).thenReturn(
-      const WorkOrdersState.initial().copyWith(status: StateStatus.loaded),
+      const WorkOrdersState.initial().copyWith(status: DataStatus.loaded),
     );
     when(
       () => mockWorkOrdersCubit.stream,
@@ -213,7 +213,7 @@ void main() {
     });
 
     when(() => mockCategoriesCubit.state).thenReturn(
-      const CategoriesState.initial().copyWith(status: StateStatus.loaded),
+      const CategoriesState.initial().copyWith(status: DataStatus.loaded),
     );
     when(
       () => mockCategoriesCubit.stream,
@@ -408,7 +408,7 @@ void main() {
         ).thenAnswer((_) => companyStateController.stream);
         when(() => mockCompanyCubit.state).thenReturn(
           const CompanyState(
-            status: StateStatus.loaded,
+            status: DataStatus.loaded,
             selectedCompanyId: 'comp-1',
           ),
         );
@@ -440,7 +440,7 @@ void main() {
         // Emit new company ID
         companyStateController.add(
           const CompanyState(
-            status: StateStatus.loaded,
+            status: DataStatus.loaded,
             selectedCompanyId: 'comp-2',
           ),
         );

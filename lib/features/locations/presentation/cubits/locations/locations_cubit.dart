@@ -10,9 +10,17 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entit
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'locations_state.dart';
+
+enum LocationsSections implements SectionKey {
+  saveLocation,
+  deleteLocation,
+  saveArea,
+  deleteArea,
+}
 
 @injectable
 class LocationsCubit extends BaseCubit<LocationsState> {
@@ -125,18 +133,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     for (final area in areas) {
       areasByLocation.putIfAbsent(area.locationId, () => []).add(area);
     }
-    emit(
-      state.copyWith(
-        allAreas: areas,
-        areasByLocation: areasByLocation,
-      ),
-    );
+    emit(state.copyWith(allAreas: areas, areasByLocation: areasByLocation));
   }
 
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
     final targetCompanyId = _useCases.getActiveCompanyId();
 
-    emit(state.copyWith(status: showLoading ? StateStatus.loading : null));
+    emit(state.copyWith(status: showLoading ? DataStatus.loading : null));
 
     final locationsResult = await _useCases.getLocations(targetCompanyId);
     final areasResult = await _useCases.getAreas(targetCompanyId);
@@ -152,7 +155,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       }
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           locations: locationsResult.data,
           areasByLocation: areasByLocation,
           allAreas: areas,
@@ -165,7 +168,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           : areasResult.message;
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: errorMessage,
         ),
       );
@@ -205,7 +208,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
     emit(
       state.copyWith(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         locations: locationsResult.data,
         areasByLocation: areasByLocation,
         allAreas: areas,
@@ -218,7 +221,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   /// create form. Unlike [loadLocationsAndAreas] the rows are never cached
   /// locally: they belong to another tenant.
   Future<void> loadProviderRegistry(String companyId) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
 
     final locationsResult = await _useCases.getProviderLocations(companyId);
     final areasResult = await _useCases.getProviderAreas(companyId);
@@ -232,7 +235,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           : areasResult;
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: failure.message,
         ),
       );
@@ -247,7 +250,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
     emit(
       state.copyWith(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         locations: locationsResult.data,
         areasByLocation: areasByLocation,
         allAreas: areas,
@@ -285,7 +288,14 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     String? addressState,
     DateTime? createdAt,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LocationsSections.saveLocation,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final companyId = _useCases.getActiveCompanyId.call();
     final isUpdate = id != null;
     final now = DateTime.now();
@@ -314,14 +324,23 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.saveLocation,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadLocationsAndAreas(showLoading: false);
-      if (isClosed) return false;
-      emit(state.copyWith(status: StateStatus.loaded));
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            LocationsSections.saveLocation,
+            SectionStatus.error,
+          ),
           errorMessage: dataState.message,
         ),
       );
@@ -331,19 +350,38 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<void> deleteLocation(String id) async {
-    emit(state.copyWith(status: StateStatus.deleting));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LocationsSections.deleteLocation,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final dataState = await _useCases.deleteLocation(id);
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      final updatedLocations =
-          state.locations.where((l) => l.id != id).toList();
-      emit(state.copyWith(locations: updatedLocations, status: StateStatus.loaded));
+      final updatedLocations = state.locations
+          .where((l) => l.id != id)
+          .toList();
+      emit(
+        state.copyWith(
+          locations: updatedLocations,
+          sections: withSection(
+            LocationsSections.deleteLocation,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadLocationsAndAreas(showLoading: false);
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(
+            LocationsSections.deleteLocation,
+            SectionStatus.error,
+          ),
           errorMessage: dataState.message,
         ),
       );
@@ -360,7 +398,14 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     String? description,
     DateTime? createdAt,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LocationsSections.saveArea,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final companyId = _useCases.getActiveCompanyId.call();
     final isUpdate = id != null;
     final now = DateTime.now();
@@ -384,13 +429,23 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.saveArea,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadAreas();
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            LocationsSections.saveArea,
+            SectionStatus.error,
+          ),
           errorMessage: dataState.message,
         ),
       );
@@ -400,20 +455,37 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<bool> deleteArea(String id, String locationId) async {
-    emit(state.copyWith(status: StateStatus.deleting));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LocationsSections.deleteArea,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final dataState = await _useCases.deleteArea(id);
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       final updatedAreas = state.allAreas.where((a) => a.id != id).toList();
       _rebuildAreasState(updatedAreas);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.deleteArea,
+            SectionStatus.success,
+          ),
+        ),
+      );
       await loadAreas();
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(
+            LocationsSections.deleteArea,
+            SectionStatus.error,
+          ),
           errorMessage: dataState.message,
         ),
       );

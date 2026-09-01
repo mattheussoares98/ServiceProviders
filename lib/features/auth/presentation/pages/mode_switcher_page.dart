@@ -37,7 +37,7 @@ class ModeSwitcherPage extends StatelessWidget {
             BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
               builder: (context, state) {
                 final cubit = context.read<ModeSwitcherCubit>();
-                final isLoading = state.status == StateStatus.loading;
+                final isLoading = state.status == DataStatus.loading;
 
                 return Column(
                   children: [

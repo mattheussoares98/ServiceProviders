@@ -33,7 +33,12 @@ class ServiceProvidersPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<ServiceProvidersCubit>(),
-        statuses: {StateStatus.saving},
+        sections: const {
+          ServiceProvidersSections.saveCompany: {SectionStatus.running},
+          ServiceProvidersSections.saveProfile: {SectionStatus.running},
+          ServiceProvidersSections.sendInvitation: {SectionStatus.running},
+          ServiceProvidersSections.deleteInvitation: {SectionStatus.running},
+        },
       ),
     ]);
     return BaseScaffold(

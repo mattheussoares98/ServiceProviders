@@ -50,16 +50,17 @@ void main() {
 
   void arrangeState({List<AttachmentEntity> attachments = const []}) {
     when(() => mockAttachmentsCubit.state).thenReturn(
-      AttachmentsState(status: StateStatus.loaded, attachments: attachments),
+      AttachmentsState(status: DataStatus.loaded, attachments: attachments),
     );
   }
 
   /// Grants exactly the listed permissions and denies everything else.
   void arrangePermissions(Set<ActionPermission> granted) {
-    when(() => mockUsersCubit.hasPermission(any()))
-        .thenAnswer((invocation) => granted.contains(
-              invocation.positionalArguments.first as ActionPermission,
-            ));
+    when(() => mockUsersCubit.hasPermission(any())).thenAnswer(
+      (invocation) => granted.contains(
+        invocation.positionalArguments.first as ActionPermission,
+      ),
+    );
   }
 
   setUpAll(() {
@@ -71,8 +72,9 @@ void main() {
     mockUsersCubit = MockUsersCubit();
     mockSessionCubit = MockSessionCubit();
 
-    when(() => mockAttachmentsCubit.stream)
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockAttachmentsCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSessionCubit.state).thenReturn(
@@ -109,19 +111,22 @@ void main() {
   }
 
   group('Attachments', () {
-    testWidgets('shows Adicionar while the work order is active', (tester) async {
+    testWidgets('shows Adicionar while the work order is active', (
+      tester,
+    ) async {
       await pumpAttachments(tester, isWorkOrderActive: true);
 
       expect(find.text('Adicionar'), findsOneWidget);
     });
 
-    testWidgets('hides Adicionar once the work order stops accepting evidence', (
-      tester,
-    ) async {
-      await pumpAttachments(tester, isWorkOrderActive: false);
+    testWidgets(
+      'hides Adicionar once the work order stops accepting evidence',
+      (tester) async {
+        await pumpAttachments(tester, isWorkOrderActive: false);
 
-      expect(find.text('Adicionar'), findsNothing);
-    });
+        expect(find.text('Adicionar'), findsNothing);
+      },
+    );
 
     testWidgets('hides Adicionar without attachments.create', (tester) async {
       arrangePermissions({_deleteAttachment});
@@ -156,7 +161,9 @@ void main() {
       expect(find.text('Remover anexo'), findsOneWidget);
     });
 
-    testWidgets('hides Remover anexo without attachments.delete', (tester) async {
+    testWidgets('hides Remover anexo without attachments.delete', (
+      tester,
+    ) async {
       arrangeState(attachments: [documentAttachment()]);
       arrangePermissions({_createAttachment});
 

@@ -35,8 +35,7 @@ class MockGetSelectedModeUseCase extends Mock
 class MockGetSessionProviderProfileUseCase extends Mock
     implements GetSessionProviderProfileUseCase {}
 
-class MockGetSessionUserUseCase extends Mock
-    implements GetSessionUserUseCase {}
+class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
 void main() {
   late MockGetWorkOrderObservationsUseCase getUseCase;
@@ -89,10 +88,10 @@ void main() {
       isA<WorkOrderObservationsState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<WorkOrderObservationsState>()
-          .having((s) => s.status, 'status', StateStatus.loaded)
+          .having((s) => s.status, 'status', DataStatus.loaded)
           .having((s) => s.observations.length, 'observations length', 3),
     ],
   );
@@ -110,10 +109,10 @@ void main() {
       isA<WorkOrderObservationsState>().having(
         (s) => s.status,
         'status',
-        StateStatus.loading,
+        DataStatus.loading,
       ),
       isA<WorkOrderObservationsState>()
-          .having((s) => s.status, 'status', StateStatus.loadingError)
+          .having((s) => s.status, 'status', DataStatus.loadingError)
           .having((s) => s.errorMessage, 'errorMessage', 'Erro ao carregar'),
     ],
   );
@@ -133,7 +132,7 @@ void main() {
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     seed: () => WorkOrderObservationsState(
-      status: StateStatus.loaded,
+      status: DataStatus.loaded,
       observations: [tObs],
     ),
     act: (cubit) => cubit.createObservation(
@@ -142,12 +141,16 @@ void main() {
     ),
     expect: () => [
       isA<WorkOrderObservationsState>().having(
-        (s) => s.status,
-        'status',
-        StateStatus.saving,
+        (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+        'sections[saveObservation]',
+        SectionStatus.running,
       ),
       isA<WorkOrderObservationsState>()
-          .having((s) => s.status, 'status', StateStatus.loaded)
+          .having(
+            (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+            'sections[saveObservation]',
+            SectionStatus.success,
+          )
           .having((s) => s.observations.length, 'observations length', 2),
     ],
   );
@@ -156,14 +159,11 @@ void main() {
     'authors through the provider profile and the work order tenant in provider mode',
     () async {
       final workOrder = EntityFactory.makeWorkOrderEntity();
-      final profile = EntityFactory.makeServiceProviderProfileEntity()
-          .copyWith(
-            serviceProviderCompanyId: workOrder.serviceProviderCompanyId,
-          );
+      final profile = EntityFactory.makeServiceProviderProfileEntity().copyWith(
+        serviceProviderCompanyId: workOrder.serviceProviderCompanyId,
+      );
 
-      when(
-        () => mockGetSelectedMode.call(),
-      ).thenReturn(AppMode.provider.name);
+      when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
       when(
         () => mockGetSessionUser.call(),
       ).thenReturn(EntityFactory.makeUserProfileEntity());
@@ -196,29 +196,35 @@ void main() {
     },
   );
 
-  test('fails cleanly in provider mode when no provider profile exists', () async {
-    when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
-    when(
-      () => mockGetSessionUser.call(),
-    ).thenReturn(EntityFactory.makeUserProfileEntity());
-    when(() => mockGetProviderProfile.call(any())).thenAnswer(
-      (_) async => FailureState<ServiceProviderProfileEntity>(
-        message: 'Perfil de prestador não encontrado.',
-      ),
-    );
+  test(
+    'fails cleanly in provider mode when no provider profile exists',
+    () async {
+      when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
+      when(
+        () => mockGetSessionUser.call(),
+      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      when(() => mockGetProviderProfile.call(any())).thenAnswer(
+        (_) async => FailureState<ServiceProviderProfileEntity>(
+          message: 'Perfil de prestador não encontrado.',
+        ),
+      );
 
-    final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
-    final success = await cubit.createObservation(
-      workOrder: EntityFactory.makeWorkOrderEntity(),
-      content: faker.lorem.sentence(),
-    );
+      final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+      final success = await cubit.createObservation(
+        workOrder: EntityFactory.makeWorkOrderEntity(),
+        content: faker.lorem.sentence(),
+      );
 
-    expect(success, isFalse);
-    expect(cubit.state.status, StateStatus.savingError);
-    expect(cubit.state.errorMessage, 'Perfil de prestador não encontrado.');
-    verifyNever(() => createUseCase.call(any()));
-    await cubit.close();
-  });
+      expect(success, isFalse);
+      expect(
+        cubit.state.sections[WorkOrderObservationsSections.saveObservation],
+        SectionStatus.error,
+      );
+      expect(cubit.state.errorMessage, 'Perfil de prestador não encontrado.');
+      verifyNever(() => createUseCase.call(any()));
+      await cubit.close();
+    },
+  );
 
   test('authors as the internal user in internal mode', () async {
     final user = EntityFactory.makeUserProfileEntity();
@@ -265,12 +271,16 @@ void main() {
     ),
     expect: () => [
       isA<WorkOrderObservationsState>().having(
-        (s) => s.status,
-        'status',
-        StateStatus.saving,
+        (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+        'sections[saveObservation]',
+        SectionStatus.running,
       ),
       isA<WorkOrderObservationsState>()
-          .having((s) => s.status, 'status', StateStatus.savingError)
+          .having(
+            (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+            'sections[saveObservation]',
+            SectionStatus.error,
+          )
           .having((s) => s.errorMessage, 'errorMessage', isNotNull),
     ],
   );
@@ -284,21 +294,21 @@ void main() {
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     seed: () => WorkOrderObservationsState(
-      status: StateStatus.loaded,
+      status: DataStatus.loaded,
       observations: [tObs],
     ),
     act: (cubit) => cubit.deleteObservation(tObs.id),
     expect: () => [
       isA<WorkOrderObservationsState>().having(
-        (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+        (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
         'deleteObservation section',
-        StateStatus.deleting,
+        SectionStatus.running,
       ),
       isA<WorkOrderObservationsState>()
           .having(
-            (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+            (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
             'deleteObservation section',
-            StateStatus.loaded,
+            SectionStatus.success,
           )
           .having((s) => s.observations, 'observations', isEmpty),
     ],
@@ -313,21 +323,21 @@ void main() {
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     seed: () => WorkOrderObservationsState(
-      status: StateStatus.loaded,
+      status: DataStatus.loaded,
       observations: [tObs],
     ),
     act: (cubit) => cubit.deleteObservation(tObs.id),
     expect: () => [
       isA<WorkOrderObservationsState>().having(
-        (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+        (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
         'deleteObservation section',
-        StateStatus.deleting,
+        SectionStatus.running,
       ),
       isA<WorkOrderObservationsState>()
           .having(
-            (s) => s.sections[WorkOrderObservationsSection.deleteObservation],
+            (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
             'deleteObservation section',
-            StateStatus.deletingError,
+            SectionStatus.error,
           )
           .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
     ],

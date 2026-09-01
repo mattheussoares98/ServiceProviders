@@ -27,7 +27,10 @@ class CreateUpdateLocationPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<LocationsCubit>(),
-        statuses: {StateStatus.saving, StateStatus.deleting},
+        sections: const {
+          LocationsSections.saveLocation: {SectionStatus.running},
+          LocationsSections.deleteLocation: {SectionStatus.running},
+        },
       ),
     ]);
     final formKey = useMemoized(GlobalKey<FormState>.new);

@@ -2,7 +2,7 @@ part of 'mode_switcher_cubit.dart';
 
 class ModeSwitcherState extends BaseState {
   const ModeSwitcherState({
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     this.selectedMode,
     this.canSwitchMode = false,
     super.errorMessage,
@@ -13,14 +13,16 @@ class ModeSwitcherState extends BaseState {
   final bool canSwitchMode;
 
   ModeSwitcherState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     AppMode? selectedMode,
     bool? canSwitchMode,
     String? errorMessage,
     bool? annulSelectedMode,
     bool? annulErrorMessage,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return ModeSwitcherState(
+      sections: sections ?? this.sections,
       status: status ?? this.status,
       selectedMode: annulSelectedMode == true
           ? null
@@ -38,5 +40,6 @@ class ModeSwitcherState extends BaseState {
     selectedMode,
     canSwitchMode,
     errorMessage,
+    sections,
   ];
 }

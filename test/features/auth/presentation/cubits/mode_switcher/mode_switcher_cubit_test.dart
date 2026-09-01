@@ -122,14 +122,20 @@ void main() {
       },
       act: (cubit) => cubit.selectMode(AppMode.internal),
       expect: () => [
-        const ModeSwitcherState(
-          status: StateStatus.loading,
-          selectedMode: AppMode.internal,
-        ),
-        const ModeSwitcherState(
-          status: StateStatus.loaded,
-          selectedMode: AppMode.internal,
-        ),
+        isA<ModeSwitcherState>()
+            .having(
+              (s) => s.sections[ModeSwitcherSections.save],
+              'sections[save]',
+              SectionStatus.running,
+            )
+            .having((s) => s.selectedMode, 'selectedMode', AppMode.internal),
+        isA<ModeSwitcherState>()
+            .having(
+              (s) => s.sections[ModeSwitcherSections.save],
+              'sections[save]',
+              SectionStatus.success,
+            )
+            .having((s) => s.selectedMode, 'selectedMode', AppMode.internal),
       ],
       verify: (_) {
         verify(() => mockSaveSelectedMode.call('internal')).called(1);
@@ -147,14 +153,20 @@ void main() {
       },
       act: (cubit) => cubit.selectMode(AppMode.provider),
       expect: () => [
-        const ModeSwitcherState(
-          status: StateStatus.loading,
-          selectedMode: AppMode.provider,
-        ),
-        const ModeSwitcherState(
-          status: StateStatus.loaded,
-          selectedMode: AppMode.provider,
-        ),
+        isA<ModeSwitcherState>()
+            .having(
+              (s) => s.sections[ModeSwitcherSections.save],
+              'sections[save]',
+              SectionStatus.running,
+            )
+            .having((s) => s.selectedMode, 'selectedMode', AppMode.provider),
+        isA<ModeSwitcherState>()
+            .having(
+              (s) => s.sections[ModeSwitcherSections.save],
+              'sections[save]',
+              SectionStatus.success,
+            )
+            .having((s) => s.selectedMode, 'selectedMode', AppMode.provider),
       ],
       verify: (_) {
         verify(() => mockSaveSelectedMode.call('provider')).called(1);

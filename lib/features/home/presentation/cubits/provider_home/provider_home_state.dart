@@ -3,9 +3,9 @@ part of 'provider_home_cubit.dart';
 class ProviderHomeState extends BaseState {
   const ProviderHomeState({super.status, super.errorMessage});
 
-  const ProviderHomeState.empty() : super(status: StateStatus.initial);
+  const ProviderHomeState.empty() : super(status: DataStatus.initial);
 
-  ProviderHomeState copyWith({StateStatus? status, String? errorMessage}) {
+  ProviderHomeState copyWith({DataStatus? status, String? errorMessage}) {
     return ProviderHomeState(
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,

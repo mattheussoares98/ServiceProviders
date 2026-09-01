@@ -15,7 +15,7 @@ import 'package:uuid/uuid.dart';
 
 part 'sla_policies_state.dart';
 
-enum SlaPoliciesSection implements SectionKey { deleteSlaPolicy, saveSlaPolicy }
+enum SlaPoliciesSections implements SectionKey { save, delete }
 
 @injectable
 class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
@@ -81,7 +81,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getSlaPolicies(companyId);
@@ -90,7 +90,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     if (result is SuccessState<List<SlaPolicyEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           slaPolicies: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -99,7 +99,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       final message =
           result.message ?? 'Erro ao carregar políticas de SLA'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
     }
@@ -112,7 +112,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     }
 
     final policy = state.slaPolicies.cast<SlaPolicyEntity?>().firstWhere(
-      (element) => element?.id == id,
+      (p) => p?.id == id,
       orElse: () => null,
     );
 
@@ -133,8 +133,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     emit(
       state.copyWith(
         sections: withSection(
-          SlaPoliciesSection.saveSlaPolicy,
-          StateStatus.saving,
+          SlaPoliciesSections.save,
+          SectionStatus.running,
         ),
       ),
     );
@@ -164,8 +164,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            SlaPoliciesSection.saveSlaPolicy,
-            StateStatus.loaded,
+            SlaPoliciesSections.save,
+            SectionStatus.success,
           ),
         ),
       );
@@ -177,8 +177,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            SlaPoliciesSection.saveSlaPolicy,
-            StateStatus.savingError,
+            SlaPoliciesSections.save,
+            SectionStatus.error,
           ),
           errorMessage: message,
         ),
@@ -192,8 +192,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     emit(
       state.copyWith(
         sections: withSection(
-          SlaPoliciesSection.deleteSlaPolicy,
-          StateStatus.deleting,
+          SlaPoliciesSections.delete,
+          SectionStatus.running,
         ),
       ),
     );
@@ -209,8 +209,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
           slaPolicies: updatedPolicies,
           annulSelectedSlaPolicy: state.selectedSlaPolicy?.id == id,
           sections: withSection(
-            SlaPoliciesSection.deleteSlaPolicy,
-            StateStatus.loaded,
+            SlaPoliciesSections.delete,
+            SectionStatus.success,
           ),
         ),
       );
@@ -222,8 +222,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            SlaPoliciesSection.deleteSlaPolicy,
-            StateStatus.deletingError,
+            SlaPoliciesSections.delete,
+            SectionStatus.error,
           ),
           errorMessage: message,
         ),

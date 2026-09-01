@@ -53,7 +53,7 @@ void main() {
       act: (c) => c.initGroup(tGroup),
       expect: () => [
         isA<PermissionsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.group, 'group', tGroup)
             .having((s) => s.isAdmin, 'isAdmin', false)
             .having(
@@ -93,14 +93,14 @@ void main() {
       act: (c) => c.saveGroupPermissions(mockUsersCubit),
       expect: () => [
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.saving,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.running,
         ),
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.success,
         ),
       ],
     );
@@ -116,14 +116,14 @@ void main() {
       act: (c) => c.saveGroupPermissions(mockUsersCubit),
       expect: () => [
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.saving,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.running,
         ),
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.error,
         ),
       ],
     );
@@ -148,7 +148,7 @@ void main() {
       act: (c) => c.initUser(tUser),
       expect: () => [
         isA<PermissionsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.user, 'user', tUser)
             .having((s) => s.isAdmin, 'isAdmin', false)
             .having(
@@ -286,14 +286,14 @@ void main() {
       act: (c) => c.saveUserPermissions(mockUsersCubit),
       expect: () => [
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.saving,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.running,
         ),
         isA<PermissionsState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
+          (s) => s.sections[PermissionsSections.save],
+          'sections[save]',
+          SectionStatus.success,
         ),
       ],
       verify: (_) {

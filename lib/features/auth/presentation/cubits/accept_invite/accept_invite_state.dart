@@ -19,7 +19,7 @@ class AcceptInviteState extends BaseState {
   final bool confirmPasswordVisibility;
 
   AcceptInviteState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     UserProfileEntity? userProfile,
     String? errorMessage,
     bool? passwordVisibility,

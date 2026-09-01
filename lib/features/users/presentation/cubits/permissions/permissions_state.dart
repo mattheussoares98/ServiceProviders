@@ -12,8 +12,9 @@ class PermissionsState extends BaseState {
         const WorkOrdersPermissionEntity.defaultTechnical(),
     this.draftUserWorkOrders =
         const UserWorkOrdersPermissionOverrideEntity.empty(),
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
+    super.sections = const {},
   });
 
   final PermissionGroupEntity? group;
@@ -42,9 +43,10 @@ class PermissionsState extends BaseState {
     Map<ResourceType, Map<PermissionAction, bool?>>? draftUserPermissions,
     WorkOrdersPermissionEntity? draftGroupWorkOrders,
     UserWorkOrdersPermissionOverrideEntity? draftUserWorkOrders,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulSelectedGroupId,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return PermissionsState(
       group: group ?? this.group,
@@ -60,6 +62,7 @@ class PermissionsState extends BaseState {
       draftUserWorkOrders: draftUserWorkOrders ?? this.draftUserWorkOrders,
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -75,5 +78,6 @@ class PermissionsState extends BaseState {
     draftUserWorkOrders,
     status,
     errorMessage,
+    sections,
   ];
 }

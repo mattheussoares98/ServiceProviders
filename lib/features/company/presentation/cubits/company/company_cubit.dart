@@ -15,9 +15,10 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'company_state.dart';
 
-enum CompanySection implements SectionKey {
+enum CompanySections implements SectionKey {
   switchCompany,
   updateEscalationParameters,
+  changeLogo,
 }
 
 @injectable
@@ -30,7 +31,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
   Future<void> loadCompany({bool forceRefresh = false}) async {
     final user = _useCases.getSessionUser();
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
 
     if (user.isSuperAdmin) {
       final allCompaniesState = await _useCases.getAllCompanies();
@@ -55,7 +56,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
         emit(
           state.copyWith(
-            status: StateStatus.loaded,
+            status: DataStatus.loaded,
             companies: companies,
             company: activeCompany,
             selectedCompanyId: activeCompany?.id,
@@ -70,7 +71,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         );
         return;
       } else {
-        emit(state.copyWith(status: StateStatus.loadingError));
+        emit(state.copyWith(status: DataStatus.loadingError));
         showDataStateToast(allCompaniesState);
         return;
       }
@@ -91,7 +92,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           company: dataState.data,
           companies: dataState.data != null ? [dataState.data!] : const [],
           selectedCompanyId: dataState.data?.id,
@@ -105,7 +106,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         ),
       );
     } else {
-      emit(state.copyWith(status: StateStatus.loadingError));
+      emit(state.copyWith(status: DataStatus.loadingError));
       showDataStateToast(dataState);
     }
   }
@@ -116,10 +117,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        sections: withSection(
-          CompanySection.switchCompany,
-          StateStatus.loading,
-        ),
+        sections: withSection(CompanySections.switchCompany, SectionStatus.running),
       ),
     );
 
@@ -131,8 +129,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CompanySection.switchCompany,
-            StateStatus.loaded,
+            CompanySections.switchCompany,
+            SectionStatus.error,
           ),
         ),
       );
@@ -158,7 +156,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     emit(
       state.copyWith(
-        sections: withSection(CompanySection.switchCompany, StateStatus.loaded),
+        sections: withSection(CompanySections.switchCompany, SectionStatus.success),
         company: selectedCompany,
         selectedCompanyId: companyId,
         parameters: paramsState is SuccessState<CompanyParameterEntity>
@@ -184,8 +182,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     emit(
       state.copyWith(
         sections: withSection(
-          CompanySection.updateEscalationParameters,
-          StateStatus.loading,
+          CompanySections.updateEscalationParameters,
+          SectionStatus.running,
         ),
       ),
     );
@@ -205,8 +203,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CompanySection.updateEscalationParameters,
-            StateStatus.loaded,
+            CompanySections.updateEscalationParameters,
+            SectionStatus.success,
           ),
           parameters: updated,
         ),
@@ -215,8 +213,8 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CompanySection.updateEscalationParameters,
-            StateStatus.loaded,
+            CompanySections.updateEscalationParameters,
+            SectionStatus.error,
           ),
         ),
       );
@@ -225,7 +223,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   }
 
   Future<void> createCompany({required String name, String? cnpj}) async {
-    emit(state.copyWith(status: StateStatus.loading, annulCompany: true));
+    emit(state.copyWith(status: DataStatus.loading, annulCompany: true));
 
     final now = DateTime.now();
     final company = CompanyEntity(
@@ -251,7 +249,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       dataState,
       message: 'Empresa criada com sucesso'.hardcoded,
     );
-    emit(state.copyWith(status: StateStatus.loaded, company: dataState.data));
+    emit(state.copyWith(status: DataStatus.loaded, company: dataState.data));
   }
 
   Future<void> navigateToCreateCompany() async {
@@ -278,7 +276,11 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       return;
     }
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(CompanySections.changeLogo, SectionStatus.running),
+      ),
+    );
 
     final pickResult = await _useCases.pickAttachment.call(
       PickAttachmentParams(
@@ -294,20 +296,32 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     if (pickResult is! SuccessState<List<AttachmentEntity>>) {
       showDataStateToast(pickResult);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+        ),
+      );
       return;
     }
 
     final attachments = pickResult.data ?? [];
     if (attachments.isEmpty) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(CompanySections.changeLogo, SectionStatus.idle),
+        ),
+      );
       return;
     }
 
     final localPath = attachments.first.localPath;
     if (localPath == null || localPath.isEmpty) {
       showErrorToast('Erro ao obter o arquivo da imagem'.hardcoded);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+        ),
+      );
       return;
     }
 
@@ -319,11 +333,18 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
     if (uploadResult is SuccessState<CompanyEntity>) {
       emit(
-        state.copyWith(status: StateStatus.loaded, company: uploadResult.data),
+        state.copyWith(
+          company: uploadResult.data,
+          sections: withSection(CompanySections.changeLogo, SectionStatus.success),
+        ),
       );
     } else {
       showDataStateToast(uploadResult);
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          sections: withSection(CompanySections.changeLogo, SectionStatus.error),
+        ),
+      );
     }
   }
 }

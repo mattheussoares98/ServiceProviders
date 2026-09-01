@@ -57,7 +57,7 @@ void main() {
       const SignUpState(
         passwordVisibility: true,
         confirmPasswordVisibility: false,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     ],
   );
@@ -70,7 +70,7 @@ void main() {
       const SignUpState(
         passwordVisibility: false,
         confirmPasswordVisibility: true,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     ],
   );

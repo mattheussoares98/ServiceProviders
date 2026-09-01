@@ -50,7 +50,7 @@ class ChangePasswordPage extends HookWidget {
                 builder: (context) {
                   final isLoading = context.select(
                     (ChangePasswordCubit cubit) =>
-                        cubit.state.status == StateStatus.loading,
+                        cubit.state.status == DataStatus.loading,
                   );
                   return BaseButton(
                     isLoading: isLoading,

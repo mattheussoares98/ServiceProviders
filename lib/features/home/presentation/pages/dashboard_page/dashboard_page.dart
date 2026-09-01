@@ -48,12 +48,12 @@ class DashboardPage extends StatelessWidget {
               onRefresh: workOrdersCubit.loadWorkOrdersAndChangeRequests,
               body: BlocBuilder<WorkOrdersCubit, WorkOrdersState>(
                 builder: (context, state) {
-                  if (state.status == StateStatus.loading &&
+                  if (state.status == DataStatus.loading &&
                       state.workOrders.isEmpty) {
                     return const LoadingCircle();
                   }
 
-                  if (state.status == StateStatus.loadingError &&
+                  if (state.status == DataStatus.loadingError &&
                       state.workOrders.isEmpty) {
                     return Center(
                       child: Padding(

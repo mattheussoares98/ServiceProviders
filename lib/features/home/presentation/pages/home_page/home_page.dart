@@ -102,11 +102,11 @@ class HomePage extends HookWidget {
                 builder: (context, state) {
                   final sectionStatus = state.sections[UsersSections.loadAll];
                   final isLoading = sectionStatus != null
-                      ? sectionStatus == StateStatus.loading
-                      : state.status == StateStatus.loading;
+                      ? sectionStatus == SectionStatus.running
+                      : state.status == DataStatus.loading;
                   final hasError = sectionStatus != null
-                      ? sectionStatus == StateStatus.loadingError
-                      : state.status == StateStatus.loadingError;
+                      ? sectionStatus == SectionStatus.error
+                      : state.status == DataStatus.loadingError;
 
                   if (state.users.isEmpty && state.permissionGroups.isEmpty) {
                     if (isLoading) {

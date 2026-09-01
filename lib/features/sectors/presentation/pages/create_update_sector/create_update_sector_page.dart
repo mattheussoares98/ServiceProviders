@@ -33,10 +33,9 @@ class CreateUpdateSectorPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<SectorsCubit>(),
-        statuses: const {},
         sections: {
-          SectorsSection.saveSector: {StateStatus.saving},
-          SectorsSection.deleteSector: {StateStatus.deleting},
+          SectorsSections.save: {SectionStatus.running},
+          SectorsSections.delete: {SectionStatus.running},
         },
       ),
     ]);

@@ -110,10 +110,10 @@ void main() {
           isA<SlaPoliciesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.slaPolicies, 'slaPolicies', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -137,10 +137,10 @@ void main() {
           isA<SlaPoliciesState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Failed to fetch'),
         ],
       );
@@ -220,17 +220,17 @@ void main() {
         ),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-            'sections[saveSlaPolicy]',
-            StateStatus.saving,
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-            'sections[saveSlaPolicy]',
-            StateStatus.loaded,
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
@@ -273,17 +273,17 @@ void main() {
         ),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-            'sections[saveSlaPolicy]',
-            StateStatus.saving,
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-            'sections[saveSlaPolicy]',
-            StateStatus.loaded,
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
@@ -309,15 +309,15 @@ void main() {
         ),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-            'sections[saveSlaPolicy]',
-            StateStatus.saving,
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SlaPoliciesState>()
               .having(
-                (s) => s.sections[SlaPoliciesSection.saveSlaPolicy],
-                'sections[saveSlaPolicy]',
-                StateStatus.savingError,
+                (s) => s.sections[SlaPoliciesSections.save],
+                'sections[save]',
+                SectionStatus.error,
               )
               .having((s) => s.errorMessage, 'errorMessage', 'Erro ao salvar'),
         ],
@@ -345,17 +345,17 @@ void main() {
         act: (cubit) => cubit.deleteSlaPolicy(tPolicy.id),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
-            'sections[deleteSlaPolicy]',
-            StateStatus.deleting,
+            (s) => s.sections[SlaPoliciesSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
           ),
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
-            'sections[deleteSlaPolicy]',
-            StateStatus.loaded,
+            (s) => s.sections[SlaPoliciesSections.delete],
+            'sections[delete]',
+            SectionStatus.success,
           ),
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.slaPolicies, 'slaPolicies', isEmpty),
         ],
         verify: (_) {
@@ -377,15 +377,15 @@ void main() {
         act: (cubit) => cubit.deleteSlaPolicy(tPolicy.id),
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
-            'sections[deleteSlaPolicy]',
-            StateStatus.deleting,
+            (s) => s.sections[SlaPoliciesSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
           ),
           isA<SlaPoliciesState>()
               .having(
-                (s) => s.sections[SlaPoliciesSection.deleteSlaPolicy],
-                'sections[deleteSlaPolicy]',
-                StateStatus.deletingError,
+                (s) => s.sections[SlaPoliciesSections.delete],
+                'sections[delete]',
+                SectionStatus.error,
               )
               .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
         ],
@@ -415,7 +415,7 @@ void main() {
             cubit.navigateToCreateUpdateSlaPolicy(slaPolicy: tPolicy),
         expect: () => [
           isA<SlaPoliciesState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
@@ -459,7 +459,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               slaPolicies: [tInitialPolicy],
             ),
           );
@@ -508,7 +508,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               slaPolicies: [tInitialPolicy],
             ),
           );
@@ -562,7 +562,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               slaPolicies: [tInitialPolicy],
             ),
           );

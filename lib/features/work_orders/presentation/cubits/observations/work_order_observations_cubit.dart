@@ -10,7 +10,10 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
-enum WorkOrderObservationsSection implements SectionKey { deleteObservation }
+enum WorkOrderObservationsSections implements SectionKey {
+  saveObservation,
+  deleteObservation,
+}
 
 @injectable
 class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
@@ -22,17 +25,17 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   final WorkOrderObservationsCubitUseCases _useCases;
 
   Future<void> fetchObservations(String workOrderId) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
     final result = await _useCases.getObservations(workOrderId);
     switch (result) {
       case SuccessState(:final data):
         final list = List<WorkOrderObservationEntity>.from(data!)
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        emit(state.copyWith(status: StateStatus.loaded, observations: list));
+        emit(state.copyWith(status: DataStatus.loaded, observations: list));
       case FailureState(:final message):
         emit(
           state.copyWith(
-            status: StateStatus.loadingError,
+            status: DataStatus.loadingError,
             errorMessage: message,
           ),
         );
@@ -66,7 +69,10 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
           profileResult.data == null) {
         emit(
           state.copyWith(
-            status: StateStatus.savingError,
+            sections: withSection(
+              WorkOrderObservationsSections.saveObservation,
+              SectionStatus.error,
+            ),
             errorMessage: profileResult.message,
           ),
         );
@@ -90,7 +96,14 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
       updatedAt: DateTime.now().toUtc(),
     );
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          WorkOrderObservationsSections.saveObservation,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final result = await _useCases.createObservation(newObservation);
     switch (result) {
       case SuccessState(:final data):
@@ -99,13 +112,22 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
           ...state.observations,
         ];
         emit(
-          state.copyWith(status: StateStatus.loaded, observations: updatedList),
+          state.copyWith(
+            observations: updatedList,
+            sections: withSection(
+              WorkOrderObservationsSections.saveObservation,
+              SectionStatus.success,
+            ),
+          ),
         );
         return true;
       case FailureState(:final message):
         emit(
           state.copyWith(
-            status: StateStatus.savingError,
+            sections: withSection(
+              WorkOrderObservationsSections.saveObservation,
+              SectionStatus.error,
+            ),
             errorMessage: message,
           ),
         );
@@ -119,8 +141,8 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
     emit(
       state.copyWith(
         sections: withSection(
-          WorkOrderObservationsSection.deleteObservation,
-          StateStatus.deleting,
+          WorkOrderObservationsSections.deleteObservation,
+          SectionStatus.running,
         ),
       ),
     );
@@ -133,11 +155,10 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
             .toList();
         emit(
           state.copyWith(
-            status: StateStatus.loaded,
             observations: updatedList,
             sections: withSection(
-              WorkOrderObservationsSection.deleteObservation,
-              StateStatus.loaded,
+              WorkOrderObservationsSections.deleteObservation,
+              SectionStatus.success,
             ),
           ),
         );
@@ -145,25 +166,16 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
       case FailureState(:final message):
         emit(
           state.copyWith(
-            status: StateStatus.deletingError,
-            errorMessage: message,
             sections: withSection(
-              WorkOrderObservationsSection.deleteObservation,
-              StateStatus.deletingError,
+              WorkOrderObservationsSections.deleteObservation,
+              SectionStatus.error,
             ),
+            errorMessage: message,
           ),
         );
         showErrorToast(message);
         return false;
       case LoadingState():
-        emit(
-          state.copyWith(
-            sections: withSection(
-              WorkOrderObservationsSection.deleteObservation,
-              StateStatus.loaded,
-            ),
-          ),
-        );
         return false;
     }
   }

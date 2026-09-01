@@ -73,7 +73,7 @@ class LoginPage extends HookWidget {
                 //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //   children: [
                 //     BlocSelector<LoginCubit, LoginState, bool>(
-                //       selector: (state) => state.status == StateStatus.loading,
+                //       selector: (state) => state.status == DataStatus.loading,
                 //       builder: (context, isLoading) {
                 //         return Flexible(
                 //           child: BaseTextButton(

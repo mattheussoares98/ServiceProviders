@@ -62,11 +62,11 @@ class ResetPassword extends HookWidget {
     return BaseTextButton(
       onPressed:
           context.select(
-                (LoginCubit cubit) => cubit.state.status == StateStatus.loading,
+                (LoginCubit cubit) => cubit.state.status == DataStatus.loading,
               ) ||
               context.select(
                 (LoginCubit cubit) =>
-                    cubit.state.resetPasswordStatus == StateStatus.loading,
+                    cubit.state.resetPasswordStatus == DataStatus.loading,
               )
           ? null
           : () => _showResetPasswordDialog(
@@ -97,7 +97,7 @@ class _ResetPasswordDialog extends StatelessWidget {
     return Form(
       key: formKey,
       child: BlocSelector<LoginCubit, LoginState, bool>(
-        selector: (state) => state.resetPasswordStatus == StateStatus.loading,
+        selector: (state) => state.resetPasswordStatus == DataStatus.loading,
         builder: (context, isLoading) {
           return Column(
             mainAxisSize: MainAxisSize.min,

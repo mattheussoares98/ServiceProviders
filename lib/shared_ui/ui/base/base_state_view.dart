@@ -35,12 +35,13 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
   Widget build(BuildContext context) {
     return BlocBuilder<C, S>(
       builder: (context, state) {
-        final sectionStatus =
-            sectionKey != null ? state.sections[sectionKey!] : null;
+        final sectionStatus = sectionKey != null
+            ? state.sections[sectionKey!]
+            : null;
 
         final isLoading = sectionStatus != null
-            ? sectionStatus == StateStatus.loading
-            : state.status == StateStatus.loading;
+            ? sectionStatus == SectionStatus.running
+            : state.status == DataStatus.loading;
 
         if (isLoading) {
           return isSliver
@@ -49,8 +50,8 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
         }
 
         final hasError = sectionStatus != null
-            ? sectionStatus == StateStatus.loadingError
-            : state.status == StateStatus.loadingError;
+            ? sectionStatus == SectionStatus.error
+            : state.status == DataStatus.loadingError;
 
         if (hasError) {
           // For section errors, the cubit always calls showErrorToast(message)

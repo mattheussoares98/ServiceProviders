@@ -56,7 +56,7 @@ void main() {
       final cubit = SessionCubit(useCases: useCases);
       expect(cubit.state.user, equals(tUserProfile));
       expect(cubit.state.isLoggedIn, isTrue);
-      expect(cubit.state.status, equals(StateStatus.initial));
+      expect(cubit.state.status, equals(DataStatus.initial));
       cubit.close();
     });
 
@@ -70,7 +70,7 @@ void main() {
         isA<SessionState>()
             .having((s) => s.user, 'user', tUserProfile)
             .having((s) => s.isLoggedIn, 'isLoggedIn', true)
-            .having((s) => s.status, 'status', StateStatus.loaded),
+            .having((s) => s.status, 'status', DataStatus.loaded),
       ],
     );
 
@@ -83,7 +83,7 @@ void main() {
       expect: () => [
         isA<SessionState>()
             .having((s) => s.isLoggedIn, 'isLoggedIn', false)
-            .having((s) => s.status, 'status', StateStatus.loaded),
+            .having((s) => s.status, 'status', DataStatus.loaded),
       ],
     );
   });

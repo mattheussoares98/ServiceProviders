@@ -11,9 +11,12 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 import 'package:uuid/uuid.dart';
 
 part 'assets_state.dart';
+
+enum AssetsSections implements SectionKey { save, delete }
 
 @injectable
 class AssetsCubit extends BaseCubit<AssetsState> {
@@ -82,12 +85,12 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       showErrorToast(
         'Erro não esperado. O usuário está sem o ID da companhia'.hardcoded,
       );
-      emit(state.copyWith(status: StateStatus.loadingError, assets: []));
+      emit(state.copyWith(status: DataStatus.loadingError, assets: []));
       return;
     }
 
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getAssets(companyId);
@@ -96,7 +99,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (result is SuccessState<List<AssetEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           assets: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -104,7 +107,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: result.message,
         ),
       );
@@ -124,7 +127,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (result is SuccessState<List<AssetEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           assets: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -150,7 +153,11 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     String? notes,
     DateTime? createdAt,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(AssetsSections.save, SectionStatus.running),
+      ),
+    );
 
     final isUpdate = id != null;
     final now = DateTime.now();
@@ -185,13 +192,18 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(AssetsSections.save, SectionStatus.success),
+        ),
+      );
       await loadAssets(emitLoading: false);
       return true;
     } else {
       if (isClosed) return false;
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(AssetsSections.save, SectionStatus.error),
           errorMessage: result.message,
         ),
       );
@@ -201,7 +213,9 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   }
 
   Future<bool> deleteAsset(String id) async {
-    emit(state.copyWith(status: StateStatus.deleting));
+    emit(
+      state.copyWith(sections: withSection(AssetsSections.delete, .running)),
+    );
     final result = await _useCases.deleteAsset(id);
     if (isClosed) return false;
 
@@ -209,14 +223,19 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       final updatedAssets = state.assets
           .where((asset) => asset.id != id)
           .toList();
-      emit(state.copyWith(assets: updatedAssets, status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          assets: updatedAssets,
+          sections: withSection(AssetsSections.delete, .success),
+        ),
+      );
       await loadAssets(emitLoading: false);
       return true;
     } else {
       if (isClosed) return false;
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(AssetsSections.delete, SectionStatus.error),
           errorMessage: result.message,
         ),
       );

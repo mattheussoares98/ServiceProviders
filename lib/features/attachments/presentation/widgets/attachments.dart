@@ -57,8 +57,8 @@ class Attachments extends StatelessWidget {
           (bool, bool, String?, List<AttachmentEntity>, int)
         >(
           (cubit) => (
-            cubit.state.status == StateStatus.loading,
-            cubit.state.status == StateStatus.loadingError,
+            cubit.state.status == DataStatus.loading,
+            cubit.state.status == DataStatus.loadingError,
             cubit.state.errorMessage,
             cubit.state.attachments,
             cubit.state.processingCount,
@@ -200,7 +200,8 @@ class _EmptyAttachment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canAdd = isWorkOrderActive && context.hasPermission(_createAttachment);
+    final canAdd =
+        isWorkOrderActive && context.hasPermission(_createAttachment);
 
     return InkWell(
       onTap: canAdd

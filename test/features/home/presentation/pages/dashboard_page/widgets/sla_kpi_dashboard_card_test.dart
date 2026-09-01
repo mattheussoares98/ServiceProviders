@@ -93,7 +93,7 @@ void main() {
       );
 
       when(() => mockDashboardKpisCubit.state).thenReturn(
-        const DashboardKpisState(metrics: metrics, status: StateStatus.loaded),
+        const DashboardKpisState(metrics: metrics, status: DataStatus.loaded),
       );
 
       await tester.pumpWidget(buildTestWidget());

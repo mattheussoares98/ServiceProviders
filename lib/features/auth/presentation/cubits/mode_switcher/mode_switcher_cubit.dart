@@ -4,8 +4,11 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'mode_switcher_state.dart';
+
+enum ModeSwitcherSections implements SectionKey { save }
 
 @injectable
 class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
@@ -39,11 +42,23 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
   }
 
   Future<void> selectMode(AppMode mode) async {
-    emit(state.copyWith(status: StateStatus.loading, selectedMode: mode));
+    emit(
+      state.copyWith(
+        sections: withSection(ModeSwitcherSections.save, SectionStatus.running),
+        selectedMode: mode,
+      ),
+    );
 
     try {
       await _useCases.saveSelectedMode.call(mode.name);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            ModeSwitcherSections.save,
+            SectionStatus.success,
+          ),
+        ),
+      );
 
       if (mode == AppMode.provider) {
         await replaceAllRoute(const ProviderHomeRoute());
@@ -53,7 +68,7 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
     } catch (e) {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(ModeSwitcherSections.save, SectionStatus.error),
           errorMessage: 'Erro ao salvar o modo de acesso.',
         ),
       );

@@ -17,7 +17,7 @@ class ErrorPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<UsersCubit, UsersState, (String?, bool)>(
       selector: (cubit) =>
-          (cubit.errorMessage, cubit.status == StateStatus.loading),
+          (cubit.errorMessage, cubit.status == DataStatus.loading),
       builder: (context, selected) {
         final errorMessage = selected.$1;
         final isLoading = selected.$2;

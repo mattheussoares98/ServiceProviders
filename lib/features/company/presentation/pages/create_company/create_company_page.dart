@@ -25,7 +25,7 @@ class CreateCompanyPage extends HookWidget {
     final cnpjController = useTextEditingController();
     final cnpjFocusNode = useFocusNode();
     final isLoading = context.select(
-      (CompanyCubit cubit) => cubit.state.status == StateStatus.loading,
+      (CompanyCubit cubit) => cubit.state.status == DataStatus.loading,
     );
 
     return BaseScaffold(

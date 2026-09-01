@@ -8,9 +8,9 @@ class SessionState extends BaseState {
   });
 
   SessionState.initial()
-      : user = UserProfileEntity.empty(),
-        isLoggedIn = false,
-        super(status: StateStatus.initial);
+    : user = UserProfileEntity.empty(),
+      isLoggedIn = false,
+      super(status: DataStatus.initial);
 
   final UserProfileEntity user;
   final bool isLoggedIn;
@@ -21,7 +21,7 @@ class SessionState extends BaseState {
   SessionState copyWith({
     UserProfileEntity? user,
     bool? isLoggedIn,
-    StateStatus? status,
+    DataStatus? status,
   }) {
     return SessionState(
       user: user ?? this.user,

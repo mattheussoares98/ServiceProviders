@@ -5,8 +5,11 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'permissions_state.dart';
+
+enum PermissionsSections implements SectionKey { save }
 
 @injectable
 class PermissionsCubit extends BaseCubit<PermissionsState> {
@@ -42,7 +45,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         draftGroupWorkOrders: isAdminGroup
             ? const WorkOrdersPermissionEntity.defaultAdmin()
             : group.workOrders,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
   }
@@ -165,7 +168,14 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     final group = state.group;
     if (group == null || state.isAdmin) return false;
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PermissionsSections.save,
+          SectionStatus.running,
+        ),
+      ),
+    );
 
     final updatedPermissions = Map<ResourceType, Set<PermissionAction>>.from(
       state.draftGroupPermissions,
@@ -182,10 +192,25 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
 
     if (success) {
-      emit(state.copyWith(group: updatedGroup, status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          group: updatedGroup,
+          sections: withSection(
+            PermissionsSections.save,
+            SectionStatus.success,
+          ),
+        ),
+      );
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PermissionsSections.save,
+            SectionStatus.error,
+          ),
+        ),
+      );
       return false;
     }
   }
@@ -217,7 +242,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         selectedGroupId: user.permissionGroupId,
         draftUserPermissions: localOverrides,
         draftUserWorkOrders: user.workOrdersPermissionOverrides,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
   }
@@ -370,7 +395,14 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     final user = state.user;
     if (user == null) return false;
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          PermissionsSections.save,
+          SectionStatus.running,
+        ),
+      ),
+    );
 
     final Map<ResourceType, Map<PermissionAction, bool?>> finalPermissions = {};
 
@@ -400,10 +432,25 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     );
 
     if (success) {
-      emit(state.copyWith(user: updatedUser, status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          user: updatedUser,
+          sections: withSection(
+            PermissionsSections.save,
+            SectionStatus.success,
+          ),
+        ),
+      );
       return true;
     } else {
-      emit(state.copyWith(status: StateStatus.loadingError));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PermissionsSections.save,
+            SectionStatus.error,
+          ),
+        ),
+      );
       return false;
     }
   }

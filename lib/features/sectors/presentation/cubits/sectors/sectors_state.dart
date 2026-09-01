@@ -15,18 +15,19 @@ class SectorsState extends BaseState {
   final SectorEntity? selectedSector;
 
   SectorsState copyWith({
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
     List<SectorEntity>? sectors,
     SectorEntity? selectedSector,
     bool? annulSelectedSector,
   }) {
     return SectorsState(
       status: status ?? this.status,
-      errorMessage:
-          annulErrorMessage == true ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: annulErrorMessage == true
+          ? null
+          : (errorMessage ?? this.errorMessage),
       sections: sections ?? this.sections,
       sectors: sectors ?? this.sectors,
       selectedSector: annulSelectedSector == true
@@ -36,9 +37,5 @@ class SectorsState extends BaseState {
   }
 
   @override
-  List<Object?> get props => [
-        ...super.props,
-        sectors,
-        selectedSector,
-      ];
+  List<Object?> get props => [...super.props, sectors, selectedSector];
 }

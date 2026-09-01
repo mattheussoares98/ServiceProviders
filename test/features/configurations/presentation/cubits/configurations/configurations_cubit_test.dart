@@ -71,10 +71,10 @@ void main() {
         isA<ConfigurationsState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.configurations,
               'configurations',
@@ -100,10 +100,10 @@ void main() {
         isA<ConfigurationsState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', StateStatus.loadingError)
+            .having((s) => s.status, 'status', DataStatus.loadingError)
             .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
       ],
       verify: (_) {
@@ -124,7 +124,7 @@ void main() {
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.configurations.pushNotificationsEnabled,
               'pushNotificationsEnabled',
@@ -149,7 +149,7 @@ void main() {
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
       expect: () => [
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.configurations.themeMode, 'themeMode', 'dark'),
       ],
       verify: (_) {
@@ -172,10 +172,10 @@ void main() {
         isA<ConfigurationsState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.configurations.pushNotificationsEnabled,
               'pushNotificationsEnabled',

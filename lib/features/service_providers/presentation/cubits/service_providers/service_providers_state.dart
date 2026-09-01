@@ -8,7 +8,7 @@ class ServiceProvidersState extends BaseState {
     this.loadingCompanyIds = const {},
     this.selectedCompanyId,
     this.selectedProfileId,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
@@ -20,7 +20,7 @@ class ServiceProvidersState extends BaseState {
       loadingCompanyIds = const {},
       selectedCompanyId = null,
       selectedProfileId = null,
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   final List<ServiceProviderCompanyEntity> companies;
   final Map<String, List<ServiceProviderProfileEntity>> profiles;
@@ -34,10 +34,10 @@ class ServiceProvidersState extends BaseState {
     Map<String, List<ServiceProviderProfileEntity>>? profiles,
     Map<String, List<ServiceProviderInvitationEntity>>? invitations,
     Set<String>? loadingCompanyIds,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
     String? selectedCompanyId,
     String? selectedProfileId,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool annulCompanyId = false,
     bool annulProfileId = false,

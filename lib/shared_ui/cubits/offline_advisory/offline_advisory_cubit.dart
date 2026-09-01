@@ -15,12 +15,13 @@ class OfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState> {
     required OfflineTracker offlineTracker,
     required InternetClient internetClient,
     required GetSelectedModeUseCase getSelectedMode,
-  })  : _offlineTracker = offlineTracker,
-        _internetClient = internetClient,
-        _getSelectedMode = getSelectedMode,
-        super(const OfflineAdvisoryState()) {
-    _offlineTrackerSubscription =
-        _offlineTracker.alertStream.listen(_onAlertEvent);
+  }) : _offlineTracker = offlineTracker,
+       _internetClient = internetClient,
+       _getSelectedMode = getSelectedMode,
+       super(const OfflineAdvisoryState()) {
+    _offlineTrackerSubscription = _offlineTracker.alertStream.listen(
+      _onAlertEvent,
+    );
     _subscribeConnectivityIfNeeded();
   }
 
@@ -31,10 +32,7 @@ class OfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState> {
   StreamSubscription<InternetStatus>? _connectivitySubscription;
 
   void _onAlertEvent(OfflineAdvisoryEvent event) {
-    emit(state.copyWith(
-      status: StateStatus.loaded,
-      advisoryEvent: event,
-    ));
+    emit(state.copyWith(status: DataStatus.loaded, advisoryEvent: event));
   }
 
   void _onConnectivityChanged(InternetStatus status) {
@@ -42,8 +40,9 @@ class OfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState> {
   }
 
   void _subscribeConnectivityIfNeeded() {
-    _connectivitySubscription ??=
-        _internetClient.connectivityStream?.listen(_onConnectivityChanged);
+    _connectivitySubscription ??= _internetClient.connectivityStream?.listen(
+      _onConnectivityChanged,
+    );
   }
 
   /// Validates offline status on app startup or when resumed from background.

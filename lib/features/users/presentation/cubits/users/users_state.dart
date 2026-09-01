@@ -9,7 +9,7 @@ class UsersState extends BaseState {
     this.deletingGroupIds = const {},
     this.deletingInvitationIds = const {},
     this.resendingInvitationIds = const {},
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
@@ -22,7 +22,7 @@ class UsersState extends BaseState {
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
       resendingInvitationIds = const {},
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   const UsersState.empty()
     : users = const [],
@@ -32,7 +32,7 @@ class UsersState extends BaseState {
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
       resendingInvitationIds = const {},
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   final List<UserProfileEntity> users;
   final List<PermissionGroupEntity> permissionGroups;
@@ -50,10 +50,10 @@ class UsersState extends BaseState {
     Set<String>? deletingGroupIds,
     Set<String>? deletingInvitationIds,
     Set<String>? resendingInvitationIds,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return UsersState(
       users: users ?? this.users,

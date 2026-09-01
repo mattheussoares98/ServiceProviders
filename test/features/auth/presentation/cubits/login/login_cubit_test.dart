@@ -229,8 +229,8 @@ void main() {
       );
     },
     expect: () => [
-      isA<LoginState>().having((s) => s.status, 'status', StateStatus.loading),
-      isA<LoginState>().having((s) => s.status, 'status', StateStatus.loaded),
+      isA<LoginState>().having((s) => s.status, 'status', DataStatus.loading),
+      isA<LoginState>().having((s) => s.status, 'status', DataStatus.loaded),
     ],
     verify: (_) {
       verify(() => mockLoginUseCase.call(any())).called(1);
@@ -261,16 +261,16 @@ void main() {
           .having(
             (s) => s.resetPasswordStatus,
             'resetPasswordStatus',
-            StateStatus.loading,
+            DataStatus.loading,
           )
-          .having((s) => s.status, 'status', StateStatus.initial),
+          .having((s) => s.status, 'status', DataStatus.initial),
       isA<LoginState>()
           .having(
             (s) => s.resetPasswordStatus,
             'resetPasswordStatus',
-            StateStatus.loaded,
+            DataStatus.loaded,
           )
-          .having((s) => s.status, 'status', StateStatus.initial),
+          .having((s) => s.status, 'status', DataStatus.initial),
     ],
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);
@@ -292,16 +292,16 @@ void main() {
           .having(
             (s) => s.resetPasswordStatus,
             'resetPasswordStatus',
-            StateStatus.loading,
+            DataStatus.loading,
           )
-          .having((s) => s.status, 'status', StateStatus.initial),
+          .having((s) => s.status, 'status', DataStatus.initial),
       isA<LoginState>()
           .having(
             (s) => s.resetPasswordStatus,
             'resetPasswordStatus',
-            StateStatus.loaded,
+            DataStatus.loaded,
           )
-          .having((s) => s.status, 'status', StateStatus.initial),
+          .having((s) => s.status, 'status', DataStatus.initial),
     ],
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);

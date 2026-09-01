@@ -181,7 +181,7 @@ void main() {
       act: (cubit) => cubit.togglePasswordVisibility(),
       expect: () => [
         const AcceptInviteState(
-          status: StateStatus.initial,
+          status: DataStatus.initial,
           passwordVisibility: true,
         ),
       ],
@@ -193,7 +193,7 @@ void main() {
       act: (cubit) => cubit.toggleConfirmPasswordVisibility(),
       expect: () => [
         const AcceptInviteState(
-          status: StateStatus.initial,
+          status: DataStatus.initial,
           confirmPasswordVisibility: true,
         ),
       ],
@@ -213,10 +213,10 @@ void main() {
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<AcceptInviteState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.userProfile, 'userProfile', isNotNull),
       ],
     );
@@ -247,10 +247,10 @@ void main() {
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<AcceptInviteState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.userProfile, 'userProfile', isNotNull),
       ],
     );
@@ -271,7 +271,7 @@ void main() {
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'acceptInvite should call password change, update profile, and log out on success',
       seed: () => AcceptInviteState(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         userProfile: EntityFactory.makeUserProfileEntity().copyWith(
           isActive: false,
         ),
@@ -300,12 +300,12 @@ void main() {
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loaded,
+          DataStatus.loaded,
         ),
       ],
       verify: (_) {
@@ -319,7 +319,7 @@ void main() {
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'acceptInvite should skip password change and profile update if profile is already active',
       seed: () => AcceptInviteState(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         userProfile: EntityFactory.makeUserProfileEntity().copyWith(
           isActive: true,
         ),
@@ -336,12 +336,12 @@ void main() {
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<AcceptInviteState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loaded,
+          DataStatus.loaded,
         ),
       ],
       verify: (_) {
@@ -354,7 +354,7 @@ void main() {
       blocTest<AcceptInviteCubit, AcceptInviteState>(
         'navigateToHome should replaceAll with ProviderHomeRoute and save provider mode when companyId is empty',
         seed: () => AcceptInviteState(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           userProfile: EntityFactory.makeUserProfileEntity().copyWith(
             companyId: '',
           ),
@@ -381,7 +381,7 @@ void main() {
       blocTest<AcceptInviteCubit, AcceptInviteState>(
         'navigateToHome should replaceAll with HomeRoute when companyId is not empty',
         seed: () => AcceptInviteState(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           userProfile: EntityFactory.makeUserProfileEntity().copyWith(
             companyId: faker.guid.guid(),
           ),

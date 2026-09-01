@@ -90,7 +90,7 @@ void main() {
       act: (cubit) => alertStreamController.add(tEvent),
       expect: () => [
         isA<OfflineAdvisoryState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.advisoryEvent, 'advisoryEvent', tEvent)
             .having((s) => s.shouldShowDialog, 'shouldShowDialog', isTrue),
       ],

@@ -102,9 +102,9 @@ class ObservationsSection extends HookWidget {
                               bool
                             >(
                               selector: (state) =>
-                                  state.sections[WorkOrderObservationsSection
+                                  state.sections[WorkOrderObservationsSections
                                       .deleteObservation] ==
-                                  StateStatus.deleting,
+                                  SectionStatus.running,
                               builder: (context, isDeleting) {
                                 return BaseIconButton(
                                   isLoading: isDeleting,
@@ -163,7 +163,10 @@ class ObservationsSection extends HookWidget {
                     WorkOrderObservationsState,
                     bool
                   >(
-                    selector: (state) => state.status == StateStatus.saving,
+                    selector: (state) =>
+                        state.sections[WorkOrderObservationsSections
+                            .saveObservation] ==
+                        SectionStatus.running,
                     builder: (context, isSubmitting) {
                       return Column(
                         children: [

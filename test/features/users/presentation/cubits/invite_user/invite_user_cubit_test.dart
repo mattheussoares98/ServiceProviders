@@ -60,7 +60,7 @@ void main() {
     });
 
     blocTest<InviteUserCubit, InviteUserState>(
-      'emits [loading, loaded] on successful invitation',
+      'emits [running, success] on successful invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
           EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
@@ -84,20 +84,20 @@ void main() {
       ).called(1),
       expect: () => [
         isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.running,
         ),
         isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.success,
         ),
       ],
     );
 
     blocTest<InviteUserCubit, InviteUserState>(
-      'emits [loading, loaded] with errorMessage on failed invitation',
+      'emits [running, error] with errorMessage on failed invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
           EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
@@ -122,20 +122,22 @@ void main() {
       ).called(1),
       expect: () => [
         isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.running,
         ),
-        isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
-        ),
+        isA<InviteUserState>()
+            .having(
+              (s) => s.sections[InviteUserSections.invite],
+              'sections[invite]',
+              SectionStatus.error,
+            )
+            .having((s) => s.errorMessage, 'errorMessage', 'Error sending invite'),
       ],
     );
 
     blocTest<InviteUserCubit, InviteUserState>(
-      'emits [loading, loaded] and returns false when companyId is empty',
+      'emits [running, error] and returns false when companyId is empty',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
           EntityFactory.makeUserProfileEntity().copyWith(annulCompanyId: true),
@@ -152,15 +154,17 @@ void main() {
       verify: (cubit) => verify(() => mockInviteUserUseCase(any())).called(1),
       expect: () => [
         isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loading,
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.running,
         ),
-        isA<InviteUserState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.loaded,
-        ),
+        isA<InviteUserState>()
+            .having(
+              (s) => s.sections[InviteUserSections.invite],
+              'sections[invite]',
+              SectionStatus.error,
+            )
+            .having((s) => s.errorMessage, 'errorMessage', 'Error'),
       ],
     );
   });

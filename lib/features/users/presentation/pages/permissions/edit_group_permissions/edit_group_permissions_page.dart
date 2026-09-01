@@ -49,22 +49,24 @@ class _Body extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<PermissionsCubit>(),
-        statuses: {
-          StateStatus.saving,
-          StateStatus.loading,
-          StateStatus.deleting,
+        sections: const {
+          PermissionsSections.save: {SectionStatus.running},
         },
       ),
     ]);
     return BlocSelector<
       PermissionsCubit,
       PermissionsState,
-      (bool, StateStatus)
+      (bool, SectionStatus?)
     >(
-      selector: (state) => (state.isAdmin, state.status),
+      selector: (state) => (
+        state.isAdmin,
+        state.sections[PermissionsSections.save],
+      ),
       builder: (context, state) {
         final isAdmin = state.$1;
-        final status = state.$2;
+        final saveStatus = state.$2;
+        final isSaving = saveStatus == SectionStatus.running;
 
         Future<void> onSave() async {
           final cubit = context.read<PermissionsCubit>();
@@ -89,9 +91,9 @@ class _Body extends HookWidget {
                     materialIcon: Icons.save,
                     cupertinoIcon: CupertinoIcons.check_mark,
                   ),
-                  onPressed: status == StateStatus.saving ? null : onSave,
+                  onPressed: isSaving ? null : onSave,
                   text: 'Salvar'.hardcoded,
-                  isLoading: status == StateStatus.saving,
+                  isLoading: isSaving,
                 ),
             ],
           ),

@@ -33,10 +33,12 @@ class EditUserPermissionsPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<UsersCubit>(),
-        statuses: {
-          StateStatus.saving,
-          StateStatus.deleting,
-          StateStatus.loading,
+        sections: const {
+          UsersSections.updateUser: {SectionStatus.running},
+          UsersSections.deleteUser: {SectionStatus.running},
+          UsersSections.saveGroup: {SectionStatus.running},
+          UsersSections.deleteGroup: {SectionStatus.running},
+          UsersSections.revokeInvitation: {SectionStatus.running},
         },
       ),
     ]);
@@ -56,15 +58,16 @@ class _Body extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<PermissionsCubit>(),
-        statuses: {
-          StateStatus.saving,
-          StateStatus.deleting,
-          StateStatus.loading,
+        sections: const {
+          PermissionsSections.save: {SectionStatus.running},
         },
       ),
     ]);
     return BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
-      selector: (state) => (state.isAdmin, state.status == StateStatus.saving),
+      selector: (state) => (
+        state.isAdmin,
+        state.sections[PermissionsSections.save] == SectionStatus.running,
+      ),
       builder: (context, value) {
         Future<void> onSave() async {
           final cubit = context.read<PermissionsCubit>();

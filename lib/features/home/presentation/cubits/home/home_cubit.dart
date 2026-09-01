@@ -10,8 +10,11 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_avatar_use_case.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'home_state.dart';
+
+enum HomeSections implements SectionKey { changeAvatar }
 
 @injectable
 class HomeCubit extends BaseCubit<HomeState> {
@@ -71,7 +74,11 @@ class HomeCubit extends BaseCubit<HomeState> {
     final user = _useCases.getSessionUser.call();
     final companyId = _useCases.getActiveCompanyId.call();
 
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(HomeSections.changeAvatar, SectionStatus.running),
+      ),
+    );
 
     final pickResult = await _useCases.pickAttachment.call(
       PickAttachmentParams(
@@ -87,20 +94,32 @@ class HomeCubit extends BaseCubit<HomeState> {
 
     if (pickResult is! SuccessState<List<AttachmentEntity>>) {
       showDataStateToast(pickResult);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(HomeSections.changeAvatar, SectionStatus.error),
+        ),
+      );
       return;
     }
 
     final attachments = pickResult.data ?? [];
     if (attachments.isEmpty) {
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(HomeSections.changeAvatar, SectionStatus.idle),
+        ),
+      );
       return;
     }
 
     final localPath = attachments.first.localPath;
     if (localPath == null || localPath.isEmpty) {
       showErrorToast('Erro ao obter o arquivo da imagem'.hardcoded);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(HomeSections.changeAvatar, SectionStatus.error),
+        ),
+      );
       return;
     }
 
@@ -112,10 +131,21 @@ class HomeCubit extends BaseCubit<HomeState> {
 
     if (uploadResult is SuccessState<bool>) {
       showSuccessToast('Foto de perfil atualizada com sucesso'.hardcoded);
-      emit(state.copyWith(status: StateStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            HomeSections.changeAvatar,
+            SectionStatus.success,
+          ),
+        ),
+      );
     } else {
       showDataStateToast(uploadResult);
-      emit(state.copyWith(status: StateStatus.savingError));
+      emit(
+        state.copyWith(
+          sections: withSection(HomeSections.changeAvatar, SectionStatus.error),
+        ),
+      );
     }
   }
 }

@@ -58,7 +58,9 @@ class ReviewCompletionDialog extends HookWidget {
       value: cubit,
       child: BlocBuilder<PauseWorkflowCubit, PauseWorkflowState>(
         builder: (context, state) {
-          final isSaving = state.status == StateStatus.saving;
+          final isSaving =
+              state.sections[PauseWorkflowSections.reviewCompletion] ==
+              SectionStatus.running;
           return IgnorePointer(
             ignoring: isSaving,
             child: Dialog(

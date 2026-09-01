@@ -3,7 +3,7 @@ part of 'configurations_cubit.dart';
 class ConfigurationsState extends BaseState {
   const ConfigurationsState({
     required this.configurations,
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
   });
 
@@ -13,7 +13,7 @@ class ConfigurationsState extends BaseState {
         themeMode: 'system',
         systemNotificationsEnabled: true,
       ),
-      super(status: StateStatus.initial, errorMessage: '');
+      super(status: DataStatus.initial, errorMessage: '');
 
   final ConfigurationsEntity configurations;
 
@@ -26,7 +26,7 @@ class ConfigurationsState extends BaseState {
 
   ConfigurationsState copyWith({
     ConfigurationsEntity? configurations,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
   }) {
     return ConfigurationsState(

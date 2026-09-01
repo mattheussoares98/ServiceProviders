@@ -19,7 +19,14 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit_sections.dart';
 
 part 'users_state.dart';
 
-enum UsersSections implements SectionKey { loadAll }
+enum UsersSections implements SectionKey {
+  loadAll,
+  revokeInvitation,
+  updateUser,
+  deleteUser,
+  saveGroup,
+  deleteGroup,
+}
 
 @injectable
 class UsersCubit extends BaseCubit<UsersState> {
@@ -89,7 +96,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getUsers(companyId);
@@ -98,7 +105,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<UserProfileEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           users: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -107,7 +114,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message = result.message ?? 'Erro ao carregar usuários'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
@@ -118,7 +125,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getPermissionGroups(companyId);
@@ -127,7 +134,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<PermissionGroupEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           permissionGroups: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -137,7 +144,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       final message =
           result.message ?? 'Erro ao carregar grupos de permissão'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
@@ -148,7 +155,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getPendingInvitations(companyId);
@@ -157,7 +164,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<UserInvitationEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           invitations: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -166,7 +173,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     } else {
       final message = result.message ?? 'Erro ao carregar convites'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
       showErrorToast(message);
       return false;
@@ -177,7 +184,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (emitLoading) {
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.loadAll, StateStatus.loading),
+          sections: withSection(UsersSections.loadAll, SectionStatus.running),
         ),
       );
     }
@@ -197,7 +204,7 @@ class UsersCubit extends BaseCubit<UsersState> {
         state.copyWith(
           sections: withSection(
             UsersSections.loadAll,
-            hasError ? StateStatus.loadingError : StateStatus.loaded,
+            hasError ? SectionStatus.error : SectionStatus.success,
           ),
         ),
       );
@@ -205,10 +212,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       if (isClosed) return;
       emit(
         state.copyWith(
-          sections: withSection(
-            UsersSections.loadAll,
-            StateStatus.loadingError,
-          ),
+          sections: withSection(UsersSections.loadAll, SectionStatus.error),
         ),
       );
     }
@@ -217,7 +221,10 @@ class UsersCubit extends BaseCubit<UsersState> {
   Future<bool> revokeInvitation(String id) async {
     emit(
       state.copyWith(
-        status: StateStatus.deleting,
+        sections: withSection(
+          UsersSections.revokeInvitation,
+          SectionStatus.running,
+        ),
         deletingInvitationIds: {...state.deletingInvitationIds, id},
       ),
     );
@@ -226,21 +233,25 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadInvitations(emitLoading: false);
-      if (isClosed) return false;
-
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          sections: withSection(
+            UsersSections.revokeInvitation,
+            SectionStatus.success,
+          ),
           deletingInvitationIds: {...state.deletingInvitationIds}..remove(id),
         ),
       );
+      await loadInvitations(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao revogar convite'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(
+            UsersSections.revokeInvitation,
+            SectionStatus.error,
+          ),
           errorMessage: message,
           deletingInvitationIds: {...state.deletingInvitationIds}..remove(id),
         ),
@@ -296,14 +307,18 @@ class UsersCubit extends BaseCubit<UsersState> {
     String? groupId,
     UserWorkOrdersPermissionOverrideEntity? workOrders,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(UsersSections.updateUser, SectionStatus.running),
+      ),
+    );
 
     final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
     if (currentUser == null) {
       final message = 'Usuário não encontrado'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(UsersSections.updateUser, SectionStatus.error),
           errorMessage: message.hardcoded,
         ),
       );
@@ -320,12 +335,20 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(UsersSections.updateUser, SectionStatus.success),
+        ),
+      );
       await loadUsers(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(UsersSections.updateUser, SectionStatus.error),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -333,14 +356,18 @@ class UsersCubit extends BaseCubit<UsersState> {
   }
 
   Future<bool> updateUserPermissionGroup(String userId, String groupId) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(UsersSections.updateUser, SectionStatus.running),
+      ),
+    );
 
     final currentUser = state.users.firstWhereOrNull((u) => u.id == userId);
     if (currentUser == null) {
       final message = 'Usuário não encontrado'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(UsersSections.updateUser, SectionStatus.error),
           errorMessage: message.hardcoded,
         ),
       );
@@ -352,13 +379,21 @@ class UsersCubit extends BaseCubit<UsersState> {
     final result = await _useCases.updateUserProfile(updatedUser);
 
     if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(UsersSections.updateUser, SectionStatus.success),
+        ),
+      );
       await loadUsers(emitLoading: false);
       return true;
     } else {
       if (isClosed) return false;
       final message = result.message ?? 'Erro ao atualizar usuário'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(UsersSections.updateUser, SectionStatus.error),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -368,7 +403,7 @@ class UsersCubit extends BaseCubit<UsersState> {
   Future<bool> deleteUserProfile(String id) async {
     emit(
       state.copyWith(
-        status: StateStatus.deleting,
+        sections: withSection(UsersSections.deleteUser, SectionStatus.running),
         deletingUserIds: {...state.deletingUserIds, id},
       ),
     );
@@ -381,7 +416,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           users: updatedUsers,
-          status: StateStatus.loaded,
+          sections: withSection(UsersSections.deleteUser, SectionStatus.success),
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
       );
@@ -391,7 +426,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       final message = result.message ?? 'Erro ao excluir usuário'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(UsersSections.deleteUser, SectionStatus.error),
           errorMessage: message,
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
@@ -409,7 +444,11 @@ class UsersCubit extends BaseCubit<UsersState> {
     PermissionGroupEntity group, {
     required bool isUpdate,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(UsersSections.saveGroup, SectionStatus.running),
+      ),
+    );
 
     final result = isUpdate
         ? await _useCases.updatePermissionGroup(group)
@@ -418,13 +457,21 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(UsersSections.saveGroup, SectionStatus.success),
+        ),
+      );
       await loadPermissionGroups(emitLoading: false);
       return true;
     } else {
       final message =
           result.message ?? 'Erro ao salvar grupo de permissão'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.savingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(UsersSections.saveGroup, SectionStatus.error),
+          errorMessage: message,
+        ),
       );
       showErrorToast(message);
       return false;
@@ -434,7 +481,7 @@ class UsersCubit extends BaseCubit<UsersState> {
   Future<void> deletePermissionGroup(String id) async {
     emit(
       state.copyWith(
-        status: StateStatus.deleting,
+        sections: withSection(UsersSections.deleteGroup, SectionStatus.running),
         deletingGroupIds: {...state.deletingGroupIds, id},
       ),
     );
@@ -443,21 +490,19 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (isClosed) return;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadPermissionGroups(emitLoading: false);
-      if (isClosed) return;
-
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          sections: withSection(UsersSections.deleteGroup, SectionStatus.success),
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),
       );
+      await loadPermissionGroups(emitLoading: false);
     } else {
       final message =
           result.message ?? 'Erro ao excluir grupo de permissão'.hardcoded;
       emit(
         state.copyWith(
-          status: StateStatus.deletingError,
+          sections: withSection(UsersSections.deleteGroup, SectionStatus.error),
           errorMessage: message,
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),

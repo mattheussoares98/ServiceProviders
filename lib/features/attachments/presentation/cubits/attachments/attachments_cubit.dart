@@ -49,7 +49,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   }
 
   Future<void> refreshAttachments() async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(status: DataStatus.loading));
     final result = await _useCases.getAttachments(_workOrderId);
     if (isClosed) return;
 
@@ -57,7 +57,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
       final list = result.data ?? [];
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           attachments: list,
           annulErrorMessage: true,
         ),
@@ -74,7 +74,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: result.message,
         ),
       );

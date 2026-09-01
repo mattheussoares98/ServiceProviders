@@ -91,7 +91,10 @@ class CreateUpdateWorkOrderPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
-        statuses: {StateStatus.saving, StateStatus.deleting},
+        sections: const {
+          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
+          WorkOrdersSections.deleteWorkOrder: {SectionStatus.running},
+        },
       ),
     ]);
 
@@ -146,19 +149,19 @@ class _CreateUpdatePage extends HookWidget {
 
     final (assetsError, assetsLoading) = context.select(
       (AssetsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
     );
     final (locationsError, locationsLoading) = context.select(
       (LocationsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
     );
     final (usersError, usersLoading) = context.select(
       (UsersCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
     );
     final (providersError, providersLoading) = context.select(
       (ServiceProvidersCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == StateStatus.loading),
+          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
     );
     final isLoading = isProviderMode
         ? providersLoading

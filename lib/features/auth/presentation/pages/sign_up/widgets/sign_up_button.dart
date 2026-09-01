@@ -21,7 +21,7 @@ class SignUpButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select(
-      (SignUpCubit cubit) => cubit.state.status == StateStatus.loading,
+      (SignUpCubit cubit) => cubit.state.status == DataStatus.loading,
     );
 
     return BaseButton(

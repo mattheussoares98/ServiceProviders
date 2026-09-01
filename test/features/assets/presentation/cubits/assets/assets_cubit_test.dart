@@ -122,7 +122,7 @@ void main() {
         act: (cubit) => cubit.loadAssetsByIds([faker.guid.guid()]),
         expect: () => [
           isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty),
         ],
       );
@@ -165,10 +165,10 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -188,7 +188,7 @@ void main() {
         act: (cubit) => cubit.loadAssets(emitLoading: false),
         expect: () => [
           isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.assets, 'assets', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -211,10 +211,10 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
         ],
         verify: (_) {
@@ -236,7 +236,7 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loadingError,
+            DataStatus.loadingError,
           ),
         ],
         verify: (_) {
@@ -291,14 +291,19 @@ void main() {
         },
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.running,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -389,14 +394,14 @@ void main() {
         },
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -449,14 +454,19 @@ void main() {
         },
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.running,
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -510,11 +520,11 @@ void main() {
       );
 
       blocTest<AssetsCubit, AssetsState>(
-        'should call updateAsset usecase and emit error when update fails',
+        'should emit error when update fails on saveAsset',
         build: () {
           when(
             () => mockUpdateAsset.call(any()),
-          ).thenAnswer((_) async => FailureState<bool>(message: 'Error'));
+          ).thenAnswer((_) async => FailureState(message: 'Error'));
           return cubit;
         },
         act: (cubit) async {
@@ -522,42 +532,23 @@ void main() {
             await cubit.saveAsset(
               id: tAsset.id,
               areaId: tAsset.areaId,
-              categoryId: tAsset.categoryId != null
-                  ? '${tAsset.categoryId} '
-                  : null,
-              parentAssetId: tAsset.parentAssetId != null
-                  ? '${tAsset.parentAssetId} '
-                  : null,
-              name: '${tAsset.name} ',
-              code: tAsset.code != null ? '${tAsset.code} ' : null,
-              manufacturer: tAsset.manufacturer != null
-                  ? '${tAsset.manufacturer} '
-                  : null,
-              model: tAsset.model != null ? '${tAsset.model} ' : null,
-              serialNumber: tAsset.serialNumber != null
-                  ? '${tAsset.serialNumber} '
-                  : null,
-              installDate: tAsset.installDate,
-              warrantyExpiration: tAsset.warrantyExpiration,
-              revisionForecast: tAsset.revisionForecast,
               status: tAsset.status,
               criticality: tAsset.criticality,
-              notes: tAsset.notes != null ? '${tAsset.notes} ' : null,
-              createdAt: tAsset.createdAt,
+              name: tAsset.name,
             ),
             isFalse,
           );
         },
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -588,14 +579,14 @@ void main() {
         },
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.savingError,
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -622,19 +613,26 @@ void main() {
           return cubit;
         },
         seed: () => cubit.state.copyWith(assets: [tAsset]),
-        act: (cubit) async => expect(await cubit.deleteAsset(tAsset.id), isTrue),
+        act: (cubit) async =>
+            expect(await cubit.deleteAsset(tAsset.id), isTrue),
         expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
+          ),
+          isA<AssetsState>()
+              .having(
+                (s) => s.sections[AssetsSections.delete],
+                'sections[delete]',
+                SectionStatus.success,
+              )
+              .having((s) => s.assets, 'assets', isEmpty),
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.deleting,
+            DataStatus.loaded,
           ),
-          isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.assets, 'assets', isEmpty),
-          isA<AssetsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.assets, 'assets', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteAsset.call(tAsset.id)).called(1);
@@ -653,14 +651,14 @@ void main() {
         act: (cubit) async => expect(await cubit.deleteAsset(tId), isFalse),
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deleting,
+            (s) => s.sections[AssetsSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.deletingError,
+            (s) => s.sections[AssetsSections.delete],
+            'sections[delete]',
+            SectionStatus.error,
           ),
         ],
         verify: (_) {
@@ -707,8 +705,9 @@ void main() {
           final streamController =
               StreamController<RealtimeEvent<AssetEntity>>();
           when(
-            () =>
-                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+            () => mockWatchAssetsRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
           ).thenAnswer((_) => streamController.stream);
 
           final testCubit = AssetsCubit(
@@ -726,7 +725,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               assets: [tInitialAsset],
             ),
           );
@@ -743,11 +742,10 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<AssetsState>().having(
-            (s) => s.assets,
-            'assets',
-            [tNewAsset, tInitialAsset],
-          ),
+          isA<AssetsState>().having((s) => s.assets, 'assets', [
+            tNewAsset,
+            tInitialAsset,
+          ]),
         ],
       );
 
@@ -757,8 +755,9 @@ void main() {
           final streamController =
               StreamController<RealtimeEvent<AssetEntity>>();
           when(
-            () =>
-                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+            () => mockWatchAssetsRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
           ).thenAnswer((_) => streamController.stream);
 
           final testCubit = AssetsCubit(
@@ -776,7 +775,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               assets: [tInitialAsset],
             ),
           );
@@ -809,8 +808,9 @@ void main() {
           final streamController =
               StreamController<RealtimeEvent<AssetEntity>>();
           when(
-            () =>
-                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+            () => mockWatchAssetsRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
           ).thenAnswer((_) => streamController.stream);
 
           final testCubit = AssetsCubit(
@@ -828,7 +828,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               assets: [tInitialAsset],
             ),
           );
@@ -849,11 +849,7 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<AssetsState>().having(
-            (s) => s.assets,
-            'assets',
-            isEmpty,
-          ),
+          isA<AssetsState>().having((s) => s.assets, 'assets', isEmpty),
         ],
       );
 
@@ -863,8 +859,9 @@ void main() {
           final streamController =
               StreamController<RealtimeEvent<AssetEntity>>();
           when(
-            () =>
-                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+            () => mockWatchAssetsRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
           ).thenAnswer((_) => streamController.stream);
 
           final testCubit = AssetsCubit(
@@ -882,7 +879,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               assets: [tInitialAsset],
             ),
           );
@@ -898,11 +895,7 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<AssetsState>().having(
-            (s) => s.assets,
-            'assets',
-            isEmpty,
-          ),
+          isA<AssetsState>().having((s) => s.assets, 'assets', isEmpty),
         ],
       );
     });

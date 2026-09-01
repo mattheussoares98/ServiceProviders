@@ -80,10 +80,10 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.sectors, 'sectors', isNotEmpty),
         ],
         verify: (_) {
@@ -107,10 +107,10 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error'),
         ],
       );
@@ -167,17 +167,17 @@ void main() {
         act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.saveSector],
-            'sections[saveSector]',
-            StateStatus.saving,
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.saveSector],
-            'sections[saveSector]',
-            StateStatus.loaded,
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
@@ -204,17 +204,17 @@ void main() {
         act: (cubit) => cubit.saveSector(id: tSector.id, name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.saveSector],
-            'sections[saveSector]',
-            StateStatus.saving,
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.saveSector],
-            'sections[saveSector]',
-            StateStatus.loaded,
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.success,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
@@ -237,15 +237,15 @@ void main() {
         act: (cubit) => cubit.saveSector(name: tSector.name),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.saveSector],
-            'sections[saveSector]',
-            StateStatus.saving,
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.running,
           ),
           isA<SectorsState>()
               .having(
-                (s) => s.sections[SectorsSection.saveSector],
-                'sections[saveSector]',
-                StateStatus.savingError,
+                (s) => s.sections[SectorsSections.save],
+                'sections[save]',
+                SectionStatus.error,
               )
               .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
         ],
@@ -274,17 +274,17 @@ void main() {
         act: (cubit) => cubit.deleteSector(tSector.id),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.deleteSector],
-            'sections[deleteSector]',
-            StateStatus.deleting,
+            (s) => s.sections[SectorsSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
           ),
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.deleteSector],
-            'sections[deleteSector]',
-            StateStatus.loaded,
+            (s) => s.sections[SectorsSections.delete],
+            'sections[delete]',
+            SectionStatus.success,
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.sectors, 'sectors', isEmpty),
         ],
         verify: (_) {
@@ -307,15 +307,15 @@ void main() {
         act: (cubit) => cubit.deleteSector(tSector.id),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.sections[SectorsSection.deleteSector],
-            'sections[deleteSector]',
-            StateStatus.deleting,
+            (s) => s.sections[SectorsSections.delete],
+            'sections[delete]',
+            SectionStatus.running,
           ),
           isA<SectorsState>()
               .having(
-                (s) => s.sections[SectorsSection.deleteSector],
-                'sections[deleteSector]',
-                StateStatus.deletingError,
+                (s) => s.sections[SectorsSections.delete],
+                'sections[delete]',
+                SectionStatus.error,
               )
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],
@@ -348,7 +348,7 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -382,7 +382,7 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {

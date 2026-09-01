@@ -54,7 +54,7 @@ class LoginCubit extends BaseCubit<LoginState> {
   }
 
   Future<void> login({required String email, required String password}) async {
-    _currentState = _currentState.copyWith(status: StateStatus.loading);
+    _currentState = _currentState.copyWith(status: DataStatus.loading);
     emit(_currentState);
 
     final authentication = AuthenticationEntity(
@@ -97,13 +97,13 @@ class LoginCubit extends BaseCubit<LoginState> {
         await replaceAllRoute(const HomeRoute());
       }
     }
-    _currentState = _currentState.copyWith(status: StateStatus.loaded);
+    _currentState = _currentState.copyWith(status: DataStatus.loaded);
     emit(_currentState);
   }
 
   Future<void> resetPassword(String email) async {
     _currentState = _currentState.copyWith(
-      resetPasswordStatus: StateStatus.loading,
+      resetPasswordStatus: DataStatus.loading,
     );
     emit(_currentState);
 
@@ -115,7 +115,7 @@ class LoginCubit extends BaseCubit<LoginState> {
     );
 
     _currentState = _currentState.copyWith(
-      resetPasswordStatus: StateStatus.loaded,
+      resetPasswordStatus: DataStatus.loaded,
     );
     emit(_currentState);
     await maybePopRoute();

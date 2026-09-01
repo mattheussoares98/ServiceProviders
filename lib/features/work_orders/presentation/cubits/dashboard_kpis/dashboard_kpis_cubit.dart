@@ -38,7 +38,7 @@ class DashboardKpisCubit extends BaseCubit<DashboardKpisState> {
         metrics: metrics,
         startDate: activeStartDate,
         endDate: activeEndDate,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
   }
@@ -74,7 +74,7 @@ class DashboardKpisCubit extends BaseCubit<DashboardKpisState> {
         metrics: metrics,
         startDate: startOfDay,
         endDate: endOfDay,
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
       ),
     );
   }

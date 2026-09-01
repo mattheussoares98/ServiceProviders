@@ -48,9 +48,8 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<ServiceProvidersCubit>(),
-        statuses: const {},
-        sections: {
-          ServiceProviderSection.saveCompany: {StateStatus.saving},
+        sections: const {
+          ServiceProvidersSections.saveCompany: {SectionStatus.running},
         },
       ),
     ]);

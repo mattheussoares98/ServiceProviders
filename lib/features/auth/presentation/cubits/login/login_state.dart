@@ -3,25 +3,25 @@ part of 'login_cubit.dart';
 class LoginState extends BaseState {
   const LoginState({
     required this.passwordVisibility,
-    this.resetPasswordStatus = StateStatus.initial,
+    this.resetPasswordStatus = DataStatus.initial,
     this.userData,
     super.status,
   });
 
   const LoginState.initial()
     : passwordVisibility = false,
-      resetPasswordStatus = StateStatus.initial,
+      resetPasswordStatus = DataStatus.initial,
       userData = null;
 
   final bool passwordVisibility;
-  final StateStatus resetPasswordStatus;
+  final DataStatus resetPasswordStatus;
   final UserDataEntity? userData;
 
   LoginState copyWith({
     bool? passwordVisibility,
-    StateStatus? resetPasswordStatus,
+    DataStatus? resetPasswordStatus,
     UserDataEntity? userData,
-    StateStatus? status,
+    DataStatus? status,
   }) => LoginState(
     passwordVisibility: passwordVisibility ?? this.passwordVisibility,
     resetPasswordStatus: resetPasswordStatus ?? this.resetPasswordStatus,

@@ -1,17 +1,27 @@
 part of 'home_cubit.dart';
 
 class HomeState extends BaseState {
-  const HomeState({super.status, super.errorMessage});
+  const HomeState({
+    super.status,
+    super.errorMessage,
+    super.sections = const {},
+  });
 
-  const HomeState.empty() : super(status: StateStatus.initial);
+  const HomeState.empty()
+    : super(status: DataStatus.initial, sections: const {});
 
-  HomeState copyWith({StateStatus? status, String? errorMessage}) {
+  HomeState copyWith({
+    DataStatus? status,
+    String? errorMessage,
+    Map<SectionKey, SectionStatus>? sections,
+  }) {
     return HomeState(
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
   @override
-  List<Object?> get props => [status, errorMessage];
+  List<Object?> get props => [status, errorMessage, sections];
 }

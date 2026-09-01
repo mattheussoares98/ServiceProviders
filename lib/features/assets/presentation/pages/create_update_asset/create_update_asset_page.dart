@@ -41,7 +41,9 @@ class CreateUpdateAssetPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<AssetsCubit>(),
-        statuses: {StateStatus.saving, StateStatus.deleting},
+        sections: {
+          AssetsSections.save: {SectionStatus.running},
+        },
       ),
     ]);
 
@@ -49,21 +51,21 @@ class CreateUpdateAssetPage extends HookWidget {
     final (loadingLocations, locationsError) = context
         .select<LocationsCubit, (bool, String?)>((cubit) {
           return (
-            cubit.state.status == StateStatus.loading,
+            cubit.state.status == DataStatus.loading,
             cubit.state.errorMessage,
           );
         });
     final (loadingCategories, categoriesError) = context
         .select<CategoriesCubit, (bool, String?)>((cubit) {
           return (
-            cubit.state.status == StateStatus.loading,
+            cubit.state.status == DataStatus.loading,
             cubit.state.errorMessage,
           );
         });
     final (loadingAssets, assetsError) = context
         .select<AssetsCubit, (bool, String?)>((cubit) {
           return (
-            cubit.state.status == StateStatus.loading,
+            cubit.state.status == DataStatus.loading,
             cubit.state.errorMessage,
           );
         });

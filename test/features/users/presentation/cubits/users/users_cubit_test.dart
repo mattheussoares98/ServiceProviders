@@ -141,10 +141,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.users, 'users', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -168,10 +168,10 @@ void main() {
         act: (cubit) async => expect(await cubit.loadUsers(), isFalse),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loading)
+              .having((s) => s.status, 'status', DataStatus.loading)
               .having((s) => s.users, 'users', isEmpty),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.users, 'users', isEmpty),
         ],
       );
@@ -192,10 +192,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
         ],
       );
@@ -220,10 +220,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.permissionGroups, 'permissionGroups', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -251,10 +251,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -266,7 +266,7 @@ void main() {
 
     group('loadAll', () {
       blocTest<UsersCubit, UsersState>(
-        'should emit section loading, load users, permission groups, invitations, and set section loaded',
+        'should emit section running, load users, permission groups, invitations, and set section success',
         build: () {
           final tUsers = EntityFactory.makeUserProfileEntityList();
           final tGroups = EntityFactory.makePermissionGroupEntityList();
@@ -290,31 +290,31 @@ void main() {
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loading,
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.users, 'users', isNotEmpty),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having(
                 (s) => s.permissionGroups,
                 'permissionGroups',
                 isNotEmpty,
               ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.invitations, 'invitations', isNotEmpty),
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loaded,
+            SectionStatus.success,
           ),
         ],
       );
 
       blocTest<UsersCubit, UsersState>(
-        'should emit loadingError section state when any sub-method fails',
+        'should emit error section state when any sub-method fails',
         build: () {
           final tGroups = EntityFactory.makePermissionGroupEntityList();
           final tInvitations = EntityFactory.makeUserInvitationEntityList();
@@ -337,35 +337,35 @@ void main() {
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loading,
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
                 'Error loading users',
               ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having(
                 (s) => s.permissionGroups,
                 'permissionGroups',
                 isNotEmpty,
               ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.invitations, 'invitations', isNotEmpty),
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loadingError,
+            SectionStatus.error,
           ),
         ],
       );
 
       blocTest<UsersCubit, UsersState>(
-        'should emit loadingError section state when an uncaught exception is thrown',
+        'should emit error section state when an uncaught exception is thrown',
         build: () {
           when(
             () => mockGetUsers.call(any()),
@@ -386,17 +386,17 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.initial,
+            DataStatus.initial,
           ),
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loading,
+            SectionStatus.running,
           ),
           isA<UsersState>().having(
             (s) => s.sections[UsersSections.loadAll],
             'sections[loadAll]',
-            StateStatus.loadingError,
+            SectionStatus.error,
           ),
         ],
       );
@@ -419,10 +419,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.invitations, 'invitations', [tUserInvitation]),
         ],
       );
@@ -443,10 +443,10 @@ void main() {
           isA<UsersState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error loading'),
         ],
       );
@@ -475,23 +475,28 @@ void main() {
         act: (cubit) => cubit.revokeInvitation(tUserInvitation.id),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[UsersSections.revokeInvitation],
+                'sections[revokeInvitation]',
+                SectionStatus.running,
+              )
               .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
                 tUserInvitation.id,
               }),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
-                tUserInvitation.id,
-              }),
-          isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.invitations, 'invitations', isEmpty)
+              .having(
+                (s) => s.sections[UsersSections.revokeInvitation],
+                'sections[revokeInvitation]',
+                SectionStatus.success,
+              )
               .having(
                 (s) => s.deletingInvitationIds,
                 'deletingInvitationIds',
                 isEmpty,
               ),
+          isA<UsersState>()
+              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having((s) => s.invitations, 'invitations', isEmpty),
         ],
       );
 
@@ -511,12 +516,20 @@ void main() {
         act: (cubit) => cubit.revokeInvitation(tUserInvitation.id),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[UsersSections.revokeInvitation],
+                'sections[revokeInvitation]',
+                SectionStatus.running,
+              )
               .having((s) => s.deletingInvitationIds, 'deletingInvitationIds', {
                 tUserInvitation.id,
               }),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deletingError)
+              .having(
+                (s) => s.sections[UsersSections.revokeInvitation],
+                'sections[revokeInvitation]',
+                SectionStatus.error,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Error revoking')
               .having(
                 (s) => s.deletingInvitationIds,
@@ -555,14 +568,14 @@ void main() {
             {tUserInvitation.id},
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having(
                 (s) => s.resendingInvitationIds,
                 'resendingInvitationIds',
                 {tUserInvitation.id},
               ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having(
                 (s) => s.resendingInvitationIds,
                 'resendingInvitationIds',
@@ -628,12 +641,17 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
+          ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.success,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.users, 'users', [tUserProfile]),
         ],
         verify: (_) {
@@ -661,12 +679,16 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[UsersSections.updateUser],
+                'sections[updateUser]',
+                SectionStatus.error,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
         ],
       );
@@ -683,12 +705,16 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[UsersSections.updateUser],
+                'sections[updateUser]',
+                SectionStatus.error,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -724,12 +750,17 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
+          ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.success,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.users, 'users', [tUserProfile]),
         ],
         verify: (_) {
@@ -762,12 +793,16 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[UsersSections.updateUser],
+                'sections[updateUser]',
+                SectionStatus.error,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
         ],
       );
@@ -784,12 +819,16 @@ void main() {
         },
         expect: () => [
           isA<UsersState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.running,
           ),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[UsersSections.updateUser],
+                'sections[updateUser]',
+                SectionStatus.error,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -820,15 +859,22 @@ void main() {
             expect(await cubit.deleteUserProfile(tId), isTrue),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[UsersSections.deleteUser],
+                'sections[deleteUser]',
+                SectionStatus.running,
+              )
               .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.sections[UsersSections.deleteUser],
+                'sections[deleteUser]',
+                SectionStatus.success,
+              )
               .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
               .having((s) => s.users, 'users', isEmpty),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.users, 'users', isEmpty),
         ],
       );
@@ -845,10 +891,18 @@ void main() {
             expect(await cubit.deleteUserProfile(tId), isFalse),
         expect: () => [
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deleting)
+              .having(
+                (s) => s.sections[UsersSections.deleteUser],
+                'sections[deleteUser]',
+                SectionStatus.running,
+              )
               .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
           isA<UsersState>()
-              .having((s) => s.status, 'status', StateStatus.deletingError)
+              .having(
+                (s) => s.sections[UsersSections.deleteUser],
+                'sections[deleteUser]',
+                SectionStatus.error,
+              )
               .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
               .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
         ],
@@ -880,12 +934,17 @@ void main() {
           },
           expect: () => [
             isA<UsersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.saving,
+              (s) => s.sections[UsersSections.saveGroup],
+              'sections[saveGroup]',
+              SectionStatus.running,
+            ),
+            isA<UsersState>().having(
+              (s) => s.sections[UsersSections.saveGroup],
+              'sections[saveGroup]',
+              SectionStatus.success,
             ),
             isA<UsersState>()
-                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.status, 'status', DataStatus.loaded)
                 .having((s) => s.permissionGroups, 'permissionGroups', [
                   tPermissionGroup,
                 ]),
@@ -923,12 +982,17 @@ void main() {
           },
           expect: () => [
             isA<UsersState>().having(
-              (s) => s.status,
-              'status',
-              StateStatus.saving,
+              (s) => s.sections[UsersSections.saveGroup],
+              'sections[saveGroup]',
+              SectionStatus.running,
+            ),
+            isA<UsersState>().having(
+              (s) => s.sections[UsersSections.saveGroup],
+              'sections[saveGroup]',
+              SectionStatus.success,
             ),
             isA<UsersState>()
-                .having((s) => s.status, 'status', StateStatus.loaded)
+                .having((s) => s.status, 'status', DataStatus.loaded)
                 .having((s) => s.permissionGroups, 'permissionGroups', [
                   tPermissionGroup,
                 ]),
@@ -961,15 +1025,21 @@ void main() {
           act: (cubit) => cubit.deletePermissionGroup(tId),
           expect: () => [
             isA<UsersState>()
-                .having((s) => s.status, 'status', StateStatus.deleting)
+                .having(
+                  (s) => s.sections[UsersSections.deleteGroup],
+                  'sections[deleteGroup]',
+                  SectionStatus.running,
+                )
                 .having((s) => s.deletingGroupIds, 'deletingGroupIds', {tId}),
             isA<UsersState>()
-                .having((s) => s.status, 'status', StateStatus.loaded)
-                .having((s) => s.deletingGroupIds, 'deletingGroupIds', {tId})
-                .having((s) => s.permissionGroups, 'permissionGroups', isEmpty),
+                .having(
+                  (s) => s.sections[UsersSections.deleteGroup],
+                  'sections[deleteGroup]',
+                  SectionStatus.success,
+                )
+                .having((s) => s.deletingGroupIds, 'deletingGroupIds', isEmpty),
             isA<UsersState>()
-                .having((s) => s.status, 'status', StateStatus.loaded)
-                .having((s) => s.deletingGroupIds, 'deletingGroupIds', isEmpty)
+                .having((s) => s.status, 'status', DataStatus.loaded)
                 .having((s) => s.permissionGroups, 'permissionGroups', isEmpty),
           ],
         );
@@ -1471,7 +1541,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               users: [tInitialUser],
             ),
           );
@@ -1488,11 +1558,10 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<UsersState>().having(
-            (s) => s.users,
-            'users',
-            [tNewUser, tInitialUser],
-          ),
+          isA<UsersState>().having((s) => s.users, 'users', [
+            tNewUser,
+            tInitialUser,
+          ]),
         ],
       );
 
@@ -1529,7 +1598,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               users: [tInitialUser],
             ),
           );
@@ -1589,7 +1658,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               users: [tInitialUser],
             ),
           );
@@ -1610,11 +1679,7 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<UsersState>().having(
-            (s) => s.users,
-            'users',
-            isEmpty,
-          ),
+          isA<UsersState>().having((s) => s.users, 'users', isEmpty),
         ],
       );
 
@@ -1651,7 +1716,7 @@ void main() {
 
           testCubit.emit(
             testCubit.state.copyWith(
-              status: StateStatus.loaded,
+              status: DataStatus.loaded,
               users: [tInitialUser],
             ),
           );
@@ -1667,11 +1732,7 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<UsersState>().having(
-            (s) => s.users,
-            'users',
-            isEmpty,
-          ),
+          isA<UsersState>().having((s) => s.users, 'users', isEmpty),
         ],
       );
     });

@@ -125,9 +125,8 @@ void main() {
       () => mockGetAttachments(any()),
     ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
     when(
-      () => mockWatchAttachmentsRealtime(
-        workOrderId: any(named: 'workOrderId'),
-      ),
+      () =>
+          mockWatchAttachmentsRealtime(workOrderId: any(named: 'workOrderId')),
     ).thenAnswer((_) => const Stream.empty());
 
     useCases = AttachmentsCubitUseCases(
@@ -159,7 +158,7 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
@@ -181,7 +180,7 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loadingError)
+            .having((s) => s.status, 'status', DataStatus.loadingError)
             .having((s) => s.errorMessage, 'errorMessage', 'Error fetching'),
       ],
     );
@@ -209,16 +208,19 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
               tUploadedAttachmentList,
             ),
+        isA<AttachmentsState>().having(
+          (s) => s.status,
+          'status',
+          DataStatus.loading,
+        ),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loading),
-        isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
@@ -227,7 +229,6 @@ void main() {
       ],
     );
   });
-
 
   group('AttachmentsCubit - pickAttachment & upload', () {
     late AttachmentEntity tPickedFile;
@@ -275,10 +276,8 @@ void main() {
         ).thenAnswer((_) async => const SuccessState(data: true));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
-      act: (cubit) => cubit.pickAttachment(
-        AttachmentSource.cameraPhoto,
-        autoUpload: true,
-      ),
+      act: (cubit) =>
+          cubit.pickAttachment(AttachmentSource.cameraPhoto, autoUpload: true),
       skip: 1, // Skip initial loaded from init
       verify: (_) {
         verify(() => mockUploadAttachment(tPickedFile)).called(1);
@@ -486,7 +485,7 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.attachments, 'attachments', [tAttachment]),
         isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
           tAttachment.id,
@@ -499,10 +498,10 @@ void main() {
         isA<AttachmentsState>().having(
           (s) => s.status,
           'status',
-          StateStatus.loading,
+          DataStatus.loading,
         ),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments[0].uploadStatus,
               'uploadStatus',
@@ -527,7 +526,7 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
@@ -565,7 +564,7 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having(
               (s) => s.attachments,
               'attachments',
@@ -626,10 +625,10 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.attachments, 'attachments', [tVideoAttachment]),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', StateStatus.loaded)
+            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.videoThumbnails, 'videoThumbnails', {
               'video_1': 'thumb_path.jpg',
             }),

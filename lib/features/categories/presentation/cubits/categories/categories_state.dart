@@ -4,7 +4,7 @@ class CategoriesState extends BaseState {
   const CategoriesState({
     required this.categories,
     this.deletingIds = const {},
-    super.status = StateStatus.initial,
+    super.status = DataStatus.initial,
     super.errorMessage = '',
     super.sections = const {},
   });
@@ -12,20 +12,12 @@ class CategoriesState extends BaseState {
   const CategoriesState.initial()
     : categories = const [],
       deletingIds = const {},
-      super(
-        status: StateStatus.initial,
-        errorMessage: '',
-        sections: const {},
-      );
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   const CategoriesState.empty()
     : categories = const [],
       deletingIds = const {},
-      super(
-        status: StateStatus.initial,
-        errorMessage: '',
-        sections: const {},
-      );
+      super(status: DataStatus.initial, errorMessage: '', sections: const {});
 
   final List<CategoryEntity> categories;
   final Set<String> deletingIds;
@@ -33,10 +25,10 @@ class CategoriesState extends BaseState {
   CategoriesState copyWith({
     List<CategoryEntity>? categories,
     Set<String>? deletingIds,
-    StateStatus? status,
+    DataStatus? status,
     String? errorMessage,
     bool? annulErrorMessage,
-    Map<SectionKey, StateStatus>? sections,
+    Map<SectionKey, SectionStatus>? sections,
   }) {
     return CategoriesState(
       categories: categories ?? this.categories,
@@ -51,10 +43,10 @@ class CategoriesState extends BaseState {
 
   @override
   List<Object?> get props => [
-        categories,
-        deletingIds,
-        status,
-        errorMessage,
-        sections,
-      ];
+    categories,
+    deletingIds,
+    status,
+    errorMessage,
+    sections,
+  ];
 }

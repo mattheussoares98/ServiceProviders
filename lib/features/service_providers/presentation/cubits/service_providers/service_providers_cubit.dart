@@ -20,7 +20,13 @@ import 'package:uuid/uuid.dart';
 
 part 'service_providers_state.dart';
 
-enum ServiceProviderSection implements SectionKey { selectCompany, saveCompany }
+enum ServiceProvidersSections implements SectionKey {
+  selectCompany,
+  saveCompany,
+  saveProfile,
+  sendInvitation,
+  deleteInvitation,
+}
 
 @injectable
 class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
@@ -156,7 +162,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     emit(
       state.copyWith(
-        status: emitLoading ? StateStatus.loading : null,
+        status: emitLoading ? DataStatus.loading : null,
         annulCompanyId: forceRefresh,
       ),
     );
@@ -168,7 +174,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (result is FailureState<List<ServiceProviderCompanyEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: result.message,
         ),
       );
@@ -187,7 +193,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (profilesResult is FailureState<List<ServiceProviderProfileEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loadingError,
+          status: DataStatus.loadingError,
           errorMessage: profilesResult.message,
         ),
       );
@@ -210,7 +216,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     emit(
       state.copyWith(
-        status: StateStatus.loaded,
+        status: DataStatus.loaded,
         companies: companies,
         profiles: updatedProfiles,
         invitations: forceRefresh ? const {} : state.invitations,
@@ -243,8 +249,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         annulProfileId: true,
         sections: emitLoading
             ? withSection(
-                ServiceProviderSection.selectCompany,
-                StateStatus.loading,
+                ServiceProvidersSections.selectCompany,
+                SectionStatus.running,
               )
             : null,
         loadingCompanyIds: updatedLoadingIds,
@@ -271,8 +277,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         state.copyWith(
           sections: emitLoading
               ? withSection(
-                  ServiceProviderSection.selectCompany,
-                  StateStatus.loadingError,
+                  ServiceProvidersSections.selectCompany,
+                  SectionStatus.error,
                 )
               : null,
           errorMessage: profilesResult.message,
@@ -287,8 +293,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       emit(
         state.copyWith(
           sections: withSection(
-            ServiceProviderSection.selectCompany,
-            StateStatus.loadingError,
+            ServiceProvidersSections.selectCompany,
+            SectionStatus.error,
           ),
           errorMessage: invitationsResult.message,
           loadingCompanyIds: finishedLoadingIds,
@@ -316,8 +322,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     emit(
       state.copyWith(
         sections: withSection(
-          ServiceProviderSection.selectCompany,
-          StateStatus.loaded,
+          ServiceProvidersSections.selectCompany,
+          SectionStatus.success,
         ),
         profiles: updatedProfiles,
         invitations: updatedInvitations,
@@ -362,8 +368,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     emit(
       state.copyWith(
         sections: withSection(
-          ServiceProviderSection.saveCompany,
-          StateStatus.saving,
+          ServiceProvidersSections.saveCompany,
+          SectionStatus.running,
         ),
       ),
     );
@@ -425,8 +431,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         emit(
           state.copyWith(
             sections: withSection(
-              ServiceProviderSection.saveCompany,
-              StateStatus.savingError,
+              ServiceProvidersSections.saveCompany,
+              SectionStatus.error,
             ),
             errorMessage: sentInvitation?.message,
           ),
@@ -438,8 +444,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         emit(
           state.copyWith(
             sections: withSection(
-              ServiceProviderSection.saveCompany,
-              StateStatus.loaded,
+              ServiceProvidersSections.saveCompany,
+              SectionStatus.success,
             ),
           ),
         );
@@ -449,8 +455,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       emit(
         state.copyWith(
           sections: withSection(
-            ServiceProviderSection.saveCompany,
-            StateStatus.savingError,
+            ServiceProvidersSections.saveCompany,
+            SectionStatus.error,
           ),
           errorMessage: result.message,
         ),
@@ -467,7 +473,14 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required String phone,
     String? profileId,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          ServiceProvidersSections.saveProfile,
+          SectionStatus.running,
+        ),
+      ),
+    );
     final now = DateTime.now().toUtc();
 
     final isUpdate = profileId != null && profileId.isNotEmpty;
@@ -508,14 +521,23 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             );
         updatedProfiles[serviceProviderCompanyId] = fetchResult.data ?? [];
         emit(
-          state.copyWith(status: StateStatus.loaded, profiles: updatedProfiles),
+          state.copyWith(
+            profiles: updatedProfiles,
+            sections: withSection(
+              ServiceProvidersSections.saveProfile,
+              SectionStatus.success,
+            ),
+          ),
         );
       }
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            ServiceProvidersSections.saveProfile,
+            SectionStatus.error,
+          ),
           errorMessage: result.message,
         ),
       );
@@ -528,7 +550,14 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required String serviceProviderCompanyId,
     required String email,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          ServiceProvidersSections.sendInvitation,
+          SectionStatus.running,
+        ),
+      ),
+    );
 
     final result = await _useCases.sendInvitation.call(
       SendServiceProviderInvitationParams(
@@ -562,19 +591,32 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         updatedInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
         emit(
           state.copyWith(
-            status: StateStatus.loaded,
             invitations: updatedInvitations,
+            sections: withSection(
+              ServiceProvidersSections.sendInvitation,
+              SectionStatus.success,
+            ),
           ),
         );
       } else {
-        emit(state.copyWith(status: StateStatus.loaded));
+        emit(
+          state.copyWith(
+            sections: withSection(
+              ServiceProvidersSections.sendInvitation,
+              SectionStatus.success,
+            ),
+          ),
+        );
       }
       showSuccessToast('Convite enviado com sucesso!'.hardcoded);
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            ServiceProvidersSections.sendInvitation,
+            SectionStatus.error,
+          ),
           errorMessage: result.message,
         ),
       );
@@ -587,7 +629,14 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required String invitationId,
     required String serviceProviderCompanyId,
   }) async {
-    emit(state.copyWith(status: StateStatus.saving));
+    emit(
+      state.copyWith(
+        sections: withSection(
+          ServiceProvidersSections.deleteInvitation,
+          SectionStatus.running,
+        ),
+      ),
+    );
 
     final result = await _useCases.deleteInvitation.call(invitationId);
 
@@ -595,14 +644,23 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     if (result is SuccessState<bool> && result.data == true) {
       final currentList = state.invitations[serviceProviderCompanyId] ?? [];
-      final optimisticallyUpdated =
-          currentList.where((inv) => inv.id != invitationId).toList();
+      final optimisticallyUpdated = currentList
+          .where((inv) => inv.id != invitationId)
+          .toList();
       final updatedMap =
           Map<String, List<ServiceProviderInvitationEntity>>.from(
             state.invitations,
           );
       updatedMap[serviceProviderCompanyId] = optimisticallyUpdated;
-      emit(state.copyWith(status: StateStatus.loaded, invitations: updatedMap));
+      emit(
+        state.copyWith(
+          invitations: updatedMap,
+          sections: withSection(
+            ServiceProvidersSections.deleteInvitation,
+            SectionStatus.success,
+          ),
+        ),
+      );
 
       final activeCompanyId = _useCases.getActiveCompanyId.call();
       if (activeCompanyId.isNotEmpty) {
@@ -626,18 +684,18 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         finalInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
         emit(
           state.copyWith(
-            status: StateStatus.loaded,
             invitations: finalInvitations,
           ),
         );
-      } else {
-        emit(state.copyWith(status: StateStatus.loaded));
       }
       return true;
     } else {
       emit(
         state.copyWith(
-          status: StateStatus.savingError,
+          sections: withSection(
+            ServiceProvidersSections.deleteInvitation,
+            SectionStatus.error,
+          ),
           errorMessage: result.message,
         ),
       );

@@ -10,11 +10,15 @@ class ChangePasswordState extends BaseState {
   const ChangePasswordState.initial()
     : passwordVisibility = false,
       confirmPasswordVisibility = false,
-      super(status: StateStatus.initial);
+      super(status: DataStatus.initial);
 
   final bool passwordVisibility;
   final bool confirmPasswordVisibility;
 
   @override
-  List<Object?> get props => [passwordVisibility, confirmPasswordVisibility, status];
+  List<Object?> get props => [
+    passwordVisibility,
+    confirmPasswordVisibility,
+    status,
+  ];
 }

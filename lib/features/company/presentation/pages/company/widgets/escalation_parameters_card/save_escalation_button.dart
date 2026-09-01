@@ -9,8 +9,8 @@ class _SaveEscalationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSaving = context.select<CompanyCubit, bool>(
       (cubit) =>
-          cubit.state.sections[CompanySection.updateEscalationParameters] ==
-          StateStatus.loading,
+          cubit.state.sections[CompanySections.updateEscalationParameters] ==
+          SectionStatus.running,
     );
 
     return BaseButton(

@@ -10,7 +10,7 @@ import 'package:uuid/uuid.dart';
 
 part 'categories_state.dart';
 
-enum CategoriesSection implements SectionKey { saveCategory, deleteCategory }
+enum CategoriesSections implements SectionKey { save, delete }
 
 @injectable
 class CategoriesCubit extends BaseCubit<CategoriesState> {
@@ -24,7 +24,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: StateStatus.loading));
+      emit(state.copyWith(status: DataStatus.loading));
     }
 
     final result = await _useCases.getCategories(companyId);
@@ -33,7 +33,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (result is SuccessState<List<CategoryEntity>>) {
       emit(
         state.copyWith(
-          status: StateStatus.loaded,
+          status: DataStatus.loaded,
           categories: result.data ?? [],
           annulErrorMessage: true,
         ),
@@ -41,7 +41,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     } else {
       final message = result.message ?? 'Erro ao carregar categorias'.hardcoded;
       emit(
-        state.copyWith(status: StateStatus.loadingError, errorMessage: message),
+        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
       );
     }
   }
@@ -56,8 +56,8 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     emit(
       state.copyWith(
         sections: withSection(
-          CategoriesSection.saveCategory,
-          StateStatus.saving,
+          CategoriesSections.save,
+          SectionStatus.running,
         ),
       ),
     );
@@ -86,8 +86,8 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CategoriesSection.saveCategory,
-            StateStatus.loaded,
+            CategoriesSections.save,
+            SectionStatus.success,
           ),
         ),
       );
@@ -98,8 +98,8 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CategoriesSection.saveCategory,
-            StateStatus.savingError,
+            CategoriesSections.save,
+            SectionStatus.error,
           ),
           errorMessage: message,
         ),
@@ -113,8 +113,8 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     emit(
       state.copyWith(
         sections: withSection(
-          CategoriesSection.deleteCategory,
-          StateStatus.deleting,
+          CategoriesSections.delete,
+          SectionStatus.running,
         ),
         deletingIds: {...state.deletingIds, id},
       ),
@@ -124,14 +124,15 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      final updatedCategories =
-          state.categories.where((c) => c.id != id).toList();
+      final updatedCategories = state.categories
+          .where((c) => c.id != id)
+          .toList();
       emit(
         state.copyWith(
           categories: updatedCategories,
           sections: withSection(
-            CategoriesSection.deleteCategory,
-            StateStatus.loaded,
+            CategoriesSections.delete,
+            SectionStatus.success,
           ),
           deletingIds: {...state.deletingIds}..remove(id),
         ),
@@ -143,8 +144,8 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(
           sections: withSection(
-            CategoriesSection.deleteCategory,
-            StateStatus.deletingError,
+            CategoriesSections.delete,
+            SectionStatus.error,
           ),
           errorMessage: message,
           deletingIds: {...state.deletingIds}..remove(id),

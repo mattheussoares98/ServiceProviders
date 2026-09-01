@@ -28,10 +28,10 @@ class CompanyPage extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         context.read<CompanyCubit>(),
-        statuses: const {},
         sections: const {
-          CompanySection.switchCompany: {StateStatus.loading},
-          CompanySection.updateEscalationParameters: {StateStatus.loading},
+          CompanySections.switchCompany: {SectionStatus.running},
+          CompanySections.updateEscalationParameters: {SectionStatus.running},
+          CompanySections.changeLogo: {SectionStatus.running},
         },
       ),
     ]);
@@ -70,16 +70,16 @@ class _CompanyBody extends StatelessWidget {
     return BlocBuilder<CompanyCubit, CompanyState>(
       builder: (context, state) {
         switch (state.status) {
-          case StateStatus.loading:
+          case DataStatus.loading:
             return const Center(child: LoadingCircle());
-          case StateStatus.loadingError:
+          case DataStatus.loadingError:
             return Center(
               child: BaseText.bodyLarge(
                 'Erro ao carregar dados da empresa'.hardcoded,
                 color: context.colorScheme.error,
               ),
             );
-          case StateStatus.loaded:
+          case DataStatus.loaded:
           default:
             final company = state.company;
             if (company == null) {

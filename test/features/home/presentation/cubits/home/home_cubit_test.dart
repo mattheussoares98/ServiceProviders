@@ -194,8 +194,16 @@ void main() {
       },
       act: (cubit) => cubit.changeAvatar(AttachmentSource.gallery),
       expect: () => [
-        isA<HomeState>().having((s) => s.status, 'status', StateStatus.saving),
-        isA<HomeState>().having((s) => s.status, 'status', StateStatus.loaded),
+        isA<HomeState>().having(
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.running,
+        ),
+        isA<HomeState>().having(
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.success,
+        ),
       ],
       verify: (cubit) {
         verify(() => mockGetSessionUserUseCase.call()).called(1);
@@ -243,8 +251,16 @@ void main() {
       },
       act: (cubit) => cubit.changeAvatar(AttachmentSource.gallery),
       expect: () => [
-        isA<HomeState>().having((s) => s.status, 'status', StateStatus.saving),
-        isA<HomeState>().having((s) => s.status, 'status', StateStatus.loaded),
+        isA<HomeState>().having(
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.running,
+        ),
+        isA<HomeState>().having(
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.idle,
+        ),
       ],
       verify: (cubit) {
         verify(() => mockGetSessionUserUseCase.call()).called(1);
@@ -293,11 +309,15 @@ void main() {
       },
       act: (cubit) => cubit.changeAvatar(AttachmentSource.gallery),
       expect: () => [
-        isA<HomeState>().having((s) => s.status, 'status', StateStatus.saving),
         isA<HomeState>().having(
-          (s) => s.status,
-          'status',
-          StateStatus.savingError,
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.running,
+        ),
+        isA<HomeState>().having(
+          (s) => s.sections[HomeSections.changeAvatar],
+          'sections[changeAvatar]',
+          SectionStatus.error,
         ),
       ],
       verify: (cubit) {

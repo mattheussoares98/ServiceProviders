@@ -186,10 +186,10 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.pauseReasons, 'pauseReasons', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -217,10 +217,10 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loadingError)
+              .having((s) => s.status, 'status', DataStatus.loadingError)
               .having((s) => s.errorMessage, 'errorMessage', 'Error'),
         ],
       );
@@ -241,10 +241,10 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -274,10 +274,10 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty)
               .having((s) => s.errorMessage, 'errorMessage', isNull),
         ],
@@ -304,7 +304,11 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[PauseWorkflowSections.requestPause],
+                'sections[requestPause]',
+                SectionStatus.error,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -335,22 +339,22 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
       );
@@ -398,12 +402,16 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            SectionStatus.running,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[PauseWorkflowSections.requestPause],
+                'sections[requestPause]',
+                SectionStatus.error,
+              )
               .having((s) => s.errorMessage, 'errorMessage', 'Request failed'),
         ],
       );
@@ -524,24 +532,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewPause],
+            'sections[reviewPause]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewPause],
+            'sections[reviewPause]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -588,24 +596,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewPause],
+            'sections[reviewPause]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewPause],
+            'sections[reviewPause]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -651,22 +659,22 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.requestCompletion],
+            'sections[requestCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestCompletion],
+            'sections[requestCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
         verify: (_) {
@@ -721,12 +729,16 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.requestCompletion],
+            'sections[requestCompletion]',
+            SectionStatus.running,
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', StateStatus.savingError)
+              .having(
+                (s) => s.sections[PauseWorkflowSections.requestCompletion],
+                'sections[requestCompletion]',
+                SectionStatus.error,
+              )
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
@@ -766,24 +778,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -812,24 +824,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -871,24 +883,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -937,24 +949,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {
@@ -1003,24 +1015,24 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.saving,
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.running,
+          ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewCompletion],
+            'sections[reviewCompletion]',
+            SectionStatus.success,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loaded,
+            DataStatus.loading,
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.status,
             'status',
-            StateStatus.loading,
-          ),
-          isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
+            DataStatus.loaded,
           ),
         ],
         verify: (_) {

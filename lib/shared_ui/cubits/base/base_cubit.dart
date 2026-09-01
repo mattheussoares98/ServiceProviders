@@ -2,17 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/client_mixin.dart';
 
-enum StateStatus {
-  initial,
-  loading,
-  loadingError,
-  loaded,
-  noInternet,
-  deleting,
-  deletingError,
-  saving,
-  savingError,
-}
+enum DataStatus { initial, loading, loadingError, loaded, noInternet }
+
+enum SectionStatus { idle, running, error, success }
 
 /// Marker interface for section keys.
 ///
@@ -28,17 +20,17 @@ abstract interface class SectionKey {
 
 abstract class BaseState extends Equatable {
   const BaseState({
-    this.status = StateStatus.initial,
+    this.status = DataStatus.initial,
     this.errorMessage,
     this.sections = const {},
   });
 
-  final StateStatus status;
+  final DataStatus status;
   final String? errorMessage;
 
   /// Per-section states keyed by a cubit-defined [SectionKey] enum.
   /// Never modify directly — use BaseCubit.withSection.
-  final Map<SectionKey, StateStatus> sections;
+  final Map<SectionKey, SectionStatus> sections;
 
   @override
   List<Object?> get props => [status, errorMessage, sections];

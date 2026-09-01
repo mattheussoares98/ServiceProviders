@@ -24,9 +24,8 @@ class CreateCategorySheet extends HookWidget {
     observeLoading([
       ObservedLoadingTarget(
         categoriesCubit,
-        statuses: const {},
         sections: {
-          CategoriesSection.saveCategory: {StateStatus.saving},
+          CategoriesSections.save: {SectionStatus.running},
         },
       ),
     ]);

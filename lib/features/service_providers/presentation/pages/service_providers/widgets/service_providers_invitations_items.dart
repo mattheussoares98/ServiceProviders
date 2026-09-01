@@ -58,7 +58,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
       ServiceProvidersState,
       ServiceProvidersState
     >(
-      sectionKey: ServiceProviderSection.selectCompany,
+      sectionKey: ServiceProvidersSections.selectCompany,
       onRetry: () =>
           context.read<ServiceProvidersCubit>().selectCompany(company.id),
       dataSelector: (state) => state,
@@ -78,8 +78,10 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                   bool
                 >(
                   selector: (state) =>
-                      state.sections[ServiceProviderSection.selectCompany] ==
-                      StateStatus.loading,
+                      state.sections[
+                        ServiceProvidersSections.selectCompany
+                      ] ==
+                      SectionStatus.running,
                   builder: (context, isLoading) {
                     return BaseIconButton(
                       platformIcon: const PlatformIcon(
@@ -223,7 +225,11 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                       ServiceProvidersState,
                       bool
                     >(
-                      selector: (state) => state.status == StateStatus.saving,
+                      selector: (state) =>
+                          state.sections[
+                            ServiceProvidersSections.sendInvitation
+                          ] ==
+                          SectionStatus.running,
                       builder: (context, isLoading) {
                         return Row(
                           mainAxisAlignment: .end,

@@ -14,9 +14,7 @@ import '../../../../testing/mocks/client_mocks.dart';
 
 class TestOfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState>
     implements OfflineAdvisoryCubit {
-  TestOfflineAdvisoryCubit([
-    super.initialState = const OfflineAdvisoryState(),
-  ]);
+  TestOfflineAdvisoryCubit([super.initialState = const OfflineAdvisoryState()]);
 
   bool retryCalled = false;
 
@@ -83,19 +81,19 @@ void main() {
       expect(find.text('Home Content'), findsOneWidget);
       expect(find.byType(ProviderOfflineBlocker), findsNothing);
 
-      cubit.emitState(const OfflineAdvisoryState(
-        status: StateStatus.loaded,
-        isProviderBlocked: true,
-      ));
+      cubit.emitState(
+        const OfflineAdvisoryState(
+          status: DataStatus.loaded,
+          isProviderBlocked: true,
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ProviderOfflineBlocker), findsOneWidget);
       expect(find.text('Sem conexão com a internet'), findsOneWidget);
       expect(find.text('Tentar novamente'), findsOneWidget);
 
-      cubit.emitState(const OfflineAdvisoryState(
-        status: StateStatus.loaded,
-      ));
+      cubit.emitState(const OfflineAdvisoryState(status: DataStatus.loaded));
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ProviderOfflineBlocker), findsNothing);
@@ -103,22 +101,23 @@ void main() {
     },
   );
 
-  testWidgets(
-    'tapping Tentar novamente calls retryConnection on cubit',
-    (tester) async {
-      cubit.emitState(const OfflineAdvisoryState(
-        status: StateStatus.loaded,
+  testWidgets('tapping Tentar novamente calls retryConnection on cubit', (
+    tester,
+  ) async {
+    cubit.emitState(
+      const OfflineAdvisoryState(
+        status: DataStatus.loaded,
         isProviderBlocked: true,
-      ));
-      await tester.pumpWidget(buildTestWidget());
+      ),
+    );
+    await tester.pumpWidget(buildTestWidget());
 
-      expect(find.byType(ProviderOfflineBlocker), findsOneWidget);
-      expect(cubit.retryCalled, isFalse);
+    expect(find.byType(ProviderOfflineBlocker), findsOneWidget);
+    expect(cubit.retryCalled, isFalse);
 
-      await tester.tap(find.text('Tentar novamente'));
-      await tester.pump();
+    await tester.tap(find.text('Tentar novamente'));
+    await tester.pump();
 
-      expect(cubit.retryCalled, isTrue);
-    },
-  );
+    expect(cubit.retryCalled, isTrue);
+  });
 }
