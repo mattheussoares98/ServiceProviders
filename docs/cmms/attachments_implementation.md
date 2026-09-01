@@ -390,7 +390,7 @@ class AttachmentsState extends BaseState {
     super.errorMessage,
   });
 
-  const AttachmentsState.empty() : this(status: StateStatus.initial);
+  const AttachmentsState.empty() : this(status: DataStatus.initial);
 
   final List<AttachmentEntity> attachments;
   final Set<String> uploadingIds;  // tracks which items show a progress indicator

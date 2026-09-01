@@ -29,23 +29,25 @@ All mocks and factories live at repo root in **`testing/mocks/`** (not under `te
 
 ## Patterns
 
-**Cubit** — `bloc_test`, assert the emission sequence:
+**Cubit** — `bloc_test`:
 ```dart
-setUpAll(() {
-  registerFallbackValue(EntityFactory.makeAuthentication());
-  registerFallbackValue(AuthRequestModel.fromEntity(EntityFactory.makeAuthentication()));
-});
-blocTest<LoginCubit, LoginState>(
-  'emits [loading, error] when login fails',
-  build: () {
-    final mock = MockLoginUseCase();
-    when(() => mock.call(any())).thenAnswer((_) async => const FailureState(message: 'Err'));
-    return LoginCubit(useCases: LoginCubitUseCases(login: mock));
-  },
-  act: (cubit) => cubit.login(faker.internet.email(), faker.internet.password()),
+// Data loading: DataStatus.loading -> loaded / loadingError
+blocTest<LoginCubit, LoginState>('emits [loading, loaded] on success',
+  build: () => LoginCubit(useCases: LoginCubitUseCases(fetchData: mock)),
+  act: (c) => c.loadData(),
   expect: () => [
-    isA<LoginState>().having((s) => s.status, 'status', StateStatus.loading),
-    isA<LoginState>().having((s) => s.status, 'status', StateStatus.error),
+    isA<LoginState>().having((s) => s.status, 'status', DataStatus.loading),
+    isA<LoginState>().having((s) => s.status, 'status', DataStatus.loaded),
+  ],
+);
+
+// Actions: SectionStatus.running -> success / error (then DataStatus.loaded if reloading)
+blocTest<LoginCubit, LoginState>('emits [running, success] on action success',
+  build: () => LoginCubit(useCases: LoginCubitUseCases(login: mock)),
+  act: (c) => c.login(faker.internet.email(), faker.internet.password()),
+  expect: () => [
+    isA<LoginState>().having((s) => s.sections[LoginSections.login], 'sections', SectionStatus.running),
+    isA<LoginState>().having((s) => s.sections[LoginSections.login], 'sections', SectionStatus.success),
   ],
 );
 ```

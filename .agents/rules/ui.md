@@ -9,30 +9,39 @@ Implements the **presentation** layer: pages, widgets, cubits, states, shared co
 Consumes the domain layer only through the `*CubitUseCases` aggregator. No data sources, repositories, or use cases (→ `feature.md`).
 
 ## Cubit + State
-
-State lives in `presentation/cubits/{name}/{name}_state.dart` as a `part of` the cubit file, extends `BaseState` (provides `status: StateStatus`), implements `props`.
-Cubit is `@injectable`, extends `BaseCubit<T>`, and calls `showDataStateToast(res)` on failure.
+- `BaseState.status` (`DataStatus`): page data loading only (`initial`, `loading`, `loadingError`, `loaded`, `noInternet`).
+- `BaseState.sections` (`Map<SectionKey, SectionStatus>`): actions/mutations (`idle`, `running`, `error`, `success`). UI binds via `observeLoading` / `observeRunning`.
+- Mutation flow: `SectionStatus.running` → mutate → `SectionStatus.success` / `error` → non-loading reload (`emitLoading: false` → `DataStatus.loaded`).
 
 ```dart
-part of 'login_cubit.dart';
+enum LoginSections implements SectionKey { login }
+part 'login_cubit.dart';
 class LoginState extends BaseState {
-  const LoginState({super.status, required this.showPassword});
-  const LoginState.initial() : showPassword = false, super(status: StateStatus.initial);
+  const LoginState({super.status, super.sections, super.errorMessage, required this.showPassword});
+  const LoginState.initial() : showPassword = false, super(status: DataStatus.initial);
   final bool showPassword;
-  LoginState copyWith({StateStatus? status, bool? showPassword}) =>
-      LoginState(status: status ?? this.status, showPassword: showPassword ?? this.showPassword);
-  @override List<Object> get props => [status, showPassword];
+  LoginState copyWith({DataStatus? status, Map<SectionKey, SectionStatus>? sections, String? errorMessage, bool? annulErrorMessage, bool? showPassword}) => LoginState(
+    status: status ?? this.status,
+    sections: sections ?? this.sections,
+    errorMessage: annulErrorMessage == true ? null : errorMessage ?? this.errorMessage,
+    showPassword: showPassword ?? this.showPassword,
+  );
+  @override List<Object?> get props => [status, sections, errorMessage, showPassword];
 }
 
 @injectable
 class LoginCubit extends BaseCubit<LoginState> {
   LoginCubit({required LoginCubitUseCases useCases}) : _useCases = useCases, super(const LoginState.initial());
   final LoginCubitUseCases _useCases;
+
   Future<void> login(String e, String p) async {
-    emit(state.copyWith(status: StateStatus.loading));
+    emit(state.copyWith(sections: withSection(LoginSections.login, SectionStatus.running)));
     final res = await _useCases.login(AuthEntity(email: e, password: p));
-    if (res is SuccessState) return replaceAllRoute(const HomeRoute());
-    emit(state.copyWith(status: StateStatus.error));
+    if (res is SuccessState) {
+      emit(state.copyWith(sections: withSection(LoginSections.login, SectionStatus.success)));
+      return replaceAllRoute(const HomeRoute());
+    }
+    emit(state.copyWith(sections: withSection(LoginSections.login, SectionStatus.error), errorMessage: res.message));
     showDataStateToast(res);
   }
 }

@@ -230,7 +230,7 @@ Notes:
 - The app uses **Bloc** (specifically Cubit) for state management within the Presentation Layer of its Clean Architecture.
 - Every Cubit extends `BaseCubit`, and its state extends `BaseState`.
 - `BaseCubit` includes shared functionality (e.g., navigation, showing toasts) via `ServiceMixin`.
-- `BaseState` provides `StateStatus` (for UI state like `initial`, `loading`, `loaded`).
+- `BaseState` provides `DataStatus` (for UI state like `initial`, `loading`, `loaded`).
 - The UI can use `showDataStateToast` from the `ServiceMixin` to display messages based on the `DataState` returned from use cases.
 
 ## App Flavors
