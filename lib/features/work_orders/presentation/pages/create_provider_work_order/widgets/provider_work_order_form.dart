@@ -51,12 +51,10 @@ class _ProviderWorkOrderForm extends HookWidget {
       return null;
     }, [selectedCompany.value?.id]);
 
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
-        sections: const {
-          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
-        },
+        sections: const {WorkOrdersSections.saveWorkOrder},
       ),
     ]);
 

@@ -8,7 +8,6 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -16,7 +15,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -45,12 +44,10 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<ServiceProvidersCubit>(),
-        sections: const {
-          ServiceProvidersSections.saveCompany: {SectionStatus.running},
-        },
+        sections: const {ServiceProvidersSections.saveCompany},
       ),
     ]);
     final formKey = useMemoized(GlobalKey<FormState>.new);

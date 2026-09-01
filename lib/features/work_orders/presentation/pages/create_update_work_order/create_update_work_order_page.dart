@@ -41,7 +41,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/get_new_date.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -88,12 +88,12 @@ class CreateUpdateWorkOrderPage extends HookWidget {
       () => workOrderId ?? const Uuid().v4(),
     );
 
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
         sections: const {
-          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
-          WorkOrdersSections.deleteWorkOrder: {SectionStatus.running},
+          WorkOrdersSections.saveWorkOrder,
+          WorkOrdersSections.deleteWorkOrder,
         },
       ),
     ]);

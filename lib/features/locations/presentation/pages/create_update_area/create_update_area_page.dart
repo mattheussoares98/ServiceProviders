@@ -14,7 +14,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
@@ -39,12 +39,12 @@ class CreateUpdateAreaPage extends HookWidget {
     final floorFocusNode = useFocusNode();
     final descFocusNode = useFocusNode();
 
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<LocationsCubit>(),
         sections: const {
-          LocationsSections.saveArea: {SectionStatus.running},
-          LocationsSections.deleteArea: {SectionStatus.running},
+          LocationsSections.saveArea,
+          LocationsSections.deleteArea,
         },
       ),
     ]);

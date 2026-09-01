@@ -6,13 +6,12 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/pages/create_update_location/delete_location_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
@@ -24,12 +23,12 @@ class CreateUpdateLocationPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<LocationsCubit>(),
         sections: const {
-          LocationsSections.saveLocation: {SectionStatus.running},
-          LocationsSections.deleteLocation: {SectionStatus.running},
+          LocationsSections.saveLocation,
+          LocationsSections.deleteLocation,
         },
       ),
     ]);

@@ -11,12 +11,11 @@ import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/ser
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/service_provider_company_subtitle.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/pages/service_providers/widgets/service_providers_invitations_items.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -30,14 +29,14 @@ class ServiceProvidersPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<ServiceProvidersCubit>(),
         sections: const {
-          ServiceProvidersSections.saveCompany: {SectionStatus.running},
-          ServiceProvidersSections.saveProfile: {SectionStatus.running},
-          ServiceProvidersSections.sendInvitation: {SectionStatus.running},
-          ServiceProvidersSections.deleteInvitation: {SectionStatus.running},
+          ServiceProvidersSections.saveCompany,
+          ServiceProvidersSections.saveProfile,
+          ServiceProvidersSections.sendInvitation,
+          ServiceProvidersSections.deleteInvitation,
         },
       ),
     ]);

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 
@@ -52,7 +52,7 @@ class TestObserverWidget extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading(targets, message: message);
+    observeRunning(targets, message: message);
     return const SizedBox.shrink();
   }
 }
@@ -78,7 +78,6 @@ void main() {
       final target = ObservedLoadingTarget.section(
         cubit,
         TestSectionKey.details,
-        statuses: {SectionStatus.running},
       );
 
       expect(target.isLoading, isTrue);
@@ -93,7 +92,6 @@ void main() {
       final target = ObservedLoadingTarget.section(
         cubit,
         TestSectionKey.details,
-        statuses: {SectionStatus.running},
       );
 
       expect(target.isLoading, isFalse);
@@ -110,10 +108,7 @@ void main() {
       );
       final target = ObservedLoadingTarget(
         cubit,
-        sections: const {
-          TestSectionKey.details: {SectionStatus.running},
-          TestSectionKey.comments: {SectionStatus.running},
-        },
+        sections: const {TestSectionKey.details, TestSectionKey.comments},
       );
 
       expect(target.isLoading, isTrue);
@@ -131,11 +126,7 @@ void main() {
           home: Scaffold(
             body: TestObserverWidget(
               targets: [
-                ObservedLoadingTarget.section(
-                  cubit,
-                  TestSectionKey.details,
-                  statuses: {SectionStatus.running},
-                ),
+                ObservedLoadingTarget.section(cubit, TestSectionKey.details),
               ],
             ),
           ),

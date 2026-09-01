@@ -16,7 +16,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -30,15 +30,15 @@ class EditUserPermissionsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<UsersCubit>(),
         sections: const {
-          UsersSections.updateUser: {SectionStatus.running},
-          UsersSections.deleteUser: {SectionStatus.running},
-          UsersSections.saveGroup: {SectionStatus.running},
-          UsersSections.deleteGroup: {SectionStatus.running},
-          UsersSections.revokeInvitation: {SectionStatus.running},
+          UsersSections.updateUser,
+          UsersSections.deleteUser,
+          UsersSections.saveGroup,
+          UsersSections.deleteGroup,
+          UsersSections.revokeInvitation,
         },
       ),
     ]);
@@ -55,12 +55,10 @@ class _Body extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<PermissionsCubit>(),
-        sections: const {
-          PermissionsSections.save: {SectionStatus.running},
-        },
+        sections: const {PermissionsSections.save},
       ),
     ]);
     return BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(

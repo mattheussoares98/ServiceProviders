@@ -25,7 +25,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -38,12 +38,10 @@ class CreateUpdateAssetPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<AssetsCubit>(),
-        sections: {
-          AssetsSections.save: {SectionStatus.running},
-        },
+        sections: {AssetsSections.save},
       ),
     ]);
 

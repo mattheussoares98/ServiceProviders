@@ -8,7 +8,6 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -17,7 +16,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -31,13 +30,10 @@ class CreateUpdateSlaPolicyPage extends HookWidget {
   final SlaPolicyEntity? slaPolicy;
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<SlaPoliciesCubit>(),
-        sections: {
-          SlaPoliciesSections.save: {SectionStatus.running},
-          SlaPoliciesSections.delete: {SectionStatus.running},
-        },
+        sections: {SlaPoliciesSections.save, SlaPoliciesSections.delete},
       ),
     ]);
 

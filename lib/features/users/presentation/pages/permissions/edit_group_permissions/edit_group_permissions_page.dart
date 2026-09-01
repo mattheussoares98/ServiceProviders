@@ -17,7 +17,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_segmented_buttons.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -46,12 +46,10 @@ class _Body extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<PermissionsCubit>(),
-        sections: const {
-          PermissionsSections.save: {SectionStatus.running},
-        },
+        sections: const {PermissionsSections.save},
       ),
     ]);
     return BlocSelector<
@@ -59,10 +57,8 @@ class _Body extends HookWidget {
       PermissionsState,
       (bool, SectionStatus?)
     >(
-      selector: (state) => (
-        state.isAdmin,
-        state.sections[PermissionsSections.save],
-      ),
+      selector: (state) =>
+          (state.isAdmin, state.sections[PermissionsSections.save]),
       builder: (context, state) {
         final isAdmin = state.$1;
         final saveStatus = state.$2;

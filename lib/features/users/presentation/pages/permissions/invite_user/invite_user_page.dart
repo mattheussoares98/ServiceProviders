@@ -7,10 +7,9 @@ import 'package:o_jogo_da_obra/features/users/presentation/cubits/invite_user/in
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/invite_user/widgets/email_field.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/invite_user/widgets/group_permission_dropdown.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/invite_user/widgets/invite_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -21,12 +20,10 @@ class InviteUserPage extends HookWidget {
   Widget build(BuildContext context) {
     final emailController = useTextEditingController();
     final formKey = useMemoized(GlobalKey<FormState>.new);
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<InviteUserCubit>(),
-        sections: const {
-          InviteUserSections.invite: {SectionStatus.running},
-        },
+        sections: const {InviteUserSections.invite},
       ),
     ]);
 

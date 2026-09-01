@@ -16,11 +16,10 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_loading.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -103,25 +102,25 @@ class _WorkOrderDetails extends HookWidget {
       return null;
     }, [workOrder.id, workOrder.serviceProviderCompanyId]);
 
-    observeLoading([
+    observeRunning([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
         sections: const {
-          WorkOrdersSections.saveWorkOrder: {SectionStatus.running},
-          WorkOrdersSections.deleteWorkOrder: {SectionStatus.running},
-          WorkOrdersSections.changeStatus: {SectionStatus.running},
-          WorkOrdersSections.resumeWork: {SectionStatus.running},
-          WorkOrdersSections.createChangeRequest: {SectionStatus.running},
-          WorkOrdersSections.reviewChangeRequest: {SectionStatus.running},
+          WorkOrdersSections.saveWorkOrder,
+          WorkOrdersSections.deleteWorkOrder,
+          WorkOrdersSections.changeStatus,
+          WorkOrdersSections.resumeWork,
+          WorkOrdersSections.createChangeRequest,
+          WorkOrdersSections.reviewChangeRequest,
         },
       ),
       ObservedLoadingTarget(
         pauseCubit,
         sections: const {
-          PauseWorkflowSections.requestPause: {SectionStatus.running},
-          PauseWorkflowSections.reviewPause: {SectionStatus.running},
-          PauseWorkflowSections.requestCompletion: {SectionStatus.running},
-          PauseWorkflowSections.reviewCompletion: {SectionStatus.running},
+          PauseWorkflowSections.requestPause,
+          PauseWorkflowSections.reviewPause,
+          PauseWorkflowSections.requestCompletion,
+          PauseWorkflowSections.reviewCompletion,
         },
       ),
     ]);
