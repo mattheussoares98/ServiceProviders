@@ -105,21 +105,25 @@ final class SlaRepositoryImpl implements SlaRepository {
     return _remoteDataSource
         .watchSlaPoliciesRealtime(companyId: companyId)
         .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveSlaPolicy(event.entity!);
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteSlaPolicy(event.id);
-      }
+          if (event.entity != null &&
+              (event.eventType == RealtimeEventType.insert ||
+                  event.eventType == RealtimeEventType.update)) {
+            if (event.entity!.deletedAt != null) {
+              await _localDataSource.deleteSlaPolicy(event.id);
+            } else {
+              await _localDataSource.saveSlaPolicy(event.entity!);
+            }
+          } else if (event.eventType == RealtimeEventType.delete &&
+              event.id.isNotEmpty) {
+            await _localDataSource.deleteSlaPolicy(event.id);
+          }
 
-      return RealtimeEvent<SlaPolicyEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+          return RealtimeEvent<SlaPolicyEntity>(
+            eventType: event.eventType,
+            id: event.id,
+            companyId: event.companyId,
+            entity: event.entity,
+          );
+        });
   }
 }

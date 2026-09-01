@@ -1213,6 +1213,43 @@ void main() {
         verify(() => mockLocalDataSource.deleteWorkOrder(tEvent.id)).called(1);
       },
     );
+
+    test(
+      'should emit event and delete work order locally on update when entity has deletedAt in internal mode',
+      () async {
+        final tEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+          deletedAt: DateTime.now(),
+        );
+        final tModel = WorkOrderModel.fromEntity(tEntity);
+        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderModel>(
+          entity: tModel,
+        );
+        when(
+          () => mockRealtimeRemoteDataSource.watchWorkOrders(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
+        when(
+          () => mockLocalDataSource.deleteWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchRealtimeWorkOrders(
+          companyId: tCompanyId,
+        );
+
+        final expectedEvent = RealtimeEvent<WorkOrderEntity>(
+          eventType: tEvent.eventType,
+          id: tEvent.id,
+          companyId: tEvent.companyId,
+          entity: tEvent.entity,
+        );
+
+        expect(stream, emits(expectedEvent));
+        await pumpEventQueue();
+
+        verify(() => mockLocalDataSource.deleteWorkOrder(tEvent.id)).called(1);
+      },
+    );
   });
 }
 

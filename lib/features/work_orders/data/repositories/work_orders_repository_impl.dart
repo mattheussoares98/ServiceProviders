@@ -565,7 +565,8 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     );
     return stream.asyncMap((event) async {
       if (!_isProviderMode) {
-        if (event.eventType == RealtimeEventType.delete) {
+        if (event.eventType == RealtimeEventType.delete ||
+            (event.entity != null && event.entity!.deletedAt != null)) {
           await _localDataSource.deleteWorkOrder(event.id);
         } else if (event.entity != null) {
           await _localDataSource.saveWorkOrders([event.entity!]);

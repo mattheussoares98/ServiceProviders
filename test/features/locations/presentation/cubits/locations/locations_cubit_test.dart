@@ -692,7 +692,7 @@ void main() {
       final tId = faker.guid.guid();
 
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading, initial and loaded when delete succeeds',
+        'should emit deleting, loaded, and load locations when delete succeeds',
         build: () {
           when(
             () => mockDeleteLocation.call(any()),
@@ -705,21 +705,27 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) => cubit.deleteLocation(tId),
+        seed: () => cubit.state.copyWith(locations: tLocations),
+        act: (cubit) => cubit.deleteLocation(tLocations.first.id),
         expect: () => [
           isA<LocationsState>().having(
             (s) => s.status,
             'status',
             StateStatus.deleting,
           ),
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having(
+                (s) => s.locations.any((l) => l.id == tLocations.first.id),
+                'hasDeletedLocation',
+                isFalse,
+              ),
+          isA<LocationsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.locations, 'locations', isEmpty),
         ],
         verify: (_) {
-          verify(() => mockDeleteLocation.call(tId)).called(1);
+          verify(() => mockDeleteLocation.call(tLocations.first.id)).called(1);
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
         },
       );
@@ -1213,6 +1219,51 @@ void main() {
         await controller.close();
       });
 
+      test('removes location on update event when deletedAt is not null', () async {
+        final controller = StreamController<RealtimeEvent<LocationEntity>>();
+        when(
+          () => mockWatchLocationsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        testCubit.emit(testCubit.state.copyWith(locations: tLocations));
+
+        final toDelete = tLocations.first;
+        final softDeletedLoc = toDelete.copyWith(deletedAt: DateTime.now());
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: toDelete.id,
+            entity: softDeletedLoc,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(testCubit.state.locations.any((l) => l.id == toDelete.id), isFalse);
+        await testCubit.close();
+        await controller.close();
+      });
+
       test('updates areas and rebuilds areasByLocation on area realtime event', () async {
         final controller = StreamController<RealtimeEvent<AreaEntity>>();
         when(
@@ -1252,6 +1303,58 @@ void main() {
 
         expect(testCubit.state.allAreas, contains(newArea));
         expect(testCubit.state.areasByLocation[newArea.locationId], contains(newArea));
+        await testCubit.close();
+        await controller.close();
+      });
+
+      test('removes area on update event when deletedAt is not null', () async {
+        final controller = StreamController<RealtimeEvent<AreaEntity>>();
+        when(
+          () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => controller.stream);
+
+        final useCases = LocationsCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getLocations: mockGetLocations,
+          getAreas: mockGetAreas,
+          getLocationsByIds: mockGetLocationsByIds,
+          getAreasByIds: mockGetAreasByIds,
+          getProviderLocations: mockGetProviderLocations,
+          getProviderAreas: mockGetProviderAreas,
+          createLocation: mockCreateLocation,
+          updateLocation: mockUpdateLocation,
+          deleteLocation: mockDeleteLocation,
+          createArea: mockCreateArea,
+          updateArea: mockUpdateArea,
+          deleteArea: mockDeleteArea,
+          watchLocationsRealtime: mockWatchLocationsRealtime,
+          watchAreasRealtime: mockWatchAreasRealtime,
+        );
+
+        final testCubit = LocationsCubit(useCases: useCases);
+        final initialArea = EntityFactory.makeAreaEntity();
+        testCubit.emit(
+          testCubit.state.copyWith(
+            allAreas: [initialArea],
+            areasByLocation: {
+              initialArea.locationId: [initialArea],
+            },
+          ),
+        );
+
+        final softDeletedArea = initialArea.copyWith(deletedAt: DateTime.now());
+
+        controller.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: initialArea.id,
+            entity: softDeletedArea,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(testCubit.state.allAreas.any((a) => a.id == initialArea.id), isFalse);
         await testCubit.close();
         await controller.close();
       });

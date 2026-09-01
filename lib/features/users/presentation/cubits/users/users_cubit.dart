@@ -46,7 +46,7 @@ class UsersCubit extends BaseCubit<UsersState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentUsers.indexWhere((u) => u.id == event.id);
           if (index == -1) {
             currentUsers.insert(0, event.entity!);
@@ -58,12 +58,19 @@ class UsersCubit extends BaseCubit<UsersState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentUsers.indexWhere((u) => u.id == event.id);
-          if (index != -1) {
-            currentUsers[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentUsers.removeAt(index);
+              emit(state.copyWith(users: currentUsers));
+            }
           } else {
-            currentUsers.add(event.entity!);
+            if (index != -1) {
+              currentUsers[index] = event.entity!;
+            } else {
+              currentUsers.add(event.entity!);
+            }
+            emit(state.copyWith(users: currentUsers));
           }
-          emit(state.copyWith(users: currentUsers));
         }
       case RealtimeEventType.delete:
         final index = currentUsers.indexWhere((u) => u.id == event.id);
@@ -370,15 +377,15 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
-      await loadUsers(emitLoading: false);
-      if (isClosed) return false;
-
+      final updatedUsers = state.users.where((u) => u.id != id).toList();
       emit(
         state.copyWith(
+          users: updatedUsers,
           status: StateStatus.loaded,
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
       );
+      await loadUsers(emitLoading: false);
       return true;
     } else {
       final message = result.message ?? 'Erro ao excluir usuário'.hardcoded;

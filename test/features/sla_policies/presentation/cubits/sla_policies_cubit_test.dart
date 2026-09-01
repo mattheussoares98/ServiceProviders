@@ -75,7 +75,8 @@ void main() {
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
     when(
-      () => mockWatchSlaPoliciesRealtime.call(companyId: any(named: 'companyId')),
+      () =>
+          mockWatchSlaPoliciesRealtime.call(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
 
     final useCases = SlaPoliciesCubitUseCases(
@@ -399,11 +400,12 @@ void main() {
       final tPolicy = EntityFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should push route and reload SLA policies when push returns true',
+        'should push route and reload SLA policies on completion',
         build: () {
           when(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
-          ).thenAnswer((_) async => true);
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateSlaPolicyRouteArgs>(any()),
+          ).thenAnswer((_) async => null);
           when(
             () => mockGetSlaPolicies.call(any()),
           ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
@@ -412,86 +414,28 @@ void main() {
         act: (cubit) =>
             cubit.navigateToCreateUpdateSlaPolicy(slaPolicy: tPolicy),
         expect: () => [
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<SlaPoliciesState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.slaPolicies, 'slaPolicies', [tPolicy]),
         ],
         verify: (_) {
           verify(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
+            () => mockNavigationClient
+                .pushRoute<CreateUpdateSlaPolicyRouteArgs>(any()),
           ).called(1);
           verify(
             () => mockGetSlaPolicies.call(tUserProfile.companyId),
           ).called(1);
-        },
-      );
-
-      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should push route without slaPolicy parameter and reload SLA policies when push returns true',
-        build: () {
-          when(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
-          ).thenAnswer((_) async => true);
-          when(
-            () => mockGetSlaPolicies.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tPolicy]));
-          return cubit;
-        },
-        act: (cubit) => cubit.navigateToCreateUpdateSlaPolicy(),
-        expect: () => [
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loading,
-          ),
-          isA<SlaPoliciesState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
-        ],
-        verify: (_) {
-          verify(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
-          ).called(1);
-          verify(
-            () => mockGetSlaPolicies.call(tUserProfile.companyId),
-          ).called(1);
-        },
-      );
-
-      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'should push route and NOT reload SLA policies when push returns false or null',
-        build: () {
-          when(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
-          ).thenAnswer((_) async => null);
-          return cubit;
-        },
-        act: (cubit) => cubit.navigateToCreateUpdateSlaPolicy(),
-        expect: () => <SlaPoliciesState>[],
-        verify: (_) {
-          verify(
-            () => mockNavigationClient.pushRoute<dynamic>(any()),
-          ).called(1);
-          verifyNever(() => mockGetSlaPolicies.call(any()));
         },
       );
     });
 
-    group('Realtime Events', () {
+    group('Realtime Subscription', () {
       final tInitialPolicy = EntityFactory.makeSlaPolicyEntity();
       final tNewPolicy = EntityFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'prepends new policy on insert event',
+        'prepends newly inserted policy to state',
         build: () {
           final streamController =
               StreamController<RealtimeEvent<SlaPolicyEntity>>();
@@ -532,16 +476,15 @@ void main() {
           return testCubit;
         },
         expect: () => [
-          isA<SlaPoliciesState>().having(
-            (s) => s.slaPolicies,
-            'slaPolicies',
-            [tNewPolicy, tInitialPolicy],
-          ),
+          isA<SlaPoliciesState>().having((s) => s.slaPolicies, 'slaPolicies', [
+            tNewPolicy,
+            tInitialPolicy,
+          ]),
         ],
       );
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
-        'updates existing policy in-place on update event',
+        'removes policy on update event when deletedAt is not null',
         build: () {
           final streamController =
               StreamController<RealtimeEvent<SlaPolicyEntity>>();
@@ -570,14 +513,16 @@ void main() {
             ),
           );
 
-          final updatedPolicy = tInitialPolicy.copyWith(name: 'Updated Policy');
+          final softDeletedPolicy = tInitialPolicy.copyWith(
+            deletedAt: DateTime.now,
+          );
 
           streamController.add(
             RealtimeEvent<SlaPolicyEntity>(
               eventType: RealtimeEventType.update,
               id: tInitialPolicy.id,
               companyId: tUserProfile.companyId,
-              entity: updatedPolicy,
+              entity: softDeletedPolicy,
             ),
           );
 
@@ -585,9 +530,9 @@ void main() {
         },
         expect: () => [
           isA<SlaPoliciesState>().having(
-            (s) => s.slaPolicies.first.name,
-            'policy name',
-            'Updated Policy',
+            (s) => s.slaPolicies,
+            'slaPolicies',
+            isEmpty,
           ),
         ],
       );

@@ -2250,6 +2250,11 @@ void main() {
             'status',
             StateStatus.loaded,
           ),
+          isA<WorkOrdersState>().having(
+            (s) => s.status,
+            'status',
+            StateStatus.loaded,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
@@ -2657,6 +2662,35 @@ void main() {
         await pumpEventQueue();
 
         expect(cubit.state.workOrders, contains(newOrder));
+      });
+
+      test('removes work order when UPDATE event arrives with deletedAt not null', () async {
+        final existingOrder = EntityFactory.makeWorkOrderEntity();
+        final softDeletedOrder = existingOrder.copyWith(
+          deletedAt: DateTime.now(),
+        );
+
+        when(
+          () => mockGetWorkOrders(any()),
+        ).thenAnswer((_) async => SuccessState(data: [existingOrder]));
+        when(
+          () => mockGetChangeRequests(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+
+        await cubit.loadWorkOrdersAndChangeRequests();
+        expect(cubit.state.workOrders.length, 1);
+
+        realtimeController.add(
+          RealtimeEvent<WorkOrderEntity>(
+            eventType: RealtimeEventType.update,
+            id: existingOrder.id,
+            entity: softDeletedOrder,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(cubit.state.workOrders, isEmpty);
       });
 
       test('removes work order when DELETE event arrives', () async {

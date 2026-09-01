@@ -311,7 +311,9 @@ void main() {
         );
 
         await pumpEventQueue();
-        verify(() => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel)).called(1);
+        verify(
+          () => mockLocalDataSource.saveSlaPolicy(tSlaPolicyModel),
+        ).called(1);
       },
     );
 
@@ -349,7 +351,53 @@ void main() {
         );
 
         await pumpEventQueue();
-        verify(() => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyModel.id)).called(1);
+        verify(
+          () => mockLocalDataSource.deleteSlaPolicy(tSlaPolicyModel.id),
+        ).called(1);
+      },
+    );
+
+    test(
+      'watchSlaPoliciesRealtime deletes from local when entity has deletedAt on update event',
+      () async {
+        final deletedModel = SlaPolicyModel.fromEntity(
+          tSlaPolicyModel.copyWith(deletedAt: DateTime.now),
+        );
+        final event = RealtimeEvent<SlaPolicyModel>(
+          eventType: RealtimeEventType.update,
+          id: deletedModel.id,
+          companyId: deletedModel.companyId,
+          entity: deletedModel,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchSlaPoliciesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+        when(
+          () => mockLocalDataSource.deleteSlaPolicy(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchSlaPoliciesRealtime(
+          companyId: deletedModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<SlaPolicyEntity>>((e) {
+              return e.eventType == RealtimeEventType.update &&
+                  e.id == deletedModel.id &&
+                  e.entity?.deletedAt != null;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.deleteSlaPolicy(deletedModel.id),
+        ).called(1);
       },
     );
   });

@@ -42,7 +42,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentPolicies.indexWhere((p) => p.id == event.id);
           if (index == -1) {
             currentPolicies.insert(0, event.entity!);
@@ -54,12 +54,19 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentPolicies.indexWhere((p) => p.id == event.id);
-          if (index != -1) {
-            currentPolicies[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentPolicies.removeAt(index);
+              emit(state.copyWith(slaPolicies: currentPolicies));
+            }
           } else {
-            currentPolicies.add(event.entity!);
+            if (index != -1) {
+              currentPolicies[index] = event.entity!;
+            } else {
+              currentPolicies.add(event.entity!);
+            }
+            emit(state.copyWith(slaPolicies: currentPolicies));
           }
-          emit(state.copyWith(slaPolicies: currentPolicies));
         }
       case RealtimeEventType.delete:
         final index = currentPolicies.indexWhere((p) => p.id == event.id);
@@ -131,9 +138,11 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
         ),
       ),
     );
-    final companyId = _useCases.getActiveCompanyId();
+
+    final isUpdate = id != null;
     final now = DateTime.now();
-    final isEditing = id != null;
+    final companyId = _useCases.getActiveCompanyId();
+
     final policy = SlaPolicyEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
@@ -144,9 +153,11 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       updatedAt: now,
       deletedAt: null,
     );
-    final result = isEditing
+
+    final result = isUpdate
         ? await _useCases.updateSlaPolicy(policy)
         : await _useCases.createSlaPolicy(policy);
+
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
@@ -190,8 +201,13 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final updatedPolicies = state.slaPolicies
+          .where((policy) => policy.id != id)
+          .toList();
       emit(
         state.copyWith(
+          slaPolicies: updatedPolicies,
+          annulSelectedSlaPolicy: state.selectedSlaPolicy?.id == id,
           sections: withSection(
             SlaPoliciesSection.deleteSlaPolicy,
             StateStatus.loaded,
@@ -220,12 +236,8 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   Future<void> navigateToCreateUpdateSlaPolicy({
     SlaPolicyEntity? slaPolicy,
   }) async {
-    final result = await pushRoute<dynamic>(
-      CreateUpdateSlaPolicyRoute(slaPolicy: slaPolicy),
-    );
-    if (result == true) {
-      await loadSlaPolicies();
-    }
+    await pushRoute(CreateUpdateSlaPolicyRoute(slaPolicy: slaPolicy));
+    await loadSlaPolicies(emitLoading: false);
   }
 
   @override

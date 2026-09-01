@@ -241,7 +241,11 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveLocation(event.entity!);
+        if (event.entity!.deletedAt != null) {
+          await _localDataSource.deleteLocation(event.id);
+        } else {
+          await _localDataSource.saveLocation(event.entity!);
+        }
       } else if (event.eventType == RealtimeEventType.delete &&
           event.id.isNotEmpty) {
         await _localDataSource.deleteLocation(event.id);
@@ -266,7 +270,11 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveArea(event.entity!);
+        if (event.entity!.deletedAt != null) {
+          await _localDataSource.deleteArea(event.id);
+        } else {
+          await _localDataSource.saveArea(event.entity!);
+        }
       } else if (event.eventType == RealtimeEventType.delete &&
           event.id.isNotEmpty) {
         await _localDataSource.deleteArea(event.id);

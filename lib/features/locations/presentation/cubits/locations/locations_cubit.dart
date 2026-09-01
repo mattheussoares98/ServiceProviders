@@ -43,7 +43,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentLocations.indexWhere((l) => l.id == event.id);
           if (index == -1) {
             currentLocations.insert(0, event.entity!);
@@ -55,12 +55,19 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentLocations.indexWhere((l) => l.id == event.id);
-          if (index != -1) {
-            currentLocations[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentLocations.removeAt(index);
+              emit(state.copyWith(locations: currentLocations));
+            }
           } else {
-            currentLocations.add(event.entity!);
+            if (index != -1) {
+              currentLocations[index] = event.entity!;
+            } else {
+              currentLocations.add(event.entity!);
+            }
+            emit(state.copyWith(locations: currentLocations));
           }
-          emit(state.copyWith(locations: currentLocations));
         }
       case RealtimeEventType.delete:
         final index = currentLocations.indexWhere((l) => l.id == event.id);
@@ -78,7 +85,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentAreas.indexWhere((a) => a.id == event.id);
           if (index == -1) {
             currentAreas.insert(0, event.entity!);
@@ -90,12 +97,19 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentAreas.indexWhere((a) => a.id == event.id);
-          if (index != -1) {
-            currentAreas[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentAreas.removeAt(index);
+              _rebuildAreasState(currentAreas);
+            }
           } else {
-            currentAreas.add(event.entity!);
+            if (index != -1) {
+              currentAreas[index] = event.entity!;
+            } else {
+              currentAreas.add(event.entity!);
+            }
+            _rebuildAreasState(currentAreas);
           }
-          _rebuildAreasState(currentAreas);
         }
       case RealtimeEventType.delete:
         final index = currentAreas.indexWhere((a) => a.id == event.id);
@@ -322,9 +336,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      final updatedLocations =
+          state.locations.where((l) => l.id != id).toList();
+      emit(state.copyWith(locations: updatedLocations, status: StateStatus.loaded));
       await loadLocationsAndAreas(showLoading: false);
-      if (isClosed) return;
-      emit(state.copyWith(status: StateStatus.loaded));
     } else {
       emit(
         state.copyWith(
@@ -390,10 +405,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
-      await loadAreas();
-      if (isClosed) return false;
+      final updatedAreas = state.allAreas.where((a) => a.id != id).toList();
+      _rebuildAreasState(updatedAreas);
       emit(state.copyWith(status: StateStatus.loaded));
-
+      await loadAreas();
       return true;
     } else {
       emit(

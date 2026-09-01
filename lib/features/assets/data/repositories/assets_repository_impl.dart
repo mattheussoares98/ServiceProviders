@@ -123,27 +123,29 @@ final class AssetsRepositoryImpl implements AssetsRepository {
       );
 
   @override
-  Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({
-    String? companyId,
-  }) {
-    return _remoteDataSource
-        .watchAssetsRealtime(companyId: companyId)
-        .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveAsset(event.entity!);
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteAsset(event.id);
-      }
+  Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({String? companyId}) {
+    return _remoteDataSource.watchAssetsRealtime(companyId: companyId).asyncMap(
+      (event) async {
+        if (event.entity != null &&
+            (event.eventType == RealtimeEventType.insert ||
+                event.eventType == RealtimeEventType.update)) {
+          if (event.entity!.deletedAt != null) {
+            await _localDataSource.deleteAsset(event.id);
+          } else {
+            await _localDataSource.saveAsset(event.entity!);
+          }
+        } else if (event.eventType == RealtimeEventType.delete &&
+            event.id.isNotEmpty) {
+          await _localDataSource.deleteAsset(event.id);
+        }
 
-      return RealtimeEvent<AssetEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+        return RealtimeEvent<AssetEntity>(
+          eventType: event.eventType,
+          id: event.id,
+          companyId: event.companyId,
+          entity: event.entity,
+        );
+      },
+    );
   }
 }

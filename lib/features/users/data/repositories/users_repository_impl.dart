@@ -107,7 +107,11 @@ final class UsersRepositoryImpl implements UsersRepository {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveUserProfile(event.entity!);
+        if (event.entity!.deletedAt != null) {
+          await _localDataSource.deleteUserProfile(event.id);
+        } else {
+          await _localDataSource.saveUserProfile(event.entity!);
+        }
       } else if (event.eventType == RealtimeEventType.delete &&
           event.id.isNotEmpty) {
         await _localDataSource.deleteUserProfile(event.id);

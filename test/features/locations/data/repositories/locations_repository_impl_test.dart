@@ -887,6 +887,46 @@ void main() {
       );
 
       test(
+        'watchLocationsRealtime deletes from local when entity has deletedAt on update event',
+        () async {
+          final deletedModel = LocationModel.fromEntity(
+            tLocationModel.copyWith(deletedAt: DateTime.now()),
+          );
+          final event = RealtimeEvent<LocationModel>(
+            eventType: RealtimeEventType.update,
+            id: deletedModel.id,
+            companyId: tCompanyId,
+            entity: deletedModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchLocationsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteLocation(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<LocationEntity>>((e) {
+                return e.eventType == RealtimeEventType.update &&
+                    e.id == deletedModel.id &&
+                    e.entity?.deletedAt != null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteLocation(deletedModel.id)).called(1);
+        },
+      );
+
+      test(
         'watchAreasRealtime caches insert/update in local and emits event',
         () async {
           final event = RealtimeEvent<AreaModel>(
@@ -956,6 +996,46 @@ void main() {
 
           await pumpEventQueue();
           verify(() => mockLocalDataSource.deleteArea(tAreaModel.id)).called(1);
+        },
+      );
+
+      test(
+        'watchAreasRealtime deletes from local when entity has deletedAt on update event',
+        () async {
+          final deletedModel = AreaModel.fromEntity(
+            tAreaModel.copyWith(deletedAt: DateTime.now()),
+          );
+          final event = RealtimeEvent<AreaModel>(
+            eventType: RealtimeEventType.update,
+            id: deletedModel.id,
+            companyId: tCompanyId,
+            entity: deletedModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAreasRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteArea(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAreasRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AreaEntity>>((e) {
+                return e.eventType == RealtimeEventType.update &&
+                    e.id == deletedModel.id &&
+                    e.entity?.deletedAt != null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteArea(deletedModel.id)).called(1);
         },
       );
     });

@@ -710,6 +710,50 @@ void main() {
           ).called(1);
         },
       );
+
+      test(
+        'watchUserProfilesRealtime deletes from local when entity has deletedAt on update event',
+        () async {
+          final deletedModel = UserProfileModel.fromEntity(
+            tUserProfileModel.copyWith(deletedAt: DateTime.now()),
+          );
+          final event = RealtimeEvent<UserProfileModel>(
+            eventType: RealtimeEventType.update,
+            id: deletedModel.id,
+            companyId: deletedModel.companyId,
+            entity: deletedModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchUserProfilesRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteUserProfile(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchUserProfilesRealtime(
+            companyId: deletedModel.companyId,
+          );
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<UserProfileEntity>>((e) {
+                return e.eventType == RealtimeEventType.update &&
+                    e.id == deletedModel.id &&
+                    e.entity?.deletedAt != null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(
+            () => mockLocalDataSource.deleteUserProfile(deletedModel.id),
+          ).called(1);
+        },
+      );
     });
   });
 }

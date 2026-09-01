@@ -607,7 +607,8 @@ void main() {
     });
 
     group('deleteAsset', () {
-      final tId = faker.guid.guid();
+      final tAsset = EntityFactory.makeAssetEntity();
+      final tId = tAsset.id;
 
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading, load assets, and show success toast when delete succeeds',
@@ -620,21 +621,23 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.deleteAsset(tId), isTrue),
+        seed: () => cubit.state.copyWith(assets: [tAsset]),
+        act: (cubit) async => expect(await cubit.deleteAsset(tAsset.id), isTrue),
         expect: () => [
           isA<AssetsState>().having(
             (s) => s.status,
             'status',
             StateStatus.deleting,
           ),
-          isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            StateStatus.loaded,
-          ),
+          isA<AssetsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.assets, 'assets', isEmpty),
+          isA<AssetsState>()
+              .having((s) => s.status, 'status', StateStatus.loaded)
+              .having((s) => s.assets, 'assets', isEmpty),
         ],
         verify: (_) {
-          verify(() => mockDeleteAsset.call(tId)).called(1);
+          verify(() => mockDeleteAsset.call(tAsset.id)).called(1);
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
         },
       );
@@ -796,6 +799,60 @@ void main() {
             (s) => s.assets.first.name,
             'asset name',
             'Updated Asset',
+          ),
+        ],
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'removes asset on update event when deletedAt is not null',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<AssetEntity>>();
+          when(
+            () =>
+                mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = AssetsCubit(
+            useCases: AssetsCubitUseCases(
+              getAssets: mockGetAssets,
+              getAssetsByIds: mockGetAssetsByIds,
+              getAssetById: mockGetAssetById,
+              createAsset: mockCreateAsset,
+              updateAsset: mockUpdateAsset,
+              deleteAsset: mockDeleteAsset,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              watchAssetsRealtime: mockWatchAssetsRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              assets: [tInitialAsset],
+            ),
+          );
+
+          final softDeletedAsset = tInitialAsset.copyWith(
+            deletedAt: DateTime.now(),
+          );
+
+          streamController.add(
+            RealtimeEvent<AssetEntity>(
+              eventType: RealtimeEventType.update,
+              id: tInitialAsset.id,
+              companyId: tUserProfile.companyId,
+              entity: softDeletedAsset,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.assets,
+            'assets',
+            isEmpty,
           ),
         ],
       );

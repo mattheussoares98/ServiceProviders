@@ -68,14 +68,21 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         if (event.entity != null) {
           final exists = state.workOrders.any((wo) => wo.id == event.id);
           if (exists) {
-            final updated = state.workOrders
-                .map((wo) => wo.id == event.id ? event.entity! : wo)
-                .toList();
-            emit(state.copyWith(workOrders: updated));
+            if (event.entity!.deletedAt != null) {
+              final updated = state.workOrders
+                  .where((wo) => wo.id != event.id)
+                  .toList();
+              emit(state.copyWith(workOrders: updated));
+            } else {
+              final updated = state.workOrders
+                  .map((wo) => wo.id == event.id ? event.entity! : wo)
+                  .toList();
+              emit(state.copyWith(workOrders: updated));
+            }
           }
         }
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final exists = state.workOrders.any((wo) => wo.id == event.id);
           if (!exists) {
             emit(
@@ -889,6 +896,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
+      final updated = state.workOrders.where((wo) => wo.id != id).toList();
+      emit(state.copyWith(workOrders: updated, status: StateStatus.loaded));
       await _refreshWorkOrders();
       return true;
     } else {

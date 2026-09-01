@@ -408,6 +408,46 @@ void main() {
           verify(() => mockLocalDataSource.deleteAsset(tAssetModel.id)).called(1);
         },
       );
+
+      test(
+        'watchAssetsRealtime deletes from local when entity has deletedAt on update event',
+        () async {
+          final deletedModel = AssetModel.fromEntity(
+            tAssetModel.copyWith(deletedAt: DateTime.now()),
+          );
+          final event = RealtimeEvent<AssetModel>(
+            eventType: RealtimeEventType.update,
+            id: deletedModel.id,
+            companyId: tCompanyId,
+            entity: deletedModel,
+          );
+
+          when(
+            () => mockRemoteDataSource.watchAssetsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => Stream.value(event));
+          when(
+            () => mockLocalDataSource.deleteAsset(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchAssetsRealtime(companyId: tCompanyId);
+
+          expect(
+            stream,
+            emits(
+              predicate<RealtimeEvent<AssetEntity>>((e) {
+                return e.eventType == RealtimeEventType.update &&
+                    e.id == deletedModel.id &&
+                    e.entity?.deletedAt != null;
+              }),
+            ),
+          );
+
+          await pumpEventQueue();
+          verify(() => mockLocalDataSource.deleteAsset(deletedModel.id)).called(1);
+        },
+      );
     });
   });
 }

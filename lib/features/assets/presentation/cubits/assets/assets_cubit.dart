@@ -40,7 +40,7 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentAssets.indexWhere((a) => a.id == event.id);
           if (index == -1) {
             currentAssets.insert(0, event.entity!);
@@ -52,12 +52,19 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentAssets.indexWhere((a) => a.id == event.id);
-          if (index != -1) {
-            currentAssets[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentAssets.removeAt(index);
+              emit(state.copyWith(assets: currentAssets));
+            }
           } else {
-            currentAssets.add(event.entity!);
+            if (index != -1) {
+              currentAssets[index] = event.entity!;
+            } else {
+              currentAssets.add(event.entity!);
+            }
+            emit(state.copyWith(assets: currentAssets));
           }
-          emit(state.copyWith(assets: currentAssets));
         }
       case RealtimeEventType.delete:
         final index = currentAssets.indexWhere((a) => a.id == event.id);
@@ -199,10 +206,11 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final updatedAssets = state.assets
+          .where((asset) => asset.id != id)
+          .toList();
+      emit(state.copyWith(assets: updatedAssets, status: StateStatus.loaded));
       await loadAssets(emitLoading: false);
-      if (isClosed) return false;
-
-      emit(state.copyWith(status: StateStatus.loaded));
       return true;
     } else {
       if (isClosed) return false;

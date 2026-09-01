@@ -126,7 +126,11 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
       if (event.entity != null &&
           (event.eventType == RealtimeEventType.insert ||
               event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveServiceProviderCompany(event.entity!);
+        if (event.entity!.deletedAt != null) {
+          await _localDataSource.deleteServiceProviderCompany(event.id);
+        } else {
+          await _localDataSource.saveServiceProviderCompany(event.entity!);
+        }
       } else if (event.eventType == RealtimeEventType.delete &&
           event.id.isNotEmpty) {
         await _localDataSource.deleteServiceProviderCompany(event.id);

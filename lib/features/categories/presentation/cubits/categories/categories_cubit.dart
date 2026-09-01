@@ -124,8 +124,11 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final updatedCategories =
+          state.categories.where((c) => c.id != id).toList();
       emit(
         state.copyWith(
+          categories: updatedCategories,
           sections: withSection(
             CategoriesSection.deleteCategory,
             StateStatus.loaded,

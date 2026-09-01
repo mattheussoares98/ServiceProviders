@@ -1270,6 +1270,66 @@ void main() {
             ),
           ],
         );
+
+        blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+          'removes company on update event when deletedAt is not null',
+          build: () {
+            final streamController =
+                StreamController<RealtimeEvent<ServiceProviderCompanyEntity>>();
+            when(
+              () => mockWatchCompaniesRealtime.call(
+                companyId: any(named: 'companyId'),
+              ),
+            ).thenAnswer((_) => streamController.stream);
+
+            final testCubit = ServiceProvidersCubit(
+              useCases: ServiceProvidersCubitUseCases(
+                getCompanies: mockGetCompanies,
+                getProfiles: mockGetProfiles,
+                getProfilesByCompanyIds: mockGetProfilesByCompanyIds,
+                getInvitations: mockGetInvitations,
+                sendInvitation: mockSendInvitation,
+                deleteInvitation: mockDeleteInvitation,
+                createCompany: mockCreateCompany,
+                updateCompany: mockUpdateCompany,
+                createProfile: mockCreateProfile,
+                updateProfile: mockUpdateProfile,
+                getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+                watchCompaniesRealtime: mockWatchCompaniesRealtime,
+                watchProfilesRealtime: mockWatchProfilesRealtime,
+              ),
+            );
+
+            testCubit.emit(
+              testCubit.state.copyWith(
+                status: StateStatus.loaded,
+                companies: [tInitialCompany],
+              ),
+            );
+
+            final softDeletedCompany = tInitialCompany.copyWith(
+              deletedAt: DateTime.now(),
+            );
+
+            streamController.add(
+              RealtimeEvent<ServiceProviderCompanyEntity>(
+                eventType: RealtimeEventType.update,
+                id: tInitialCompany.id,
+                companyId: companyId,
+                entity: softDeletedCompany,
+              ),
+            );
+
+            return testCubit;
+          },
+          expect: () => [
+            isA<ServiceProvidersState>().having(
+              (s) => s.companies,
+              'companies',
+              isEmpty,
+            ),
+          ],
+        );
       });
 
       group('Profiles', () {

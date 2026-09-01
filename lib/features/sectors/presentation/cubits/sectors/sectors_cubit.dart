@@ -135,8 +135,10 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final updatedSectors = state.sectors.where((s) => s.id != id).toList();
       emit(
         state.copyWith(
+          sectors: updatedSectors,
           sections: withSection(
             SectorsSection.deleteSector,
             StateStatus.loaded,

@@ -57,7 +57,7 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
+        if (event.entity != null && event.entity!.deletedAt == null) {
           final index = currentCompanies.indexWhere((c) => c.id == event.id);
           if (index == -1) {
             currentCompanies.insert(0, event.entity!);
@@ -69,12 +69,19 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       case RealtimeEventType.update:
         if (event.entity != null) {
           final index = currentCompanies.indexWhere((c) => c.id == event.id);
-          if (index != -1) {
-            currentCompanies[index] = event.entity!;
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentCompanies.removeAt(index);
+              emit(state.copyWith(companies: currentCompanies));
+            }
           } else {
-            currentCompanies.add(event.entity!);
+            if (index != -1) {
+              currentCompanies[index] = event.entity!;
+            } else {
+              currentCompanies.add(event.entity!);
+            }
+            emit(state.copyWith(companies: currentCompanies));
           }
-          emit(state.copyWith(companies: currentCompanies));
         }
       case RealtimeEventType.delete:
         final index = currentCompanies.indexWhere((c) => c.id == event.id);
@@ -587,6 +594,16 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
+      final currentList = state.invitations[serviceProviderCompanyId] ?? [];
+      final optimisticallyUpdated =
+          currentList.where((inv) => inv.id != invitationId).toList();
+      final updatedMap =
+          Map<String, List<ServiceProviderInvitationEntity>>.from(
+            state.invitations,
+          );
+      updatedMap[serviceProviderCompanyId] = optimisticallyUpdated;
+      emit(state.copyWith(status: StateStatus.loaded, invitations: updatedMap));
+
       final activeCompanyId = _useCases.getActiveCompanyId.call();
       if (activeCompanyId.isNotEmpty) {
         final companiesResult = await _useCases.getCompanies.call(
@@ -602,15 +619,15 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
         serviceProviderCompanyId,
       );
       if (fetchResult is SuccessState<List<ServiceProviderInvitationEntity>>) {
-        final updatedInvitations =
+        final finalInvitations =
             Map<String, List<ServiceProviderInvitationEntity>>.from(
               state.invitations,
             );
-        updatedInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
+        finalInvitations[serviceProviderCompanyId] = fetchResult.data ?? [];
         emit(
           state.copyWith(
             status: StateStatus.loaded,
-            invitations: updatedInvitations,
+            invitations: finalInvitations,
           ),
         );
       } else {

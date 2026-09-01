@@ -595,6 +595,49 @@ void main() {
     );
 
     test(
+      'watchServiceProviderCompaniesRealtime deletes from local when entity has deletedAt on update event',
+      () async {
+        final deletedModel = ServiceProviderCompanyModel.fromEntity(
+          tCompanyModel.copyWith(deletedAt: DateTime.now()),
+        );
+        final event = RealtimeEvent<ServiceProviderCompanyModel>(
+          eventType: RealtimeEventType.update,
+          id: deletedModel.id,
+          companyId: deletedModel.companyId,
+          entity: deletedModel,
+        );
+
+        when(
+          () => mockRemoteDataSource.watchServiceProviderCompaniesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(event));
+
+        final stream = repository.watchServiceProviderCompaniesRealtime(
+          companyId: deletedModel.companyId,
+        );
+
+        expect(
+          stream,
+          emits(
+            predicate<RealtimeEvent<ServiceProviderCompanyEntity>>((e) {
+              return e.eventType == RealtimeEventType.update &&
+                  e.id == deletedModel.id &&
+                  e.entity?.deletedAt != null;
+            }),
+          ),
+        );
+
+        await pumpEventQueue();
+        verify(
+          () => mockLocalDataSource.deleteServiceProviderCompany(
+            deletedModel.id,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
       'watchServiceProviderProfilesRealtime caches insert/update in local and emits event',
       () async {
         final event = RealtimeEvent<ServiceProviderProfileModel>(

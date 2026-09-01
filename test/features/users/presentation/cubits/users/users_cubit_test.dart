@@ -824,7 +824,7 @@ void main() {
               .having((s) => s.deletingUserIds, 'deletingUserIds', {tId}),
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
-              .having((s) => s.deletingUserIds, 'deletingUserIds', {tId})
+              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
               .having((s) => s.users, 'users', isEmpty),
           isA<UsersState>()
               .having((s) => s.status, 'status', StateStatus.loaded)
@@ -1552,6 +1552,68 @@ void main() {
             (s) => s.users.first.name,
             'user name',
             'Updated User Name',
+          ),
+        ],
+      );
+
+      blocTest<UsersCubit, UsersState>(
+        'removes user on update event when deletedAt is not null',
+        build: () {
+          final streamController =
+              StreamController<RealtimeEvent<UserProfileEntity>>();
+          when(
+            () => mockWatchUserProfilesRealtime.call(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final testCubit = UsersCubit(
+            useCases: UsersCubitUseCases(
+              getSessionUser: mockGetSessionUser,
+              getUsers: mockGetUsers,
+              getUserProfileById: mockGetUserProfileById,
+              updateUserProfile: mockUpdateUserProfile,
+              deleteUserProfile: mockDeleteUserProfile,
+              getPermissionGroups: mockGetPermissionGroups,
+              createPermissionGroup: mockCreatePermissionGroup,
+              updatePermissionGroup: mockUpdatePermissionGroup,
+              deletePermissionGroup: mockDeletePermissionGroup,
+              getPendingInvitations: mockGetPendingInvitations,
+              revokeInvitation: mockRevokeInvitation,
+              resendInvitation: mockResendInvitation,
+              getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+              getSelectedMode: mockGetSelectedMode,
+              watchUserProfilesRealtime: mockWatchUserProfilesRealtime,
+            ),
+          );
+
+          testCubit.emit(
+            testCubit.state.copyWith(
+              status: StateStatus.loaded,
+              users: [tInitialUser],
+            ),
+          );
+
+          final softDeletedUser = tInitialUser.copyWith(
+            deletedAt: DateTime.now(),
+          );
+
+          streamController.add(
+            RealtimeEvent<UserProfileEntity>(
+              eventType: RealtimeEventType.update,
+              id: tInitialUser.id,
+              companyId: tUserProfile.companyId,
+              entity: softDeletedUser,
+            ),
+          );
+
+          return testCubit;
+        },
+        expect: () => [
+          isA<UsersState>().having(
+            (s) => s.users,
+            'users',
+            isEmpty,
           ),
         ],
       );
