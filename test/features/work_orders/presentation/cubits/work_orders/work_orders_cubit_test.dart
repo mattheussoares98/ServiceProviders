@@ -1112,11 +1112,9 @@ void main() {
             when(
               mockAttachmentsCubit.refreshAttachments,
             ).thenAnswer((_) async {});
-            when(() => mockAttachmentsCubit.state).thenReturn(
-              AttachmentsState(
-                attachments: [tAttachment],
-              ),
-            );
+            when(
+              () => mockAttachmentsCubit.state,
+            ).thenReturn(AttachmentsState(attachments: [tAttachment]));
 
             final result = await cubit.saveWorkOrder(
               id: tWorkOrder.id,
@@ -1671,8 +1669,11 @@ void main() {
               'resumeWork section',
               const SectionState.success(),
             ),
-            isA<WorkOrdersState>()
-                .having((s) => s.sections[BaseSections.load], 'sections[load]', const SectionState.success()),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            ),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1728,8 +1729,15 @@ void main() {
               'resumeWork section',
               const SectionState.success(),
             ),
-            isA<WorkOrdersState>()
-                .having((s) => s.sections[BaseSections.load], 'sections[load]', isA<SectionState>().having((sec) => sec.status, 'status', SectionStatus.error)),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              isA<SectionState>().having(
+                (sec) => sec.status,
+                'status',
+                SectionStatus.error,
+              ),
+            ),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1963,26 +1971,26 @@ void main() {
               'resumeWork section',
               const SectionState.running(),
             ),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.changeStatus],
-                  'changeStatus section',
-                  const SectionState.running(),
-                ),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.changeStatus],
-                  'changeStatus section',
-                  const SectionState.success(),
-                ),
-            isA<WorkOrdersState>()
-                .having((s) => s.sections[BaseSections.load], 'sections[load]', const SectionState.success()),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.resumeWork],
-                  'resumeWork section',
-                  const SectionState.success(),
-                ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.changeStatus],
+              'changeStatus section',
+              const SectionState.running(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.changeStatus],
+              'changeStatus section',
+              const SectionState.success(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.resumeWork],
+              'resumeWork section',
+              const SectionState.success(),
+            ),
           ],
           verify: (_) {
             verify(
@@ -2199,7 +2207,7 @@ void main() {
       final tId = faker.guid.guid();
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
-        'should emit loading and load data when delete succeeds',
+        'should emit loading and load data and pop route when delete succeeds',
         build: () {
           when(
             () => mockDeleteWorkOrder.call(any()),
@@ -2212,7 +2220,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.deleteWorkOrder(tId), isTrue),
+        act: (cubit) => cubit.deleteWorkOrder(tId),
         expect: () => [
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
@@ -2233,6 +2241,7 @@ void main() {
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
           verify(() => mockGetWorkOrders.call(any())).called(1);
+          verify(() => mockNavigationClient.maybePopTop()).called(1);
         },
       );
 
@@ -2244,7 +2253,7 @@ void main() {
           ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.deleteWorkOrder(tId), isFalse),
+        act: (cubit) => cubit.deleteWorkOrder(tId),
         expect: () => [
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
@@ -2260,6 +2269,7 @@ void main() {
         verify: (_) {
           verify(() => mockDeleteWorkOrder.call(tId)).called(1);
           verifyNever(() => mockGetWorkOrders.call(any()));
+          verifyNever(() => mockNavigationClient.maybePop());
         },
       );
     });

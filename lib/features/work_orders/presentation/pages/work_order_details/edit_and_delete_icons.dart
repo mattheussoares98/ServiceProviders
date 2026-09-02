@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,12 +53,9 @@ class EditAndDeleteIcons extends StatelessWidget {
                 cancelActionText: 'Não'.hardcoded,
               );
               if (ok == true && context.mounted) {
-                final succeeds = await context
-                    .read<WorkOrdersCubit>()
-                    .deleteWorkOrder(workOrderId);
-                if (succeeds && context.mounted) {
-                  context.pop();
-                }
+                await context.read<WorkOrdersCubit>().deleteWorkOrder(
+                  workOrderId,
+                );
               }
             },
             platformIcon: const PlatformIcon(

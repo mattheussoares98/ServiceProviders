@@ -44,6 +44,11 @@ class MockNavigationClient extends Mock implements NavigationClient {
     when(() => maybePop<Object?>()).thenAnswer((_) async => true);
     when(() => maybePop<dynamic>(any())).thenAnswer((_) async => true);
     when(() => maybePop<dynamic>()).thenAnswer((_) async => true);
+    when(() => maybePopTop<Object?>()).thenAnswer((_) async => true);
+    when(() => maybePopTop<Object?>(any())).thenAnswer((_) async => true);
+    when(() => maybePopTop<dynamic>()).thenAnswer((_) async => true);
+    when(() => maybePopTop<dynamic>(any())).thenAnswer((_) async => true);
+    when(back).thenReturn(null);
   }
 }
 
@@ -51,4 +56,5 @@ class MockStorageClient extends Mock implements StorageClient {}
 
 class MockOfflineTracker extends Mock implements OfflineTracker {}
 
-class MockSupabaseRealtimeClient extends Mock implements SupabaseRealtimeClient {}
+class MockSupabaseRealtimeClient extends Mock
+    implements SupabaseRealtimeClient {}
