@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
@@ -16,94 +17,74 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 /// Bottom sheet for filtering the work orders list.
-class WorkOrderFilters extends StatefulWidget {
+class WorkOrderFilters extends HookWidget {
   const WorkOrderFilters({super.key, required this.currentFilter});
 
   final WorkOrderFilter currentFilter;
 
   @override
-  State<WorkOrderFilters> createState() => _WorkOrderFiltersState();
-}
-
-class _WorkOrderFiltersState extends State<WorkOrderFilters> {
-  late List<WorkOrderStatus> _statuses;
-  late List<Priority> _priorities;
-  WorkOrderType? _type;
-  String? _assignedToId;
-  DateTime? _scheduledDateFrom;
-  DateTime? _scheduledDateTo;
-  bool _isDelayed = false;
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _statuses = List.from(widget.currentFilter.statuses);
-    _priorities = List.from(widget.currentFilter.priorities);
-    _type = widget.currentFilter.type;
-    _assignedToId = widget.currentFilter.assignedToId;
-    _scheduledDateFrom = widget.currentFilter.scheduledDateFrom;
-    _scheduledDateTo = widget.currentFilter.scheduledDateTo;
-    _isDelayed = widget.currentFilter.isDelayed;
-    _searchController.text = widget.currentFilter.searchText ?? '';
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _toggleStatus(WorkOrderStatus status) {
-    setState(() {
-      if (_statuses.contains(status)) {
-        _statuses.remove(status);
-      } else {
-        _statuses.add(status);
-      }
-    });
-  }
-
-  void _togglePriority(Priority priority) {
-    setState(() {
-      if (_priorities.contains(priority)) {
-        _priorities.remove(priority);
-      } else {
-        _priorities.add(priority);
-      }
-    });
-  }
-
-  void _apply() {
-    final filter = WorkOrderFilter(
-      statuses: _statuses,
-      priorities: _priorities,
-      type: _type,
-      assignedToId: _assignedToId,
-      scheduledDateFrom: _scheduledDateFrom,
-      scheduledDateTo: _scheduledDateTo,
-      searchText: _searchController.text.trimToNull(),
-      isDelayed: _isDelayed,
-    );
-    context.read<WorkOrdersCubit>().applyFilter(filter);
-    Navigator.of(context).pop();
-  }
-
-  void _clear() {
-    setState(() {
-      _statuses = [];
-      _priorities = [];
-      _type = null;
-      _assignedToId = null;
-      _scheduledDateFrom = null;
-      _scheduledDateTo = null;
-      _isDelayed = false;
-      _searchController.clear();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final statuses = useState<List<WorkOrderStatus>>(
+      List.from(currentFilter.statuses),
+    );
+    final priorities = useState<List<Priority>>(
+      List.from(currentFilter.priorities),
+    );
+    final type = useState<WorkOrderType?>(currentFilter.type);
+    final assignedToId = useState<String?>(currentFilter.assignedToId);
+    final scheduledDateFrom = useState<DateTime?>(
+      currentFilter.scheduledDateFrom,
+    );
+    final scheduledDateTo = useState<DateTime?>(currentFilter.scheduledDateTo);
+    final isDelayed = useState<bool>(currentFilter.isDelayed);
+    final searchController = useTextEditingController(
+      text: currentFilter.searchText ?? '',
+    );
+
+    void toggleStatus(WorkOrderStatus status) {
+      if (statuses.value.contains(status)) {
+        statuses.value = statuses.value.where((s) => s != status).toList();
+      } else {
+        statuses.value = [...statuses.value, status];
+      }
+    }
+
+    void togglePriority(Priority priority) {
+      if (priorities.value.contains(priority)) {
+        priorities.value = priorities.value
+            .where((p) => p != priority)
+            .toList();
+      } else {
+        priorities.value = [...priorities.value, priority];
+      }
+    }
+
+    void apply() {
+      final filter = WorkOrderFilter(
+        statuses: statuses.value,
+        priorities: priorities.value,
+        type: type.value,
+        assignedToId: assignedToId.value,
+        scheduledDateFrom: scheduledDateFrom.value,
+        scheduledDateTo: scheduledDateTo.value,
+        searchText: searchController.text.trimToNull(),
+        isDelayed: isDelayed.value,
+      );
+      context.read<WorkOrdersCubit>().applyFilter(filter);
+      Navigator.of(context).pop();
+    }
+
+    void clear() {
+      statuses.value = [];
+      priorities.value = [];
+      type.value = null;
+      assignedToId.value = null;
+      scheduledDateFrom.value = null;
+      scheduledDateTo.value = null;
+      isDelayed.value = false;
+      searchController.clear();
+    }
+
     final users = context.select<UsersCubit, List<UserProfileEntity>>(
       (c) => c.state.users,
     );
@@ -119,7 +100,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
             children: [
               BaseText.titleMedium('Filtros'.hardcoded),
               TextButton(
-                onPressed: _clear,
+                onPressed: clear,
                 child: BaseText.bodyMedium(
                   'Limpar tudo'.hardcoded,
                   color: context.colorScheme.primary,
@@ -138,7 +119,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
               BaseText('Buscar por título'.hardcoded),
               gapH8,
               TextField(
-                controller: _searchController,
+                controller: searchController,
                 decoration: InputDecoration(
                   hintText: 'Ex: Revisão bomba'.hardcoded,
                   prefixIcon: const Icon(Icons.search),
@@ -155,12 +136,13 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
               gapH8,
               Wrap(
                 spacing: Sizes.p8,
+                runSpacing: Sizes.p4,
                 children: WorkOrderStatus.values
                     .map(
                       (s) => FilterChip(
                         label: Text(s.label),
-                        selected: _statuses.contains(s),
-                        onSelected: (_) => _toggleStatus(s),
+                        selected: statuses.value.contains(s),
+                        onSelected: (_) => toggleStatus(s),
                       ),
                     )
                     .toList(),
@@ -171,12 +153,13 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
               gapH8,
               Wrap(
                 spacing: Sizes.p8,
+                runSpacing: Sizes.p4,
                 children: Priority.values
                     .map(
                       (p) => FilterChip(
                         label: Text(p.label),
-                        selected: _priorities.contains(p),
-                        onSelected: (_) => _togglePriority(p),
+                        selected: priorities.value.contains(p),
+                        onSelected: (_) => togglePriority(p),
                       ),
                     )
                     .toList(),
@@ -186,7 +169,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
               BaseText('Tipo'.hardcoded),
               gapH8,
               DropdownButtonFormField<WorkOrderType?>(
-                initialValue: _type,
+                initialValue: type.value,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: [
                   DropdownMenuItem(child: Text('Todos os tipos'.hardcoded)),
@@ -194,7 +177,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                     (t) => DropdownMenuItem(value: t, child: Text(t.label)),
                   ),
                 ],
-                onChanged: (v) => setState(() => _type = v),
+                onChanged: (v) => type.value = v,
               ),
               gapH20,
               // Responsible user filter
@@ -202,7 +185,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                 BaseText('Responsável'.hardcoded),
                 gapH8,
                 DropdownButtonFormField<String?>(
-                  initialValue: _assignedToId,
+                  initialValue: assignedToId.value,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
@@ -212,7 +195,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                       (u) => DropdownMenuItem(value: u.id, child: Text(u.name)),
                     ),
                   ],
-                  onChanged: (v) => setState(() => _assignedToId = v),
+                  onChanged: (v) => assignedToId.value = v,
                 ),
                 gapH20,
               ],
@@ -224,16 +207,16 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                   Expanded(
                     child: _DatePickerField(
                       label: 'De'.hardcoded,
-                      value: _scheduledDateFrom,
-                      onPicked: (d) => setState(() => _scheduledDateFrom = d),
+                      value: scheduledDateFrom.value,
+                      onPicked: (d) => scheduledDateFrom.value = d,
                     ),
                   ),
                   const SizedBox(width: Sizes.p8),
                   Expanded(
                     child: _DatePickerField(
                       label: 'Até'.hardcoded,
-                      value: _scheduledDateTo,
-                      onPicked: (d) => setState(() => _scheduledDateTo = d),
+                      value: scheduledDateTo.value,
+                      onPicked: (d) => scheduledDateTo.value = d,
                     ),
                   ),
                 ],
@@ -245,8 +228,8 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                 subtitle: BaseText.bodySmall(
                   'Filtrar ordens não concluídas com SLA vencido'.hardcoded,
                 ),
-                value: _isDelayed,
-                onChanged: (val) => setState(() => _isDelayed = val),
+                value: isDelayed.value,
+                onChanged: (val) => isDelayed.value = val,
               ),
               gapH24,
             ],
@@ -270,7 +253,7 @@ class _WorkOrderFiltersState extends State<WorkOrderFilters> {
                 ),
                 const SizedBox(width: Sizes.p12),
                 Expanded(
-                  child: BaseButton(onTap: _apply, text: 'Aplicar'.hardcoded),
+                  child: BaseButton(onTap: apply, text: 'Aplicar'.hardcoded),
                 ),
               ],
             ),
