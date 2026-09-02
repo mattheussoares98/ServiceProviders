@@ -89,177 +89,183 @@ class WorkOrderFilters extends HookWidget {
       (c) => c.state.users,
     );
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          pinned: true,
-          automaticallyImplyLeading: false,
-          titleSpacing: Sizes.p16,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              BaseText.titleMedium('Filtros'.hardcoded),
-              TextButton(
-                onPressed: clear,
-                child: BaseText.bodyMedium(
-                  'Limpar tudo'.hardcoded,
-                  color: context.colorScheme.primary,
+    return Padding(
+      padding: const .all(Sizes.p8),
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            automaticallyImplyLeading: false,
+            titleSpacing: Sizes.p16,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                BaseText.titleMedium('Filtros'.hardcoded),
+                TextButton(
+                  onPressed: clear,
+                  child: BaseText.bodyMedium(
+                    'Limpar tudo'.hardcoded,
+                    color: context.colorScheme.primary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
-        const SliverToBoxAdapter(child: Divider(height: 1)),
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              gapH16,
-              // Search by title
-              BaseText('Buscar por título'.hardcoded),
-              gapH8,
-              TextField(
-                controller: searchController,
-                decoration: InputDecoration(
-                  hintText: 'Ex: Revisão bomba'.hardcoded,
-                  prefixIcon: const Icon(Icons.search),
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: Sizes.p12,
-                    vertical: Sizes.p8,
+          const SliverToBoxAdapter(child: Divider(height: 1)),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                gapH16,
+                // Search by title
+                BaseText('Buscar por título'.hardcoded),
+                gapH8,
+                TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Ex: Revisão bomba'.hardcoded,
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: Sizes.p12,
+                      vertical: Sizes.p8,
+                    ),
                   ),
                 ),
-              ),
-              gapH20,
-              // Status filter
-              BaseText('Status'.hardcoded),
-              gapH8,
-              Wrap(
-                spacing: Sizes.p8,
-                runSpacing: Sizes.p4,
-                children: WorkOrderStatus.values
-                    .map(
-                      (s) => FilterChip(
-                        label: Text(s.label),
-                        selected: statuses.value.contains(s),
-                        onSelected: (_) => toggleStatus(s),
-                      ),
-                    )
-                    .toList(),
-              ),
-              gapH20,
-              // Priority filter
-              BaseText('Prioridade'.hardcoded),
-              gapH8,
-              Wrap(
-                spacing: Sizes.p8,
-                runSpacing: Sizes.p4,
-                children: Priority.values
-                    .map(
-                      (p) => FilterChip(
-                        label: Text(p.label),
-                        selected: priorities.value.contains(p),
-                        onSelected: (_) => togglePriority(p),
-                      ),
-                    )
-                    .toList(),
-              ),
-              gapH20,
-              // Type filter
-              BaseText('Tipo'.hardcoded),
-              gapH8,
-              DropdownButtonFormField<WorkOrderType?>(
-                initialValue: type.value,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-                items: [
-                  DropdownMenuItem(child: Text('Todos os tipos'.hardcoded)),
-                  ...WorkOrderType.values.map(
-                    (t) => DropdownMenuItem(value: t, child: Text(t.label)),
-                  ),
-                ],
-                onChanged: (v) => type.value = v,
-              ),
-              gapH20,
-              // Responsible user filter
-              if (users.isNotEmpty) ...[
-                BaseText('Responsável'.hardcoded),
+                gapH20,
+                // Status filter
+                BaseText('Status'.hardcoded),
                 gapH8,
-                DropdownButtonFormField<String?>(
-                  initialValue: assignedToId.value,
+                Wrap(
+                  spacing: Sizes.p8,
+                  runSpacing: Sizes.p4,
+                  children: WorkOrderStatus.values
+                      .map(
+                        (s) => FilterChip(
+                          label: Text(s.label),
+                          selected: statuses.value.contains(s),
+                          onSelected: (_) => toggleStatus(s),
+                        ),
+                      )
+                      .toList(),
+                ),
+                gapH20,
+                // Priority filter
+                BaseText('Prioridade'.hardcoded),
+                gapH8,
+                Wrap(
+                  spacing: Sizes.p8,
+                  runSpacing: Sizes.p4,
+                  children: Priority.values
+                      .map(
+                        (p) => FilterChip(
+                          label: Text(p.label),
+                          selected: priorities.value.contains(p),
+                          onSelected: (_) => togglePriority(p),
+                        ),
+                      )
+                      .toList(),
+                ),
+                gapH20,
+                // Type filter
+                BaseText('Tipo'.hardcoded),
+                gapH8,
+                DropdownButtonFormField<WorkOrderType?>(
+                  initialValue: type.value,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   items: [
-                    DropdownMenuItem(child: Text('Todos'.hardcoded)),
-                    ...users.map(
-                      (u) => DropdownMenuItem(value: u.id, child: Text(u.name)),
+                    DropdownMenuItem(child: Text('Todos os tipos'.hardcoded)),
+                    ...WorkOrderType.values.map(
+                      (t) => DropdownMenuItem(value: t, child: Text(t.label)),
                     ),
                   ],
-                  onChanged: (v) => assignedToId.value = v,
+                  onChanged: (v) => type.value = v,
                 ),
                 gapH20,
+                // Responsible user filter
+                if (users.isNotEmpty) ...[
+                  BaseText('Responsável'.hardcoded),
+                  gapH8,
+                  DropdownButtonFormField<String?>(
+                    initialValue: assignedToId.value,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(child: Text('Todos'.hardcoded)),
+                      ...users.map(
+                        (u) =>
+                            DropdownMenuItem(value: u.id, child: Text(u.name)),
+                      ),
+                    ],
+                    onChanged: (v) => assignedToId.value = v,
+                  ),
+                  gapH20,
+                ],
+                // Date range
+                BaseText('Data programada'.hardcoded),
+                gapH8,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _DatePickerField(
+                        label: 'De'.hardcoded,
+                        value: scheduledDateFrom.value,
+                        onPicked: (d) => scheduledDateFrom.value = d,
+                      ),
+                    ),
+                    const SizedBox(width: Sizes.p8),
+                    Expanded(
+                      child: _DatePickerField(
+                        label: 'Até'.hardcoded,
+                        value: scheduledDateTo.value,
+                        onPicked: (d) => scheduledDateTo.value = d,
+                      ),
+                    ),
+                  ],
+                ),
+                gapH20,
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: BaseText('Apenas ordens atrasadas'.hardcoded),
+                  subtitle: BaseText.bodySmall(
+                    'Filtrar ordens não concluídas com SLA vencido'.hardcoded,
+                  ),
+                  value: isDelayed.value,
+                  onChanged: (val) => isDelayed.value = val,
+                ),
+                gapH24,
               ],
-              // Date range
-              BaseText('Data programada'.hardcoded),
-              gapH8,
-              Row(
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                Sizes.p16,
+                Sizes.p8,
+                Sizes.p16,
+                Sizes.p16 + MediaQuery.viewInsetsOf(context).bottom,
+              ),
+              child: Row(
                 children: [
                   Expanded(
-                    child: _DatePickerField(
-                      label: 'De'.hardcoded,
-                      value: scheduledDateFrom.value,
-                      onPicked: (d) => scheduledDateFrom.value = d,
+                    child: SecondaryButton(
+                      onTap: () => Navigator.of(context).pop(),
+                      text: 'Cancelar'.hardcoded,
                     ),
                   ),
-                  const SizedBox(width: Sizes.p8),
+                  const SizedBox(width: Sizes.p12),
                   Expanded(
-                    child: _DatePickerField(
-                      label: 'Até'.hardcoded,
-                      value: scheduledDateTo.value,
-                      onPicked: (d) => scheduledDateTo.value = d,
-                    ),
+                    child: BaseButton(onTap: apply, text: 'Aplicar'.hardcoded),
                   ),
                 ],
               ),
-              gapH20,
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: BaseText('Apenas ordens atrasadas'.hardcoded),
-                subtitle: BaseText.bodySmall(
-                  'Filtrar ordens não concluídas com SLA vencido'.hardcoded,
-                ),
-                value: isDelayed.value,
-                onChanged: (val) => isDelayed.value = val,
-              ),
-              gapH24,
-            ],
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              Sizes.p16,
-              Sizes.p8,
-              Sizes.p16,
-              Sizes.p16 + MediaQuery.viewInsetsOf(context).bottom,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SecondaryButton(
-                    onTap: () => Navigator.of(context).pop(),
-                    text: 'Cancelar'.hardcoded,
-                  ),
-                ),
-                const SizedBox(width: Sizes.p12),
-                Expanded(
-                  child: BaseButton(onTap: apply, text: 'Aplicar'.hardcoded),
-                ),
-              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
