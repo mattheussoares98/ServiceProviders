@@ -83,7 +83,6 @@ void main() {
 
       cubit.emitState(
         const OfflineAdvisoryState(
-          status: DataStatus.loaded,
           isProviderBlocked: true,
         ),
       );
@@ -93,7 +92,7 @@ void main() {
       expect(find.text('Sem conexão com a internet'), findsOneWidget);
       expect(find.text('Tentar novamente'), findsOneWidget);
 
-      cubit.emitState(const OfflineAdvisoryState(status: DataStatus.loaded));
+      cubit.emitState(const OfflineAdvisoryState());
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ProviderOfflineBlocker), findsNothing);
@@ -106,7 +105,6 @@ void main() {
   ) async {
     cubit.emitState(
       const OfflineAdvisoryState(
-        status: DataStatus.loaded,
         isProviderBlocked: true,
       ),
     );

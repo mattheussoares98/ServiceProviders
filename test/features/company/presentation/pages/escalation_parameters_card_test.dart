@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/company/domain/entities/company_paramete
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card/escalation_parameters_card.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 
@@ -52,11 +51,7 @@ void main() {
     ];
 
     when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(
-        status: DataStatus.loaded,
-        parameters: tParameters,
-        permissionGroups: tGroups,
-      ),
+      CompanyState(parameters: tParameters, permissionGroups: tGroups),
     );
 
     final adminUser = EntityFactory.makeUserProfileEntity().copyWith(

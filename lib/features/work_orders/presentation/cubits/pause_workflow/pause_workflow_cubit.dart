@@ -40,7 +40,11 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   Future<void> loadPauseReasons([bool force = false]) async {
     if (!force && state.pauseReasons.isNotEmpty) return;
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
 
     final companyId = _useCases.getActiveCompanyId();
 
@@ -50,16 +54,21 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (result is SuccessState<List<PauseReasonEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           pauseReasons: result.data ?? [],
-          annulErrorMessage: true,
         ),
       );
     } else {
       final message =
           result.message ?? 'Erro ao carregar motivos de pausa'.hardcoded;
       emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
       );
       showErrorToast(message);
     }
@@ -69,7 +78,11 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String workOrderId, {
     PauseRequestStatus? status,
   }) async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
     final result = await _useCases.getPauseRequests(
       GetPauseRequestsParams(workOrderId: workOrderId, status: status),
     );
@@ -78,16 +91,21 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     if (result is SuccessState<List<PauseRequestEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           pauseRequests: result.data ?? [],
-          annulErrorMessage: true,
         ),
       );
     } else {
       final message =
           result.message ?? 'Erro ao carregar solicitações de pausa'.hardcoded;
       emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
       );
       showErrorToast(message);
     }

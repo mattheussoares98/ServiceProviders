@@ -44,7 +44,6 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         draftGroupWorkOrders: isAdminGroup
             ? const WorkOrdersPermissionEntity.defaultAdmin()
             : group.workOrders,
-        status: DataStatus.loaded,
       ),
     );
   }
@@ -235,7 +234,6 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
         selectedGroupId: user.permissionGroupId,
         draftUserPermissions: localOverrides,
         draftUserWorkOrders: user.workOrdersPermissionOverrides,
-        status: DataStatus.loaded,
       ),
     );
   }

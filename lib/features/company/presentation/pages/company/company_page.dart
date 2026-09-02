@@ -69,26 +69,28 @@ class _CompanyBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CompanyCubit, CompanyState>(
       builder: (context, state) {
-        switch (state.status) {
-          case DataStatus.loading:
-            return const Center(child: LoadingCircle());
-          case DataStatus.loadingError:
-            return Center(
-              child: BaseText.bodyLarge(
-                'Erro ao carregar dados da empresa'.hardcoded,
-                color: context.colorScheme.error,
-              ),
-            );
-          case DataStatus.loaded:
-          default:
-            final company = state.company;
-            if (company == null) {
-              return Center(
-                child: BaseText.bodyLarge(
-                  'Nenhuma empresa foi encontrada'.hardcoded,
-                ),
-              );
-            }
+        final loadSection = state.section(BaseSections.load);
+        if (loadSection.isRunning) {
+          return const Center(child: LoadingCircle());
+        }
+        if (loadSection.isError) {
+          return Center(
+            child: BaseText.bodyLarge(
+              loadSection.errorMessage?.isNotEmpty == true
+                  ? loadSection.errorMessage!
+                  : 'Erro ao carregar dados da empresa'.hardcoded,
+              color: context.colorScheme.error,
+            ),
+          );
+        }
+        final company = state.company;
+        if (company == null) {
+          return Center(
+            child: BaseText.bodyLarge(
+              'Nenhuma empresa foi encontrada'.hardcoded,
+            ),
+          );
+        }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -112,7 +114,6 @@ class _CompanyBody extends StatelessWidget {
                   ),
               ],
             );
-        }
       },
     );
   }

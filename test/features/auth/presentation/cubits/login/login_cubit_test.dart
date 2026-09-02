@@ -229,8 +229,16 @@ void main() {
       );
     },
     expect: () => [
-      isA<LoginState>().having((s) => s.status, 'status', DataStatus.loading),
-      isA<LoginState>().having((s) => s.status, 'status', DataStatus.loaded),
+      isA<LoginState>().having(
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.running(),
+      ),
+      isA<LoginState>().having(
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.error(),
+      ),
     ],
     verify: (_) {
       verify(() => mockLoginUseCase.call(any())).called(1);
@@ -257,20 +265,16 @@ void main() {
     },
     act: (cubit) => cubit.resetPassword(faker.internet.email()),
     expect: () => [
-      isA<LoginState>()
-          .having(
-            (s) => s.resetPasswordStatus,
-            'resetPasswordStatus',
-            DataStatus.loading,
-          )
-          .having((s) => s.status, 'status', DataStatus.initial),
-      isA<LoginState>()
-          .having(
-            (s) => s.resetPasswordStatus,
-            'resetPasswordStatus',
-            DataStatus.loaded,
-          )
-          .having((s) => s.status, 'status', DataStatus.initial),
+      isA<LoginState>().having(
+        (s) => s.sections[LoginSections.resetPassword],
+        'sections[resetPassword]',
+        const SectionState.running(),
+      ),
+      isA<LoginState>().having(
+        (s) => s.sections[LoginSections.resetPassword],
+        'sections[resetPassword]',
+        const SectionState.success(),
+      ),
     ],
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);
@@ -288,24 +292,20 @@ void main() {
     },
     act: (cubit) => cubit.resetPassword(faker.internet.email()),
     expect: () => [
-      isA<LoginState>()
-          .having(
-            (s) => s.resetPasswordStatus,
-            'resetPasswordStatus',
-            DataStatus.loading,
-          )
-          .having((s) => s.status, 'status', DataStatus.initial),
-      isA<LoginState>()
-          .having(
-            (s) => s.resetPasswordStatus,
-            'resetPasswordStatus',
-            DataStatus.loaded,
-          )
-          .having((s) => s.status, 'status', DataStatus.initial),
+      isA<LoginState>().having(
+        (s) => s.sections[LoginSections.resetPassword],
+        'sections[resetPassword]',
+        const SectionState.running(),
+      ),
+      isA<LoginState>().having(
+        (s) => s.sections[LoginSections.resetPassword],
+        'sections[resetPassword]',
+        const SectionState.error(),
+      ),
     ],
     verify: (_) {
       verify(() => mockResetPasswordUseCase.call(any())).called(1);
-      verify(() => mockNavigationClient.maybePop()).called(1);
+      verifyNever(() => mockNavigationClient.maybePop());
     },
   );
 

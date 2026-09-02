@@ -100,13 +100,9 @@ class HomePage extends HookWidget {
               isScrollable: false,
               body: BlocBuilder<UsersCubit, UsersState>(
                 builder: (context, state) {
-                  final sectionStatus = state.sections[UsersSections.loadAll];
-                  final isLoading = sectionStatus != null
-                      ? sectionStatus == SectionStatus.running
-                      : state.status == DataStatus.loading;
-                  final hasError = sectionStatus != null
-                      ? sectionStatus == SectionStatus.error
-                      : state.status == DataStatus.loadingError;
+                  final loadSection = state.section(BaseSections.load);
+                  final isLoading = loadSection.isRunning;
+                  final hasError = loadSection.isError;
 
                   if (state.users.isEmpty && state.permissionGroups.isEmpty) {
                     if (isLoading) {

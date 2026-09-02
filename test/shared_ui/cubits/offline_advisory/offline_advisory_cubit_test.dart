@@ -8,7 +8,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/local/offline_tracker.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/offline_advisory/offline_advisory_state.dart';
 
@@ -90,7 +89,6 @@ void main() {
       act: (cubit) => alertStreamController.add(tEvent),
       expect: () => [
         isA<OfflineAdvisoryState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.advisoryEvent, 'advisoryEvent', tEvent)
             .having((s) => s.shouldShowDialog, 'shouldShowDialog', isTrue),
       ],

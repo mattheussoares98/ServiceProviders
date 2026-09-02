@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entit
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/pages/locations/widgets/location_card.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -30,7 +31,7 @@ class LocationsPage extends StatelessWidget {
         leading: const OpenDrawerIconButton(),
         actions: [
           BlocSelector<LocationsCubit, LocationsState, bool>(
-            selector: (state) => state.errorMessage?.isNotEmpty ?? false,
+            selector: (state) => state.section(BaseSections.load).isError,
             builder: (context, hasError) {
               return BaseIconButton(
                 permission: const ActionPermission.resource(

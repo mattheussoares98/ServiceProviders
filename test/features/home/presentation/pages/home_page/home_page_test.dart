@@ -37,7 +37,6 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_ord
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/routing/routes.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
@@ -168,7 +167,6 @@ void main() {
       UsersState(
         users: [userProfile],
         permissionGroups: const [],
-        status: DataStatus.loaded,
       ),
     );
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
@@ -177,12 +175,12 @@ void main() {
 
     when(
       () => mockCompanyCubit.state,
-    ).thenReturn(const CompanyState(status: DataStatus.loaded));
+    ).thenReturn(const CompanyState());
     when(() => mockCompanyCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCompanyCubit.loadCompany()).thenAnswer((_) async {});
 
     when(() => mockLocationsCubit.state).thenReturn(
-      const LocationsState.initial().copyWith(status: DataStatus.loaded),
+      const LocationsState.initial(),
     );
     when(
       () => mockLocationsCubit.stream,
@@ -192,13 +190,13 @@ void main() {
     ).thenAnswer((_) async {});
 
     when(() => mockAssetsCubit.state).thenReturn(
-      const AssetsState.initial().copyWith(status: DataStatus.loaded),
+      const AssetsState.initial(),
     );
     when(() => mockAssetsCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockAssetsCubit.loadAssets()).thenAnswer((_) async {});
 
     when(() => mockWorkOrdersCubit.state).thenReturn(
-      const WorkOrdersState.initial().copyWith(status: DataStatus.loaded),
+      const WorkOrdersState.initial(),
     );
     when(
       () => mockWorkOrdersCubit.stream,
@@ -213,7 +211,7 @@ void main() {
     });
 
     when(() => mockCategoriesCubit.state).thenReturn(
-      const CategoriesState.initial().copyWith(status: DataStatus.loaded),
+      const CategoriesState.initial(),
     );
     when(
       () => mockCategoriesCubit.stream,
@@ -408,7 +406,6 @@ void main() {
         ).thenAnswer((_) => companyStateController.stream);
         when(() => mockCompanyCubit.state).thenReturn(
           const CompanyState(
-            status: DataStatus.loaded,
             selectedCompanyId: 'comp-1',
           ),
         );
@@ -440,7 +437,6 @@ void main() {
         // Emit new company ID
         companyStateController.add(
           const CompanyState(
-            status: DataStatus.loaded,
             selectedCompanyId: 'comp-2',
           ),
         );

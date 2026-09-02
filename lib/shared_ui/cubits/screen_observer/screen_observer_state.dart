@@ -7,6 +7,7 @@ class ScreenObserverState extends BaseState {
     required this.height,
     required this.screenTypeChanges,
     required this.desktopLayoutChanges,
+    super.sections,
   });
 
   factory ScreenObserverState.initial() => const ScreenObserverState(
@@ -33,12 +34,14 @@ class ScreenObserverState extends BaseState {
     double? height,
     int? screenTypeChanges,
     int? desktopLayoutChanges,
+    Map<SectionKey, SectionState>? sections,
   }) {
     return ScreenObserverState(
       width: width ?? this.width,
       height: height ?? this.height,
       screenTypeChanges: screenTypeChanges ?? this.screenTypeChanges,
       desktopLayoutChanges: desktopLayoutChanges ?? this.desktopLayoutChanges,
+      sections: sections ?? this.sections,
     );
   }
 
@@ -48,5 +51,6 @@ class ScreenObserverState extends BaseState {
     height,
     screenTypeChanges,
     desktopLayoutChanges,
+    sections,
   ];
 }

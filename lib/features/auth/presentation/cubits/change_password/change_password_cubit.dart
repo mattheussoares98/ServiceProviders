@@ -27,18 +27,18 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
     _refreshState();
   }
 
-  void _refreshState([DataStatus status = DataStatus.loaded]) {
+  void _refreshState([SectionStatus status = SectionStatus.success]) {
     emit(
       ChangePasswordState(
         passwordVisibility: _passwordVisibility,
         confirmPasswordVisibility: _confirmPasswordVisibility,
-        status: status,
+        sections: withSection(BaseSections.load, status),
       ),
     );
   }
 
   Future<void> changePassword(String password) async {
-    _refreshState(DataStatus.loading);
+    _refreshState(SectionStatus.running);
 
     final dataState = await _useCases.changePassword.call(password);
     if (isClosed) return;
@@ -52,7 +52,7 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
       _refreshState();
       await replaceAllRoute(const LoginRoute());
     } else {
-      _refreshState(DataStatus.loadingError);
+      _refreshState(SectionStatus.error);
     }
   }
 }

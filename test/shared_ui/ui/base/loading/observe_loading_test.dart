@@ -11,31 +11,19 @@ import '../../../../../testing/mocks/client_mocks.dart';
 enum TestSectionKey implements SectionKey { details, comments }
 
 class TestState extends BaseState {
-  const TestState({
-    super.status = DataStatus.initial,
-    super.errorMessage,
-    super.sections = const {},
-  });
+  const TestState({super.sections = const {}});
 
-  TestState copyWith({
-    DataStatus? status,
-    Map<SectionKey, SectionStatus>? sections,
-  }) {
-    return TestState(
-      status: status ?? this.status,
-      sections: sections ?? this.sections,
-    );
+  TestState copyWith({Map<SectionKey, SectionState>? sections}) {
+    return TestState(sections: sections ?? this.sections);
   }
 }
 
 class TestCubit extends BaseCubit<TestState> {
   TestCubit([super.initialState = const TestState()]);
 
-  void setStatus(DataStatus status) => emit(state.copyWith(status: status));
-
   void setSectionStatus(SectionKey section, SectionStatus status) {
-    final updated = Map<SectionKey, SectionStatus>.from(state.sections);
-    updated[section] = status;
+    final updated = Map<SectionKey, SectionState>.from(state.sections);
+    updated[section] = SectionState(status: status);
     emit(state.copyWith(sections: updated));
   }
 }
@@ -72,7 +60,7 @@ void main() {
     test('section factory constructor monitors section status', () {
       final cubit = TestCubit(
         const TestState(
-          sections: {TestSectionKey.details: SectionStatus.running},
+          sections: {TestSectionKey.details: SectionState.running()},
         ),
       );
       final target = ObservedLoadingTarget.section(
@@ -86,7 +74,7 @@ void main() {
     test('returns false when section status does not match', () {
       final cubit = TestCubit(
         const TestState(
-          sections: {TestSectionKey.details: SectionStatus.success},
+          sections: {TestSectionKey.details: SectionState.success()},
         ),
       );
       final target = ObservedLoadingTarget.section(
@@ -101,8 +89,8 @@ void main() {
       final cubit = TestCubit(
         const TestState(
           sections: {
-            TestSectionKey.details: SectionStatus.idle,
-            TestSectionKey.comments: SectionStatus.running,
+            TestSectionKey.details: SectionState.idle(),
+            TestSectionKey.comments: SectionState.running(),
           },
         ),
       );

@@ -6,7 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -37,7 +36,8 @@ class ModeSwitcherPage extends StatelessWidget {
             BlocBuilder<ModeSwitcherCubit, ModeSwitcherState>(
               builder: (context, state) {
                 final cubit = context.read<ModeSwitcherCubit>();
-                final isLoading = state.status == DataStatus.loading;
+                final isLoading =
+                    state.section(ModeSwitcherSections.save).isRunning;
 
                 return Column(
                   children: [

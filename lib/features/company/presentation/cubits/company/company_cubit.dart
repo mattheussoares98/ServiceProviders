@@ -30,7 +30,11 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
   Future<void> loadCompany({bool forceRefresh = false}) async {
     final user = _useCases.getSessionUser();
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
 
     if (user.isSuperAdmin) {
       final allCompaniesState = await _useCases.getAllCompanies();
@@ -55,7 +59,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
         emit(
           state.copyWith(
-            status: DataStatus.loaded,
+            sections: withSection(BaseSections.load, SectionStatus.success),
             companies: companies,
             company: activeCompany,
             selectedCompanyId: activeCompany?.id,
@@ -70,7 +74,15 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         );
         return;
       } else {
-        emit(state.copyWith(status: DataStatus.loadingError));
+        emit(
+          state.copyWith(
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: allCompaniesState.message,
+            ),
+          ),
+        );
         showDataStateToast(allCompaniesState);
         return;
       }
@@ -91,7 +103,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
 
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           company: dataState.data,
           companies: dataState.data != null ? [dataState.data!] : const [],
           selectedCompanyId: dataState.data?.id,
@@ -105,7 +117,15 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         ),
       );
     } else {
-      emit(state.copyWith(status: DataStatus.loadingError));
+      emit(
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: dataState.message,
+          ),
+        ),
+      );
       showDataStateToast(dataState);
     }
   }
@@ -228,7 +248,12 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   }
 
   Future<void> createCompany({required String name, String? cnpj}) async {
-    emit(state.copyWith(status: DataStatus.loading, annulCompany: true));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+        annulCompany: true,
+      ),
+    );
 
     final now = DateTime.now();
     final company = CompanyEntity(
@@ -254,7 +279,12 @@ class CompanyCubit extends BaseCubit<CompanyState> {
       dataState,
       message: 'Empresa criada com sucesso'.hardcoded,
     );
-    emit(state.copyWith(status: DataStatus.loaded, company: dataState.data));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.success),
+        company: dataState.data,
+      ),
+    );
   }
 
   Future<void> navigateToCreateCompany() async {

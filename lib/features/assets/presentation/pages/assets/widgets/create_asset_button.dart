@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
@@ -14,13 +15,13 @@ class CreateAssetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final assetHasError = context.select<AssetsCubit, bool>(
-      (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+      (cubit) => cubit.state.section(BaseSections.load).isError,
     );
     final locationsHasError = context.select<LocationsCubit, bool>(
-      (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+      (cubit) => cubit.state.section(BaseSections.load).isError,
     );
     final categoriesHasError = context.select<CategoriesCubit, bool>(
-      (cubit) => cubit.state.errorMessage?.isNotEmpty ?? false,
+      (cubit) => cubit.state.section(BaseSections.load).isError,
     );
 
     return BaseIconButton(

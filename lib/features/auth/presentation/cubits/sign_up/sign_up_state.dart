@@ -4,16 +4,20 @@ class SignUpState extends BaseState {
   const SignUpState({
     required this.passwordVisibility,
     required this.confirmPasswordVisibility,
-    super.status,
+    super.sections,
   });
 
   const SignUpState.initial()
-      : passwordVisibility = false,
-        confirmPasswordVisibility = false;
+    : passwordVisibility = false,
+      confirmPasswordVisibility = false;
 
   final bool passwordVisibility;
   final bool confirmPasswordVisibility;
 
   @override
-  List<Object?> get props => [passwordVisibility, confirmPasswordVisibility, status];
+  List<Object?> get props => [
+    passwordVisibility,
+    confirmPasswordVisibility,
+    sections,
+  ];
 }

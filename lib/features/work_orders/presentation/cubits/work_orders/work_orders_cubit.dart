@@ -120,12 +120,17 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     WorkOrderFilter? filter,
   }) async {
     final activeFilter = filter ?? state.activeFilter;
-
-    emit(state.copyWith(activeFilter: activeFilter));
     final companyId = _useCases.getActiveCompanyId();
 
     if (showLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          activeFilter: activeFilter,
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
+    } else if (filter != null) {
+      emit(state.copyWith(activeFilter: activeFilter));
     }
 
     final results = await Future.wait([
@@ -145,13 +150,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       final fetchedOrders = workOrdersResult.data ?? [];
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           workOrders: fetchedOrders,
           changeRequests: changeRequestsResult.data,
           activeFilter: activeFilter,
           hasMorePages: fetchedOrders.length == _pageSize,
           isLoadingMore: false,
-          annulErrorMessage: true,
         ),
       );
       return true;
@@ -161,8 +165,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           : changeRequestsResult.message;
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: errorMessage,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: errorMessage,
+          ),
         ),
       );
       return false;
@@ -184,7 +191,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     WorkOrderFilter? filter,
   }) async {
     if (showLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final companies = await _loadProviderCompanies();
@@ -193,7 +204,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (companies.isEmpty) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           workOrders: const [],
           providerCompanies: const [],
           hasMorePages: false,
@@ -216,14 +227,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       final fetched = result.data ?? [];
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           workOrders: fetched,
           changeRequests: const [],
           providerCompanies: companies,
           activeFilter: activeFilter,
           hasMorePages: fetched.length == _pageSize,
           isLoadingMore: false,
-          annulErrorMessage: true,
         ),
       );
       return true;
@@ -231,8 +241,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
     emit(
       state.copyWith(
-        status: DataStatus.loadingError,
-        errorMessage: result.message,
+        sections: withSection(
+          BaseSections.load,
+          SectionStatus.error,
+          errorMessage: result.message,
+        ),
         providerCompanies: companies,
       ),
     );
@@ -298,7 +311,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   Future<bool> loadWorkOrderById(String id, {bool showLoading = false}) async {
     if (showLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final dataState = await _useCases.getWorkOrderById(id);
@@ -315,9 +332,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
       emit(
         state.copyWith(
-          status: showLoading ? DataStatus.loaded : state.status,
+          sections: withSection(BaseSections.load, SectionStatus.success),
           workOrders: updatedList,
-          annulErrorMessage: true,
         ),
       );
       return true;
@@ -325,8 +341,11 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       if (showLoading) {
         emit(
           state.copyWith(
-            status: DataStatus.loadingError,
-            errorMessage: dataState.message,
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: dataState.message,
+            ),
           ),
         );
       } else {
@@ -675,6 +694,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           sections: withSection(
             WorkOrdersSections.saveWorkOrder,
             SectionStatus.error,
+            errorMessage: profileResult.message,
           ),
         ),
       );

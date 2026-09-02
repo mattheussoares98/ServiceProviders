@@ -197,12 +197,12 @@ void main() {
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.success,
+          const SectionState.success(),
         ),
       ],
       verify: (cubit) {
@@ -234,6 +234,9 @@ void main() {
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenReturn(tUser);
         when(
+          () => mockGetActiveCompanyIdUseCase.call(),
+        ).thenReturn(tUser.companyId);
+        when(
           () => mockpickAttachment.call(
             PickAttachmentParams(
               source: AttachmentSource.gallery,
@@ -254,12 +257,12 @@ void main() {
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.idle,
+          const SectionState.idle(),
         ),
       ],
       verify: (cubit) {
@@ -312,12 +315,12 @@ void main() {
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<HomeState>().having(
           (s) => s.sections[HomeSections.changeAvatar],
           'sections[changeAvatar]',
-          SectionStatus.error,
+          const SectionState.error(),
         ),
       ],
       verify: (cubit) {

@@ -24,18 +24,30 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   final WorkOrderObservationsCubitUseCases _useCases;
 
   Future<void> fetchObservations(String workOrderId) async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
     final result = await _useCases.getObservations(workOrderId);
     switch (result) {
       case SuccessState(:final data):
         final list = List<WorkOrderObservationEntity>.from(data!)
           ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        emit(state.copyWith(status: DataStatus.loaded, observations: list));
+        emit(
+          state.copyWith(
+            sections: withSection(BaseSections.load, SectionStatus.success),
+            observations: list,
+          ),
+        );
       case FailureState(:final message):
         emit(
           state.copyWith(
-            status: DataStatus.loadingError,
-            errorMessage: message,
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: message,
+            ),
           ),
         );
       case LoadingState():

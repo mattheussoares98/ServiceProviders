@@ -50,7 +50,10 @@ void main() {
 
   void arrangeState({List<AttachmentEntity> attachments = const []}) {
     when(() => mockAttachmentsCubit.state).thenReturn(
-      AttachmentsState(status: DataStatus.loaded, attachments: attachments),
+      AttachmentsState(
+        sections: const {BaseSections.load: SectionState.success()},
+        attachments: attachments,
+      ),
     );
   }
 

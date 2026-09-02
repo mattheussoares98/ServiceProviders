@@ -55,15 +55,16 @@ class Attachments extends StatelessWidget {
         context.select<
           AttachmentsCubit,
           (bool, bool, String?, List<AttachmentEntity>, int)
-        >(
-          (cubit) => (
-            cubit.state.status == DataStatus.loading,
-            cubit.state.status == DataStatus.loadingError,
-            cubit.state.errorMessage,
+        >((cubit) {
+          final loadSection = cubit.state.section(BaseSections.load);
+          return (
+            loadSection.isRunning,
+            loadSection.isError,
+            loadSection.errorMessage,
             cubit.state.attachments,
             cubit.state.processingCount,
-          ),
-        );
+          );
+        });
 
     if (isLoading) {
       return const SliverToBoxAdapter(child: Center(child: LoadingCircle()));

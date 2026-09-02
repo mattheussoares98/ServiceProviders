@@ -143,12 +143,16 @@ void main() {
         act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies, 'companies', isNotEmpty),
         ],
       );
@@ -171,13 +175,12 @@ void main() {
         },
         act: (cubit) => cubit.loadCompaniesAndProfiles(emitLoading: false),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.initial,
-          ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies.length, 'companies.length', 1),
         ],
       );
@@ -196,13 +199,15 @@ void main() {
         act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error loading'),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error loading'),
+          ),
         ],
       );
     });
@@ -236,10 +241,18 @@ void main() {
         act: (cubit) => cubit.loadCompaniesAndProfiles(forceRefresh: true),
         expect: () => [
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loading)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.running(),
+              )
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', isNull),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies.length, 'companies.length', 2)
               .having((s) => s.selectedCompanyId, 'selectedCompanyId', isNull)
               .having(
@@ -273,13 +286,12 @@ void main() {
         },
         act: (cubit) => cubit.loadCompaniesAndProfiles(emitLoading: false),
         expect: () => [
-          isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.initial,
-          ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies.length, 'companies.length', 1)
               .having(
                 (s) => s.profiles[comp1.id]?.length,
@@ -308,17 +320,15 @@ void main() {
         act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Error fetching profiles',
-              ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error fetching profiles'),
+          ),
         ],
       );
 
@@ -336,13 +346,15 @@ void main() {
         act: (cubit) => cubit.loadCompaniesAndProfiles(),
         expect: () => [
           isA<ServiceProvidersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error loading'),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error loading'),
+          ),
         ],
       );
     });
@@ -381,7 +393,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.running,
+                const SectionState.running(),
               )
               .having((s) => s.invitations, 'invitations', isEmpty)
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
@@ -391,7 +403,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.invitations, 'invitations', isNotEmpty)
@@ -435,7 +447,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
               .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1)
@@ -467,7 +479,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.running,
+                const SectionState.running(),
               )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
@@ -476,10 +488,9 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.error,
+                const SectionState.error('Profile error'),
               )
-              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', 'Profile error'),
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty),
         ],
       );
 
@@ -503,7 +514,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.running,
+                const SectionState.running(),
               )
               .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', {
                 'comp-1',
@@ -512,10 +523,9 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.selectCompany],
                 'selectCompany status',
-                SectionStatus.error,
+                const SectionState.error('Invite error'),
               )
-              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', 'Invite error'),
+              .having((s) => s.loadingCompanyIds, 'loadingCompanyIds', isEmpty),
         ],
       );
     });
@@ -661,15 +671,19 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies, 'companies', isNotEmpty),
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
         ],
         verify: (cubit) {
@@ -714,12 +728,12 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (cubit) {
@@ -772,15 +786,19 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies, 'companies', isNotEmpty),
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
         ],
         verify: (cubit) {
@@ -837,15 +855,19 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.companies, 'companies', isNotEmpty),
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveCompany],
             'sections[saveCompany]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (cubit) {
@@ -917,13 +939,13 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.saveProfile],
             'sections[saveProfile]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
               .having(
                 (s) => s.sections[ServiceProvidersSections.saveProfile],
                 'sections[saveProfile]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.profiles['comp-1']?.length, 'profiles count', 1),
         ],
@@ -968,7 +990,7 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.sendInvitation],
             'sections[sendInvitation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>().having(
             (s) => s.companies.first.invitationStatus,
@@ -979,7 +1001,7 @@ void main() {
               .having(
                 (s) => s.sections[ServiceProvidersSections.sendInvitation],
                 'sections[sendInvitation]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having(
                 (s) => s.invitations['comp-1']?.length,
@@ -1011,12 +1033,12 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.sendInvitation],
             'sections[sendInvitation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.sendInvitation],
             'sections[sendInvitation]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
       );
@@ -1048,13 +1070,13 @@ void main() {
           isA<ServiceProvidersState>().having(
             (s) => s.sections[ServiceProvidersSections.deleteInvitation],
             'sections[deleteInvitation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<ServiceProvidersState>()
               .having(
                 (s) => s.sections[ServiceProvidersSections.deleteInvitation],
                 'sections[deleteInvitation]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.invitations['comp-1'], 'invitations', isEmpty),
         ],
@@ -1132,7 +1154,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 companies: [tInitialCompany],
               ),
             );
@@ -1188,7 +1209,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 companies: [tInitialCompany],
               ),
             );
@@ -1246,7 +1266,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 companies: [tInitialCompany],
               ),
             );
@@ -1301,7 +1320,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 companies: [tInitialCompany],
               ),
             );
@@ -1365,7 +1383,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 profiles: {
                   tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
                 },
@@ -1431,7 +1448,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 profiles: {
                   tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
                 },
@@ -1496,7 +1512,6 @@ void main() {
 
             testCubit.emit(
               testCubit.state.copyWith(
-                status: DataStatus.loaded,
                 profiles: {
                   tInitialProfile.serviceProviderCompanyId: [tInitialProfile],
                 },

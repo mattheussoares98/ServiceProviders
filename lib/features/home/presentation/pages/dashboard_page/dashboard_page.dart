@@ -48,20 +48,19 @@ class DashboardPage extends StatelessWidget {
               onRefresh: workOrdersCubit.loadWorkOrdersAndChangeRequests,
               body: BlocBuilder<WorkOrdersCubit, WorkOrdersState>(
                 builder: (context, state) {
-                  if (state.status == DataStatus.loading &&
-                      state.workOrders.isEmpty) {
+                  final loadSection = state.section(BaseSections.load);
+                  if (loadSection.isRunning && state.workOrders.isEmpty) {
                     return const LoadingCircle();
                   }
 
-                  if (state.status == DataStatus.loadingError &&
-                      state.workOrders.isEmpty) {
+                  if (loadSection.isError && state.workOrders.isEmpty) {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(Sizes.p16),
                         child: BaseText.error(
-                          state.errorMessage != null &&
-                                  state.errorMessage!.isNotEmpty
-                              ? state.errorMessage!
+                          loadSection.errorMessage != null &&
+                                  loadSection.errorMessage!.isNotEmpty
+                              ? loadSection.errorMessage!
                               : 'Erro ao carregar dados'.hardcoded,
                           textAlign: TextAlign.center,
                         ),

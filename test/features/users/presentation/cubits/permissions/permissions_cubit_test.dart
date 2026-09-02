@@ -53,7 +53,6 @@ void main() {
       act: (c) => c.initGroup(tGroup),
       expect: () => [
         isA<PermissionsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.group, 'group', tGroup)
             .having((s) => s.isAdmin, 'isAdmin', false)
             .having(
@@ -95,12 +94,12 @@ void main() {
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.success,
+          const SectionState.success(),
         ),
       ],
     );
@@ -118,12 +117,12 @@ void main() {
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.error,
+          const SectionState.error(),
         ),
       ],
     );
@@ -148,7 +147,6 @@ void main() {
       act: (c) => c.initUser(tUser),
       expect: () => [
         isA<PermissionsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
             .having((s) => s.user, 'user', tUser)
             .having((s) => s.isAdmin, 'isAdmin', false)
             .having(
@@ -288,12 +286,12 @@ void main() {
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<PermissionsState>().having(
           (s) => s.sections[PermissionsSections.save],
           'sections[save]',
-          SectionStatus.success,
+          const SectionState.success(),
         ),
       ],
       verify: (_) {

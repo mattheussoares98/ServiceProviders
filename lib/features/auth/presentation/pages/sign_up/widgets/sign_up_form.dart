@@ -37,7 +37,7 @@ class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLoading = context.select(
-      (SignUpCubit cubit) => cubit.state.status == DataStatus.loading,
+      (SignUpCubit cubit) => cubit.state.section(BaseSections.load).isRunning,
     );
     return Column(
       mainAxisSize: MainAxisSize.min,

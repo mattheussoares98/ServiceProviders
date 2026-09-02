@@ -19,17 +19,27 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
   final ConfigurationsCubitUseCases _useCases;
 
   Future<void> loadConfigurations() async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
     final result = await _useCases.getConfigurations();
     if (result is SuccessState<ConfigurationsEntity>) {
       emit(
-        state.copyWith(configurations: result.data, status: DataStatus.loaded),
+        state.copyWith(
+          configurations: result.data,
+          sections: withSection(BaseSections.load, SectionStatus.success),
+        ),
       );
     } else if (result is FailureState<ConfigurationsEntity>) {
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: result.message,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: result.message,
+          ),
         ),
       );
     }
@@ -41,7 +51,6 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         configurations: state.configurations.copyWith(
           pushNotificationsEnabled: enabled,
         ),
-        status: DataStatus.loaded,
       ),
     );
     unawaited(_useCases.saveConfigurations(enabled));
@@ -51,14 +60,17 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
     emit(
       state.copyWith(
         configurations: state.configurations.copyWith(themeMode: mode.name),
-        status: DataStatus.loaded,
       ),
     );
     unawaited(_useCases.saveThemeMode(mode.name));
   }
 
   Future<void> clearAppCache() async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
     await _useCases.clearAppCache();
     emit(
       state.copyWith(
@@ -67,7 +79,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
           themeMode: 'system',
           systemNotificationsEnabled: true,
         ),
-        status: DataStatus.loaded,
+        sections: withSection(BaseSections.load, SectionStatus.success),
       ),
     );
     await replaceAllRoute(const LoginRoute());

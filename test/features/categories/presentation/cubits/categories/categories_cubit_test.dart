@@ -92,14 +92,17 @@ void main() {
         act: (cubit) => cubit.loadCategories(),
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.categories, 'categories', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.categories, 'categories', isNotEmpty),
         ],
         verify: (_) {
           verify(
@@ -120,9 +123,12 @@ void main() {
         act: (cubit) => cubit.loadCategories(emitLoading: false),
         expect: () => [
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.categories, 'categories', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.categories, 'categories', isNotEmpty),
         ],
       );
 
@@ -137,12 +143,16 @@ void main() {
         act: (cubit) => cubit.loadCategories(),
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.error('Error message'),
+              )
               .having((s) => s.categories, 'categories', isEmpty),
         ],
       );
@@ -158,13 +168,15 @@ void main() {
         act: (cubit) => cubit.loadCategories(),
         expect: () => [
           isA<CategoriesState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error message'),
+          isA<CategoriesState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error message'),
+          ),
         ],
       );
     });
@@ -211,15 +223,19 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.categories, 'categories', isNotEmpty),
         ],
       );
@@ -259,15 +275,19 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.categories, 'categories', isNotEmpty),
         ],
       );
@@ -291,12 +311,12 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -317,12 +337,12 @@ void main() {
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<CategoriesState>().having(
             (s) => s.sections[CategoriesSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -352,18 +372,22 @@ void main() {
               .having(
                 (s) => s.sections[CategoriesSections.delete],
                 'sections[delete]',
-                SectionStatus.running,
+                const SectionState.running(),
               )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
               .having(
                 (s) => s.sections[CategoriesSections.delete],
                 'sections[delete]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.deletingIds, 'deletingIds', isEmpty),
           isA<CategoriesState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.categories, 'categories', isEmpty),
         ],
         verify: (_) {
@@ -388,14 +412,14 @@ void main() {
               .having(
                 (s) => s.sections[CategoriesSections.delete],
                 'sections[delete]',
-                SectionStatus.running,
+                const SectionState.running(),
               )
               .having((s) => s.deletingIds, 'deletingIds', {tId}),
           isA<CategoriesState>()
               .having(
                 (s) => s.sections[CategoriesSections.delete],
                 'sections[delete]',
-                SectionStatus.error,
+                const SectionState.error(),
               )
               .having((s) => s.deletingIds, 'deletingIds', isEmpty),
         ],

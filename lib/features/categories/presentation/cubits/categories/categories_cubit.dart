@@ -23,7 +23,11 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getCategories(companyId);
@@ -32,15 +36,20 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     if (result is SuccessState<List<CategoryEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           categories: result.data ?? [],
-          annulErrorMessage: true,
+          sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
       final message = result.message ?? 'Erro ao carregar categorias'.hardcoded;
       emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
       );
     }
   }

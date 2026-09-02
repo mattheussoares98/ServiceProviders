@@ -47,7 +47,7 @@ class ReviewPauseDialog extends HookWidget {
         builder: (context, state) {
           final isSaving =
               state.sections[PauseWorkflowSections.reviewPause] ==
-              SectionStatus.running;
+              const SectionState.running();
           return IgnorePointer(
             ignoring: isSaving,
             child: Dialog(

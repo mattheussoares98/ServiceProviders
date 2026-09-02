@@ -122,7 +122,11 @@ void main() {
         act: (cubit) => cubit.loadAssetsByIds([faker.guid.guid()]),
         expect: () => [
           isA<AssetsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.assets, 'assets', isNotEmpty),
         ],
       );
@@ -163,14 +167,17 @@ void main() {
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<AssetsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.assets, 'assets', isNotEmpty),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
@@ -188,19 +195,22 @@ void main() {
         act: (cubit) => cubit.loadAssets(emitLoading: false),
         expect: () => [
           isA<AssetsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.assets, 'assets', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.assets, 'assets', isNotEmpty),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
         },
       );
 
+      final tMessage = faker.lorem.sentence();
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading and error when assets load fails',
         build: () {
-          final tMessage = faker.lorem.sentence();
           when(() => mockGetAssets.call(any())).thenAnswer(
             (_) async => FailureState<List<AssetEntity>>(message: tMessage),
           );
@@ -209,13 +219,15 @@ void main() {
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<AssetsState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+          isA<AssetsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            SectionState.error(tMessage),
+          ),
         ],
         verify: (_) {
           verify(() => mockGetAssets.call(tUserProfile.companyId)).called(1);
@@ -234,9 +246,11 @@ void main() {
         act: (cubit) => cubit.loadAssets(),
         expect: () => [
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loadingError,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error(
+              'Erro não esperado. O usuário está sem o ID da companhia',
+            ),
           ),
         ],
         verify: (_) {
@@ -293,17 +307,17 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -396,12 +410,12 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -456,17 +470,17 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -543,12 +557,12 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -581,12 +595,12 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -619,19 +633,19 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.delete],
             'sections[delete]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>()
               .having(
                 (s) => s.sections[AssetsSections.delete],
                 'sections[delete]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having((s) => s.assets, 'assets', isEmpty),
           isA<AssetsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -653,12 +667,12 @@ void main() {
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.delete],
             'sections[delete]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<AssetsState>().having(
             (s) => s.sections[AssetsSections.delete],
             'sections[delete]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -685,10 +699,16 @@ void main() {
         },
         act: (cubit) => cubit.navigateToCreateUpdateAsset(tAsset),
         expect: () => <AssetsState>[],
-        verify: (cubit) {
+        verify: (_) {
           verify(
             () => mockNavigationClient.pushRoute<CreateUpdateAssetRouteArgs>(
-              any(),
+              any(
+                that: isA<CreateUpdateAssetRoute>().having(
+                  (r) => r.args?.asset,
+                  'asset',
+                  tAsset,
+                ),
+              ),
             ),
           ).called(1);
         },
@@ -700,7 +720,7 @@ void main() {
       final tNewAsset = EntityFactory.makeAssetEntity();
 
       blocTest<AssetsCubit, AssetsState>(
-        'prepends new asset on insert event',
+        'prepends newly inserted asset on insert event',
         build: () {
           final streamController =
               StreamController<RealtimeEvent<AssetEntity>>();
@@ -723,12 +743,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              status: DataStatus.loaded,
-              assets: [tInitialAsset],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(assets: [tInitialAsset]));
 
           streamController.add(
             RealtimeEvent<AssetEntity>(
@@ -773,12 +788,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              status: DataStatus.loaded,
-              assets: [tInitialAsset],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(assets: [tInitialAsset]));
 
           final updatedAsset = tInitialAsset.copyWith(name: 'Updated Asset');
 
@@ -826,12 +836,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              status: DataStatus.loaded,
-              assets: [tInitialAsset],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(assets: [tInitialAsset]));
 
           final softDeletedAsset = tInitialAsset.copyWith(
             deletedAt: DateTime.now(),
@@ -877,12 +882,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              status: DataStatus.loaded,
-              assets: [tInitialAsset],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(assets: [tInitialAsset]));
 
           streamController.add(
             RealtimeEvent<AssetEntity>(

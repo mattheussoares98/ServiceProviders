@@ -6,7 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit_use_cases.dart';
 
@@ -56,7 +55,6 @@ void main() {
       final cubit = SessionCubit(useCases: useCases);
       expect(cubit.state.user, equals(tUserProfile));
       expect(cubit.state.isLoggedIn, isTrue);
-      expect(cubit.state.status, equals(DataStatus.initial));
       cubit.close();
     });
 
@@ -69,8 +67,7 @@ void main() {
       expect: () => [
         isA<SessionState>()
             .having((s) => s.user, 'user', tUserProfile)
-            .having((s) => s.isLoggedIn, 'isLoggedIn', true)
-            .having((s) => s.status, 'status', DataStatus.loaded),
+            .having((s) => s.isLoggedIn, 'isLoggedIn', true),
       ],
     );
 
@@ -81,9 +78,7 @@ void main() {
         streamController.add(UserDataEntity.empty());
       },
       expect: () => [
-        isA<SessionState>()
-            .having((s) => s.isLoggedIn, 'isLoggedIn', false)
-            .having((s) => s.status, 'status', DataStatus.loaded),
+        isA<SessionState>().having((s) => s.isLoggedIn, 'isLoggedIn', false),
       ],
     );
   });

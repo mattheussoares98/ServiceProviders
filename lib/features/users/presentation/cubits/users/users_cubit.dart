@@ -19,7 +19,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 part 'users_state.dart';
 
 enum UsersSections implements SectionKey {
-  loadAll,
   revokeInvitation,
   updateUser,
   deleteUser,
@@ -95,7 +94,11 @@ class UsersCubit extends BaseCubit<UsersState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getUsers(companyId);
@@ -104,17 +107,26 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<UserProfileEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           users: result.data ?? [],
-          annulErrorMessage: true,
+          sections: emitLoading
+              ? withSection(BaseSections.load, SectionStatus.success)
+              : null,
         ),
       );
       return true;
     } else {
       final message = result.message ?? 'Erro ao carregar usuários'.hardcoded;
-      emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
-      );
+      if (emitLoading) {
+        emit(
+          state.copyWith(
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: message,
+            ),
+          ),
+        );
+      }
       showErrorToast(message);
       return false;
     }
@@ -123,8 +135,12 @@ class UsersCubit extends BaseCubit<UsersState> {
   Future<bool> loadPermissionGroups({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
 
-    if (emitLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+    if (emitLoading && !isClosed) {
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getPermissionGroups(companyId);
@@ -133,18 +149,27 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<PermissionGroupEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           permissionGroups: result.data ?? [],
-          annulErrorMessage: true,
+          sections: emitLoading
+              ? withSection(BaseSections.load, SectionStatus.success)
+              : null,
         ),
       );
       return true;
     } else {
       final message =
           result.message ?? 'Erro ao carregar grupos de permissão'.hardcoded;
-      emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
-      );
+      if (emitLoading) {
+        emit(
+          state.copyWith(
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: message,
+            ),
+          ),
+        );
+      }
       showErrorToast(message);
       return false;
     }
@@ -154,7 +179,11 @@ class UsersCubit extends BaseCubit<UsersState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getPendingInvitations(companyId);
@@ -163,17 +192,26 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (result is SuccessState<List<UserInvitationEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           invitations: result.data ?? [],
-          annulErrorMessage: true,
+          sections: emitLoading
+              ? withSection(BaseSections.load, SectionStatus.success)
+              : null,
         ),
       );
       return true;
     } else {
       final message = result.message ?? 'Erro ao carregar convites'.hardcoded;
-      emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
-      );
+      if (emitLoading) {
+        emit(
+          state.copyWith(
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: message,
+            ),
+          ),
+        );
+      }
       showErrorToast(message);
       return false;
     }
@@ -183,7 +221,7 @@ class UsersCubit extends BaseCubit<UsersState> {
     if (emitLoading) {
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.loadAll, SectionStatus.running),
+          sections: withSection(BaseSections.load, SectionStatus.running),
         ),
       );
     }
@@ -202,8 +240,9 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(
-            UsersSections.loadAll,
+            BaseSections.load,
             hasError ? SectionStatus.error : SectionStatus.success,
+            errorMessage: hasError ? 'Erro ao carregar dados'.hardcoded : null,
           ),
         ),
       );
@@ -211,7 +250,11 @@ class UsersCubit extends BaseCubit<UsersState> {
       if (isClosed) return;
       emit(
         state.copyWith(
-          sections: withSection(UsersSections.loadAll, SectionStatus.error),
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: 'Erro ao carregar dados'.hardcoded,
+          ),
         ),
       );
     }

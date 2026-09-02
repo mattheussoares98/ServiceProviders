@@ -154,9 +154,9 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('LocationsCubit Tests', () {
-    group('loadLocations', () {
+    group('loadLocationsAndAreas', () {
       blocTest<LocationsCubit, LocationsState>(
-        'should emit loading and loaded when locations load successfully',
+        'should emit loading and loaded when locations and areas load successfully',
         build: () {
           when(
             () => mockGetLocations.call(any()),
@@ -169,13 +169,16 @@ void main() {
         act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.errorMessage, 'errorMessage', isNull)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.locations, 'locations', isNotEmpty)
               .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
@@ -197,14 +200,12 @@ void main() {
         },
         act: (cubit) => cubit.loadLocationsAndAreas(showLoading: false),
         expect: () => [
-          isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.initial,
-          ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.errorMessage, 'errorMessage', isNull)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.locations, 'locations', isNotEmpty),
         ],
         verify: (_) {
@@ -213,10 +214,11 @@ void main() {
         },
       );
 
+      final tMessage = faker.lorem.sentence();
+
       blocTest<LocationsCubit, LocationsState>(
         'should emit loading and error when locations load fails',
         build: () {
-          final tMessage = faker.lorem.sentence();
           when(() => mockGetLocations.call(any())).thenAnswer(
             (_) async => FailureState<List<LocationEntity>>(message: tMessage),
           );
@@ -228,13 +230,15 @@ void main() {
         act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+          isA<LocationsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            SectionState.error(tMessage),
+          ),
         ],
         verify: (_) {
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
@@ -257,14 +261,14 @@ void main() {
         act: (cubit) => cubit.loadLocationsAndAreas(),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loadingError,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error'),
           ),
         ],
         verify: (_) {
@@ -292,7 +296,11 @@ void main() {
         ),
         expect: () => [
           isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.locations, 'locations', tLocations)
               .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
@@ -344,12 +352,16 @@ void main() {
         act: (cubit) => cubit.loadProviderRegistry(tUserProfile.companyId),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.locations, 'locations', tLocations)
               .having((s) => s.allAreas, 'allAreas', tAreas),
         ],
@@ -377,13 +389,15 @@ void main() {
         act: (cubit) => cubit.loadProviderRegistry(tUserProfile.companyId),
         expect: () => [
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error'),
+          isA<LocationsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error'),
+          ),
         ],
       );
     });
@@ -461,17 +475,17 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -508,7 +522,12 @@ void main() {
                     )
                     .having((l) => l.city, 'city', tLocation.city?.trim())
                     .having((l) => l.state, 'state', tLocation.state?.trim())
-                    .having((l) => l.isActive, 'isActive', true),
+                    .having((l) => l.isActive, 'isActive', true)
+                    .having(
+                      (l) => l.createdAt,
+                      'createdAt',
+                      isA<DateTime>(),
+                    ),
               ),
             ),
           ).called(1);
@@ -544,12 +563,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -593,17 +612,17 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<LocationsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -683,12 +702,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveLocation],
             'sections[saveLocation]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -721,13 +740,13 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteLocation],
             'sections[deleteLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>()
               .having(
                 (s) => s.sections[LocationsSections.deleteLocation],
                 'sections[deleteLocation]',
-                SectionStatus.success,
+                const SectionState.success(),
               )
               .having(
                 (s) => s.locations.any((l) => l.id == tLocations.first.id),
@@ -735,7 +754,11 @@ void main() {
                 isFalse,
               ),
           isA<LocationsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.locations, 'locations', isEmpty),
         ],
         verify: (_) {
@@ -757,12 +780,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteLocation],
             'sections[deleteLocation]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteLocation],
             'sections[deleteLocation]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -802,12 +825,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -859,12 +882,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -901,12 +924,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -961,12 +984,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.saveArea],
             'sections[saveArea]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -997,12 +1020,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteArea],
             'sections[deleteArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteArea],
             'sections[deleteArea]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -1025,12 +1048,12 @@ void main() {
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteArea],
             'sections[deleteArea]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<LocationsState>().having(
             (s) => s.sections[LocationsSections.deleteArea],
             'sections[deleteArea]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {

@@ -18,8 +18,6 @@ class WorkOrdersState extends BaseState {
     this.hasMorePages = true,
     this.isLoadingMore = false,
     this.providerCompanies = const [],
-    super.status = DataStatus.initial,
-    super.errorMessage = '',
     super.sections = const {},
   });
 
@@ -31,7 +29,7 @@ class WorkOrdersState extends BaseState {
       hasMorePages = true,
       isLoadingMore = false,
       providerCompanies = const [],
-      super(status: DataStatus.initial, errorMessage: '');
+      super();
 
   final List<WorkOrderEntity> workOrders;
   final List<WorkOrderChangeRequestEntity> changeRequests;
@@ -58,10 +56,7 @@ class WorkOrdersState extends BaseState {
     bool? hasMorePages,
     bool? isLoadingMore,
     List<ServiceProviderCompanyEntity>? providerCompanies,
-    Map<SectionKey, SectionStatus>? sections,
-    DataStatus? status,
-    String? errorMessage,
-    bool? annulErrorMessage,
+    Map<SectionKey, SectionState>? sections,
   }) {
     return WorkOrdersState(
       workOrders: workOrders ?? this.workOrders,
@@ -72,10 +67,6 @@ class WorkOrdersState extends BaseState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       providerCompanies: providerCompanies ?? this.providerCompanies,
       sections: sections ?? this.sections,
-      status: status ?? this.status,
-      errorMessage: annulErrorMessage == true
-          ? null
-          : errorMessage ?? this.errorMessage,
     );
   }
 
@@ -89,7 +80,5 @@ class WorkOrdersState extends BaseState {
     isLoadingMore,
     providerCompanies,
     sections,
-    status,
-    errorMessage,
   ];
 }

@@ -32,7 +32,7 @@ class OfflineAdvisoryCubit extends BaseCubit<OfflineAdvisoryState> {
   StreamSubscription<InternetStatus>? _connectivitySubscription;
 
   void _onAlertEvent(OfflineAdvisoryEvent event) {
-    emit(state.copyWith(status: DataStatus.loaded, advisoryEvent: event));
+    emit(state.copyWith(advisoryEvent: event));
   }
 
   void _onConnectivityChanged(InternetStatus status) {

@@ -48,23 +48,26 @@ class CreateUpdateAssetPage extends HookWidget {
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context
         .select<LocationsCubit, (bool, String?)>((cubit) {
+          final section = cubit.state.section(BaseSections.load);
           return (
-            cubit.state.status == DataStatus.loading,
-            cubit.state.errorMessage,
+            section.isRunning,
+            section.errorMessage,
           );
         });
     final (loadingCategories, categoriesError) = context
         .select<CategoriesCubit, (bool, String?)>((cubit) {
+          final section = cubit.state.section(BaseSections.load);
           return (
-            cubit.state.status == DataStatus.loading,
-            cubit.state.errorMessage,
+            section.isRunning,
+            section.errorMessage,
           );
         });
     final (loadingAssets, assetsError) = context
         .select<AssetsCubit, (bool, String?)>((cubit) {
+          final section = cubit.state.section(BaseSections.load);
           return (
-            cubit.state.status == DataStatus.loading,
-            cubit.state.errorMessage,
+            section.isRunning,
+            section.errorMessage,
           );
         });
 

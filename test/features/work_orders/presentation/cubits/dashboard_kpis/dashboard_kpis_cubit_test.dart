@@ -37,9 +37,9 @@ void main() {
     final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
     final tMetrics = EntityFactory.makeWorkOrderKpiMetricsEntity();
 
-    test('initial state has empty metrics and initial status', () {
+    test('initial state has empty metrics and empty sections', () {
       final cubit = DashboardKpisCubit(useCases: useCases);
-      expect(cubit.state.status, DataStatus.initial);
+      expect(cubit.state.sections, isEmpty);
       expect(cubit.state.startDate, isNull);
       expect(cubit.state.endDate, isNull);
       expect(cubit.state.metrics.totalWorkOrders, 0);
@@ -56,7 +56,11 @@ void main() {
       act: (cubit) => cubit.computeKpis(tWorkOrders),
       expect: () => [
         isA<DashboardKpisState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having((s) => s.metrics, 'metrics', tMetrics),
       ],
       verify: (_) {
@@ -79,7 +83,11 @@ void main() {
       ),
       expect: () => [
         isA<DashboardKpisState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having((s) => s.metrics, 'metrics', tMetrics)
             .having((s) => s.startDate, 'startDate', DateTime(2026, 8))
             .having(

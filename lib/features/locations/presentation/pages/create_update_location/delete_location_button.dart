@@ -25,7 +25,7 @@ class DeleteLocationButton extends StatelessWidget {
       isLoading: context.select<LocationsCubit, bool>(
         (cubit) =>
             cubit.state.sections[LocationsSections.deleteLocation] ==
-            SectionStatus.running,
+            const SectionState.running(),
       ),
       onPressed: () {
         showAlertDialog(

@@ -158,7 +158,11 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments,
               'attachments',
@@ -179,9 +183,11 @@ void main() {
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId);
       },
       expect: () => [
-        isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loadingError)
-            .having((s) => s.errorMessage, 'errorMessage', 'Error fetching'),
+        isA<AttachmentsState>().having(
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.error('Error fetching'),
+        ),
       ],
     );
 
@@ -208,19 +214,27 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments,
               'attachments',
               tUploadedAttachmentList,
             ),
         isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          DataStatus.loading,
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
         ),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments,
               'attachments',
@@ -485,7 +499,11 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having((s) => s.attachments, 'attachments', [tAttachment]),
         isA<AttachmentsState>().having((s) => s.uploadingIds, 'uploadingIds', {
           tAttachment.id,
@@ -496,12 +514,16 @@ void main() {
           isEmpty,
         ),
         isA<AttachmentsState>().having(
-          (s) => s.status,
-          'status',
-          DataStatus.loading,
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
         ),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments[0].uploadStatus,
               'uploadStatus',
@@ -526,7 +548,11 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments,
               'attachments',
@@ -564,7 +590,11 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.attachments,
               'attachments',
@@ -625,10 +655,18 @@ void main() {
       },
       expect: () => [
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having((s) => s.attachments, 'attachments', [tVideoAttachment]),
         isA<AttachmentsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having((s) => s.videoThumbnails, 'videoThumbnails', {
               'video_1': 'thumb_path.jpg',
             }),

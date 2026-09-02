@@ -23,7 +23,11 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getSectors(companyId);
@@ -32,15 +36,20 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     if (result is SuccessState<List<SectorEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           sectors: result.data ?? [],
-          annulErrorMessage: true,
+          sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
       final message = result.message ?? 'Erro ao carregar setores'.hardcoded;
       emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
       );
       showErrorToast(message);
     }

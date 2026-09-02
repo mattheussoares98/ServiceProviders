@@ -64,7 +64,8 @@ class _Body extends HookWidget {
     return BlocSelector<PermissionsCubit, PermissionsState, (bool, bool)>(
       selector: (state) => (
         state.isAdmin,
-        state.sections[PermissionsSections.save] == SectionStatus.running,
+        state.sections[PermissionsSections.save] ==
+            const SectionState.running(),
       ),
       builder: (context, value) {
         Future<void> onSave() async {

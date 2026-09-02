@@ -98,7 +98,7 @@ class CreateUpdateAreaPage extends HookWidget {
             BlocSelector<LocationsCubit, LocationsState, bool>(
               selector: (state) =>
                   state.sections[LocationsSections.saveArea] ==
-                  SectionStatus.running,
+                  const SectionState.running(),
               builder: (_, loading) {
                 return BaseButton(
                   onTap: submit,

@@ -2,16 +2,15 @@ part of 'attachments_cubit.dart';
 
 class AttachmentsState extends BaseState {
   const AttachmentsState({
-    required super.status,
     this.attachments = const [],
     this.uploadingIds = const {},
     this.pendingDeletions = const {},
     this.videoThumbnails = const {},
     this.processingCount = 0,
-    super.errorMessage,
+    super.sections,
   });
 
-  const AttachmentsState.empty() : this(status: DataStatus.initial);
+  const AttachmentsState.empty() : this();
 
   final List<AttachmentEntity> attachments;
   final Set<String>
@@ -24,35 +23,29 @@ class AttachmentsState extends BaseState {
 
   @override
   List<Object?> get props => [
-    status,
     attachments,
     uploadingIds,
     pendingDeletions,
     videoThumbnails,
     processingCount,
-    errorMessage,
+    sections,
   ];
 
   AttachmentsState copyWith({
-    DataStatus? status,
     List<AttachmentEntity>? attachments,
     Set<String>? uploadingIds,
     Set<String>? pendingDeletions,
     Map<String, String>? videoThumbnails,
     int? processingCount,
-    String? errorMessage,
-    bool? annulErrorMessage,
+    Map<SectionKey, SectionState>? sections,
   }) {
     return AttachmentsState(
-      status: status ?? this.status,
       attachments: attachments ?? this.attachments,
       uploadingIds: uploadingIds ?? this.uploadingIds,
       pendingDeletions: pendingDeletions ?? this.pendingDeletions,
       videoThumbnails: videoThumbnails ?? this.videoThumbnails,
       processingCount: processingCount ?? this.processingCount,
-      errorMessage: annulErrorMessage == true
-          ? null
-          : errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 }

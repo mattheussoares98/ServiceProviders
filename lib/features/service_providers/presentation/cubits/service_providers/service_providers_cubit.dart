@@ -159,12 +159,16 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
       return;
     }
 
-    emit(
-      state.copyWith(
-        status: emitLoading ? DataStatus.loading : null,
-        annulCompanyId: forceRefresh,
-      ),
-    );
+    if (emitLoading) {
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+          annulCompanyId: forceRefresh,
+        ),
+      );
+    } else if (forceRefresh) {
+      emit(state.copyWith(annulCompanyId: true));
+    }
 
     final companyId = _useCases.getActiveCompanyId();
     final result = await _useCases.getCompanies.call(companyId);
@@ -173,8 +177,11 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (result is FailureState<List<ServiceProviderCompanyEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: result.message,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: result.message,
+          ),
         ),
       );
       showErrorToast(result.message);
@@ -192,8 +199,11 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     if (profilesResult is FailureState<List<ServiceProviderProfileEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: profilesResult.message,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: profilesResult.message,
+          ),
         ),
       );
       return;
@@ -215,10 +225,10 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     emit(
       state.copyWith(
-        status: DataStatus.loaded,
         companies: companies,
         profiles: updatedProfiles,
         invitations: forceRefresh ? const {} : state.invitations,
+        sections: withSection(BaseSections.load, SectionStatus.success),
       ),
     );
   }
@@ -278,9 +288,9 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
               ? withSection(
                   ServiceProvidersSections.selectCompany,
                   SectionStatus.error,
+                  errorMessage: profilesResult.message,
                 )
               : null,
-          errorMessage: profilesResult.message,
           loadingCompanyIds: finishedLoadingIds,
         ),
       );
@@ -294,8 +304,8 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
           sections: withSection(
             ServiceProvidersSections.selectCompany,
             SectionStatus.error,
+            errorMessage: invitationsResult.message,
           ),
-          errorMessage: invitationsResult.message,
           loadingCompanyIds: finishedLoadingIds,
         ),
       );

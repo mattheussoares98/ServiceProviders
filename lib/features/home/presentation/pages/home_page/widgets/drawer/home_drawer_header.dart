@@ -161,7 +161,7 @@ class HomeDrawerHeader extends StatelessWidget {
                       BlocSelector<HomeCubit, HomeState, bool>(
                         selector: (s) =>
                             s.sections[HomeSections.changeAvatar] ==
-                            SectionStatus.running,
+                            const SectionState.running(),
                         builder: (context, saving) {
                           if (saving) {
                             return const Positioned(

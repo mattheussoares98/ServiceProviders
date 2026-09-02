@@ -147,22 +147,26 @@ class _CreateUpdatePage extends HookWidget {
         AppMode.fromName(selectedModeName) == AppMode.provider;
     final isEditing = workOrder != null;
 
-    final (assetsError, assetsLoading) = context.select(
-      (AssetsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
-    );
-    final (locationsError, locationsLoading) = context.select(
-      (LocationsCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
-    );
-    final (usersError, usersLoading) = context.select(
-      (UsersCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
-    );
-    final (providersError, providersLoading) = context.select(
-      (ServiceProvidersCubit cubit) =>
-          (cubit.state.errorMessage, cubit.state.status == DataStatus.loading),
-    );
+    final (assetsError, assetsLoading) = context.select((AssetsCubit cubit) {
+      final state = cubit.state.sections[BaseSections.load];
+      return (state?.errorMessage, state == const SectionState.running());
+    });
+    final (locationsError, locationsLoading) = context.select((
+      LocationsCubit cubit,
+    ) {
+      final state = cubit.state.sections[BaseSections.load];
+      return (state?.errorMessage, state == const SectionState.running());
+    });
+    final (usersError, usersLoading) = context.select((UsersCubit cubit) {
+      final state = cubit.state.sections[BaseSections.load];
+      return (state?.errorMessage, state == const SectionState.running());
+    });
+    final (providersError, providersLoading) = context.select((
+      ServiceProvidersCubit cubit,
+    ) {
+      final state = cubit.state.sections[BaseSections.load];
+      return (state?.errorMessage, state == const SectionState.running());
+    });
     final isLoading = isProviderMode
         ? providersLoading
         : (assetsLoading ||

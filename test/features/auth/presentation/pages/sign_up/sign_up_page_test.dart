@@ -135,7 +135,7 @@ void main() {
 
     // Verify sign up flow triggers correct use cases and navigates
     verify(() => mockSignUpUseCase.call(any())).called(1);
-    verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
+    verify(() => mockNavigationClient.maybePop<Object?>(any())).called(1);
   });
 
   patrolWidgetTest(

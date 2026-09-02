@@ -22,7 +22,7 @@ final class ObservedLoadingTarget {
 
   bool get isLoading {
     for (final section in sections) {
-      if (cubit.state.sections[section] == SectionStatus.running) {
+      if (cubit.state.section(section).isRunning) {
         return true;
       }
     }

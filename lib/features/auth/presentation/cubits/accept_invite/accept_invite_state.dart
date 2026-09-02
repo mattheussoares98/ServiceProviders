@@ -2,9 +2,8 @@ part of 'accept_invite_cubit.dart';
 
 class AcceptInviteState extends BaseState {
   const AcceptInviteState({
-    required super.status,
+    super.sections,
     this.userProfile,
-    super.errorMessage,
     this.passwordVisibility = false,
     this.confirmPasswordVisibility = false,
   });
@@ -19,31 +18,28 @@ class AcceptInviteState extends BaseState {
   final bool confirmPasswordVisibility;
 
   AcceptInviteState copyWith({
-    DataStatus? status,
     UserProfileEntity? userProfile,
-    String? errorMessage,
     bool? passwordVisibility,
     bool? confirmPasswordVisibility,
     bool? annulUserProfile,
+    Map<SectionKey, SectionState>? sections,
   }) {
     return AcceptInviteState(
-      status: status ?? this.status,
       userProfile: annulUserProfile == true
           ? null
           : userProfile ?? this.userProfile,
-      errorMessage: errorMessage ?? this.errorMessage,
       passwordVisibility: passwordVisibility ?? this.passwordVisibility,
       confirmPasswordVisibility:
           confirmPasswordVisibility ?? this.confirmPasswordVisibility,
+      sections: sections ?? this.sections,
     );
   }
 
   @override
   List<Object?> get props => [
-    status,
     userProfile,
-    errorMessage,
     passwordVisibility,
     confirmPasswordVisibility,
+    sections,
   ];
 }

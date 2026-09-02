@@ -23,25 +23,22 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
   final VoidCallback? onRetry;
   final bool isSliver;
 
-  /// When provided, this view reacts only to [BaseState.sections]\[sectionKey]
-  /// instead of the global [BaseState.status].
+  /// When provided, this view reacts only to [BaseState.sections]\[sectionKey].
+  /// When null, defaults to monitoring [BaseSections.load].
   ///
   /// This allows independent loading/error states for sub-sections of a page:
-  /// an error in one section does not affect widgets using a different key or
-  /// no key at all.
+  /// an error in one section does not affect widgets using a different key.
   final SectionKey? sectionKey;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<C, S>(
       builder: (context, state) {
-        final sectionStatus = sectionKey != null
-            ? state.sections[sectionKey!]
-            : null;
+        final sectionState = sectionKey != null
+            ? state.section(sectionKey!)
+            : state.section(BaseSections.load);
 
-        final isLoading = sectionStatus != null
-            ? sectionStatus == SectionStatus.running
-            : state.status == DataStatus.loading;
+        final isLoading = sectionState.isRunning;
 
         if (isLoading) {
           return isSliver
@@ -49,15 +46,11 @@ class BaseStateView<C extends BaseCubit<S>, S extends BaseState, D>
               : const LoadingCircle();
         }
 
-        final hasError = sectionStatus != null
-            ? sectionStatus == SectionStatus.error
-            : state.status == DataStatus.loadingError;
+        final hasError = sectionState.isError;
 
         if (hasError) {
-          // For section errors, the cubit always calls showErrorToast(message)
-          // and also stores the last error in state.errorMessage as a fallback.
-          final errorMessage = state.errorMessage?.isNotEmpty == true
-              ? state.errorMessage!
+          final errorMessage = sectionState.errorMessage?.isNotEmpty == true
+              ? sectionState.errorMessage!
               : 'Ocorreu um erro não esperado. Tente novamente'.hardcoded;
 
           final Widget errorWidget = Center(

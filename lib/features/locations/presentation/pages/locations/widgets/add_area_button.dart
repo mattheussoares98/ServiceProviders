@@ -17,9 +17,8 @@ class AddAreaButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLoading = context.select<LocationsCubit, bool>(
       (cubit) =>
-          cubit.state.status == DataStatus.loading ||
-          cubit.state.sections[LocationsSections.deleteLocation] ==
-              SectionStatus.running,
+          cubit.state.section(BaseSections.load).isRunning ||
+          cubit.state.section(LocationsSections.deleteLocation).isRunning,
     );
 
     return BaseTextButton(

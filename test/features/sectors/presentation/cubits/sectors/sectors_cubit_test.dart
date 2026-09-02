@@ -65,7 +65,7 @@ void main() {
 
     group('loadSectors', () {
       blocTest<SectorsCubit, SectorsState>(
-        'should emit loading and loaded state when fetching sectors succeeds',
+        'should emit loading and loaded when fetching sectors succeeds',
         build: () {
           when(
             () => mockGetSectors.call(any()),
@@ -78,12 +78,16 @@ void main() {
         act: (cubit) => cubit.loadSectors(),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.sectors, 'sectors', isNotEmpty),
         ],
         verify: (_) {
@@ -105,13 +109,15 @@ void main() {
         act: (cubit) => cubit.loadSectors(),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<SectorsState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error'),
+          isA<SectorsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error'),
+          ),
         ],
       );
     });
@@ -169,15 +175,19 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
@@ -206,15 +216,19 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.sectors, 'sectors', [tSector]),
         ],
         verify: (_) {
@@ -239,12 +253,12 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.save],
             'sections[save]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -274,15 +288,19 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.delete],
             'sections[delete]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.delete],
             'sections[delete]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<SectorsState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.sectors, 'sectors', isEmpty),
         ],
         verify: (_) {
@@ -307,12 +325,12 @@ void main() {
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.delete],
             'sections[delete]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<SectorsState>().having(
             (s) => s.sections[SectorsSections.delete],
             'sections[delete]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -342,9 +360,9 @@ void main() {
         act: (cubit) => cubit.navigateToCreateUpdateSector(sector: tSector),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -376,9 +394,9 @@ void main() {
         act: (cubit) => cubit.navigateToCreateUpdateSector(),
         expect: () => [
           isA<SectorsState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {

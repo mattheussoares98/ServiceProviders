@@ -30,7 +30,6 @@ class SessionCubit extends BaseCubit<SessionState> {
         SessionState(
           user: userData.user,
           isLoggedIn: userData.accessToken.isNotEmpty,
-          status: DataStatus.loaded,
         ),
       );
     });

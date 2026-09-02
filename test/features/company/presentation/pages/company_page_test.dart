@@ -66,7 +66,6 @@ void main() {
 
     when(() => mockCompanyCubit.state).thenReturn(
       CompanyState(
-        status: DataStatus.loaded,
         company: company,
         companies: [company],
         parameters: params,
@@ -84,7 +83,6 @@ void main() {
   ) async {
     final company = EntityFactory.makeCompanyEntity();
     final initialState = CompanyState(
-      status: DataStatus.loaded,
       company: company,
       companies: [company],
     );
@@ -95,7 +93,7 @@ void main() {
     expect(find.text('Aguarde'), findsNothing);
 
     final loadingState = initialState.copyWith(
-      sections: {CompanySections.switchCompany: SectionStatus.running},
+      sections: {CompanySections.switchCompany: const SectionState.running()},
     );
     when(() => mockCompanyCubit.state).thenReturn(loadingState);
     companyStreamController.add(loadingState);
@@ -104,7 +102,7 @@ void main() {
     expect(find.text('Aguarde'), findsOneWidget);
 
     final loadedState = initialState.copyWith(
-      sections: {CompanySections.switchCompany: SectionStatus.success},
+      sections: {CompanySections.switchCompany: const SectionState.success()},
     );
     when(() => mockCompanyCubit.state).thenReturn(loadedState);
     companyStreamController.add(loadedState);
@@ -119,7 +117,6 @@ void main() {
       final company = EntityFactory.makeCompanyEntity();
       final params = EntityFactory.makeCompanyParameterEntity();
       final initialState = CompanyState(
-        status: DataStatus.loaded,
         company: company,
         companies: [company],
         parameters: params,
@@ -132,7 +129,8 @@ void main() {
 
       final loadingState = initialState.copyWith(
         sections: {
-          CompanySections.updateEscalationParameters: SectionStatus.running,
+          CompanySections.updateEscalationParameters:
+              const SectionState.running(),
         },
       );
       when(() => mockCompanyCubit.state).thenReturn(loadingState);
@@ -143,7 +141,8 @@ void main() {
 
       final loadedState = initialState.copyWith(
         sections: {
-          CompanySections.updateEscalationParameters: SectionStatus.success,
+          CompanySections.updateEscalationParameters:
+              const SectionState.success(),
         },
       );
       when(() => mockCompanyCubit.state).thenReturn(loadedState);

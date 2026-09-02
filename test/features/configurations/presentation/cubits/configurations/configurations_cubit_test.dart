@@ -69,12 +69,16 @@ void main() {
       act: (cubit) => cubit.loadConfigurations(),
       expect: () => [
         isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          DataStatus.loading,
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
         ),
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.configurations,
               'configurations',
@@ -98,13 +102,15 @@ void main() {
       act: (cubit) => cubit.loadConfigurations(),
       expect: () => [
         isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          DataStatus.loading,
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
         ),
-        isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', DataStatus.loadingError)
-            .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+        isA<ConfigurationsState>().having(
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          isA<SectionState>().having((s) => s.isError, 'isError', isTrue),
+        ),
       ],
       verify: (_) {
         verify(() => mockGetConfigurations.call()).called(1);
@@ -114,7 +120,7 @@ void main() {
 
   group('togglePushNotifications', () {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
-      'should emit [loaded] with updated preference immediately when toggle is called',
+      'should emit with updated preference immediately when toggle is called',
       build: () {
         when(
           () => mockSaveConfigurations.call(true),
@@ -123,13 +129,11 @@ void main() {
       },
       act: (cubit) => cubit.togglePushNotifications(true),
       expect: () => [
-        isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
-            .having(
-              (s) => s.configurations.pushNotificationsEnabled,
-              'pushNotificationsEnabled',
-              true,
-            ),
+        isA<ConfigurationsState>().having(
+          (s) => s.configurations.pushNotificationsEnabled,
+          'pushNotificationsEnabled',
+          true,
+        ),
       ],
       verify: (_) {
         verify(() => mockSaveConfigurations.call(true)).called(1);
@@ -139,7 +143,7 @@ void main() {
 
   group('updateThemeMode', () {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
-      'should emit [loaded] with updated theme mode immediately when updateThemeMode is called',
+      'should emit with updated theme mode immediately when updateThemeMode is called',
       build: () {
         when(
           () => mockSaveThemeMode.call('dark'),
@@ -148,9 +152,11 @@ void main() {
       },
       act: (cubit) => cubit.updateThemeMode(ThemeMode.dark),
       expect: () => [
-        isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
-            .having((s) => s.configurations.themeMode, 'themeMode', 'dark'),
+        isA<ConfigurationsState>().having(
+          (s) => s.configurations.themeMode,
+          'themeMode',
+          'dark',
+        ),
       ],
       verify: (_) {
         verify(() => mockSaveThemeMode.call('dark')).called(1);
@@ -170,12 +176,16 @@ void main() {
       act: (cubit) => cubit.clearAppCache(),
       expect: () => [
         isA<ConfigurationsState>().having(
-          (s) => s.status,
-          'status',
-          DataStatus.loading,
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
         ),
         isA<ConfigurationsState>()
-            .having((s) => s.status, 'status', DataStatus.loaded)
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
             .having(
               (s) => s.configurations.pushNotificationsEnabled,
               'pushNotificationsEnabled',

@@ -1,17 +1,16 @@
 part of 'provider_home_cubit.dart';
 
 class ProviderHomeState extends BaseState {
-  const ProviderHomeState({super.status, super.errorMessage});
+  const ProviderHomeState({super.sections = const {}});
 
-  const ProviderHomeState.empty() : super(status: DataStatus.initial);
+  const ProviderHomeState.empty() : super(sections: const {});
 
-  ProviderHomeState copyWith({DataStatus? status, String? errorMessage}) {
+  ProviderHomeState copyWith({Map<SectionKey, SectionState>? sections}) {
     return ProviderHomeState(
-      status: status ?? this.status,
-      errorMessage: errorMessage ?? this.errorMessage,
+      sections: sections ?? this.sections,
     );
   }
 
   @override
-  List<Object?> get props => [status, errorMessage];
+  List<Object?> get props => [sections];
 }

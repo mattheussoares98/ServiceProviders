@@ -272,23 +272,19 @@ void main() {
         },
         act: (cubit) => cubit.loadWorkOrdersAndChangeRequests(),
         expect: () => [
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.initial)
-              .having(
-                (s) => s.activeFilter.statuses,
-                'activeFilter.statuses',
-                const WorkOrderFilter().statuses,
-              ),
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.workOrders, 'workOrders', isNotEmpty)
-              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty),
         ],
         verify: (_) {
           verify(() => mockGetWorkOrders.call(any())).called(1);
@@ -315,17 +311,13 @@ void main() {
             cubit.loadWorkOrdersAndChangeRequests(showLoading: false),
         expect: () => [
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.initial)
               .having(
-                (s) => s.activeFilter.statuses,
-                'activeFilter.statuses',
-                const WorkOrderFilter().statuses,
-              ),
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.workOrders, 'workOrders', isNotEmpty)
-              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty),
         ],
         verify: (_) {
           verify(() => mockGetWorkOrders.call(any())).called(1);
@@ -349,21 +341,20 @@ void main() {
         },
         act: (cubit) => cubit.loadWorkOrdersAndChangeRequests(),
         expect: () => [
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.initial)
-              .having(
-                (s) => s.activeFilter.statuses,
-                'activeFilter.statuses',
-                const WorkOrderFilter().statuses,
-              ),
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            isA<SectionState>().having(
+              (sec) => sec.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
         ],
         verify: (_) {
           verify(() => mockGetWorkOrders.call(any())).called(1);
@@ -382,7 +373,6 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should update the existing work order in workOrders list when found',
         seed: () => const WorkOrdersState.initial().copyWith(
-          status: DataStatus.loaded,
           workOrders: [tExistingOrder],
         ),
         build: () {
@@ -405,7 +395,6 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should append the work order to workOrders list when not present',
         seed: () => const WorkOrdersState.initial().copyWith(
-          status: DataStatus.loaded,
           workOrders: [tExistingOrder],
         ),
         build: () {
@@ -439,12 +428,16 @@ void main() {
             cubit.loadWorkOrderById(tNewOrder.id, showLoading: true),
         expect: () => [
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.workOrders, 'workOrders', [tNewOrder]),
         ],
         verify: (_) {
@@ -464,17 +457,15 @@ void main() {
             cubit.loadWorkOrderById(tNewOrder.id, showLoading: true),
         expect: () => [
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Work order not found',
-              ),
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Work order not found'),
+          ),
         ],
         verify: (_) {
           verify(() => mockGetWorkOrderById.call(tNewOrder.id)).called(1);
@@ -499,13 +490,18 @@ void main() {
         act: (cubit) => cubit.applyFilter(tFilter),
         expect: () => [
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.initial)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.running(),
+              )
               .having((s) => s.activeFilter, 'activeFilter', tFilter),
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loading)
-              .having((s) => s.activeFilter, 'activeFilter', tFilter),
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.activeFilter, 'activeFilter', tFilter),
         ],
       );
@@ -530,21 +526,22 @@ void main() {
         act: (cubit) => cubit.clearFilter(),
         expect: () => [
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.initial)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.running(),
+              )
               .having(
                 (s) => s.activeFilter,
                 'activeFilter',
                 const WorkOrderFilter(),
               ),
           isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loading)
               .having(
-                (s) => s.activeFilter,
-                'activeFilter',
-                const WorkOrderFilter(),
-              ),
-          isA<WorkOrdersState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having(
                 (s) => s.activeFilter,
                 'activeFilter',
@@ -712,17 +709,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -791,17 +788,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -878,17 +875,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -947,12 +944,12 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
           verify: (_) {
@@ -1006,18 +1003,21 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
+          verify: (_) {
+            verify(() => mockCreateWorkOrder.call(any())).called(1);
+          },
         );
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
-          'should delete pending attachments when creation succeeds',
+          'should delete pending deletions attachments when saveWorkOrder succeeds',
           build: () {
             when(
               () => mockCreateWorkOrder.call(any()),
@@ -1040,7 +1040,6 @@ void main() {
             ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               const AttachmentsState(
-                status: DataStatus.loaded,
                 pendingDeletions: {'attachment_1', 'attachment_2'},
               ),
             );
@@ -1115,7 +1114,6 @@ void main() {
             ).thenAnswer((_) async {});
             when(() => mockAttachmentsCubit.state).thenReturn(
               AttachmentsState(
-                status: DataStatus.loaded,
                 attachments: [tAttachment],
               ),
             );
@@ -1166,7 +1164,6 @@ void main() {
             final mockAttachmentsCubit = MockAttachmentsCubit();
             when(() => mockAttachmentsCubit.state).thenReturn(
               const AttachmentsState(
-                status: DataStatus.loaded,
                 pendingDeletions: {'attachment_1', 'attachment_2'},
               ),
             );
@@ -1199,6 +1196,18 @@ void main() {
 
             expect(result, isFalse);
           },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.running(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error(),
+            ),
+          ],
           verify: (_) {
             verifyNever(() => mockDeleteAttachment.call(any()));
           },
@@ -1207,7 +1216,7 @@ void main() {
 
       group('update', () {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
-          'should emit saving and load data when update succeeds',
+          'should emit loaded and call updateWorkOrder when editing',
           seed: () => const WorkOrdersState.initial().copyWith(
             workOrders: [tWorkOrder],
           ),
@@ -1255,17 +1264,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -1328,12 +1337,12 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
           verify: (_) {
@@ -1440,7 +1449,6 @@ void main() {
               tWorkOrder.copyWith(status: WorkOrderStatus.completed),
             ],
             changeRequests: const [],
-            status: DataStatus.loaded,
             historyByWorkOrder: const {},
           ),
           build: () {
@@ -1506,17 +1514,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -1552,12 +1560,12 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
           verify: (_) {
@@ -1591,17 +1599,21 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loadingError,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              isA<SectionState>().having(
+                (sec) => sec.status,
+                'status',
+                SectionStatus.error,
+              ),
             ),
           ],
           verify: (_) {
@@ -1652,15 +1664,15 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loaded),
+                .having((s) => s.sections[BaseSections.load], 'sections[load]', const SectionState.success()),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1709,15 +1721,15 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loadingError),
+                .having((s) => s.sections[BaseSections.load], 'sections[load]', isA<SectionState>().having((sec) => sec.status, 'status', SectionStatus.error)),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);
@@ -1753,12 +1765,12 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
           verify: (_) {
@@ -1811,16 +1823,18 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
-            isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loaded),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.resumeWork],
-                  'resumeWork section',
-                  SectionStatus.success,
-                ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.resumeWork],
+              'resumeWork section',
+              const SectionState.success(),
+            ),
           ],
           verify: (_) {
             verify(
@@ -1885,16 +1899,18 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
-            isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loaded),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.resumeWork],
-                  'resumeWork section',
-                  SectionStatus.success,
-                ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            ),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.resumeWork],
+              'resumeWork section',
+              const SectionState.success(),
+            ),
           ],
           verify: (_) {
             verify(
@@ -1945,27 +1961,27 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.resumeWork],
               'resumeWork section',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>()
                 .having(
                   (s) => s.sections[WorkOrdersSections.changeStatus],
                   'changeStatus section',
-                  SectionStatus.running,
+                  const SectionState.running(),
                 ),
             isA<WorkOrdersState>()
                 .having(
                   (s) => s.sections[WorkOrdersSections.changeStatus],
                   'changeStatus section',
-                  SectionStatus.success,
+                  const SectionState.success(),
                 ),
             isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loaded),
+                .having((s) => s.sections[BaseSections.load], 'sections[load]', const SectionState.success()),
             isA<WorkOrdersState>()
                 .having(
                   (s) => s.sections[WorkOrdersSections.resumeWork],
                   'resumeWork section',
-                  SectionStatus.success,
+                  const SectionState.success(),
                 ),
           ],
           verify: (_) {
@@ -2038,9 +2054,9 @@ void main() {
               WorkOrderStatus.onHold,
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -2076,7 +2092,15 @@ void main() {
               WorkOrderStatus.onHold,
             ),
             isA<WorkOrdersState>()
-                .having((s) => s.status, 'status', DataStatus.loadingError)
+                .having(
+                  (s) => s.sections[BaseSections.load],
+                  'sections[load]',
+                  isA<SectionState>().having(
+                    (sec) => sec.status,
+                    'status',
+                    SectionStatus.error,
+                  ),
+                )
                 .having(
                   (s) => s.workOrders.first.status,
                   'work order status preserved',
@@ -2112,17 +2136,17 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.success,
+              const SectionState.success(),
             ),
             isA<WorkOrdersState>().having(
-              (s) => s.status,
-              'status',
-              DataStatus.loaded,
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
             ),
           ],
           verify: (_) {
@@ -2155,12 +2179,12 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.running,
+              const SectionState.running(),
             ),
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.changeStatus],
               'sections[changeStatus]',
-              SectionStatus.error,
+              const SectionState.error(),
             ),
           ],
           verify: (_) {
@@ -2193,17 +2217,17 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
             'sections[deleteWorkOrder]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
             'sections[deleteWorkOrder]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -2225,12 +2249,12 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
             'sections[deleteWorkOrder]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.deleteWorkOrder],
             'sections[deleteWorkOrder]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -2262,17 +2286,17 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.createChangeRequest],
             'sections[createChangeRequest]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.createChangeRequest],
             'sections[createChangeRequest]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -2294,12 +2318,12 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.createChangeRequest],
             'sections[createChangeRequest]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.createChangeRequest],
             'sections[createChangeRequest]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -2335,17 +2359,17 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.reviewChangeRequest],
             'sections[reviewChangeRequest]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.reviewChangeRequest],
             'sections[reviewChangeRequest]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<WorkOrdersState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -2367,12 +2391,12 @@ void main() {
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.reviewChangeRequest],
             'sections[reviewChangeRequest]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<WorkOrdersState>().having(
             (s) => s.sections[WorkOrdersSections.reviewChangeRequest],
             'sections[reviewChangeRequest]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -2819,7 +2843,10 @@ void _providerModeTests() {
           containsAll(tCompanies.map((company) => company.id)),
         );
         expect(cubit.state.providerCompanies, hasLength(tCompanies.length));
-        expect(cubit.state.status, DataStatus.loaded);
+        expect(
+          cubit.state.sections[BaseSections.load],
+          const SectionState.success(),
+        );
       },
     );
 
@@ -2907,7 +2934,10 @@ void _providerModeTests() {
       },
       act: (cubit) => cubit.loadProviderWorkOrders(),
       verify: (cubit) {
-        expect(cubit.state.status, DataStatus.loaded);
+        expect(
+          cubit.state.sections[BaseSections.load],
+          const SectionState.success(),
+        );
         expect(cubit.state.workOrders, isEmpty);
         expect(cubit.state.providerCompanies, isEmpty);
         verifyNever(() => mockGetProviderWorkOrders(any()));
@@ -3107,7 +3137,7 @@ void _providerModeTests() {
           verifyNever(() => mockCreateWorkOrder(any()));
           expect(
             cubit.state.sections[WorkOrdersSections.saveWorkOrder],
-            SectionStatus.error,
+            const SectionState.error('Perfil de prestador não encontrado.'),
           );
         },
       );
@@ -3124,8 +3154,10 @@ void _providerModeTests() {
       },
       act: (cubit) => cubit.loadProviderWorkOrders(),
       verify: (cubit) {
-        expect(cubit.state.status, DataStatus.loadingError);
-        expect(cubit.state.errorMessage, 'Sem internet');
+        expect(
+          cubit.state.sections[BaseSections.load],
+          const SectionState.error('Sem internet'),
+        );
       },
     );
   });

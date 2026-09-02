@@ -4,13 +4,13 @@ class ChangePasswordState extends BaseState {
   const ChangePasswordState({
     required this.passwordVisibility,
     required this.confirmPasswordVisibility,
-    super.status,
+    super.sections = const {},
   });
 
   const ChangePasswordState.initial()
     : passwordVisibility = false,
       confirmPasswordVisibility = false,
-      super(status: DataStatus.initial);
+      super(sections: const {});
 
   final bool passwordVisibility;
   final bool confirmPasswordVisibility;
@@ -19,6 +19,6 @@ class ChangePasswordState extends BaseState {
   List<Object?> get props => [
     passwordVisibility,
     confirmPasswordVisibility,
-    status,
+    sections,
   ];
 }

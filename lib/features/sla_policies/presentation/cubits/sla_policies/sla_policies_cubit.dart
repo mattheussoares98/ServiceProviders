@@ -80,7 +80,11 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading) {
-      emit(state.copyWith(status: DataStatus.loading));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
     }
 
     final result = await _useCases.getSlaPolicies(companyId);
@@ -89,16 +93,21 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     if (result is SuccessState<List<SlaPolicyEntity>>) {
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           slaPolicies: result.data ?? [],
-          annulErrorMessage: true,
+          sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
       final message =
           result.message ?? 'Erro ao carregar políticas de SLA'.hardcoded;
       emit(
-        state.copyWith(status: DataStatus.loadingError, errorMessage: message),
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
       );
       showErrorToast(message);
     }

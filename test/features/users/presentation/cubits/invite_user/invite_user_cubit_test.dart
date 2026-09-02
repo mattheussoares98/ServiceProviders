@@ -86,12 +86,12 @@ void main() {
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.success,
+          const SectionState.success(),
         ),
       ],
     );
@@ -124,12 +124,12 @@ void main() {
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.error,
+          const SectionState.error(),
         ),
       ],
     );
@@ -154,12 +154,12 @@ void main() {
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.running,
+          const SectionState.running(),
         ),
         isA<InviteUserState>().having(
           (s) => s.sections[InviteUserSections.invite],
           'sections[invite]',
-          SectionStatus.error,
+          const SectionState.error(),
         ),
       ],
     );

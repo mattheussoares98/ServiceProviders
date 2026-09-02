@@ -99,8 +99,7 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
 
         emit(
           state.copyWith(
-            status: DataStatus.loadingError,
-            errorMessage: message,
+            sections: {BaseSections.load: SectionState.error(message)},
           ),
         );
         return;
@@ -110,7 +109,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       final tokenHash =
           queryParams['token_hash'] ?? fragmentParams['token_hash'];
       if (tokenHash != null && tokenHash.isNotEmpty) {
-        emit(state.copyWith(status: DataStatus.loading));
+        emit(
+          state.copyWith(
+            sections: {BaseSections.load: const SectionState.running()},
+          ),
+        );
         final type = queryParams['type'] ?? fragmentParams['type'] ?? 'invite';
         final result = await _useCases.verifyOtp.call(
           VerifyOtpRequestEntity(tokenHash: tokenHash, type: type),
@@ -133,8 +136,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
                   .hardcoded;
         emit(
           state.copyWith(
-            status: DataStatus.loadingError,
-            errorMessage: errorMessage,
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+              errorMessage: errorMessage,
+            ),
           ),
         );
         return;
@@ -155,7 +161,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     //
     // If no session arrives within the timeout, the user most likely navigated
     // to this URL directly (no invite token), so we redirect them to login.
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: {BaseSections.load: const SectionState.running()},
+      ),
+    );
     bool sessionReceived = false;
 
     _authSubscription = _useCases.watchAuthUser.call().listen((newUserId) {
@@ -176,8 +186,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
           'Convite inválido, expirado ou revogado pelo administrador'.hardcoded;
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: errorMessage,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: errorMessage,
+          ),
         ),
       );
       showErrorToast(errorMessage);
@@ -203,13 +216,20 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
   }
 
   Future<void> loadProfile(String id) async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: {BaseSections.load: const SectionState.running()},
+      ),
+    );
     final dataState = await _useCases.getUserProfileById.call(id);
     if (isClosed) return;
 
     if (dataState is SuccessState<UserProfileEntity>) {
       emit(
-        state.copyWith(status: DataStatus.loaded, userProfile: dataState.data),
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.success),
+          userProfile: dataState.data,
+        ),
       );
       return;
     }
@@ -238,7 +258,10 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
         isAdmin: false,
       );
       emit(
-        state.copyWith(status: DataStatus.loaded, userProfile: spProfileAsUser),
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.success),
+          userProfile: spProfileAsUser,
+        ),
       );
       return;
     }
@@ -260,14 +283,20 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
         isAdmin: false,
       );
       emit(
-        state.copyWith(status: DataStatus.loaded, userProfile: fallbackProfile),
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.success),
+          userProfile: fallbackProfile,
+        ),
       );
     } else {
       showDataStateToast(dataState);
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: dataState.message,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: dataState.message,
+          ),
         ),
       );
     }
@@ -283,10 +312,18 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       return false;
     }
 
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
 
     if (profile.isActive) {
-      emit(state.copyWith(status: DataStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.success),
+        ),
+      );
       return true;
     }
 
@@ -296,7 +333,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
 
     if (changePassResult is! SuccessState) {
       showDataStateToast(changePassResult);
-      emit(state.copyWith(status: DataStatus.loaded));
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.success),
+        ),
+      );
       return false;
     }
 
@@ -320,7 +361,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
         if (isClosed) return false;
         if (updateSpResult is! SuccessState) {
           showDataStateToast(updateSpResult);
-          emit(state.copyWith(status: DataStatus.loaded));
+          emit(
+            state.copyWith(
+              sections: withSection(BaseSections.load, SectionStatus.success),
+            ),
+          );
           return false;
         }
       }
@@ -331,7 +376,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
       if (isClosed) return false;
       if (updateProfileResult is! SuccessState) {
         showDataStateToast(updateProfileResult);
-        emit(state.copyWith(status: DataStatus.loaded));
+        emit(
+          state.copyWith(
+            sections: withSection(BaseSections.load, SectionStatus.success),
+          ),
+        );
         return false;
       }
     }
@@ -345,7 +394,11 @@ class AcceptInviteCubit extends BaseCubit<AcceptInviteState> {
     //    session left — the splash cubit will correctly route to login,
     //    forcing the user to log in with the password they just set.
     showSuccessToast('Cadastro concluído com sucesso!'.hardcoded);
-    emit(state.copyWith(status: DataStatus.loaded));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.success),
+      ),
+    );
     await _useCases.logOut.call();
     return true;
   }

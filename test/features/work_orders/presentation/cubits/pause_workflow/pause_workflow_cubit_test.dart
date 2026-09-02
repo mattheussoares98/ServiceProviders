@@ -184,14 +184,17 @@ void main() {
         act: (cubit) => cubit.loadPauseReasons(),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.pauseReasons, 'pauseReasons', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.pauseReasons, 'pauseReasons', isNotEmpty),
         ],
         verify: (_) {
           verify(
@@ -215,13 +218,15 @@ void main() {
         act: (cubit) => cubit.loadPauseReasons(),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
-          isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loadingError)
-              .having((s) => s.errorMessage, 'errorMessage', 'Error'),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error('Error'),
+          ),
         ],
       );
     });
@@ -239,14 +244,17 @@ void main() {
         act: (cubit) => cubit.loadPauseRequests('wo-id'),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
         verify: (_) {
           verify(
@@ -272,14 +280,17 @@ void main() {
         ),
         expect: () => [
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
-              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', isNull),
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
         verify: (_) {
           verify(
@@ -306,7 +317,7 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestPause],
             'sections[requestPause]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
         verify: (_) {
@@ -335,20 +346,24 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestPause],
             'sections[requestPause]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestPause],
             'sections[requestPause]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
       );
@@ -398,12 +413,12 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestPause],
             'sections[requestPause]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestPause],
             'sections[requestPause]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
       );
@@ -526,22 +541,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewPause],
             'sections[reviewPause]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewPause],
             'sections[reviewPause]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -590,22 +605,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewPause],
             'sections[reviewPause]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewPause],
             'sections[reviewPause]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -653,20 +668,24 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestCompletion],
             'sections[requestCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestCompletion],
             'sections[requestCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>()
-              .having((s) => s.status, 'status', DataStatus.loaded)
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
               .having((s) => s.pauseRequests, 'pauseRequests', isNotEmpty),
         ],
         verify: (_) {
@@ -723,12 +742,12 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestCompletion],
             'sections[requestCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.requestCompletion],
             'sections[requestCompletion]',
-            SectionStatus.error,
+            const SectionState.error(),
           ),
         ],
       );
@@ -766,22 +785,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -812,22 +831,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -871,22 +890,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -937,22 +956,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {
@@ -1003,22 +1022,22 @@ void main() {
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.running,
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
             (s) => s.sections[PauseWorkflowSections.reviewCompletion],
             'sections[reviewCompletion]',
-            SectionStatus.success,
+            const SectionState.success(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loading,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
           ),
           isA<PauseWorkflowState>().having(
-            (s) => s.status,
-            'status',
-            DataStatus.loaded,
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
           ),
         ],
         verify: (_) {

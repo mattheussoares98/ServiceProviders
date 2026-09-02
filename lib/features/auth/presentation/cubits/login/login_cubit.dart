@@ -14,6 +14,8 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'login_state.dart';
 
+enum LoginSections implements SectionKey { resetPassword }
+
 @injectable
 class LoginCubit extends BaseCubit<LoginState> {
   LoginCubit({
@@ -26,11 +28,6 @@ class LoginCubit extends BaseCubit<LoginState> {
   final LoginCubitUseCases _useCases;
   final LocalStorageClient _localStorageClient;
 
-  var _currentState = const LoginState(passwordVisibility: false);
-
-  /// Clear any stale session data when login page loads
-  /// This handles cases where the auth interceptor navigated to login
-  /// but couldn't clear the in-memory session data
   Future<void> clearSession() async {
     final dataState = await _useCases.getUserData.call();
     if (dataState is SuccessState) {
@@ -41,21 +38,20 @@ class LoginCubit extends BaseCubit<LoginState> {
   Future<void> getUserData() async {
     final dataState = await _useCases.getUserData.call();
     if (dataState is SuccessState) {
-      _currentState = _currentState.copyWith(userData: dataState.data);
-      emit(_currentState);
+      emit(state.copyWith(userData: dataState.data));
     }
   }
 
   void togglePasswordVisibility() {
-    _currentState = _currentState.copyWith(
-      passwordVisibility: !_currentState.passwordVisibility,
-    );
-    emit(_currentState);
+    emit(state.copyWith(passwordVisibility: !state.passwordVisibility));
   }
 
   Future<void> login({required String email, required String password}) async {
-    _currentState = _currentState.copyWith(status: DataStatus.loading);
-    emit(_currentState);
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
 
     final authentication = AuthenticationEntity(
       email: email,
@@ -97,15 +93,27 @@ class LoginCubit extends BaseCubit<LoginState> {
         await replaceAllRoute(const HomeRoute());
       }
     }
-    _currentState = _currentState.copyWith(status: DataStatus.loaded);
-    emit(_currentState);
+    emit(
+      state.copyWith(
+        sections: withSection(
+          BaseSections.load,
+          dataState is SuccessState
+              ? SectionStatus.success
+              : SectionStatus.error,
+        ),
+      ),
+    );
   }
 
   Future<void> resetPassword(String email) async {
-    _currentState = _currentState.copyWith(
-      resetPasswordStatus: DataStatus.loading,
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LoginSections.resetPassword,
+          SectionStatus.running,
+        ),
+      ),
     );
-    emit(_currentState);
 
     final dataState = await _useCases.resetPassword.call(email);
     if (isClosed) return;
@@ -114,11 +122,19 @@ class LoginCubit extends BaseCubit<LoginState> {
       message: 'E-mail de recuperação enviado com sucesso!'.hardcoded,
     );
 
-    _currentState = _currentState.copyWith(
-      resetPasswordStatus: DataStatus.loaded,
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LoginSections.resetPassword,
+          dataState is SuccessState
+              ? SectionStatus.success
+              : SectionStatus.error,
+        ),
+      ),
     );
-    emit(_currentState);
-    await maybePopRoute();
+    if (dataState is SuccessState) {
+      await maybePopRoute();
+    }
   }
 
   Future<void> navigateToSignUp() async {

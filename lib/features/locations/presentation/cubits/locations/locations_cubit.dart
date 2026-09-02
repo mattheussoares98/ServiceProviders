@@ -138,7 +138,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   Future<void> loadLocationsAndAreas({bool showLoading = true}) async {
     final targetCompanyId = _useCases.getActiveCompanyId();
 
-    emit(state.copyWith(status: showLoading ? DataStatus.loading : null));
+    if (showLoading) {
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.running),
+        ),
+      );
+    }
 
     final locationsResult = await _useCases.getLocations(targetCompanyId);
     final areasResult = await _useCases.getAreas(targetCompanyId);
@@ -154,11 +160,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       }
       emit(
         state.copyWith(
-          status: DataStatus.loaded,
           locations: locationsResult.data,
           areasByLocation: areasByLocation,
           allAreas: areas,
-          annulErrorMessage: true,
+          sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
@@ -167,16 +172,13 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           : areasResult.message;
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: errorMessage,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: errorMessage,
+          ),
         ),
       );
-      //* Already showing the error direct in the UI
-      // if (locationsResult is FailureState) {
-      //   showDataStateToast(locationsResult);
-      // } else {
-      //   showDataStateToast(areasResult);
-      // }
     }
   }
 
@@ -207,11 +209,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
     emit(
       state.copyWith(
-        status: DataStatus.loaded,
         locations: locationsResult.data,
         areasByLocation: areasByLocation,
         allAreas: areas,
-        annulErrorMessage: true,
+        sections: withSection(BaseSections.load, SectionStatus.success),
       ),
     );
   }
@@ -220,7 +221,11 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   /// create form. Unlike [loadLocationsAndAreas] the rows are never cached
   /// locally: they belong to another tenant.
   Future<void> loadProviderRegistry(String companyId) async {
-    emit(state.copyWith(status: DataStatus.loading));
+    emit(
+      state.copyWith(
+        sections: withSection(BaseSections.load, SectionStatus.running),
+      ),
+    );
 
     final locationsResult = await _useCases.getProviderLocations(companyId);
     final areasResult = await _useCases.getProviderAreas(companyId);
@@ -234,8 +239,11 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           : areasResult;
       emit(
         state.copyWith(
-          status: DataStatus.loadingError,
-          errorMessage: failure.message,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: failure.message,
+          ),
         ),
       );
       showDataStateToast(failure);
@@ -249,11 +257,10 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
     emit(
       state.copyWith(
-        status: DataStatus.loaded,
         locations: locationsResult.data,
         areasByLocation: areasByLocation,
         allAreas: areas,
-        annulErrorMessage: true,
+        sections: withSection(BaseSections.load, SectionStatus.success),
       ),
     );
   }

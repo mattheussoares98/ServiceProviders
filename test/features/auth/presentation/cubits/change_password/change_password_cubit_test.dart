@@ -49,7 +49,7 @@ void main() {
       const ChangePasswordState(
         passwordVisibility: true,
         confirmPasswordVisibility: false,
-        status: DataStatus.loaded,
+        sections: {BaseSections.load: SectionState.success()},
       ),
     ],
   );
@@ -62,7 +62,7 @@ void main() {
       const ChangePasswordState(
         passwordVisibility: false,
         confirmPasswordVisibility: true,
-        status: DataStatus.loaded,
+        sections: {BaseSections.load: SectionState.success()},
       ),
     ],
   );
@@ -80,14 +80,14 @@ void main() {
     },
     expect: () => [
       isA<ChangePasswordState>().having(
-        (s) => s.status,
-        'status',
-        DataStatus.loading,
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.running(),
       ),
       isA<ChangePasswordState>().having(
-        (s) => s.status,
-        'status',
-        DataStatus.loaded,
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.success(),
       ),
     ],
     verify: (_) {
@@ -109,14 +109,14 @@ void main() {
     },
     expect: () => [
       isA<ChangePasswordState>().having(
-        (s) => s.status,
-        'status',
-        DataStatus.loading,
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.running(),
       ),
       isA<ChangePasswordState>().having(
-        (s) => s.status,
-        'status',
-        DataStatus.loadingError,
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.error(),
       ),
     ],
     verify: (_) {

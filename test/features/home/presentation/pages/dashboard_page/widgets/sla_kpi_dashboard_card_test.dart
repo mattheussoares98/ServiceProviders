@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/dashboard_page/w
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_kpi_metrics_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
@@ -93,7 +92,7 @@ void main() {
       );
 
       when(() => mockDashboardKpisCubit.state).thenReturn(
-        const DashboardKpisState(metrics: metrics, status: DataStatus.loaded),
+        const DashboardKpisState(metrics: metrics),
       );
 
       await tester.pumpWidget(buildTestWidget());

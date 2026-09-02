@@ -9,8 +9,6 @@ class UsersState extends BaseState {
     this.deletingGroupIds = const {},
     this.deletingInvitationIds = const {},
     this.resendingInvitationIds = const {},
-    super.status = DataStatus.initial,
-    super.errorMessage = '',
     super.sections = const {},
   });
 
@@ -22,7 +20,7 @@ class UsersState extends BaseState {
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
       resendingInvitationIds = const {},
-      super(status: DataStatus.initial, errorMessage: '');
+      super(sections: const {});
 
   const UsersState.empty()
     : users = const [],
@@ -32,7 +30,7 @@ class UsersState extends BaseState {
       deletingGroupIds = const {},
       deletingInvitationIds = const {},
       resendingInvitationIds = const {},
-      super(status: DataStatus.initial, errorMessage: '');
+      super(sections: const {});
 
   final List<UserProfileEntity> users;
   final List<PermissionGroupEntity> permissionGroups;
@@ -50,10 +48,7 @@ class UsersState extends BaseState {
     Set<String>? deletingGroupIds,
     Set<String>? deletingInvitationIds,
     Set<String>? resendingInvitationIds,
-    DataStatus? status,
-    String? errorMessage,
-    bool? annulErrorMessage,
-    Map<SectionKey, SectionStatus>? sections,
+    Map<SectionKey, SectionState>? sections,
   }) {
     return UsersState(
       users: users ?? this.users,
@@ -65,10 +60,6 @@ class UsersState extends BaseState {
           deletingInvitationIds ?? this.deletingInvitationIds,
       resendingInvitationIds:
           resendingInvitationIds ?? this.resendingInvitationIds,
-      status: status ?? this.status,
-      errorMessage: annulErrorMessage == true
-          ? null
-          : errorMessage ?? this.errorMessage,
       sections: sections ?? this.sections,
     );
   }
@@ -82,8 +73,6 @@ class UsersState extends BaseState {
     deletingGroupIds,
     deletingInvitationIds,
     resendingInvitationIds,
-    status,
-    errorMessage,
     sections,
   ];
 }
