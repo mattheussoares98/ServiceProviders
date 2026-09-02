@@ -203,7 +203,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       emit(
         state.copyWith(
           sections: withSection(AssetsSections.save, SectionStatus.error),
-          errorMessage: result.message,
         ),
       );
       showDataStateToast(result);
@@ -235,7 +234,6 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       emit(
         state.copyWith(
           sections: withSection(AssetsSections.delete, SectionStatus.error),
-          errorMessage: result.message,
         ),
       );
       showDataStateToast(result);

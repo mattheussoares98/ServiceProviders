@@ -433,7 +433,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
               ServiceProvidersSections.saveCompany,
               SectionStatus.error,
             ),
-            errorMessage: sentInvitation?.message,
           ),
         );
         showErrorToast(
@@ -457,7 +456,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             ServiceProvidersSections.saveCompany,
             SectionStatus.error,
           ),
-          errorMessage: result.message,
         ),
       );
       showErrorToast(result.message);
@@ -537,7 +535,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             ServiceProvidersSections.saveProfile,
             SectionStatus.error,
           ),
-          errorMessage: result.message,
         ),
       );
       showErrorToast(result.message);
@@ -616,7 +613,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             ServiceProvidersSections.sendInvitation,
             SectionStatus.error,
           ),
-          errorMessage: result.message,
         ),
       );
       showErrorToast(result.message);
@@ -691,7 +687,6 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
             ServiceProvidersSections.deleteInvitation,
             SectionStatus.error,
           ),
-          errorMessage: result.message,
         ),
       );
       showErrorToast(result.message);

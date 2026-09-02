@@ -126,13 +126,11 @@ void main() {
           'sections[invite]',
           SectionStatus.running,
         ),
-        isA<InviteUserState>()
-            .having(
-              (s) => s.sections[InviteUserSections.invite],
-              'sections[invite]',
-              SectionStatus.error,
-            )
-            .having((s) => s.errorMessage, 'errorMessage', 'Error sending invite'),
+        isA<InviteUserState>().having(
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.error,
+        ),
       ],
     );
 
@@ -158,13 +156,11 @@ void main() {
           'sections[invite]',
           SectionStatus.running,
         ),
-        isA<InviteUserState>()
-            .having(
-              (s) => s.sections[InviteUserSections.invite],
-              'sections[invite]',
-              SectionStatus.error,
-            )
-            .having((s) => s.errorMessage, 'errorMessage', 'Error'),
+        isA<InviteUserState>().having(
+          (s) => s.sections[InviteUserSections.invite],
+          'sections[invite]',
+          SectionStatus.error,
+        ),
       ],
     );
   });

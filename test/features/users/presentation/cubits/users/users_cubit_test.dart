@@ -530,7 +530,6 @@ void main() {
                 'sections[revokeInvitation]',
                 SectionStatus.error,
               )
-              .having((s) => s.errorMessage, 'errorMessage', 'Error revoking')
               .having(
                 (s) => s.deletingInvitationIds,
                 'deletingInvitationIds',
@@ -604,13 +603,11 @@ void main() {
             'resendingInvitationIds',
             {tUserInvitation.id},
           ),
-          isA<UsersState>()
-              .having((s) => s.errorMessage, 'errorMessage', 'Error resending')
-              .having(
-                (s) => s.resendingInvitationIds,
-                'resendingInvitationIds',
-                isEmpty,
-              ),
+          isA<UsersState>().having(
+            (s) => s.resendingInvitationIds,
+            'resendingInvitationIds',
+            isEmpty,
+          ),
         ],
       );
     });
@@ -683,13 +680,11 @@ void main() {
             'sections[updateUser]',
             SectionStatus.running,
           ),
-          isA<UsersState>()
-              .having(
-                (s) => s.sections[UsersSections.updateUser],
-                'sections[updateUser]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.error,
+          ),
         ],
       );
 
@@ -709,17 +704,11 @@ void main() {
             'sections[updateUser]',
             SectionStatus.running,
           ),
-          isA<UsersState>()
-              .having(
-                (s) => s.sections[UsersSections.updateUser],
-                'sections[updateUser]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Usuário não encontrado',
-              ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.error,
+          ),
         ],
       );
     });
@@ -797,13 +786,11 @@ void main() {
             'sections[updateUser]',
             SectionStatus.running,
           ),
-          isA<UsersState>()
-              .having(
-                (s) => s.sections[UsersSections.updateUser],
-                'sections[updateUser]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Update failed'),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.error,
+          ),
         ],
       );
 
@@ -823,17 +810,11 @@ void main() {
             'sections[updateUser]',
             SectionStatus.running,
           ),
-          isA<UsersState>()
-              .having(
-                (s) => s.sections[UsersSections.updateUser],
-                'sections[updateUser]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Usuário não encontrado',
-              ),
+          isA<UsersState>().having(
+            (s) => s.sections[UsersSections.updateUser],
+            'sections[updateUser]',
+            SectionStatus.error,
+          ),
         ],
       );
     });
@@ -903,8 +884,7 @@ void main() {
                 'sections[deleteUser]',
                 SectionStatus.error,
               )
-              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
+              .having((s) => s.deletingUserIds, 'deletingUserIds', isEmpty),
         ],
       );
     });

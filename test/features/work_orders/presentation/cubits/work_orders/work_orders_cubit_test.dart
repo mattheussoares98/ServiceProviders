@@ -949,13 +949,11 @@ void main() {
               'sections[saveWorkOrder]',
               SectionStatus.running,
             ),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.saveWorkOrder],
-                  'sections[saveWorkOrder]',
-                  SectionStatus.error,
-                )
-                .having((s) => s.errorMessage, 'errorMessage', 'Upload Fail'),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              SectionStatus.error,
+            ),
           ],
           verify: (_) {
             verify(() => mockGetAttachments(any())).called(1);
@@ -1757,13 +1755,11 @@ void main() {
               'resumeWork section',
               SectionStatus.running,
             ),
-            isA<WorkOrdersState>()
-                .having(
-                  (s) => s.sections[WorkOrdersSections.resumeWork],
-                  'resumeWork section',
-                  SectionStatus.error,
-                )
-                .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.resumeWork],
+              'resumeWork section',
+              SectionStatus.error,
+            ),
           ],
           verify: (_) {
             verify(() => mockCancelPause.call(any())).called(1);

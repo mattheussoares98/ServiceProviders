@@ -220,7 +220,6 @@ void main() {
         cubit.state.sections[WorkOrderObservationsSections.saveObservation],
         SectionStatus.error,
       );
-      expect(cubit.state.errorMessage, 'Perfil de prestador não encontrado.');
       verifyNever(() => createUseCase.call(any()));
       await cubit.close();
     },
@@ -275,13 +274,11 @@ void main() {
         'sections[saveObservation]',
         SectionStatus.running,
       ),
-      isA<WorkOrderObservationsState>()
-          .having(
-            (s) => s.sections[WorkOrderObservationsSections.saveObservation],
-            'sections[saveObservation]',
-            SectionStatus.error,
-          )
-          .having((s) => s.errorMessage, 'errorMessage', isNotNull),
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+        'sections[saveObservation]',
+        SectionStatus.error,
+      ),
     ],
   );
 
@@ -333,13 +330,11 @@ void main() {
         'deleteObservation section',
         SectionStatus.running,
       ),
-      isA<WorkOrderObservationsState>()
-          .having(
-            (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
-            'deleteObservation section',
-            SectionStatus.error,
-          )
-          .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
+      isA<WorkOrderObservationsState>().having(
+        (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
+        'deleteObservation section',
+        SectionStatus.error,
+      ),
     ],
   );
 }

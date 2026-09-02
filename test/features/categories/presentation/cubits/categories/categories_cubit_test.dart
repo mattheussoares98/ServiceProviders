@@ -319,13 +319,11 @@ void main() {
             'sections[save]',
             SectionStatus.running,
           ),
-          isA<CategoriesState>()
-              .having(
-                (s) => s.sections[CategoriesSections.save],
-                'sections[save]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
+          isA<CategoriesState>().having(
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verifyNever(() => mockGetCategories.call(any()));
@@ -399,8 +397,7 @@ void main() {
                 'sections[delete]',
                 SectionStatus.error,
               )
-              .having((s) => s.deletingIds, 'deletingIds', isEmpty)
-              .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
+              .having((s) => s.deletingIds, 'deletingIds', isEmpty),
         ],
         verify: (_) {
           verify(() => mockDeleteCategory.call(tId)).called(1);

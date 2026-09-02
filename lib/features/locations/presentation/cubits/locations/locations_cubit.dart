@@ -340,7 +340,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
             LocationsSections.saveLocation,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -381,7 +380,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
             LocationsSections.deleteLocation,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -445,7 +443,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
             LocationsSections.saveArea,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -485,7 +482,6 @@ class LocationsCubit extends BaseCubit<LocationsState> {
             LocationsSections.deleteArea,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);

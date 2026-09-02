@@ -68,7 +68,6 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
       emit(
         state.copyWith(
           sections: withSection(ModeSwitcherSections.save, SectionStatus.error),
-          errorMessage: 'Erro ao salvar o modo de acesso.',
         ),
       );
     }

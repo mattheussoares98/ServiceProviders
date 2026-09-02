@@ -72,7 +72,6 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
               WorkOrderObservationsSections.saveObservation,
               SectionStatus.error,
             ),
-            errorMessage: profileResult.message,
           ),
         );
         return false;
@@ -120,14 +119,13 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
           ),
         );
         return true;
-      case FailureState(:final message):
+      case FailureState():
         emit(
           state.copyWith(
             sections: withSection(
               WorkOrderObservationsSections.saveObservation,
               SectionStatus.error,
             ),
-            errorMessage: message,
           ),
         );
         return false;
@@ -169,7 +167,6 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
               WorkOrderObservationsSections.deleteObservation,
               SectionStatus.error,
             ),
-            errorMessage: message,
           ),
         );
         showErrorToast(message);

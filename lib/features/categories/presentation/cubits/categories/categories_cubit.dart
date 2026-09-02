@@ -91,7 +91,6 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(
           sections: withSection(CategoriesSections.save, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -131,7 +130,6 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
       emit(
         state.copyWith(
           sections: withSection(CategoriesSections.delete, SectionStatus.error),
-          errorMessage: message,
           deletingIds: {...state.deletingIds}..remove(id),
         ),
       );

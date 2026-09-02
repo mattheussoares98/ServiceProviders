@@ -313,13 +313,11 @@ void main() {
             'sections[save]',
             SectionStatus.running,
           ),
-          isA<SlaPoliciesState>()
-              .having(
-                (s) => s.sections[SlaPoliciesSections.save],
-                'sections[save]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Erro ao salvar'),
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockCreateSlaPolicy.call(any())).called(1);
@@ -381,13 +379,11 @@ void main() {
             'sections[delete]',
             SectionStatus.running,
           ),
-          isA<SlaPoliciesState>()
-              .having(
-                (s) => s.sections[SlaPoliciesSections.delete],
-                'sections[delete]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Erro ao excluir'),
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSections.delete],
+            'sections[delete]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteSlaPolicy.call(tPolicy.id)).called(1);

@@ -577,7 +577,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
                   WorkOrdersSections.saveWorkOrder,
                   SectionStatus.error,
                 ),
-                errorMessage: anyFailure.message,
               ),
             );
             showDataStateToast(anyFailure);
@@ -607,9 +606,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.saveWorkOrder,
             SectionStatus.error,
           ),
-          errorMessage: dataState is FailureState
-              ? (dataState as FailureState).message
-              : '',
         ),
       );
       showDataStateToast(dataState);
@@ -680,7 +676,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.saveWorkOrder,
             SectionStatus.error,
           ),
-          errorMessage: profileResult.message,
         ),
       );
       showDataStateToast(profileResult);
@@ -782,9 +777,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.changeStatus,
             SectionStatus.error,
           ),
-          errorMessage:
-              dataState.message ??
-              'Erro não esperado para atualizar o status'.hardcoded,
         ),
       );
       showDataStateToast(dataState);
@@ -817,15 +809,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (isClosed) return false;
 
     if (cancelResult is FailureState) {
-      final message =
-          cancelResult.message ?? 'Erro ao retomar trabalho'.hardcoded;
       emit(
         state.copyWith(
           sections: withSection(
             WorkOrdersSections.resumeWork,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showDataStateToast(cancelResult);
@@ -994,7 +983,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.deleteWorkOrder,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -1034,7 +1022,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.createChangeRequest,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);
@@ -1073,7 +1060,6 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
             WorkOrdersSections.reviewChangeRequest,
             SectionStatus.error,
           ),
-          errorMessage: dataState.message,
         ),
       );
       showDataStateToast(dataState);

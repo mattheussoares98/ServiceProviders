@@ -156,7 +156,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestPause,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -173,7 +172,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestPause,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -250,7 +248,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestPause,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -308,7 +305,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.reviewPause,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -342,7 +338,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestCompletion,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -359,7 +354,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestCompletion,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -431,7 +425,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.requestCompletion,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -491,7 +484,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
             PauseWorkflowSections.reviewCompletion,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);

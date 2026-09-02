@@ -109,7 +109,6 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       emit(
         state.copyWith(
           sections: withSection(SectorsSections.save, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -142,7 +141,6 @@ class SectorsCubit extends BaseCubit<SectorsState> {
       emit(
         state.copyWith(
           sections: withSection(SectorsSections.delete, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);

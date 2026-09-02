@@ -251,7 +251,6 @@ class UsersCubit extends BaseCubit<UsersState> {
             UsersSections.revokeInvitation,
             SectionStatus.error,
           ),
-          errorMessage: message,
           deletingInvitationIds: {...state.deletingInvitationIds}..remove(id),
         ),
       );
@@ -288,7 +287,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           resendingInvitationIds: updatedResending,
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -318,7 +316,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.updateUser, SectionStatus.error),
-          errorMessage: message.hardcoded,
         ),
       );
       showErrorToast(message.hardcoded);
@@ -349,7 +346,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.updateUser, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -370,7 +366,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.updateUser, SectionStatus.error),
-          errorMessage: message.hardcoded,
         ),
       );
       showErrorToast(message.hardcoded);
@@ -397,7 +392,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.updateUser, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -435,7 +429,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.deleteUser, SectionStatus.error),
-          errorMessage: message,
           deletingUserIds: {...state.deletingUserIds}..remove(id),
         ),
       );
@@ -478,7 +471,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.saveGroup, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -514,7 +506,6 @@ class UsersCubit extends BaseCubit<UsersState> {
       emit(
         state.copyWith(
           sections: withSection(UsersSections.deleteGroup, SectionStatus.error),
-          errorMessage: message,
           deletingGroupIds: {...state.deletingGroupIds}..remove(id),
         ),
       );

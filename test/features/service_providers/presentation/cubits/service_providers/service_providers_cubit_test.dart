@@ -716,17 +716,11 @@ void main() {
             'sections[saveCompany]',
             SectionStatus.running,
           ),
-          isA<ServiceProvidersState>()
-              .having(
-                (s) => s.sections[ServiceProvidersSections.saveCompany],
-                'sections[saveCompany]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Error saving company',
-              ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProvidersSections.saveCompany],
+            'sections[saveCompany]',
+            SectionStatus.error,
+          ),
         ],
         verify: (cubit) {
           verify(
@@ -848,17 +842,11 @@ void main() {
           isA<ServiceProvidersState>()
               .having((s) => s.status, 'status', DataStatus.loaded)
               .having((s) => s.companies, 'companies', isNotEmpty),
-          isA<ServiceProvidersState>()
-              .having(
-                (s) => s.sections[ServiceProvidersSections.saveCompany],
-                'sections[saveCompany]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Invitation failure',
-              ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProvidersSections.saveCompany],
+            'sections[saveCompany]',
+            SectionStatus.error,
+          ),
         ],
         verify: (cubit) {
           verify(() => mockCreateCompany.call(any())).called(1);
@@ -1025,17 +1013,11 @@ void main() {
             'sections[sendInvitation]',
             SectionStatus.running,
           ),
-          isA<ServiceProvidersState>()
-              .having(
-                (s) => s.sections[ServiceProvidersSections.sendInvitation],
-                'sections[sendInvitation]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Error sending invite',
-              ),
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProvidersSections.sendInvitation],
+            'sections[sendInvitation]',
+            SectionStatus.error,
+          ),
         ],
       );
     });

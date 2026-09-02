@@ -303,17 +303,11 @@ void main() {
           workOrdersCubit: mockWorkOrdersCubit,
         ),
         expect: () => [
-          isA<PauseWorkflowState>()
-              .having(
-                (s) => s.sections[PauseWorkflowSections.requestPause],
-                'sections[requestPause]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Informe o motivo da pausa',
-              ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verifyNever(() => mockRequestPause.call(any()));
@@ -406,13 +400,11 @@ void main() {
             'sections[requestPause]',
             SectionStatus.running,
           ),
-          isA<PauseWorkflowState>()
-              .having(
-                (s) => s.sections[PauseWorkflowSections.requestPause],
-                'sections[requestPause]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Request failed'),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            SectionStatus.error,
+          ),
         ],
       );
 
@@ -733,17 +725,11 @@ void main() {
             'sections[requestCompletion]',
             SectionStatus.running,
           ),
-          isA<PauseWorkflowState>()
-              .having(
-                (s) => s.sections[PauseWorkflowSections.requestCompletion],
-                'sections[requestCompletion]',
-                SectionStatus.error,
-              )
-              .having(
-                (s) => s.errorMessage,
-                'errorMessage',
-                'Completion failed',
-              ),
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestCompletion],
+            'sections[requestCompletion]',
+            SectionStatus.error,
+          ),
         ],
       );
     });

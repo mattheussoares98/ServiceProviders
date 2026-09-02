@@ -173,7 +173,6 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
       emit(
         state.copyWith(
           sections: withSection(SlaPoliciesSections.save, SectionStatus.error),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);
@@ -218,7 +217,6 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
             SlaPoliciesSections.delete,
             SectionStatus.error,
           ),
-          errorMessage: message,
         ),
       );
       showErrorToast(message);

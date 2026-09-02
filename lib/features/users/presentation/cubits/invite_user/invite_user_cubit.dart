@@ -50,7 +50,6 @@ class InviteUserCubit extends BaseCubit<InviteUserState> {
       emit(
         state.copyWith(
           sections: withSection(InviteUserSections.invite, SectionStatus.error),
-          errorMessage: dataState.message,
         ),
       );
       return false;

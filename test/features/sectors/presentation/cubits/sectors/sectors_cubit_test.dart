@@ -241,13 +241,11 @@ void main() {
             'sections[save]',
             SectionStatus.running,
           ),
-          isA<SectorsState>()
-              .having(
-                (s) => s.sections[SectorsSections.save],
-                'sections[save]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Save failed'),
+          isA<SectorsState>().having(
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockCreateSector.call(any())).called(1);
@@ -311,13 +309,11 @@ void main() {
             'sections[delete]',
             SectionStatus.running,
           ),
-          isA<SectorsState>()
-              .having(
-                (s) => s.sections[SectorsSections.delete],
-                'sections[delete]',
-                SectionStatus.error,
-              )
-              .having((s) => s.errorMessage, 'errorMessage', 'Delete failed'),
+          isA<SectorsState>().having(
+            (s) => s.sections[SectorsSections.delete],
+            'sections[delete]',
+            SectionStatus.error,
+          ),
         ],
         verify: (_) {
           verify(() => mockDeleteSector.call(tSector.id)).called(1);
