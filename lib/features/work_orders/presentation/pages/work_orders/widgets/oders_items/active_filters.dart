@@ -78,6 +78,13 @@ class _ActiveFilters extends StatelessWidget {
             filter.copyWith(isDelayed: false),
           ),
         ),
+      if (filter.onlyDeleted)
+        BaseRemovableChip(
+          label: 'Excluídas'.hardcoded,
+          onRemove: () => context.read<WorkOrdersCubit>().applyFilter(
+            filter.copyWith(onlyDeleted: false),
+          ),
+        ),
     ];
 
     if (PlatformUtil.isMobile) {
@@ -97,7 +104,7 @@ class _ActiveFilters extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(Sizes.p12),
+      padding: const EdgeInsets.only(bottom: Sizes.p8),
       child: Wrap(spacing: Sizes.p8, runSpacing: Sizes.p8, children: chips),
     );
   }
