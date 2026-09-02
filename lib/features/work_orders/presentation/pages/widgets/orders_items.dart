@@ -103,17 +103,17 @@ class _OrdersItemsState extends State<OrdersItems> {
                               child: LoadingCircle(),
                             );
                           }
-                          if (!state.hasMorePages && workOrders.isNotEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.all(Sizes.p12),
-                              child: BaseText.bodySmall(
-                                'Todas as ordens foram carregadas'.hardcoded,
-                                color: context.colorScheme.onSurface.withValues(
-                                  alpha: 0.5,
-                                ),
-                              ),
-                            );
-                          }
+                          // if (!state.hasMorePages && workOrders.isNotEmpty) {
+                          //   return Padding(
+                          //     padding: const EdgeInsets.all(Sizes.p12),
+                          //     child: BaseText.bodySmall(
+                          //       'Todas as ordens foram carregadas'.hardcoded,
+                          //       color: context.colorScheme.onSurface.withValues(
+                          //         alpha: 0.5,
+                          //       ),
+                          //     ),
+                          //   );
+                          // }
                           return const SizedBox.shrink();
                         },
                       ),
