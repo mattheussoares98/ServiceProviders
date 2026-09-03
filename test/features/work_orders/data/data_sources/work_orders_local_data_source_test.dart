@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -232,7 +232,7 @@ void main() {
     );
 
     test(
-      'should hard-delete a work order when saveWorkOrder receives a model with deletedAt != null',
+      'should save soft-deleted work order when saveWorkOrder receives a model with deletedAt != null',
       () async {
         // Arrange
         await insertDependencies(
@@ -246,8 +246,9 @@ void main() {
         );
         await dataSource.saveWorkOrder(tWorkOrderModel);
 
+        final deletedAt = DateTime.now().toUtc();
         final deletedModel = WorkOrderModel.fromEntity(
-          tWorkOrderEntity.copyWith(deletedAt: DateTime.now().toUtc()),
+          tWorkOrderEntity.copyWith(deletedAt: deletedAt),
         );
 
         // Act: Save with deletedAt
@@ -257,11 +258,12 @@ void main() {
         expect(saveResult, isA<SuccessState<bool>>());
         expect(saveResult.data, isTrue);
 
-        // Direct DB Query to confirm row is completely removed
+        // Direct DB Query to confirm row is stored with deletedAt
         final rawRows = await (database.select(database.workOrders)
               ..where((t) => t.id.equals(tWorkOrderModel.id)))
             .get();
-        expect(rawRows, isEmpty);
+        expect(rawRows, hasLength(1));
+        expect(rawRows.first.deletedAt, isNotNull);
       },
     );
 
@@ -363,11 +365,12 @@ void main() {
         expect(getListResult, isA<SuccessState<List<WorkOrderModel>>>());
         expect(getListResult.data, isEmpty);
 
-        // Act: Get single
+        // Act: Get single (soft-deleted work orders can still be loaded by ID for viewing)
         final getSingleResult = await dataSource.getWorkOrderById(
           tWorkOrderModel.id,
         );
-        expect(getSingleResult, isA<FailureState<WorkOrderModel>>());
+        expect(getSingleResult, isA<SuccessState<WorkOrderModel>>());
+        expect(getSingleResult.data!.deletedAt, isNotNull);
       },
     );
 

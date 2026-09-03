@@ -84,7 +84,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       // Base conditions
       var condition =
           _database.workOrders.companyId.equals(companyId) &
-          _database.workOrders.deletedAt.isNull() &
+          (filter.onlyDeleted
+              ? _database.workOrders.deletedAt.isNotNull()
+              : _database.workOrders.deletedAt.isNull()) &
           _database.locations.deletedAt.isNull();
 
       // Apply filters
@@ -246,7 +248,6 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
             ),
           ])..where(
             _database.workOrders.id.equals(id) &
-                _database.workOrders.deletedAt.isNull() &
                 _database.locations.deletedAt.isNull(),
           );
       final row = await query.getSingleOrNull();
@@ -348,17 +349,13 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   FutureBool saveWorkOrders(List<WorkOrderModel> workOrders) {
     if (workOrders.isEmpty) return Future.value(const SuccessState(data: true));
     return ErrorHandler.execute(() async {
-      final toDelete = <String>[];
       final toUpsert = <WorkOrdersCompanion>[];
       final attachmentsToUpsert = <AttachmentsCompanion>[];
 
       for (final workOrder in workOrders) {
-        if (workOrder.deletedAt != null) {
-          toDelete.add(workOrder.id);
-        } else {
-          toUpsert.add(
-            WorkOrdersCompanion(
-              id: Value(workOrder.id),
+        toUpsert.add(
+          WorkOrdersCompanion(
+            id: Value(workOrder.id),
               companyId: Value(workOrder.companyId),
               assetId: Value(workOrder.assetId),
               locationId: Value(workOrder.locationId),
@@ -421,13 +418,9 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
               ),
             );
           }
-        }
       }
 
       await _database.batch((batch) {
-        if (toDelete.isNotEmpty) {
-          batch.deleteWhere(_database.workOrders, (t) => t.id.isIn(toDelete));
-        }
         if (toUpsert.isNotEmpty) {
           batch.insertAllOnConflictUpdate(_database.workOrders, toUpsert);
         }
