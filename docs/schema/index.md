@@ -12,7 +12,7 @@ All tables share these columns (omitted from individual files):
 | `updated_at` | TIMESTAMP | NOT NULL | now() |
 | `deleted_at` | TIMESTAMP | NULL | Soft delete |
 
-**Exceptions**: `companies` has no `company_id`. `sync_audit_logs` and `work_order_history` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`. `user_configurations` uses `user_id` as PK (no `id`, no `company_id`, no `deleted_at`).
+**Exceptions**: `companies` has no `company_id`. `sync_audit_logs` and `audit_logs` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`. `user_configurations` uses `user_id` as PK (no `id`, no `company_id`, no `deleted_at`).
 
 ---
 
@@ -35,7 +35,7 @@ erDiagram
     Companies ||--o{ WorkOrderChangeRequests : has
     Companies ||--o{ CompanyParameters : has
     Companies ||--o{ SyncAuditLogs : has
-    Companies ||--o{ WorkOrderHistory : has
+    Companies ||--o{ AuditLogs : has
     Companies ||--o{ SlaPolicies : has
     Companies ||--o{ WorkOrderPauseRequests : has
     Companies ||--o{ PauseReasons : has
@@ -64,13 +64,13 @@ erDiagram
     UserProfiles ||--o{ WorkOrderChangeRequests : reviewed_by
     UserProfiles ||--o{ WorkOrderObservations : authors
     UserProfiles ||--o{ SyncAuditLogs : logs
-    UserProfiles ||--o{ WorkOrderHistory : logs
+    UserProfiles ||--o{ AuditLogs : logs
     UserProfiles ||--o{ UserParameters : has
     UserProfiles ||--o{ UserConfigurations : has
     WorkOrders ||--o{ Tasks : contains
     WorkOrders ||--o{ Attachments : contains
     WorkOrders ||--o{ WorkOrderChangeRequests : changes
-    WorkOrders ||--o{ WorkOrderHistory : logs
+    WorkOrders ||--o{ AuditLogs : logs
     WorkOrders ||--o{ WorkOrderPauseRequests : has
     WorkOrders ||--o{ WorkOrderObservations : has
     SlaPolicies ||--o{ WorkOrders : has
@@ -105,7 +105,7 @@ erDiagram
 | 15 | company_parameters | [company_parameters.md](company_parameters.md) |
 | 16 | user_parameters | [user_parameters.md](user_parameters.md) |
 | 17 | sync_audit_logs | [sync_audit_logs.md](sync_audit_logs.md) |
-| 18 | work_order_history | [work_order_history.md](work_order_history.md) |
+| 18 | audit_logs | [audit_logs.md](audit_logs.md) |
 | 19 | sla_policies | [sla_policies.md](sla_policies.md) |
 | 20 | work_order_pause_requests | [work_order_pause_requests.md](work_order_pause_requests.md) |
 | 21 | pause_reasons | [pause_reasons.md](pause_reasons.md) |
