@@ -1009,6 +1009,44 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     }
   }
 
+  Future<bool> restoreWorkOrder(String id) async {
+    emit(
+      state.copyWith(
+        sections: withSection(
+          WorkOrdersSections.restoreWorkOrder,
+          SectionStatus.running,
+        ),
+      ),
+    );
+    final dataState = await _useCases.restoreWorkOrder(id);
+    if (isClosed) return false;
+
+    if (dataState is SuccessState<bool> && dataState.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.restoreWorkOrder,
+            SectionStatus.success,
+          ),
+        ),
+      );
+      await loadWorkOrderById(id);
+      await _refreshWorkOrders();
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.restoreWorkOrder,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showDataStateToast(dataState);
+      return false;
+    }
+  }
+
   Future<void> createChangeRequest(WorkOrderChangeRequestEntity request) async {
     emit(
       state.copyWith(

@@ -35,6 +35,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
@@ -64,6 +65,9 @@ class MockUpdateWorkOrderUseCase extends Mock
 
 class MockDeleteWorkOrderUseCase extends Mock
     implements DeleteWorkOrderUseCase {}
+
+class MockRestoreWorkOrderUseCase extends Mock
+    implements RestoreWorkOrderUseCase {}
 
 class MockGetWorkOrderChangeRequestsUseCase extends Mock
     implements GetWorkOrderChangeRequestsUseCase {}
@@ -107,6 +111,7 @@ void main() {
   late MockCreateWorkOrderUseCase mockCreateWorkOrder;
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
   late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
+  late MockRestoreWorkOrderUseCase mockRestoreWorkOrder;
   late MockGetWorkOrderChangeRequestsUseCase mockGetChangeRequests;
   late MockCreateWorkOrderChangeRequestUseCase mockCreateChangeRequest;
   late MockReviewWorkOrderChangeRequestUseCase mockReviewChangeRequest;
@@ -173,6 +178,7 @@ void main() {
     mockCreateWorkOrder = MockCreateWorkOrderUseCase();
     mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
     mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
+    mockRestoreWorkOrder = MockRestoreWorkOrderUseCase();
     mockGetChangeRequests = MockGetWorkOrderChangeRequestsUseCase();
     mockCreateChangeRequest = MockCreateWorkOrderChangeRequestUseCase();
     mockReviewChangeRequest = MockReviewWorkOrderChangeRequestUseCase();
@@ -228,6 +234,7 @@ void main() {
       createWorkOrder: mockCreateWorkOrder,
       updateWorkOrder: mockUpdateWorkOrder,
       deleteWorkOrder: mockDeleteWorkOrder,
+      restoreWorkOrder: mockRestoreWorkOrder,
       getChangeRequests: mockGetChangeRequests,
       createChangeRequest: mockCreateChangeRequest,
       reviewChangeRequest: mockReviewChangeRequest,
@@ -2274,6 +2281,92 @@ void main() {
       );
     });
 
+    group('restoreWorkOrder', () {
+      final tId = faker.guid.guid();
+      final tWorkOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        id: tId,
+        annulDeletedAt: true,
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should emit [running, success] and reload order and list when restore succeeds',
+        build: () {
+          when(
+            () => mockRestoreWorkOrder.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetWorkOrderById.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tWorkOrder));
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tWorkOrder]));
+          when(
+            () => mockGetChangeRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.restoreWorkOrder(tId),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[WorkOrdersSections.restoreWorkOrder],
+            'sections[restoreWorkOrder]',
+            const SectionState.running(),
+          ),
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[WorkOrdersSections.restoreWorkOrder],
+            'sections[restoreWorkOrder]',
+            const SectionState.success(),
+          ),
+          isA<WorkOrdersState>()
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.workOrders, 'workOrders', [tWorkOrder]),
+          isA<WorkOrdersState>()
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.workOrders, 'workOrders', [tWorkOrder]),
+        ],
+        verify: (_) {
+          verify(() => mockRestoreWorkOrder.call(tId)).called(1);
+          verify(() => mockGetWorkOrderById.call(tId)).called(1);
+          verify(() => mockGetWorkOrders.call(any())).called(1);
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'should emit [running, error] when restore fails',
+        build: () {
+          when(
+            () => mockRestoreWorkOrder.call(any()),
+          ).thenAnswer((_) async => FailureState<bool>(message: 'Fail'));
+          return cubit;
+        },
+        act: (cubit) => cubit.restoreWorkOrder(tId),
+        expect: () => [
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[WorkOrdersSections.restoreWorkOrder],
+            'sections[restoreWorkOrder]',
+            const SectionState.running(),
+          ),
+          isA<WorkOrdersState>().having(
+            (s) => s.sections[WorkOrdersSections.restoreWorkOrder],
+            'sections[restoreWorkOrder]',
+            const SectionState.error(),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockRestoreWorkOrder.call(tId)).called(1);
+          verifyNever(() => mockGetWorkOrderById.call(any()));
+        },
+      );
+    });
+
     group('createChangeRequest', () {
       final tRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
 
@@ -2563,6 +2656,7 @@ void main() {
             createWorkOrder: mockCreateWorkOrder,
             updateWorkOrder: mockUpdateWorkOrder,
             deleteWorkOrder: mockDeleteWorkOrder,
+            restoreWorkOrder: mockRestoreWorkOrder,
             getChangeRequests: mockGetChangeRequests,
             createChangeRequest: mockCreateChangeRequest,
             reviewChangeRequest: mockReviewChangeRequest,
@@ -2750,6 +2844,7 @@ void _providerModeTests() {
       createWorkOrder: mockCreateWorkOrder,
       updateWorkOrder: mockUpdateWorkOrder,
       deleteWorkOrder: mockDeleteWorkOrder,
+      restoreWorkOrder: MockRestoreWorkOrderUseCase(),
       getChangeRequests: MockGetWorkOrderChangeRequestsUseCase(),
       createChangeRequest: MockCreateWorkOrderChangeRequestUseCase(),
       reviewChangeRequest: MockReviewWorkOrderChangeRequestUseCase(),

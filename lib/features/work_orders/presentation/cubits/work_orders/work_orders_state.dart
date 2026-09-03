@@ -3,6 +3,7 @@ part of 'work_orders_cubit.dart';
 enum WorkOrdersSections implements SectionKey {
   saveWorkOrder,
   deleteWorkOrder,
+  restoreWorkOrder,
   changeStatus,
   resumeWork,
   createChangeRequest,
