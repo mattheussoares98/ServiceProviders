@@ -145,7 +145,10 @@ class _WorkOrderDetails extends HookWidget {
       onRefresh: onRefresh,
       appBar: BaseAppBar(
         title: 'Detalhes da ordem de serviço'.hardcoded,
-        actions: [EditAndDeleteIcons(workOrderId: workOrder.id)],
+        actions: [
+          if (!workOrder.isDeleted)
+            EditAndDeleteIcons(workOrderId: workOrder.id),
+        ],
       ),
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -156,7 +159,8 @@ class _WorkOrderDetails extends HookWidget {
             // by the provider too, who has no other way in since the edit form
             // is closed to them. The attachment permissions are enforced by the
             // widget itself.
-            isWorkOrderActive: workOrder.status.acceptsAttachments,
+            isWorkOrderActive:
+                !workOrder.isDeleted && workOrder.status.acceptsAttachments,
             padding: EdgeInsets.zero,
             workOrderCompanyId: workOrder.companyId,
             autoUpload: true,
@@ -165,7 +169,8 @@ class _WorkOrderDetails extends HookWidget {
           gapSliverH24,
         ],
       ),
-      bottomNavigationBar: workOrder.status.showsBottomActions
+      bottomNavigationBar:
+          !workOrder.isDeleted && workOrder.status.showsBottomActions
           ? WorkOrderBottomActions(workOrder: workOrder)
           : null,
     );
