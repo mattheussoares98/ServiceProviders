@@ -19,6 +19,24 @@ class EditAndDeleteIcons extends StatelessWidget {
       mainAxisSize: .min,
       mainAxisAlignment: .end,
       children: [
+        //TODO change this widget name
+        Flexible(
+          child: BaseIconButton(
+            permission: const ActionPermission.resource(
+              resourceType: ResourceType.workOrders,
+              permissionAction: PermissionAction.read,
+            ),
+            onPressed: () {
+              context.read<WorkOrderDetailsCubit>().navigateToWorkOrderHistory(
+                workOrderId,
+              );
+            },
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.history,
+              cupertinoIcon: CupertinoIcons.clock,
+            ),
+          ),
+        ),
         Flexible(
           child: BaseIconButton(
             permission: const ActionPermission.resource(

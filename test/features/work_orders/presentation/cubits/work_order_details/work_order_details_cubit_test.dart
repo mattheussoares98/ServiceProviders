@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -57,6 +58,7 @@ void main() {
         resumedById: faker.guid.guid(),
       ),
     );
+    registerFallbackValue(WorkOrderHistoryRoute(workOrderId: ''));
   });
 
   setUp(() {
@@ -574,5 +576,25 @@ void main() {
         verify(() => mockReviewChangeRequest.call(tParams)).called(1);
       },
     );
+  });
+
+  group('navigateToWorkOrderHistory', () {
+    test('calls pushRoute with WorkOrderHistoryRoute', () async {
+      when(
+        () => mockNavigationClient
+            .pushRoute<WorkOrderHistoryRouteArgs>(any()),
+      ).thenAnswer((_) async => null);
+
+      final cubit = WorkOrderDetailsCubit(useCases: cubitUseCases);
+      final id = faker.guid.guid();
+
+      await cubit.navigateToWorkOrderHistory(id);
+
+      verify(
+        () => mockNavigationClient
+            .pushRoute<WorkOrderHistoryRouteArgs>(any()),
+      ).called(1);
+      await cubit.close();
+    });
   });
 }

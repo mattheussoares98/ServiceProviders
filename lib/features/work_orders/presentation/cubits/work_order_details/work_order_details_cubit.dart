@@ -367,6 +367,10 @@ class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
     );
   }
 
+  Future<void> navigateToWorkOrderHistory(String workOrderId) async {
+    await pushRoute(WorkOrderHistoryRoute(workOrderId: workOrderId));
+  }
+
   Future<void> loadWorkOrderHistory(String workOrderId) async {
     final dataState = await _useCases.getWorkOrderHistory(workOrderId);
     if (isClosed) return;
