@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/deleted_work_order_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
@@ -108,6 +109,7 @@ class _WorkOrderDetails extends HookWidget {
         sections: const {
           WorkOrdersSections.saveWorkOrder,
           WorkOrdersSections.deleteWorkOrder,
+          WorkOrdersSections.restoreWorkOrder,
           WorkOrdersSections.changeStatus,
           WorkOrdersSections.resumeWork,
           WorkOrdersSections.createChangeRequest,
@@ -153,6 +155,10 @@ class _WorkOrderDetails extends HookWidget {
       body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          if (workOrder.isDeleted)
+            SliverToBoxAdapter(
+              child: DeletedWorkOrderBanner(workOrder: workOrder),
+            ),
           InfoItems(workOrder: workOrder, onRefresh: onRefresh),
           Attachments(
             // Evidence can be added for as long as the work is being executed —
