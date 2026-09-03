@@ -39,6 +39,10 @@ class AppRouter extends RootStackRouter {
           page: CreateProviderWorkOrderRoute.page,
           path: '$kCreateProviderWorkOrderRoute/$kCreateProviderWorkOrderPath',
         ),
+        AutoRoute(
+          page: WorkOrderHistoryRoute.page,
+          path: '$kWorkOrderHistoryRoute/$kWorkOrderHistoryPath',
+        ),
       ],
     ),
     AutoRoute(
@@ -104,6 +108,10 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: CreateUpdateWorkOrderRoute.page,
           path: '$kCreateUpdateWorkOrderRoute/$kCreateUpdateWorkOrderPath',
+        ),
+        AutoRoute(
+          page: WorkOrderHistoryRoute.page,
+          path: '$kWorkOrderHistoryRoute/$kWorkOrderHistoryPath',
         ),
         //* Service Providers
         AutoRoute(

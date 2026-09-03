@@ -47,6 +47,9 @@ const String kWorkOrderDetailsPath = 'work-order-details';
 const String kWorkOrderPendingRequestsRoute = 'WorkOrderPendingRequestsRoute';
 const String kWorkOrderPendingRequestsPath = 'work-order-pending-requests';
 
+const String kWorkOrderHistoryRoute = 'WorkOrderHistoryRoute';
+const String kWorkOrderHistoryPath = 'work-order-history';
+
 // Assets
 const String kAssetsRoute = 'AssetsRoute';
 const String kAssetsPath = 'assets';
