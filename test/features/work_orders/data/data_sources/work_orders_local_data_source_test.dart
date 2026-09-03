@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' hide isNotNull;
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -224,9 +224,9 @@ void main() {
         expect(hardDeleteResult.data, isTrue);
 
         // Direct DB Query to confirm row is completely gone
-        final rawRows = await (database.select(database.workOrders)
-              ..where((t) => t.id.equals(tWorkOrderModel.id)))
-            .get();
+        final rawRows = await (database.select(
+          database.workOrders,
+        )..where((t) => t.id.equals(tWorkOrderModel.id))).get();
         expect(rawRows, isEmpty);
       },
     );
@@ -259,9 +259,9 @@ void main() {
         expect(saveResult.data, isTrue);
 
         // Direct DB Query to confirm row is stored with deletedAt
-        final rawRows = await (database.select(database.workOrders)
-              ..where((t) => t.id.equals(tWorkOrderModel.id)))
-            .get();
+        final rawRows = await (database.select(
+          database.workOrders,
+        )..where((t) => t.id.equals(tWorkOrderModel.id))).get();
         expect(rawRows, hasLength(1));
         expect(rawRows.first.deletedAt, isNotNull);
       },
@@ -323,10 +323,7 @@ void main() {
           tWorkOrderModel.companyId,
         );
         expect(activeRows, isA<SuccessState<List<WorkOrderModel>>>());
-        expect(
-          activeRows.data!.map((e) => e.id),
-          contains(orderToUpsert.id),
-        );
+        expect(activeRows.data!.map((e) => e.id), contains(orderToUpsert.id));
         expect(
           activeRows.data!.map((e) => e.id),
           isNot(contains(orderToDelete.id)),
@@ -371,6 +368,24 @@ void main() {
         );
         expect(getSingleResult, isA<SuccessState<WorkOrderModel>>());
         expect(getSingleResult.data!.deletedAt, isNotNull);
+
+        // Act: Restore
+        final restoreResult = await dataSource.restoreWorkOrder(
+          tWorkOrderModel.id,
+        );
+        expect(restoreResult, isA<SuccessState<bool>>());
+        expect(restoreResult.data, isTrue);
+
+        // Assert: Restored work order is visible again in active list
+        final getRestoredListResult = await dataSource.getWorkOrders(
+          tWorkOrderModel.companyId,
+        );
+        expect(
+          getRestoredListResult,
+          isA<SuccessState<List<WorkOrderModel>>>(),
+        );
+        expect(getRestoredListResult.data, hasLength(1));
+        expect(getRestoredListResult.data!.first.deletedAt, isNull);
       },
     );
 

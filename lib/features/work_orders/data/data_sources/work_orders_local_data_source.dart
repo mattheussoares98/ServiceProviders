@@ -33,6 +33,7 @@ abstract interface class WorkOrdersLocalDataSource {
   FutureBool saveWorkOrder(WorkOrderModel workOrder);
   FutureBool saveWorkOrders(List<WorkOrderModel> workOrders);
   FutureBool deleteWorkOrder(String id);
+  FutureBool restoreWorkOrder(String id);
   FutureBool hardDeleteWorkOrder(String id);
 
   // Tasks
@@ -443,6 +444,18 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         ..where((t) => t.id.equals(id));
       await query.write(
         WorkOrdersCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool restoreWorkOrder(String id) {
+    return ErrorHandler.execute(() async {
+      final query = _database.update(_database.workOrders)
+        ..where((t) => t.id.equals(id));
+      await query.write(
+        const WorkOrdersCompanion(deletedAt: Value(null)),
       );
       return const SuccessState(data: true);
     });
