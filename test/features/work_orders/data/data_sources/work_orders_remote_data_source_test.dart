@@ -301,7 +301,6 @@ void main() {
             columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: [
               SupabaseFilter.eq('id', tWorkOrderId),
-              SupabaseFilter.isFilter('deleted_at', null),
               SupabaseFilter.isFilter('locations.deleted_at', null),
             ],
           ),
@@ -331,7 +330,6 @@ void main() {
             columns: '*, locations!inner(deleted_at), attachments(*)',
             filters: [
               SupabaseFilter.eq('id', tWorkOrderId),
-              SupabaseFilter.isFilter('deleted_at', null),
               SupabaseFilter.isFilter('locations.deleted_at', null),
             ],
           ),

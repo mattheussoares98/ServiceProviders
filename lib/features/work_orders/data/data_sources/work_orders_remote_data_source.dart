@@ -74,7 +74,10 @@ final class WorkOrdersRemoteDataSourceImpl
   }) => SupabaseHandler.call(() async {
     final filters = [
       SupabaseFilter.eq('company_id', companyId),
-      SupabaseFilter.isFilter('deleted_at', null),
+      if (filter.onlyDeleted)
+        SupabaseFilter.notFilter('deleted_at', 'is', null)
+      else
+        SupabaseFilter.isFilter('deleted_at', null),
       SupabaseFilter.isFilter('locations.deleted_at', null),
       if (filter.statuses.isNotEmpty)
         SupabaseFilter.inList(
@@ -169,7 +172,10 @@ final class WorkOrdersRemoteDataSourceImpl
 
     final filters = [
       SupabaseFilter.inList('service_provider_company_id', scopedCompanyIds),
-      SupabaseFilter.isFilter('deleted_at', null),
+      if (filter.onlyDeleted)
+        SupabaseFilter.notFilter('deleted_at', 'is', null)
+      else
+        SupabaseFilter.isFilter('deleted_at', null),
       if (filter.statuses.isNotEmpty)
         SupabaseFilter.inList(
           'status',
@@ -226,7 +232,6 @@ final class WorkOrdersRemoteDataSourceImpl
           columns: '*, locations!inner(deleted_at), attachments(*)',
           filters: [
             SupabaseFilter.eq('id', id),
-            SupabaseFilter.isFilter('deleted_at', null),
             SupabaseFilter.isFilter('locations.deleted_at', null),
           ],
         );
