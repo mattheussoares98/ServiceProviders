@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -8,11 +9,15 @@ part 'work_order_history_state.dart';
 
 @injectable
 class WorkOrderHistoryCubit extends BaseCubit<WorkOrderHistoryState> {
-  WorkOrderHistoryCubit({required WorkOrderHistoryCubitUseCases useCases})
-    : _useCases = useCases,
-      super(const WorkOrderHistoryState.initial());
+  WorkOrderHistoryCubit({
+    required WorkOrderHistoryCubitUseCases useCases,
+    required FileService fileService,
+  }) : _useCases = useCases,
+       _fileService = fileService,
+       super(const WorkOrderHistoryState.initial());
 
   final WorkOrderHistoryCubitUseCases _useCases;
+  final FileService _fileService;
 
   Future<void> loadHistory(String workOrderId, {bool showLoading = true}) async {
     if (showLoading) {
@@ -68,5 +73,12 @@ class WorkOrderHistoryCubit extends BaseCubit<WorkOrderHistoryState> {
         annulEndDate: true,
       ),
     );
+  }
+
+  Future<void> openAttachmentUrl(String url) async {
+    final result = await _fileService.openFile(url);
+    if (result is! SuccessState<bool>) {
+      showDataStateToast(result);
+    }
   }
 }

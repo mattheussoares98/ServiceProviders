@@ -11,17 +11,20 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/services.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockGetWorkOrderHistoryUseCase mockGetWorkOrderHistory;
   late MockNavigationClient mockNavigationClient;
+  late MockFileService mockFileService;
   late WorkOrderHistoryCubitUseCases cubitUseCases;
   late String testWorkOrderId;
 
   setUp(() {
     mockGetWorkOrderHistory = MockGetWorkOrderHistoryUseCase();
     mockNavigationClient = MockNavigationClient();
+    mockFileService = MockFileService();
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     cubitUseCases = WorkOrderHistoryCubitUseCases(
@@ -34,7 +37,10 @@ void main() {
 
   group('WorkOrderHistoryCubit', () {
     test('initial state has idle load section and empty history', () {
-      final cubit = WorkOrderHistoryCubit(useCases: cubitUseCases);
+      final cubit = WorkOrderHistoryCubit(
+        useCases: cubitUseCases,
+        fileService: mockFileService,
+      );
       expect(cubit.state.section(BaseSections.load).status, SectionStatus.idle);
       expect(cubit.state.history, isEmpty);
       expect(cubit.state.startDate, isNull);
@@ -50,7 +56,10 @@ void main() {
             data: EntityFactory.makeAuditLogEntityList(),
           ),
         );
-        return WorkOrderHistoryCubit(useCases: cubitUseCases);
+        return WorkOrderHistoryCubit(
+          useCases: cubitUseCases,
+          fileService: mockFileService,
+        );
       },
       act: (cubit) => cubit.loadHistory(testWorkOrderId),
       expect: () => [
@@ -75,7 +84,10 @@ void main() {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
           (_) async => FailureState(message: 'Failed to load'),
         );
-        return WorkOrderHistoryCubit(useCases: cubitUseCases);
+        return WorkOrderHistoryCubit(
+          useCases: cubitUseCases,
+          fileService: mockFileService,
+        );
       },
       act: (cubit) => cubit.loadHistory(testWorkOrderId),
       expect: () => [
@@ -93,7 +105,10 @@ void main() {
     );
 
     test('setDateRange and clearDateFilter update state and filteredHistory correctly', () {
-      final cubit = WorkOrderHistoryCubit(useCases: cubitUseCases);
+      final cubit = WorkOrderHistoryCubit(
+          useCases: cubitUseCases,
+          fileService: mockFileService,
+        );
 
       final date1 = DateTime(2026, 3, 1, 10);
       final date2 = DateTime(2026, 3, 5, 12);
@@ -126,6 +141,22 @@ void main() {
       expect(cubit.state.filteredHistory.length, 3);
 
       cubit.close();
+    });
+
+    test('openAttachmentUrl calls fileService.openFile', () async {
+      when(() => mockFileService.openFile(any())).thenAnswer(
+        (_) async => const SuccessState(data: true),
+      );
+
+      final cubit = WorkOrderHistoryCubit(
+        useCases: cubitUseCases,
+        fileService: mockFileService,
+      );
+
+      await cubit.openAttachmentUrl('https://example.com/test.png');
+      verify(() => mockFileService.openFile('https://example.com/test.png'))
+          .called(1);
+      await cubit.close();
     });
   });
 }
