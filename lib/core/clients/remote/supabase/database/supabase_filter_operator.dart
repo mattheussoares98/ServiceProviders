@@ -9,4 +9,5 @@ enum SupabaseFilterOperator {
   ilike,
   inList,
   isFilter,
+  notFilter,
 }

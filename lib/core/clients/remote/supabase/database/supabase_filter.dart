@@ -72,6 +72,16 @@ final class SupabaseFilter extends Equatable {
         value: value,
       );
 
+  factory SupabaseFilter.notFilter(
+    String column,
+    String operator,
+    Object? value,
+  ) => SupabaseFilter._(
+    column: column,
+    operator: SupabaseFilterOperator.notFilter,
+    value: {'operator': operator, 'value': value},
+  );
+
   final String column;
   final SupabaseFilterOperator operator;
   final Object? value;

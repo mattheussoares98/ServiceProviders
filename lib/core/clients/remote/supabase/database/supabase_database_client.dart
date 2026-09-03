@@ -227,6 +227,14 @@ final class SupabaseDatabaseClientImpl implements SupabaseDatabaseClient {
           filter.column,
           filter.value as bool?,
         ),
+        SupabaseFilterOperator.notFilter => () {
+          final payload = filter.value! as Map<String, dynamic>;
+          return currentQuery.not(
+            filter.column,
+            payload['operator'] as String,
+            payload['value'],
+          );
+        }(),
       };
     }
     return currentQuery;
