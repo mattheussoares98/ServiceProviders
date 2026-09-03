@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_history/widgets/history_date_filter_bar.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_history/widgets/history_timeline_item.dart';
@@ -42,7 +42,7 @@ class WorkOrderHistoryPage extends StatelessWidget {
                       BaseStateView<
                         WorkOrderHistoryCubit,
                         WorkOrderHistoryState,
-                        List<WorkOrderHistoryEntity>
+                        List<AuditLogEntity>
                       >(
                         dataSelector: (state) => state.filteredHistory,
                         onRetry: () => context

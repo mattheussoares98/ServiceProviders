@@ -1,10 +1,15 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -16,7 +21,7 @@ class HistoryTimelineItem extends StatelessWidget {
     required this.isLast,
   });
 
-  final WorkOrderHistoryEntity item;
+  final AuditLogEntity item;
   final bool isLast;
 
   @override
@@ -24,6 +29,9 @@ class HistoryTimelineItem extends StatelessWidget {
     final user = context.select<UsersCubit, UserProfileEntity?>(
       (cubit) => cubit.state.users.firstWhereOrNull((u) => u.id == item.userId),
     );
+
+    final fileUrl = item.metadata?['file_url'] as String?;
+    final fileName = item.metadata?['file_name'] as String?;
 
     return IntrinsicHeight(
       child: Row(
@@ -68,29 +76,58 @@ class HistoryTimelineItem extends StatelessWidget {
                     children: [
                       Flexible(
                         child: BaseText.bodyMedium(
-                          item.action.hardcoded,
+                          (item.summary ?? item.action).hardcoded,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       BaseText.caption(item.createdAt.formatDate()),
                     ],
                   ),
-                  if (item.oldValue != null || item.newValue != null) ...[
+                  if (item.changes.isNotEmpty) ...[
                     gapH8,
-                    if (item.oldValue != null)
-                      BaseText.bodySmall(
-                        'De: ${item.oldValue}'.hardcoded,
-                        color: context.colorScheme.error,
+                    ...item.changes.map((change) {
+                      final oldVal = change.effectiveOldValue;
+                      final newVal = change.effectiveNewValue;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Sizes.p4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            BaseText.bodySmall(
+                              change.effectiveLabel.hardcoded,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            if (oldVal != null)
+                              BaseText.bodySmall(
+                                'De: $oldVal'.hardcoded,
+                                color: context.colorScheme.error,
+                              ),
+                            if (newVal != null)
+                              BaseText.bodySmall(
+                                'Para: $newVal'.hardcoded,
+                                color: context.colorScheme.primary,
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                  if (fileUrl != null && fileUrl.isNotEmpty) ...[
+                    gapH8,
+                    SecondaryButton(
+                      text: (fileName != null && fileName.isNotEmpty)
+                          ? 'Abrir anexo ($fileName)'.hardcoded
+                          : 'Abrir anexo'.hardcoded,
+                      platformIcon: const PlatformIcon(
+                        materialIcon: Icons.attach_file,
+                        cupertinoIcon: CupertinoIcons.paperclip,
                       ),
-                    if (item.newValue != null)
-                      BaseText.bodySmall(
-                        'Para: ${item.newValue}'.hardcoded,
-                        color: context.colorScheme.primary,
-                      ),
+                      onTap: () => GetIt.I<FileService>().openFile(fileUrl),
+                    ),
                   ],
                   gapH8,
                   BaseText.caption(
-                    'Por: ${user?.name ?? item.userId}'.hardcoded,
+                    'Por: ${user?.name ?? item.userId ?? 'Sistema'}'.hardcoded,
                   ),
                 ],
               ),
