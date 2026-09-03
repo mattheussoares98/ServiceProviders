@@ -1,10 +1,10 @@
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 abstract interface class WorkOrdersRepository {
@@ -49,7 +49,7 @@ abstract interface class WorkOrdersRepository {
   });
 
   // History
-  FutureList<WorkOrderHistoryEntity> getWorkOrderHistory(String workOrderId);
+  FutureList<AuditLogEntity> getWorkOrderHistory(String workOrderId);
 
   // Realtime
   Stream<RealtimeEvent<WorkOrderEntity>> watchRealtimeWorkOrders({

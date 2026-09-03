@@ -2,11 +2,11 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
@@ -391,7 +391,7 @@ void main() {
 
   group('GetWorkOrderHistoryUseCase', () {
     final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
-    final tHistory = EntityFactory.makeWorkOrderHistoryEntityList();
+    final tHistory = EntityFactory.makeAuditLogEntityList();
 
     test('should return a list of work order history on success', () async {
       // Arrange
@@ -403,7 +403,7 @@ void main() {
       final result = await getWorkOrderHistoryUseCase(tWorkOrderId);
 
       // Assert
-      expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
+      expect(result, isA<SuccessState<List<AuditLogEntity>>>());
       expect(result.data, tHistory);
       verify(() => mockRepository.getWorkOrderHistory(tWorkOrderId)).called(1);
       verifyNoMoreInteractions(mockRepository);
@@ -413,14 +413,14 @@ void main() {
       // Arrange
       when(() => mockRepository.getWorkOrderHistory(any())).thenAnswer(
         (_) async =>
-            FailureState<List<WorkOrderHistoryEntity>>(message: 'Load failed'),
+            FailureState<List<AuditLogEntity>>(message: 'Load failed'),
       );
 
       // Act
       final result = await getWorkOrderHistoryUseCase(tWorkOrderId);
 
       // Assert
-      expect(result, isA<FailureState<List<WorkOrderHistoryEntity>>>());
+      expect(result, isA<FailureState<List<AuditLogEntity>>>());
       expect(result.message, 'Load failed');
       verify(() => mockRepository.getWorkOrderHistory(tWorkOrderId)).called(1);
       verifyNoMoreInteractions(mockRepository);
