@@ -4,10 +4,11 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 
 void main() {
   group('WorkOrderFilter', () {
-    test('defaults isDelayed to false', () {
+    test('defaults isDelayed and onlyDeleted to false', () {
       const filter = WorkOrderFilter();
 
       expect(filter.isDelayed, isFalse);
+      expect(filter.onlyDeleted, isFalse);
       expect(filter.isEmpty, isTrue);
       expect(filter.activeCount, 0);
     });
@@ -20,16 +21,26 @@ void main() {
       expect(filter.activeCount, 1);
     });
 
-    test('copyWith updates isDelayed and other properties', () {
+    test('onlyDeleted affects isEmpty and activeCount', () {
+      const filter = WorkOrderFilter(onlyDeleted: true);
+
+      expect(filter.onlyDeleted, isTrue);
+      expect(filter.isEmpty, isFalse);
+      expect(filter.activeCount, 1);
+    });
+
+    test('copyWith updates isDelayed, onlyDeleted, and other properties', () {
       const filter = WorkOrderFilter();
       final updated = filter.copyWith(
         isDelayed: true,
+        onlyDeleted: true,
         statuses: [WorkOrderStatus.open],
       );
 
       expect(updated.isDelayed, isTrue);
+      expect(updated.onlyDeleted, isTrue);
       expect(updated.statuses, [WorkOrderStatus.open]);
-      expect(updated.activeCount, 2);
+      expect(updated.activeCount, 3);
     });
   });
 }
