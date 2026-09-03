@@ -2,12 +2,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -30,8 +29,9 @@ class HistoryTimelineItem extends StatelessWidget {
       (cubit) => cubit.state.users.firstWhereOrNull((u) => u.id == item.userId),
     );
 
-    final fileUrl = item.metadata?['file_url'] as String?;
-    final fileName = item.metadata?['file_name'] as String?;
+    final metadata = item.metadata;
+    final fileUrl = metadata?.fileUrl;
+    final fileName = metadata?.fileName;
 
     return IntrinsicHeight(
       child: Row(
@@ -122,7 +122,9 @@ class HistoryTimelineItem extends StatelessWidget {
                         materialIcon: Icons.attach_file,
                         cupertinoIcon: CupertinoIcons.paperclip,
                       ),
-                      onTap: () => GetIt.I<FileService>().openFile(fileUrl),
+                      onTap: () => context
+                          .read<WorkOrderHistoryCubit>()
+                          .openAttachmentUrl(fileUrl),
                     ),
                   ],
                   gapH8,
