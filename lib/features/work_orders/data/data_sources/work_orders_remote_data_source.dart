@@ -38,6 +38,7 @@ abstract interface class WorkOrdersRemoteDataSource {
   FutureBool createWorkOrder(WorkOrderModel request);
   FutureBool updateWorkOrder(WorkOrderModel request);
   FutureBool deleteWorkOrder(String id);
+  FutureBool restoreWorkOrder(String id);
 
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
   FutureBool createTask(TaskRequestModel request);
@@ -266,6 +267,16 @@ final class WorkOrdersRemoteDataSourceImpl
     await _database.update(
       table: 'work_orders',
       values: {'deleted_at': DateTime.now().toIsoUtcString()},
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    return true;
+  });
+
+  @override
+  FutureBool restoreWorkOrder(String id) => SupabaseHandler.call(() async {
+    await _database.update(
+      table: 'work_orders',
+      values: {'deleted_at': null},
       filters: [SupabaseFilter.eq('id', id)],
     );
     return true;

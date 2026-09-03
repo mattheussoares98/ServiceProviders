@@ -416,6 +416,28 @@ void main() {
         ),
       ).called(1);
     });
+
+    test('restoreWorkOrder should return SuccessState<bool>(true)', () async {
+      when(
+        () => mockDatabase.update(
+          table: any(named: 'table'),
+          values: any(named: 'values'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tWorkOrderModel.toJson()]);
+
+      final result = await dataSource.restoreWorkOrder(tWorkOrderId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+      verify(
+        () => mockDatabase.update(
+          table: 'work_orders',
+          values: {'deleted_at': null},
+          filters: [SupabaseFilter.eq('id', tWorkOrderId)],
+        ),
+      ).called(1);
+    });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - Tasks', () {
