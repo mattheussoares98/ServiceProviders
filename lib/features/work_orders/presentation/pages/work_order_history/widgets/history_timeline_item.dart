@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/audit_change_ui_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -86,15 +87,15 @@ class HistoryTimelineItem extends StatelessWidget {
                   if (item.changes.isNotEmpty) ...[
                     gapH8,
                     ...item.changes.map((change) {
-                      final oldVal = change.effectiveOldValue;
-                      final newVal = change.effectiveNewValue;
+                      final oldVal = change.localizedOldValue?.hardcoded;
+                      final newVal = change.localizedNewValue?.hardcoded;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: Sizes.p4),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             BaseText.bodySmall(
-                              change.effectiveLabel.hardcoded,
+                              change.localizedLabel.hardcoded,
                               fontWeight: FontWeight.w600,
                             ),
                             if (oldVal != null)
