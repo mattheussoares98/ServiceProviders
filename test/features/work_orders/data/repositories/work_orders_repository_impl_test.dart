@@ -471,6 +471,71 @@ void main() {
     );
   });
 
+  group('restoreWorkOrder', () {
+    test(
+      'should call remote, restore locally, and return SuccessState(true) when internet is connected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.restoreWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.restoreWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.restoreWorkOrder(tWorkOrderId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockRemoteDataSource.restoreWorkOrder(tWorkOrderId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.restoreWorkOrder(tWorkOrderId),
+        ).called(1);
+      },
+    );
+
+    test(
+      'should restore locally, enqueue sync, and return SuccessState(true) when internet is disconnected',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.restoreWorkOrder(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockSyncRepository.enqueue(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.restoreWorkOrder(tWorkOrderId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+        verify(
+          () => mockLocalDataSource.restoreWorkOrder(tWorkOrderId),
+        ).called(1);
+        verify(() => mockSyncRepository.enqueue(any())).called(1);
+        verifyNever(() => mockRemoteDataSource.restoreWorkOrder(any()));
+      },
+    );
+
+    test(
+      'should return FailureState when remote call fails on connected internet',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.restoreWorkOrder(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Server error'));
+
+        final result = await repository.restoreWorkOrder(tWorkOrderId);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Server error');
+        verifyNever(() => mockLocalDataSource.restoreWorkOrder(tWorkOrderId));
+      },
+    );
+  });
+
   group('hardDeleteWorkOrder', () {
     test('should delegate to localDataSource.hardDeleteWorkOrder', () async {
       when(

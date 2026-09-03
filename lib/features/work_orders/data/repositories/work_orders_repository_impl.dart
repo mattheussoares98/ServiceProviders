@@ -269,6 +269,44 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
+  FutureBool restoreWorkOrder(String id) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () async {
+          final result = await _localDataSource.restoreWorkOrder(id);
+          if (result is SuccessState<bool> && result.data == true) {
+            final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
+            final userId = _sessionRepository.userData.user.id;
+            await _syncRepository.enqueue(
+              SyncQueueItemEntity(
+                id: const Uuid().v4(),
+                companyId: companyId,
+                userProfileId: userId,
+                entityType: SyncEntityType.workOrder,
+                entityId: id,
+                operation: SyncOperationType.update,
+                createdAt: DateTime.now(),
+              ),
+            );
+          }
+          return result;
+        },
+        remoteCallback: () async {
+          final result = await _remoteDataSource.restoreWorkOrder(id);
+          if (result is SuccessState<bool> && result.data == true) {
+            await _localDataSource.restoreWorkOrder(id);
+            return const SuccessState(data: true);
+          }
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        },
+      );
+
+  @override
   FutureBool hardDeleteWorkOrder(String id) =>
       _localDataSource.hardDeleteWorkOrder(id);
 
