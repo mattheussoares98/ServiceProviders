@@ -7,16 +7,16 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_log_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/work_orders_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -58,8 +58,8 @@ void main() {
       ),
     );
     registerFallbackValue(
-      WorkOrderHistoryModel.fromEntity(
-        EntityFactory.makeWorkOrderHistoryEntity(),
+      AuditLogModel.fromEntity(
+        EntityFactory.makeAuditLogEntity(),
       ),
     );
     registerFallbackValue(const WorkOrderFilter());
@@ -104,9 +104,6 @@ void main() {
 
   final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
   final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
-
-  final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
-  final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
 
   final tCompanyId = faker.guid.guid();
   final tWorkOrderId = faker.guid.guid();
@@ -1146,45 +1143,26 @@ void main() {
   });
 
   group('getWorkOrderHistory', () {
+    final tAuditLogEntity = EntityFactory.makeAuditLogEntity();
+    final tAuditLogModel = AuditLogModel.fromEntity(tAuditLogEntity);
+
     test(
-      'should return remote data and cache it locally when internet is connected',
+      'should return remote audit logs when internet is connected',
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.getWorkOrderHistory(any()),
-        ).thenAnswer((_) async => SuccessState(data: [tHistoryModel]));
-        when(
-          () => mockLocalDataSource.saveWorkOrderHistory(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+        ).thenAnswer((_) async => SuccessState(data: [tAuditLogModel]));
 
         final result = await repository.getWorkOrderHistory(tWorkOrderId);
 
-        expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
-        expect(result.data, [tHistoryEntity]);
+        expect(result, isA<SuccessState<List<AuditLogEntity>>>());
+        expect(result.data, [tAuditLogEntity]);
         verify(
           () => mockRemoteDataSource.getWorkOrderHistory(tWorkOrderId),
         ).called(1);
-        verify(
-          () => mockLocalDataSource.saveWorkOrderHistory(tHistoryModel),
-        ).called(1);
       },
     );
-
-    test('should return local data when internet is disconnected', () async {
-      when(() => mockInternetClient.isConnected).thenReturn(false);
-      when(
-        () => mockLocalDataSource.getWorkOrderHistory(any()),
-      ).thenAnswer((_) async => SuccessState(data: [tHistoryModel]));
-
-      final result = await repository.getWorkOrderHistory(tWorkOrderId);
-
-      expect(result, isA<SuccessState<List<WorkOrderHistoryEntity>>>());
-      expect(result.data, [tHistoryEntity]);
-      verify(
-        () => mockLocalDataSource.getWorkOrderHistory(tWorkOrderId),
-      ).called(1);
-      verifyNever(() => mockRemoteDataSource.getWorkOrderHistory(any()));
-    });
 
     test(
       'should return FailureState when remote call fails and internet is connected',
@@ -1196,12 +1174,11 @@ void main() {
 
         final result = await repository.getWorkOrderHistory(tWorkOrderId);
 
-        expect(result, isA<FailureState<List<WorkOrderHistoryEntity>>>());
+        expect(result, isA<FailureState<List<AuditLogEntity>>>());
         expect(result.message, 'Server error');
         verify(
           () => mockRemoteDataSource.getWorkOrderHistory(tWorkOrderId),
         ).called(1);
-        verifyNever(() => mockLocalDataSource.getWorkOrderHistory(any()));
       },
     );
   });

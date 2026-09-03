@@ -18,15 +18,15 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_log_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:uuid/uuid.dart';
@@ -579,19 +579,14 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   );
 
   @override
-  FutureList<WorkOrderHistoryEntity> getWorkOrderHistory(String workOrderId) =>
+  FutureList<AuditLogEntity> getWorkOrderHistory(String workOrderId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
-        WorkOrderHistoryModel,
-        WorkOrderHistoryEntity
+        AuditLogModel,
+        AuditLogEntity
       >(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.getWorkOrderHistory(workOrderId),
         remoteCallback: () =>
             _remoteDataSource.getWorkOrderHistory(workOrderId),
-        onRemoteSuccess: (list) async {
-          await Future.wait(list.map(_localDataSource.saveWorkOrderHistory));
-          return const SuccessState(data: true);
-        },
       );
 
   @override

@@ -7,9 +7,9 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_log_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -54,7 +54,7 @@ abstract interface class WorkOrdersRemoteDataSource {
     required String reviewedById,
   });
 
-  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId);
+  FutureList<AuditLogModel> getWorkOrderHistory(String workOrderId);
 }
 
 @LazySingleton(as: WorkOrdersRemoteDataSource)
@@ -367,13 +367,35 @@ final class WorkOrdersRemoteDataSourceImpl
   });
 
   @override
-  FutureList<WorkOrderHistoryModel> getWorkOrderHistory(String workOrderId) =>
+  FutureList<AuditLogModel> getWorkOrderHistory(String workOrderId) =>
       SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'work_order_history',
-          filters: [SupabaseFilter.eq('work_order_id', workOrderId)],
+        final directLogs = await _database.selectList(
+          table: 'audit_logs',
+          filters: [
+            SupabaseFilter.eq('entity_type', 'work_orders'),
+            SupabaseFilter.eq('entity_id', workOrderId),
+          ],
         );
-        return response.map(WorkOrderHistoryModel.fromJson).toList();
+
+        final childLogs = await _database.selectList(
+          table: 'audit_logs',
+          filters: [
+            SupabaseFilter.eq('parent_entity_type', 'work_orders'),
+            SupabaseFilter.eq('parent_entity_id', workOrderId),
+          ],
+        );
+
+        final allLogs = <MapDynamic>[...directLogs, ...childLogs];
+        final uniqueMap = <String, MapDynamic>{};
+        for (final item in allLogs) {
+          final id = item['id'] as String? ?? '';
+          uniqueMap[id] = item;
+        }
+
+        final models = uniqueMap.values.map(AuditLogModel.fromJson).toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        return models;
       });
 }
 

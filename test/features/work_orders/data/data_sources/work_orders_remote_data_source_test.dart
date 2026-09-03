@@ -8,9 +8,9 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_log_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -51,9 +51,6 @@ void main() {
   final tChangeRequest = WorkOrderChangeRequestRequestModel.fromEntity(
     tChangeEntity,
   );
-
-  final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
-  final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
 
   final tCompanyId = faker.guid.guid();
   final tWorkOrderId = faker.guid.guid();
@@ -618,25 +615,40 @@ void main() {
   });
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
+    final tAuditLogEntity = EntityFactory.makeAuditLogEntity();
+    final tAuditLogModel = AuditLogModel.fromEntity(tAuditLogEntity);
+
     test(
-      'getWorkOrderHistory should return SuccessState<List<WorkOrderHistoryModel>>',
+      'getWorkOrderHistory should return SuccessState<List<AuditLogModel>> from audit_logs',
       () async {
         when(
           () => mockDatabase.selectList(
-            table: any(named: 'table'),
+            table: 'audit_logs',
             filters: any(named: 'filters'),
           ),
-        ).thenAnswer((_) async => [tHistoryModel.toJson()]);
+        ).thenAnswer((_) async => [tAuditLogModel.toJson()]);
 
         final result = await dataSource.getWorkOrderHistory(tWorkOrderId);
 
-        expect(result, isA<SuccessState<List<WorkOrderHistoryModel>>>());
+        expect(result, isA<SuccessState<List<AuditLogModel>>>());
         expect(result.data, hasLength(1));
-        expect(result.data!.first.id, tHistoryModel.id);
+        expect(result.data!.first.id, tAuditLogModel.id);
         verify(
           () => mockDatabase.selectList(
-            table: 'work_order_history',
-            filters: [SupabaseFilter.eq('work_order_id', tWorkOrderId)],
+            table: 'audit_logs',
+            filters: [
+              SupabaseFilter.eq('entity_type', 'work_orders'),
+              SupabaseFilter.eq('entity_id', tWorkOrderId),
+            ],
+          ),
+        ).called(1);
+        verify(
+          () => mockDatabase.selectList(
+            table: 'audit_logs',
+            filters: [
+              SupabaseFilter.eq('parent_entity_type', 'work_orders'),
+              SupabaseFilter.eq('parent_entity_id', tWorkOrderId),
+            ],
           ),
         ).called(1);
       },
