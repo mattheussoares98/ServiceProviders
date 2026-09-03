@@ -22,12 +22,12 @@ class WorkOrderDetailsState extends BaseState {
       super();
 
   final WorkOrderEntity? workOrder;
-  final List<WorkOrderHistoryEntity> history;
+  final List<AuditLogEntity> history;
 
   WorkOrderDetailsState copyWith({
     WorkOrderEntity? workOrder,
     bool annulWorkOrder = false,
-    List<WorkOrderHistoryEntity>? history,
+    List<AuditLogEntity>? history,
     Map<SectionKey, SectionState>? sections,
   }) {
     return WorkOrderDetailsState(

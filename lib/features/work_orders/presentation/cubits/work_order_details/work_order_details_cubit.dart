@@ -7,10 +7,10 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
@@ -375,7 +375,7 @@ class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
     final dataState = await _useCases.getWorkOrderHistory(workOrderId);
     if (isClosed) return;
 
-    if (dataState is SuccessState<List<WorkOrderHistoryEntity>>) {
+    if (dataState is SuccessState<List<AuditLogEntity>>) {
       emit(state.copyWith(history: dataState.data ?? []));
     } else {
       showDataStateToast(dataState);

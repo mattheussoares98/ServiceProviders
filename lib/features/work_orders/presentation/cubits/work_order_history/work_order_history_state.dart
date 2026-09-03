@@ -14,11 +14,11 @@ class WorkOrderHistoryState extends BaseState {
       endDate = null,
       super();
 
-  final List<WorkOrderHistoryEntity> history;
+  final List<AuditLogEntity> history;
   final DateTime? startDate;
   final DateTime? endDate;
 
-  List<WorkOrderHistoryEntity> get filteredHistory {
+  List<AuditLogEntity> get filteredHistory {
     if (startDate == null && endDate == null) {
       return history;
     }
@@ -72,7 +72,7 @@ class WorkOrderHistoryState extends BaseState {
   }
 
   WorkOrderHistoryState copyWith({
-    List<WorkOrderHistoryEntity>? history,
+    List<AuditLogEntity>? history,
     DateTime? startDate,
     DateTime? endDate,
     bool annulStartDate = false,

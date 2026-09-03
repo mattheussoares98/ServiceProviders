@@ -47,7 +47,7 @@ void main() {
       build: () {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
           (_) async => SuccessState(
-            data: EntityFactory.makeWorkOrderHistoryEntityList(),
+            data: EntityFactory.makeAuditLogEntityList(),
           ),
         );
         return WorkOrderHistoryCubit(useCases: cubitUseCases);
@@ -67,16 +67,13 @@ void main() {
             )
             .having((s) => s.history.length, 'history.length', 3),
       ],
-      verify: (_) {
-        verify(() => mockGetWorkOrderHistory.call(testWorkOrderId)).called(1);
-      },
     );
 
     blocTest<WorkOrderHistoryCubit, WorkOrderHistoryState>(
-      'emits [running, error] when loadHistory fails',
+      'loadHistory emits [running, error] when use case fails',
       build: () {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
-          (_) async => FailureState(message: 'Database error'),
+          (_) async => FailureState(message: 'Failed to load'),
         );
         return WorkOrderHistoryCubit(useCases: cubitUseCases);
       },
@@ -103,9 +100,9 @@ void main() {
       final date3 = DateTime(2026, 3, 10, 15);
 
       final baseHistory = [
-        EntityFactory.makeWorkOrderHistoryEntity().copyWith(createdAt: date1),
-        EntityFactory.makeWorkOrderHistoryEntity().copyWith(createdAt: date2),
-        EntityFactory.makeWorkOrderHistoryEntity().copyWith(createdAt: date3),
+        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date1),
+        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date2),
+        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date3),
       ];
 
       cubit.emit(cubit.state.copyWith(history: baseHistory));

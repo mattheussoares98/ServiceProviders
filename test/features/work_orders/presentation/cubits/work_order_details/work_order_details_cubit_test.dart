@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
@@ -416,7 +416,7 @@ void main() {
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'should update history list when history loads successfully',
       build: () {
-        final tHistory = EntityFactory.makeWorkOrderHistoryEntityList();
+        final tHistory = EntityFactory.makeAuditLogEntityList();
         when(
           () => mockGetWorkOrderHistory.call(any()),
         ).thenAnswer((_) async => SuccessState(data: tHistory));
@@ -439,8 +439,7 @@ void main() {
       'should not emit state when history load fails',
       build: () {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
-          (_) async =>
-              FailureState<List<WorkOrderHistoryEntity>>(message: 'Error'),
+          (_) async => FailureState<List<AuditLogEntity>>(message: 'Error'),
         );
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },

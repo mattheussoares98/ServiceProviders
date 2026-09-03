@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
@@ -26,7 +26,7 @@ class WorkOrderHistoryCubit extends BaseCubit<WorkOrderHistoryState> {
     final dataState = await _useCases.getWorkOrderHistory(workOrderId);
     if (isClosed) return;
 
-    if (dataState is SuccessState<List<WorkOrderHistoryEntity>>) {
+    if (dataState is SuccessState<List<AuditLogEntity>>) {
       emit(
         state.copyWith(
           history: dataState.data ?? [],
