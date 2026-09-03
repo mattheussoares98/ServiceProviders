@@ -37,6 +37,7 @@ class WorkOrderFilters extends HookWidget {
     );
     final scheduledDateTo = useState<DateTime?>(currentFilter.scheduledDateTo);
     final isDelayed = useState<bool>(currentFilter.isDelayed);
+    final onlyDeleted = useState<bool>(currentFilter.onlyDeleted);
     final searchController = useTextEditingController(
       text: currentFilter.searchText ?? '',
     );
@@ -69,6 +70,7 @@ class WorkOrderFilters extends HookWidget {
         scheduledDateTo: scheduledDateTo.value,
         searchText: searchController.text.trimToNull(),
         isDelayed: isDelayed.value,
+        onlyDeleted: onlyDeleted.value,
       );
       context.read<WorkOrdersCubit>().applyFilter(filter);
       Navigator.of(context).pop();
@@ -82,6 +84,7 @@ class WorkOrderFilters extends HookWidget {
       scheduledDateFrom.value = null;
       scheduledDateTo.value = null;
       isDelayed.value = false;
+      onlyDeleted.value = false;
       searchController.clear();
     }
 
@@ -235,6 +238,16 @@ class WorkOrderFilters extends HookWidget {
                   ),
                   value: isDelayed.value,
                   onChanged: (val) => isDelayed.value = val,
+                ),
+                gapH8,
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: BaseText('Apenas ordens excluídas'.hardcoded),
+                  subtitle: BaseText.bodySmall(
+                    'Exibir ordens de serviço que foram excluídas'.hardcoded,
+                  ),
+                  value: onlyDeleted.value,
+                  onChanged: (val) => onlyDeleted.value = val,
                 ),
                 gapH24,
               ],
