@@ -145,6 +145,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [user_configurations_rules.md](user_configurations_rules.md)
 - [user_device_tokens_rules.md](user_device_tokens_rules.md)
 - [sync_errors_rules.md](sync_errors_rules.md)
+- [work_order_history_rules.md](work_order_history_rules.md)
 
 ---
 
