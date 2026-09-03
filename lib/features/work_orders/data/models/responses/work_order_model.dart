@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';

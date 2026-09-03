@@ -1,10 +1,10 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 
 class PauseRequestModel extends PauseRequestEntity
     implements DataConvertible<PauseRequestEntity> {

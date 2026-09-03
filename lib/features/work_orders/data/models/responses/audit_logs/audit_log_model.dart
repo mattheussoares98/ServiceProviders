@@ -1,11 +1,11 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_change_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_metadata_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_logs/audit_change_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_logs/audit_metadata_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 
 class AuditLogModel extends AuditLogEntity
     implements DataConvertible<AuditLogEntity> {

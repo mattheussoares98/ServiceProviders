@@ -13,12 +13,12 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_ent
 import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_reason_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
 import 'package:uuid/uuid.dart';
 

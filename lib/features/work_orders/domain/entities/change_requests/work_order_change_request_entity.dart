@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_type.dart';
 
 class WorkOrderChangeRequestEntity extends Equatable {
   const WorkOrderChangeRequestEntity({

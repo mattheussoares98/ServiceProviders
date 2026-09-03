@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 

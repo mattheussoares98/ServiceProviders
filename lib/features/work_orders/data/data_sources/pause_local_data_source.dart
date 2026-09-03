@@ -4,11 +4,11 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/error_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_reason_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pause_request_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
 abstract interface class PauseLocalDataSource {

@@ -42,20 +42,20 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_metadata_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_metadata_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_reason_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_request_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_kpi_metrics_entity.dart';
@@ -351,11 +351,7 @@ abstract final class EntityFactory {
   }
 
   static List<AuditLogEntity> makeAuditLogEntityList() {
-    return [
-      makeAuditLogEntity(),
-      makeAuditLogEntity(),
-      makeAuditLogEntity(),
-    ];
+    return [makeAuditLogEntity(), makeAuditLogEntity(), makeAuditLogEntity()];
   }
 
   // ChecklistTemplate

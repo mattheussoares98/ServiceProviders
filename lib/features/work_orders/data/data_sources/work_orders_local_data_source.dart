@@ -12,10 +12,10 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_m
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_history_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_responsability.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
@@ -357,68 +357,68 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         toUpsert.add(
           WorkOrdersCompanion(
             id: Value(workOrder.id),
-              companyId: Value(workOrder.companyId),
-              assetId: Value(workOrder.assetId),
-              locationId: Value(workOrder.locationId),
-              assignedToId: Value(workOrder.assignedToId),
-              createdById: Value(workOrder.createdById),
-              createdByProviderProfileId: Value(
-                workOrder.createdByProviderProfileId,
-              ),
-              maintenancePlanId: Value(workOrder.maintenancePlanId),
-              title: Value(workOrder.title),
-              description: Value(workOrder.description),
-              priority: Value(workOrder.priority.code),
-              status: Value(workOrder.status.code),
-              type: Value(workOrder.type.code),
-              scheduledDate: Value(workOrder.scheduledDate?.toUtc()),
-              startedAt: Value(workOrder.startedAt?.toUtc()),
-              completedAt: Value(workOrder.completedAt?.toUtc()),
-              estimatedDuration: Value(workOrder.estimatedDuration),
-              actualDuration: Value(workOrder.actualDuration),
-              laborCost: Value(workOrder.laborCost),
-              partsCost: Value(workOrder.partsCost),
-              totalCost: Value(workOrder.totalCost),
-              notes: Value(workOrder.notes),
-              createdAt: Value(workOrder.createdAt.toUtc()),
-              updatedAt: Value(workOrder.updatedAt.toUtc()),
-              deletedAt: Value(workOrder.deletedAt?.toUtc()),
-              slaPolicyId: Value(workOrder.slaPolicyId),
-              slaDeadlineAt: Value(workOrder.slaDeadlineAt?.toUtc()),
-              slaBreached: Value(workOrder.slaBreached),
-              completionReason: Value(workOrder.completionReason),
-              completionResponsibility: Value(
-                workOrder.completionResponsibility?.value,
-              ),
-              completionSectorId: Value(workOrder.completionSectorId),
-              advanceWarningSentAt: Value(
-                workOrder.advanceWarningSentAt?.toUtc(),
-              ),
-              lastEscalationLevel: Value(workOrder.lastEscalationLevel),
-              lastEscalationAt: Value(workOrder.lastEscalationAt?.toUtc()),
+            companyId: Value(workOrder.companyId),
+            assetId: Value(workOrder.assetId),
+            locationId: Value(workOrder.locationId),
+            assignedToId: Value(workOrder.assignedToId),
+            createdById: Value(workOrder.createdById),
+            createdByProviderProfileId: Value(
+              workOrder.createdByProviderProfileId,
+            ),
+            maintenancePlanId: Value(workOrder.maintenancePlanId),
+            title: Value(workOrder.title),
+            description: Value(workOrder.description),
+            priority: Value(workOrder.priority.code),
+            status: Value(workOrder.status.code),
+            type: Value(workOrder.type.code),
+            scheduledDate: Value(workOrder.scheduledDate?.toUtc()),
+            startedAt: Value(workOrder.startedAt?.toUtc()),
+            completedAt: Value(workOrder.completedAt?.toUtc()),
+            estimatedDuration: Value(workOrder.estimatedDuration),
+            actualDuration: Value(workOrder.actualDuration),
+            laborCost: Value(workOrder.laborCost),
+            partsCost: Value(workOrder.partsCost),
+            totalCost: Value(workOrder.totalCost),
+            notes: Value(workOrder.notes),
+            createdAt: Value(workOrder.createdAt.toUtc()),
+            updatedAt: Value(workOrder.updatedAt.toUtc()),
+            deletedAt: Value(workOrder.deletedAt?.toUtc()),
+            slaPolicyId: Value(workOrder.slaPolicyId),
+            slaDeadlineAt: Value(workOrder.slaDeadlineAt?.toUtc()),
+            slaBreached: Value(workOrder.slaBreached),
+            completionReason: Value(workOrder.completionReason),
+            completionResponsibility: Value(
+              workOrder.completionResponsibility?.value,
+            ),
+            completionSectorId: Value(workOrder.completionSectorId),
+            advanceWarningSentAt: Value(
+              workOrder.advanceWarningSentAt?.toUtc(),
+            ),
+            lastEscalationLevel: Value(workOrder.lastEscalationLevel),
+            lastEscalationAt: Value(workOrder.lastEscalationAt?.toUtc()),
+          ),
+        );
+
+        for (final attachment in workOrder.attachments) {
+          attachmentsToUpsert.add(
+            AttachmentsCompanion(
+              id: Value(attachment.id),
+              workOrderId: Value(attachment.workOrderId),
+              companyId: Value(attachment.companyId),
+              uploadedById: Value(attachment.uploadedById),
+              fileName: Value(attachment.fileName),
+              fileType: Value(attachment.fileType.code),
+              localPath: Value(attachment.localPath),
+              remoteUrl: Value(attachment.remoteUrl),
+              fileSizeBytes: Value(attachment.fileSizeBytes),
+              isCompressed: Value(attachment.isCompressed),
+              uploadStatus: Value(attachment.uploadStatus.code),
+              createdAt: Value(attachment.createdAt.toUtc()),
+              deletedAt: Value(attachment.deletedAt?.toUtc()),
+              originalPath: Value(attachment.originalPath),
             ),
           );
-
-          for (final attachment in workOrder.attachments) {
-            attachmentsToUpsert.add(
-              AttachmentsCompanion(
-                id: Value(attachment.id),
-                workOrderId: Value(attachment.workOrderId),
-                companyId: Value(attachment.companyId),
-                uploadedById: Value(attachment.uploadedById),
-                fileName: Value(attachment.fileName),
-                fileType: Value(attachment.fileType.code),
-                localPath: Value(attachment.localPath),
-                remoteUrl: Value(attachment.remoteUrl),
-                fileSizeBytes: Value(attachment.fileSizeBytes),
-                isCompressed: Value(attachment.isCompressed),
-                uploadStatus: Value(attachment.uploadStatus.code),
-                createdAt: Value(attachment.createdAt.toUtc()),
-                deletedAt: Value(attachment.deletedAt?.toUtc()),
-                originalPath: Value(attachment.originalPath),
-              ),
-            );
-          }
+        }
       }
 
       await _database.batch((batch) {
@@ -454,9 +454,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query = _database.update(_database.workOrders)
         ..where((t) => t.id.equals(id));
-      await query.write(
-        const WorkOrdersCompanion(deletedAt: Value(null)),
-      );
+      await query.write(const WorkOrdersCompanion(deletedAt: Value(null)));
       return const SuccessState(data: true);
     });
   }

@@ -1,7 +1,7 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
 
 class AuditChangeModel extends AuditChangeEntity
     implements DataConvertible<AuditChangeEntity> {

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_metadata_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_metadata_entity.dart';
 
 class AuditLogEntity extends Equatable {
   const AuditLogEntity({
