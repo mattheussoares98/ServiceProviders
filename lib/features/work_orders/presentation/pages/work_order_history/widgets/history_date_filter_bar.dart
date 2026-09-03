@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class HistoryDateFilterBar extends StatelessWidget {
   const HistoryDateFilterBar({super.key});
@@ -40,44 +39,32 @@ class HistoryDateFilterBar extends StatelessWidget {
       }
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Sizes.p16,
-        vertical: Sizes.p12,
-      ),
-      decoration: BoxDecoration(
-        color: context.colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(color: context.colorScheme.outlineVariant),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: SecondaryButton(
-              onTap: pickDateRange,
-              text: hasFilter
-                  ? '${startDate?.formatDate() ?? ''} - ${endDate?.formatDate() ?? ''}'
-                  : 'Filtrar por período'.hardcoded,
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.date_range,
-                cupertinoIcon: Icons.date_range,
-              ),
+    return Row(
+      children: [
+        Expanded(
+          child: SecondaryButton(
+            onTap: pickDateRange,
+            text: hasFilter
+                ? '${startDate?.formatDate() ?? ''} - ${endDate?.formatDate() ?? ''}'
+                : 'Filtrar por período'.hardcoded,
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.date_range,
+              cupertinoIcon: Icons.date_range,
             ),
           ),
-          if (hasFilter) ...[
-            gapW8,
-            BaseIconButton(
-              onPressed: () =>
-                  context.read<WorkOrderHistoryCubit>().clearDateFilter(),
-              platformIcon: const PlatformIcon(
-                materialIcon: Icons.clear,
-                cupertinoIcon: Icons.clear,
-              ),
+        ),
+        if (hasFilter) ...[
+          gapW8,
+          BaseIconButton(
+            onPressed: () =>
+                context.read<WorkOrderHistoryCubit>().clearDateFilter(),
+            platformIcon: const PlatformIcon(
+              materialIcon: Icons.clear,
+              cupertinoIcon: Icons.clear,
             ),
-          ],
+          ),
         ],
-      ),
+      ],
     );
   }
 }

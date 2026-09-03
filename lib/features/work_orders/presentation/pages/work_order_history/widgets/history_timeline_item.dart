@@ -36,9 +36,9 @@ class HistoryTimelineItem extends StatelessWidget {
 
     return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
-          // Timeline indicator
+          gapW8,
           Column(
             children: [
               Container(
@@ -58,12 +58,11 @@ class HistoryTimelineItem extends StatelessWidget {
                 ),
             ],
           ),
-          gapW16,
+          gapW8,
           // Content card
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: Sizes.p16),
-              padding: const EdgeInsets.all(Sizes.p16),
+              padding: const EdgeInsets.all(Sizes.p8),
               decoration: BoxDecoration(
                 color: context.colorScheme.surface,
                 borderRadius: BorderRadius.circular(Sizes.p12),

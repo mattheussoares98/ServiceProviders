@@ -37,6 +37,7 @@ class WorkOrderHistoryPage extends StatelessWidget {
             body: Column(
               children: [
                 const HistoryDateFilterBar(),
+                gapH16,
                 Expanded(
                   child:
                       BaseStateView<
@@ -60,7 +61,6 @@ class WorkOrderHistoryPage extends StatelessWidget {
 
                           return ResponsiveListFlow(
                             itemCount: history.length,
-                            padding: const EdgeInsets.all(Sizes.p16),
                             itemBuilder: (context, index) {
                               final item = history[index];
                               final isLast = index == history.length - 1;
