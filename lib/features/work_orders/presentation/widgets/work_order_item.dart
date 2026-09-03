@@ -68,6 +68,15 @@ class WorkOrderItem extends StatelessWidget {
                       color: workOrder.status.color,
                     ),
                   ),
+                  if (workOrder.isDeleted) ...[
+                    const WidgetSpan(child: gapW4),
+                    WidgetSpan(
+                      child: BaseIndicationItem(
+                        label: 'Excluída'.hardcoded,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
                   if (workOrder.estimatedDuration != null) ...[
                     const WidgetSpan(child: gapW4),
                     WidgetSpan(
