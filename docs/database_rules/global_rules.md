@@ -97,6 +97,26 @@ $$;
 
 Any table that contains a `deleted_at` column is restricted from hard deletion. Instead of a `DELETE` query, clients must perform an `UPDATE` setting `deleted_at` to the current timestamp.
 
+### Tracking the Deleting User (`deleted_by`)
+
+All soft-deletable tables include a `deleted_by UUID REFERENCES public.user_profiles(id)` column (in both remote Postgres and local Drift):
+1. **Local (Drift & Offline mutations)**: The client explicitly passes `deleted_by` (the current authenticated user's profile ID) during soft delete operations (`deleteLocation`, `deleteAsset`, etc.).
+2. **Remote (Supabase Trigger fallback)**: A `BEFORE UPDATE` trigger checks if `NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS NULL`. If `NEW.deleted_by` is not explicitly provided by the update payload, it automatically defaults to `auth.uid()`.
+
+```sql
+CREATE OR REPLACE FUNCTION public.handle_soft_delete_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS NULL THEN
+    IF NEW.deleted_by IS NULL THEN
+      NEW.deleted_by := auth.uid();
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
 ### Hard Delete Prevention Trigger
 
 ```sql
@@ -118,6 +138,9 @@ $$ LANGUAGE plpgsql;
 - **attachments** (`tr_prevent_delete_attachments`)
 - **work_orders** (`tr_prevent_delete_work_orders`)
 - **work_order_change_requests** (`tr_prevent_delete_work_order_change_requests`)
+- **sla_policies** (`tr_prevent_delete_sla_policies`)
+- **pause_reasons** (`tr_prevent_delete_pause_reasons`)
+- **sectors** (`tr_prevent_delete_sectors`)
 
 ---
 
