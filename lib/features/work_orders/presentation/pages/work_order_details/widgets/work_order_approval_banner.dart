@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -101,7 +101,7 @@ class WorkOrderApprovalBanner extends HookWidget {
               text: 'Ver solicitações'.hardcoded,
               onTap: () async {
                 await context
-                    .read<WorkOrdersCubit>()
+                    .read<WorkOrderDetailsCubit>()
                     .navigateToWorkOrderPendingRequests(
                       workOrder,
                       currentUserId,

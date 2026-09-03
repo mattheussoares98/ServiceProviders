@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -11,7 +10,7 @@ import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/se
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/edit_and_delete_icons.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/info_items.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/deleted_work_order_banner.dart';
@@ -32,21 +31,13 @@ class WorkOrderDetailsPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final workOrderInState = context.select<WorkOrdersCubit, WorkOrderEntity?>(
-      (cubit) =>
-          cubit.state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
-    );
-
-    useEffect(() {
-      context.read<WorkOrdersCubit>().loadWorkOrderById(
-        workOrderId,
-        showLoading: workOrderInState == null,
-      );
-      return null;
-    }, [workOrderId]);
-
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) =>
+              GetIt.I<WorkOrderDetailsCubit>()
+                ..loadWorkOrder(workOrderId, showLoading: true),
+        ),
         BlocProvider(
           create: (context) => GetIt.I<AttachmentsCubit>(param1: workOrderId),
         ),
@@ -56,30 +47,34 @@ class WorkOrderDetailsPage extends HookWidget {
                 ..fetchObservations(workOrderId),
         ),
       ],
-      child: BaseStateView<WorkOrdersCubit, WorkOrdersState, WorkOrderEntity?>(
-        dataSelector: (state) =>
-            state.workOrders.firstWhereOrNull((e) => e.id == workOrderId),
-        onRetry: () => context.read<WorkOrdersCubit>().loadWorkOrderById(
-          workOrderId,
-          showLoading: true,
-        ),
-        builder: (context, workOrder) {
-          if (workOrder == null) {
-            return BaseScaffold(
-              appBar: BaseAppBar(
-                title: 'Detalhes da ordem de serviço'.hardcoded,
-              ),
-              body: Center(
-                child: BaseText.error(
-                  'Ordem de serviço não encontrada'.hardcoded,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            );
-          }
-          return _WorkOrderDetails(workOrder: workOrder);
-        },
-      ),
+      child:
+          BaseStateView<
+            WorkOrderDetailsCubit,
+            WorkOrderDetailsState,
+            WorkOrderEntity?
+          >(
+            dataSelector: (state) => state.workOrder,
+            onRetry: () => context.read<WorkOrderDetailsCubit>().loadWorkOrder(
+              workOrderId,
+              showLoading: true,
+            ),
+            builder: (context, workOrder) {
+              if (workOrder == null) {
+                return BaseScaffold(
+                  appBar: BaseAppBar(
+                    title: 'Detalhes da ordem de serviço'.hardcoded,
+                  ),
+                  body: Center(
+                    child: BaseText.error(
+                      'Ordem de serviço não encontrada'.hardcoded,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                );
+              }
+              return _WorkOrderDetails(workOrder: workOrder);
+            },
+          ),
     );
   }
 }
@@ -105,15 +100,12 @@ class _WorkOrderDetails extends HookWidget {
 
     observeRunning([
       ObservedLoadingTarget(
-        context.read<WorkOrdersCubit>(),
+        context.read<WorkOrderDetailsCubit>(),
         sections: const {
-          WorkOrdersSections.saveWorkOrder,
-          WorkOrdersSections.deleteWorkOrder,
-          WorkOrdersSections.restoreWorkOrder,
-          WorkOrdersSections.changeStatus,
-          WorkOrdersSections.resumeWork,
-          WorkOrdersSections.createChangeRequest,
-          WorkOrdersSections.reviewChangeRequest,
+          WorkOrderDetailsSections.deleteWorkOrder,
+          WorkOrderDetailsSections.restoreWorkOrder,
+          WorkOrderDetailsSections.changeStatus,
+          WorkOrderDetailsSections.resumeWork,
         },
       ),
       ObservedLoadingTarget(
@@ -129,7 +121,7 @@ class _WorkOrderDetails extends HookWidget {
 
     Future<void> onRefresh() async {
       await Future.wait([
-        context.read<WorkOrdersCubit>().loadWorkOrderById(workOrder.id),
+        context.read<WorkOrderDetailsCubit>().loadWorkOrder(workOrder.id),
         pauseCubit.loadPauseRequests(workOrder.id),
         context.read<AttachmentsCubit>().refreshAttachments(),
         context.read<WorkOrderObservationsCubit>().fetchObservations(

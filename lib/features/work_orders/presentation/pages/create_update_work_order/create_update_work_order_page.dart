@@ -90,10 +90,7 @@ class CreateUpdateWorkOrderPage extends HookWidget {
     observeRunning([
       ObservedLoadingTarget(
         context.read<WorkOrdersCubit>(),
-        sections: const {
-          WorkOrdersSections.saveWorkOrder,
-          WorkOrdersSections.deleteWorkOrder,
-        },
+        sections: const {WorkOrdersSections.saveWorkOrder},
       ),
     ]);
 

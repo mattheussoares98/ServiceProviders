@@ -58,7 +58,15 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_permission
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 
@@ -233,3 +241,26 @@ class MockCreateWorkOrderObservationUseCase extends Mock
 
 class MockDeleteWorkOrderObservationUseCase extends Mock
     implements DeleteWorkOrderObservationUseCase {}
+
+class MockGetWorkOrderByIdUseCase extends Mock
+    implements GetWorkOrderByIdUseCase {}
+
+class MockUpdateWorkOrderUseCase extends Mock
+    implements UpdateWorkOrderUseCase {}
+
+class MockDeleteWorkOrderUseCase extends Mock
+    implements DeleteWorkOrderUseCase {}
+
+class MockRestoreWorkOrderUseCase extends Mock
+    implements RestoreWorkOrderUseCase {}
+
+class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
+
+class MockGetWorkOrderHistoryUseCase extends Mock
+    implements GetWorkOrderHistoryUseCase {}
+
+class MockCreateWorkOrderChangeRequestUseCase extends Mock
+    implements CreateWorkOrderChangeRequestUseCase {}
+
+class MockReviewWorkOrderChangeRequestUseCase extends Mock
+    implements ReviewWorkOrderChangeRequestUseCase {}

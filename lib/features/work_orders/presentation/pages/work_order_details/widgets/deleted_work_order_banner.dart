@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -82,7 +82,7 @@ class DeletedWorkOrderBanner extends StatelessWidget {
                   cancelActionText: 'Cancelar'.hardcoded,
                 );
                 if (confirmed == true && context.mounted) {
-                  await context.read<WorkOrdersCubit>().restoreWorkOrder(
+                  await context.read<WorkOrderDetailsCubit>().restoreWorkOrder(
                     workOrder.id,
                   );
                 }

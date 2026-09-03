@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -26,10 +26,12 @@ class EditAndDeleteIcons extends StatelessWidget {
               permissionAction: PermissionAction.update,
             ),
             onPressed: () {
-              context.read<WorkOrdersCubit>().navigateToCreateUpdateWorkOrder(
-                workOrderId,
-                attachmentsCubit: context.read<AttachmentsCubit>(),
-              );
+              context
+                  .read<WorkOrderDetailsCubit>()
+                  .navigateToCreateUpdateWorkOrder(
+                    workOrderId,
+                    attachmentsCubit: context.read<AttachmentsCubit>(),
+                  );
             },
             platformIcon: const PlatformIcon(
               materialIcon: Icons.edit_outlined,
@@ -53,7 +55,7 @@ class EditAndDeleteIcons extends StatelessWidget {
                 cancelActionText: 'Não'.hardcoded,
               );
               if (ok == true && context.mounted) {
-                await context.read<WorkOrdersCubit>().deleteWorkOrder(
+                await context.read<WorkOrderDetailsCubit>().deleteWorkOrder(
                   workOrderId,
                 );
               }

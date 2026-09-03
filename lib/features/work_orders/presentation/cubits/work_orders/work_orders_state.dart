@@ -1,20 +1,11 @@
 part of 'work_orders_cubit.dart';
 
-enum WorkOrdersSections implements SectionKey {
-  saveWorkOrder,
-  deleteWorkOrder,
-  restoreWorkOrder,
-  changeStatus,
-  resumeWork,
-  createChangeRequest,
-  reviewChangeRequest,
-}
+enum WorkOrdersSections implements SectionKey { saveWorkOrder }
 
 class WorkOrdersState extends BaseState {
   const WorkOrdersState({
     required this.workOrders,
     required this.changeRequests,
-    required this.historyByWorkOrder,
     this.activeFilter = const WorkOrderFilter(),
     this.hasMorePages = true,
     this.isLoadingMore = false,
@@ -25,7 +16,6 @@ class WorkOrdersState extends BaseState {
   const WorkOrdersState.initial()
     : workOrders = const [],
       changeRequests = const [],
-      historyByWorkOrder = const <String, List<WorkOrderHistoryEntity>>{},
       activeFilter = const WorkOrderFilter(),
       hasMorePages = true,
       isLoadingMore = false,
@@ -34,7 +24,6 @@ class WorkOrdersState extends BaseState {
 
   final List<WorkOrderEntity> workOrders;
   final List<WorkOrderChangeRequestEntity> changeRequests;
-  final Map<String, List<WorkOrderHistoryEntity>> historyByWorkOrder;
   final WorkOrderFilter activeFilter;
   final bool hasMorePages;
   final bool isLoadingMore;
@@ -52,7 +41,6 @@ class WorkOrdersState extends BaseState {
   WorkOrdersState copyWith({
     List<WorkOrderEntity>? workOrders,
     List<WorkOrderChangeRequestEntity>? changeRequests,
-    Map<String, List<WorkOrderHistoryEntity>>? historyByWorkOrder,
     WorkOrderFilter? activeFilter,
     bool? hasMorePages,
     bool? isLoadingMore,
@@ -62,7 +50,6 @@ class WorkOrdersState extends BaseState {
     return WorkOrdersState(
       workOrders: workOrders ?? this.workOrders,
       changeRequests: changeRequests ?? this.changeRequests,
-      historyByWorkOrder: historyByWorkOrder ?? this.historyByWorkOrder,
       activeFilter: activeFilter ?? this.activeFilter,
       hasMorePages: hasMorePages ?? this.hasMorePages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -75,7 +62,6 @@ class WorkOrdersState extends BaseState {
   List<Object?> get props => [
     workOrders,
     changeRequests,
-    historyByWorkOrder,
     activeFilter,
     hasMorePages,
     isLoadingMore,

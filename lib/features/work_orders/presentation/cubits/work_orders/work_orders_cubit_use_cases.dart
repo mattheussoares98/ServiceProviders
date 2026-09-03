@@ -10,17 +10,11 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_s
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/services/sync_engine.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
@@ -33,17 +27,11 @@ class WorkOrdersCubitUseCases {
     required this.getWorkOrderById,
     required this.createWorkOrder,
     required this.updateWorkOrder,
-    required this.deleteWorkOrder,
-    required this.restoreWorkOrder,
     required this.getChangeRequests,
-    required this.createChangeRequest,
-    required this.reviewChangeRequest,
-    required this.getWorkOrderHistory,
     required this.getAttachments,
     required this.uploadAttachment,
     required this.deleteAttachment,
     required this.createAttachment,
-    required this.cancelPause,
     required this.syncWorkOrders,
     required this.syncEngine,
     required this.watchWorkOrdersRealtime,
@@ -60,17 +48,11 @@ class WorkOrdersCubitUseCases {
   final GetWorkOrderByIdUseCase getWorkOrderById;
   final CreateWorkOrderUseCase createWorkOrder;
   final UpdateWorkOrderUseCase updateWorkOrder;
-  final DeleteWorkOrderUseCase deleteWorkOrder;
-  final RestoreWorkOrderUseCase restoreWorkOrder;
   final GetWorkOrderChangeRequestsUseCase getChangeRequests;
-  final CreateWorkOrderChangeRequestUseCase createChangeRequest;
-  final ReviewWorkOrderChangeRequestUseCase reviewChangeRequest;
-  final GetWorkOrderHistoryUseCase getWorkOrderHistory;
   final GetAttachmentsUseCase getAttachments;
   final UploadAttachmentUseCase uploadAttachment;
   final DeleteAttachmentUseCase deleteAttachment;
   final CreateAttachmentUseCase createAttachment;
-  final CancelPauseUseCase cancelPause;
   final SyncWorkOrdersUseCase syncWorkOrders;
   final SyncEngine syncEngine;
   final WatchWorkOrdersRealtimeUseCase watchWorkOrdersRealtime;

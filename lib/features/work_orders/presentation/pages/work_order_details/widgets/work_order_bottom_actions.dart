@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_completion_fields.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/request_pause_fields.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
@@ -35,7 +35,7 @@ class WorkOrderBottomActions extends StatelessWidget {
               defaultActionText: 'Sim'.hardcoded,
               cancelActionText: 'Não'.hardcoded,
               onOkPressed: () =>
-                  context.read<WorkOrdersCubit>().changeWorkOrderStatus(
+                  context.read<WorkOrderDetailsCubit>().changeWorkOrderStatus(
                     workOrder: workOrder,
                     status: WorkOrderStatus.inProgress,
                   ),
@@ -57,7 +57,7 @@ class WorkOrderBottomActions extends StatelessWidget {
               contentText: 'Deseja realmente retomar o trabalho?'.hardcoded,
               defaultActionText: 'Sim'.hardcoded,
               cancelActionText: 'Não'.hardcoded,
-              onOkPressed: () => context.read<WorkOrdersCubit>().resumeWork(
+              onOkPressed: () => context.read<WorkOrderDetailsCubit>().resumeWork(
                 workOrder: workOrder,
                 currentUserId: context.read<SessionCubit>().state.user.id,
                 pauseCubit: context.read<PauseWorkflowCubit>(),
@@ -109,7 +109,7 @@ class WorkOrderBottomActions extends StatelessWidget {
                         cancelActionText: 'Não'.hardcoded,
                       );
                       if (ok == true && context.mounted) {
-                        await context.read<WorkOrdersCubit>().concludeDirectly(
+                        await context.read<WorkOrderDetailsCubit>().concludeDirectly(
                           workOrder: workOrder,
                         );
                       }
