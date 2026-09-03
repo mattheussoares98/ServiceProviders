@@ -96,6 +96,8 @@ class WorkOrderEntity extends Equatable {
   final int lastEscalationLevel;
   final DateTime? lastEscalationAt;
 
+  bool get isDeleted => deletedAt != null;
+
   @override
   List<Object?> get props => [
     id,
