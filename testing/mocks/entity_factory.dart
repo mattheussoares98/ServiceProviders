@@ -42,7 +42,10 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_invitation_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_metadata_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pause_reason_entity.dart';
@@ -320,7 +323,7 @@ abstract final class EntityFactory {
     return AuditLogEntity(
       id: _makeId(),
       companyId: _makeId(),
-      entityType: 'work_orders',
+      entityType: AuditEntityType.workOrders,
       entityId: _makeId(),
       userId: _makeId(),
       action: 'updated',
@@ -333,10 +336,16 @@ abstract final class EntityFactory {
           newValue: 'in_progress',
           oldDisplay: 'Aberto',
           newDisplay: 'Em Andamento',
-          entityType: 'work_orders',
+          entityType: AuditEntityType.workOrders,
           entityId: _makeId(),
         ),
       ],
+      metadata: const AuditMetadataEntity(
+        fileName: 'foto_equipamento.png',
+        fileUrl: 'https://example.com/foto_equipamento.png',
+        fileType: 'image/png',
+        fileSizeBytes: 2048,
+      ),
       createdAt: _makeDateTime(),
     );
   }
