@@ -1,86 +1,11 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_change_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_metadata_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_log_entity.dart';
-
-class AuditChangeModel extends AuditChangeEntity
-    implements DataConvertible<AuditChangeEntity> {
-  const AuditChangeModel({
-    required super.field,
-    super.label,
-    super.oldValue,
-    super.newValue,
-    super.oldDisplay,
-    super.newDisplay,
-    super.entityType,
-    super.entityId,
-    super.parentEntityType,
-    super.parentEntityId,
-  });
-
-  factory AuditChangeModel.fromEntity(AuditChangeEntity entity) =>
-      AuditChangeModel(
-        field: entity.field,
-        label: entity.label,
-        oldValue: entity.oldValue,
-        newValue: entity.newValue,
-        oldDisplay: entity.oldDisplay,
-        newDisplay: entity.newDisplay,
-        entityType: entity.entityType,
-        entityId: entity.entityId,
-        parentEntityType: entity.parentEntityType,
-        parentEntityId: entity.parentEntityId,
-      );
-
-  factory AuditChangeModel.fromJson(
-    MapDynamic json, {
-    String? defaultEntityType,
-    String? defaultEntityId,
-    String? defaultParentEntityType,
-    String? defaultParentEntityId,
-  }) => AuditChangeModel(
-    field: json['field'] as String? ?? '',
-    label: json['label'] as String?,
-    oldValue: json['old_value']?.toString(),
-    newValue: json['new_value']?.toString(),
-    oldDisplay: json['old_display']?.toString(),
-    newDisplay: json['new_display']?.toString(),
-    entityType: (json['entity_type'] as String?) ?? defaultEntityType,
-    entityId: (json['entity_id'] as String?) ?? defaultEntityId,
-    parentEntityType:
-        (json['parent_entity_type'] as String?) ?? defaultParentEntityType,
-    parentEntityId:
-        (json['parent_entity_id'] as String?) ?? defaultParentEntityId,
-  );
-
-  @override
-  MapDynamic toJson() => {
-    'field': field,
-    'label': label,
-    'old_value': oldValue,
-    'new_value': newValue,
-    'old_display': oldDisplay,
-    'new_display': newDisplay,
-    'entity_type': entityType,
-    'entity_id': entityId,
-    'parent_entity_type': parentEntityType,
-    'parent_entity_id': parentEntityId,
-  };
-
-  @override
-  AuditChangeEntity toEntity() => AuditChangeEntity(
-    field: field,
-    label: label,
-    oldValue: oldValue,
-    newValue: newValue,
-    oldDisplay: oldDisplay,
-    newDisplay: newDisplay,
-    entityType: entityType,
-    entityId: entityId,
-    parentEntityType: parentEntityType,
-    parentEntityId: parentEntityId,
-  );
-}
 
 class AuditLogModel extends AuditLogEntity
     implements DataConvertible<AuditLogEntity> {
@@ -115,9 +40,11 @@ class AuditLogModel extends AuditLogEntity
   );
 
   factory AuditLogModel.fromJson(MapDynamic json) {
-    final entityType = json['entity_type'] as String? ?? '';
+    final entityType = AuditEntityType.fromCode(json['entity_type'] as String?);
     final entityId = json['entity_id'] as String? ?? '';
-    final parentEntityType = json['parent_entity_type'] as String?;
+    final parentEntityType = json['parent_entity_type'] != null
+        ? AuditEntityType.fromCode(json['parent_entity_type'] as String?)
+        : null;
     final parentEntityId = json['parent_entity_id'] as String?;
 
     String? summary;
@@ -154,12 +81,12 @@ class AuditLogModel extends AuditLogEntity
       }
     }
 
-    MapDynamic? metadata;
+    AuditMetadataModel? metadata;
     final metaRaw = json['metadata'];
     if (metaRaw is MapDynamic) {
-      metadata = metaRaw;
+      metadata = AuditMetadataModel.fromJson(metaRaw);
     } else if (metaRaw is Map) {
-      metadata = MapDynamic.from(metaRaw);
+      metadata = AuditMetadataModel.fromJson(MapDynamic.from(metaRaw));
     }
 
     return AuditLogModel(
@@ -183,9 +110,9 @@ class AuditLogModel extends AuditLogEntity
   MapDynamic toJson() => {
     'id': id,
     'company_id': companyId,
-    'entity_type': entityType,
+    'entity_type': entityType.code,
     'entity_id': entityId,
-    'parent_entity_type': parentEntityType,
+    'parent_entity_type': parentEntityType?.code,
     'parent_entity_id': parentEntityId,
     'user_id': userId,
     'action': action,
@@ -195,7 +122,9 @@ class AuditLogModel extends AuditLogEntity
           .map((c) => AuditChangeModel.fromEntity(c).toJson())
           .toList(),
     },
-    'metadata': metadata,
+    'metadata': metadata != null
+        ? AuditMetadataModel.fromEntity(metadata!).toJson()
+        : null,
     'created_at': createdAt.toIsoUtcString(),
   };
 

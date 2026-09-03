@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
@@ -637,7 +638,7 @@ void main() {
           () => mockDatabase.selectList(
             table: 'audit_logs',
             filters: [
-              SupabaseFilter.eq('entity_type', 'work_orders'),
+              SupabaseFilter.eq('entity_type', AuditEntityType.workOrders.code),
               SupabaseFilter.eq('entity_id', tWorkOrderId),
             ],
           ),
@@ -646,7 +647,10 @@ void main() {
           () => mockDatabase.selectList(
             table: 'audit_logs',
             filters: [
-              SupabaseFilter.eq('parent_entity_type', 'work_orders'),
+              SupabaseFilter.eq(
+                'parent_entity_type',
+                AuditEntityType.workOrders.code,
+              ),
               SupabaseFilter.eq('parent_entity_id', tWorkOrderId),
             ],
           ),
