@@ -8,11 +8,24 @@ import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cu
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/audit_change_ui_extension.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+
+bool _isImageAttachment({String? fileType, String? fileName, String? fileUrl}) {
+  if (fileType != null && fileType.toLowerCase() == 'image') {
+    return true;
+  }
+  final target = (fileName ?? fileUrl ?? '').toLowerCase();
+  return target.endsWith('.png') ||
+      target.endsWith('.jpg') ||
+      target.endsWith('.jpeg') ||
+      target.endsWith('.webp') ||
+      target.endsWith('.gif');
+}
 
 class HistoryTimelineItem extends StatelessWidget {
   const HistoryTimelineItem({
@@ -34,113 +47,132 @@ class HistoryTimelineItem extends StatelessWidget {
     final fileUrl = metadata?.fileUrl;
     final fileName = metadata?.fileName;
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: .start,
-        children: [
-          gapW8,
-          Column(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: context.colorScheme.primary,
-                ),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: context.colorScheme.outlineVariant,
-                  ),
-                ),
-            ],
-          ),
-          gapW8,
-          // Content card
-          Expanded(
-            child: Container(
-              margin: const .only(bottom: Sizes.p8),
-              padding: const EdgeInsets.all(Sizes.p8),
+    return Stack(
+      children: [
+        Positioned(
+          left: Sizes.p8 + 5,
+          top: 12,
+          bottom: 0,
+          child: isLast
+              ? const SizedBox.shrink()
+              : Container(width: 2, color: context.colorScheme.outlineVariant),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            gapW8,
+            Container(
+              margin: const EdgeInsets.only(top: Sizes.p4),
+              width: 12,
+              height: 12,
               decoration: BoxDecoration(
-                color: context.colorScheme.surface,
-                borderRadius: BorderRadius.circular(Sizes.p12),
-                border: Border.all(color: context.colorScheme.outlineVariant),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: BaseText.bodyMedium(
-                          item.displayTitle.hardcoded,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      BaseText.caption(item.createdAt.formatDate()),
-                    ],
-                  ),
-                  if (item.changes.isNotEmpty) ...[
-                    gapH8,
-                    ...item.changes.where((change) => change.isDisplayable).map(
-                      (change) {
-                        final oldVal = change.localizedOldValue?.hardcoded;
-                        final newVal = change.localizedNewValue?.hardcoded;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: Sizes.p4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              BaseText.bodySmall(
-                                change.localizedLabel.hardcoded,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              if (oldVal != null)
-                                BaseText.bodySmall(
-                                  'De: $oldVal'.hardcoded,
-                                  color: context.colorScheme.error,
-                                ),
-                              if (newVal != null)
-                                BaseText.bodySmall(
-                                  '${oldVal == null ? '' : 'Para: '}$newVal'
-                                      .hardcoded,
-                                  color: context.colorScheme.primary,
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                  if (fileUrl != null && fileUrl.isNotEmpty) ...[
-                    gapH8,
-                    SecondaryButton(
-                      text: (fileName != null && fileName.isNotEmpty)
-                          ? 'Abrir anexo ($fileName)'.hardcoded
-                          : 'Abrir anexo'.hardcoded,
-                      platformIcon: const PlatformIcon(
-                        materialIcon: Icons.attach_file,
-                        cupertinoIcon: CupertinoIcons.paperclip,
-                      ),
-                      onTap: () => context
-                          .read<WorkOrderHistoryCubit>()
-                          .openAttachmentUrl(fileUrl),
-                    ),
-                  ],
-                  gapH8,
-                  BaseText.caption(
-                    'Por: ${user?.name ?? item.userId ?? 'Sistema'}'.hardcoded,
-                  ),
-                ],
+                shape: BoxShape.circle,
+                color: context.colorScheme.primary,
               ),
             ),
-          ),
-        ],
-      ),
+            gapW8,
+            // Content card
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: Sizes.p8),
+                padding: const EdgeInsets.all(Sizes.p8),
+                decoration: BoxDecoration(
+                  color: context.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(Sizes.p12),
+                  border: Border.all(color: context.colorScheme.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: BaseText.bodyMedium(
+                            item.displayTitle.hardcoded,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        BaseText.caption(item.createdAt.formatDate()),
+                      ],
+                    ),
+                    if (item.changes.isNotEmpty) ...[
+                      gapH8,
+                      ...item.changes
+                          .where((change) => change.isDisplayable)
+                          .map((change) {
+                            final oldVal = change.localizedOldValue?.hardcoded;
+                            final newVal = change.localizedNewValue?.hardcoded;
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: Sizes.p4),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  BaseText.bodySmall(
+                                    change.localizedLabel.hardcoded,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  if (oldVal != null)
+                                    BaseText.bodySmall(
+                                      'De: $oldVal'.hardcoded,
+                                      color: context.colorScheme.error,
+                                    ),
+                                  if (newVal != null)
+                                    BaseText.bodySmall(
+                                      '${oldVal == null ? '' : 'Para: '}$newVal'
+                                          .hardcoded,
+                                      color: context.colorScheme.primary,
+                                    ),
+                                ],
+                              ),
+                            );
+                          }),
+                    ],
+                    if (fileUrl != null && fileUrl.isNotEmpty) ...[
+                      gapH8,
+                      if (_isImageAttachment(
+                        fileType: metadata?.fileType,
+                        fileName: fileName,
+                        fileUrl: fileUrl,
+                      )) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(Sizes.p8),
+                          child: BaseImageWidget(
+                            source: BaseImageSource.network(fileUrl),
+                            enableFullScreenOnTap: true,
+                            heroTag: fileUrl,
+                            height: 180,
+                          ),
+                        ),
+                        gapH4,
+                      ] else
+                        FittedBox(
+                          child: BaseTextButton(
+                            text: (fileName != null && fileName.isNotEmpty)
+                                ? 'Abrir anexo ($fileName)'.hardcoded
+                                : 'Abrir anexo'.hardcoded,
+                            platformIcon: const PlatformIcon(
+                              materialIcon: Icons.attach_file,
+                              cupertinoIcon: CupertinoIcons.paperclip,
+                            ),
+                            onPressed: () => context
+                                .read<WorkOrderHistoryCubit>()
+                                .openAttachmentUrl(fileUrl),
+                          ),
+                        ),
+                    ],
+                    gapH8,
+                    BaseText.caption(
+                      'Por: ${user?.name ?? item.userId ?? 'Sistema'}'
+                          .hardcoded,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
