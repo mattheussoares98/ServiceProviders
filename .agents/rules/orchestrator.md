@@ -55,6 +55,7 @@ Tell each specialist exactly which files to create/modify, which classes to defi
 6. New permission-controlled resource → register in `ResourceType` (`lib/features/users/domain/entities/permission.dart`) **and** classify it in `permission/provider_mode_permission.dart` — provider mode never inherits internal RBAC.
 7. Implementation and its test land in the same turn.
 8. Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
+9. **Enum labels**: Keep domain enums translation-free (`code` only); place user-visible `.label` getters in presentation extensions ending with `.hardcoded`.
 
 ## Reference Docs
 `docs/business_rules.md` (domain lifecycle, SLA, pause/completion) · `docs/schema/index.md` (schema + ERD) · `docs/cmms/architecture.md` (data flow, sync state)
