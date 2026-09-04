@@ -60,6 +60,14 @@ extension AuditChangeUiExtension on AuditChangeEntity {
       'requested_by_id' => 'Solicitado por'.hardcoded,
       'reviewed_by_id' => 'Revisado por'.hardcoded,
       'service_provider_company_id' => 'Empresa prestadora'.hardcoded,
+      'provider_profile_id' => 'Prestador'.hardcoded,
+      'sla_policy_id' => 'Política de SLA'.hardcoded,
+      'sector_id' => 'Setor'.hardcoded,
+      'pause_reason_id' => 'Motivo de pausa'.hardcoded,
+      'maintenance_plan_id' => 'Plano de manutenção'.hardcoded,
+      'checklist_template_id' ||
+      'template_id' => 'Modelo de checklist'.hardcoded,
+      'estimated_duration' ||
       'estimated_duration_minutes' => 'Duração estimada (min)'.hardcoded,
       'is_required' => 'Obrigatório'.hardcoded,
       'is_active' => 'Ativo'.hardcoded,
