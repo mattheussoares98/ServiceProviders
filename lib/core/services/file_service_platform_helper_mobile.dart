@@ -378,7 +378,7 @@ final class FileServiceMobile implements FileServicePlatformHelper {
         if (await canLaunchUrl(uri)) {
           final success = await launchUrl(
             uri,
-            mode: LaunchMode.externalApplication,
+            mode: LaunchMode.inAppBrowserView,
           );
           if (success) {
             return const SuccessState(data: true);
