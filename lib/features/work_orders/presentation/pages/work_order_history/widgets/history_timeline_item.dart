@@ -76,7 +76,7 @@ class HistoryTimelineItem extends StatelessWidget {
                     children: [
                       Flexible(
                         child: BaseText.bodyMedium(
-                          (item.summary ?? item.action).hardcoded,
+                          item.displayTitle.hardcoded,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

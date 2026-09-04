@@ -6,6 +6,8 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ite
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
@@ -166,4 +168,51 @@ extension AuditChangeUiExtension on AuditChangeEntity {
 
   String? get localizedOldValue => formatValue(oldValue ?? oldDisplay);
   String? get localizedNewValue => formatValue(newValue ?? newDisplay);
+}
+
+extension AuditEntityTypeUiExtension on AuditEntityType {
+  String get label => switch (this) {
+    AuditEntityType.companies => 'Empresas'.hardcoded,
+    AuditEntityType.companyParameters => 'Parâmetros da empresa'.hardcoded,
+    AuditEntityType.locations => 'Localizações'.hardcoded,
+    AuditEntityType.areas => 'Áreas'.hardcoded,
+    AuditEntityType.categories => 'Categorias'.hardcoded,
+    AuditEntityType.assets => 'Ativos'.hardcoded,
+    AuditEntityType.checklistTemplates => 'Modelos de checklist'.hardcoded,
+    AuditEntityType.checklistItems => 'Itens de checklist'.hardcoded,
+    AuditEntityType.maintenancePlans => 'Planos de manutenção'.hardcoded,
+    AuditEntityType.workOrders => 'Ordens de serviço'.hardcoded,
+    AuditEntityType.tasks => 'Tarefas'.hardcoded,
+    AuditEntityType.workOrderChangeRequests =>
+      'Solicitações de alteração'.hardcoded,
+    AuditEntityType.workOrderObservations => 'Observações da OS'.hardcoded,
+    AuditEntityType.attachments => 'Anexos'.hardcoded,
+    AuditEntityType.workOrderPauseRequests => 'Solicitações de pausa'.hardcoded,
+    AuditEntityType.userProfiles => 'Perfis de usuário'.hardcoded,
+    AuditEntityType.permissionGroups => 'Grupos de permissão'.hardcoded,
+    AuditEntityType.slaPolicies => 'Políticas de SLA'.hardcoded,
+    AuditEntityType.sectors => 'Setores'.hardcoded,
+    AuditEntityType.pauseReasons => 'Motivos de pausa'.hardcoded,
+    AuditEntityType.serviceProviderCompanies =>
+      'Empresas prestadoras'.hardcoded,
+    AuditEntityType.serviceProviderProfiles =>
+      'Perfis de prestadores'.hardcoded,
+    AuditEntityType.unknown => 'Registro'.hardcoded,
+  };
+}
+
+extension AuditLogUiExtension on AuditLogEntity {
+  String get displayTitle {
+    if (summary != null && summary!.trim().isNotEmpty) {
+      return summary!;
+    }
+    final entityLabel = entityType.label;
+    return switch (action) {
+      'created' => 'Criação - ${entityLabel.toUpperCase()}'.hardcoded,
+      'deleted' => 'Exclusão - ${entityLabel.toUpperCase()}'.hardcoded,
+      'restored' => 'Restauração - ${entityLabel.toUpperCase()}'.hardcoded,
+      'updated' => 'Alteração - ${entityLabel.toUpperCase()}'.hardcoded,
+      _ => action.hardcoded,
+    };
+  }
 }

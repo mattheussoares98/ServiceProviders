@@ -123,7 +123,7 @@ DECLARE
     v_actor_id UUID := auth.uid();
     v_parent_type VARCHAR(50) := NULL;
     v_parent_id UUID := NULL;
-    v_summary TEXT := '';
+    v_summary TEXT;
     v_is_delete BOOLEAN := false;
     v_is_restore BOOLEAN := false;
 BEGIN
@@ -165,7 +165,7 @@ BEGIN
             COALESCE(v_actor_id, (v_new ->> 'created_by_id')::uuid, (v_new ->> 'user_id')::uuid),
             'created',
             jsonb_build_object(
-                'summary', 'Registro criado em ' || TG_TABLE_NAME,
+                'summary', NULL,
                 'changes', '[]'::jsonb
             ),
             COALESCE(NEW.created_at, now())
@@ -189,10 +189,8 @@ BEGIN
         -- Check soft delete / restore
         IF (v_old ->> 'deleted_at' IS NULL AND v_new ->> 'deleted_at' IS NOT NULL) THEN
             v_is_delete := true;
-            v_summary := 'Registro excluído em ' || TG_TABLE_NAME;
         ELSIF (v_old ->> 'deleted_at' IS NOT NULL AND v_new ->> 'deleted_at' IS NULL) THEN
             v_is_restore := true;
-            v_summary := 'Registro restaurado em ' || TG_TABLE_NAME;
         END IF;
 
         -- Compare all fields except updated_at
@@ -216,10 +214,6 @@ BEGIN
         END LOOP;
 
         IF jsonb_array_length(v_changes) > 0 THEN
-            IF v_summary = '' THEN
-                v_summary := 'Alterações em ' || TG_TABLE_NAME;
-            END IF;
-
             INSERT INTO public.audit_logs (
                 company_id,
                 entity_type,
