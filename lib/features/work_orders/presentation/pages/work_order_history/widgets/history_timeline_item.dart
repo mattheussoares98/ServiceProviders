@@ -93,7 +93,9 @@ class HistoryTimelineItem extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        BaseText.caption(item.createdAt.formatDate()),
+                        BaseText.caption(
+                          item.createdAt.formatDate(.ddMMyyyyHHmmss),
+                        ),
                       ],
                     ),
                     if (item.changes.isNotEmpty) ...[
