@@ -42,7 +42,7 @@ BEGIN
                 SELECT legal_name INTO v_name FROM public.service_provider_companies WHERE id = v_uuid;
             END IF;
         WHEN 'provider_profile_id' THEN
-            SELECT full_name INTO v_name FROM public.service_provider_profiles WHERE id = v_uuid;
+            SELECT name INTO v_name FROM public.service_provider_profiles WHERE id = v_uuid;
         WHEN 'sla_policy_id' THEN
             SELECT name INTO v_name FROM public.sla_policies WHERE id = v_uuid;
         WHEN 'sector_id' THEN
