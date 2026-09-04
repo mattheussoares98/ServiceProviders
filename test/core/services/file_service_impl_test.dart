@@ -566,18 +566,96 @@ void main() {
 
   group('openFile', () {
     test(
-      'returns SuccessState(true) when launching remote http/https URL succeeds',
+      'opens cached file directly from sandbox without downloading if already present',
+      () async {
+        const fileName = 'test_document.pdf';
+        final attachmentsDir = Directory('${tempDir.path}/attachments');
+        await attachmentsDir.create(recursive: true);
+        final cachedFile = File('${attachmentsDir.path}/$fileName');
+        await cachedFile.writeAsBytes([1, 2, 3]);
+
+        openFileResultType = 0; // ResultType.done
+        final result = await service.openFile('https://example.com/$fileName');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        // Verify mockHttpClient.download was NOT called because file was cached
+        verifyNever(
+          () => mockHttpClient.download(any<String>(), any<dynamic>()),
+        );
+      },
+    );
+
+    test(
+      'downloads remote document and opens via OpenFilex when not already cached',
+      () async {
+        when(
+          () => mockHttpClient.download(any<String>(), any<dynamic>()),
+        ).thenAnswer((invocation) async {
+          final destPath = invocation.positionalArguments[1] as String;
+          final file = File(destPath);
+          await file.create(recursive: true);
+          await file.writeAsBytes([1, 2, 3]);
+          return Response(requestOptions: RequestOptions(), statusCode: 200);
+        });
+
+        openFileResultType = 0; // ResultType.done
+        final result = await service.openFile(
+          'https://example.com/remote_file.pdf',
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(
+          () => mockHttpClient.download(
+            'https://example.com/remote_file.pdf',
+            any<dynamic>(),
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'falls back to external browser when downloading remote document fails but URL launch succeeds',
+      () async {
+        when(
+          () => mockHttpClient.download(any<String>(), any<dynamic>()),
+        ).thenAnswer(
+          (_) async =>
+              Response(requestOptions: RequestOptions(), statusCode: 500),
+        );
+
+        urlLaunchSuccess = true;
+        final result = await service.openFile(
+          'https://example.com/remote_file_fail.pdf',
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      },
+    );
+
+    test(
+      'returns SuccessState(true) when launching remote http/https URL directly succeeds',
       () async {
         urlLaunchSuccess = true;
-        final result = await service.openFile('https://example.com/file.pdf');
+        final result = await service.openFile('https://example.com/page');
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
       },
     );
 
     test('returns FailureState when launching remote URL fails', () async {
+      when(
+        () => mockHttpClient.download(any<String>(), any<dynamic>()),
+      ).thenAnswer(
+        (_) async =>
+            Response(requestOptions: RequestOptions(), statusCode: 500),
+      );
       urlLaunchSuccess = false;
-      final result = await service.openFile('https://example.com/file.pdf');
+      final result = await service.openFile(
+        'https://example.com/file_fail.pdf',
+      );
       expect(result, isA<FailureState<bool>>());
     });
 

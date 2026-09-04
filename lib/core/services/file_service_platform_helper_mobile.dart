@@ -356,6 +356,14 @@ final class FileServiceMobile implements FileServicePlatformHelper {
         final isDocumentOrMedia = _mimeTypes.containsKey(ext) || ext.isNotEmpty;
 
         if (isDocumentOrMedia) {
+          final cachedPath = await resolveSandboxPath(fileName);
+          if (cachedPath != null && File(cachedPath).existsSync()) {
+            final result = await OpenFilex.open(cachedPath);
+            if (result.type == ResultType.done) {
+              return const SuccessState(data: true);
+            }
+          }
+
           final downloadResult = await downloadUrlToSandbox(path, fileName);
           if (downloadResult is SuccessState<String> &&
               downloadResult.data != null) {
