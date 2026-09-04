@@ -10,9 +10,9 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 @RoutePage()
 class WorkOrderHistoryPage extends StatelessWidget {
@@ -59,16 +59,19 @@ class WorkOrderHistoryPage extends StatelessWidget {
                             );
                           }
 
-                          return ResponsiveListFlow(
-                            itemCount: history.length,
-                            itemBuilder: (context, index) {
-                              final item = history[index];
-                              final isLast = index == history.length - 1;
-                              return HistoryTimelineItem(
-                                item: item,
-                                isLast: isLast,
-                              );
-                            },
+                          return SizedBox(
+                            width: ScreenUtil.I.type.maxWidth,
+                            child: ListView.builder(
+                              itemCount: history.length,
+                              itemBuilder: (context, index) {
+                                final item = history[index];
+                                final isLast = index == history.length - 1;
+                                return HistoryTimelineItem(
+                                  item: item,
+                                  isLast: isLast,
+                                );
+                              },
+                            ),
                           );
                         },
                       ),

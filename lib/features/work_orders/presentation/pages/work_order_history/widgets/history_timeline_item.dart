@@ -62,6 +62,7 @@ class HistoryTimelineItem extends StatelessWidget {
           // Content card
           Expanded(
             child: Container(
+              margin: const .only(bottom: Sizes.p8),
               padding: const EdgeInsets.all(Sizes.p8),
               decoration: BoxDecoration(
                 color: context.colorScheme.surface,
