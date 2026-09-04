@@ -346,6 +346,27 @@ final class FileServiceMobile implements FileServicePlatformHelper {
       final isUri = path.startsWith('http://') || path.startsWith('https://');
       if (isUri) {
         final uri = Uri.parse(path);
+        // Extract filename from URL or generate one from path/hash
+        var fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
+        if (fileName.isEmpty) {
+          fileName = 'file_${path.hashCode}';
+        }
+
+        final ext = p.extension(fileName).toLowerCase().replaceFirst('.', '');
+        final isDocumentOrMedia = _mimeTypes.containsKey(ext) || ext.isNotEmpty;
+
+        if (isDocumentOrMedia) {
+          final downloadResult = await downloadUrlToSandbox(path, fileName);
+          if (downloadResult is SuccessState<String> &&
+              downloadResult.data != null) {
+            final localPath = downloadResult.data!;
+            final result = await OpenFilex.open(localPath);
+            if (result.type == ResultType.done) {
+              return const SuccessState(data: true);
+            }
+          }
+        }
+
         if (await canLaunchUrl(uri)) {
           final success = await launchUrl(
             uri,
