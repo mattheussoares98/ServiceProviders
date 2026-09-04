@@ -1,4 +1,4 @@
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
@@ -59,6 +59,9 @@ extension AuditChangeUiExtension on AuditChangeEntity {
 
   String? formatValue(String? rawValue) {
     if (rawValue == null) return null;
+
+    final dateTime = DateTime.tryParse(rawValue);
+    if (dateTime != null) return dateTime.formatDate(.ddMMyyyyHHmm);
 
     final trimmed = rawValue.trim();
     if (trimmed.isEmpty) return rawValue;
