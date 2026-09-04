@@ -1,11 +1,10 @@
 enum SlaAppliesTo {
-  provider('provider', 'Prestador'),
-  contractor('contractor', 'Contratante'),
-  both('both', 'Ambos');
+  provider('provider'),
+  contractor('contractor'),
+  both('both');
 
-  const SlaAppliesTo(this.value, this.label);
+  const SlaAppliesTo(this.value);
   final String value;
-  final String label;
 
   static SlaAppliesTo fromValue(String value) {
     for (final val in SlaAppliesTo.values) {

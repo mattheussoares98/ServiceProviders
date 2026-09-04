@@ -1,10 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 extension ServiceProviderInvitationStatusUiExtension
     on ServiceProviderInvitationStatus {
+  String get label => switch (this) {
+    ServiceProviderInvitationStatus.pending => 'Pendente'.hardcoded,
+    ServiceProviderInvitationStatus.accepted => 'Aceito'.hardcoded,
+    ServiceProviderInvitationStatus.rejected => 'Rejeitado'.hardcoded,
+    ServiceProviderInvitationStatus.expired => 'Expirado'.hardcoded,
+  };
+
   Color get color {
     switch (this) {
       case ServiceProviderInvitationStatus.pending:

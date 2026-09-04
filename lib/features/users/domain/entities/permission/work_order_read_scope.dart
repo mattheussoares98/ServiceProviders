@@ -1,10 +1,9 @@
 enum WorkOrderReadScope {
-  all('all', 'Todos'),
-  assigned('assigned', 'Atribuídos');
+  all('all'),
+  assigned('assigned');
 
-  const WorkOrderReadScope(this.code, this.label);
+  const WorkOrderReadScope(this.code);
   final String code;
-  final String label;
 
   static WorkOrderReadScope fromCode(String? code) {
     return WorkOrderReadScope.values.firstWhere(

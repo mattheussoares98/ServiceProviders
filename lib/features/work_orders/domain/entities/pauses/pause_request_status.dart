@@ -1,12 +1,11 @@
 enum PauseRequestStatus {
-  pending('pending', 'Pendente'),
-  approved('approved', 'Aprovado'),
-  rejected('rejected', 'Rejeitado'),
-  cancelled('cancelled', 'Cancelado');
+  pending('pending'),
+  approved('approved'),
+  rejected('rejected'),
+  cancelled('cancelled');
 
-  const PauseRequestStatus(this.value, this.label);
+  const PauseRequestStatus(this.value);
   final String value;
-  final String label;
 
   static PauseRequestStatus fromValue(String value) {
     for (final val in PauseRequestStatus.values) {

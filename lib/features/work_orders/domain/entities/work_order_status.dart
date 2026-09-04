@@ -1,17 +1,13 @@
 enum WorkOrderStatus {
-  open('open', 'Aberta'),
-  inProgress('in_progress', 'Em andamento'),
-  onHold('on_hold', 'Em pausa'),
-  pendingConclusionApproval(
-    'pending_conclusion',
-    'Conclusão pendente de aprovação',
-  ),
-  completed('completed', 'Concluída'),
-  cancelled('cancelled', 'Cancelada');
+  open('open'),
+  inProgress('in_progress'),
+  onHold('on_hold'),
+  pendingConclusionApproval('pending_conclusion'),
+  completed('completed'),
+  cancelled('cancelled');
 
-  const WorkOrderStatus(this.code, this.label);
+  const WorkOrderStatus(this.code);
   final String code;
-  final String label;
 
   bool get isOpen => this == WorkOrderStatus.open;
   bool get isCompleted => this == WorkOrderStatus.completed;

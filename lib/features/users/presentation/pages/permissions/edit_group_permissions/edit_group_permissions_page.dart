@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/extensions/permission_extensions.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/edit_group_permissions/widgets/group_permissions_header.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/pages/permissions/edit_group_permissions/widgets/resource_permission_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';

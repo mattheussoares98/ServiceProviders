@@ -1,12 +1,11 @@
 enum WorkOrderUpdateScope {
-  all('all', 'Todos'),
-  assigned('assigned', 'Atribuídos'),
-  own('own', 'Criados por mim'),
-  none('none', 'Nenhum');
+  all('all'),
+  assigned('assigned'),
+  own('own'),
+  none('none');
 
-  const WorkOrderUpdateScope(this.code, this.label);
+  const WorkOrderUpdateScope(this.code);
   final String code;
-  final String label;
 
   static WorkOrderUpdateScope fromCode(String? code) {
     return WorkOrderUpdateScope.values.firstWhere(

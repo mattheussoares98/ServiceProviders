@@ -1,12 +1,11 @@
 enum AssetCriticality {
-  low('low', 'Baixa'),
-  medium('medium', 'Média'),
-  high('high', 'Alta'),
-  missionCritical('mission_critical', 'Crítica');
+  low('low'),
+  medium('medium'),
+  high('high'),
+  missionCritical('mission_critical');
 
-  const AssetCriticality(this.code, this.label);
+  const AssetCriticality(this.code);
   final String code;
-  final String label;
 
   static AssetCriticality fromCode(String code) {
     for (final val in AssetCriticality.values) {

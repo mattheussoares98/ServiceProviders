@@ -1,12 +1,11 @@
 enum ServiceProviderInvitationStatus {
-  pending('pending', 'Pendente'),
-  accepted('accepted', 'Aceito'),
-  rejected('rejected', 'Rejeitado'),
-  expired('expired', 'Expirado');
+  pending('pending'),
+  accepted('accepted'),
+  rejected('rejected'),
+  expired('expired');
 
-  const ServiceProviderInvitationStatus(this.value, this.label);
+  const ServiceProviderInvitationStatus(this.value);
   final String value;
-  final String label;
 
   static ServiceProviderInvitationStatus fromString(String value) {
     return ServiceProviderInvitationStatus.values.firstWhere(

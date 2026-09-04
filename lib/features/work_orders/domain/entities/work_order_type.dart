@@ -1,11 +1,10 @@
 enum WorkOrderType {
-  corrective('corrective', 'Corretiva'),
-  preventive('preventive', 'Preventiva'),
-  inspection('inspection', 'Inspeção');
+  corrective('corrective'),
+  preventive('preventive'),
+  inspection('inspection');
 
-  const WorkOrderType(this.code, this.label);
+  const WorkOrderType(this.code);
   final String code;
-  final String label;
 
   static WorkOrderType fromCode(String code) {
     for (final val in WorkOrderType.values) {

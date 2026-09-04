@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/permissions/permissions_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/extensions/permission_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
