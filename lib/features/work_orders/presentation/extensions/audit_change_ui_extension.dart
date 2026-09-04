@@ -169,8 +169,8 @@ extension AuditChangeUiExtension on AuditChangeEntity {
         WorkOrderChangeType.fillChecklist => 'Preencher checklist'.hardcoded,
       };
 
-  String? get localizedOldValue => formatValue(oldValue ?? oldDisplay);
-  String? get localizedNewValue => formatValue(newValue ?? newDisplay);
+  String? get localizedOldValue => formatValue(oldDisplay ?? oldValue);
+  String? get localizedNewValue => formatValue(newDisplay ?? newValue);
 }
 
 extension AuditEntityTypeUiExtension on AuditEntityType {
