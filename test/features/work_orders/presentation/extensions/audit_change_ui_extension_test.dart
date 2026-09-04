@@ -100,5 +100,19 @@ void main() {
       expect(change.localizedOldValue, isNull);
       expect(change.localizedNewValue, isNull);
     });
+
+    test('correctly identifies displayable and non-displayable fields', () {
+      const displayableField = AuditChangeEntity(field: 'status');
+      const dueDateField = AuditChangeEntity(field: 'due_date');
+      const completedAtField = AuditChangeEntity(field: 'completed_at');
+      const updatedAtField = AuditChangeEntity(field: 'updated_at');
+      const startedAtField = AuditChangeEntity(field: 'started_at');
+
+      expect(displayableField.isDisplayable, isTrue);
+      expect(dueDateField.isDisplayable, isTrue);
+      expect(completedAtField.isDisplayable, isFalse);
+      expect(updatedAtField.isDisplayable, isFalse);
+      expect(startedAtField.isDisplayable, isFalse);
+    });
   });
 }

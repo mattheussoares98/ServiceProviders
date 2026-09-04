@@ -85,32 +85,35 @@ class HistoryTimelineItem extends StatelessWidget {
                   ),
                   if (item.changes.isNotEmpty) ...[
                     gapH8,
-                    ...item.changes.map((change) {
-                      final oldVal = change.localizedOldValue?.hardcoded;
-                      final newVal = change.localizedNewValue?.hardcoded;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: Sizes.p4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            BaseText.bodySmall(
-                              change.localizedLabel.hardcoded,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            if (oldVal != null)
+                    ...item.changes.where((change) => change.isDisplayable).map(
+                      (change) {
+                        final oldVal = change.localizedOldValue?.hardcoded;
+                        final newVal = change.localizedNewValue?.hardcoded;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: Sizes.p4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               BaseText.bodySmall(
-                                'De: $oldVal'.hardcoded,
-                                color: context.colorScheme.error,
+                                change.localizedLabel.hardcoded,
+                                fontWeight: FontWeight.w600,
                               ),
-                            if (newVal != null)
-                              BaseText.bodySmall(
-                                'Para: $newVal'.hardcoded,
-                                color: context.colorScheme.primary,
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
+                              if (oldVal != null)
+                                BaseText.bodySmall(
+                                  'De: $oldVal'.hardcoded,
+                                  color: context.colorScheme.error,
+                                ),
+                              if (newVal != null)
+                                BaseText.bodySmall(
+                                  '${oldVal == null ? '' : 'Para: '}$newVal'
+                                      .hardcoded,
+                                  color: context.colorScheme.primary,
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ],
                   if (fileUrl != null && fileUrl.isNotEmpty) ...[
                     gapH8,

@@ -16,6 +16,20 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
 extension AuditChangeUiExtension on AuditChangeEntity {
+  bool get isDisplayable {
+    const ignoredFields = {
+      'completed_at',
+      'started_at',
+      'deleted_at',
+      'updated_at',
+      'created_at',
+      'reviewed_at',
+      'paused_at',
+      'resumed_at',
+    };
+    return !ignoredFields.contains(field);
+  }
+
   String get localizedLabel {
     return switch (field) {
       'status' => 'Status'.hardcoded,
