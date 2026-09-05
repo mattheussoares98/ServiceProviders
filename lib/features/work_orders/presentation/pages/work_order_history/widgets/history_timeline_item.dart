@@ -124,6 +124,11 @@ class HistoryTimelineItem extends StatelessWidget {
                                       '${oldVal == null ? '' : 'Para: '}$newVal'
                                           .hardcoded,
                                       color: context.colorScheme.primary,
+                                    )
+                                  else if (oldVal != null)
+                                    BaseText.bodySmall(
+                                      'Para: Nenhum'.hardcoded,
+                                      color: context.colorScheme.outline,
                                     ),
                                 ],
                               ),
