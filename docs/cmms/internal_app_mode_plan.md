@@ -124,17 +124,17 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - `SlaKpiDashboardCard` and `KpiPeriodFilterSelector` integrated into `DashboardPage` with responsive cards, gauge colors, and MTTR formatting.
 - Unit and widget test coverage across use case, cubit, and UI components.
 
-### Gap 7 — History consultation by period ([V2 §8](/docs/cmms/v2_features.md)) 🟢
-Cheapest item. `GetWorkOrderHistoryUseCase` exists; needs a date-range filter and UI. No schema change required.
+### Gap 7 — History consultation by period ([V2 §8](/docs/cmms/v2_features.md)) ✅ IMPLEMENTED
+**Done (2026-09-04):**
+- `GetWorkOrderHistoryUseCase` integrated with period and keyword filtering.
+- `WorkOrderHistoryCubit` and `WorkOrderHistoryPage` with `HistoryTimelineItem`, `HistorySearchBar`, and `HistoryDateFilterBar`.
+- Fully integrated into `WorkOrderDetailsPage` and tested.
 
 ### Gap 8 — Access logs ([V2 §7](/docs/cmms/v2_features.md)) 🟢
-Not started. Low complexity, compliance value.
+Next item. Track user login, logout, and token refresh/session events for security and auditing.
 
-### Gap 9 — Localization 🟢
-~739 `.hardcoded` call sites, no `lib/l10n`. Fine while the product is Brazil-only; the cost grows with every new screen.
-
-### Gap 10 — Unused dependencies 🟢
-`firebase_auth` and `google_sign_in` are in `pubspec.yaml` but imported nowhere. Authentication is Supabase email + password only.
+### Gap 9 — Unused dependencies ✅ RESOLVED
+Removed unused `firebase_auth` and `google_sign_in` from `pubspec.yaml`.
 
 ---
 
