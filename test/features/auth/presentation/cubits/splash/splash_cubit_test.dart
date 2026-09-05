@@ -3,6 +3,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
@@ -15,6 +16,7 @@ import '../../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/external_mocks.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSelectedModeUseCase extends Mock
     implements GetSelectedModeUseCase {}
@@ -25,14 +27,22 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockCreateAccessLogUseCase mockCreateAccessLog;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockSupabaseAuthClient mockAuthClient;
   late SplashCubit cubit;
   late MockNavigationClient mockNavigationClient;
+
+  setUpAll(() {
+    registerFallbackValue(EntityFactory.makeCreateAccessLogRequestEntity());
+  });
 
   setUp(() {
     mockSessionRepository = MockSessionRepository();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
+    mockCreateAccessLog = MockCreateAccessLogUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockAuthClient = MockSupabaseAuthClient();
     mockNavigationClient = MockNavigationClient();
 
@@ -42,6 +52,8 @@ void main() {
       sessionRepository: mockSessionRepository,
       getSelectedMode: mockGetSelectedMode,
       getSessionUser: mockGetSessionUser,
+      createAccessLog: mockCreateAccessLog,
+      getActiveCompanyId: mockGetActiveCompanyId,
     );
 
     cubit = SplashCubit(useCases: useCases, authClient: mockAuthClient);
@@ -92,6 +104,7 @@ void main() {
         when(() => mockGetSessionUser.call()).thenReturn(
           EntityFactory.makeUserProfileEntity().copyWith(companyId: ''),
         );
+        when(() => mockGetActiveCompanyId.call()).thenReturn('');
         return cubit;
       },
       act: (cubit) => cubit.checkInitialRoute(),
@@ -99,22 +112,28 @@ void main() {
     );
 
     blocTest<SplashCubit, SplashState>(
-      'checkInitialRoute emits home when user is logged in and has companyId',
+      'checkInitialRoute emits home and logs appAccess when user is logged in and has companyId',
       build: () {
+        final tCompanyId = faker.guid.guid();
         when(() => mockAuthClient.currentSession).thenReturn(null);
         when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
         when(
           () => mockGetSelectedMode.call(),
         ).thenReturn(AppMode.internal.name);
         when(() => mockGetSessionUser.call()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(
-            companyId: faker.guid.guid(),
-          ),
+          EntityFactory.makeUserProfileEntity().copyWith(companyId: tCompanyId),
         );
+        when(() => mockGetActiveCompanyId.call()).thenReturn(tCompanyId);
+        when(
+          () => mockCreateAccessLog.call(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
         return cubit;
       },
       act: (cubit) => cubit.checkInitialRoute(),
       expect: () => [const SplashState(target: SplashRouteTarget.home)],
+      verify: (_) {
+        verify(() => mockCreateAccessLog.call(any())).called(1);
+      },
     );
 
     blocTest<SplashCubit, SplashState>(

@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/supabase_auth_client.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_action.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/create_access_log_request_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -32,8 +36,21 @@ class SplashCubit extends BaseCubit<SplashState> {
 
     // 2. If fully logged in, route according to user type/mode
     if (_useCases.sessionRepository.isLoggedIn) {
-      final mode = _useCases.getSelectedMode.call();
       final user = _useCases.getSessionUser.call();
+      final companyId = _useCases.getActiveCompanyId.call();
+      if (user.id.isNotEmpty && companyId.isNotEmpty) {
+        unawaited(
+          _useCases.createAccessLog.call(
+            CreateAccessLogRequestEntity(
+              companyId: companyId,
+              userId: user.id,
+              action: AccessLogAction.appAccess,
+            ),
+          ),
+        );
+      }
+
+      final mode = _useCases.getSelectedMode.call();
       if (mode == AppMode.provider.name || user.companyId.isEmpty) {
         emit(state.copyWith(target: SplashRouteTarget.providerHome));
       } else {
