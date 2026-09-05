@@ -41,6 +41,7 @@ class _ServiceProviderProfileDropdown extends StatelessWidget {
       selectedItem: selectedProfileId,
       items: dropdownItems,
       onChanged: onChanged,
+      onClear: () => onChanged?.call(null),
     );
   }
 }
