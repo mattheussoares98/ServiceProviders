@@ -63,14 +63,14 @@ CREATE OR REPLACE TRIGGER tr_prevent_delete_{table}_with_relations
 ## Model/Schema Sync
 - ✅ Keep Flutter `toJson`/`fromJson` and Drift table in sync with every migration.
 
-## New Table Checklist
-- [ ] `BEFORE DELETE` trigger
-- [ ] RLS: SELECT / INSERT / UPDATE
+## Table & Migration Checklist
+- [ ] `BEFORE DELETE` trigger (hard delete prevention)
+- [ ] RLS: SELECT / INSERT / UPDATE / DELETE policies
 - [ ] Soft-delete `BEFORE UPDATE` trigger (if `deleted_at` + FK to active records)
-- [ ] Drift table updated
-- [ ] Flutter model updated (`fromJson` / `toJson`)
-- [ ] `docs/schema/{table}.md` + `index.md` ERD updated
-- [ ] `docs/database_rules/{table}_rules.md` created and linked in `global_rules.md`
+- [ ] Drift table updated (`lib/core/clients/local/drift/tables/`) & `AppDatabase` schema version bumped
+- [ ] Flutter models updated (`fromJson` / `toJson` / `fromEntity` / `toEntity`)
+- [ ] `docs/schema/{table}.md` updated (or created) + `index.md` ERD/table list updated
+- [ ] `docs/database_rules/{table}_rules.md` updated (or created) and linked in `docs/database_rules/global_rules.md` §3
 
 ## Tools (Supabase MCP)
 `list_tables` before any schema change · `apply_migration` for DDL · `execute_sql` for inspection/data · `get_advisors` for security checks.
@@ -83,8 +83,8 @@ Without the MCP server connected, write the migration file and ask the user to a
 **Order:**
 1. Run migration (`apply_migration` / `execute_sql`).
 2. `docs/schema/{table}.md` — update column row (ALTER) or create file (CREATE).
-3. `docs/database_rules/{table}_rules.md` — update/create with current policy SQL.
-4. Link new rules file in `docs/database_rules/global_rules.md` §3.
+3. `docs/database_rules/{table}_rules.md` — update/create with current policy SQL and triggers.
+4. Link new rules file in `docs/database_rules/global_rules.md` §3 (if new table).
 5. New table only: update `docs/schema/index.md` (ERD + table index).
 
 > Common columns (`id`, `company_id`, `created_at`, `updated_at`, `deleted_at`) documented only in `index.md`.
