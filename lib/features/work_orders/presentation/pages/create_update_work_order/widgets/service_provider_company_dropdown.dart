@@ -38,6 +38,7 @@ class _ServiceProviderCompanyDropdown extends StatelessWidget {
         selectedItem: selectedCompanyId,
         items: dropdownItems,
         onChanged: onChanged,
+        onClear: () => onChanged?.call(null),
       ),
     );
   }
