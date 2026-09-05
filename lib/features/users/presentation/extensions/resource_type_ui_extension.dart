@@ -12,5 +12,6 @@ extension ResourceTypeUiExtension on ResourceType {
     ResourceType.slaPolicies => 'Políticas de SLA'.hardcoded,
     ResourceType.users => 'Usuários'.hardcoded,
     ResourceType.workOrders => 'Ordens de serviço'.hardcoded,
+    ResourceType.accessLogs => 'Logs de acesso'.hardcoded,
   };
 }

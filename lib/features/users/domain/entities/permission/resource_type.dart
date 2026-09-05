@@ -6,6 +6,7 @@ enum ResourceType {
   locations('locations'),
   // reports('reports'),
   // maintenancePlans('maintenance_plans'),
+  accessLogs('access_logs'),
   sectors('sectors'),
   serviceProviders('service_providers'),
   slaPolicies('sla_policies'),

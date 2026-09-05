@@ -12,7 +12,7 @@ All tables share these columns (omitted from individual files):
 | `updated_at` | TIMESTAMP | NOT NULL | now() |
 | `deleted_at` | TIMESTAMP | NULL | Soft delete |
 
-**Exceptions**: `companies` has no `company_id`. `sync_audit_logs` and `audit_logs` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`. `user_configurations` uses `user_id` as PK (no `id`, no `company_id`, no `deleted_at`).
+**Exceptions**: `companies` has no `company_id`. `sync_audit_logs`, `audit_logs`, and `access_logs` have no `updated_at`/`deleted_at`. `user_parameters` uses `user_profile_id` instead of `company_id`. `categories` and `checklist_items` have no `updated_at`. `user_configurations` uses `user_id` as PK (no `id`, no `company_id`, no `deleted_at`).
 
 ---
 
@@ -36,6 +36,7 @@ erDiagram
     Companies ||--o{ CompanyParameters : has
     Companies ||--o{ SyncAuditLogs : has
     Companies ||--o{ AuditLogs : has
+    Companies ||--o{ AccessLogs : has
     Companies ||--o{ SlaPolicies : has
     Companies ||--o{ WorkOrderPauseRequests : has
     Companies ||--o{ PauseReasons : has
@@ -65,6 +66,7 @@ erDiagram
     UserProfiles ||--o{ WorkOrderObservations : authors
     UserProfiles ||--o{ SyncAuditLogs : logs
     UserProfiles ||--o{ AuditLogs : logs
+    UserProfiles ||--o{ AccessLogs : logs
     UserProfiles ||--o{ UserParameters : has
     UserProfiles ||--o{ UserConfigurations : has
     WorkOrders ||--o{ Tasks : contains
@@ -117,6 +119,7 @@ erDiagram
 | 27 | user_configurations | [user_configurations.md](user_configurations.md) |
 | 28 | user_device_tokens | [user_device_tokens.md](user_device_tokens.md) |
 | 29 | sync_errors | [sync_errors.md](sync_errors.md) |
+| 30 | access_logs | [access_logs.md](access_logs.md) |
 
 ---
 

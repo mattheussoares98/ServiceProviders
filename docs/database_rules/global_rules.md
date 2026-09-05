@@ -169,6 +169,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [user_device_tokens_rules.md](user_device_tokens_rules.md)
 - [sync_errors_rules.md](sync_errors_rules.md)
 - [audit_logs_rules.md](audit_logs_rules.md)
+- [access_logs_rules.md](access_logs_rules.md)
 
 ---
 
