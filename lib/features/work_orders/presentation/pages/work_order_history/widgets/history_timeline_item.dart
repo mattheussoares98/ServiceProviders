@@ -156,7 +156,7 @@ class HistoryTimelineItem extends StatelessWidget {
                           child: BaseImageWidget(
                             source: BaseImageSource.network(fileUrl),
                             enableFullScreenOnTap: true,
-                            heroTag: fileUrl,
+                            heroTag: fileUrl + item.id,
                             height: 180,
                           ),
                         ),
