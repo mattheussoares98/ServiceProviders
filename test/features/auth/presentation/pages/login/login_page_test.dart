@@ -7,8 +7,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
@@ -63,6 +65,7 @@ void main() {
     registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
+    registerFallbackValue(EntityFactory.makeCreateAccessLogRequestEntity());
   });
 
   setUp(() {
@@ -74,9 +77,18 @@ void main() {
     mockSetSessionUseCase = MockSetSessionUseCase();
     mockGetUserDataUseCase = MockGetUserDataUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
+    final mockCreateAccessLogUseCase = MockCreateAccessLogUseCase();
+    final mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     getServiceProviderProfilesByAuthUserUseCase =
         MockGetServiceProviderProfilesByAuthUserUseCase();
     mockLocalStorageClient = MockLocalStorageClient();
+
+    when(
+      () => mockCreateAccessLogUseCase.call(any()),
+    ).thenAnswer((_) async => SuccessState.nil);
+    when(
+      mockGetActiveCompanyIdUseCase.call,
+    ).thenReturn(userData.user.companyId);
 
     locator
       ..registerSingleton<LoginUseCase>(mockLoginUseCase)
@@ -88,6 +100,10 @@ void main() {
       ..registerSingleton<GetUserDataUseCase>(mockGetUserDataUseCase)
       ..registerSingleton<SaveUserDataUseCase>(mockSaveUserDataUseCase)
       ..registerSingleton<LocalStorageClient>(mockLocalStorageClient)
+      ..registerSingleton<CreateAccessLogUseCase>(mockCreateAccessLogUseCase)
+      ..registerSingleton<GetActiveCompanyIdUseCase>(
+        mockGetActiveCompanyIdUseCase,
+      )
       ..registerSingleton<GetServiceProviderProfilesByAuthUserUseCase>(
         getServiceProviderProfilesByAuthUserUseCase,
       )
@@ -102,6 +118,8 @@ void main() {
             saveUserData: mockSaveUserDataUseCase,
             getServiceProviderProfilesByAuthUser:
                 getServiceProviderProfilesByAuthUserUseCase,
+            createAccessLog: mockCreateAccessLogUseCase,
+            getActiveCompanyId: mockGetActiveCompanyIdUseCase,
           ),
           localStorageClient: mockLocalStorageClient,
         ),

@@ -6,6 +6,8 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/core/initializations/notifications_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_action.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/create_access_log_request_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit_use_cases.dart';
@@ -65,6 +67,19 @@ class LoginCubit extends BaseCubit<LoginState> {
       _useCases.setSession(dataState.data!);
       await _useCases.saveUserData(dataState.data!);
       unawaited(NotificationsService.instance.syncDeviceToken());
+
+      final companyId = _useCases.getActiveCompanyId.call();
+      if (companyId.isNotEmpty) {
+        unawaited(
+          _useCases.createAccessLog.call(
+            CreateAccessLogRequestEntity(
+              companyId: companyId,
+              userId: dataState.data!.user.id,
+              action: AccessLogAction.login,
+            ),
+          ),
+        );
+      }
 
       final userId = dataState.data!.user.id;
       final providerProfilesState = await _useCases

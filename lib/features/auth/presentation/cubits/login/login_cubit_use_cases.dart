@@ -1,4 +1,6 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_user_data_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
@@ -17,6 +19,8 @@ class LoginCubitUseCases {
     required this.getUserData,
     required this.saveUserData,
     required this.getServiceProviderProfilesByAuthUser,
+    required this.createAccessLog,
+    required this.getActiveCompanyId,
   });
 
   final LoginUseCase login;
@@ -26,4 +30,6 @@ class LoginCubitUseCases {
   final GetUserDataUseCase getUserData;
   final SaveUserDataUseCase saveUserData;
   final GetServiceProviderProfilesByAuthUserUseCase getServiceProviderProfilesByAuthUser;
+  final CreateAccessLogUseCase createAccessLog;
+  final GetActiveCompanyIdUseCase getActiveCompanyId;
 }
