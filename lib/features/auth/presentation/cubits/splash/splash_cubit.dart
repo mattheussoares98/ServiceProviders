@@ -22,7 +22,7 @@ class SplashCubit extends BaseCubit<SplashState> {
   final SplashCubitUseCases _useCases;
   final SupabaseAuthClient _authClient;
 
-  void checkInitialRoute({bool isInviteLink = false}) {
+  Future<void> checkInitialRoute({bool isInviteLink = false}) async {
     // 1. If Supabase has an active session (e.g. from an invite/magic link redirect),
     // but local user data is not set up yet -> route to AcceptInviteRoute
     final hasActiveInviteSession =
@@ -39,13 +39,11 @@ class SplashCubit extends BaseCubit<SplashState> {
       final user = _useCases.getSessionUser.call();
       final companyId = _useCases.getActiveCompanyId.call();
       if (user.id.isNotEmpty && companyId.isNotEmpty) {
-        unawaited(
-          _useCases.createAccessLog.call(
-            CreateAccessLogRequestEntity(
-              companyId: companyId,
-              userId: user.id,
-              action: AccessLogAction.appAccess,
-            ),
+        await _useCases.createAccessLog.call(
+          CreateAccessLogRequestEntity(
+            companyId: companyId,
+            userId: user.id,
+            action: AccessLogAction.appAccess,
           ),
         );
       }
