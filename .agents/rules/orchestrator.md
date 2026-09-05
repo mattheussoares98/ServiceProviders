@@ -56,6 +56,7 @@ Tell each specialist exactly which files to create/modify, which classes to defi
 7. Implementation and its test land in the same turn.
 8. Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
 9. **Enum labels**: Keep domain enums translation-free (`code` only); place user-visible `.label` getters in presentation extensions ending with `.hardcoded`.
+10. **Database migrations**: Whenever creating a migration `.sql` file, MUST immediately execute/apply it to Supabase in the same turn via Supabase MCP tool (`execute_sql` / `apply_migration`). Never leave it unapplied.
 
 ## Reference Docs
 `docs/business_rules.md` (domain lifecycle, SLA, pause/completion) · `docs/schema/index.md` (schema + ERD) · `docs/cmms/architecture.md` (data flow, sync state)
