@@ -3,7 +3,8 @@ enum SyncEntityType {
   task('task'),
   observation('observation'),
   pauseRequest('pause_request'),
-  attachment('attachment');
+  attachment('attachment'),
+  accessLog('access_log');
 
   const SyncEntityType(this.code);
   final String code;
@@ -14,6 +15,7 @@ enum SyncEntityType {
     'observation' => SyncEntityType.observation,
     'pause_request' => SyncEntityType.pauseRequest,
     'attachment' => SyncEntityType.attachment,
+    'access_log' => SyncEntityType.accessLog,
     _ => SyncEntityType.workOrder,
   };
 }

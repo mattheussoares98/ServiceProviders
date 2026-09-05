@@ -19,6 +19,7 @@ void main() {
   late MockWorkOrdersRemoteDataSource mockWorkOrdersRemoteDataSource;
   late MockWorkOrderObservationsRemoteDataSource mockObservationsRemoteDataSource;
   late MockPauseRemoteDataSource mockPauseRemoteDataSource;
+  late MockAccessLogsRemoteDataSource mockAccessLogsRemoteDataSource;
   late MockInternetClient mockInternet;
   late MockSessionRepository mockSessionRepository;
   late MockCompanyRepository mockCompanyRepository;
@@ -47,6 +48,7 @@ void main() {
     mockObservationsRemoteDataSource =
         MockWorkOrderObservationsRemoteDataSource();
     mockPauseRemoteDataSource = MockPauseRemoteDataSource();
+    mockAccessLogsRemoteDataSource = MockAccessLogsRemoteDataSource();
     mockInternet = MockInternetClient();
     mockSessionRepository = MockSessionRepository();
     mockCompanyRepository = MockCompanyRepository();
@@ -62,6 +64,7 @@ void main() {
       workOrdersRemoteDataSource: mockWorkOrdersRemoteDataSource,
       observationsRemoteDataSource: mockObservationsRemoteDataSource,
       pauseRemoteDataSource: mockPauseRemoteDataSource,
+      accessLogsRemoteDataSource: mockAccessLogsRemoteDataSource,
       internet: mockInternet,
       sessionRepository: mockSessionRepository,
       companyRepository: mockCompanyRepository,

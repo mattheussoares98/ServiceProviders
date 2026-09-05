@@ -5,6 +5,8 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/access_logs/data/data_sources/access_logs_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/access_logs/data/models/requests/create_access_log_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
@@ -29,6 +31,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     required WorkOrdersRemoteDataSource workOrdersRemoteDataSource,
     required WorkOrderObservationsRemoteDataSource observationsRemoteDataSource,
     required PauseRemoteDataSource pauseRemoteDataSource,
+    required AccessLogsRemoteDataSource accessLogsRemoteDataSource,
     required InternetClient internet,
     required SessionRepository sessionRepository,
     required CompanyRepository companyRepository,
@@ -36,6 +39,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
        _workOrdersRemoteDataSource = workOrdersRemoteDataSource,
        _observationsRemoteDataSource = observationsRemoteDataSource,
        _pauseRemoteDataSource = pauseRemoteDataSource,
+       _accessLogsRemoteDataSource = accessLogsRemoteDataSource,
        _internet = internet,
        _sessionRepository = sessionRepository,
        _companyRepository = companyRepository;
@@ -44,6 +48,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
   final WorkOrdersRemoteDataSource _workOrdersRemoteDataSource;
   final WorkOrderObservationsRemoteDataSource _observationsRemoteDataSource;
   final PauseRemoteDataSource _pauseRemoteDataSource;
+  final AccessLogsRemoteDataSource _accessLogsRemoteDataSource;
   final InternetClient _internet;
   final SessionRepository _sessionRepository;
   final CompanyRepository _companyRepository;
@@ -160,11 +165,30 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         SyncEntityType.task => _dispatchTask(item, payloadMap),
         SyncEntityType.observation => _dispatchObservation(item, payloadMap),
         SyncEntityType.pauseRequest => _dispatchPauseRequest(item, payloadMap),
+        SyncEntityType.accessLog => _dispatchAccessLog(item, payloadMap),
         SyncEntityType.attachment => const SuccessState(data: true),
       };
     } catch (e) {
       return FailureState(message: e.toString(), error: e.toString());
     }
+  }
+
+  FutureData<bool> _dispatchAccessLog(
+    SyncQueueItemEntity item,
+    MapDynamic payloadMap,
+  ) async {
+    final result = await _accessLogsRemoteDataSource.createAccessLog(
+      CreateAccessLogRequestModel.fromJson(payloadMap),
+    );
+    if (result is SuccessState) {
+      return const SuccessState(data: true);
+    }
+    final failure = result as FailureState;
+    return FailureState<bool>(
+      message: failure.message,
+      error: failure.error,
+      statusCode: failure.statusCode,
+    );
   }
 
   FutureData<bool> _dispatchWorkOrder(
