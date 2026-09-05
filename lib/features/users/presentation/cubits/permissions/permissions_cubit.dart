@@ -217,11 +217,14 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
     for (final resource in ResourceType.values) {
       if (resource == ResourceType.workOrders) continue;
       final resourceOverrides = <PermissionAction, bool?>{};
-      for (final action in [
-        PermissionAction.create,
-        PermissionAction.update,
-        PermissionAction.delete,
-      ]) {
+      final actions = resource == ResourceType.accessLogs
+          ? [PermissionAction.read]
+          : [
+              PermissionAction.create,
+              PermissionAction.update,
+              PermissionAction.delete,
+            ];
+      for (final action in actions) {
         resourceOverrides[action] = user.permissions[resource]?[action];
       }
       localOverrides[resource] = resourceOverrides;

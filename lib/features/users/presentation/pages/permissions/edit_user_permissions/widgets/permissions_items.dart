@@ -38,18 +38,20 @@ class PermissionsItems extends StatelessWidget {
         }
 
         final resource = standardResources[index - 1];
-        // Standard actions: create, update, delete only (read is mandatory)
-        final standardActions = [
-          PermissionAction.create,
-          PermissionAction.update,
-          PermissionAction.delete,
-        ];
+        // Standard actions: create, update, delete only (read is mandatory), except for accessLogs where action is read
+        final actions = resource == ResourceType.accessLogs
+            ? [PermissionAction.read]
+            : [
+                PermissionAction.create,
+                PermissionAction.update,
+                PermissionAction.delete,
+              ];
 
         return Card(
           child: ExpansionTile(
             title: BaseText.titleMedium(resource.label),
             subtitle: _Subtitle(resource: resource),
-            children: standardActions.map((action) {
+            children: actions.map((action) {
               return BlocSelector<PermissionsCubit, PermissionsState, bool?>(
                 selector: (state) =>
                     state.draftUserPermissions[resource]?[action],
@@ -134,7 +136,11 @@ class _Subtitle extends StatelessWidget {
           return const SizedBox.shrink();
         }
         final items = permissions.entries
-            .where((entry) => entry.key != PermissionAction.read)
+            .where(
+              (entry) =>
+                  resource == ResourceType.accessLogs ||
+                  entry.key != PermissionAction.read,
+            )
             .toList();
 
         return Row(

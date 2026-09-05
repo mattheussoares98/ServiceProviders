@@ -95,9 +95,11 @@ class UserProfileModel extends UserProfileEntity
       phone: json['phone'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       isAdmin: false,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
-      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
     );
   }
@@ -114,9 +116,11 @@ class UserProfileModel extends UserProfileEntity
       avatarUrl: json['avatar_url'] as String?,
       isActive: json['is_active'] as bool? ?? false,
       isAdmin: json['is_admin'] as bool? ?? false,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
-      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       lastAccessAt: (json['last_access_at'] as String?).toUtcDateTime(),
@@ -228,6 +232,7 @@ class UserProfileModel extends UserProfileEntity
           final Map<PermissionAction, bool?> actionMap = {};
           for (final action in [
             PermissionAction.create,
+            PermissionAction.read,
             PermissionAction.update,
             PermissionAction.delete,
           ]) {

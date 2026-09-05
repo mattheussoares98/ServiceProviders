@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 extension PermissionActionUiExtension on PermissionAction {
   String get label => switch (this) {
     PermissionAction.create => 'Criar'.hardcoded,
-    PermissionAction.read => 'Pesquisar'.hardcoded,
+    PermissionAction.read => 'Visualizar'.hardcoded,
     PermissionAction.update => 'Alterar'.hardcoded,
     PermissionAction.delete => 'Excluir'.hardcoded,
   };

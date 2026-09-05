@@ -30,9 +30,13 @@ class ResourcePermissionCard extends StatelessWidget {
             BaseText(resource.label),
             const Divider(height: Sizes.p20),
             ...[
-              PermissionAction.create,
-              PermissionAction.update,
-              PermissionAction.delete,
+              if (resource == ResourceType.accessLogs)
+                PermissionAction.read
+              else ...[
+                PermissionAction.create,
+                PermissionAction.update,
+                PermissionAction.delete,
+              ],
             ].map((action) {
               return _Item(
                 key: ValueKey('${resource.code}.$action'),

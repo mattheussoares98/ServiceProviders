@@ -82,6 +82,23 @@ void main() {
     );
 
     blocTest<PermissionsCubit, PermissionsState>(
+      'toggleGroupPermission updates accessLogs with PermissionAction.read',
+      build: () => cubit..initGroup(tGroup),
+      act: (c) => c.toggleGroupPermission(
+        ResourceType.accessLogs,
+        PermissionAction.read,
+        true,
+      ),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) => s.draftGroupPermissions[ResourceType.accessLogs],
+          'actions list',
+          {PermissionAction.read},
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
       'saveGroupPermissions calls UsersCubit.savePermissionGroup and emits loaded on success',
       build: () {
         when(
@@ -262,6 +279,25 @@ void main() {
           (s) =>
               s.draftUserPermissions[ResourceType.attachments]?[PermissionAction
                   .create],
+          'override status',
+          true,
+        ),
+      ],
+    );
+
+    blocTest<PermissionsCubit, PermissionsState>(
+      'setUserPermissionOverride updates accessLogs with PermissionAction.read',
+      build: () => cubit..initUser(tUser),
+      act: (c) => c.setUserPermissionOverride(
+        ResourceType.accessLogs,
+        PermissionAction.read,
+        true,
+      ),
+      expect: () => [
+        isA<PermissionsState>().having(
+          (s) =>
+              s.draftUserPermissions[ResourceType.accessLogs]?[PermissionAction
+                  .read],
           'override status',
           true,
         ),
