@@ -2,12 +2,16 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class ChecklistsRemoteDataSource {
   // Templates
@@ -16,12 +20,17 @@ abstract interface class ChecklistsRemoteDataSource {
   FutureBool createTemplate(ChecklistTemplateModel template);
   FutureBool updateTemplate(ChecklistTemplateModel template);
   FutureVoid deleteTemplate(String id);
+  Stream<RealtimeEvent<ChecklistTemplateModel>>
+  watchChecklistTemplatesRealtime({String? companyId});
 
   // Items
   FutureList<ChecklistItemModel> getItemsByTemplate(String templateId);
   FutureBool createItem(ChecklistItemModel item);
   FutureBool updateItem(ChecklistItemModel item);
   FutureVoid deleteItem(String id);
+  Stream<RealtimeEvent<ChecklistItemModel>> watchChecklistItemsRealtime({
+    String? companyId,
+  });
 
   // Execution Responses / Tasks
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
@@ -33,9 +42,12 @@ final class ChecklistsRemoteDataSourceImpl
     implements ChecklistsRemoteDataSource {
   const ChecklistsRemoteDataSourceImpl({
     required SupabaseDatabaseClient database,
-  }) : _database = database;
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   // ============================================
   // Templates
@@ -101,6 +113,27 @@ final class ChecklistsRemoteDataSourceImpl
     );
   });
 
+  @override
+  Stream<RealtimeEvent<ChecklistTemplateModel>>
+  watchChecklistTemplatesRealtime({String? companyId}) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(table: 'checklist_templates', filter: filter)
+        .map(
+          (payload) => RealtimePayloadMapper.map(
+            payload,
+            ChecklistTemplateModel.fromJson,
+          ),
+        );
+  }
+
   // ============================================
   // Items
   // ============================================
@@ -145,6 +178,26 @@ final class ChecklistsRemoteDataSourceImpl
       filters: [SupabaseFilter.eq('id', id)],
     );
   });
+
+  @override
+  Stream<RealtimeEvent<ChecklistItemModel>> watchChecklistItemsRealtime({
+    String? companyId,
+  }) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(table: 'checklist_items', filter: filter)
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, ChecklistItemModel.fromJson),
+        );
+  }
 
   // ============================================
   // Execution Responses / Tasks

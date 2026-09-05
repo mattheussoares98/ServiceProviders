@@ -16,6 +16,8 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_ord
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/save_checklist_response_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_item_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_template_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_items_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_templates_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -263,6 +265,51 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRepository.saveResponse(answer)).called(1);
+      });
+    });
+
+    group('WatchChecklistTemplatesRealtimeUseCase', () {
+      test('calls repository.watchChecklistTemplatesRealtime', () {
+        final useCase = WatchChecklistTemplatesRealtimeUseCase(
+          checklistsRepository: mockRepository,
+        );
+        final companyId = faker.guid.guid();
+
+        when(
+          () => mockRepository.watchChecklistTemplatesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => const Stream.empty());
+
+        useCase(companyId: companyId);
+
+        verify(
+          () => mockRepository.watchChecklistTemplatesRealtime(
+            companyId: companyId,
+          ),
+        ).called(1);
+      });
+    });
+
+    group('WatchChecklistItemsRealtimeUseCase', () {
+      test('calls repository.watchChecklistItemsRealtime', () {
+        final useCase = WatchChecklistItemsRealtimeUseCase(
+          checklistsRepository: mockRepository,
+        );
+        final companyId = faker.guid.guid();
+
+        when(
+          () => mockRepository.watchChecklistItemsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => const Stream.empty());
+
+        useCase(companyId: companyId);
+
+        verify(
+          () =>
+              mockRepository.watchChecklistItemsRealtime(companyId: companyId),
+        ).called(1);
       });
     });
   });
