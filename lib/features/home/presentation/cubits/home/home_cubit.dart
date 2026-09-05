@@ -65,6 +65,10 @@ class HomeCubit extends BaseCubit<HomeState> {
     await pushRoute(const SlaPoliciesRoute());
   }
 
+  Future<void> navigateToAccessLogs() async {
+    await pushRoute(const AccessLogsRoute());
+  }
+
   Future<void> navigateToModeSwitcher() async {
     await pushRoute(const ModeSwitcherRoute());
   }
