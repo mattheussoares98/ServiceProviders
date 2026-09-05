@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 
 class ChecklistTemplateEntity extends Equatable {
   const ChecklistTemplateEntity({
@@ -10,6 +11,7 @@ class ChecklistTemplateEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    this.items = const [],
   });
 
   final String id;
@@ -20,6 +22,7 @@ class ChecklistTemplateEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final List<ChecklistItemEntity> items;
 
   @override
   List<Object?> get props => [
@@ -31,6 +34,7 @@ class ChecklistTemplateEntity extends Equatable {
     createdAt,
     updatedAt,
     deletedAt,
+    items,
   ];
 
   ChecklistTemplateEntity copyWith({
@@ -42,6 +46,7 @@ class ChecklistTemplateEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    List<ChecklistItemEntity>? items,
     bool? annulDescription,
     bool? annulCategoryId,
     bool? annulDeletedAt,
@@ -59,6 +64,7 @@ class ChecklistTemplateEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      items: items ?? this.items,
     );
   }
 }

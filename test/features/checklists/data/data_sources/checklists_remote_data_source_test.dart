@@ -13,6 +13,7 @@ import '../../../../../testing/mocks/entity_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late ChecklistsRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -23,7 +24,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = ChecklistsRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = ChecklistsRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   final tTemplateEntity = EntityFactory.makeChecklistTemplateEntity();

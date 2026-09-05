@@ -1,6 +1,7 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 
 class ChecklistTemplateModel extends ChecklistTemplateEntity
@@ -14,6 +15,7 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
+    super.items = const [],
   });
 
   factory ChecklistTemplateModel.fromEntity(ChecklistTemplateEntity entity) =>
@@ -26,21 +28,32 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
+        items: entity.items,
       );
 
-  factory ChecklistTemplateModel.fromJson(MapDynamic json) =>
-      ChecklistTemplateModel(
-        id: json['id'] as String? ?? '',
-        companyId: json['company_id'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        description: json['description'] as String?,
-        categoryId: json['category_id'] as String?,
-        createdAt: (json['created_at'] as String?).toUtcDateTime() ??
-            DateTime.now().toUtc(),
-        updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
-            DateTime.now().toUtc(),
-        deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
-      );
+  factory ChecklistTemplateModel.fromJson(MapDynamic json) {
+    final rawItems = json['checklist_items'] as List<dynamic>? ??
+        json['items'] as List<dynamic>?;
+    final items = rawItems != null
+        ? rawItems
+            .map((e) => ChecklistItemModel.fromJson(e as MapDynamic))
+            .toList()
+        : const <ChecklistItemModel>[];
+
+    return ChecklistTemplateModel(
+      id: json['id'] as String? ?? '',
+      companyId: json['company_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String?,
+      categoryId: json['category_id'] as String?,
+      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+          DateTime.now().toUtc(),
+      deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
+      items: items,
+    );
+  }
 
   @override
   MapDynamic toJson() => {
@@ -64,5 +77,6 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
+    items: items,
   );
 }
