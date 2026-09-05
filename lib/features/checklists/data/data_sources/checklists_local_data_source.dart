@@ -240,12 +240,19 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureBool saveResponse(ChecklistAnswerModel response) {
     return ErrorHandler.execute(() async {
+      final workOrder = await (_database.select(_database.workOrders)
+            ..where((t) => t.id.equals(response.workOrderId)))
+          .getSingleOrNull();
+
+      final companyId = workOrder?.companyId ?? '';
+
       await _database
           .into(_database.tasks)
           .insertOnConflictUpdate(
             TasksCompanion(
               id: Value(response.id),
               workOrderId: Value(response.workOrderId),
+              companyId: Value(companyId),
               title: Value(response.checklistItemId),
               isCompleted: Value(response.booleanValue ?? false),
               createdAt: Value(response.createdAt.toUtc()),
