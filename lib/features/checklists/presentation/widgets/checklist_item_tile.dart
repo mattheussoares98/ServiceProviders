@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 part 'checklist_items/checklist_boolean_input.dart';
+part 'checklist_items/checklist_documentation_input.dart';
 part 'checklist_items/checklist_number_input.dart';
 part 'checklist_items/checklist_photo_input.dart';
 part 'checklist_items/checklist_selection_input.dart';
@@ -88,6 +89,11 @@ class ChecklistItemTile extends StatelessWidget {
               onChanged: onChanged,
             ),
             ChecklistItemType.photo => ChecklistPhotoInput(
+              item: item,
+              response: response,
+              onChanged: onChanged,
+            ),
+            ChecklistItemType.documentation => ChecklistDocumentationInput(
               item: item,
               response: response,
               onChanged: onChanged,

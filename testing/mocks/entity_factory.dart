@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_enti
 import 'package:o_jogo_da_obra/features/auth/domain/entities/sign_up_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/verify_otp_request_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
@@ -401,6 +402,30 @@ abstract final class EntityFactory {
       makeChecklistItemEntity(),
       makeChecklistItemEntity(),
       makeChecklistItemEntity(),
+    ];
+  }
+
+  // ChecklistAnswer
+  static ChecklistAnswerEntity makeChecklistAnswerEntity() {
+    return ChecklistAnswerEntity(
+      id: _makeId(),
+      workOrderId: _makeId(),
+      checklistItemId: _makeId(),
+      booleanValue: _makeBool(),
+      textValue: _makePhrase(),
+      numberValue: _makeDouble(),
+      photoUrl: _makeHttps(),
+      selectedOption: _makeWord(),
+      createdAt: _makeDateTime(),
+      updatedAt: _makeDateTime(),
+    );
+  }
+
+  static List<ChecklistAnswerEntity> makeChecklistAnswerEntityList() {
+    return [
+      makeChecklistAnswerEntity(),
+      makeChecklistAnswerEntity(),
+      makeChecklistAnswerEntity(),
     ];
   }
 

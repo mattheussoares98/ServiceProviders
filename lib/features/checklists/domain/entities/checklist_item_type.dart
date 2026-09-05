@@ -3,6 +3,7 @@ enum ChecklistItemType {
   text('text'),
   number('number'),
   photo('photo'),
+  documentation('documentation'),
   selection('selection');
 
   const ChecklistItemType(this.code);
