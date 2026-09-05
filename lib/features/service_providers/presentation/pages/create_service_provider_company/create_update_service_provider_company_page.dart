@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
+import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_status.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart';
@@ -160,6 +161,10 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
       }
     }
 
+    final isInviteAccepted =
+        initialCompany.value?.invitationStatus ==
+        ServiceProviderInvitationStatus.accepted;
+
     return BaseScaffold(
       appBar: BaseAppBar(
         title: isEdit
@@ -183,6 +188,7 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
               _SendEmailInvitationCheckbox(
                 emailController: emailController,
                 sendInvite: sendInvite,
+                isInviteAccepted: isInviteAccepted,
               ),
               gapH12,
               _DddAndPhoneFields(
