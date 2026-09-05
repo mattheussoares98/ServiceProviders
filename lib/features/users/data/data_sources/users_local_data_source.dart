@@ -86,6 +86,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               createdAt: Value(user.createdAt.toUtc()),
               updatedAt: Value(user.updatedAt.toUtc()),
               deletedAt: Value(user.deletedAt?.toUtc()),
+              lastAccessAt: Value(user.lastAccessAt?.toUtc()),
               permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           );
@@ -113,6 +114,7 @@ final class UsersLocalDataSourceImpl implements UsersLocalDataSource {
               createdAt: Value(user.createdAt.toUtc()),
               updatedAt: Value(user.updatedAt.toUtc()),
               deletedAt: Value(user.deletedAt?.toUtc()),
+              lastAccessAt: Value(user.lastAccessAt?.toUtc()),
               permissions: Value(jsonEncode(user.toJson()['permissions'])),
             ),
           ),

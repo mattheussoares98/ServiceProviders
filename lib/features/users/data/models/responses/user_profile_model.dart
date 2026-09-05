@@ -23,6 +23,7 @@ class UserProfileModel extends UserProfileEntity
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
+    super.lastAccessAt,
     super.permissions,
     super.workOrdersPermissionOverrides,
   });
@@ -41,6 +42,7 @@ class UserProfileModel extends UserProfileEntity
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
         deletedAt: entity.deletedAt,
+        lastAccessAt: entity.lastAccessAt,
         permissions: entity.permissions,
         workOrdersPermissionOverrides: entity.workOrdersPermissionOverrides,
       );
@@ -60,6 +62,7 @@ class UserProfileModel extends UserProfileEntity
       createdAt: db.createdAt.toUtc(),
       updatedAt: db.updatedAt.toUtc(),
       deletedAt: db.deletedAt?.toUtc(),
+      lastAccessAt: db.lastAccessAt?.toUtc(),
       permissions: parsed.$1,
       workOrdersPermissionOverrides: parsed.$2,
     );
@@ -116,6 +119,7 @@ class UserProfileModel extends UserProfileEntity
       updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
+      lastAccessAt: (json['last_access_at'] as String?).toUtcDateTime(),
       permissions: parsed.$1,
       workOrdersPermissionOverrides: parsed.$2,
     );
@@ -174,6 +178,7 @@ class UserProfileModel extends UserProfileEntity
       'created_at': createdAt.toIsoUtcString(),
       'updated_at': updatedAt.toIsoUtcString(),
       'deleted_at': deletedAt?.toIsoUtcString(),
+      'last_access_at': lastAccessAt?.toIsoUtcString(),
       'permissions': flatPermissions,
     };
   }
@@ -192,6 +197,7 @@ class UserProfileModel extends UserProfileEntity
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
+    lastAccessAt: lastAccessAt,
     permissions: permissions,
     workOrdersPermissionOverrides: workOrdersPermissionOverrides,
   );

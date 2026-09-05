@@ -12,5 +12,6 @@ Extended profile mapping to Supabase Auth uid.
 | `is_active` | BOOLEAN | NO | true | Active status |
 | `is_admin` | BOOLEAN | NO | false | Admin privileges flag (auto-set by trigger when group has `"*": true`) |
 | `permissions` | JSONB | NO | `{}` | Cached flat permissions object from `permission_groups.permissions` |
+| `last_access_at` | TIMESTAMPTZ | YES | - | Timestamp of the user's most recent activity/login |
 
 **Note**: `id` matches Supabase Auth uid.

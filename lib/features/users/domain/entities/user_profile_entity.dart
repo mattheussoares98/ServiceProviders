@@ -15,6 +15,7 @@ class UserProfileEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    this.lastAccessAt,
     this.permissions = const {},
     this.workOrdersPermissionOverrides =
         const UserWorkOrdersPermissionOverrideEntity.empty(),
@@ -33,6 +34,7 @@ class UserProfileEntity extends Equatable {
       createdAt = DateTime.fromMillisecondsSinceEpoch(0),
       updatedAt = DateTime.fromMillisecondsSinceEpoch(0),
       deletedAt = null,
+      lastAccessAt = null,
       permissions = const {},
       workOrdersPermissionOverrides =
           const UserWorkOrdersPermissionOverrideEntity.empty();
@@ -49,6 +51,7 @@ class UserProfileEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+  final DateTime? lastAccessAt;
   final Map<ResourceType, Map<PermissionAction, bool?>> permissions;
   final UserWorkOrdersPermissionOverrideEntity workOrdersPermissionOverrides;
 
@@ -75,6 +78,7 @@ class UserProfileEntity extends Equatable {
     createdAt,
     updatedAt,
     deletedAt,
+    lastAccessAt,
     permissions,
     workOrdersPermissionOverrides,
   ];
@@ -92,12 +96,14 @@ class UserProfileEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    DateTime? lastAccessAt,
     Map<ResourceType, Map<PermissionAction, bool?>>? permissions,
     UserWorkOrdersPermissionOverrideEntity? workOrders,
     bool? annulPhone,
     bool? annulPermissionGroupId,
     bool? annulAvatarUrl,
     bool? annulDeletedAt,
+    bool? annulLastAccessAt,
     bool? annulId,
     bool? annulCompanyId,
   }) {
@@ -116,6 +122,9 @@ class UserProfileEntity extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      lastAccessAt: annulLastAccessAt == true
+          ? null
+          : lastAccessAt ?? this.lastAccessAt,
       permissions: permissions ?? this.permissions,
       workOrdersPermissionOverrides:
           workOrders ?? workOrdersPermissionOverrides,

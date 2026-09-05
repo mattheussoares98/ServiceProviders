@@ -466,6 +466,7 @@ abstract final class EntityFactory {
       updatedAt: _makeDateTime(),
       avatarUrl: _makeUrl(),
       deletedAt: null,
+      lastAccessAt: _makeDateTime(),
       permissionGroupId: _makeId(),
     );
   }
