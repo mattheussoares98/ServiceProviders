@@ -148,6 +148,8 @@ class AppRouter extends RootStackRouter {
           page: CreateUpdateSlaPolicyRoute.page,
           path: '$kCreateUpdateSlaPolicyRoute/$kCreateUpdateSlaPolicyPath',
         ),
+        //* Access Logs
+        AutoRoute(page: AccessLogsRoute.page, path: kAccessLogsPath),
       ],
     ),
   ];
