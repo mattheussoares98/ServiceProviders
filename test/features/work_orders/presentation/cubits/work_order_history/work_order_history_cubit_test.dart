@@ -52,9 +52,8 @@ void main() {
       'emits [running, success] when loadHistory succeeds',
       build: () {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
-          (_) async => SuccessState(
-            data: EntityFactory.makeAuditLogEntityList(),
-          ),
+          (_) async =>
+              SuccessState(data: EntityFactory.makeAuditLogEntityList()),
         );
         return WorkOrderHistoryCubit(
           useCases: cubitUseCases,
@@ -81,9 +80,9 @@ void main() {
     blocTest<WorkOrderHistoryCubit, WorkOrderHistoryState>(
       'loadHistory emits [running, error] when use case fails',
       build: () {
-        when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
-          (_) async => FailureState(message: 'Failed to load'),
-        );
+        when(
+          () => mockGetWorkOrderHistory.call(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Failed to load'));
         return WorkOrderHistoryCubit(
           useCases: cubitUseCases,
           fileService: mockFileService,
@@ -104,49 +103,134 @@ void main() {
       ],
     );
 
-    test('setDateRange and clearDateFilter update state and filteredHistory correctly', () {
-      final cubit = WorkOrderHistoryCubit(
+    test(
+      'setDateRange and clearDateFilter update state and filteredHistory correctly',
+      () {
+        final cubit = WorkOrderHistoryCubit(
           useCases: cubitUseCases,
           fileService: mockFileService,
         );
 
-      final date1 = DateTime(2026, 3, 1, 10);
-      final date2 = DateTime(2026, 3, 5, 12);
-      final date3 = DateTime(2026, 3, 10, 15);
+        final date1 = DateTime(2026, 3, 1, 10);
+        final date2 = DateTime(2026, 3, 5, 12);
+        final date3 = DateTime(2026, 3, 10, 15);
 
-      final baseHistory = [
-        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date1),
-        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date2),
-        EntityFactory.makeAuditLogEntity().copyWith(createdAt: date3),
-      ];
+        final baseHistory = [
+          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date1),
+          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date2),
+          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date3),
+        ];
 
-      cubit.emit(cubit.state.copyWith(history: baseHistory));
-      expect(cubit.state.filteredHistory.length, 3);
+        cubit.emit(
+          cubit.state.copyWith(
+            history: baseHistory,
+            filteredHistory: baseHistory,
+          ),
+        );
+        expect(cubit.state.filteredHistory.length, 3);
 
-      // Filter within date2 only
-      cubit.setDateRange(
-        startDate: DateTime(2026, 3, 4),
-        endDate: DateTime(2026, 3, 6),
-      );
+        // Filter within date2 only
+        cubit.setDateRange(
+          startDate: DateTime(2026, 3, 4),
+          endDate: DateTime(2026, 3, 6),
+        );
 
-      expect(cubit.state.startDate, DateTime(2026, 3, 4));
-      expect(cubit.state.endDate, DateTime(2026, 3, 6));
-      expect(cubit.state.filteredHistory.length, 1);
-      expect(cubit.state.filteredHistory.first.createdAt, date2);
+        expect(cubit.state.startDate, DateTime(2026, 3, 4));
+        expect(cubit.state.endDate, DateTime(2026, 3, 6));
+        expect(cubit.state.filteredHistory.length, 1);
+        expect(cubit.state.filteredHistory.first.createdAt, date2);
 
-      // Clear filter
-      cubit.clearDateFilter();
-      expect(cubit.state.startDate, isNull);
-      expect(cubit.state.endDate, isNull);
-      expect(cubit.state.filteredHistory.length, 3);
+        // Clear filter
+        cubit.clearDateFilter();
+        expect(cubit.state.startDate, isNull);
+        expect(cubit.state.endDate, isNull);
+        expect(cubit.state.filteredHistory.length, 3);
 
-      cubit.close();
-    });
+        cubit.close();
+      },
+    );
+
+    test(
+      'setSearchQuery and clearSearchQuery filter history across fields and values',
+      () {
+        final cubit = WorkOrderHistoryCubit(
+          useCases: cubitUseCases,
+          fileService: mockFileService,
+        );
+
+        final item1 = EntityFactory.makeAuditLogEntity().copyWith(
+          summary: 'Alteração de status',
+          changes: [
+            EntityFactory.makeAuditLogEntity().changes.first.copyWith(
+              field: 'provider_profile_id',
+              label: 'Prestador',
+              oldValue: 'João Silva',
+              newValue: 'Maria Souza',
+            ),
+          ],
+        );
+
+        final item2 = EntityFactory.makeAuditLogEntity().copyWith(
+          summary: 'Adição de anexo',
+          metadata: EntityFactory.makeAuditLogEntity().metadata!.copyWith(
+            fileName: 'relatorio_tecnico.pdf',
+            fileType: 'pdf',
+          ),
+        );
+
+        final item3 = EntityFactory.makeAuditLogEntity().copyWith(
+          summary: 'Atualização de prioridade',
+          changes: [
+            EntityFactory.makeAuditLogEntity().changes.first.copyWith(
+              field: 'priority',
+              oldValue: 'low',
+              newValue: 'high',
+            ),
+          ],
+        );
+
+        cubit.emit(
+          cubit.state.copyWith(
+            history: [item1, item2, item3],
+            filteredHistory: [item1, item2, item3],
+          ),
+        );
+        expect(cubit.state.filteredHistory.length, 3);
+
+        // Search by field/label
+        cubit.setSearchQuery('Prestador');
+        expect(cubit.state.searchQuery, 'Prestador');
+        expect(cubit.state.filteredHistory.length, 1);
+        expect(cubit.state.filteredHistory.first, item1);
+
+        // Search by value
+        cubit.setSearchQuery('Maria Souza');
+        expect(cubit.state.filteredHistory.length, 1);
+        expect(cubit.state.filteredHistory.first, item1);
+
+        // Search by attachment name
+        cubit.setSearchQuery('relatorio_tecnico');
+        expect(cubit.state.filteredHistory.length, 1);
+        expect(cubit.state.filteredHistory.first, item2);
+
+        // Search by summary/action
+        cubit.setSearchQuery('prioridade');
+        expect(cubit.state.filteredHistory.length, 1);
+        expect(cubit.state.filteredHistory.first, item3);
+
+        // Clear search
+        cubit.clearSearchQuery();
+        expect(cubit.state.searchQuery, isNull);
+        expect(cubit.state.filteredHistory.length, 3);
+
+        cubit.close();
+      },
+    );
 
     test('openAttachmentUrl calls fileService.openFile', () async {
-      when(() => mockFileService.openFile(any())).thenAnswer(
-        (_) async => const SuccessState(data: true),
-      );
+      when(
+        () => mockFileService.openFile(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final cubit = WorkOrderHistoryCubit(
         useCases: cubitUseCases,
@@ -154,8 +238,9 @@ void main() {
       );
 
       await cubit.openAttachmentUrl('https://example.com/test.png');
-      verify(() => mockFileService.openFile('https://example.com/test.png'))
-          .called(1);
+      verify(
+        () => mockFileService.openFile('https://example.com/test.png'),
+      ).called(1);
       await cubit.close();
     });
   });

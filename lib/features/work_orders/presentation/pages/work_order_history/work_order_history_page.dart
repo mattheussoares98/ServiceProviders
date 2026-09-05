@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_history/widgets/history_date_filter_bar.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_history/widgets/history_search_bar.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_history/widgets/history_timeline_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
@@ -36,7 +37,20 @@ class WorkOrderHistoryPage extends StatelessWidget {
             appBar: BaseAppBar(title: 'Histórico de alterações'.hardcoded),
             body: Column(
               children: [
-                const HistoryDateFilterBar(),
+                Wrap(
+                  runSpacing: Sizes.p8,
+                  spacing: Sizes.p8,
+                  children: [
+                    SizedBox(
+                      width: ScreenUtil.I.type.maxWidth,
+                      child: const HistorySearchBar(),
+                    ),
+                    SizedBox(
+                      width: ScreenUtil.I.type.maxWidth,
+                      child: const HistoryDateFilterBar(),
+                    ),
+                  ],
+                ),
                 gapH16,
                 Expanded(
                   child:
