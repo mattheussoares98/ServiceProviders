@@ -151,13 +151,12 @@ class HistoryTimelineItem extends StatelessWidget {
                         fileName: fileName,
                         fileUrl: fileUrl,
                       )) ...[
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(Sizes.p8),
+                        Center(
                           child: BaseImageWidget(
                             source: BaseImageSource.network(fileUrl),
                             enableFullScreenOnTap: true,
                             heroTag: fileUrl + item.id,
-                            height: 180,
+                            height: 100,
                           ),
                         ),
                         gapH4,
