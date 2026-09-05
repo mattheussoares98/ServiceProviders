@@ -170,6 +170,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [sync_errors_rules.md](sync_errors_rules.md)
 - [audit_logs_rules.md](audit_logs_rules.md)
 - [access_logs_rules.md](access_logs_rules.md)
+- [company_parameters_rules.md](company_parameters_rules.md)
 
 ---
 

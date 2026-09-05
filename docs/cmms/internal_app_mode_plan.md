@@ -130,13 +130,25 @@ These block features already promised in [V1 scope](/docs/cmms/index.md) or [V2 
 - `WorkOrderHistoryCubit` and `WorkOrderHistoryPage` with `HistoryTimelineItem`, `HistorySearchBar`, and `HistoryDateFilterBar`.
 - Fully integrated into `WorkOrderDetailsPage` and tested.
 
-### Gap 8 — Access logs ([V2 §7](/docs/cmms/v2_features.md)) 🟢
-Next item. Track user login, logout, and token refresh/session events for security and auditing.
+### Gap 8 — Access logs ([V2 §7](/docs/cmms/v2_features.md)) ✅ IMPLEMENTED
+- Track login, logout, and token refresh/session events with IP and device info.
+- UI consultation under `AccessLogsPage` with search and date filters.
 
 ### Gap 9 — Unused dependencies ✅ RESOLVED
 Removed unused `firebase_auth` and `google_sign_in` from `pubspec.yaml`.
 
 ---
 
-## Phase 2: Provider Mode (`AppMode.provider`) UI
-Delivered — see Gap 2. What remains is shared with Company Mode: notifications (Gap 1), outbound sync (Gap 3) and real-time (Gap 4).
+## Next Product Priorities
+
+With all V1/V2 infrastructure gaps and provider mode foundations delivered, the next roadmap modules to build are:
+
+1. **Checklists Module (`Milestone 1.2`)**:
+   - Checklist templates creation/editing and item configuration.
+   - Dynamic checklist execution during work order execution.
+2. **Maintenance Plans Module (`Milestone 1.2`)**:
+   - Periodic recurring schedules (daily, weekly, monthly, meter-based).
+   - Automated generation of work orders from plans via background/cron triggers.
+3. **Inventory & Stock Control (`Milestone 1.3`)**:
+   - Part/stock registry, minimum stock alerts, and part consumption logging per work order.
+

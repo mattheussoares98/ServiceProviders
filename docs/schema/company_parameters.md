@@ -14,5 +14,9 @@ Configuration limits governing client offline allowances, file upload thresholds
 | `sandbox_quota_mb` | INT | NO | 1024 | Attachment sandbox cache quota (MB) |
 | `max_sync_attempts` | INT | NO | 3 | Maximum sync queue retry attempts |
 | `invite_expiry_hours` | INT | NO | 24 | User invitation expiry duration in hours |
+| `advance_warning_minutes` | INT | NO | 60 | Advance warning minutes before SLA deadline |
+| `advance_warning_group_ids` | JSONB | NO | '[]' | Permission groups to notify alongside assigned technician |
+| `delayed_notification_interval_minutes` | INT | NO | 60 | Overdue notification repetition interval |
+| `escalation_group_ids` | JSONB | NO | '[]' | Cascading escalation hierarchy group IDs |
 
 **Note**: `company_id` has a UNIQUE constraint (one row per company).

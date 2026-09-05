@@ -40,5 +40,8 @@ Instances of preventive, corrective, or inspection tasks.
 | `completion_reason` | VARCHAR(1000) | YES | - | Reason/justification provided upon completion |
 | `completion_responsibility` | VARCHAR(20) | YES | - | Responsibility upon completion: `provider` / `contractor` / `shared` |
 | `completion_sector_id` | UUID | YES | - | FK → `sectors.id` (Set Null) - Sector responsible for completion |
+| `advance_warning_sent_at` | TIMESTAMP | YES | - | Stamped when advance warning notification is dispatched |
+| `last_escalation_level` | INT | NO | 0 | Current escalation tier reached |
+| `last_escalation_at` | TIMESTAMP | YES | - | Timestamp of the last escalation notification cycle |
 
 

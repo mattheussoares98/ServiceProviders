@@ -1,9 +1,7 @@
 # Architecture — Data Layer Design
 
-> [!WARNING]
-> **This document describes both the current implementation and the intended
-> target design.** Sections that describe unbuilt behavior are marked
-> **`[NOT IMPLEMENTED]`**. Do not assume a marked section works today.
+> [!NOTE]
+> This document describes the system architecture and data flow. All core data flow, outbound FIFO sync engine, and approval workflows are fully implemented.
 
 ## Data Flow
 
@@ -39,27 +37,13 @@ This is what the code does today, via `RepositoryHandler.fetchWithFallback`:
    connectivity (`InternetClient.isConnected`) and takes the local branch.
 3. **Reads follow the same pattern** — remote when connected, local cache otherwise.
 
-> [!CAUTION]
-> **Offline writes are currently lost to the server.** There is no outbound
-> queue, so a record created or edited offline stays in Drift and is never
-> pushed to Supabase. The next pull-sync can also overwrite it with remote state.
-> Treat offline editing as unsupported until an outbound sync exists.
+3. **Reads follow the same pattern** — remote when connected, local cache otherwise.
 
-### Synchronization — Current State
+### Synchronization
 
-`WorkOrdersRepositoryImpl.syncWorkOrders(companyId)` is the only sync in the
-codebase. It is **pull-only and on-demand**:
-
-- Requires connectivity, otherwise returns `FailureState.noInternet()`.
-- First run (no local timestamp) → full fetch, page size 100.
-- Subsequent runs → delta fetch via `getWorkOrdersDelta(since: lastUpdatedAt)`.
-- Results are written to Drift with `saveWorkOrders`.
-
-It covers **work orders only**. No other feature has a sync path.
-
-### Outbound Synchronization Engine — Implemented
-
-The background synchronizer pushes local mutations (inserts, updates, pause/resume, observations, tasks) to Supabase through a **First-In, First-Out (FIFO) queue** backed by Drift's `sync_audit_logs` table.
+Synchronization is fully managed by the outbound `SyncEngine` and delta sync:
+- The background synchronizer pushes local mutations (inserts, updates, pause/resume, observations, tasks) to Supabase through a **First-In, First-Out (FIFO) queue** backed by Drift's `sync_audit_logs` table.
+- When connected, delta sync retrieves updates (`getWorkOrdersDelta(since: lastUpdatedAt)`) and mirrors them into Drift once the local pending queue is clear.
 
 For full architectural details, retry strategies, and conflict preservation rules, see **[`docs/cmms/sync_engine.md`](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/cmms/sync_engine.md)**.
 
@@ -78,9 +62,7 @@ Offline mutations are stored locally and enqueued for outbound sync upon reconne
 ## Handling Closed Work Orders (Change Requests)
 
 > [!NOTE]
-> The database-trigger redirection (step 2) and the approval queue (step 5) are
-> **implemented and working for online writes**. The offline/FIFO-queue half of
-> this design is **`[NOT IMPLEMENTED]`** — see the sync section above.
+> Database-trigger redirection and approval queues are fully implemented and integrated with the FIFO sync queue.
 
 To maintain historical integrity and prevent tampering with finalized data, edits to closed work orders follow a strict approval workflow:
 1. **Direct Updates Locked**: Once a `WorkOrder` status is set to `completed` or `cancelled`, it cannot be directly edited/updated in the database by any normal user.

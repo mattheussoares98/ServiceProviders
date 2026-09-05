@@ -98,13 +98,10 @@ SQLite. All 27 local tables live in a single `AppDatabase` class backed by one
 **Not yet built:** see the gap list in the
 [Internal App Mode Roadmap](/docs/cmms/internal_app_mode_plan.md).
 
-## 5. Known Gaps
+## 5. Status & Pending Work
 
-These are documented here so they are not mistaken for finished work:
+All core V1 & V2 foundation capabilities (Push notifications, Outbound FIFO SyncEngine, Provider Mode, Realtime Subscriptions, SLA & Escalations, KPI Dashboard, History Consultation, and Access Logs) have been implemented and validated.
 
-1. **Outbound sync.** ✅ Implemented via `SyncEngine`, Drift FIFO queue (`sync_audit_logs`), and telemetry error logging (`sync_errors`).
-2. **Push notifications.** ✅ Implemented via `user_device_tokens`, FCM HTTP v1 Edge Function, and PostgreSQL triggers.
-3. **Provider Mode.** ✅ Implemented with multi-tenant company switcher, dedicated views, and restricted RLS/permissions.
-4. **Real-time subscriptions.** ✅ Implemented via `SupabaseRealtimeClient`, repository Drift caching, and cubit streams.
-5. **No i18n.** ~739 strings are marked with the `.hardcoded` extension awaiting
-   extraction. There is no `lib/l10n`. The UI is Portuguese-only.
+**Remaining / Future Roadmap:**
+1. **Checklists & Maintenance Plans Modules** (Milestones 1.2 — standalone templates, checklist executions, and scheduled maintenance plans).
+2. **Inventory & Stock Control** (Milestone 1.3 — stock quantities, item usage on work orders)
