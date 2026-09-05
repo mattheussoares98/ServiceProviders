@@ -1,4 +1,5 @@
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/repositories/access_logs_repository.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/repositories/assets_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
@@ -54,4 +55,6 @@ class MockNotificationsRepository extends Mock
     implements NotificationsRepository {}
 
 class MockSyncRepository extends Mock implements SyncRepository {}
+
+class MockAccessLogsRepository extends Mock implements AccessLogsRepository {}
 

@@ -2,6 +2,10 @@ import 'package:faker/faker.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_action.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/create_access_log_request_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/get_access_logs_request_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
@@ -914,6 +918,48 @@ abstract final class EntityFactory {
       makeSyncErrorEntity(),
       makeSyncErrorEntity(),
     ];
+  }
+
+  // Access Log
+  static AccessLogEntity makeAccessLogEntity() {
+    return AccessLogEntity(
+      id: _makeId(),
+      companyId: _makeId(),
+      userId: _makeId(),
+      userName: _makePersonName(),
+      userEmail: _makeEmail(),
+      action: AccessLogAction.login,
+      ipAddress: '192.168.1.1',
+      deviceInfo: 'Flutter (macOS)',
+      createdAt: _makeDateTime(),
+    );
+  }
+
+  static List<AccessLogEntity> makeAccessLogEntityList() {
+    return [
+      makeAccessLogEntity(),
+      makeAccessLogEntity(),
+      makeAccessLogEntity(),
+    ];
+  }
+
+  static GetAccessLogsRequestEntity makeGetAccessLogsRequestEntity() {
+    return GetAccessLogsRequestEntity(
+      companyId: _makeId(),
+      startDate: _makeDateTime(),
+      endDate: _makeDateTime(),
+      userId: _makeId(),
+    );
+  }
+
+  static CreateAccessLogRequestEntity makeCreateAccessLogRequestEntity() {
+    return CreateAccessLogRequestEntity(
+      companyId: _makeId(),
+      userId: _makeId(),
+      action: AccessLogAction.login,
+      ipAddress: '192.168.1.1',
+      deviceInfo: 'Flutter (macOS)',
+    );
   }
 
   // Generic Realtime Event
