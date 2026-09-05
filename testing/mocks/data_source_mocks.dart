@@ -1,4 +1,5 @@
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/features/access_logs/data/data_sources/access_logs_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_local_data_source.dart';
@@ -129,4 +130,7 @@ class MockSyncRemoteDataSource extends Mock implements SyncRemoteDataSource {}
 
 class MockWorkOrdersRealtimeRemoteDataSource extends Mock
     implements WorkOrdersRealtimeRemoteDataSource {}
+
+class MockAccessLogsRemoteDataSource extends Mock
+    implements AccessLogsRemoteDataSource {}
 
