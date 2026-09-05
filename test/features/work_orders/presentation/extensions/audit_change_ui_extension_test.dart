@@ -81,7 +81,7 @@ void main() {
       );
     });
 
-    test('formats booleans and other enums (pause, checklist, file_type)', () {
+    test('formats booleans and other enums (pause, checklist, file_type, content)', () {
       const boolChange = AuditChangeEntity(
         field: 'is_required',
         oldValue: 'false',
@@ -90,6 +90,15 @@ void main() {
       expect(boolChange.localizedLabel, equals('Obrigatório'));
       expect(boolChange.localizedOldValue, equals('Não'));
       expect(boolChange.localizedNewValue, equals('Sim'));
+
+      const contentChange = AuditChangeEntity(
+        field: 'content',
+        oldValue: 'Observação antiga',
+        newValue: 'Observação nova',
+      );
+      expect(contentChange.localizedLabel, equals('Observação'));
+      expect(contentChange.localizedOldValue, equals('Observação antiga'));
+      expect(contentChange.localizedNewValue, equals('Observação nova'));
 
       const pauseChange = AuditChangeEntity(
         field: 'status',
@@ -186,6 +195,26 @@ void main() {
           createdAt: DateTime(2026, 9, 3),
         );
         expect(restoredLog.displayTitle, equals('Restauração - ANEXOS'));
+
+        final createdObsLog = AuditLogEntity(
+          id: '5',
+          companyId: 'comp-1',
+          entityType: AuditEntityType.workOrderObservations,
+          entityId: 'obs-1',
+          action: 'created',
+          createdAt: DateTime(2026, 9, 3),
+        );
+        expect(createdObsLog.displayTitle, equals('Observação adicionada'));
+
+        final deletedObsLog = AuditLogEntity(
+          id: '6',
+          companyId: 'comp-1',
+          entityType: AuditEntityType.workOrderObservations,
+          entityId: 'obs-2',
+          action: 'deleted',
+          createdAt: DateTime(2026, 9, 3),
+        );
+        expect(deletedObsLog.displayTitle, equals('Observação removida'));
       },
     );
   });

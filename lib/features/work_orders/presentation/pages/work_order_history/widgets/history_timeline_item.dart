@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/audit_change_ui_extension.dart';
@@ -105,18 +106,25 @@ class HistoryTimelineItem extends StatelessWidget {
                           .map((change) {
                             final oldVal = change.localizedOldValue?.hardcoded;
                             final newVal = change.localizedNewValue?.hardcoded;
+                            final showFieldLabel =
+                                item.entityType !=
+                                AuditEntityType.workOrderObservations;
                             return Padding(
                               padding: const EdgeInsets.only(bottom: Sizes.p4),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  BaseText.bodySmall(
-                                    change.localizedLabel.hardcoded,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  if (showFieldLabel)
+                                    BaseText.bodySmall(
+                                      change.localizedLabel.hardcoded,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   if (oldVal != null)
                                     BaseText.bodySmall(
-                                      'De: $oldVal'.hardcoded,
+                                      (item.action == 'deleted'
+                                              ? oldVal
+                                              : 'De: $oldVal')
+                                          .hardcoded,
                                       color: context.colorScheme.error,
                                     ),
                                   if (newVal != null)
@@ -125,7 +133,8 @@ class HistoryTimelineItem extends StatelessWidget {
                                           .hardcoded,
                                       color: context.colorScheme.primary,
                                     )
-                                  else if (oldVal != null)
+                                  else if (oldVal != null &&
+                                      item.action != 'deleted')
                                     BaseText.bodySmall(
                                       'Para: Nenhum'.hardcoded,
                                       color: context.colorScheme.outline,

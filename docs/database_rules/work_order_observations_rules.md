@@ -64,6 +64,11 @@ CREATE POLICY "Users can update observations of their company"
 CREATE TRIGGER tr_notify_observation
 AFTER INSERT ON public.work_order_observations
 FOR EACH ROW EXECUTE FUNCTION public.handle_notify_observation();
+
+-- Audit log trigger for created and deleted observations
+CREATE TRIGGER tr_audit_work_order_observations
+AFTER INSERT OR UPDATE ON public.work_order_observations
+FOR EACH ROW EXECUTE FUNCTION public.handle_audit_work_order_observations();
 ```
 
 ## History
@@ -75,4 +80,6 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_notify_observation();
 | `20260820120000_add_provider_access_to_work_orders.sql` | Provider branches added to SELECT / INSERT / UPDATE |
 | `20260820140000_allow_provider_authored_observations.sql` | `author_id` made nullable, `author_provider_profile_id` added with a single-author CHECK; INSERT/UPDATE rewritten around `is_own_provider_profile` |
 | `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_observation` trigger to dispatch notifications for new observations |
+| `20260904220000_handle_observation_audit_logs.sql` | Added specialized `tr_audit_work_order_observations` trigger to log observation content diff on create and delete, and backfilled existing observation audit logs |
+
 

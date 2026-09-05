@@ -46,6 +46,7 @@ extension AuditChangeUiExtension on AuditChangeEntity {
       'email' => 'E-mail'.hardcoded,
       'phone' => 'Telefone'.hardcoded,
       'notes' => 'Observações'.hardcoded,
+      'content' => 'Observação'.hardcoded,
       'reason' => 'Motivo'.hardcoded,
       'event_type' => 'Tipo de evento'.hardcoded,
       'review_observation' => 'Observação de revisão'.hardcoded,
@@ -214,6 +215,13 @@ extension AuditEntityTypeUiExtension on AuditEntityType {
 
 extension AuditLogUiExtension on AuditLogEntity {
   String get displayTitle {
+    if (entityType == AuditEntityType.workOrderObservations) {
+      return switch (action) {
+        'created' => 'Observação adicionada'.hardcoded,
+        'deleted' => 'Observação removida'.hardcoded,
+        _ => summary ?? action.hardcoded,
+      };
+    }
     if (summary != null && summary!.trim().isNotEmpty) {
       return summary!;
     }
