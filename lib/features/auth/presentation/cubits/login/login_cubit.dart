@@ -32,7 +32,8 @@ class LoginCubit extends BaseCubit<LoginState> {
 
   Future<void> clearSession() async {
     final dataState = await _useCases.getUserData.call();
-    if (dataState is SuccessState) {
+    if (dataState is SuccessState &&
+        dataState.data?.user.id.isNotEmpty == true) {
       await _useCases.logOut.call();
     }
   }

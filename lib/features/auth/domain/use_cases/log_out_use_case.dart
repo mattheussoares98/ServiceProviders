@@ -21,14 +21,13 @@ class LogOutUseCase {
   Future<void> call() async {
     final user = _sessionRepository.userData.user;
     final companyId = _getActiveCompanyId.call();
-    if (user.id.isNotEmpty && companyId.isNotEmpty) {
-      unawaited(
-        _createAccessLog.call(
-          CreateAccessLogRequestEntity(
-            companyId: companyId,
-            userId: user.id,
-            action: AccessLogAction.logout,
-          ),
+    final isLoggedIn = _sessionRepository.isLoggedIn;
+    if (isLoggedIn && user.id.isNotEmpty && companyId.isNotEmpty) {
+      await _createAccessLog.call(
+        CreateAccessLogRequestEntity(
+          companyId: companyId,
+          userId: user.id,
+          action: AccessLogAction.logout,
         ),
       );
     }
