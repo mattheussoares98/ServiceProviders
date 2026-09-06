@@ -120,6 +120,7 @@ erDiagram
 | 28 | user_device_tokens | [user_device_tokens.md](user_device_tokens.md) |
 | 29 | sync_errors | [sync_errors.md](sync_errors.md) |
 | 30 | access_logs | [access_logs.md](access_logs.md) |
+| 31 | checklist_answers | [checklist_answers.md](checklist_answers.md) |
 
 ---
 

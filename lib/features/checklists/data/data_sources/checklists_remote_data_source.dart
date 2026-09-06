@@ -208,7 +208,7 @@ final class ChecklistsRemoteDataSourceImpl
     String workOrderId,
   ) => SupabaseHandler.call(() async {
     final response = await _database.selectList(
-      table: 'tasks',
+      table: 'checklist_answers',
       filters: [
         SupabaseFilter.eq('work_order_id', workOrderId),
         SupabaseFilter.isFilter('deleted_at', null),
@@ -220,7 +220,11 @@ final class ChecklistsRemoteDataSourceImpl
   @override
   FutureBool saveResponse(ChecklistAnswerModel response) =>
       SupabaseHandler.call(() async {
-        await _database.upsert(table: 'tasks', values: response.toJson());
+        await _database.upsert(
+          table: 'checklist_answers',
+          values: response.toJson(),
+          onConflict: 'work_order_id,checklist_item_id',
+        );
         return true;
       });
 }

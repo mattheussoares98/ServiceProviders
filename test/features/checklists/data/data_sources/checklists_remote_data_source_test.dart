@@ -373,7 +373,7 @@ void main() {
       );
       verify(
         () => mockDatabase.selectList(
-          table: 'tasks',
+          table: 'checklist_answers',
           filters: any(named: 'filters'),
         ),
       ).called(1);
@@ -399,6 +399,7 @@ void main() {
         () => mockDatabase.upsert(
           table: any(named: 'table'),
           values: any(named: 'values'),
+          onConflict: any(named: 'onConflict'),
         ),
       ).thenAnswer((_) async => [tAnswerModel.toJson()]);
 
@@ -408,8 +409,9 @@ void main() {
       expect((result as SuccessState<bool>).data, true);
       verify(
         () => mockDatabase.upsert(
-          table: 'tasks',
+          table: 'checklist_answers',
           values: any(named: 'values'),
+          onConflict: 'work_order_id,checklist_item_id',
         ),
       ).called(1);
     });
@@ -419,6 +421,7 @@ void main() {
         () => mockDatabase.upsert(
           table: any(named: 'table'),
           values: any(named: 'values'),
+          onConflict: any(named: 'onConflict'),
         ),
       ).thenThrow(Exception('Upsert error'));
 
