@@ -8,8 +8,8 @@ import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/lo
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/reset_password.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/widgets/welcome_logo.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
 @RoutePage()
 class LoginPage extends HookWidget {
@@ -36,63 +36,65 @@ class LoginPage extends HookWidget {
 
     return BlocProvider.value(
       value: loginCubit,
-      child: BaseScaffold(
-        observeScreenChanges: true,
-        showAnnotatedRegion: true,
-        safeAreaTop: false,
-        isScrollable: false,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: .end,
-              mainAxisAlignment: .center,
-              children: [
-                gapH24,
-                const WelcomeLogo(),
-                gapH12,
-                Form(
-                  key: formKey,
-                  child: AutofillGroup(
-                    child: LoginForm(
+      child: Scaffold(
+        body: SizedBox(
+          width: ScreenType.tablet.maxWidth,
+          child: Padding(
+            padding: const .all(Sizes.p12),
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: .end,
+                  mainAxisAlignment: .center,
+                  children: [
+                    gapH24,
+                    const WelcomeLogo(),
+                    gapH12,
+                    Form(
+                      key: formKey,
+                      child: AutofillGroup(
+                        child: LoginForm(
+                          formKey: formKey,
+                          emailController: emailController,
+                          passwordController: passwordController,
+                          passwordFocusNode: passwordFocusNode,
+                        ),
+                      ),
+                    ),
+                    gapH32,
+                    LoginButton(
                       formKey: formKey,
                       emailController: emailController,
                       passwordController: passwordController,
-                      passwordFocusNode: passwordFocusNode,
                     ),
-                  ),
+                    gapH32,
+                    ResetPassword(emailController: emailController),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     BlocSelector<LoginCubit, LoginState, bool>(
+                    //       selector: (state) => state.status == DataStatus.loading,
+                    //       builder: (context, isLoading) {
+                    //         return Flexible(
+                    //           child: BaseTextButton(
+                    //             onPressed: isLoading
+                    //                 ? null
+                    //                 : loginCubit.navigateToSignUp,
+                    //             text: 'Criar conta'.hardcoded,
+                    //             color: context.theme.primaryColorLight,
+                    //           ),
+                    //         );
+                    //       },
+                    //     ),
+                    //     gapH8,
+                    //     Flexible(
+                    //       child: ResetPassword(emailController: emailController),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
                 ),
-                gapH32,
-                LoginButton(
-                  formKey: formKey,
-                  emailController: emailController,
-                  passwordController: passwordController,
-                ),
-                gapH32,
-                ResetPassword(emailController: emailController),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     BlocSelector<LoginCubit, LoginState, bool>(
-                //       selector: (state) => state.status == DataStatus.loading,
-                //       builder: (context, isLoading) {
-                //         return Flexible(
-                //           child: BaseTextButton(
-                //             onPressed: isLoading
-                //                 ? null
-                //                 : loginCubit.navigateToSignUp,
-                //             text: 'Criar conta'.hardcoded,
-                //             color: context.theme.primaryColorLight,
-                //           ),
-                //         );
-                //       },
-                //     ),
-                //     gapH8,
-                //     Flexible(
-                //       child: ResetPassword(emailController: emailController),
-                //     ),
-                //   ],
-                // ),
-              ],
+              ),
             ),
           ),
         ),
