@@ -21,7 +21,11 @@ void main() {
     for (final line in file.readAsLinesSync()) {
       if (line.trim().isEmpty) continue;
       try {
-        records.add(jsonDecode(line) as Map<String, Object?>);
+        final decoded = jsonDecode(line) as Map<String, Object?>;
+        // The directory also holds the permission ledger, which is .jsonl but
+        // not a case record.
+        if (decoded['id'] == null || decoded['outcome'] == null) continue;
+        records.add(decoded);
       } on FormatException {
         // A partial trailing line means the process died mid-write; every
         // record before it is still intact and worth reporting.
