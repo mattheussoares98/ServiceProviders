@@ -125,12 +125,32 @@ RETURNS TRIGGER AS $$
 BEGIN
   RAISE EXCEPTION 'Hard deletes are disabled. Use soft delete by setting deleted_at instead.';
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+`user_profiles` is the single exception: a row whose `auth.users` entry was never
+confirmed is a **pending invitation** and must stay hard-deletable, because
+`revoke_invitation()` deletes from `auth.users` and the cascade reaches this table.
+That carve-out lives in its own function so it cannot weaken the guard elsewhere:
+
+```sql
+CREATE OR REPLACE FUNCTION public.prevent_user_profile_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM auth.users
+    WHERE id = OLD.id AND confirmed_at IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION 'Hard deletes are disabled. Use soft delete by setting deleted_at instead.';
+  END IF;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
 ### Applied Tables (soft‑delete enabled)
 - **companies** (`tr_prevent_delete_companies`)
-- **user_profiles** (`tr_prevent_delete_user_profiles`)
+- **user_profiles** (`tr_prevent_delete_user_profiles` → `prevent_user_profile_delete()`)
 - **locations** (`tr_prevent_delete_locations`)
 - **areas** (`tr_prevent_delete_areas`)
 - **assets** (`tr_prevent_delete_assets`)
