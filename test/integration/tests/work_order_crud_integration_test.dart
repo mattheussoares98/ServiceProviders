@@ -194,11 +194,14 @@ void main() {
 
   checkedTest(
     'WO-09',
-    'getWorkOrderById must not return a soft-deleted work order',
+    'A soft-deleted work order stays reachable by id but leaves the list',
     feature: _feature,
     role: 'admin',
     suiteSlug: _suite,
-    expected: 'FailureState — a deleted order is invisible to the read path',
+    expected:
+        'getWorkOrderById still returns it, with deletedAt set, so the '
+        'deleted-orders view and the restore flow can reach it; the default '
+        'list excludes it.',
     body: (check) async {
       check.step('seed and soft-delete a work order');
       final entity = await WorkOrderIntegrationHelper.create(
@@ -212,24 +215,37 @@ void main() {
       final fetched = await admin.sources.workOrders.getWorkOrderById(
         entity.id,
       );
-
+      check.softExpect(
+        fetched,
+        isA<SuccessState<WorkOrderModel>>(),
+        reason: 'restoring a deleted order requires reading it by id',
+      );
       if (fetched is SuccessState<WorkOrderModel>) {
-        check
-          ..actual(
-            'SuccessState — the deleted order is still readable '
-            '(status ${fetched.data?.toEntity().status}, '
-            'deletedAt ${fetched.data?.toEntity().deletedAt})',
-          )
-          ..note(
-            'getWorkOrderById does not filter on deleted_at, so a soft-deleted '
-            'work order stays reachable by id even though it is excluded from '
-            'every list query.',
-          );
-      } else {
-        check.actual('FailureState as expected');
+        check.actual(
+          'readable by id with deletedAt '
+          '${fetched.data?.toEntity().deletedAt}',
+        );
+        check.softExpect(
+          fetched.data?.toEntity().deletedAt,
+          isNotNull,
+          reason: 'the row must carry its deleted_at stamp',
+        );
       }
 
-      check.softExpect(fetched, isA<FailureState<WorkOrderModel>>());
+      check.step('the default list must exclude it');
+      final listed = await admin.sources.workOrders.getWorkOrders(
+        context.companyId,
+      );
+      if (listed is SuccessState<List<WorkOrderModel>>) {
+        final ids = (listed.data ?? []).map((model) => model.id).toSet();
+        check.softExpect(
+          ids.contains(entity.id),
+          isFalse,
+          reason: 'a soft-deleted order must not appear in the default list',
+        );
+      } else {
+        check.softExpect(listed, isA<SuccessState<List<WorkOrderModel>>>());
+      }
     },
   );
 
