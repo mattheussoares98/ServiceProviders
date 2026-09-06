@@ -221,6 +221,11 @@ void main() {
       () => mockSplashCubit.state,
     ).thenReturn(const SplashState(target: SplashRouteTarget.home));
     when(() => mockSplashCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockSplashCubit.checkInitialRoute(
+        isInviteLink: any(named: 'isInviteLink'),
+      ),
+    ).thenAnswer((_) async {});
 
     final mockModeSwitcherCubit = MockModeSwitcherCubit();
     when(
