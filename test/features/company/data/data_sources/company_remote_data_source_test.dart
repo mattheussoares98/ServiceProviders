@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/company/data/models/responses/company_mo
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -26,11 +26,11 @@ void main() {
     dataSource = CompanyRemoteDataSourceImpl(database: mockDatabase);
   });
 
-  final tCompanyEntity = EntityFactory.makeCompanyEntity();
+  final tCompanyEntity = UserFactory.makeCompanyEntity();
   final tRequest = CompanyRequestModel.fromEntity(tCompanyEntity);
   final tResponse = CompanyModel.fromEntity(tCompanyEntity);
 
-  final tCompanyParameterEntity = EntityFactory.makeCompanyParameterEntity()
+  final tCompanyParameterEntity = UserFactory.makeCompanyParameterEntity()
       .copyWith(companyId: tCompanyEntity.id);
   final tParameterRequest = CompanyParameterRequestModel.fromEntity(
     tCompanyParameterEntity,
@@ -213,7 +213,10 @@ void main() {
 
         expect(result, isA<FailureState<CompanyParameterModel>>());
         final failure = result as FailureState<CompanyParameterModel>;
-        expect(failure.message, contains('Parâmetros da empresa não encontrados'));
+        expect(
+          failure.message,
+          contains('Parâmetros da empresa não encontrados'),
+        );
       });
 
       test('should return FailureState when selectOne throws', () async {
@@ -277,21 +280,24 @@ void main() {
     });
 
     group('getAllCompanies', () {
-      test('should return SuccessState<List<CompanyModel>> when database succeeds', () async {
-        final tList = [tResponse.toJson()];
-        when(
-          () => mockDatabase.selectList(
-            table: any(named: 'table'),
-            filters: any(named: 'filters'),
-          ),
-        ).thenAnswer((_) async => tList);
+      test(
+        'should return SuccessState<List<CompanyModel>> when database succeeds',
+        () async {
+          final tList = [tResponse.toJson()];
+          when(
+            () => mockDatabase.selectList(
+              table: any(named: 'table'),
+              filters: any(named: 'filters'),
+            ),
+          ).thenAnswer((_) async => tList);
 
-        final result = await dataSource.getAllCompanies();
+          final result = await dataSource.getAllCompanies();
 
-        expect(result, isA<SuccessState<List<CompanyModel>>>());
-        expect(result.data?.length, 1);
-        expect(result.data?.first, tResponse);
-      });
+          expect(result, isA<SuccessState<List<CompanyModel>>>());
+          expect(result.data?.length, 1);
+          expect(result.data?.first, tResponse);
+        },
+      );
 
       test('should return FailureState when database throws', () async {
         when(
@@ -308,4 +314,3 @@ void main() {
     });
   });
 }
-

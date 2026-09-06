@@ -18,7 +18,9 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/updat
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_companies_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/watch_service_provider_profiles_realtime_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
 
@@ -43,9 +45,15 @@ void main() {
   watchServiceProviderProfilesRealtimeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
-    registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
-    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderCompanyEntity(),
+    );
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderProfileEntity(),
+    );
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderInvitationEntity(),
+    );
   });
 
   setUp(() {
@@ -88,7 +96,7 @@ void main() {
   });
 
   group('CreateServiceProviderCompanyUseCase', () {
-    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+    final tCompany = ServiceProviderFactory.makeServiceProviderCompanyEntity();
 
     test('should return true on success', () async {
       when(
@@ -108,7 +116,7 @@ void main() {
   });
 
   group('UpdateServiceProviderCompanyUseCase', () {
-    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+    final tCompany = ServiceProviderFactory.makeServiceProviderCompanyEntity();
 
     test('should return true on success', () async {
       when(
@@ -128,7 +136,7 @@ void main() {
   });
 
   group('CreateServiceProviderProfileUseCase', () {
-    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+    final tProfile = ServiceProviderFactory.makeServiceProviderProfileEntity();
 
     test('should return true on success', () async {
       when(
@@ -148,7 +156,7 @@ void main() {
   });
 
   group('UpdateServiceProviderProfileUseCase', () {
-    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+    final tProfile = ServiceProviderFactory.makeServiceProviderProfileEntity();
 
     test('should return true on success', () async {
       when(
@@ -169,7 +177,8 @@ void main() {
 
   group('GetServiceProviderInvitationsUseCase', () {
     final tCompanyId = faker.guid.guid();
-    final tList = EntityFactory.makeServiceProviderInvitationEntityList();
+    final tList =
+        ServiceProviderFactory.makeServiceProviderInvitationEntityList();
 
     test('should return list of invitations on success', () async {
       when(
@@ -245,7 +254,9 @@ void main() {
 
   group('GetServiceProviderProfilesByCompanyIdsUseCase', () {
     final tCompanyIds = [faker.guid.guid(), faker.guid.guid()];
-    final tProfiles = [EntityFactory.makeServiceProviderProfileEntity()];
+    final tProfiles = [
+      ServiceProviderFactory.makeServiceProviderProfileEntity(),
+    ];
     late GetServiceProviderProfilesByCompanyIdsUseCase useCase;
 
     setUp(() {
@@ -276,7 +287,9 @@ void main() {
 
     test('should return true on success', () async {
       when(
-        () => mockServiceProviderRepository.acceptServiceProviderInvitation(any()),
+        () => mockServiceProviderRepository.acceptServiceProviderInvitation(
+          any(),
+        ),
       ).thenAnswer((_) async => const SuccessState(data: true));
 
       final result = await acceptServiceProviderInvitationUseCase(tEmail);
@@ -305,15 +318,15 @@ void main() {
       );
       when(
         () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      ).thenReturn(UserFactory.makeUserProfileEntity());
     });
 
     test('picks the profile of the requested provider company', () async {
-      final wanted = EntityFactory.makeServiceProviderProfileEntity();
-      final other = EntityFactory.makeServiceProviderProfileEntity();
-      when(() => mockGetProfiles.call(any())).thenAnswer(
-        (_) async => SuccessState(data: [other, wanted]),
-      );
+      final wanted = ServiceProviderFactory.makeServiceProviderProfileEntity();
+      final other = ServiceProviderFactory.makeServiceProviderProfileEntity();
+      when(
+        () => mockGetProfiles.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: [other, wanted]));
 
       final result = await useCase(wanted.serviceProviderCompanyId);
 
@@ -321,16 +334,19 @@ void main() {
       expect(result.data, wanted);
     });
 
-    test('falls back to the only profile when the company does not match', () async {
-      final only = EntityFactory.makeServiceProviderProfileEntity();
-      when(
-        () => mockGetProfiles.call(any()),
-      ).thenAnswer((_) async => SuccessState(data: [only]));
+    test(
+      'falls back to the only profile when the company does not match',
+      () async {
+        final only = ServiceProviderFactory.makeServiceProviderProfileEntity();
+        when(
+          () => mockGetProfiles.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: [only]));
 
-      final result = await useCase('unrelated-company');
+        final result = await useCase('unrelated-company');
 
-      expect(result.data, only);
-    });
+        expect(result.data, only);
+      },
+    );
 
     test('fails when the user has no provider profile', () async {
       when(
@@ -343,16 +359,19 @@ void main() {
       expect(result.message, isNotNull);
     });
 
-    test('fails without hitting the repository when there is no session', () async {
-      when(
-        () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity().copyWith(annulId: true));
+    test(
+      'fails without hitting the repository when there is no session',
+      () async {
+        when(() => mockGetSessionUser.call()).thenReturn(
+          UserFactory.makeUserProfileEntity().copyWith(annulId: true),
+        );
 
-      final result = await useCase(null);
+        final result = await useCase(null);
 
-      expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
-      verifyNever(() => mockGetProfiles.call(any()));
-    });
+        expect(result, isA<FailureState<ServiceProviderProfileEntity>>());
+        verifyNever(() => mockGetProfiles.call(any()));
+      },
+    );
 
     test('propagates a repository failure message', () async {
       when(
@@ -367,17 +386,17 @@ void main() {
   });
 
   group('WatchServiceProviderCompaniesRealtimeUseCase', () {
-    final tCompany = EntityFactory.makeServiceProviderCompanyEntity();
+    final tCompany = ServiceProviderFactory.makeServiceProviderCompanyEntity();
     final tCompanyId = faker.guid.guid();
 
     test('should return stream from repository', () {
       final event =
-          EntityFactory.makeRealtimeEvent<ServiceProviderCompanyEntity>(
+          SystemFactory.makeRealtimeEvent<ServiceProviderCompanyEntity>(
             entity: tCompany,
           );
       when(
-        () => mockServiceProviderRepository
-            .watchServiceProviderCompaniesRealtime(
+        () =>
+            mockServiceProviderRepository.watchServiceProviderCompaniesRealtime(
               companyId: any(named: 'companyId'),
             ),
       ).thenAnswer((_) => Stream.value(event));
@@ -395,17 +414,17 @@ void main() {
   });
 
   group('WatchServiceProviderProfilesRealtimeUseCase', () {
-    final tProfile = EntityFactory.makeServiceProviderProfileEntity();
+    final tProfile = ServiceProviderFactory.makeServiceProviderProfileEntity();
     final tServiceProviderCompanyId = faker.guid.guid();
 
     test('should return stream from repository', () {
       final event =
-          EntityFactory.makeRealtimeEvent<ServiceProviderProfileEntity>(
+          SystemFactory.makeRealtimeEvent<ServiceProviderProfileEntity>(
             entity: tProfile,
           );
       when(
-        () => mockServiceProviderRepository
-            .watchServiceProviderProfilesRealtime(
+        () =>
+            mockServiceProviderRepository.watchServiceProviderProfilesRealtime(
               serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
             ),
       ).thenAnswer((_) => Stream.value(event));
@@ -416,8 +435,8 @@ void main() {
 
       expect(result, emits(event));
       verify(
-        () => mockServiceProviderRepository
-            .watchServiceProviderProfilesRealtime(
+        () =>
+            mockServiceProviderRepository.watchServiceProviderProfilesRealtime(
               serviceProviderCompanyId: tServiceProviderCompanyId,
             ),
       ).called(1);

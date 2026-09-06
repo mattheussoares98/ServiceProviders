@@ -31,7 +31,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
@@ -90,8 +91,8 @@ void main() {
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeLocationEntity());
-    registerFallbackValue(EntityFactory.makeAreaEntity());
+    registerFallbackValue(AssetFactory.makeLocationEntity());
+    registerFallbackValue(AssetFactory.makeAreaEntity());
     registerFallbackValue(CreateUpdateAreaRoute(locationId: '', companyId: ''));
     registerFallbackValue(CreateUpdateLocationRoute());
   });
@@ -116,9 +117,9 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
-    tLocations = EntityFactory.makeLocationEntityList();
-    tAreas = EntityFactory.makeAreaEntityList();
+    tUserProfile = UserFactory.makeUserProfileEntity();
+    tLocations = AssetFactory.makeLocationEntityList();
+    tAreas = AssetFactory.makeAreaEntityList();
 
     when(
       () => mockGetActiveCompanyId.call(),
@@ -439,7 +440,7 @@ void main() {
     });
 
     group('saveLocation', () {
-      final tLocation = EntityFactory.makeLocationEntity();
+      final tLocation = AssetFactory.makeLocationEntity();
 
       blocTest<LocationsCubit, LocationsState>(
         'should call createLocation usecase, emit saving and load locations when creation succeeds',
@@ -523,11 +524,7 @@ void main() {
                     .having((l) => l.city, 'city', tLocation.city?.trim())
                     .having((l) => l.state, 'state', tLocation.state?.trim())
                     .having((l) => l.isActive, 'isActive', true)
-                    .having(
-                      (l) => l.createdAt,
-                      'createdAt',
-                      isA<DateTime>(),
-                    ),
+                    .having((l) => l.createdAt, 'createdAt', isA<DateTime>()),
               ),
             ),
           ).called(1);
@@ -796,7 +793,7 @@ void main() {
     });
 
     group('saveArea', () {
-      final tArea = EntityFactory.makeAreaEntity();
+      final tArea = AssetFactory.makeAreaEntity();
 
       blocTest<LocationsCubit, LocationsState>(
         'should call createArea usecase, emit saving, and load areas when creation succeeds',
@@ -1065,10 +1062,10 @@ void main() {
 
     group('Navigation', () {
       final tArea = faker.randomGenerator.boolean()
-          ? EntityFactory.makeAreaEntity()
+          ? AssetFactory.makeAreaEntity()
           : null;
       final tLocation = faker.randomGenerator.boolean()
-          ? EntityFactory.makeLocationEntity()
+          ? AssetFactory.makeLocationEntity()
           : null;
 
       blocTest<LocationsCubit, LocationsState>(
@@ -1150,7 +1147,7 @@ void main() {
         );
 
         final testCubit = LocationsCubit(useCases: useCases);
-        final newLoc = EntityFactory.makeLocationEntity();
+        final newLoc = AssetFactory.makeLocationEntity();
 
         controller.add(
           RealtimeEvent(
@@ -1337,7 +1334,7 @@ void main() {
           );
 
           final testCubit = LocationsCubit(useCases: useCases);
-          final newArea = EntityFactory.makeAreaEntity();
+          final newArea = AssetFactory.makeAreaEntity();
 
           controller.add(
             RealtimeEvent(
@@ -1384,7 +1381,7 @@ void main() {
         );
 
         final testCubit = LocationsCubit(useCases: useCases);
-        final initialArea = EntityFactory.makeAreaEntity();
+        final initialArea = AssetFactory.makeAreaEntity();
         testCubit.emit(
           testCubit.state.copyWith(
             allAreas: [initialArea],

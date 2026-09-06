@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 
 void main() {
   late MockInternetClient mockInternet;
@@ -22,22 +22,28 @@ void main() {
   late ServiceProviderRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderCompanyEntity(),
+    );
     registerFallbackValue(
       ServiceProviderCompanyModel.fromEntity(
-        EntityFactory.makeServiceProviderCompanyEntity(),
+        ServiceProviderFactory.makeServiceProviderCompanyEntity(),
       ),
     );
-    registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderProfileEntity(),
+    );
     registerFallbackValue(
       ServiceProviderProfileModel.fromEntity(
-        EntityFactory.makeServiceProviderProfileEntity(),
+        ServiceProviderFactory.makeServiceProviderProfileEntity(),
       ),
     );
-    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderInvitationEntity(),
+    );
     registerFallbackValue(
       ServiceProviderInvitationModel.fromEntity(
-        EntityFactory.makeServiceProviderInvitationEntity(),
+        ServiceProviderFactory.makeServiceProviderInvitationEntity(),
       ),
     );
   });
@@ -80,13 +86,16 @@ void main() {
     );
   });
 
-  final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
+  final tCompanyEntity =
+      ServiceProviderFactory.makeServiceProviderCompanyEntity();
   final tCompanyModel = ServiceProviderCompanyModel.fromEntity(tCompanyEntity);
 
-  final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
+  final tProfileEntity =
+      ServiceProviderFactory.makeServiceProviderProfileEntity();
   final tProfileModel = ServiceProviderProfileModel.fromEntity(tProfileEntity);
 
-  final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
+  final tInvitationEntity =
+      ServiceProviderFactory.makeServiceProviderInvitationEntity();
   final tInvitationModel = ServiceProviderInvitationModel.fromEntity(
     tInvitationEntity,
   );
@@ -322,24 +331,30 @@ void main() {
             tCompanyIds,
           ),
         ).called(1);
-        verifyNever(() => mockLocalDataSource.saveServiceProviderProfiles(any()));
+        verifyNever(
+          () => mockLocalDataSource.saveServiceProviderProfiles(any()),
+        );
       },
     );
 
-    test('should return FailureState without local fallback when offline', () async {
-      final tCompanyIds = ['comp-1', 'comp-2'];
-      when(() => mockInternet.isConnected).thenReturn(false);
+    test(
+      'should return FailureState without local fallback when offline',
+      () async {
+        final tCompanyIds = ['comp-1', 'comp-2'];
+        when(() => mockInternet.isConnected).thenReturn(false);
 
-      final result = await repository.getServiceProviderProfilesByCompanyIds(
-        tCompanyIds,
-      );
+        final result = await repository.getServiceProviderProfilesByCompanyIds(
+          tCompanyIds,
+        );
 
-      expect(result, isA<FailureState<List<ServiceProviderProfileEntity>>>());
-      verifyZeroInteractions(mockRemoteDataSource);
-      verifyNever(
-        () => mockLocalDataSource.getServiceProviderProfilesByCompanyIds(any()),
-      );
-    });
+        expect(result, isA<FailureState<List<ServiceProviderProfileEntity>>>());
+        verifyZeroInteractions(mockRemoteDataSource);
+        verifyNever(
+          () =>
+              mockLocalDataSource.getServiceProviderProfilesByCompanyIds(any()),
+        );
+      },
+    );
   });
 
   group('getServiceProviderProfilesByAuthUser', () {
@@ -630,9 +645,8 @@ void main() {
 
         await pumpEventQueue();
         verify(
-          () => mockLocalDataSource.deleteServiceProviderCompany(
-            deletedModel.id,
-          ),
+          () =>
+              mockLocalDataSource.deleteServiceProviderCompany(deletedModel.id),
         ).called(1);
       },
     );

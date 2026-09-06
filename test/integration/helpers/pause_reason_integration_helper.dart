@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/work_order_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -26,7 +26,7 @@ class PauseReasonIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makePauseReasonEntity().copyWith(
+    final entity = WorkOrderFactory.makePauseReasonEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       name: IntegrationConfig.testName('Pause Reason ${faker.lorem.word()}'),

@@ -18,7 +18,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockPauseWorkflowCubit extends MockCubit<PauseWorkflowState>
@@ -41,8 +42,8 @@ void main() {
   late WorkOrderDetailsCubitUseCases cubitUseCases;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeWorkOrderEntity());
-    registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderChangeRequestEntity());
     registerFallbackValue(
       ReviewChangeRequestParams(
         id: faker.guid.guid(),
@@ -82,7 +83,7 @@ void main() {
     when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
     when(
       () => mockGetSessionUser.call(),
-    ).thenReturn(EntityFactory.makeUserProfileEntity());
+    ).thenReturn(UserFactory.makeUserProfileEntity());
     when(
       () => mockWatchRealtime.call(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
@@ -109,7 +110,7 @@ void main() {
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'emits [running, success] with workOrder when load succeeds with showLoading: true',
       build: () {
-        final tOrder = EntityFactory.makeWorkOrderEntity();
+        final tOrder = WorkOrderFactory.makeWorkOrderEntity();
         when(
           () => mockGetWorkOrderById.call(any()),
         ).thenAnswer((_) async => SuccessState(data: tOrder));
@@ -160,7 +161,7 @@ void main() {
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'emits [running, success] and reloads work order on success',
       build: () {
-        final tOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        final tOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
           annulDeletedAt: true,
         );
         when(
@@ -284,7 +285,7 @@ void main() {
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },
       act: (cubit) => cubit.changeWorkOrderStatus(
-        workOrder: EntityFactory.makeWorkOrderEntity().copyWith(
+        workOrder: WorkOrderFactory.makeWorkOrderEntity().copyWith(
           status: WorkOrderStatus.open,
         ),
         status: WorkOrderStatus.inProgress,
@@ -331,7 +332,7 @@ void main() {
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },
       act: (cubit) => cubit.resumeWork(
-        workOrder: EntityFactory.makeWorkOrderEntity().copyWith(
+        workOrder: WorkOrderFactory.makeWorkOrderEntity().copyWith(
           status: WorkOrderStatus.onHold,
         ),
         currentUserId: faker.guid.guid(),
@@ -370,7 +371,7 @@ void main() {
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'cancels pause when activePauseRequest is present',
       build: () {
-        final pauseReq = EntityFactory.makePauseRequestEntity();
+        final pauseReq = WorkOrderFactory.makePauseRequestEntity();
         when(() => mockPauseCubit.activePauseRequest).thenReturn(pauseReq);
         when(
           () => mockCancelPause.call(any()),
@@ -378,7 +379,7 @@ void main() {
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },
       act: (cubit) => cubit.resumeWork(
-        workOrder: EntityFactory.makeWorkOrderEntity().copyWith(
+        workOrder: WorkOrderFactory.makeWorkOrderEntity().copyWith(
           status: WorkOrderStatus.onHold,
         ),
         currentUserId: faker.guid.guid(),
@@ -416,7 +417,7 @@ void main() {
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'should update history list when history loads successfully',
       build: () {
-        final tHistory = EntityFactory.makeAuditLogEntityList();
+        final tHistory = WorkOrderFactory.makeAuditLogEntityList();
         when(
           () => mockGetWorkOrderHistory.call(any()),
         ).thenAnswer((_) async => SuccessState(data: tHistory));
@@ -452,7 +453,7 @@ void main() {
   });
 
   group('createChangeRequest', () {
-    final tRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
+    final tRequest = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
 
     blocTest<WorkOrderDetailsCubit, WorkOrderDetailsState>(
       'should emit loading, success and reload work order when createChangeRequest succeeds',
@@ -461,7 +462,8 @@ void main() {
           () => mockCreateChangeRequest.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(() => mockGetWorkOrderById.call(any())).thenAnswer(
-          (_) async => SuccessState(data: EntityFactory.makeWorkOrderEntity()),
+          (_) async =>
+              SuccessState(data: WorkOrderFactory.makeWorkOrderEntity()),
         );
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },
@@ -580,8 +582,7 @@ void main() {
   group('navigateToWorkOrderHistory', () {
     test('calls pushRoute with WorkOrderHistoryRoute', () async {
       when(
-        () => mockNavigationClient
-            .pushRoute<WorkOrderHistoryRouteArgs>(any()),
+        () => mockNavigationClient.pushRoute<WorkOrderHistoryRouteArgs>(any()),
       ).thenAnswer((_) async => null);
 
       final cubit = WorkOrderDetailsCubit(useCases: cubitUseCases);
@@ -590,8 +591,7 @@ void main() {
       await cubit.navigateToWorkOrderHistory(id);
 
       verify(
-        () => mockNavigationClient
-            .pushRoute<WorkOrderHistoryRouteArgs>(any()),
+        () => mockNavigationClient.pushRoute<WorkOrderHistoryRouteArgs>(any()),
       ).called(1);
       await cubit.close();
     });

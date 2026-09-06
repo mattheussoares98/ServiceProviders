@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/get_conf
 import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_configurations_use_case.dart';
 import 'package:o_jogo_da_obra/features/configurations/domain/use_cases/save_theme_mode_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -36,7 +36,7 @@ void main() {
 
   group('GetConfigurationsUseCase', () {
     test('should return SuccessState when call is successful', () async {
-      final tEntity = EntityFactory.makeConfigurationsEntity();
+      final tEntity = UserFactory.makeConfigurationsEntity();
       when(
         () => mockRepository.getConfigurations(),
       ).thenAnswer((_) async => SuccessState(data: tEntity));

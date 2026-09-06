@@ -13,7 +13,8 @@ import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cu
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockAttachmentsCubit extends MockCubit<AttachmentsState>
     implements AttachmentsCubit {}
@@ -42,7 +43,7 @@ void main() {
   /// instead of decoding a file — an image preview would fail to resolve its
   /// fake path under the test binding.
   AttachmentEntity documentAttachment() =>
-      EntityFactory.makeAttachmentEntity().copyWith(
+      MaintenancePlanFactory.makeAttachmentEntity().copyWith(
         fileType: FileType.pdf,
         fileName: 'relatorio.pdf',
         uploadStatus: UploadStatus.uploaded,
@@ -82,7 +83,7 @@ void main() {
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSessionCubit.state).thenReturn(
       SessionState.initial().copyWith(
-        user: EntityFactory.makeUserProfileEntity(),
+        user: UserFactory.makeUserProfileEntity(),
       ),
     );
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());

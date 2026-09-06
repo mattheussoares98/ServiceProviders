@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -115,10 +115,10 @@ void main() {
   }
 
   group('PauseLocalDataSourceImpl', () {
-    final tReasonEntity = EntityFactory.makePauseReasonEntity();
+    final tReasonEntity = WorkOrderFactory.makePauseReasonEntity();
     final tReasonModel = PauseReasonModel.fromEntity(tReasonEntity);
 
-    final tRequestEntity = EntityFactory.makePauseRequestEntity().copyWith(
+    final tRequestEntity = WorkOrderFactory.makePauseRequestEntity().copyWith(
       eventType: PauseEventType.pause,
       status: PauseRequestStatus.pending,
     );
@@ -298,7 +298,7 @@ void main() {
         'should update completion request and set work order to completed when approved',
         () async {
           final completionRequest = PauseRequestModel.fromEntity(
-            EntityFactory.makePauseRequestEntity().copyWith(
+            WorkOrderFactory.makePauseRequestEntity().copyWith(
               companyId: tRequestModel.companyId,
               workOrderId: tRequestModel.workOrderId,
               eventType: PauseEventType.completion,

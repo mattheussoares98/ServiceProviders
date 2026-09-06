@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -23,7 +23,8 @@ void main() {
   late MockCreateChecklistTemplateUseCase mockCreateChecklistTemplate;
   late MockUpdateChecklistTemplateUseCase mockUpdateChecklistTemplate;
   late MockDeleteChecklistTemplateUseCase mockDeleteChecklistTemplate;
-  late MockWatchChecklistTemplatesRealtimeUseCase mockWatchChecklistTemplatesRealtime;
+  late MockWatchChecklistTemplatesRealtimeUseCase
+  mockWatchChecklistTemplatesRealtime;
   late MockGetChecklistItemsByTemplateUseCase mockGetChecklistItemsByTemplate;
   late MockCreateChecklistItemUseCase mockCreateChecklistItem;
   late MockUpdateChecklistItemUseCase mockUpdateChecklistItem;
@@ -33,8 +34,8 @@ void main() {
   late ChecklistTemplatesCubitUseCases useCases;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeChecklistTemplateEntity());
-    registerFallbackValue(EntityFactory.makeChecklistItemEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistTemplateEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistItemEntity());
   });
 
   setUp(() {
@@ -44,7 +45,8 @@ void main() {
     mockCreateChecklistTemplate = MockCreateChecklistTemplateUseCase();
     mockUpdateChecklistTemplate = MockUpdateChecklistTemplateUseCase();
     mockDeleteChecklistTemplate = MockDeleteChecklistTemplateUseCase();
-    mockWatchChecklistTemplatesRealtime = MockWatchChecklistTemplatesRealtimeUseCase();
+    mockWatchChecklistTemplatesRealtime =
+        MockWatchChecklistTemplatesRealtimeUseCase();
     mockGetChecklistItemsByTemplate = MockGetChecklistItemsByTemplateUseCase();
     mockCreateChecklistItem = MockCreateChecklistItemUseCase();
     mockUpdateChecklistItem = MockUpdateChecklistItemUseCase();
@@ -73,16 +75,17 @@ void main() {
   tearDown(GetIt.I.reset);
 
   final tCompanyId = faker.guid.guid();
-  final tTemplates = EntityFactory.makeChecklistTemplateEntityList();
-  final tItems = EntityFactory.makeChecklistItemEntityList();
+  final tTemplates = ChecklistFactory.makeChecklistTemplateEntityList();
+  final tItems = ChecklistFactory.makeChecklistItemEntityList();
 
   group('ChecklistTemplatesCubit', () {
     blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
       'loadTemplates emits [running, success] with templates',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockGetChecklists(any()))
-            .thenAnswer((_) async => SuccessState(data: tTemplates));
+        when(
+          () => mockGetChecklists(any()),
+        ).thenAnswer((_) async => SuccessState(data: tTemplates));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) => cubit.loadTemplates(),
@@ -105,8 +108,9 @@ void main() {
     blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
       'selectTemplate updates selectedTemplate and loads its items',
       setUp: () {
-        when(() => mockGetChecklistItemsByTemplate(any()))
-            .thenAnswer((_) async => SuccessState(data: tItems));
+        when(
+          () => mockGetChecklistItemsByTemplate(any()),
+        ).thenAnswer((_) async => SuccessState(data: tItems));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) => cubit.selectTemplate(tTemplates.first),
@@ -135,10 +139,12 @@ void main() {
       'saveTemplate creates new template and reloads list',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockCreateChecklistTemplate(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetChecklists(any()))
-            .thenAnswer((_) async => SuccessState(data: tTemplates));
+        when(
+          () => mockCreateChecklistTemplate(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetChecklists(any()),
+        ).thenAnswer((_) async => SuccessState(data: tTemplates));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) => cubit.saveTemplate(
@@ -154,11 +160,16 @@ void main() {
         ),
         isA<ChecklistTemplatesState>()
             .having(
-              (s) => s.sections[ChecklistTemplatesSections.saveTemplate]?.status,
+              (s) =>
+                  s.sections[ChecklistTemplatesSections.saveTemplate]?.status,
               'saveTemplate success',
               SectionStatus.success,
             )
-            .having((s) => s.selectedTemplate?.name, 'selectedTemplate.name', 'Novo Checklist'),
+            .having(
+              (s) => s.selectedTemplate?.name,
+              'selectedTemplate.name',
+              'Novo Checklist',
+            ),
         isA<ChecklistTemplatesState>().having(
           (s) => s.sections[BaseSections.load]?.status,
           'load success',
@@ -171,10 +182,12 @@ void main() {
       'deleteTemplate removes template and reloads',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockDeleteChecklistTemplate(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetChecklists(any()))
-            .thenAnswer((_) async => SuccessState(data: tTemplates));
+        when(
+          () => mockDeleteChecklistTemplate(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetChecklists(any()),
+        ).thenAnswer((_) async => SuccessState(data: tTemplates));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       seed: () => const ChecklistTemplatesState.initial().copyWith(
@@ -189,11 +202,16 @@ void main() {
         ),
         isA<ChecklistTemplatesState>()
             .having(
-              (s) => s.sections[ChecklistTemplatesSections.deleteTemplate]?.status,
+              (s) =>
+                  s.sections[ChecklistTemplatesSections.deleteTemplate]?.status,
               'deleteTemplate success',
               SectionStatus.success,
             )
-            .having((s) => s.templates.length, 'templates.length', equals(tTemplates.length - 1)),
+            .having(
+              (s) => s.templates.length,
+              'templates.length',
+              equals(tTemplates.length - 1),
+            ),
         isA<ChecklistTemplatesState>().having(
           (s) => s.sections[BaseSections.load]?.status,
           'load success',
@@ -206,10 +224,12 @@ void main() {
       'saveItem saves checklist item and reloads template items',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockCreateChecklistItem(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetChecklistItemsByTemplate(any()))
-            .thenAnswer((_) async => SuccessState(data: tItems));
+        when(
+          () => mockCreateChecklistItem(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetChecklistItemsByTemplate(any()),
+        ).thenAnswer((_) async => SuccessState(data: tItems));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) => cubit.saveItem(

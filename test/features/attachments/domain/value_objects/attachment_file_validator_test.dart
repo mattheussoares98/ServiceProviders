@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/value_objects/attachment_file_validator.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   group('AttachmentFileValidator.validate', () {
@@ -90,7 +90,7 @@ void main() {
     });
 
     test('should respect custom limits from CompanyParameterEntity', () {
-      final customParams = EntityFactory.makeCompanyParameterEntity().copyWith(
+      final customParams = UserFactory.makeCompanyParameterEntity().copyWith(
         maxImageSizeMb: 50,
         maxVideoSizeMb: 1000,
         maxPdfSizeMb: 30,
@@ -118,4 +118,3 @@ void main() {
     });
   });
 }
-

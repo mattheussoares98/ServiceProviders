@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_tem
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 
 void main() {
   late MockInternetClient mockInternet;
@@ -32,36 +32,37 @@ void main() {
 
     registerFallbackValue(
       ChecklistTemplateModel.fromEntity(
-        EntityFactory.makeChecklistTemplateEntity(),
+        ChecklistFactory.makeChecklistTemplateEntity(),
       ),
     );
     registerFallbackValue(
-      ChecklistItemModel.fromEntity(EntityFactory.makeChecklistItemEntity()),
+      ChecklistItemModel.fromEntity(ChecklistFactory.makeChecklistItemEntity()),
     );
     registerFallbackValue(
       ChecklistAnswerModel.fromEntity(
-        EntityFactory.makeChecklistAnswerEntity(),
+        ChecklistFactory.makeChecklistAnswerEntity(),
       ),
     );
   });
 
-  final tTemplateEntity = EntityFactory.makeChecklistTemplateEntity();
+  final tTemplateEntity = ChecklistFactory.makeChecklistTemplateEntity();
   final tTemplateModel = ChecklistTemplateModel.fromEntity(tTemplateEntity);
-  final tTemplateEntityList = EntityFactory.makeChecklistTemplateEntityList();
+  final tTemplateEntityList =
+      ChecklistFactory.makeChecklistTemplateEntityList();
   final tTemplateModelList = tTemplateEntityList
       .map(ChecklistTemplateModel.fromEntity)
       .toList();
 
-  final tItemEntity = EntityFactory.makeChecklistItemEntity();
+  final tItemEntity = ChecklistFactory.makeChecklistItemEntity();
   final tItemModel = ChecklistItemModel.fromEntity(tItemEntity);
-  final tItemEntityList = EntityFactory.makeChecklistItemEntityList();
+  final tItemEntityList = ChecklistFactory.makeChecklistItemEntityList();
   final tItemModelList = tItemEntityList
       .map(ChecklistItemModel.fromEntity)
       .toList();
 
-  final tAnswerEntity = EntityFactory.makeChecklistAnswerEntity();
+  final tAnswerEntity = ChecklistFactory.makeChecklistAnswerEntity();
   final tAnswerModel = ChecklistAnswerModel.fromEntity(tAnswerEntity);
-  final tAnswerEntityList = EntityFactory.makeChecklistAnswerEntityList();
+  final tAnswerEntityList = ChecklistFactory.makeChecklistAnswerEntityList();
   final tAnswerModelList = tAnswerEntityList
       .map(ChecklistAnswerModel.fromEntity)
       .toList();

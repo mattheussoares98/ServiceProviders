@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -43,7 +43,7 @@ void main() {
       final categoryId = faker.guid.guid();
       IntegrationDataTracker.instance.track('categories', categoryId);
 
-      final initialEntity = EntityFactory.makeCategoryEntity().copyWith(
+      final initialEntity = AssetFactory.makeCategoryEntity().copyWith(
         id: categoryId,
         companyId: companyId,
         name: IntegrationConfig.testName('Category ${faker.lorem.word()}'),
@@ -71,7 +71,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Cat ${faker.lorem.word()}',
       );
-      final updatedEntity = EntityFactory.makeCategoryEntity().copyWith(
+      final updatedEntity = AssetFactory.makeCategoryEntity().copyWith(
         id: categoryId,
         companyId: companyId,
         name: updatedName,

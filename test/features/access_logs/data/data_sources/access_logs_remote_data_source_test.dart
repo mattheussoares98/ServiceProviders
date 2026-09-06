@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/access_logs/data/models/requests/create_
 import 'package:o_jogo_da_obra/features/access_logs/data/models/responses/access_log_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabaseClient;
@@ -15,7 +15,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       CreateAccessLogRequestModel.fromEntity(
-        EntityFactory.makeCreateAccessLogRequestEntity(),
+        SystemFactory.makeCreateAccessLogRequestEntity(),
       ),
     );
   });
@@ -28,9 +28,9 @@ void main() {
   group('AccessLogsRemoteDataSource Tests', () {
     group('getAccessLogs', () {
       test('returns SuccessState when selectList succeeds', () async {
-        final tEntity = EntityFactory.makeAccessLogEntity();
+        final tEntity = SystemFactory.makeAccessLogEntity();
         final tModel = AccessLogModel.fromEntity(tEntity);
-        final tRequest = EntityFactory.makeGetAccessLogsRequestEntity();
+        final tRequest = SystemFactory.makeGetAccessLogsRequestEntity();
 
         when(
           () => mockDatabaseClient.selectList(
@@ -53,7 +53,7 @@ void main() {
       });
 
       test('returns FailureState when selectList throws', () async {
-        final tRequest = EntityFactory.makeGetAccessLogsRequestEntity();
+        final tRequest = SystemFactory.makeGetAccessLogsRequestEntity();
 
         when(
           () => mockDatabaseClient.selectList(
@@ -75,7 +75,7 @@ void main() {
     group('createAccessLog', () {
       test('returns SuccessState when insert succeeds', () async {
         final tRequest = CreateAccessLogRequestModel.fromEntity(
-          EntityFactory.makeCreateAccessLogRequestEntity(),
+          SystemFactory.makeCreateAccessLogRequestEntity(),
         );
 
         when(
@@ -92,7 +92,7 @@ void main() {
 
       test('returns FailureState when insert throws', () async {
         final tRequest = CreateAccessLogRequestModel.fromEntity(
-          EntityFactory.makeCreateAccessLogRequestEntity(),
+          SystemFactory.makeCreateAccessLogRequestEntity(),
         );
 
         when(

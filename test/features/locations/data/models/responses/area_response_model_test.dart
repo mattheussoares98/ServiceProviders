@@ -2,10 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
+
 
 void main() {
-  final tEntity = EntityFactory.makeAreaEntity();
+  final tEntity = AssetFactory.makeAreaEntity();
 
   group('AreaModel', () {
     test('should be a subclass of AreaEntity', () {

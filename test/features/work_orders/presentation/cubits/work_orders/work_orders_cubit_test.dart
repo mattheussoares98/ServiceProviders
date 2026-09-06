@@ -46,7 +46,10 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/services.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
@@ -132,9 +135,9 @@ void main() {
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeWorkOrderEntity());
-    registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
-    registerFallbackValue(EntityFactory.makeWorkOrderHistoryEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderChangeRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderHistoryEntity());
     registerFallbackValue(
       const ReviewChangeRequestParams(
         id: '',
@@ -142,18 +145,18 @@ void main() {
         reviewedById: '',
       ),
     );
-    registerFallbackValue(EntityFactory.makeAttachmentEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
     registerFallbackValue(CreateUpdateWorkOrderRoute());
     registerFallbackValue(WorkOrderDetailsRoute(workOrderId: ''));
     registerFallbackValue(
       WorkOrderPendingRequestsRoute(
-        workOrder: EntityFactory.makeWorkOrderEntity(),
+        workOrder: WorkOrderFactory.makeWorkOrderEntity(),
         currentUserId: faker.guid.guid(),
       ),
     );
     registerFallbackValue(const GetWorkOrdersParams(companyId: ''));
     registerFallbackValue(PauseRequestStatus.pending);
-    registerFallbackValue(EntityFactory.makePauseRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makePauseRequestEntity());
     registerFallbackValue(
       CancelPauseParams(
         id: faker.guid.guid(),
@@ -191,7 +194,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
 
     when(
       () => mockSyncEngine.onSyncCompleted,
@@ -248,9 +251,9 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should emit loading and loaded when data loads successfully',
         build: () {
-          final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+          final tWorkOrders = WorkOrderFactory.makeWorkOrderEntityList();
           final tChangeRequests =
-              EntityFactory.makeWorkOrderChangeRequestEntityList();
+              WorkOrderFactory.makeWorkOrderChangeRequestEntityList();
           when(
             () => mockGetWorkOrders.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
@@ -285,9 +288,9 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should not emit loading when passing false value',
         build: () {
-          final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+          final tWorkOrders = WorkOrderFactory.makeWorkOrderEntityList();
           final tChangeRequests =
-              EntityFactory.makeWorkOrderChangeRequestEntityList();
+              WorkOrderFactory.makeWorkOrderChangeRequestEntityList();
           when(
             () => mockGetWorkOrders.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
@@ -355,9 +358,9 @@ void main() {
     });
 
     group('loadWorkOrderById', () {
-      final tExistingOrder = EntityFactory.makeWorkOrderEntity();
+      final tExistingOrder = WorkOrderFactory.makeWorkOrderEntity();
       final tUpdatedOrder = tExistingOrder.copyWith(title: 'Updated Title');
-      final tNewOrder = EntityFactory.makeWorkOrderEntity();
+      final tNewOrder = WorkOrderFactory.makeWorkOrderEntity();
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'should update the existing work order in workOrders list when found',
@@ -542,7 +545,7 @@ void main() {
       blocTest<WorkOrdersCubit, WorkOrdersState>(
         'loadNextPage should load next page and append work orders on success',
         build: () {
-          final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+          final tWorkOrders = WorkOrderFactory.makeWorkOrderEntityList();
           when(
             () => mockGetWorkOrders.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tWorkOrders));
@@ -588,7 +591,7 @@ void main() {
     });
 
     group('saveWorkOrder', () {
-      final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+      final tWorkOrder = WorkOrderFactory.makeWorkOrderEntity();
 
       group('create', () {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
@@ -762,9 +765,8 @@ void main() {
             final status = faker.randomGenerator.boolean()
                 ? UploadStatus.pending
                 : UploadStatus.failed;
-            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
-              uploadStatus: status,
-            );
+            final tAttachment = MaintenancePlanFactory.makeAttachmentEntity()
+                .copyWith(uploadStatus: status);
             when(
               () => mockCreateWorkOrder.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -837,9 +839,8 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should emit error when attachment upload fails',
           build: () {
-            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
-              uploadStatus: UploadStatus.pending,
-            );
+            final tAttachment = MaintenancePlanFactory.makeAttachmentEntity()
+                .copyWith(uploadStatus: UploadStatus.pending);
             when(
               () => mockCreateWorkOrder.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -1020,9 +1021,8 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'should save pending attachments locally and then upload them when saveWorkOrder succeeds',
           build: () {
-            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
-              uploadStatus: UploadStatus.pending,
-            );
+            final tAttachment = MaintenancePlanFactory.makeAttachmentEntity()
+                .copyWith(uploadStatus: UploadStatus.pending);
             when(
               () => mockCreateWorkOrder.call(any()),
             ).thenAnswer((_) async => const SuccessState(data: true));
@@ -1045,9 +1045,8 @@ void main() {
           },
           act: (cubit) async {
             final mockAttachmentsCubit = MockAttachmentsCubit();
-            final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
-              uploadStatus: UploadStatus.pending,
-            );
+            final tAttachment = MaintenancePlanFactory.makeAttachmentEntity()
+                .copyWith(uploadStatus: UploadStatus.pending);
             when(
               mockAttachmentsCubit.refreshAttachments,
             ).thenAnswer((_) async {});
@@ -1514,7 +1513,7 @@ void main() {
             return cubit;
           },
           act: (cubit) => cubit.navigateToWorkOrderPendingRequests(
-            EntityFactory.makeWorkOrderEntity(),
+            WorkOrderFactory.makeWorkOrderEntity(),
             faker.guid.guid(),
           ),
           expect: () => <WorkOrdersState>[],
@@ -1622,7 +1621,7 @@ void main() {
         });
 
         test('updates work order in-place when UPDATE event arrives', () async {
-          final existingOrder = EntityFactory.makeWorkOrderEntity();
+          final existingOrder = WorkOrderFactory.makeWorkOrderEntity();
           final updatedOrder = existingOrder.copyWith(
             title: 'Updated in Realtime',
           );
@@ -1652,7 +1651,7 @@ void main() {
         });
 
         test('prepends new work order when INSERT event arrives', () async {
-          final newOrder = EntityFactory.makeWorkOrderEntity();
+          final newOrder = WorkOrderFactory.makeWorkOrderEntity();
 
           realtimeController.add(
             RealtimeEvent<WorkOrderEntity>(
@@ -1670,7 +1669,7 @@ void main() {
         test(
           'removes work order when UPDATE event arrives with deletedAt not null',
           () async {
-            final existingOrder = EntityFactory.makeWorkOrderEntity();
+            final existingOrder = WorkOrderFactory.makeWorkOrderEntity();
             final softDeletedOrder = existingOrder.copyWith(
               deletedAt: DateTime.now(),
             );
@@ -1700,7 +1699,7 @@ void main() {
         );
 
         test('removes work order when DELETE event arrives', () async {
-          final existingOrder = EntityFactory.makeWorkOrderEntity();
+          final existingOrder = WorkOrderFactory.makeWorkOrderEntity();
 
           when(
             () => mockGetWorkOrders(any()),
@@ -1810,16 +1809,17 @@ void providerModeTests() {
         () => mockGetAttachments(any()),
       ).thenAnswer((_) async => const SuccessState(data: []));
 
-      tUserProfile = EntityFactory.makeUserProfileEntity();
-      tCompanies = EntityFactory.makeServiceProviderCompanyEntityList();
+      tUserProfile = UserFactory.makeUserProfileEntity();
+      tCompanies =
+          ServiceProviderFactory.makeServiceProviderCompanyEntityList();
       // A work order owned by a contracting company the provider serves —
       // deliberately not the provider user's own internal company.
-      tWorkOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+      tWorkOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
         serviceProviderCompanyId: tCompanies.first.id,
       );
       tProfiles = [
         for (final company in tCompanies)
-          EntityFactory.makeServiceProviderProfileEntity().copyWith(
+          ServiceProviderFactory.makeServiceProviderProfileEntity().copyWith(
             authUserId: tUserProfile.id,
             serviceProviderCompanyId: company.id,
           ),
@@ -1840,7 +1840,7 @@ void providerModeTests() {
       build: () {
         when(() => mockGetProviderWorkOrders(any())).thenAnswer(
           (_) async =>
-              SuccessState(data: EntityFactory.makeWorkOrderEntityList()),
+              SuccessState(data: WorkOrderFactory.makeWorkOrderEntityList()),
         );
         return buildCubit();
       },

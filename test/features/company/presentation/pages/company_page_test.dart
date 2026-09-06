@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/company/presentation/pages/company/compa
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockCompanyCubit extends MockCubit<CompanyState>
     implements CompanyCubit {}
@@ -33,7 +33,7 @@ void main() {
     ).thenAnswer((_) => companyStreamController.stream);
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
 
-    final adminUser = EntityFactory.makeUserProfileEntity().copyWith(
+    final adminUser = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
       email: 'mattheussbarosa98@gmail.com',
     );
@@ -61,15 +61,11 @@ void main() {
   testWidgets('renders loaded state with company and parameters', (
     tester,
   ) async {
-    final company = EntityFactory.makeCompanyEntity();
-    final params = EntityFactory.makeCompanyParameterEntity();
+    final company = UserFactory.makeCompanyEntity();
+    final params = UserFactory.makeCompanyParameterEntity();
 
     when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(
-        company: company,
-        companies: [company],
-        parameters: params,
-      ),
+      CompanyState(company: company, companies: [company], parameters: params),
     );
 
     await tester.pumpWidget(buildWidget());
@@ -81,11 +77,8 @@ void main() {
   testWidgets('shows loading overlay when switchCompany section is loading', (
     tester,
   ) async {
-    final company = EntityFactory.makeCompanyEntity();
-    final initialState = CompanyState(
-      company: company,
-      companies: [company],
-    );
+    final company = UserFactory.makeCompanyEntity();
+    final initialState = CompanyState(company: company, companies: [company]);
 
     when(() => mockCompanyCubit.state).thenReturn(initialState);
 
@@ -114,8 +107,8 @@ void main() {
   testWidgets(
     'shows loading overlay when updateEscalationParameters section is loading',
     (tester) async {
-      final company = EntityFactory.makeCompanyEntity();
-      final params = EntityFactory.makeCompanyParameterEntity();
+      final company = UserFactory.makeCompanyEntity();
+      final params = UserFactory.makeCompanyParameterEntity();
       final initialState = CompanyState(
         company: company,
         companies: [company],

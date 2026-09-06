@@ -10,11 +10,11 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_history_entity.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   group('WorkOrderModel & WorkOrderModel', () {
-    final tEntity = EntityFactory.makeWorkOrderEntity();
+    final tEntity = WorkOrderFactory.makeWorkOrderEntity();
 
     test('should be a subclass of WorkOrderEntity', () {
       final responseModel = WorkOrderModel.fromEntity(tEntity);
@@ -49,7 +49,7 @@ void main() {
   });
 
   group('TaskRequestModel & TaskModel', () {
-    final tEntity = EntityFactory.makeTaskEntity();
+    final tEntity = WorkOrderFactory.makeTaskEntity();
 
     test('should be a subclass of TaskEntity', () {
       final requestModel = TaskRequestModel.fromEntity(tEntity);
@@ -74,7 +74,7 @@ void main() {
   });
 
   group('WorkOrderChangeRequestRequestModel & WorkOrderChangeRequestModel', () {
-    final tEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
+    final tEntity = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
 
     test('should be a subclass of WorkOrderChangeRequestEntity', () {
       final requestModel = WorkOrderChangeRequestRequestModel.fromEntity(
@@ -107,7 +107,7 @@ void main() {
   });
 
   group('WorkOrderHistoryModel', () {
-    final tEntity = EntityFactory.makeWorkOrderHistoryEntity();
+    final tEntity = WorkOrderFactory.makeWorkOrderHistoryEntity();
 
     test('should be a subclass of WorkOrderHistoryEntity', () {
       final responseModel = WorkOrderHistoryModel.fromEntity(tEntity);

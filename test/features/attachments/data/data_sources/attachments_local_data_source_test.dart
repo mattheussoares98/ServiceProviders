@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachment
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -109,9 +109,8 @@ void main() {
         );
   }
 
-  final tAttachmentEntity = EntityFactory.makeAttachmentEntity().copyWith(
-    lastAccessedAt: DateTime.utc(2026),
-  );
+  final tAttachmentEntity = MaintenancePlanFactory.makeAttachmentEntity()
+      .copyWith(lastAccessedAt: DateTime.utc(2026));
   final tAttachmentModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
   group('AttachmentsLocalDataSourceImpl', () {

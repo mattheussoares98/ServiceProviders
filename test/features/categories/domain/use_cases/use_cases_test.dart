@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/categories/domain/use_cases/delete_categ
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/get_categories_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/update_category_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
   late GetCategoriesUseCase getCategoriesUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeCategoryEntity());
+    registerFallbackValue(AssetFactory.makeCategoryEntity());
   });
 
   setUp(() {
@@ -40,11 +40,11 @@ void main() {
     );
   });
 
-  final tCategory = EntityFactory.makeCategoryEntity();
+  final tCategory = AssetFactory.makeCategoryEntity();
   final tCategories = [
-    EntityFactory.makeCategoryEntity(),
-    EntityFactory.makeCategoryEntity(),
-    EntityFactory.makeCategoryEntity(),
+    AssetFactory.makeCategoryEntity(),
+    AssetFactory.makeCategoryEntity(),
+    AssetFactory.makeCategoryEntity(),
   ];
   final tCompanyId = faker.guid.guid();
   final tId = faker.guid.guid();

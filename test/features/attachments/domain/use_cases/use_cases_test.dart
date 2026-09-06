@@ -15,7 +15,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandb
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/watch_attachments_realtime_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 
@@ -35,7 +35,7 @@ void main() {
   late WatchAttachmentsRealtimeUseCase watchAttachmentsRealtimeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeAttachmentEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
   });
 
   setUp(() {
@@ -70,11 +70,11 @@ void main() {
     );
   });
 
-  final tAttachment = EntityFactory.makeAttachmentEntity();
+  final tAttachment = MaintenancePlanFactory.makeAttachmentEntity();
   final tAttachments = [
-    EntityFactory.makeAttachmentEntity(),
-    EntityFactory.makeAttachmentEntity(),
-    EntityFactory.makeAttachmentEntity(),
+    MaintenancePlanFactory.makeAttachmentEntity(),
+    MaintenancePlanFactory.makeAttachmentEntity(),
+    MaintenancePlanFactory.makeAttachmentEntity(),
   ];
   final tWorkOrderId = faker.guid.guid();
 
@@ -312,4 +312,3 @@ void main() {
     });
   });
 }
-

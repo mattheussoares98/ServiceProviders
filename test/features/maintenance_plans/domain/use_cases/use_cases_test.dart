@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_m
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plans_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/update_maintenance_plan_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
   late MockMaintenancePlansRepository mockRepository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeMaintenancePlanEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeMaintenancePlanEntity());
   });
 
   setUp(() {
@@ -43,9 +43,10 @@ void main() {
     );
   });
 
-  final tCompanyId = EntityFactory.makeMaintenancePlanEntity().companyId;
-  final tPlans = EntityFactory.makeMaintenancePlanEntityList();
-  final tPlan = EntityFactory.makeMaintenancePlanEntity();
+  final tCompanyId =
+      MaintenancePlanFactory.makeMaintenancePlanEntity().companyId;
+  final tPlans = MaintenancePlanFactory.makeMaintenancePlanEntityList();
+  final tPlan = MaintenancePlanFactory.makeMaintenancePlanEntity();
 
   group('Maintenance Plans Use Cases', () {
     group('GetMaintenancePlansUseCase', () {

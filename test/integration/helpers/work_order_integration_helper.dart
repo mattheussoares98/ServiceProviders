@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/work_order_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -38,7 +38,7 @@ class WorkOrderIntegrationHelper {
     String? title,
   }) {
     final now = DateTime.now().toUtc();
-    return EntityFactory.makeWorkOrderEntity().copyWith(
+    return WorkOrderFactory.makeWorkOrderEntity().copyWith(
       id: id ?? faker.guid.guid(),
       companyId: context.companyId,
       locationId: context.locationId,

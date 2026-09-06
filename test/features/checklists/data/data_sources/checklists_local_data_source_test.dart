@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checkli
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_item_model.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -30,7 +30,9 @@ void main() {
     String? categoryId,
     String? workOrderId,
   }) async {
-    await database.into(database.companies).insert(
+    await database
+        .into(database.companies)
+        .insert(
           CompaniesCompanion.insert(
             id: companyId,
             name: faker.company.name(),
@@ -39,7 +41,9 @@ void main() {
         );
 
     if (categoryId != null) {
-      await database.into(database.categories).insert(
+      await database
+          .into(database.categories)
+          .insert(
             CategoriesCompanion.insert(
               id: categoryId,
               companyId: companyId,
@@ -50,7 +54,9 @@ void main() {
 
     if (workOrderId != null) {
       final locId = faker.guid.guid();
-      await database.into(database.locations).insert(
+      await database
+          .into(database.locations)
+          .insert(
             LocationsCompanion.insert(
               id: locId,
               companyId: companyId,
@@ -59,7 +65,9 @@ void main() {
             ),
           );
 
-      await database.into(database.workOrders).insert(
+      await database
+          .into(database.workOrders)
+          .insert(
             WorkOrdersCompanion.insert(
               id: workOrderId,
               companyId: companyId,
@@ -70,13 +78,13 @@ void main() {
     }
   }
 
-  final tTemplateEntity = EntityFactory.makeChecklistTemplateEntity();
+  final tTemplateEntity = ChecklistFactory.makeChecklistTemplateEntity();
   final tTemplateModel = ChecklistTemplateModel.fromEntity(tTemplateEntity);
 
-  final tItemEntity = EntityFactory.makeChecklistItemEntity();
+  final tItemEntity = ChecklistFactory.makeChecklistItemEntity();
   final tItemModel = ChecklistItemModel.fromEntity(tItemEntity);
 
-  final tAnswerEntity = EntityFactory.makeChecklistAnswerEntity();
+  final tAnswerEntity = ChecklistFactory.makeChecklistAnswerEntity();
   final tAnswerModel = ChecklistAnswerModel.fromEntity(tAnswerEntity);
 
   group('ChecklistsLocalDataSource - Templates', () {
@@ -90,7 +98,9 @@ void main() {
       expect(saveResult, isA<SuccessState<bool>>());
       expect(saveResult.data, isTrue);
 
-      final listResult = await dataSource.getTemplates(tTemplateModel.companyId);
+      final listResult = await dataSource.getTemplates(
+        tTemplateModel.companyId,
+      );
       expect(listResult, isA<SuccessState<List<ChecklistTemplateModel>>>());
       expect(listResult.data, hasLength(1));
       expect(listResult.data!.first.id, tTemplateModel.id);
@@ -117,7 +127,9 @@ void main() {
       expect(deleteResult, isA<SuccessState<bool>>());
       expect(deleteResult.data, isTrue);
 
-      final listResult = await dataSource.getTemplates(tTemplateModel.companyId);
+      final listResult = await dataSource.getTemplates(
+        tTemplateModel.companyId,
+      );
       expect(listResult, isA<SuccessState<List<ChecklistTemplateModel>>>());
       expect(listResult.data, isEmpty);
 
@@ -128,9 +140,7 @@ void main() {
 
   group('ChecklistsLocalDataSource - Items', () {
     test('saveItem and getItemsByTemplate / deleteItem', () async {
-      await insertDependencies(
-        companyId: tItemModel.companyId,
-      );
+      await insertDependencies(companyId: tItemModel.companyId);
       await dataSource.saveTemplate(
         ChecklistTemplateModel.fromEntity(
           tTemplateEntity.copyWith(
@@ -144,7 +154,9 @@ void main() {
       expect(saveResult, isA<SuccessState<bool>>());
       expect(saveResult.data, isTrue);
 
-      final listResult = await dataSource.getItemsByTemplate(tItemModel.templateId);
+      final listResult = await dataSource.getItemsByTemplate(
+        tItemModel.templateId,
+      );
       expect(listResult, isA<SuccessState<List<ChecklistItemModel>>>());
       expect(listResult.data, hasLength(1));
       expect(listResult.data!.first.id, tItemModel.id);
@@ -153,7 +165,9 @@ void main() {
       expect(deleteResult, isA<SuccessState<bool>>());
       expect(deleteResult.data, isTrue);
 
-      final listAfterDelete = await dataSource.getItemsByTemplate(tItemModel.templateId);
+      final listAfterDelete = await dataSource.getItemsByTemplate(
+        tItemModel.templateId,
+      );
       expect(listAfterDelete, isA<SuccessState<List<ChecklistItemModel>>>());
       expect(listAfterDelete.data, isEmpty);
     });
@@ -170,7 +184,9 @@ void main() {
       expect(saveResult, isA<SuccessState<bool>>());
       expect(saveResult.data, isTrue);
 
-      final listResult = await dataSource.getResponsesByWorkOrder(tAnswerModel.workOrderId);
+      final listResult = await dataSource.getResponsesByWorkOrder(
+        tAnswerModel.workOrderId,
+      );
       expect(listResult, isA<SuccessState<List<ChecklistAnswerModel>>>());
       expect(listResult.data, hasLength(1));
       expect(listResult.data!.first.id, tAnswerModel.id);

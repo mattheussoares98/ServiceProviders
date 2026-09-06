@@ -24,8 +24,8 @@ import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 final locator = GetIt.I;
@@ -42,7 +42,7 @@ void main() {
   late UserDataEntity userData;
 
   setUpAll(() {
-    userData = EntityFactory.makeUserDataEntity();
+    userData = UserFactory.makeUserDataEntity();
     registerFallbackValue(
       const SignUpEntity(name: '', email: '', password: ''),
     );

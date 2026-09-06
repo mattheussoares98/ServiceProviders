@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -76,7 +76,7 @@ void main() {
       final assetId = faker.guid.guid();
       IntegrationDataTracker.instance.track('assets', assetId);
 
-      final initialEntity = EntityFactory.makeAssetEntity().copyWith(
+      final initialEntity = AssetFactory.makeAssetEntity().copyWith(
         id: assetId,
         companyId: companyId,
         areaId: areaId,
@@ -115,7 +115,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Asset ${faker.company.name()}',
       );
-      final updatedEntity = EntityFactory.makeAssetEntity().copyWith(
+      final updatedEntity = AssetFactory.makeAssetEntity().copyWith(
         id: assetId,
         companyId: companyId,
         areaId: areaId,

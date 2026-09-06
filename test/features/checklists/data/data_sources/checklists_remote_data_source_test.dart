@@ -9,7 +9,8 @@ import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checkli
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_template_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart'
+    show ChecklistFactory;
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -31,13 +32,13 @@ void main() {
     );
   });
 
-  final tTemplateEntity = EntityFactory.makeChecklistTemplateEntity();
+  final tTemplateEntity = ChecklistFactory.makeChecklistTemplateEntity();
   final tTemplateModel = ChecklistTemplateModel.fromEntity(tTemplateEntity);
 
-  final tItemEntity = EntityFactory.makeChecklistItemEntity();
+  final tItemEntity = ChecklistFactory.makeChecklistItemEntity();
   final tItemModel = ChecklistItemModel.fromEntity(tItemEntity);
 
-  final tAnswerEntity = EntityFactory.makeChecklistAnswerEntity();
+  final tAnswerEntity = ChecklistFactory.makeChecklistAnswerEntity();
   final tAnswerModel = ChecklistAnswerModel.fromEntity(tAnswerEntity);
 
   group('ChecklistsRemoteDataSource - Templates', () {
@@ -225,7 +226,9 @@ void main() {
         ),
       ).thenAnswer((_) async => [tItemModel.toJson()]);
 
-      final result = await dataSource.getItemsByTemplate(tItemEntity.templateId);
+      final result = await dataSource.getItemsByTemplate(
+        tItemEntity.templateId,
+      );
 
       expect(result, isA<SuccessState<List<ChecklistItemModel>>>());
       expect(
@@ -250,7 +253,9 @@ void main() {
         ),
       ).thenThrow(Exception('DB Error'));
 
-      final result = await dataSource.getItemsByTemplate(tItemEntity.templateId);
+      final result = await dataSource.getItemsByTemplate(
+        tItemEntity.templateId,
+      );
 
       expect(result, isA<FailureState<dynamic>>());
     });
@@ -394,27 +399,30 @@ void main() {
       expect(result, isA<FailureState<dynamic>>());
     });
 
-    test('saveResponse returns SuccessState(true) when upsert succeeds', () async {
-      when(
-        () => mockDatabase.upsert(
-          table: any(named: 'table'),
-          values: any(named: 'values'),
-          onConflict: any(named: 'onConflict'),
-        ),
-      ).thenAnswer((_) async => [tAnswerModel.toJson()]);
+    test(
+      'saveResponse returns SuccessState(true) when upsert succeeds',
+      () async {
+        when(
+          () => mockDatabase.upsert(
+            table: any(named: 'table'),
+            values: any(named: 'values'),
+            onConflict: any(named: 'onConflict'),
+          ),
+        ).thenAnswer((_) async => [tAnswerModel.toJson()]);
 
-      final result = await dataSource.saveResponse(tAnswerModel);
+        final result = await dataSource.saveResponse(tAnswerModel);
 
-      expect(result, isA<SuccessState<bool>>());
-      expect((result as SuccessState<bool>).data, true);
-      verify(
-        () => mockDatabase.upsert(
-          table: 'checklist_answers',
-          values: any(named: 'values'),
-          onConflict: 'work_order_id,checklist_item_id',
-        ),
-      ).called(1);
-    });
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verify(
+          () => mockDatabase.upsert(
+            table: 'checklist_answers',
+            values: any(named: 'values'),
+            onConflict: 'work_order_id,checklist_item_id',
+          ),
+        ).called(1);
+      },
+    );
 
     test('saveResponse returns FailureState on error', () async {
       when(

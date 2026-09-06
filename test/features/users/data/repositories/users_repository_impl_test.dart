@@ -14,7 +14,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entit
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -24,15 +24,13 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+      UserProfileModel.fromEntity(UserFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
-      PermissionGroupModel.fromEntity(
-        EntityFactory.makePermissionGroupEntity(),
-      ),
+      PermissionGroupModel.fromEntity(UserFactory.makePermissionGroupEntity()),
     );
     registerFallbackValue(
-      UserInvitationModel.fromEntity(EntityFactory.makeUserInvitationEntity()),
+      UserInvitationModel.fromEntity(UserFactory.makeUserInvitationEntity()),
     );
     registerFallbackValue(<UserProfileModel>[]);
     registerFallbackValue(<PermissionGroupModel>[]);
@@ -50,7 +48,7 @@ void main() {
     );
   });
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
+  final tUserProfileEntity = UserFactory.makeUserProfileEntity();
   final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
   final tUserProfileList = [
     tUserProfileEntity,
@@ -61,7 +59,7 @@ void main() {
       .map(UserProfileModel.fromEntity)
       .toList();
 
-  final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
+  final tPermissionGroupEntity = UserFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
@@ -332,7 +330,7 @@ void main() {
           'should call remote and map to entities on success when online',
           () async {
             final tInvitationModel = UserInvitationModel.fromEntity(
-              EntityFactory.makeUserInvitationEntity(),
+              UserFactory.makeUserInvitationEntity(),
             );
             when(() => mockInternetClient.isConnected).thenReturn(true);
             when(
@@ -379,7 +377,7 @@ void main() {
       });
 
       group('resendInvitation', () {
-        final tInvitation = EntityFactory.makeUserInvitationEntity();
+        final tInvitation = UserFactory.makeUserInvitationEntity();
 
         test('should not call remote when offline', () async {
           when(() => mockInternetClient.isConnected).thenReturn(false);

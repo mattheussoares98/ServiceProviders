@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
-  final tEntity = EntityFactory.makeCategoryEntity();
+  final tEntity = AssetFactory.makeCategoryEntity();
 
   group('CategoryRequestModel', () {
     test('should be a subclass of CategoryEntity', () {

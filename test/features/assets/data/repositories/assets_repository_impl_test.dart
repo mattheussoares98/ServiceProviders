@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -21,10 +21,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      AssetModel.fromEntity(EntityFactory.makeAssetEntity()),
+      AssetModel.fromEntity(AssetFactory.makeAssetEntity()),
     );
     registerFallbackValue(
-      AssetRequestModel.fromEntity(EntityFactory.makeAssetEntity()),
+      AssetRequestModel.fromEntity(AssetFactory.makeAssetEntity()),
     );
     registerFallbackValue(<AssetModel>[]);
   });
@@ -40,7 +40,7 @@ void main() {
     );
   });
 
-  final tAssetEntity = EntityFactory.makeAssetEntity();
+  final tAssetEntity = AssetFactory.makeAssetEntity();
   final tAssetModel = AssetModel.fromEntity(tAssetEntity);
   final tCompanyId = faker.guid.guid();
 
@@ -405,7 +405,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.deleteAsset(tAssetModel.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteAsset(tAssetModel.id),
+          ).called(1);
         },
       );
 
@@ -445,7 +447,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.deleteAsset(deletedModel.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteAsset(deletedModel.id),
+          ).called(1);
         },
       );
     });

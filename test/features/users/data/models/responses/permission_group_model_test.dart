@@ -3,10 +3,10 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_g
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
-  final tEntity = EntityFactory.makePermissionGroupEntity();
+  final tEntity = UserFactory.makePermissionGroupEntity();
 
   group('PermissionGroupModel', () {
     test('should be a subclass of PermissionGroupEntity', () {

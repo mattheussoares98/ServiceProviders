@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
-  final tEntity = EntityFactory.makeLocationEntity();
+  final tEntity = AssetFactory.makeLocationEntity();
 
   group('LocationModel', () {
     test('should be a subclass of LocationEntity', () {

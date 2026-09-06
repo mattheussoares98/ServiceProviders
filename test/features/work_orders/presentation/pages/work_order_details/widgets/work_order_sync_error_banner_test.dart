@@ -9,7 +9,8 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_status.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/services/sync_engine.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_sync_error_banner.dart';
 
-import '../../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../../testing/mocks/services.dart';
 
 void main() {
@@ -34,7 +35,7 @@ void main() {
     testWidgets(
       'renders nothing (SizedBox.shrink) when stream emits empty list',
       (tester) async {
-        final workOrder = EntityFactory.makeWorkOrderEntity();
+        final workOrder = WorkOrderFactory.makeWorkOrderEntity();
         when(
           () => mockSyncEngine.watchDeadLetterItemsForEntity(workOrder.id),
         ).thenAnswer((_) => Stream.value([]));
@@ -52,8 +53,8 @@ void main() {
     testWidgets(
       'renders banner with error details when dead-letter items exist',
       (tester) async {
-        final workOrder = EntityFactory.makeWorkOrderEntity();
-        final deadLetterItem = EntityFactory.makeSyncQueueItemEntity().copyWith(
+        final workOrder = WorkOrderFactory.makeWorkOrderEntity();
+        final deadLetterItem = SystemFactory.makeSyncQueueItemEntity().copyWith(
           entityId: workOrder.id,
           status: SyncStatus.deadLetter,
           lastError: '400 Bad Request: Constraint violation',
@@ -86,8 +87,8 @@ void main() {
     testWidgets('tapping Tentar novamente invokes retryEntity on SyncEngine', (
       tester,
     ) async {
-      final workOrder = EntityFactory.makeWorkOrderEntity();
-      final deadLetterItem = EntityFactory.makeSyncQueueItemEntity().copyWith(
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity();
+      final deadLetterItem = SystemFactory.makeSyncQueueItemEntity().copyWith(
         entityId: workOrder.id,
         status: SyncStatus.deadLetter,
         lastError: 'Permanent sync error',

@@ -14,7 +14,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 
@@ -43,7 +43,7 @@ void main() {
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
     when(() => mockSessionCubit.state).thenReturn(
       SessionState.initial().copyWith(
-        user: EntityFactory.makeUserProfileEntity(),
+        user: UserFactory.makeUserProfileEntity(),
       ),
     );
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
@@ -125,18 +125,14 @@ void main() {
             permissionAction: PermissionAction.create,
           );
 
-          when(
-            () => mockUsersCubit.hasPermission(permission),
-          ).thenReturn(true);
+          when(() => mockUsersCubit.hasPermission(permission)).thenReturn(true);
 
           await tester.pumpWidget(
             buildTestWidget(testCase.builder(permission)),
           );
 
           expect(testCase.finder, findsOneWidget);
-          verify(
-            () => mockUsersCubit.hasPermission(permission),
-          ).called(1);
+          verify(() => mockUsersCubit.hasPermission(permission)).called(1);
         });
 
         testWidgets('renders SizedBox.shrink() when permission is denied', (
@@ -156,9 +152,7 @@ void main() {
           );
 
           expect(testCase.finder, findsNothing);
-          verify(
-            () => mockUsersCubit.hasPermission(permission),
-          ).called(1);
+          verify(() => mockUsersCubit.hasPermission(permission)).called(1);
         });
       });
     }

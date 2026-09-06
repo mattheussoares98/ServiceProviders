@@ -18,7 +18,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_us
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -41,10 +41,10 @@ void main() {
   late GetSelectedModeUseCase getSelectedModeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeAuthentication());
-    registerFallbackValue(EntityFactory.makeSignUp());
-    registerFallbackValue(EntityFactory.makeUserDataEntity());
-    registerFallbackValue(EntityFactory.makeVerifyOtpRequestEntity());
+    registerFallbackValue(UserFactory.makeAuthentication());
+    registerFallbackValue(UserFactory.makeSignUp());
+    registerFallbackValue(UserFactory.makeUserDataEntity());
+    registerFallbackValue(UserFactory.makeVerifyOtpRequestEntity());
   });
 
   setUp(() {
@@ -78,14 +78,14 @@ void main() {
   });
 
   // Test data
-  final tAuthentication = EntityFactory.makeAuthentication().copyWith(
+  final tAuthentication = UserFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
-  final tUserData = EntityFactory.makeUserDataEntity().copyWith(
-    user: EntityFactory.makeUserProfileEntity(),
+  final tUserData = UserFactory.makeUserDataEntity().copyWith(
+    user: UserFactory.makeUserProfileEntity(),
   );
-  final tSignUpEntity = EntityFactory.makeSignUp();
+  final tSignUpEntity = UserFactory.makeSignUp();
   final tNewPassword = faker.internet.password();
 
   group('Auth Use Cases', () {
@@ -273,7 +273,7 @@ void main() {
 
     group('GetAuthUserUseCase', () {
       test('should return currentAuthUser from sessionRepository', () {
-        final tAuthUser = EntityFactory.makeAuthUserEntity();
+        final tAuthUser = UserFactory.makeAuthUserEntity();
         when(() => mockSessionRepository.currentAuthUser).thenReturn(tAuthUser);
 
         final result = getAuthUserUseCase();
@@ -301,7 +301,7 @@ void main() {
       test(
         'should call authRepository.verifyOtp and return user data on success',
         () async {
-          final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+          final tVerifyOtpRequest = UserFactory.makeVerifyOtpRequestEntity();
           when(
             () => mockAuthRepository.verifyOtp(any()),
           ).thenAnswer((_) async => SuccessState(data: tUserData));
@@ -319,7 +319,7 @@ void main() {
       test(
         'should return a FailureState when authRepository.verifyOtp fails',
         () async {
-          final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+          final tVerifyOtpRequest = UserFactory.makeVerifyOtpRequestEntity();
           final tFailureState = FailureState<UserDataEntity>(
             message: 'OTP verification failed',
           );
@@ -339,23 +339,34 @@ void main() {
     });
 
     group('GetActiveCompanyIdUseCase', () {
-      test('should return selectedCompanyId from sessionRepository when user is super admin', () {
-        final superAdminUser = tUserData.copyWith(
-          user: tUserData.user.copyWith(email: 'mattheussbarosa98@gmail.com'),
-        );
-        when(() => mockSessionRepository.getSelectedMode()).thenReturn('internal');
-        when(() => mockSessionRepository.userData).thenReturn(superAdminUser);
-        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn('selected_comp_123');
+      test(
+        'should return selectedCompanyId from sessionRepository when user is super admin',
+        () {
+          final superAdminUser = tUserData.copyWith(
+            user: tUserData.user.copyWith(email: 'mattheussbarosa98@gmail.com'),
+          );
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn('internal');
+          when(() => mockSessionRepository.userData).thenReturn(superAdminUser);
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn('selected_comp_123');
 
-        final result = getActiveCompanyIdUseCase();
+          final result = getActiveCompanyIdUseCase();
 
-        expect(result, 'selected_comp_123');
-      });
+          expect(result, 'selected_comp_123');
+        },
+      );
 
       test('should return user.companyId when selectedCompanyId is null', () {
-        when(() => mockSessionRepository.getSelectedMode()).thenReturn('internal');
+        when(
+          () => mockSessionRepository.getSelectedMode(),
+        ).thenReturn('internal');
         when(() => mockSessionRepository.userData).thenReturn(tUserData);
-        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn(null);
+        when(
+          () => mockSessionRepository.getSelectedCompanyId(),
+        ).thenReturn(null);
 
         final result = getActiveCompanyIdUseCase();
 
@@ -365,37 +376,48 @@ void main() {
 
     group('SetSelectedCompanyIdUseCase', () {
       test('should call sessionRepository.setSelectedCompanyId', () async {
-        when(() => mockSessionRepository.setSelectedCompanyId(any())).thenAnswer((_) async {});
+        when(
+          () => mockSessionRepository.setSelectedCompanyId(any()),
+        ).thenAnswer((_) async {});
 
         await setSelectedCompanyIdUseCase('new_comp_123');
 
-        verify(() => mockSessionRepository.setSelectedCompanyId('new_comp_123')).called(1);
+        verify(
+          () => mockSessionRepository.setSelectedCompanyId('new_comp_123'),
+        ).called(1);
       });
     });
 
     group('SelectedModeUseCases', () {
-      test('SaveSelectedModeUseCase should call localStorageClient.saveSelectedMode with mode', () async {
-        when(
-          () => mockLocalStorageClient.saveSelectedMode(any()),
-        ).thenAnswer((_) async {});
+      test(
+        'SaveSelectedModeUseCase should call localStorageClient.saveSelectedMode with mode',
+        () async {
+          when(
+            () => mockLocalStorageClient.saveSelectedMode(any()),
+          ).thenAnswer((_) async {});
 
-        await saveSelectedModeUseCase.call(AppMode.provider.name);
+          await saveSelectedModeUseCase.call(AppMode.provider.name);
 
-        verify(
-          () => mockLocalStorageClient.saveSelectedMode(AppMode.provider.name),
-        ).called(1);
-      });
+          verify(
+            () =>
+                mockLocalStorageClient.saveSelectedMode(AppMode.provider.name),
+          ).called(1);
+        },
+      );
 
-      test('GetSelectedModeUseCase should return selected mode from localStorageClient', () {
-        when(
-          () => mockLocalStorageClient.getSelectedMode(),
-        ).thenReturn(AppMode.provider.name);
+      test(
+        'GetSelectedModeUseCase should return selected mode from localStorageClient',
+        () {
+          when(
+            () => mockLocalStorageClient.getSelectedMode(),
+          ).thenReturn(AppMode.provider.name);
 
-        final result = getSelectedModeUseCase.call();
+          final result = getSelectedModeUseCase.call();
 
-        expect(result, AppMode.provider.name);
-        verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
-      });
+          expect(result, AppMode.provider.name);
+          verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+        },
+      );
     });
   });
 }

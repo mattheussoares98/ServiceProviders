@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -35,7 +35,7 @@ void main() {
   }
 
   group('SectorsLocalDataSourceImpl Tests', () {
-    final tSectorEntity = EntityFactory.makeSectorEntity();
+    final tSectorEntity = SystemFactory.makeSectorEntity();
     final tSectorModel = SectorModel.fromEntity(tSectorEntity);
 
     group('saveSector', () {
@@ -55,7 +55,7 @@ void main() {
         final list = [
           tSectorModel,
           SectorModel.fromEntity(
-            EntityFactory.makeSectorEntity().copyWith(
+            SystemFactory.makeSectorEntity().copyWith(
               companyId: tSectorModel.companyId,
               name: '${tSectorModel.name}_2',
             ),

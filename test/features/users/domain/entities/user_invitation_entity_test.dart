@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   group('UserInvitationEntity', () {
-    final tInvitation = EntityFactory.makeUserInvitationEntity();
+    final tInvitation = UserFactory.makeUserInvitationEntity();
 
     test('isExpired returns false when confirmationSentAt is null', () {
       final invite = tInvitation.copyWith(annulConfirmationSentAt: true);

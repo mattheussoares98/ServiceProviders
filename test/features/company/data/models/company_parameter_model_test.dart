@@ -2,11 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   group('CompanyParameterModel', () {
-    final tEntity = EntityFactory.makeCompanyParameterEntity();
+    final tEntity = UserFactory.makeCompanyParameterEntity();
 
     test('should be a subclass of CompanyParameterEntity', () {
       final model = CompanyParameterModel.fromEntity(tEntity);
@@ -31,7 +31,10 @@ void main() {
         tEntity.delayedNotificationIntervalMinutes,
       );
       expect(resultEntity.escalationGroupIds, tEntity.escalationGroupIds);
-      expect(resultEntity.maxOfflineDurationHours, tEntity.maxOfflineDurationHours);
+      expect(
+        resultEntity.maxOfflineDurationHours,
+        tEntity.maxOfflineDurationHours,
+      );
       expect(resultEntity.maxImageSizeMb, tEntity.maxImageSizeMb);
     });
   });

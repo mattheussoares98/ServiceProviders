@@ -19,7 +19,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_t
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   _providerWorkOrdersTests();
@@ -39,15 +40,15 @@ void main() {
     dataSource = WorkOrdersRemoteDataSourceImpl(database: mockDatabase);
   });
 
-  final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+  final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity();
   final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
   final tWorkOrderRequest = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
-  final tTaskEntity = EntityFactory.makeTaskEntity();
+  final tTaskEntity = WorkOrderFactory.makeTaskEntity();
   final tTaskModel = TaskModel.fromEntity(tTaskEntity);
   final tTaskRequest = TaskRequestModel.fromEntity(tTaskEntity);
 
-  final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
+  final tChangeEntity = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
   final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
   final tChangeRequest = WorkOrderChangeRequestRequestModel.fromEntity(
     tChangeEntity,
@@ -616,7 +617,7 @@ void main() {
   });
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
-    final tAuditLogEntity = EntityFactory.makeAuditLogEntity();
+    final tAuditLogEntity = WorkOrderFactory.makeAuditLogEntity();
     final tAuditLogModel = AuditLogModel.fromEntity(tAuditLogEntity);
 
     test(
@@ -670,12 +671,12 @@ void _providerWorkOrdersTests() {
   });
 
   final tWorkOrderModel = WorkOrderModel.fromEntity(
-    EntityFactory.makeWorkOrderEntity(),
+    WorkOrderFactory.makeWorkOrderEntity(),
   );
   final tCompanyIds = [
-    EntityFactory.makeServiceProviderCompanyEntity().id,
-    EntityFactory.makeServiceProviderCompanyEntity().id,
-    EntityFactory.makeServiceProviderCompanyEntity().id,
+    ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
+    ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
+    ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
   ];
 
   void stubSelectList() {
@@ -705,22 +706,25 @@ void _providerWorkOrdersTests() {
           as List<SupabaseFilter>;
 
   group('getProviderWorkOrders', () {
-    test('returns an empty list without querying when memberships are empty', () async {
-      final result = await dataSource.getProviderWorkOrders(const []);
+    test(
+      'returns an empty list without querying when memberships are empty',
+      () async {
+        final result = await dataSource.getProviderWorkOrders(const []);
 
-      expect(result, isA<SuccessState<List<WorkOrderModel>>>());
-      expect(result.data, isEmpty);
-      verifyNever(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          columns: any(named: 'columns'),
-          filters: any(named: 'filters'),
-          orderBy: any(named: 'orderBy'),
-          limit: any(named: 'limit'),
-          offset: any(named: 'offset'),
-        ),
-      );
-    });
+        expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+        expect(result.data, isEmpty);
+        verifyNever(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+            orderBy: any(named: 'orderBy'),
+            limit: any(named: 'limit'),
+            offset: any(named: 'offset'),
+          ),
+        );
+      },
+    );
 
     test('scopes by provider company instead of company_id', () async {
       stubSelectList();
@@ -758,9 +762,7 @@ void _providerWorkOrdersTests() {
 
       await dataSource.getProviderWorkOrders(
         tCompanyIds,
-        filter: WorkOrderFilter(
-          serviceProviderCompanyIds: [tCompanyIds.first],
-        ),
+        filter: WorkOrderFilter(serviceProviderCompanyIds: [tCompanyIds.first]),
       );
 
       final scope = capturedFilters().firstWhere(
@@ -769,21 +771,25 @@ void _providerWorkOrdersTests() {
       expect(scope.value, [tCompanyIds.first]);
     });
 
-    test('ignores a selected company the provider does not belong to', () async {
-      stubSelectList();
-      final foreignId = EntityFactory.makeServiceProviderCompanyEntity().id;
+    test(
+      'ignores a selected company the provider does not belong to',
+      () async {
+        stubSelectList();
+        final foreignId =
+            ServiceProviderFactory.makeServiceProviderCompanyEntity().id;
 
-      await dataSource.getProviderWorkOrders(
-        tCompanyIds,
-        filter: WorkOrderFilter(serviceProviderCompanyIds: [foreignId]),
-      );
+        await dataSource.getProviderWorkOrders(
+          tCompanyIds,
+          filter: WorkOrderFilter(serviceProviderCompanyIds: [foreignId]),
+        );
 
-      // A stale or tampered selection must never widen the query beyond the
-      // provider's actual memberships.
-      final scope = capturedFilters().firstWhere(
-        (f) => f.column == 'service_provider_company_id',
-      );
-      expect(scope.value, tCompanyIds);
-    });
+        // A stale or tampered selection must never widen the query beyond the
+        // provider's actual memberships.
+        final scope = capturedFilters().firstWhere(
+          (f) => f.column == 'service_provider_company_id',
+        );
+        expect(scope.value, tCompanyIds);
+      },
+    );
   });
 }

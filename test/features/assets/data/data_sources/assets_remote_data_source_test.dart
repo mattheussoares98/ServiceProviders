@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
@@ -20,10 +20,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      AssetModel.fromEntity(EntityFactory.makeAssetEntity()),
+      AssetModel.fromEntity(AssetFactory.makeAssetEntity()),
     );
     registerFallbackValue(
-      AssetRequestModel.fromEntity(EntityFactory.makeAssetEntity()),
+      AssetRequestModel.fromEntity(AssetFactory.makeAssetEntity()),
     );
   });
 
@@ -36,7 +36,7 @@ void main() {
     );
   });
 
-  final tAssetEntity = EntityFactory.makeAssetEntity();
+  final tAssetEntity = AssetFactory.makeAssetEntity();
   final tAssetModel = AssetModel.fromEntity(tAssetEntity);
   final tAssetRequest = AssetRequestModel.fromEntity(tAssetEntity);
 

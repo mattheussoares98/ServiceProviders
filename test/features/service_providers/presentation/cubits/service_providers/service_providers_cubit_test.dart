@@ -21,7 +21,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetServiceProviderProfilesByCompanyIdsUseCase extends Mock
@@ -50,9 +51,15 @@ void main() {
   late String companyId;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
-    registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
-    registerFallbackValue(EntityFactory.makeServiceProviderInvitationEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderCompanyEntity(),
+    );
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderProfileEntity(),
+    );
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderInvitationEntity(),
+    );
     registerFallbackValue(
       const SendServiceProviderInvitationParams(
         serviceProviderCompanyId: 'comp-1',
@@ -129,7 +136,7 @@ void main() {
         build: () {
           when(() => mockGetCompanies.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -162,7 +169,7 @@ void main() {
         build: () {
           when(() => mockGetCompanies.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -213,9 +220,9 @@ void main() {
     });
 
     group('loadCompaniesAndProfiles', () {
-      final comp1 = EntityFactory.makeServiceProviderCompanyEntity();
-      final comp2 = EntityFactory.makeServiceProviderCompanyEntity();
-      final profile1 = EntityFactory.makeServiceProviderProfileEntity()
+      final comp1 = ServiceProviderFactory.makeServiceProviderCompanyEntity();
+      final comp2 = ServiceProviderFactory.makeServiceProviderCompanyEntity();
+      final profile1 = ServiceProviderFactory.makeServiceProviderProfileEntity()
           .copyWith(serviceProviderCompanyId: comp1.id);
 
       blocTest<ServiceProvidersCubit, ServiceProvidersState>(
@@ -235,7 +242,9 @@ void main() {
         seed: () => const ServiceProvidersState.initial().copyWith(
           selectedCompanyId: comp1.id,
           invitations: {
-            comp1.id: [EntityFactory.makeServiceProviderInvitationEntity()],
+            comp1.id: [
+              ServiceProviderFactory.makeServiceProviderInvitationEntity(),
+            ],
           },
         ),
         act: (cubit) => cubit.loadCompaniesAndProfiles(forceRefresh: true),
@@ -376,12 +385,13 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           when(() => mockGetInvitations.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+              data:
+                  ServiceProviderFactory.makeServiceProviderInvitationEntityList(),
             ),
           );
           return cubit;
@@ -421,12 +431,13 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           when(() => mockGetInvitations.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+              data:
+                  ServiceProviderFactory.makeServiceProviderInvitationEntityList(),
             ),
           );
           return cubit;
@@ -467,7 +478,8 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Profile error'));
           when(() => mockGetInvitations.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+              data:
+                  ServiceProviderFactory.makeServiceProviderInvitationEntityList(),
             ),
           );
           return cubit;
@@ -499,7 +511,7 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           when(
@@ -551,7 +563,7 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           return cubit;
@@ -580,14 +592,16 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           return cubit;
         },
         seed: () => const ServiceProvidersState.initial().copyWith(
           profiles: {
-            companyId: [EntityFactory.makeServiceProviderProfileEntity()],
+            companyId: [
+              ServiceProviderFactory.makeServiceProviderProfileEntity(),
+            ],
           },
         ),
         act: (cubit) => cubit.ensureProfilesLoaded(companyId),
@@ -617,7 +631,7 @@ void main() {
         build: () {
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           return cubit;
@@ -633,7 +647,7 @@ void main() {
     });
 
     group('saveCompany', () {
-      final user = EntityFactory.makeUserProfileEntity();
+      final user = UserFactory.makeUserProfileEntity();
       final name = faker.company.name();
       final contactEmail = faker.internet.email();
       final contactPhone = faker.randomGenerator.integer(99999999).toString();
@@ -648,7 +662,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -720,7 +734,7 @@ void main() {
           return cubit;
         },
         act: (cubit) => cubit.saveCompany(
-           name: name,
+          name: name,
           document: '323234',
           documentType: DocumentType.cnpj,
         ),
@@ -763,7 +777,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -832,7 +846,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -891,7 +905,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: []));
           when(() => mockGetCompanies.call(user.companyId)).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderCompanyEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderCompanyEntity()],
             ),
           );
           when(
@@ -924,7 +938,7 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetProfiles.call(any())).thenAnswer(
             (_) async => SuccessState(
-              data: [EntityFactory.makeServiceProviderProfileEntity()],
+              data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
             ),
           );
           return cubit;
@@ -969,15 +983,17 @@ void main() {
           when(() => mockGetCompanies.call('active-comp-1')).thenAnswer(
             (_) async => SuccessState(
               data: [
-                EntityFactory.makeServiceProviderCompanyEntity().copyWith(
-                  invitationStatus: ServiceProviderInvitationStatus.pending,
-                ),
+                ServiceProviderFactory.makeServiceProviderCompanyEntity()
+                    .copyWith(
+                      invitationStatus: ServiceProviderInvitationStatus.pending,
+                    ),
               ],
             ),
           );
           when(() => mockGetInvitations.call('comp-1')).thenAnswer(
             (_) async => SuccessState(
-              data: EntityFactory.makeServiceProviderInvitationEntityList(),
+              data:
+                  ServiceProviderFactory.makeServiceProviderInvitationEntityList(),
             ),
           );
           return cubit;
@@ -1117,10 +1133,14 @@ void main() {
     });
 
     group('Realtime Events', () {
-      final tInitialCompany = EntityFactory.makeServiceProviderCompanyEntity();
-      final tNewCompany = EntityFactory.makeServiceProviderCompanyEntity();
-      final tInitialProfile = EntityFactory.makeServiceProviderProfileEntity();
-      final tNewProfile = EntityFactory.makeServiceProviderProfileEntity();
+      final tInitialCompany =
+          ServiceProviderFactory.makeServiceProviderCompanyEntity();
+      final tNewCompany =
+          ServiceProviderFactory.makeServiceProviderCompanyEntity();
+      final tInitialProfile =
+          ServiceProviderFactory.makeServiceProviderProfileEntity();
+      final tNewProfile =
+          ServiceProviderFactory.makeServiceProviderProfileEntity();
 
       group('Companies', () {
         blocTest<ServiceProvidersCubit, ServiceProvidersState>(
@@ -1153,9 +1173,7 @@ void main() {
             );
 
             testCubit.emit(
-              testCubit.state.copyWith(
-                companies: [tInitialCompany],
-              ),
+              testCubit.state.copyWith(companies: [tInitialCompany]),
             );
 
             streamController.add(
@@ -1208,9 +1226,7 @@ void main() {
             );
 
             testCubit.emit(
-              testCubit.state.copyWith(
-                companies: [tInitialCompany],
-              ),
+              testCubit.state.copyWith(companies: [tInitialCompany]),
             );
 
             final updated = tInitialCompany.copyWith(name: 'Updated Company');
@@ -1265,9 +1281,7 @@ void main() {
             );
 
             testCubit.emit(
-              testCubit.state.copyWith(
-                companies: [tInitialCompany],
-              ),
+              testCubit.state.copyWith(companies: [tInitialCompany]),
             );
 
             streamController.add(
@@ -1319,9 +1333,7 @@ void main() {
             );
 
             testCubit.emit(
-              testCubit.state.copyWith(
-                companies: [tInitialCompany],
-              ),
+              testCubit.state.copyWith(companies: [tInitialCompany]),
             );
 
             final softDeletedCompany = tInitialCompany.copyWith(

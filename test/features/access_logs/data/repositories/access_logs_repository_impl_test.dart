@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_e
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -20,11 +20,11 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       CreateAccessLogRequestModel.fromEntity(
-        EntityFactory.makeCreateAccessLogRequestEntity(),
+        SystemFactory.makeCreateAccessLogRequestEntity(),
       ),
     );
-    registerFallbackValue(EntityFactory.makeGetAccessLogsRequestEntity());
-    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
+    registerFallbackValue(SystemFactory.makeGetAccessLogsRequestEntity());
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
   });
 
   setUp(() {
@@ -40,8 +40,8 @@ void main() {
 
   group('AccessLogsRepositoryImpl Tests', () {
     group('getAccessLogs', () {
-      final tRequest = EntityFactory.makeGetAccessLogsRequestEntity();
-      final tEntity = EntityFactory.makeAccessLogEntity();
+      final tRequest = SystemFactory.makeGetAccessLogsRequestEntity();
+      final tEntity = SystemFactory.makeAccessLogEntity();
       final tModel = AccessLogModel.fromEntity(tEntity);
 
       test('fetches from remote when connected', () async {
@@ -85,7 +85,7 @@ void main() {
     });
 
     group('createAccessLog', () {
-      final tRequest = EntityFactory.makeCreateAccessLogRequestEntity();
+      final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
 
       test('calls remote create when connected', () async {
         when(() => mockInternet.isConnected).thenReturn(true);

@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/services.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
@@ -53,7 +53,7 @@ void main() {
       build: () {
         when(() => mockGetWorkOrderHistory.call(any())).thenAnswer(
           (_) async =>
-              SuccessState(data: EntityFactory.makeAuditLogEntityList()),
+              SuccessState(data: WorkOrderFactory.makeAuditLogEntityList()),
         );
         return WorkOrderHistoryCubit(
           useCases: cubitUseCases,
@@ -116,9 +116,9 @@ void main() {
         final date3 = DateTime(2026, 3, 10, 15);
 
         final baseHistory = [
-          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date1),
-          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date2),
-          EntityFactory.makeAuditLogEntity().copyWith(createdAt: date3),
+          WorkOrderFactory.makeAuditLogEntity().copyWith(createdAt: date1),
+          WorkOrderFactory.makeAuditLogEntity().copyWith(createdAt: date2),
+          WorkOrderFactory.makeAuditLogEntity().copyWith(createdAt: date3),
         ];
 
         cubit.emit(
@@ -158,10 +158,10 @@ void main() {
           fileService: mockFileService,
         );
 
-        final item1 = EntityFactory.makeAuditLogEntity().copyWith(
+        final item1 = WorkOrderFactory.makeAuditLogEntity().copyWith(
           summary: 'Alteração de status',
           changes: [
-            EntityFactory.makeAuditLogEntity().changes.first.copyWith(
+            WorkOrderFactory.makeAuditLogEntity().changes.first.copyWith(
               field: 'provider_profile_id',
               label: 'Prestador',
               oldValue: 'João Silva',
@@ -170,18 +170,18 @@ void main() {
           ],
         );
 
-        final item2 = EntityFactory.makeAuditLogEntity().copyWith(
+        final item2 = WorkOrderFactory.makeAuditLogEntity().copyWith(
           summary: 'Adição de anexo',
-          metadata: EntityFactory.makeAuditLogEntity().metadata!.copyWith(
+          metadata: WorkOrderFactory.makeAuditLogEntity().metadata!.copyWith(
             fileName: 'relatorio_tecnico.pdf',
             fileType: 'pdf',
           ),
         );
 
-        final item3 = EntityFactory.makeAuditLogEntity().copyWith(
+        final item3 = WorkOrderFactory.makeAuditLogEntity().copyWith(
           summary: 'Atualização de prioridade',
           changes: [
-            EntityFactory.makeAuditLogEntity().changes.first.copyWith(
+            WorkOrderFactory.makeAuditLogEntity().changes.first.copyWith(
               field: 'priority',
               oldValue: 'low',
               newValue: 'high',

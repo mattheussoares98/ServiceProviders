@@ -23,7 +23,7 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockUpdateUserProfileUseCase extends Mock
@@ -68,9 +68,9 @@ void main() {
   late AcceptInviteCubit cubit;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeUserProfileEntity());
-    registerFallbackValue(EntityFactory.makeUserDataEntity());
-    registerFallbackValue(EntityFactory.makeVerifyOtpRequestEntity());
+    registerFallbackValue(UserFactory.makeUserProfileEntity());
+    registerFallbackValue(UserFactory.makeUserDataEntity());
+    registerFallbackValue(UserFactory.makeVerifyOtpRequestEntity());
     registerFallbackValue(const HomeRoute());
     registerFallbackValue(const ProviderHomeRoute());
     registerFallbackValue(const LoginRoute());
@@ -102,7 +102,7 @@ void main() {
       () => mockWatchAuthUser.call(),
     ).thenAnswer((_) => const Stream.empty());
     when(() => mockVerifyOtp.call(any())).thenAnswer(
-      (_) async => SuccessState(data: EntityFactory.makeUserDataEntity()),
+      (_) async => SuccessState(data: UserFactory.makeUserDataEntity()),
     );
 
     final useCases = AcceptInviteCubitUseCases(
@@ -133,7 +133,7 @@ void main() {
     group('initialize', () {
       test('loads profile immediately if session exists', () {
         final userId = faker.guid.guid();
-        final profile = EntityFactory.makeUserProfileEntity();
+        final profile = UserFactory.makeUserProfileEntity();
         when(() => mockGetAuthUser.call()).thenReturn(
           AuthUserEntity(
             id: userId,
@@ -155,7 +155,7 @@ void main() {
       test('listens to auth state changes when session arrives', () async {
         final controller = StreamController<String?>();
         final userId = faker.guid.guid();
-        final profile = EntityFactory.makeUserProfileEntity();
+        final profile = UserFactory.makeUserProfileEntity();
 
         when(() => mockGetAuthUser.call()).thenReturn(null);
         when(
@@ -179,28 +179,20 @@ void main() {
       'togglePasswordVisibility should flip passwordVisibility state',
       build: () => cubit,
       act: (cubit) => cubit.togglePasswordVisibility(),
-      expect: () => [
-        const AcceptInviteState(
-          passwordVisibility: true,
-        ),
-      ],
+      expect: () => [const AcceptInviteState(passwordVisibility: true)],
     );
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'toggleConfirmPasswordVisibility should flip confirmPasswordVisibility state',
       build: () => cubit,
       act: (cubit) => cubit.toggleConfirmPasswordVisibility(),
-      expect: () => [
-        const AcceptInviteState(
-          confirmPasswordVisibility: true,
-        ),
-      ],
+      expect: () => [const AcceptInviteState(confirmPasswordVisibility: true)],
     );
 
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'loadProfile should load profile and emit SuccessState',
       build: () {
-        final profile = EntityFactory.makeUserProfileEntity();
+        final profile = UserFactory.makeUserProfileEntity();
         when(
           () => mockGetUserProfileById.call(any()),
         ).thenAnswer((_) async => SuccessState(data: profile));
@@ -277,7 +269,7 @@ void main() {
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'acceptInvite should call password change, update profile, and log out on success',
       seed: () => AcceptInviteState(
-        userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+        userProfile: UserFactory.makeUserProfileEntity().copyWith(
           isActive: false,
         ),
       ),
@@ -324,7 +316,7 @@ void main() {
     blocTest<AcceptInviteCubit, AcceptInviteState>(
       'acceptInvite should skip password change and profile update if profile is already active',
       seed: () => AcceptInviteState(
-        userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+        userProfile: UserFactory.makeUserProfileEntity().copyWith(
           isActive: true,
         ),
       ),
@@ -358,7 +350,7 @@ void main() {
       blocTest<AcceptInviteCubit, AcceptInviteState>(
         'navigateToHome should replaceAll with ProviderHomeRoute and save provider mode when companyId is empty',
         seed: () => AcceptInviteState(
-          userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+          userProfile: UserFactory.makeUserProfileEntity().copyWith(
             companyId: '',
           ),
         ),
@@ -384,7 +376,7 @@ void main() {
       blocTest<AcceptInviteCubit, AcceptInviteState>(
         'navigateToHome should replaceAll with HomeRoute when companyId is not empty',
         seed: () => AcceptInviteState(
-          userProfile: EntityFactory.makeUserProfileEntity().copyWith(
+          userProfile: UserFactory.makeUserProfileEntity().copyWith(
             companyId: faker.guid.guid(),
           ),
         ),

@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_ent
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockInternetClient mockInternet;
@@ -18,10 +18,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SyncQueueItemModel.fromEntity(EntityFactory.makeSyncQueueItemEntity()),
+      SyncQueueItemModel.fromEntity(SystemFactory.makeSyncQueueItemEntity()),
     );
     registerFallbackValue(
-      SyncErrorModel.fromEntity(EntityFactory.makeSyncErrorEntity()),
+      SyncErrorModel.fromEntity(SystemFactory.makeSyncErrorEntity()),
     );
   });
 
@@ -36,39 +36,46 @@ void main() {
     );
   });
 
-  final tQueueItemEntity = EntityFactory.makeSyncQueueItemEntity();
+  final tQueueItemEntity = SystemFactory.makeSyncQueueItemEntity();
   final tQueueItemModel = SyncQueueItemModel.fromEntity(tQueueItemEntity);
-  final tErrorEntity = EntityFactory.makeSyncErrorEntity();
+  final tErrorEntity = SystemFactory.makeSyncErrorEntity();
   final tErrorModel = SyncErrorModel.fromEntity(tErrorEntity);
 
   group('SyncRepositoryImpl', () {
     group('enqueue', () {
-      test('should call localDataSource.enqueue and return SuccessState', () async {
-        when(
-          () => mockLocalDataSource.enqueue(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should call localDataSource.enqueue and return SuccessState',
+        () async {
+          when(
+            () => mockLocalDataSource.enqueue(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.enqueue(tQueueItemEntity);
+          final result = await repository.enqueue(tQueueItemEntity);
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(() => mockLocalDataSource.enqueue(any())).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(() => mockLocalDataSource.enqueue(any())).called(1);
+        },
+      );
     });
 
     group('getPendingItems', () {
-      test('should return mapped pending items from local data source', () async {
-        when(
-          () => mockLocalDataSource.getPendingItems(limit: any(named: 'limit')),
-        ).thenAnswer((_) async => SuccessState(data: [tQueueItemModel]));
+      test(
+        'should return mapped pending items from local data source',
+        () async {
+          when(
+            () =>
+                mockLocalDataSource.getPendingItems(limit: any(named: 'limit')),
+          ).thenAnswer((_) async => SuccessState(data: [tQueueItemModel]));
 
-        final result = await repository.getPendingItems();
+          final result = await repository.getPendingItems();
 
-        expect(result, isA<SuccessState<List<SyncQueueItemEntity>>>());
-        expect(result.data!.length, equals(1));
-        expect(result.data!.first.id, equals(tQueueItemEntity.id));
-        verify(() => mockLocalDataSource.getPendingItems()).called(1);
-      });
+          expect(result, isA<SuccessState<List<SyncQueueItemEntity>>>());
+          expect(result.data!.length, equals(1));
+          expect(result.data!.first.id, equals(tQueueItemEntity.id));
+          verify(() => mockLocalDataSource.getPendingItems()).called(1);
+        },
+      );
     });
 
     group('markItemSyncing', () {
@@ -80,7 +87,9 @@ void main() {
         final result = await repository.markItemSyncing(tQueueItemEntity.id);
 
         expect(result, isA<SuccessState<bool>>());
-        verify(() => mockLocalDataSource.markItemSyncing(tQueueItemEntity.id)).called(1);
+        verify(
+          () => mockLocalDataSource.markItemSyncing(tQueueItemEntity.id),
+        ).called(1);
       });
     });
 
@@ -165,19 +174,22 @@ void main() {
     });
 
     group('retryDeadLetterForEntity', () {
-      test('should delegate to localDataSource.retryDeadLetterForEntity', () async {
-        when(
-          () => mockLocalDataSource.retryDeadLetterForEntity(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should delegate to localDataSource.retryDeadLetterForEntity',
+        () async {
+          when(
+            () => mockLocalDataSource.retryDeadLetterForEntity(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.retryDeadLetterForEntity('wo-1');
+          final result = await repository.retryDeadLetterForEntity('wo-1');
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(
-          () => mockLocalDataSource.retryDeadLetterForEntity('wo-1'),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockLocalDataSource.retryDeadLetterForEntity('wo-1'),
+          ).called(1);
+        },
+      );
     });
 
     group('removeQueueItem', () {
@@ -189,7 +201,9 @@ void main() {
         final result = await repository.removeQueueItem(tQueueItemEntity.id);
 
         expect(result, isA<SuccessState<bool>>());
-        verify(() => mockLocalDataSource.removeQueueItem(tQueueItemEntity.id)).called(1);
+        verify(
+          () => mockLocalDataSource.removeQueueItem(tQueueItemEntity.id),
+        ).called(1);
       });
     });
 
@@ -216,7 +230,9 @@ void main() {
         final result = await repository.reportSyncError(tErrorEntity);
 
         expect(result, isA<SuccessState<bool>>());
-        verify(() => mockRemoteDataSource.reportSyncError(tErrorModel)).called(1);
+        verify(
+          () => mockRemoteDataSource.reportSyncError(tErrorModel),
+        ).called(1);
       });
 
       test('should return FailureState.noInternet when offline', () async {

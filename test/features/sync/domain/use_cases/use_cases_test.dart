@@ -11,13 +11,16 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockSyncRepository mockSyncRepository;
   late MockWorkOrdersRemoteDataSource mockWorkOrdersRemoteDataSource;
-  late MockWorkOrderObservationsRemoteDataSource mockObservationsRemoteDataSource;
+  late MockWorkOrderObservationsRemoteDataSource
+  mockObservationsRemoteDataSource;
   late MockPauseRemoteDataSource mockPauseRemoteDataSource;
   late MockAccessLogsRemoteDataSource mockAccessLogsRemoteDataSource;
   late MockInternetClient mockInternet;
@@ -29,15 +32,15 @@ void main() {
   late ProcessSyncQueueUseCase processSyncQueueUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
-    registerFallbackValue(EntityFactory.makeSyncErrorEntity());
-    registerFallbackValue(EntityFactory.makeCompanyParameterEntity());
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
+    registerFallbackValue(SystemFactory.makeSyncErrorEntity());
+    registerFallbackValue(UserFactory.makeCompanyParameterEntity());
     registerFallbackValue(
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
     );
     registerFallbackValue(
       WorkOrderObservationModel.fromEntity(
-        EntityFactory.makeWorkOrderObservationEntity(),
+        WorkOrderFactory.makeWorkOrderObservationEntity(),
       ),
     );
   });
@@ -71,7 +74,7 @@ void main() {
     );
   });
 
-  final tQueueItem = EntityFactory.makeSyncQueueItemEntity();
+  final tQueueItem = SystemFactory.makeSyncQueueItemEntity();
 
   group('Sync UseCases', () {
     group('EnqueueSyncItemUseCase', () {
@@ -111,167 +114,197 @@ void main() {
         verifyNever(() => mockSyncRepository.getPendingItems());
       });
 
-      test('should process work order create and remove item from queue on success', () async {
-        when(() => mockInternet.isConnected).thenReturn(true);
-        final tWoEntity = EntityFactory.makeWorkOrderEntity();
-        final tItem = tQueueItem.copyWith(
-          entityType: SyncEntityType.workOrder,
-          operation: SyncOperationType.create,
-          payload: '{"id": "${tWoEntity.id}", "company_id": "${tWoEntity.companyId}", "location_id": "${tWoEntity.locationId}", "title": "Test", "type": "corrective", "priority": "medium", "status": "open", "created_at": "2026-08-23T10:00:00.000Z", "updated_at": "2026-08-23T10:00:00.000Z"}',
-        );
+      test(
+        'should process work order create and remove item from queue on success',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tWoEntity = WorkOrderFactory.makeWorkOrderEntity();
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.create,
+            payload:
+                '{"id": "${tWoEntity.id}", "company_id": "${tWoEntity.companyId}", "location_id": "${tWoEntity.locationId}", "title": "Test", "type": "corrective", "priority": "medium", "status": "open", "created_at": "2026-08-23T10:00:00.000Z", "updated_at": "2026-08-23T10:00:00.000Z"}',
+          );
 
-        when(
-          () => mockSyncRepository.getPendingItems(),
-        ).thenAnswer((_) async => SuccessState(data: [tItem]));
-        when(
-          () => mockSyncRepository.markItemSyncing(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockSyncRepository.removeQueueItem(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await processSyncQueueUseCase();
+          final result = await processSyncQueueUseCase();
 
-        expect(result, isA<SuccessState<int>>());
-        expect(result.data, equals(1));
-        verify(() => mockWorkOrdersRemoteDataSource.createWorkOrder(any())).called(1);
-        verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
-      });
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
 
-      test('should mark deadLetter, cascade cancel, and report error telemetry when permanent remote failure occurs', () async {
-        when(() => mockInternet.isConnected).thenReturn(true);
-        final tItem = tQueueItem.copyWith(
-          entityType: SyncEntityType.workOrder,
-          operation: SyncOperationType.create,
-          payload: '{"id": "wo-1", "company_id": "c-1", "location_id": "l-1", "title": "Test", "type": "corrective", "priority": "medium", "status": "open", "created_at": "2026-08-23T10:00:00.000Z", "updated_at": "2026-08-23T10:00:00.000Z"}',
-        );
+      test(
+        'should mark deadLetter, cascade cancel, and report error telemetry when permanent remote failure occurs',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.create,
+            payload:
+                '{"id": "wo-1", "company_id": "c-1", "location_id": "l-1", "title": "Test", "type": "corrective", "priority": "medium", "status": "open", "created_at": "2026-08-23T10:00:00.000Z", "updated_at": "2026-08-23T10:00:00.000Z"}',
+          );
 
-        when(
-          () => mockSyncRepository.getPendingItems(),
-        ).thenAnswer((_) async => SuccessState(data: [tItem]));
-        when(
-          () => mockSyncRepository.markItemSyncing(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
-        ).thenAnswer(
-          (_) async => FailureState(
-            message: '400 Bad Request: Constraint failed',
-            statusCode: 400,
-          ),
-        );
-        when(
-          () => mockSyncRepository.markItemDeadLetter(any(), any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockSyncRepository.cancelPendingForEntity(any(), any()),
-        ).thenAnswer((_) async => SuccessState.nil);
-        when(
-          () => mockSyncRepository.reportSyncError(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
-        final result = await processSyncQueueUseCase();
-
-        expect(result, isA<SuccessState<int>>());
-        expect(result.data, equals(0));
-        verify(() => mockSyncRepository.markItemDeadLetter(tItem.id, any())).called(1);
-        verify(
-          () => mockSyncRepository.cancelPendingForEntity(
-            tItem.entityId,
-            any(),
-          ),
-        ).called(1);
-        verify(() => mockSyncRepository.reportSyncError(any())).called(1);
-        verifyNever(() => mockSyncRepository.removeQueueItem(tItem.id));
-      });
-
-      test('should mark failed when transient server failure occurs and attempts < 3', () async {
-        when(() => mockInternet.isConnected).thenReturn(true);
-        final tItem = tQueueItem.copyWith(
-          attempts: 0,
-          entityType: SyncEntityType.workOrder,
-          operation: SyncOperationType.update,
-          payload: '{"id": "wo-1", "title": "Updated"}',
-        );
-
-        when(
-          () => mockSyncRepository.getPendingItems(),
-        ).thenAnswer((_) async => SuccessState(data: [tItem]));
-        when(
-          () => mockSyncRepository.markItemSyncing(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
-        ).thenAnswer(
-          (_) async => FailureState(
-            message: '503 Service Unavailable',
-            statusCode: 503,
-          ),
-        );
-        when(
-          () => mockSyncRepository.markItemFailed(any(), any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockSyncRepository.reportSyncError(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
-        final result = await processSyncQueueUseCase();
-
-        expect(result, isA<SuccessState<int>>());
-        expect(result.data, equals(0));
-        verify(() => mockSyncRepository.markItemFailed(tItem.id, any())).called(1);
-        verifyNever(() => mockSyncRepository.markItemDeadLetter(any(), any()));
-      });
-
-      test('should respect dynamic maxSyncAttempts from CompanyParameterEntity', () async {
-        when(() => mockInternet.isConnected).thenReturn(true);
-        when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn('comp-123');
-        when(() => mockCompanyRepository.getCompanyParameters('comp-123')).thenAnswer(
-          (_) async => SuccessState(
-            data: EntityFactory.makeCompanyParameterEntity().copyWith(
-              maxSyncAttempts: 5,
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.createWorkOrder(any()),
+          ).thenAnswer(
+            (_) async => FailureState(
+              message: '400 Bad Request: Constraint failed',
+              statusCode: 400,
             ),
-          ),
-        );
+          );
+          when(
+            () => mockSyncRepository.markItemDeadLetter(any(), any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.cancelPendingForEntity(any(), any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(
+            () => mockSyncRepository.reportSyncError(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final tItem = tQueueItem.copyWith(
-          attempts: 3,
-          entityType: SyncEntityType.workOrder,
-          operation: SyncOperationType.update,
-          payload: '{"id": "wo-1", "title": "Updated"}',
-        );
+          final result = await processSyncQueueUseCase();
 
-        when(
-          () => mockSyncRepository.getPendingItems(),
-        ).thenAnswer((_) async => SuccessState(data: [tItem]));
-        when(
-          () => mockSyncRepository.markItemSyncing(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
-        ).thenAnswer(
-          (_) async => FailureState(
-            message: '500 Internal Server Error',
-            statusCode: 500,
-          ),
-        );
-        when(
-          () => mockSyncRepository.markItemFailed(any(), any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockSyncRepository.reportSyncError(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(0));
+          verify(
+            () => mockSyncRepository.markItemDeadLetter(tItem.id, any()),
+          ).called(1);
+          verify(
+            () => mockSyncRepository.cancelPendingForEntity(
+              tItem.entityId,
+              any(),
+            ),
+          ).called(1);
+          verify(() => mockSyncRepository.reportSyncError(any())).called(1);
+          verifyNever(() => mockSyncRepository.removeQueueItem(tItem.id));
+        },
+      );
 
-        final result = await processSyncQueueUseCase();
+      test(
+        'should mark failed when transient server failure occurs and attempts < 3',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tItem = tQueueItem.copyWith(
+            attempts: 0,
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.update,
+            payload: '{"id": "wo-1", "title": "Updated"}',
+          );
 
-        expect(result, isA<SuccessState<int>>());
-        expect(result.data, equals(0));
-        verify(() => mockSyncRepository.markItemFailed(tItem.id, any())).called(1);
-        verifyNever(() => mockSyncRepository.markItemDeadLetter(any(), any()));
-      });
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+          ).thenAnswer(
+            (_) async => FailureState(
+              message: '503 Service Unavailable',
+              statusCode: 503,
+            ),
+          );
+          when(
+            () => mockSyncRepository.markItemFailed(any(), any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.reportSyncError(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(0));
+          verify(
+            () => mockSyncRepository.markItemFailed(tItem.id, any()),
+          ).called(1);
+          verifyNever(
+            () => mockSyncRepository.markItemDeadLetter(any(), any()),
+          );
+        },
+      );
+
+      test(
+        'should respect dynamic maxSyncAttempts from CompanyParameterEntity',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn('comp-123');
+          when(
+            () => mockCompanyRepository.getCompanyParameters('comp-123'),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                maxSyncAttempts: 5,
+              ),
+            ),
+          );
+
+          final tItem = tQueueItem.copyWith(
+            attempts: 3,
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.update,
+            payload: '{"id": "wo-1", "title": "Updated"}',
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+          ).thenAnswer(
+            (_) async => FailureState(
+              message: '500 Internal Server Error',
+              statusCode: 500,
+            ),
+          );
+          when(
+            () => mockSyncRepository.markItemFailed(any(), any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.reportSyncError(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(0));
+          verify(
+            () => mockSyncRepository.markItemFailed(tItem.id, any()),
+          ).called(1);
+          verifyNever(
+            () => mockSyncRepository.markItemDeadLetter(any(), any()),
+          );
+        },
+      );
     });
   });
 }

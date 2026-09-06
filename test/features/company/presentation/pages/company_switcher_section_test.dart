@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.d
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_switcher_section.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockCompanyCubit extends Mock implements CompanyCubit {}
 
@@ -36,15 +36,14 @@ void main() {
     );
   }
 
-  testWidgets('renders companies and highlights selected company', (tester) async {
-    final companies = EntityFactory.makeCompanyEntityList();
+  testWidgets('renders companies and highlights selected company', (
+    tester,
+  ) async {
+    final companies = UserFactory.makeCompanyEntityList();
     final selectedId = companies.first.id;
 
     await tester.pumpWidget(
-      buildWidget(
-        companies: companies,
-        selectedCompanyId: selectedId,
-      ),
+      buildWidget(companies: companies, selectedCompanyId: selectedId),
     );
 
     expect(find.text('Alternar Empresa'), findsOneWidget);
@@ -54,16 +53,15 @@ void main() {
     expect(find.text('Ativa'), findsOneWidget);
   });
 
-  testWidgets('tapping non-selected company calls switchCompany', (tester) async {
-    final companies = EntityFactory.makeCompanyEntityList();
+  testWidgets('tapping non-selected company calls switchCompany', (
+    tester,
+  ) async {
+    final companies = UserFactory.makeCompanyEntityList();
     final selectedId = companies.first.id;
     when(() => mockCubit.switchCompany(any())).thenAnswer((_) async {});
 
     await tester.pumpWidget(
-      buildWidget(
-        companies: companies,
-        selectedCompanyId: selectedId,
-      ),
+      buildWidget(companies: companies, selectedCompanyId: selectedId),
     );
 
     await tester.tap(find.text(companies[1].name));

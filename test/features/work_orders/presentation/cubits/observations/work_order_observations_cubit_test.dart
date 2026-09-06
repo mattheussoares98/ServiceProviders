@@ -14,7 +14,9 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -28,7 +30,7 @@ void main() {
   late WorkOrderObservationsCubitUseCases cubitUseCases;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeWorkOrderObservationEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderObservationEntity());
   });
 
   setUp(() {
@@ -56,7 +58,7 @@ void main() {
   blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
     'emits [loading, loaded] when fetchObservations succeeds',
     build: () {
-      final list = EntityFactory.makeWorkOrderObservationEntityList();
+      final list = WorkOrderFactory.makeWorkOrderObservationEntityList();
       when(
         () => getUseCase.call(any<String>()),
       ).thenAnswer((_) async => SuccessState(data: list));
@@ -102,25 +104,23 @@ void main() {
     ],
   );
 
-  final tObs = EntityFactory.makeWorkOrderObservationEntity();
+  final tObs = WorkOrderFactory.makeWorkOrderObservationEntity();
 
   blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
     'emits [saving, loaded] when createObservation succeeds',
     build: () {
-      final createdObs = EntityFactory.makeWorkOrderObservationEntity();
+      final createdObs = WorkOrderFactory.makeWorkOrderObservationEntity();
       when(
         () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      ).thenReturn(UserFactory.makeUserProfileEntity());
       when(
         () => createUseCase.call(any<WorkOrderObservationEntity>()),
       ).thenAnswer((_) async => SuccessState(data: createdObs));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
-    seed: () => WorkOrderObservationsState(
-      observations: [tObs],
-    ),
+    seed: () => WorkOrderObservationsState(observations: [tObs]),
     act: (cubit) => cubit.createObservation(
-      workOrder: EntityFactory.makeWorkOrderEntity(),
+      workOrder: WorkOrderFactory.makeWorkOrderEntity(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [
@@ -142,19 +142,22 @@ void main() {
   test(
     'authors through the provider profile and the work order tenant in provider mode',
     () async {
-      final workOrder = EntityFactory.makeWorkOrderEntity();
-      final profile = EntityFactory.makeServiceProviderProfileEntity().copyWith(
-        serviceProviderCompanyId: workOrder.serviceProviderCompanyId,
-      );
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity();
+      final profile = ServiceProviderFactory.makeServiceProviderProfileEntity()
+          .copyWith(
+            serviceProviderCompanyId: workOrder.serviceProviderCompanyId,
+          );
 
       when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
       when(
         () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      ).thenReturn(UserFactory.makeUserProfileEntity());
       when(
         () => mockGetProviderProfile.call(any<String?>()),
       ).thenAnswer((_) async => SuccessState(data: profile));
-      when(() => createUseCase.call(any<WorkOrderObservationEntity>())).thenAnswer(
+      when(
+        () => createUseCase.call(any<WorkOrderObservationEntity>()),
+      ).thenAnswer(
         (inv) async => SuccessState(
           data: inv.positionalArguments.first as WorkOrderObservationEntity,
         ),
@@ -168,7 +171,11 @@ void main() {
 
       expect(success, isTrue);
       final sent =
-          verify(() => createUseCase.call(captureAny<WorkOrderObservationEntity>())).captured.last
+          verify(
+                () => createUseCase.call(
+                  captureAny<WorkOrderObservationEntity>(),
+                ),
+              ).captured.last
               as WorkOrderObservationEntity;
       expect(sent.authorId, isNull);
       expect(sent.authorProviderProfileId, profile.id);
@@ -184,7 +191,7 @@ void main() {
       when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
       when(
         () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      ).thenReturn(UserFactory.makeUserProfileEntity());
       when(() => mockGetProviderProfile.call(any<String?>())).thenAnswer(
         (_) async => FailureState<ServiceProviderProfileEntity>(
           message: 'Perfil de prestador não encontrado.',
@@ -193,7 +200,7 @@ void main() {
 
       final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
       final success = await cubit.createObservation(
-        workOrder: EntityFactory.makeWorkOrderEntity(),
+        workOrder: WorkOrderFactory.makeWorkOrderEntity(),
         content: faker.lorem.sentence(),
       );
 
@@ -208,11 +215,13 @@ void main() {
   );
 
   test('authors as the internal user in internal mode', () async {
-    final user = EntityFactory.makeUserProfileEntity();
-    final workOrder = EntityFactory.makeWorkOrderEntity();
+    final user = UserFactory.makeUserProfileEntity();
+    final workOrder = WorkOrderFactory.makeWorkOrderEntity();
     when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
     when(() => mockGetSessionUser.call()).thenReturn(user);
-    when(() => createUseCase.call(any<WorkOrderObservationEntity>())).thenAnswer(
+    when(
+      () => createUseCase.call(any<WorkOrderObservationEntity>()),
+    ).thenAnswer(
       (inv) async => SuccessState(
         data: inv.positionalArguments.first as WorkOrderObservationEntity,
       ),
@@ -225,7 +234,10 @@ void main() {
     );
 
     final sent =
-        verify(() => createUseCase.call(captureAny<WorkOrderObservationEntity>())).captured.last
+        verify(
+              () =>
+                  createUseCase.call(captureAny<WorkOrderObservationEntity>()),
+            ).captured.last
             as WorkOrderObservationEntity;
     expect(sent.authorId, user.id);
     expect(sent.authorProviderProfileId, isNull);
@@ -240,14 +252,14 @@ void main() {
       final errorMsg = faker.lorem.sentence();
       when(
         () => mockGetSessionUser.call(),
-      ).thenReturn(EntityFactory.makeUserProfileEntity());
+      ).thenReturn(UserFactory.makeUserProfileEntity());
       when(
         () => createUseCase.call(any<WorkOrderObservationEntity>()),
       ).thenAnswer((_) async => FailureState(message: errorMsg));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
     act: (cubit) => cubit.createObservation(
-      workOrder: EntityFactory.makeWorkOrderEntity(),
+      workOrder: WorkOrderFactory.makeWorkOrderEntity(),
       content: faker.lorem.sentence(),
     ),
     expect: () => [
@@ -272,9 +284,7 @@ void main() {
       ).thenAnswer((_) async => const SuccessState(data: true));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
-    seed: () => WorkOrderObservationsState(
-      observations: [tObs],
-    ),
+    seed: () => WorkOrderObservationsState(observations: [tObs]),
     act: (cubit) => cubit.deleteObservation(tObs.id),
     expect: () => [
       isA<WorkOrderObservationsState>().having(
@@ -300,9 +310,7 @@ void main() {
       ).thenAnswer((_) async => FailureState(message: 'Erro ao excluir'));
       return WorkOrderObservationsCubit(useCases: cubitUseCases);
     },
-    seed: () => WorkOrderObservationsState(
-      observations: [tObs],
-    ),
+    seed: () => WorkOrderObservationsState(observations: [tObs]),
     act: (cubit) => cubit.deleteObservation(tObs.id),
     expect: () => [
       isA<WorkOrderObservationsState>().having(

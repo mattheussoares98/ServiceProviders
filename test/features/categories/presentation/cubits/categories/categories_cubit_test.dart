@@ -17,7 +17,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
@@ -45,7 +46,7 @@ void main() {
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeCategoryEntity());
+    registerFallbackValue(AssetFactory.makeCategoryEntity());
     registerFallbackValue(CreateUpdateCategoryRoute());
   });
 
@@ -59,8 +60,8 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
-    tCategory = EntityFactory.makeCategoryEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
+    tCategory = AssetFactory.makeCategoryEntity();
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
@@ -83,7 +84,7 @@ void main() {
       blocTest<CategoriesCubit, CategoriesState>(
         'should emit loading and loaded when categories load successfully',
         build: () {
-          final tCategories = EntityFactory.makeCategoryEntityList();
+          final tCategories = AssetFactory.makeCategoryEntityList();
           when(
             () => mockGetCategories.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tCategories));
@@ -114,7 +115,7 @@ void main() {
       blocTest<CategoriesCubit, CategoriesState>(
         'should not emit loading when emitLoading is false',
         build: () {
-          final tCategories = EntityFactory.makeCategoryEntityList();
+          final tCategories = AssetFactory.makeCategoryEntityList();
           when(
             () => mockGetCategories.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tCategories));
@@ -352,7 +353,7 @@ void main() {
     });
 
     group('deleteCategory', () {
-      final tCategory = EntityFactory.makeCategoryEntity();
+      final tCategory = AssetFactory.makeCategoryEntity();
       final tId = tCategory.id;
 
       blocTest<CategoriesCubit, CategoriesState>(

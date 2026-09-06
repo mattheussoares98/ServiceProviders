@@ -8,7 +8,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -20,11 +22,11 @@ void main() {
   late WorkOrderObservationsRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
-    registerFallbackValue(EntityFactory.makeWorkOrderObservationEntity());
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderObservationEntity());
     registerFallbackValue(
       WorkOrderObservationModel.fromEntity(
-        EntityFactory.makeWorkOrderObservationEntity(),
+        WorkOrderFactory.makeWorkOrderObservationEntity(),
       ),
     );
   });
@@ -40,7 +42,7 @@ void main() {
     ).thenReturn(AppMode.internal.name);
     when(
       () => mockSessionRepository.userData,
-    ).thenReturn(EntityFactory.makeUserDataEntity());
+    ).thenReturn(UserFactory.makeUserDataEntity());
     when(
       () => mockSessionRepository.getSelectedCompanyId(),
     ).thenReturn('company-1');
@@ -57,7 +59,7 @@ void main() {
     );
   });
 
-  final tObservationEntity = EntityFactory.makeWorkOrderObservationEntity();
+  final tObservationEntity = WorkOrderFactory.makeWorkOrderObservationEntity();
   final tObservationModel = WorkOrderObservationModel.fromEntity(
     tObservationEntity,
   );
@@ -223,21 +225,32 @@ void main() {
         () => mockRemoteDataSource.getObservations(any()),
       ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
 
-      final result = await repository.getObservations(tObservationEntity.workOrderId);
+      final result = await repository.getObservations(
+        tObservationEntity.workOrderId,
+      );
 
       expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
-      verify(() => mockRemoteDataSource.getObservations(tObservationEntity.workOrderId)).called(1);
+      verify(
+        () => mockRemoteDataSource.getObservations(
+          tObservationEntity.workOrderId,
+        ),
+      ).called(1);
       verifyNever(() => mockLocalDataSource.saveObservations(any()));
     });
 
-    test('getObservations returns failure without local fallback when offline', () async {
-      when(() => mockInternetClient.isConnected).thenReturn(false);
+    test(
+      'getObservations returns failure without local fallback when offline',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
 
-      final result = await repository.getObservations(tObservationEntity.workOrderId);
+        final result = await repository.getObservations(
+          tObservationEntity.workOrderId,
+        );
 
-      expect(result, isA<FailureState<List<WorkOrderObservationEntity>>>());
-      verifyNever(() => mockLocalDataSource.getObservations(any()));
-    });
+        expect(result, isA<FailureState<List<WorkOrderObservationEntity>>>());
+        verifyNever(() => mockLocalDataSource.getObservations(any()));
+      },
+    );
 
     test('createObservation posts remotely without saving locally', () async {
       when(() => mockInternetClient.isConnected).thenReturn(true);
@@ -248,17 +261,22 @@ void main() {
       final result = await repository.createObservation(tObservationEntity);
 
       expect(result, isA<SuccessState<WorkOrderObservationEntity>>());
-      verify(() => mockRemoteDataSource.createObservation(tObservationModel)).called(1);
+      verify(
+        () => mockRemoteDataSource.createObservation(tObservationModel),
+      ).called(1);
       verifyNever(() => mockLocalDataSource.saveObservation(any()));
     });
 
-    test('createObservation fails without saving locally when offline', () async {
-      when(() => mockInternetClient.isConnected).thenReturn(false);
+    test(
+      'createObservation fails without saving locally when offline',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
 
-      final result = await repository.createObservation(tObservationEntity);
+        final result = await repository.createObservation(tObservationEntity);
 
-      expect(result, isA<FailureState<WorkOrderObservationEntity>>());
-      verifyNever(() => mockLocalDataSource.saveObservation(any()));
-    });
+        expect(result, isA<FailureState<WorkOrderObservationEntity>>());
+        verifyNever(() => mockLocalDataSource.saveObservation(any()));
+      },
+    );
   });
 }

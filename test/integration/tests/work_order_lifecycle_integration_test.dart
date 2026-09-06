@@ -19,7 +19,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/work_order_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -72,9 +72,7 @@ void main() {
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
     sectorsRemote = SectorsRemoteDataSourceImpl(database: db);
-    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
-      database: db,
-    );
+    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(database: db);
     pauseRemote = PauseRemoteDataSourceImpl(database: db);
 
     companyId = IntegrationConfig.companyId;
@@ -150,7 +148,7 @@ void main() {
         // -------------------------------------------------------------
         // STEP 1: CREATE WORK ORDER
         // -------------------------------------------------------------
-        final initialEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+        final initialEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
           id: workOrderId,
           companyId: companyId,
           locationId: locationId,
@@ -225,7 +223,7 @@ void main() {
           pauseRequestId,
         );
 
-        final pauseEntity = EntityFactory.makePauseRequestEntity().copyWith(
+        final pauseEntity = WorkOrderFactory.makePauseRequestEntity().copyWith(
           id: pauseRequestId,
           companyId: companyId,
           workOrderId: workOrderId,
@@ -340,7 +338,7 @@ void main() {
           completionRequestId,
         );
 
-        final completionEntity = EntityFactory.makePauseRequestEntity()
+        final completionEntity = WorkOrderFactory.makePauseRequestEntity()
             .copyWith(
               id: completionRequestId,
               companyId: companyId,

@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_c
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 class MockProcessSyncQueueUseCase extends Mock
@@ -137,7 +137,7 @@ void main() {
     );
 
     test('should stream dead-letter items from sync repository', () async {
-      final tEntity = EntityFactory.makeSyncQueueItemEntity();
+      final tEntity = SystemFactory.makeSyncQueueItemEntity();
       when(
         () => mockSyncRepository.watchDeadLetterItemsForEntity(any()),
       ).thenAnswer((_) => Stream.value([tEntity]));
@@ -152,33 +152,36 @@ void main() {
       ).called(1);
     });
 
-    test('should call retryDeadLetterForEntity and processQueue on retryEntity', () async {
-      when(() => mockInternet.isConnected).thenReturn(true);
-      when(
-        () => mockSessionRepository.getSelectedMode(),
-      ).thenReturn(AppMode.internal.name);
-      when(
-        () => mockSessionRepository.getSelectedCompanyId(),
-      ).thenReturn('company-1');
-      when(
-        () => mockSyncRepository.retryDeadLetterForEntity(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-      when(
-        () => mockProcessSyncQueueUseCase.call(),
-      ).thenAnswer((_) async => const SuccessState(data: 1));
-      when(
-        () => mockGetPendingSyncCountUseCase.call(),
-      ).thenAnswer((_) async => const SuccessState(data: 0));
-      when(
-        () => mockWorkOrdersRepository.syncWorkOrders('company-1'),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'should call retryDeadLetterForEntity and processQueue on retryEntity',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockSessionRepository.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(
+          () => mockSessionRepository.getSelectedCompanyId(),
+        ).thenReturn('company-1');
+        when(
+          () => mockSyncRepository.retryDeadLetterForEntity(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockProcessSyncQueueUseCase.call(),
+        ).thenAnswer((_) async => const SuccessState(data: 1));
+        when(
+          () => mockGetPendingSyncCountUseCase.call(),
+        ).thenAnswer((_) async => const SuccessState(data: 0));
+        when(
+          () => mockWorkOrdersRepository.syncWorkOrders('company-1'),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      await syncEngine.retryEntity('wo-123');
+        await syncEngine.retryEntity('wo-123');
 
-      verify(
-        () => mockSyncRepository.retryDeadLetterForEntity('wo-123'),
-      ).called(1);
-      verify(() => mockProcessSyncQueueUseCase.call()).called(1);
-    });
+        verify(
+          () => mockSyncRepository.retryDeadLetterForEntity('wo-123'),
+        ).called(1);
+        verify(() => mockProcessSyncQueueUseCase.call()).called(1);
+      },
+    );
   });
 }

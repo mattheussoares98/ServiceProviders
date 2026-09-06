@@ -44,7 +44,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import 'package:patrol/patrol.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
 
 final locator = GetIt.I;
@@ -146,7 +146,7 @@ void main() {
     mockCategoriesCubit = MockCategoriesCubit();
     mockSessionCubit = MockSessionCubit();
 
-    userProfile = EntityFactory.makeUserProfileEntity().copyWith(
+    userProfile = UserFactory.makeUserProfileEntity().copyWith(
       annulAvatarUrl: true,
     );
 
@@ -156,32 +156,27 @@ void main() {
     ).thenReturn(AppMode.internal.name);
 
     when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
-    when(() => mockSessionRepository.userData).thenReturn(
-      EntityFactory.makeUserDataEntity().copyWith(user: userProfile),
-    );
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(UserFactory.makeUserDataEntity().copyWith(user: userProfile));
     when(() => mockHomeCubit.state).thenReturn(const HomeState.empty());
     when(() => mockHomeCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockHomeCubit.logout()).thenAnswer((_) async {});
 
-    when(() => mockUsersCubit.state).thenReturn(
-      UsersState(
-        users: [userProfile],
-        permissionGroups: const [],
-      ),
-    );
+    when(
+      () => mockUsersCubit.state,
+    ).thenReturn(UsersState(users: [userProfile], permissionGroups: const []));
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockUsersCubit.loadAll()).thenAnswer((_) async {});
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
 
-    when(
-      () => mockCompanyCubit.state,
-    ).thenReturn(const CompanyState());
+    when(() => mockCompanyCubit.state).thenReturn(const CompanyState());
     when(() => mockCompanyCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCompanyCubit.loadCompany()).thenAnswer((_) async {});
 
-    when(() => mockLocationsCubit.state).thenReturn(
-      const LocationsState.initial(),
-    );
+    when(
+      () => mockLocationsCubit.state,
+    ).thenReturn(const LocationsState.initial());
     when(
       () => mockLocationsCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
@@ -189,15 +184,13 @@ void main() {
       () => mockLocationsCubit.loadLocationsAndAreas(),
     ).thenAnswer((_) async {});
 
-    when(() => mockAssetsCubit.state).thenReturn(
-      const AssetsState.initial(),
-    );
+    when(() => mockAssetsCubit.state).thenReturn(const AssetsState.initial());
     when(() => mockAssetsCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockAssetsCubit.loadAssets()).thenAnswer((_) async {});
 
-    when(() => mockWorkOrdersCubit.state).thenReturn(
-      const WorkOrdersState.initial(),
-    );
+    when(
+      () => mockWorkOrdersCubit.state,
+    ).thenReturn(const WorkOrdersState.initial());
     when(
       () => mockWorkOrdersCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
@@ -210,9 +203,9 @@ void main() {
       return true;
     });
 
-    when(() => mockCategoriesCubit.state).thenReturn(
-      const CategoriesState.initial(),
-    );
+    when(
+      () => mockCategoriesCubit.state,
+    ).thenReturn(const CategoriesState.initial());
     when(
       () => mockCategoriesCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
@@ -404,11 +397,9 @@ void main() {
         when(
           () => mockCompanyCubit.stream,
         ).thenAnswer((_) => companyStateController.stream);
-        when(() => mockCompanyCubit.state).thenReturn(
-          const CompanyState(
-            selectedCompanyId: 'comp-1',
-          ),
-        );
+        when(
+          () => mockCompanyCubit.state,
+        ).thenReturn(const CompanyState(selectedCompanyId: 'comp-1'));
 
         await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
 
@@ -436,9 +427,7 @@ void main() {
 
         // Emit new company ID
         companyStateController.add(
-          const CompanyState(
-            selectedCompanyId: 'comp-2',
-          ),
+          const CompanyState(selectedCompanyId: 'comp-2'),
         );
         await $.pumpAndSettle();
 

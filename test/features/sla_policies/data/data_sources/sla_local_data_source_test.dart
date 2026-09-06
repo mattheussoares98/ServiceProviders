@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -35,7 +35,7 @@ void main() {
   }
 
   group('SlaLocalDataSourceImpl', () {
-    final tSlaPolicyEntity = EntityFactory.makeSlaPolicyEntity();
+    final tSlaPolicyEntity = SystemFactory.makeSlaPolicyEntity();
     final tSlaPolicyModel = SlaPolicyModel.fromEntity(tSlaPolicyEntity);
 
     group('saveSlaPolicy', () {

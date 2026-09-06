@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/locations/data/models/responses/location
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -28,7 +28,7 @@ class LocationIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeLocationEntity().copyWith(
+    final entity = AssetFactory.makeLocationEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       name: IntegrationConfig.testName(faker.address.city()),
@@ -59,7 +59,7 @@ class LocationIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeAreaEntity().copyWith(
+    final entity = AssetFactory.makeAreaEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       locationId: locationId,

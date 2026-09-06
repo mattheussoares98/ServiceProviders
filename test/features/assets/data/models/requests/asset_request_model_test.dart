@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/requests/asset_request_model.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
-  final tEntity = EntityFactory.makeAssetEntity();
+  final tEntity = AssetFactory.makeAssetEntity();
 
   group('AssetRequestModel', () {
     test('should be a subclass of AssetEntity', () {

@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/categories/data/models/requests/category
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -16,10 +16,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      CategoryModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryModel.fromEntity(AssetFactory.makeCategoryEntity()),
     );
     registerFallbackValue(
-      CategoryRequestModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryRequestModel.fromEntity(AssetFactory.makeCategoryEntity()),
     );
   });
 
@@ -28,7 +28,7 @@ void main() {
     dataSource = CategoriesRemoteDataSourceImpl(database: mockDatabase);
   });
 
-  final tEntity = EntityFactory.makeCategoryEntity();
+  final tEntity = AssetFactory.makeCategoryEntity();
   final tModel = CategoryModel.fromEntity(tEntity);
   final tRequest = CategoryRequestModel.fromEntity(tEntity);
   final tCompanyId = faker.guid.guid();

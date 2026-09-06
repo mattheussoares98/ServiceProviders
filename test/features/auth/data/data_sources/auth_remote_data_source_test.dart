@@ -12,8 +12,9 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile
 import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockSupabaseAuthClient mockSupabaseAuthClient;
@@ -36,9 +37,9 @@ void main() {
       supabaseAuth: mockSupabaseAuthClient,
       supabaseDatabase: mockSupabaseDatabaseClient,
     );
-    fakeAuthResponse = AuthResponse(user: EntityFactory.makeUser());
+    fakeAuthResponse = AuthResponse(user: UserFactory.makeUser());
     fakeUserProfile = UserProfileModel.fromEntity(
-      EntityFactory.makeUserProfileEntity().copyWith(
+      UserFactory.makeUserProfileEntity().copyWith(
         id: fakeAuthResponse.user!.id,
       ),
     );
@@ -47,7 +48,7 @@ void main() {
   tearDown(() => GetIt.I.reset());
 
   group('login', () {
-    final tAuthenticationRequest = EntityFactory.makeAuthenticationModel();
+    final tAuthenticationRequest = UserFactory.makeAuthenticationModel();
 
     test(
       'should return SuccessState with UserDataModel when Supabase login is successful',
@@ -123,7 +124,7 @@ void main() {
   });
 
   group('signUp', () {
-    final tSignUpRequest = EntityFactory.makeSignUpRequest();
+    final tSignUpRequest = UserFactory.makeSignUpRequest();
 
     test(
       'should return SuccessState with UserDataModel when Supabase signUp is successful',
@@ -282,7 +283,7 @@ void main() {
       () async {
         // Arrange
         final serviceProviderProfile =
-            EntityFactory.makeServiceProviderProfileEntity().copyWith(
+            ServiceProviderFactory.makeServiceProviderProfileEntity().copyWith(
               authUserId: tUserId,
             );
 
@@ -373,55 +374,61 @@ void main() {
 
   group('verifyOtp', () {
     final tVerifyOtpRequest = VerifyOtpRequestModel.fromEntity(
-      EntityFactory.makeVerifyOtpRequestEntity(),
+      UserFactory.makeVerifyOtpRequestEntity(),
     );
 
-    test('should return SuccessState with UserDataModel when verifyOTP is successful', () async {
-      // Arrange
-      when(
-        () => mockSupabaseAuthClient.verifyOTP(
-          tokenHash: any(named: 'tokenHash'),
-          type: any(named: 'type'),
-        ),
-      ).thenAnswer((_) async => fakeAuthResponse);
+    test(
+      'should return SuccessState with UserDataModel when verifyOTP is successful',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseAuthClient.verifyOTP(
+            tokenHash: any(named: 'tokenHash'),
+            type: any(named: 'type'),
+          ),
+        ).thenAnswer((_) async => fakeAuthResponse);
 
-      // Act
-      final result = await dataSource.verifyOtp(tVerifyOtpRequest);
+        // Act
+        final result = await dataSource.verifyOtp(tVerifyOtpRequest);
 
-      // Assert
-      expect(result, isA<SuccessState<UserDataModel>>());
-      expect(result.data?.user.id, fakeAuthResponse.user!.id);
-      expect(result.data?.user.email, fakeAuthResponse.user!.email ?? '');
-      expect(
-        result.data?.accessToken,
-        fakeAuthResponse.session?.accessToken ?? '',
-      );
-      expect(
-        result.data?.refreshToken,
-        fakeAuthResponse.session?.refreshToken ?? '',
-      );
-      verify(
-        () => mockSupabaseAuthClient.verifyOTP(
-          tokenHash: tVerifyOtpRequest.tokenHash,
-          type: OtpType.invite,
-        ),
-      ).called(1);
-    });
+        // Assert
+        expect(result, isA<SuccessState<UserDataModel>>());
+        expect(result.data?.user.id, fakeAuthResponse.user!.id);
+        expect(result.data?.user.email, fakeAuthResponse.user!.email ?? '');
+        expect(
+          result.data?.accessToken,
+          fakeAuthResponse.session?.accessToken ?? '',
+        );
+        expect(
+          result.data?.refreshToken,
+          fakeAuthResponse.session?.refreshToken ?? '',
+        );
+        verify(
+          () => mockSupabaseAuthClient.verifyOTP(
+            tokenHash: tVerifyOtpRequest.tokenHash,
+            type: OtpType.invite,
+          ),
+        ).called(1);
+      },
+    );
 
-    test('should return FailureState when verifyOTP throws exception', () async {
-      // Arrange
-      when(
-        () => mockSupabaseAuthClient.verifyOTP(
-          tokenHash: any(named: 'tokenHash'),
-          type: any(named: 'type'),
-        ),
-      ).thenThrow(const AuthException('Token expired'));
+    test(
+      'should return FailureState when verifyOTP throws exception',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseAuthClient.verifyOTP(
+            tokenHash: any(named: 'tokenHash'),
+            type: any(named: 'type'),
+          ),
+        ).thenThrow(const AuthException('Token expired'));
 
-      // Act
-      final result = await dataSource.verifyOtp(tVerifyOtpRequest);
+        // Act
+        final result = await dataSource.verifyOtp(tVerifyOtpRequest);
 
-      // Assert
-      expect(result, isA<FailureState<UserDataModel>>());
-    });
+        // Assert
+        expect(result, isA<FailureState<UserDataModel>>());
+      },
+    );
   });
 }

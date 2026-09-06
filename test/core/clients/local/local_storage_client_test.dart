@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 
-import '../../../../testing/mocks/entity_factory.dart';
+import '../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -119,7 +119,7 @@ void main() {
 
     test('saveUserSession persists value and updates cache', () async {
       final userSession = UserDataEntity(
-        user: EntityFactory.makeUserProfileEntity().copyWith(
+        user: UserFactory.makeUserProfileEntity().copyWith(
           isActive: faker.randomGenerator.boolean(),
         ),
         accessToken: faker.jwt.valid(),
@@ -145,7 +145,7 @@ void main() {
 
     test('clearUserSession deletes session from cache and database', () async {
       final userSession = UserDataEntity(
-        user: EntityFactory.makeUserProfileEntity().copyWith(isActive: true),
+        user: UserFactory.makeUserProfileEntity().copyWith(isActive: true),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
       );
@@ -163,12 +163,12 @@ void main() {
 
     test('saveUserSession replaces any previous session row', () async {
       final firstSession = UserDataEntity(
-        user: EntityFactory.makeUserProfileEntity().copyWith(isActive: true),
+        user: UserFactory.makeUserProfileEntity().copyWith(isActive: true),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
       );
       final secondSession = UserDataEntity(
-        user: EntityFactory.makeUserProfileEntity().copyWith(isActive: true),
+        user: UserFactory.makeUserProfileEntity().copyWith(isActive: true),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
       );
@@ -186,7 +186,7 @@ void main() {
       'init restores userSession for Service Provider when user profile is absent in userProfiles table',
       () async {
         final providerSession = UserDataEntity(
-          user: EntityFactory.makeUserProfileEntity().copyWith(
+          user: UserFactory.makeUserProfileEntity().copyWith(
             companyId: '',
             isActive: true,
           ),
@@ -213,7 +213,7 @@ void main() {
     test(
       'init restores userSession when user profile exists in userProfiles table',
       () async {
-        final userProfile = EntityFactory.makeUserProfileEntity();
+        final userProfile = UserFactory.makeUserProfileEntity();
         final userSession = UserDataEntity(
           user: userProfile,
           accessToken: faker.jwt.valid(),
@@ -251,7 +251,7 @@ void main() {
   group('LocalStorageClientImpl — Global operations', () {
     test('clearAll wipes both settings and sessions', () async {
       final userSession = UserDataEntity(
-        user: EntityFactory.makeUserProfileEntity().copyWith(isActive: true),
+        user: UserFactory.makeUserProfileEntity().copyWith(isActive: true),
         accessToken: faker.jwt.valid(),
         refreshToken: faker.jwt.valid(),
       );

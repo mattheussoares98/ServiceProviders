@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -45,7 +45,7 @@ void main() {
       final locationId = faker.guid.guid();
       IntegrationDataTracker.instance.track('locations', locationId);
 
-      final initialEntity = EntityFactory.makeLocationEntity().copyWith(
+      final initialEntity = AssetFactory.makeLocationEntity().copyWith(
         id: locationId,
         companyId: companyId,
         name: IntegrationConfig.testName('Location ${faker.address.city()}'),
@@ -74,7 +74,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated ${faker.address.city()}',
       );
-      final updatedEntity = EntityFactory.makeLocationEntity().copyWith(
+      final updatedEntity = AssetFactory.makeLocationEntity().copyWith(
         id: locationId,
         companyId: companyId,
         name: updatedName,

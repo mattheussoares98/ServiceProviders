@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -34,8 +34,8 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('DashboardKpisCubit', () {
-    final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
-    final tMetrics = EntityFactory.makeWorkOrderKpiMetricsEntity();
+    final tWorkOrders = WorkOrderFactory.makeWorkOrderEntityList();
+    final tMetrics = WorkOrderFactory.makeWorkOrderKpiMetricsEntity();
 
     test('initial state has empty metrics and empty sections', () {
       final cubit = DashboardKpisCubit(useCases: useCases);

@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_p
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -30,7 +30,7 @@ void main() {
     );
   });
 
-  final tSlaPolicyEntity = EntityFactory.makeSlaPolicyEntity();
+  final tSlaPolicyEntity = SystemFactory.makeSlaPolicyEntity();
   final tSlaPolicyModel = SlaPolicyModel.fromEntity(tSlaPolicyEntity);
 
   group('getSlaPolicies', () {

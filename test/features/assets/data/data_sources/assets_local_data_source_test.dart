@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -76,7 +76,7 @@ void main() {
         );
   }
 
-  final tAssetEntity = EntityFactory.makeAssetEntity();
+  final tAssetEntity = AssetFactory.makeAssetEntity();
   final tAssetModel = AssetModel.fromEntity(tAssetEntity);
   final tLocationId = faker.guid.guid();
 

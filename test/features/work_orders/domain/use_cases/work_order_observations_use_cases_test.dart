@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_order_observations_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 class MockWorkOrderObservationsRepository extends Mock
     implements WorkOrderObservationsRepository {}
@@ -18,7 +18,7 @@ void main() {
   late DeleteWorkOrderObservationUseCase deleteUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeWorkOrderObservationEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderObservationEntity());
   });
 
   setUp(() {
@@ -30,7 +30,7 @@ void main() {
 
   group('WorkOrderObservations UseCases', () {
     test('GetWorkOrderObservationsUseCase calls repository', () async {
-      final list = EntityFactory.makeWorkOrderObservationEntityList();
+      final list = WorkOrderFactory.makeWorkOrderObservationEntityList();
       when(
         () => repository.getObservations(any()),
       ).thenAnswer((_) async => SuccessState(data: list));
@@ -42,7 +42,7 @@ void main() {
     });
 
     test('CreateWorkOrderObservationUseCase calls repository', () async {
-      final entity = EntityFactory.makeWorkOrderObservationEntity();
+      final entity = WorkOrderFactory.makeWorkOrderObservationEntity();
       when(
         () => repository.createObservation(any()),
       ).thenAnswer((_) async => SuccessState(data: entity));

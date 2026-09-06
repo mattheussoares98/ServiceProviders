@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_g
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -41,12 +41,12 @@ void main() {
     await database.close();
   }
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity().copyWith(
+  final tUserProfileEntity = UserFactory.makeUserProfileEntity().copyWith(
     annulPermissionGroupId: true,
   );
   final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
 
-  final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
+  final tPermissionGroupEntity = UserFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
@@ -70,7 +70,7 @@ void main() {
         'should retrieve only user profiles for the specified company',
         () async {
           final otherCompanyId = faker.guid.guid();
-          final otherProfileEntity = EntityFactory.makeUserProfileEntity()
+          final otherProfileEntity = UserFactory.makeUserProfileEntity()
               .copyWith(
                 companyId: otherCompanyId,
                 annulPermissionGroupId: true,
@@ -134,41 +134,55 @@ void main() {
         expect(getResult.data, equals(tUserProfileModel));
       });
 
-      test('should save a user profile with permission overrides and restore them', () async {
-        await insertTestCompany(tUserProfileModel.companyId);
-        final profileWithPermissions = UserProfileModel.fromEntity(
-          EntityFactory.makeUserProfileEntity().copyWith(
-            companyId: tUserProfileModel.companyId,
-            annulPermissionGroupId: true,
-            permissions: {
-              ResourceType.assets: {
-                PermissionAction.create: true,
-                PermissionAction.delete: false,
+      test(
+        'should save a user profile with permission overrides and restore them',
+        () async {
+          await insertTestCompany(tUserProfileModel.companyId);
+          final profileWithPermissions = UserProfileModel.fromEntity(
+            UserFactory.makeUserProfileEntity().copyWith(
+              companyId: tUserProfileModel.companyId,
+              annulPermissionGroupId: true,
+              permissions: {
+                ResourceType.assets: {
+                  PermissionAction.create: true,
+                  PermissionAction.delete: false,
+                },
               },
-            },
-            workOrders: const UserWorkOrdersPermissionOverrideEntity.empty().copyWith(
-              create: true,
-              readScope: WorkOrderReadScope.all,
-              updateScope: WorkOrderUpdateScope.assigned,
+              workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
+                  .copyWith(
+                    create: true,
+                    readScope: WorkOrderReadScope.all,
+                    updateScope: WorkOrderUpdateScope.assigned,
+                  ),
             ),
-          ),
-        );
+          );
 
-        final saveResult = await dataSource.saveUserProfile(profileWithPermissions);
-        expect(saveResult, isA<SuccessState<bool>>());
+          final saveResult = await dataSource.saveUserProfile(
+            profileWithPermissions,
+          );
+          expect(saveResult, isA<SuccessState<bool>>());
 
-        final getResult = await dataSource.getUserProfileById(profileWithPermissions.id);
-        expect(getResult, isA<SuccessState<UserProfileModel>>());
-        expect(getResult.data!.permissions, equals(profileWithPermissions.permissions));
-        expect(getResult.data!.workOrdersPermissionOverrides, equals(profileWithPermissions.workOrdersPermissionOverrides));
-      });
+          final getResult = await dataSource.getUserProfileById(
+            profileWithPermissions.id,
+          );
+          expect(getResult, isA<SuccessState<UserProfileModel>>());
+          expect(
+            getResult.data!.permissions,
+            equals(profileWithPermissions.permissions),
+          );
+          expect(
+            getResult.data!.workOrdersPermissionOverrides,
+            equals(profileWithPermissions.workOrdersPermissionOverrides),
+          );
+        },
+      );
 
       test(
         'should save multiple user profiles and successfully retrieve them',
         () async {
           await insertTestCompany(tUserProfileModel.companyId);
           final profile2 = UserProfileModel.fromEntity(
-            EntityFactory.makeUserProfileEntity().copyWith(
+            UserFactory.makeUserProfileEntity().copyWith(
               companyId: tUserProfileModel.companyId,
               annulPermissionGroupId: true,
             ),
@@ -299,7 +313,7 @@ void main() {
         () async {
           await insertTestCompany(tPermissionGroupModel.companyId);
           final group2 = PermissionGroupModel.fromEntity(
-            EntityFactory.makePermissionGroupEntity().copyWith(
+            UserFactory.makePermissionGroupEntity().copyWith(
               companyId: tPermissionGroupModel.companyId,
             ),
           );
@@ -339,7 +353,7 @@ void main() {
         'should retrieve only permission groups for the specified company',
         () async {
           final otherCompanyId = faker.guid.guid();
-          final otherGroupEntity = EntityFactory.makePermissionGroupEntity()
+          final otherGroupEntity = UserFactory.makePermissionGroupEntity()
               .copyWith(companyId: otherCompanyId);
           final otherGroupModel = PermissionGroupModel.fromEntity(
             otherGroupEntity,

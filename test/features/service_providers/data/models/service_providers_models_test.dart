@@ -4,11 +4,11 @@ import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 
 void main() {
   group('ServiceProviderCompanyModel', () {
-    final tEntity = EntityFactory.makeServiceProviderCompanyEntity();
+    final tEntity = ServiceProviderFactory.makeServiceProviderCompanyEntity();
 
     test('should be a subclass of ServiceProviderCompanyEntity', () {
       final responseModel = ServiceProviderCompanyModel.fromEntity(tEntity);
@@ -35,7 +35,7 @@ void main() {
   });
 
   group('ServiceProviderProfileModel', () {
-    final tEntity = EntityFactory.makeServiceProviderProfileEntity();
+    final tEntity = ServiceProviderFactory.makeServiceProviderProfileEntity();
 
     test('should be a subclass of ServiceProviderProfileEntity', () {
       final responseModel = ServiceProviderProfileModel.fromEntity(tEntity);

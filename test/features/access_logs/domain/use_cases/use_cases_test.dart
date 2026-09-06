@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_e
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/get_access_logs_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -14,8 +14,8 @@ void main() {
   late CreateAccessLogUseCase createAccessLogUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeGetAccessLogsRequestEntity());
-    registerFallbackValue(EntityFactory.makeCreateAccessLogRequestEntity());
+    registerFallbackValue(SystemFactory.makeGetAccessLogsRequestEntity());
+    registerFallbackValue(SystemFactory.makeCreateAccessLogRequestEntity());
   });
 
   setUp(() {
@@ -30,8 +30,8 @@ void main() {
 
   group('GetAccessLogsUseCase', () {
     test('returns SuccessState when repository succeeds', () async {
-      final tLogs = EntityFactory.makeAccessLogEntityList();
-      final tRequest = EntityFactory.makeGetAccessLogsRequestEntity();
+      final tLogs = SystemFactory.makeAccessLogEntityList();
+      final tRequest = SystemFactory.makeGetAccessLogsRequestEntity();
 
       when(
         () => mockRepository.getAccessLogs(any()),
@@ -45,7 +45,7 @@ void main() {
     });
 
     test('returns FailureState when repository fails', () async {
-      final tRequest = EntityFactory.makeGetAccessLogsRequestEntity();
+      final tRequest = SystemFactory.makeGetAccessLogsRequestEntity();
       const tError = 'Failed to load access logs';
 
       when(
@@ -62,7 +62,7 @@ void main() {
 
   group('CreateAccessLogUseCase', () {
     test('returns SuccessState when repository succeeds', () async {
-      final tRequest = EntityFactory.makeCreateAccessLogRequestEntity();
+      final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
 
       when(
         () => mockRepository.createAccessLog(any()),
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('returns FailureState when repository fails', () async {
-      final tRequest = EntityFactory.makeCreateAccessLogRequestEntity();
+      final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
       const tError = 'Failed to record access log';
 
       when(

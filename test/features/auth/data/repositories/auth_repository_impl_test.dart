@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -23,21 +23,21 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      AuthenticationRequestModel.fromEntity(EntityFactory.makeAuthentication()),
+      AuthenticationRequestModel.fromEntity(UserFactory.makeAuthentication()),
     );
-    registerFallbackValue(EntityFactory.makeUserDataEntity());
+    registerFallbackValue(UserFactory.makeUserDataEntity());
     registerFallbackValue(
-      UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
-    );
-    registerFallbackValue(
-      SignUpRequestModel.fromEntity(EntityFactory.makeSignUp()),
+      UserDataModel.fromEntity(UserFactory.makeUserDataEntity()),
     );
     registerFallbackValue(
-      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+      SignUpRequestModel.fromEntity(UserFactory.makeSignUp()),
+    );
+    registerFallbackValue(
+      UserProfileModel.fromEntity(UserFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
       VerifyOtpRequestModel.fromEntity(
-        EntityFactory.makeVerifyOtpRequestEntity(),
+        UserFactory.makeVerifyOtpRequestEntity(),
       ),
     );
   });
@@ -56,18 +56,18 @@ void main() {
   });
 
   // Test data
-  final tAuthentication = EntityFactory.makeAuthentication().copyWith(
+  final tAuthentication = UserFactory.makeAuthentication().copyWith(
     username: 'test',
     password: 'password',
   );
 
-  final tUser = EntityFactory.makeUserProfileEntity().copyWith(
+  final tUser = UserFactory.makeUserProfileEntity().copyWith(
     id: '1',
     name: 'test user',
     email: 'test@example.com',
     isActive: true,
   );
-  final tUserData = EntityFactory.makeUserDataEntity().copyWith(
+  final tUserData = UserFactory.makeUserDataEntity().copyWith(
     user: tUser,
     accessToken: 'access',
     refreshToken: 'refresh',
@@ -252,7 +252,7 @@ void main() {
   });
 
   group('signUp', () {
-    final tSignUpEntity = EntityFactory.makeSignUp().copyWith(
+    final tSignUpEntity = UserFactory.makeSignUp().copyWith(
       name: 'Test',
       email: 'test@example.com',
       password: 'password',
@@ -390,7 +390,7 @@ void main() {
   });
 
   group('verifyOtp', () {
-    final tVerifyOtpRequest = EntityFactory.makeVerifyOtpRequestEntity();
+    final tVerifyOtpRequest = UserFactory.makeVerifyOtpRequestEntity();
 
     test(
       'should call remoteDataSource.verifyOtp when internet is connected and return its result mapped to domain',

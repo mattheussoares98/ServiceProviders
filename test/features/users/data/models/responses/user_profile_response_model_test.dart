@@ -3,10 +3,10 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
-  final tEntity = EntityFactory.makeUserProfileEntity();
+  final tEntity = UserFactory.makeUserProfileEntity();
 
   group('UserProfileModel', () {
     test('should be a subclass of UserProfileEntity', () {

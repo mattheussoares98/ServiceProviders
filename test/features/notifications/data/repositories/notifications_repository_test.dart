@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/notifications/data/repositories/notifica
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -15,7 +15,7 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late NotificationsRepositoryImpl repository;
 
-  final tUser = EntityFactory.makeUserDataEntity();
+  final tUser = UserFactory.makeUserDataEntity();
   final tDeviceToken = faker.jwt.secret;
   const tPlatform = 'android';
 
@@ -67,8 +67,8 @@ void main() {
         () async {
           when(() => mockInternet.isConnected).thenReturn(true);
           when(() => mockSessionRepository.userData).thenReturn(
-            EntityFactory.makeUserDataEntity().copyWith(
-              user: EntityFactory.makeUserDataEntity().user.copyWith(id: ''),
+            UserFactory.makeUserDataEntity().copyWith(
+              user: UserFactory.makeUserDataEntity().user.copyWith(id: ''),
             ),
           );
           when(() => mockSessionRepository.currentAuthUser).thenReturn(null);
@@ -143,8 +143,8 @@ void main() {
         () async {
           when(() => mockInternet.isConnected).thenReturn(true);
           when(() => mockSessionRepository.userData).thenReturn(
-            EntityFactory.makeUserDataEntity().copyWith(
-              user: EntityFactory.makeUserDataEntity().user.copyWith(id: ''),
+            UserFactory.makeUserDataEntity().copyWith(
+              user: UserFactory.makeUserDataEntity().user.copyWith(id: ''),
             ),
           );
           when(() => mockSessionRepository.currentAuthUser).thenReturn(null);

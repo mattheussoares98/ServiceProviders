@@ -18,7 +18,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 final locator = GetIt.I;
@@ -43,9 +44,9 @@ void main() {
   late UserProfileEntity userSession;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeCompanyEntity());
-    registerFallbackValue(EntityFactory.makeUserProfileEntity());
-    registerFallbackValue(EntityFactory.makeCompanyParameterEntity());
+    registerFallbackValue(UserFactory.makeCompanyEntity());
+    registerFallbackValue(UserFactory.makeUserProfileEntity());
+    registerFallbackValue(UserFactory.makeCompanyParameterEntity());
     registerFallbackValue(
       const PickAttachmentParams(
         source: AttachmentSource.gallery,
@@ -57,7 +58,7 @@ void main() {
     );
     registerFallbackValue(
       UpdateCompanyLogoParams(
-        company: EntityFactory.makeCompanyEntity(),
+        company: UserFactory.makeCompanyEntity(),
         localPath: '',
       ),
     );
@@ -78,7 +79,7 @@ void main() {
     mockSaveCompanyParametersUseCase = MockSaveCompanyParametersUseCase();
     mockGetPermissionGroupsUseCase = MockGetPermissionGroupsUseCase();
 
-    userSession = EntityFactory.makeUserProfileEntity().copyWith(
+    userSession = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
       email: 'regular@example.com',
     );
@@ -94,10 +95,10 @@ void main() {
     ).thenAnswer((_) async => true);
     when(() => mockGetSessionUserUseCase.call()).thenAnswer((_) => userSession);
     when(() => mockGetCompanyUseCase.call(any())).thenAnswer(
-      (_) async => SuccessState(data: EntityFactory.makeCompanyEntity()),
+      (_) async => SuccessState(data: UserFactory.makeCompanyEntity()),
     );
     when(() => mockGetAllCompaniesUseCase.call()).thenAnswer(
-      (_) async => SuccessState(data: EntityFactory.makeCompanyEntityList()),
+      (_) async => SuccessState(data: UserFactory.makeCompanyEntityList()),
     );
     when(
       () => mockSetSelectedCompanyIdUseCase.call(any()),
@@ -106,8 +107,7 @@ void main() {
       () => mockUpdateUserProfileUseCase.call(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
     when(() => mockGetCompanyParametersUseCase.call(any())).thenAnswer(
-      (_) async =>
-          SuccessState(data: EntityFactory.makeCompanyParameterEntity()),
+      (_) async => SuccessState(data: UserFactory.makeCompanyParameterEntity()),
     );
     when(
       () => mockSaveCompanyParametersUseCase.call(any()),
@@ -139,7 +139,7 @@ void main() {
   blocTest<CompanyCubit, CompanyState>(
     'createCompany should emit loading and loaded when creation succeeds',
     build: () {
-      final company = EntityFactory.makeCompanyEntity();
+      final company = UserFactory.makeCompanyEntity();
       when(
         () => mockCreateCompanyUseCase.call(any()),
       ).thenAnswer((_) async => SuccessState(data: company));
@@ -204,7 +204,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'navigateToCreateCompany should push CreateCompanyRoute when user is super admin',
       build: () {
-        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+        userSession = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
           email: 'mattheussbarosa98@gmail.com',
         );
@@ -227,7 +227,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'navigateToCreateCompany should not push CreateCompanyRoute when user is regular admin',
       build: () {
-        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+        userSession = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
           email: 'regular@example.com',
         );
@@ -249,7 +249,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit loaded status and company when company loads successfully',
       build: () {
-        final company = EntityFactory.makeCompanyEntity();
+        final company = UserFactory.makeCompanyEntity();
         when(
           () => mockGetCompanyUseCase.call(any()),
         ).thenAnswer((_) async => SuccessState(data: company));
@@ -304,7 +304,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit loaded status and null company when user has no companyId',
       build: () {
-        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+        userSession = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
           annulCompanyId: true,
         );
@@ -331,7 +331,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should pass forceRefresh parameter to usecase correctly',
       build: () {
-        userSession = EntityFactory.makeUserProfileEntity().copyWith(
+        userSession = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
           email: 'regular@example.com',
         );
@@ -357,10 +357,10 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should call getAllCompanies when user is super admin',
       build: () {
-        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+        final superAdmin = UserFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
-        final companies = EntityFactory.makeCompanyEntityList();
+        final companies = UserFactory.makeCompanyEntityList();
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
         when(
           () => mockGetAllCompaniesUseCase.call(),
@@ -391,7 +391,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit loadingError when getAllCompanies fails for super admin',
       build: () {
-        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+        final superAdmin = UserFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
@@ -417,12 +417,12 @@ void main() {
   });
 
   group('switchCompany', () {
-    final companies = EntityFactory.makeCompanyEntityList();
+    final companies = UserFactory.makeCompanyEntityList();
 
     blocTest<CompanyCubit, CompanyState>(
       'should do nothing when user is not super admin',
       build: () {
-        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+        final regularUser = UserFactory.makeUserProfileEntity().copyWith(
           email: 'regular@example.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(regularUser);
@@ -439,7 +439,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should call updateUserProfile and setSelectedCompanyId and update company in state when user is super admin and update succeeds',
       build: () {
-        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+        final superAdmin = UserFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
@@ -483,7 +483,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit error when updateUserProfile fails',
       build: () {
-        final superAdmin = EntityFactory.makeUserProfileEntity().copyWith(
+        final superAdmin = UserFactory.makeUserProfileEntity().copyWith(
           email: 'mattheussbarosa98@gmail.com',
         );
         when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
@@ -510,8 +510,8 @@ void main() {
   });
 
   group('changeLogo', () {
-    final tCompany = EntityFactory.makeCompanyEntity();
-    final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+    final tCompany = UserFactory.makeCompanyEntity();
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
       localPath: '/tmp/logo.png',
     );
 
@@ -526,7 +526,7 @@ void main() {
       'should do nothing when user is not admin',
       build: () {
         when(() => mockGetSessionUserUseCase.call()).thenAnswer(
-          (_) => EntityFactory.makeUserProfileEntity().copyWith(isAdmin: false),
+          (_) => UserFactory.makeUserProfileEntity().copyWith(isAdmin: false),
         );
         return companyCubit..emit(CompanyState(company: tCompany));
       },
@@ -618,7 +618,7 @@ void main() {
   });
 
   group('updateEscalationParameters', () {
-    final tParams = EntityFactory.makeCompanyParameterEntity();
+    final tParams = UserFactory.makeCompanyParameterEntity();
 
     blocTest<CompanyCubit, CompanyState>(
       'should do nothing when parameters in state is null',

@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_reposit
 import 'package:o_jogo_da_obra/routing/guards/super_admin_guard.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/user_factory.dart';
 import '../../../testing/mocks/repository_mocks.dart';
 
 class MockStackRouter extends Mock implements StackRouter {}
@@ -40,25 +40,24 @@ void main() {
   });
 
   group('SuperAdminGuard', () {
-    test(
-      'should redirect to CompanyRoute when user is not logged in',
-      () {
-        when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
+    test('should redirect to CompanyRoute when user is not logged in', () {
+      when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
 
-        superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+      superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
-        verify(() => mockStackRouter.replaceAll(const [CompanyRoute()])).called(1);
-        verifyNever(() => mockNavigationResolver.next(any()));
-      },
-    );
+      verify(
+        () => mockStackRouter.replaceAll(const [CompanyRoute()]),
+      ).called(1);
+      verifyNever(() => mockNavigationResolver.next(any()));
+    });
 
     test(
       'should redirect to CompanyRoute when logged-in user is not super admin',
       () {
         when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
         when(() => mockSessionRepository.userData).thenReturn(
-          EntityFactory.makeUserDataEntity().copyWith(
-            user: EntityFactory.makeUserProfileEntity().copyWith(
+          UserFactory.makeUserDataEntity().copyWith(
+            user: UserFactory.makeUserProfileEntity().copyWith(
               email: 'regular_user@example.com',
             ),
           ),
@@ -66,28 +65,27 @@ void main() {
 
         superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
-        verify(() => mockStackRouter.replaceAll(const [CompanyRoute()])).called(1);
+        verify(
+          () => mockStackRouter.replaceAll(const [CompanyRoute()]),
+        ).called(1);
         verifyNever(() => mockNavigationResolver.next(any()));
       },
     );
 
-    test(
-      'should call resolver.next() when logged-in user is super admin',
-      () {
-        when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
-        when(() => mockSessionRepository.userData).thenReturn(
-          EntityFactory.makeUserDataEntity().copyWith(
-            user: EntityFactory.makeUserProfileEntity().copyWith(
-              email: 'mattheussbarosa98@gmail.com',
-            ),
+    test('should call resolver.next() when logged-in user is super admin', () {
+      when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+      when(() => mockSessionRepository.userData).thenReturn(
+        UserFactory.makeUserDataEntity().copyWith(
+          user: UserFactory.makeUserProfileEntity().copyWith(
+            email: 'mattheussbarosa98@gmail.com',
           ),
-        );
+        ),
+      );
 
-        superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+      superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
-        verify(() => mockNavigationResolver.next()).called(1);
-        verifyNever(() => mockStackRouter.replaceAll(any()));
-      },
-    );
+      verify(() => mockNavigationResolver.next()).called(1);
+      verifyNever(() => mockStackRouter.replaceAll(any()));
+    });
   });
 }

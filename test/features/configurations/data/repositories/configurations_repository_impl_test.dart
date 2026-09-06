@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/configurations/domain/entities/configura
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -20,9 +20,9 @@ void main() {
   late ConfigurationsRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeConfigurationsEntity());
+    registerFallbackValue(UserFactory.makeConfigurationsEntity());
     registerFallbackValue(
-      ConfigurationsModel.fromEntity(EntityFactory.makeConfigurationsEntity()),
+      ConfigurationsModel.fromEntity(UserFactory.makeConfigurationsEntity()),
     );
   });
 
@@ -44,11 +44,9 @@ void main() {
       'should return remote configurations and save them locally when online',
       () async {
         final tUserId = faker.guid.guid();
-        final tEntity = EntityFactory.makeConfigurationsEntity();
+        final tEntity = UserFactory.makeConfigurationsEntity();
         final tModel = ConfigurationsModel.fromEntity(tEntity);
-        final tUser = EntityFactory.makeUserProfileEntity().copyWith(
-          id: tUserId,
-        );
+        final tUser = UserFactory.makeUserProfileEntity().copyWith(id: tUserId);
         final tSession = UserDataEntity(
           user: tUser,
           accessToken: faker.jwt.valid(),
@@ -74,7 +72,7 @@ void main() {
 
     test('should return failure when remote fetch fails and online', () async {
       final tUserId = faker.guid.guid();
-      final tUser = EntityFactory.makeUserProfileEntity().copyWith(id: tUserId);
+      final tUser = UserFactory.makeUserProfileEntity().copyWith(id: tUserId);
       final tSession = UserDataEntity(
         user: tUser,
         accessToken: faker.jwt.valid(),
@@ -95,7 +93,7 @@ void main() {
     });
 
     test('should fallback to local configurations when offline', () async {
-      final tEntity = EntityFactory.makeConfigurationsEntity();
+      final tEntity = UserFactory.makeConfigurationsEntity();
       final tModel = ConfigurationsModel.fromEntity(tEntity);
 
       when(() => mockInternetClient.isConnected).thenReturn(false);
@@ -117,11 +115,9 @@ void main() {
       () async {
         final tUserId = faker.guid.guid();
         final tEnabled = faker.randomGenerator.boolean();
-        final tEntity = EntityFactory.makeConfigurationsEntity();
+        final tEntity = UserFactory.makeConfigurationsEntity();
         final tModel = ConfigurationsModel.fromEntity(tEntity);
-        final tUser = EntityFactory.makeUserProfileEntity().copyWith(
-          id: tUserId,
-        );
+        final tUser = UserFactory.makeUserProfileEntity().copyWith(id: tUserId);
         final tSession = UserDataEntity(
           user: tUser,
           accessToken: faker.jwt.valid(),
@@ -163,9 +159,9 @@ void main() {
     test('should return failure when remote save fails and online', () async {
       final tUserId = faker.guid.guid();
       final tEnabled = faker.randomGenerator.boolean();
-      final tEntity = EntityFactory.makeConfigurationsEntity();
+      final tEntity = UserFactory.makeConfigurationsEntity();
       final tModel = ConfigurationsModel.fromEntity(tEntity);
-      final tUser = EntityFactory.makeUserProfileEntity().copyWith(id: tUserId);
+      final tUser = UserFactory.makeUserProfileEntity().copyWith(id: tUserId);
       final tSession = UserDataEntity(
         user: tUser,
         accessToken: faker.jwt.valid(),

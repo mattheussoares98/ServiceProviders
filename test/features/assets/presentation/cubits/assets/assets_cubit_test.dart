@@ -27,7 +27,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/asset_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
@@ -67,7 +68,7 @@ void main() {
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeAssetEntity());
+    registerFallbackValue(AssetFactory.makeAssetEntity());
     registerFallbackValue(CreateUpdateAssetRoute());
   });
 
@@ -84,7 +85,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
     when(
       () => mockGetActiveCompanyIdUseCase.call(),
     ).thenReturn(tUserProfile.companyId);
@@ -114,8 +115,7 @@ void main() {
         'should emit loaded with the assets referenced by the ids',
         build: () {
           when(() => mockGetAssetsByIds.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makeAssetEntityList()),
+            (_) async => SuccessState(data: AssetFactory.makeAssetEntityList()),
           );
           return cubit;
         },
@@ -158,7 +158,7 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should emit loading and loaded when assets load successfully',
         build: () {
-          final tAssets = EntityFactory.makeAssetEntityList();
+          final tAssets = AssetFactory.makeAssetEntityList();
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAssets));
@@ -186,7 +186,7 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'should not emit loading when pass false parameter',
         build: () {
-          final tAssets = EntityFactory.makeAssetEntityList();
+          final tAssets = AssetFactory.makeAssetEntityList();
           when(
             () => mockGetAssets.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tAssets));
@@ -260,7 +260,7 @@ void main() {
     });
 
     group('saveAsset', () {
-      final tAsset = EntityFactory.makeAssetEntity();
+      final tAsset = AssetFactory.makeAssetEntity();
 
       blocTest<AssetsCubit, AssetsState>(
         'should call createAsset usecase, emit loading, and load assets when creation succeeds',
@@ -612,7 +612,7 @@ void main() {
     });
 
     group('deleteAsset', () {
-      final tAsset = EntityFactory.makeAssetEntity();
+      final tAsset = AssetFactory.makeAssetEntity();
       final tId = tAsset.id;
 
       blocTest<AssetsCubit, AssetsState>(
@@ -684,7 +684,7 @@ void main() {
 
     group('Navigation', () {
       final tAsset = faker.randomGenerator.boolean()
-          ? EntityFactory.makeAssetEntity()
+          ? AssetFactory.makeAssetEntity()
           : null;
 
       blocTest<AssetsCubit, AssetsState>(
@@ -716,8 +716,8 @@ void main() {
     });
 
     group('Realtime Events', () {
-      final tInitialAsset = EntityFactory.makeAssetEntity();
-      final tNewAsset = EntityFactory.makeAssetEntity();
+      final tInitialAsset = AssetFactory.makeAssetEntity();
+      final tNewAsset = AssetFactory.makeAssetEntity();
 
       blocTest<AssetsCubit, AssetsState>(
         'prepends newly inserted asset on insert event',

@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockInviteUserUseCase extends Mock implements InviteUserUseCase {}
@@ -63,7 +63,7 @@ void main() {
       'emits [running, success] on successful invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
+          UserFactory.makeUserProfileEntity().copyWith(companyId: companyId),
         );
         when(
           () => mockInviteUserUseCase(any()),
@@ -100,7 +100,7 @@ void main() {
       'emits [running, error] with errorMessage on failed invitation',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(companyId: companyId),
+          UserFactory.makeUserProfileEntity().copyWith(companyId: companyId),
         );
         when(() => mockInviteUserUseCase(any())).thenAnswer(
           (_) async => FailureState(message: 'Error sending invite'),
@@ -138,7 +138,7 @@ void main() {
       'emits [running, error] and returns false when companyId is empty',
       build: () {
         when(() => mockGetSessionUserUseCase()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(annulCompanyId: true),
+          UserFactory.makeUserProfileEntity().copyWith(annulCompanyId: true),
         );
         when(
           () => mockInviteUserUseCase(any()),

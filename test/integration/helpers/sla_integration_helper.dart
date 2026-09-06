@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remot
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/system_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -25,7 +25,7 @@ class SlaIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeSlaPolicyEntity().copyWith(
+    final entity = SystemFactory.makeSlaPolicyEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       name: IntegrationConfig.testName('SLA Policy ${faker.lorem.word()}'),

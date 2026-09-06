@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_u
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 class MockSectorsRepository extends Mock implements SectorsRepository {}
 
@@ -20,7 +20,7 @@ void main() {
   late DeleteSectorUseCase deleteSectorUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSectorEntity());
+    registerFallbackValue(SystemFactory.makeSectorEntity());
   });
 
   setUp(() {
@@ -39,7 +39,7 @@ void main() {
 
   group('GetSectorsUseCase Tests', () {
     test('should call getSectors on repository with companyId', () async {
-      final tSectors = EntityFactory.makeSectorEntityList();
+      final tSectors = SystemFactory.makeSectorEntityList();
       final tCompanyId = tSectors.first.companyId;
 
       when(
@@ -56,7 +56,7 @@ void main() {
     test(
       'should return FailureState when repository returns failure',
       () async {
-        final tCompanyId = EntityFactory.makeSectorEntity().companyId;
+        final tCompanyId = SystemFactory.makeSectorEntity().companyId;
         const tError = 'Error fetching sectors';
 
         when(
@@ -74,7 +74,7 @@ void main() {
 
   group('CreateSectorUseCase Tests', () {
     test('should call createSector on repository with sector entity', () async {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
 
       when(
         () => mockRepository.createSector(any()),
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('should return FailureState when creation fails', () async {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
       const tError = 'Error creating sector';
 
       when(
@@ -105,7 +105,7 @@ void main() {
 
   group('UpdateSectorUseCase Tests', () {
     test('should call updateSector on repository with sector entity', () async {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
 
       when(
         () => mockRepository.updateSector(any()),
@@ -119,7 +119,7 @@ void main() {
     });
 
     test('should return FailureState when update fails', () async {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
       const tError = 'Error updating sector';
 
       when(
@@ -136,7 +136,7 @@ void main() {
 
   group('DeleteSectorUseCase Tests', () {
     test('should call deleteSector on repository with sector id', () async {
-      final tSectorId = EntityFactory.makeSectorEntity().id;
+      final tSectorId = SystemFactory.makeSectorEntity().id;
 
       when(
         () => mockRepository.deleteSector(any()),
@@ -150,7 +150,7 @@ void main() {
     });
 
     test('should return FailureState when deletion fails', () async {
-      final tSectorId = EntityFactory.makeSectorEntity().id;
+      final tSectorId = SystemFactory.makeSectorEntity().id;
       const tError = 'Error deleting sector';
 
       when(

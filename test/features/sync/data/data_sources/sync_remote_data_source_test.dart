@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_remote_data_
 import 'package:o_jogo_da_obra/features/sync/data/models/sync_error_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -13,7 +13,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SyncErrorModel.fromEntity(EntityFactory.makeSyncErrorEntity()),
+      SyncErrorModel.fromEntity(SystemFactory.makeSyncErrorEntity()),
     );
   });
 
@@ -22,30 +22,33 @@ void main() {
     dataSource = SyncRemoteDataSourceImpl(database: mockDatabase);
   });
 
-  final tEntity = EntityFactory.makeSyncErrorEntity();
+  final tEntity = SystemFactory.makeSyncErrorEntity();
   final tModel = SyncErrorModel.fromEntity(tEntity);
 
   group('SyncRemoteDataSourceImpl', () {
     group('reportSyncError', () {
-      test('should return SuccessState(data: true) when insert succeeds', () async {
-        when(
-          () => mockDatabase.insert(
-            table: any(named: 'table'),
-            values: any(named: 'values'),
-          ),
-        ).thenAnswer((_) async => [tModel.toJson()]);
+      test(
+        'should return SuccessState(data: true) when insert succeeds',
+        () async {
+          when(
+            () => mockDatabase.insert(
+              table: any(named: 'table'),
+              values: any(named: 'values'),
+            ),
+          ).thenAnswer((_) async => [tModel.toJson()]);
 
-        final result = await dataSource.reportSyncError(tModel);
+          final result = await dataSource.reportSyncError(tModel);
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verify(
-          () => mockDatabase.insert(
-            table: 'sync_errors',
-            values: tModel.toJson(),
-          ),
-        ).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockDatabase.insert(
+              table: 'sync_errors',
+              values: tModel.toJson(),
+            ),
+          ).called(1);
+        },
+      );
 
       test('should return FailureState when insert throws exception', () async {
         when(

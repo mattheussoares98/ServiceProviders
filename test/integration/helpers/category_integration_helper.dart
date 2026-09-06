@@ -4,7 +4,7 @@ import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -25,7 +25,7 @@ class CategoryIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeCategoryEntity().copyWith(
+    final entity = AssetFactory.makeCategoryEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       name: IntegrationConfig.testName(faker.lorem.word()),

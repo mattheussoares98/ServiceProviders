@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   const updateWorkOrders = ActionPermission.resource(
@@ -105,9 +105,7 @@ void main() {
 
   group('HasPermissionUseCase.evaluatePermission in provider mode', () {
     test('an internal admin does not inherit admin rights', () {
-      final admin = EntityFactory.makeUserProfileEntity().copyWith(
-        isAdmin: true,
-      );
+      final admin = UserFactory.makeUserProfileEntity().copyWith(isAdmin: true);
 
       expect(
         HasPermissionUseCase.evaluatePermission(
@@ -139,7 +137,7 @@ void main() {
     });
 
     test('a provider-only user can still execute work orders', () {
-      final providerOnly = EntityFactory.makeUserProfileEntity().copyWith(
+      final providerOnly = UserFactory.makeUserProfileEntity().copyWith(
         annulCompanyId: true,
         annulPermissionGroupId: true,
       );

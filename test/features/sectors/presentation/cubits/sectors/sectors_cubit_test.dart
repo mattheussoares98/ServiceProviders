@@ -11,7 +11,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -28,7 +29,7 @@ void main() {
   late SectorsCubit cubit;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSectorEntity());
+    registerFallbackValue(SystemFactory.makeSectorEntity());
     registerFallbackValue(CreateUpdateSectorRoute());
   });
 
@@ -43,7 +44,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
     when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
 
     final useCases = SectorsCubitUseCases(
@@ -60,8 +61,8 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('SectorsCubit Tests', () {
-    final tSector = EntityFactory.makeSectorEntity();
-    final tSectors = EntityFactory.makeSectorEntityList();
+    final tSector = SystemFactory.makeSectorEntity();
+    final tSectors = SystemFactory.makeSectorEntityList();
 
     group('loadSectors', () {
       blocTest<SectorsCubit, SectorsState>(

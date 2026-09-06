@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockUsersCubit extends Mock implements UsersCubit {}
 
@@ -25,8 +25,8 @@ void main() {
   late MockNavigationClient mockNavigationClient;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makePermissionGroupEntity());
-    registerFallbackValue(EntityFactory.makeUserProfileEntity());
+    registerFallbackValue(UserFactory.makePermissionGroupEntity());
+    registerFallbackValue(UserFactory.makeUserProfileEntity());
     registerFallbackValue(const WorkOrdersPermissionEntity.defaultTechnical());
     registerFallbackValue(const UserWorkOrdersPermissionOverrideEntity.empty());
   });
@@ -37,8 +37,8 @@ void main() {
 
     cubit = PermissionsCubit();
     mockUsersCubit = MockUsersCubit();
-    tGroup = EntityFactory.makePermissionGroupEntity();
-    tUser = EntityFactory.makeUserProfileEntity();
+    tGroup = UserFactory.makePermissionGroupEntity();
+    tUser = UserFactory.makeUserProfileEntity();
   });
 
   tearDown(GetIt.I.reset);
@@ -178,7 +178,7 @@ void main() {
       'changeUserGroup updates selectedGroupId, sets isAdmin to false, and retains overrides for non-admin group',
       build: () => cubit..initUser(tUser),
       act: (c) {
-        final normalGroup = EntityFactory.makePermissionGroupEntity().copyWith(
+        final normalGroup = UserFactory.makePermissionGroupEntity().copyWith(
           id: 'new-group-id',
           name: 'Normal Group',
         );
@@ -204,7 +204,7 @@ void main() {
           true,
         ),
       act: (c) {
-        final adminGroup = EntityFactory.makePermissionGroupEntity().copyWith(
+        final adminGroup = UserFactory.makePermissionGroupEntity().copyWith(
           id: 'admin-group-id',
           name: 'Administrador',
         );
@@ -234,11 +234,11 @@ void main() {
         'returns true when group name is "Administrador" (case-insensitive)',
         () {
           final groups = [
-            EntityFactory.makePermissionGroupEntity().copyWith(
+            UserFactory.makePermissionGroupEntity().copyWith(
               id: 'admin-id',
               name: 'Administrador',
             ),
-            EntityFactory.makePermissionGroupEntity().copyWith(
+            UserFactory.makePermissionGroupEntity().copyWith(
               id: 'admin-id-lowercase',
               name: 'administrador',
             ),
@@ -253,7 +253,7 @@ void main() {
         'returns false when group name is not "Administrador" or group is not found/null',
         () {
           final groups = [
-            EntityFactory.makePermissionGroupEntity().copyWith(
+            UserFactory.makePermissionGroupEntity().copyWith(
               id: 'normal-id',
               name: 'Normal Group',
             ),

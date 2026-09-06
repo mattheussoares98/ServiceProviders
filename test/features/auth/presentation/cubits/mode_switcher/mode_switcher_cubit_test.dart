@@ -15,8 +15,9 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
+import '../../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockGetSessionUserUseCase extends Mock implements GetSessionUserUseCase {}
 
@@ -71,7 +72,7 @@ void main() {
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'checkEligibilityAndLoadMode should set canSwitchMode to true when user has internal and provider profiles',
       build: () {
-        final user = EntityFactory.makeUserProfileEntity().copyWith(
+        final user = UserFactory.makeUserProfileEntity().copyWith(
           companyId: 'company_123',
         );
         when(() => mockGetSessionUser.call()).thenReturn(user);
@@ -79,7 +80,7 @@ void main() {
           () => mockGetServiceProviderProfilesByAuthUser.call(user.id),
         ).thenAnswer(
           (_) async => SuccessState(
-            data: [EntityFactory.makeServiceProviderProfileEntity()],
+            data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
           ),
         );
         when(() => mockGetSelectedMode.call()).thenReturn('provider');
@@ -100,7 +101,7 @@ void main() {
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'checkEligibilityAndLoadMode should set canSwitchMode to false when user has no provider profile',
       build: () {
-        final user = EntityFactory.makeUserProfileEntity().copyWith(
+        final user = UserFactory.makeUserProfileEntity().copyWith(
           companyId: 'company_123',
         );
         when(() => mockGetSessionUser.call()).thenReturn(user);

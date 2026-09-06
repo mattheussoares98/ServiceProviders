@@ -7,11 +7,11 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ite
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 
 void main() {
   group('ChecklistTemplateModel', () {
-    final tEntity = EntityFactory.makeChecklistTemplateEntity();
+    final tEntity = ChecklistFactory.makeChecklistTemplateEntity();
 
     test('should be a subclass of ChecklistTemplateEntity', () {
       final model = ChecklistTemplateModel.fromEntity(tEntity);
@@ -28,7 +28,7 @@ void main() {
   });
 
   group('ChecklistItemModel', () {
-    final tEntity = EntityFactory.makeChecklistItemEntity().copyWith(
+    final tEntity = ChecklistFactory.makeChecklistItemEntity().copyWith(
       options: ['Option A', 'Option B'],
       type: ChecklistItemType.selection,
     );
@@ -65,7 +65,7 @@ void main() {
   });
 
   group('ChecklistAnswerModel', () {
-    final tEntity = EntityFactory.makeChecklistAnswerEntity();
+    final tEntity = ChecklistFactory.makeChecklistAnswerEntity();
 
     test('should be a subclass of ChecklistAnswerEntity', () {
       final model = ChecklistAnswerModel.fromEntity(tEntity);

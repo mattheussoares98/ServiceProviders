@@ -30,7 +30,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -60,17 +62,21 @@ void main() {
   late CalculateWorkOrderKpisUseCase calculateWorkOrderKpisUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeWorkOrderChangeRequestEntity());
-    registerFallbackValue(EntityFactory.makeWorkOrderEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderChangeRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makeWorkOrderEntity());
     registerFallbackValue(ChangeRequestStatus.approved);
     registerFallbackValue(const WorkOrderFilter());
-    registerFallbackValue(EntityFactory.makeServiceProviderCompanyEntity());
-    registerFallbackValue(EntityFactory.makeServiceProviderProfileEntity());
-    registerFallbackValue(EntityFactory.makePauseReasonEntity());
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderCompanyEntity(),
+    );
+    registerFallbackValue(
+      ServiceProviderFactory.makeServiceProviderProfileEntity(),
+    );
+    registerFallbackValue(WorkOrderFactory.makePauseReasonEntity());
     registerFallbackValue(
       const GetPauseRequestsParams(workOrderId: 'fallback-wo-id'),
     );
-    registerFallbackValue(EntityFactory.makePauseRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makePauseRequestEntity());
     registerFallbackValue(PauseRequestStatus.pending);
     registerFallbackValue(
       ReviewPauseParams(
@@ -163,7 +169,7 @@ void main() {
   });
 
   group('CreateWorkOrderChangeRequestUseCase', () {
-    final tChangeRequest = EntityFactory.makeWorkOrderChangeRequestEntity();
+    final tChangeRequest = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
 
     test('should return true on success', () async {
       // Arrange
@@ -203,7 +209,7 @@ void main() {
   });
 
   group('CreateWorkOrderUseCase', () {
-    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrder = WorkOrderFactory.makeWorkOrderEntity();
 
     test('should return true on success', () async {
       // Arrange
@@ -239,7 +245,7 @@ void main() {
   });
 
   group('DeleteWorkOrderUseCase', () {
-    final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
+    final tWorkOrderId = WorkOrderFactory.makeWorkOrderEntity().id;
 
     test('should return true on success', () async {
       // Arrange
@@ -275,7 +281,7 @@ void main() {
   });
 
   group('RestoreWorkOrderUseCase', () {
-    final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
+    final tWorkOrderId = WorkOrderFactory.makeWorkOrderEntity().id;
 
     test('should return true on success', () async {
       // Arrange
@@ -348,8 +354,8 @@ void main() {
 
   group('GetWorkOrderChangeRequestsUseCase', () {
     final tCompanyId =
-        EntityFactory.makeWorkOrderChangeRequestEntity().companyId;
-    final tRequests = EntityFactory.makeWorkOrderChangeRequestEntityList();
+        WorkOrderFactory.makeWorkOrderChangeRequestEntity().companyId;
+    final tRequests = WorkOrderFactory.makeWorkOrderChangeRequestEntityList();
 
     test(
       'should return a list of pending change requests on success',
@@ -390,8 +396,8 @@ void main() {
   });
 
   group('GetWorkOrderHistoryUseCase', () {
-    final tWorkOrderId = EntityFactory.makeWorkOrderEntity().id;
-    final tHistory = EntityFactory.makeAuditLogEntityList();
+    final tWorkOrderId = WorkOrderFactory.makeWorkOrderEntity().id;
+    final tHistory = WorkOrderFactory.makeAuditLogEntityList();
 
     test('should return a list of work order history on success', () async {
       // Arrange
@@ -427,8 +433,8 @@ void main() {
   });
 
   group('GetWorkOrdersUseCase', () {
-    final tCompanyId = EntityFactory.makeWorkOrderEntity().companyId;
-    final tWorkOrders = EntityFactory.makeWorkOrderEntityList();
+    final tCompanyId = WorkOrderFactory.makeWorkOrderEntity().companyId;
+    final tWorkOrders = WorkOrderFactory.makeWorkOrderEntityList();
     final tParams = GetWorkOrdersParams(companyId: tCompanyId);
 
     test('should return a list of work orders on success', () async {
@@ -492,7 +498,7 @@ void main() {
   });
 
   group('GetWorkOrderByIdUseCase', () {
-    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrder = WorkOrderFactory.makeWorkOrderEntity();
     final tId = tWorkOrder.id;
 
     test('should return a work order on success', () async {
@@ -594,7 +600,7 @@ void main() {
   });
 
   group('UpdateWorkOrderUseCase', () {
-    final tWorkOrder = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrder = WorkOrderFactory.makeWorkOrderEntity();
 
     test('should return true on success', () async {
       // Arrange
@@ -631,7 +637,7 @@ void main() {
 
   group('GetPauseReasonsUseCase', () {
     final tCompanyId = faker.guid.guid();
-    final tReasons = EntityFactory.makePauseReasonEntityList();
+    final tReasons = WorkOrderFactory.makePauseReasonEntityList();
 
     test('should return list of pause reasons on success', () async {
       when(
@@ -648,7 +654,7 @@ void main() {
 
   group('GetPauseRequestsUseCase', () {
     final tWorkOrderId = faker.guid.guid();
-    final tRequests = EntityFactory.makePauseRequestEntityList();
+    final tRequests = WorkOrderFactory.makePauseRequestEntityList();
 
     test('should return list of pause requests on success', () async {
       when(
@@ -696,7 +702,7 @@ void main() {
   });
 
   group('RequestPauseUseCase', () {
-    final tRequest = EntityFactory.makePauseRequestEntity();
+    final tRequest = WorkOrderFactory.makePauseRequestEntity();
 
     test('should return true on success', () async {
       when(
@@ -783,7 +789,7 @@ void main() {
   });
 
   group('RequestCompletionUseCase', () {
-    final tRequest = EntityFactory.makePauseRequestEntity();
+    final tRequest = WorkOrderFactory.makePauseRequestEntity();
 
     test(
       'should call requestPause on pauseRepository and return true on success',
@@ -847,8 +853,8 @@ void main() {
     test(
       'should delegate to watchRealtimeWorkOrders on workOrdersRepository',
       () {
-        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderEntity>(
-          entity: EntityFactory.makeWorkOrderEntity(),
+        final tEvent = SystemFactory.makeRealtimeEvent<WorkOrderEntity>(
+          entity: WorkOrderFactory.makeWorkOrderEntity(),
         );
         when(
           () => mockRepository.watchRealtimeWorkOrders(
@@ -885,7 +891,7 @@ void main() {
     test(
       'calculates counts, delivery rate, breach rate, and MTTR correctly',
       () {
-        final onTimeCompletedOrder = EntityFactory.makeWorkOrderEntity()
+        final onTimeCompletedOrder = WorkOrderFactory.makeWorkOrderEntity()
             .copyWith(
               status: WorkOrderStatus.completed,
               createdAt: now.subtract(const Duration(days: 2)),
@@ -896,7 +902,7 @@ void main() {
               netActiveDuration: 120,
             );
 
-        final breachedCompletedOrder = EntityFactory.makeWorkOrderEntity()
+        final breachedCompletedOrder = WorkOrderFactory.makeWorkOrderEntity()
             .copyWith(
               status: WorkOrderStatus.completed,
               createdAt: now.subtract(const Duration(days: 3)),
@@ -907,19 +913,20 @@ void main() {
               netActiveDuration: 360,
             );
 
-        final openDelayedOrder = EntityFactory.makeWorkOrderEntity().copyWith(
-          status: WorkOrderStatus.open,
-          createdAt: now.subtract(const Duration(days: 1)),
-          slaDeadlineAt: now.subtract(const Duration(hours: 2)),
-        );
+        final openDelayedOrder = WorkOrderFactory.makeWorkOrderEntity()
+            .copyWith(
+              status: WorkOrderStatus.open,
+              createdAt: now.subtract(const Duration(days: 1)),
+              slaDeadlineAt: now.subtract(const Duration(hours: 2)),
+            );
 
-        final inProgressOrder = EntityFactory.makeWorkOrderEntity().copyWith(
+        final inProgressOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
           status: WorkOrderStatus.inProgress,
           createdAt: now.subtract(const Duration(days: 1)),
           slaDeadlineAt: now.add(const Duration(hours: 2)),
         );
 
-        final pendingApprovalOrder = EntityFactory.makeWorkOrderEntity()
+        final pendingApprovalOrder = WorkOrderFactory.makeWorkOrderEntity()
             .copyWith(
               status: WorkOrderStatus.pendingConclusionApproval,
               createdAt: now.subtract(const Duration(days: 1)),
@@ -956,7 +963,7 @@ void main() {
     );
 
     test('filters work orders according to custom startDate and endDate', () {
-      final order1 = EntityFactory.makeWorkOrderEntity().copyWith(
+      final order1 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.completed,
         createdAt: DateTime(2026, 8, 10),
         completedAt: DateTime(2026, 8, 10, 10),
@@ -964,7 +971,7 @@ void main() {
         netActiveDuration: 60,
       );
 
-      final order2 = EntityFactory.makeWorkOrderEntity().copyWith(
+      final order2 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.completed,
         createdAt: DateTime(2026, 8, 15),
         completedAt: DateTime(2026, 8, 15, 12),
@@ -972,7 +979,7 @@ void main() {
         netActiveDuration: 120,
       );
 
-      final order3 = EntityFactory.makeWorkOrderEntity().copyWith(
+      final order3 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.completed,
         createdAt: DateTime(2026, 8, 20),
         completedAt: DateTime(2026, 8, 20, 15),

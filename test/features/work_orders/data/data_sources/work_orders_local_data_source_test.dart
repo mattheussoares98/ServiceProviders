@@ -14,7 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -123,7 +123,7 @@ void main() {
   }
 
   group('WorkOrdersLocalDataSourceImpl - Work Orders', () {
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
       attachments: const [],
     );
     final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
@@ -283,7 +283,7 @@ void main() {
 
         // Pre-insert a work order to be deleted
         final orderToDelete = WorkOrderModel.fromEntity(
-          EntityFactory.makeWorkOrderEntity().copyWith(
+          WorkOrderFactory.makeWorkOrderEntity().copyWith(
             companyId: tWorkOrderModel.companyId,
             locationId: tWorkOrderModel.locationId,
             createdById: tWorkOrderModel.createdById,
@@ -295,7 +295,7 @@ void main() {
         await dataSource.saveWorkOrder(orderToDelete);
 
         final orderToUpsert = WorkOrderModel.fromEntity(
-          EntityFactory.makeWorkOrderEntity().copyWith(
+          WorkOrderFactory.makeWorkOrderEntity().copyWith(
             companyId: tWorkOrderModel.companyId,
             locationId: tWorkOrderModel.locationId,
             createdById: tWorkOrderModel.createdById,
@@ -427,7 +427,7 @@ void main() {
     test(
       'should correctly apply all filters and pagination (limit/offset) on getWorkOrders',
       () async {
-        final baseEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+        final baseEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
           attachments: const [],
           status: WorkOrderStatus.open,
           priority: Priority.high,
@@ -509,9 +509,9 @@ void main() {
   });
 
   group('WorkOrdersLocalDataSourceImpl - Tasks', () {
-    final tTaskEntity = EntityFactory.makeTaskEntity();
+    final tTaskEntity = WorkOrderFactory.makeTaskEntity();
     final tTaskModel = TaskModel.fromEntity(tTaskEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
       id: tTaskModel.workOrderId,
       attachments: const [],
     );
@@ -560,9 +560,9 @@ void main() {
   });
 
   group('WorkOrdersLocalDataSourceImpl - Change Requests', () {
-    final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
+    final tChangeEntity = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
     final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
       id: tChangeModel.workOrderId,
       attachments: const [],
     );
@@ -636,9 +636,9 @@ void main() {
   });
 
   group('WorkOrdersLocalDataSourceImpl - History', () {
-    final tHistoryEntity = EntityFactory.makeWorkOrderHistoryEntity();
+    final tHistoryEntity = WorkOrderFactory.makeWorkOrderHistoryEntity();
     final tHistoryModel = WorkOrderHistoryModel.fromEntity(tHistoryEntity);
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
       id: tHistoryModel.workOrderId,
       attachments: const [],
     );

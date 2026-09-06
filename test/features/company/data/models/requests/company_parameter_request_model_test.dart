@@ -2,11 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/requests/company_parameter_request_model.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   group('CompanyParameterRequestModel', () {
-    final tEntity = EntityFactory.makeCompanyParameterEntity();
+    final tEntity = UserFactory.makeCompanyParameterEntity();
 
     test('should be a subclass of CompanyParameterEntity', () {
       final model = CompanyParameterRequestModel.fromEntity(tEntity);

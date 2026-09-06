@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/sectors/data/repositories/sectors_reposi
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 class MockSectorsRemoteDataSource extends Mock
     implements SectorsRemoteDataSource {}
@@ -24,7 +24,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SectorModel.fromEntity(EntityFactory.makeSectorEntity()),
+      SectorModel.fromEntity(SystemFactory.makeSectorEntity()),
     );
   });
 
@@ -43,7 +43,7 @@ void main() {
     test(
       'getSectors fetches from remote and caches locally when connected',
       () async {
-        final tSector = EntityFactory.makeSectorEntity();
+        final tSector = SystemFactory.makeSectorEntity();
         final tModel = SectorModel.fromEntity(tSector);
 
         when(() => mockInternet.isConnected).thenReturn(true);
@@ -68,7 +68,7 @@ void main() {
     );
 
     test('getSectors fetches from local source when disconnected', () async {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
       final tModel = SectorModel.fromEntity(tSector);
 
       when(() => mockInternet.isConnected).thenReturn(false);
@@ -87,7 +87,7 @@ void main() {
     });
 
     group('updateSector', () {
-      final tSector = EntityFactory.makeSectorEntity();
+      final tSector = SystemFactory.makeSectorEntity();
       final tModel = SectorModel.fromEntity(tSector);
 
       test(
@@ -140,7 +140,7 @@ void main() {
     });
 
     group('deleteSector', () {
-      final tSectorId = EntityFactory.makeSectorEntity().id;
+      final tSectorId = SystemFactory.makeSectorEntity().id;
 
       test(
         'calls remote delete and deletes locally when connected and remote succeeds',

@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/service_providers/data/models/responses/
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -35,13 +35,16 @@ void main() {
     );
   });
 
-  final tCompanyEntity = EntityFactory.makeServiceProviderCompanyEntity();
+  final tCompanyEntity =
+      ServiceProviderFactory.makeServiceProviderCompanyEntity();
   final tCompanyModel = ServiceProviderCompanyModel.fromEntity(tCompanyEntity);
 
-  final tProfileEntity = EntityFactory.makeServiceProviderProfileEntity();
+  final tProfileEntity =
+      ServiceProviderFactory.makeServiceProviderProfileEntity();
   final tProfileModel = ServiceProviderProfileModel.fromEntity(tProfileEntity);
 
-  final tInvitationEntity = EntityFactory.makeServiceProviderInvitationEntity();
+  final tInvitationEntity =
+      ServiceProviderFactory.makeServiceProviderInvitationEntity();
   final tInvitationModel = ServiceProviderInvitationModel.fromEntity(
     tInvitationEntity,
   );

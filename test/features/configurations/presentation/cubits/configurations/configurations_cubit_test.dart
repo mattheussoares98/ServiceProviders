@@ -17,7 +17,7 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockSaveConfigurationsUseCase extends Mock
     implements SaveConfigurationsUseCase {}
@@ -60,7 +60,7 @@ void main() {
     blocTest<ConfigurationsCubit, ConfigurationsState>(
       'should emit [loading, loaded] when configurations load successfully',
       build: () {
-        final tEntity = EntityFactory.makeConfigurationsEntity();
+        final tEntity = UserFactory.makeConfigurationsEntity();
         when(
           () => mockGetConfigurations.call(),
         ).thenAnswer((_) async => SuccessState(data: tEntity));

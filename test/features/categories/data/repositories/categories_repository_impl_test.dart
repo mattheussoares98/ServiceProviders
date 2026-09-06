@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/categories/domain/entities/category_enti
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -19,10 +19,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      CategoryModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryModel.fromEntity(AssetFactory.makeCategoryEntity()),
     );
     registerFallbackValue(
-      CategoryRequestModel.fromEntity(EntityFactory.makeCategoryEntity()),
+      CategoryRequestModel.fromEntity(AssetFactory.makeCategoryEntity()),
     );
     registerFallbackValue(<CategoryModel>[]);
   });
@@ -38,7 +38,7 @@ void main() {
     );
   });
 
-  final tEntity = EntityFactory.makeCategoryEntity();
+  final tEntity = AssetFactory.makeCategoryEntity();
   final tModel = CategoryModel.fromEntity(tEntity);
   final tCompanyId = faker.guid.guid();
 

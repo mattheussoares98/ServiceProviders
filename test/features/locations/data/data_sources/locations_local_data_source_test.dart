@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_lo
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -35,10 +35,10 @@ void main() {
         );
   }
 
-  final tLocationEntity = EntityFactory.makeLocationEntity();
+  final tLocationEntity = AssetFactory.makeLocationEntity();
   final tLocationModel = LocationModel.fromEntity(tLocationEntity);
 
-  final tAreaEntity = EntityFactory.makeAreaEntity().copyWith(
+  final tAreaEntity = AssetFactory.makeAreaEntity().copyWith(
     locationId: tLocationEntity.id,
     companyId: tLocationEntity.companyId,
   );
@@ -74,17 +74,17 @@ void main() {
           // Arrange
           final locations = [
             LocationModel.fromEntity(
-              EntityFactory.makeLocationEntity().copyWith(
+              AssetFactory.makeLocationEntity().copyWith(
                 companyId: tLocationModel.companyId,
               ),
             ),
             LocationModel.fromEntity(
-              EntityFactory.makeLocationEntity().copyWith(
+              AssetFactory.makeLocationEntity().copyWith(
                 companyId: tLocationModel.companyId,
               ),
             ),
             LocationModel.fromEntity(
-              EntityFactory.makeLocationEntity().copyWith(
+              AssetFactory.makeLocationEntity().copyWith(
                 companyId: tLocationModel.companyId,
               ),
             ),
@@ -192,19 +192,19 @@ void main() {
         () async {
           final areas = [
             AreaModel.fromEntity(
-              EntityFactory.makeAreaEntity().copyWith(
+              AssetFactory.makeAreaEntity().copyWith(
                 locationId: tLocationEntity.id,
                 companyId: tLocationEntity.companyId,
               ),
             ),
             AreaModel.fromEntity(
-              EntityFactory.makeAreaEntity().copyWith(
+              AssetFactory.makeAreaEntity().copyWith(
                 locationId: tLocationEntity.id,
                 companyId: tLocationEntity.companyId,
               ),
             ),
             AreaModel.fromEntity(
-              EntityFactory.makeAreaEntity().copyWith(
+              AssetFactory.makeAreaEntity().copyWith(
                 locationId: tLocationEntity.id,
                 companyId: tLocationEntity.companyId,
               ),

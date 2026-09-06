@@ -28,7 +28,8 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
@@ -84,7 +85,7 @@ void main() {
         userId: 'xyz',
       ),
     );
-    registerFallbackValue(EntityFactory.makeAttachmentEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
   });
 
   late UserProfileEntity tUser;
@@ -93,8 +94,8 @@ void main() {
   late String tWorkOrderId;
 
   setUp(() {
-    tUser = EntityFactory.makeUserProfileEntity();
-    tAttachmentList = EntityFactory.makeAttachmentEntityList();
+    tUser = UserFactory.makeUserProfileEntity();
+    tAttachmentList = MaintenancePlanFactory.makeAttachmentEntityList();
     tUploadedAttachmentList = tAttachmentList
         .map((e) => e.copyWith(uploadStatus: UploadStatus.uploaded))
         .toList();
@@ -248,7 +249,7 @@ void main() {
     late AttachmentEntity tPickedFile;
 
     setUp(() {
-      tPickedFile = EntityFactory.makeAttachmentEntity().copyWith(
+      tPickedFile = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
         uploadStatus: UploadStatus.pending,
       );
     });
@@ -474,7 +475,7 @@ void main() {
   });
 
   group('AttachmentsCubit - uploadPending', () {
-    final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
       uploadStatus: UploadStatus.pending,
     );
 
@@ -635,12 +636,13 @@ void main() {
   });
 
   group('AttachmentsCubit - video thumbnails', () {
-    final tVideoAttachment = EntityFactory.makeAttachmentEntity().copyWith(
-      id: 'video_1',
-      fileType: FileType.video,
-      localPath: 'local_video.mp4',
-      uploadStatus: UploadStatus.uploaded,
-    );
+    final tVideoAttachment = MaintenancePlanFactory.makeAttachmentEntity()
+        .copyWith(
+          id: 'video_1',
+          fileType: FileType.video,
+          localPath: 'local_video.mp4',
+          uploadStatus: UploadStatus.uploaded,
+        );
 
     blocTest<AttachmentsCubit, AttachmentsState>(
       'successfully loads video thumbnails on init/refresh',
@@ -679,7 +681,7 @@ void main() {
   });
 
   group('AttachmentsCubit - Cache Integration', () {
-    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity();
 
     blocTest<AttachmentsCubit, AttachmentsState>(
       'should call pruneSandbox before picking attachments',

@@ -10,7 +10,8 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -21,11 +22,11 @@ void main() {
   late AccessLogsCubitUseCases useCases;
 
   final tCompanyId = faker.guid.guid();
-  final tUsers = EntityFactory.makeUserProfileEntityList();
-  final tLogs = EntityFactory.makeAccessLogEntityList();
+  final tUsers = UserFactory.makeUserProfileEntityList();
+  final tLogs = SystemFactory.makeAccessLogEntityList();
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeGetAccessLogsRequestEntity());
+    registerFallbackValue(SystemFactory.makeGetAccessLogsRequestEntity());
   });
 
   setUp(() {

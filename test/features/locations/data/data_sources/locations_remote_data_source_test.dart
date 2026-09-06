@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/features/locations/data/models/responses/location
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
@@ -28,11 +28,11 @@ void main() {
     );
   });
 
-  final tLocationEntity = EntityFactory.makeLocationEntity();
+  final tLocationEntity = AssetFactory.makeLocationEntity();
   final tLocationModel = LocationModel.fromEntity(tLocationEntity);
   final tLocationRequest = LocationModel.fromEntity(tLocationEntity);
 
-  final tAreaEntity = EntityFactory.makeAreaEntity();
+  final tAreaEntity = AssetFactory.makeAreaEntity();
   final tAreaModel = AreaModel.fromEntity(tAreaEntity);
   final tAreaRequest = AreaRequestModel.fromEntity(tAreaEntity);
 

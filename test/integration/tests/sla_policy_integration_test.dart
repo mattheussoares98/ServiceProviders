@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/models/responses/sla_policy_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/system_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -45,7 +45,7 @@ void main() {
       final policyId = faker.guid.guid();
       IntegrationDataTracker.instance.track('sla_policies', policyId);
 
-      final initialEntity = EntityFactory.makeSlaPolicyEntity().copyWith(
+      final initialEntity = SystemFactory.makeSlaPolicyEntity().copyWith(
         id: policyId,
         companyId: companyId,
         name: IntegrationConfig.testName('SLA Policy ${faker.lorem.word()}'),
@@ -77,7 +77,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated SLA ${faker.lorem.word()}',
       );
-      final updatedEntity = EntityFactory.makeSlaPolicyEntity().copyWith(
+      final updatedEntity = SystemFactory.makeSlaPolicyEntity().copyWith(
         id: policyId,
         companyId: companyId,
         name: updatedName,

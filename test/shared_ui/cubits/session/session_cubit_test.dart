@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit_use_cases.dart';
 
 import '../../../../testing/mocks/client_mocks.dart';
-import '../../../../testing/mocks/entity_factory.dart';
+import '../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -20,8 +20,8 @@ void main() {
   late SessionCubitUseCases useCases;
   late StreamController<UserDataEntity> streamController;
 
-  final tUserProfile = EntityFactory.makeUserProfileEntity();
-  final tUserData = EntityFactory.makeUserDataEntity().copyWith(
+  final tUserProfile = UserFactory.makeUserProfileEntity();
+  final tUserData = UserFactory.makeUserDataEntity().copyWith(
     user: tUserProfile,
     accessToken: 'token',
   );

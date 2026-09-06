@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entit
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -23,11 +23,11 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      LocationModel.fromEntity(EntityFactory.makeLocationEntity()),
+      LocationModel.fromEntity(AssetFactory.makeLocationEntity()),
     );
-    registerFallbackValue(AreaModel.fromEntity(EntityFactory.makeAreaEntity()));
+    registerFallbackValue(AreaModel.fromEntity(AssetFactory.makeAreaEntity()));
     registerFallbackValue(
-      AreaRequestModel.fromEntity(EntityFactory.makeAreaEntity()),
+      AreaRequestModel.fromEntity(AssetFactory.makeAreaEntity()),
     );
     registerFallbackValue(<LocationModel>[]);
     registerFallbackValue(<AreaModel>[]);
@@ -44,9 +44,9 @@ void main() {
     );
   });
 
-  final tLocationEntity = EntityFactory.makeLocationEntity();
+  final tLocationEntity = AssetFactory.makeLocationEntity();
   final tLocationModel = LocationModel.fromEntity(tLocationEntity);
-  final tAreaEntity = EntityFactory.makeAreaEntity();
+  final tAreaEntity = AssetFactory.makeAreaEntity();
   final tAreaModel = AreaModel.fromEntity(tAreaEntity);
   final tCompanyId = faker.guid.guid();
 
@@ -832,7 +832,9 @@ void main() {
             () => mockLocalDataSource.saveLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+          final stream = repository.watchLocationsRealtime(
+            companyId: tCompanyId,
+          );
 
           expect(
             stream,
@@ -846,7 +848,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.saveLocation(tLocationModel)).called(1);
+          verify(
+            () => mockLocalDataSource.saveLocation(tLocationModel),
+          ).called(1);
         },
       );
 
@@ -868,7 +872,9 @@ void main() {
             () => mockLocalDataSource.deleteLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+          final stream = repository.watchLocationsRealtime(
+            companyId: tCompanyId,
+          );
 
           expect(
             stream,
@@ -882,7 +888,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.deleteLocation(tLocationModel.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteLocation(tLocationModel.id),
+          ).called(1);
         },
       );
 
@@ -908,7 +916,9 @@ void main() {
             () => mockLocalDataSource.deleteLocation(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
 
-          final stream = repository.watchLocationsRealtime(companyId: tCompanyId);
+          final stream = repository.watchLocationsRealtime(
+            companyId: tCompanyId,
+          );
 
           expect(
             stream,
@@ -922,7 +932,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.deleteLocation(deletedModel.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteLocation(deletedModel.id),
+          ).called(1);
         },
       );
 
@@ -1035,7 +1047,9 @@ void main() {
           );
 
           await pumpEventQueue();
-          verify(() => mockLocalDataSource.deleteArea(deletedModel.id)).called(1);
+          verify(
+            () => mockLocalDataSource.deleteArea(deletedModel.id),
+          ).called(1);
         },
       );
     });

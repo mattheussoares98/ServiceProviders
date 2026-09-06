@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   group('UserProfileEntity', () {
@@ -16,7 +16,7 @@ void main() {
         ];
 
         for (final email in emails) {
-          final user = EntityFactory.makeUserProfileEntity().copyWith(
+          final user = UserFactory.makeUserProfileEntity().copyWith(
             email: email,
           );
           expect(
@@ -29,7 +29,7 @@ void main() {
     );
 
     test('isSuperAdmin returns false for any other email', () {
-      final user = EntityFactory.makeUserProfileEntity().copyWith(
+      final user = UserFactory.makeUserProfileEntity().copyWith(
         email: 'other_user@example.com',
       );
       expect(user.isSuperAdmin, isFalse);

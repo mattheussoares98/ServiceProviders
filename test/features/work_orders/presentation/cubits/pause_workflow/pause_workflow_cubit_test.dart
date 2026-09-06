@@ -28,7 +28,8 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockWorkOrdersCubit extends MockCubit<WorkOrdersState>
@@ -76,7 +77,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(WorkOrderStatus.open);
-    registerFallbackValue(EntityFactory.makePauseRequestEntity());
+    registerFallbackValue(WorkOrderFactory.makePauseRequestEntity());
     registerFallbackValue(
       const HasPermissionParams(
         permission: ActionPermission.workOrderSubAction(
@@ -142,7 +143,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
     when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
     when(() => mockGetSelectedMode.call()).thenReturn('internal');
     when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
@@ -172,7 +173,7 @@ void main() {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit loading and loaded when reasons fetch succeeds',
         build: () {
-          final tReasons = EntityFactory.makePauseReasonEntityList();
+          final tReasons = WorkOrderFactory.makePauseReasonEntityList();
           when(
             () => mockGetPauseReasons.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tReasons));
@@ -235,7 +236,7 @@ void main() {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should emit loading and loaded when requests fetch succeeds without status',
         build: () {
-          final tRequests = EntityFactory.makePauseRequestEntityList();
+          final tRequests = WorkOrderFactory.makePauseRequestEntityList();
           when(
             () => mockGetPauseRequests.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tRequests));
@@ -268,7 +269,7 @@ void main() {
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
         'should pass status filter when provided',
         build: () {
-          final tRequests = EntityFactory.makePauseRequestEntityList();
+          final tRequests = WorkOrderFactory.makePauseRequestEntityList();
           when(
             () => mockGetPauseRequests.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tRequests));
@@ -332,8 +333,9 @@ void main() {
             () => mockRequestPause.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -375,8 +377,9 @@ void main() {
             () => mockRequestPause.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           when(() => mockGetSelectedMode.call()).thenReturn('internal');
           when(
@@ -523,8 +526,9 @@ void main() {
             () => mockReviewPause.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -588,8 +592,9 @@ void main() {
             () => mockReviewPause.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -654,8 +659,9 @@ void main() {
             () => mockRequestCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -708,8 +714,9 @@ void main() {
             () => mockRequestCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -758,7 +765,7 @@ void main() {
         'should emit saving, loaded, loading, loaded and call reviewCompletion use case when there are pending pause requests',
         seed: () => const PauseWorkflowState.initial().copyWith(
           pauseRequests: [
-            EntityFactory.makePauseRequestEntity().copyWith(
+            WorkOrderFactory.makePauseRequestEntity().copyWith(
               status: PauseRequestStatus.pending,
               eventType: PauseEventType.pause,
             ),
@@ -769,8 +776,9 @@ void main() {
             () => mockReviewCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -815,8 +823,9 @@ void main() {
             () => mockReviewCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -874,8 +883,9 @@ void main() {
             () => mockReviewCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -930,7 +940,7 @@ void main() {
         'should allow cancelling completion even when there are pending pause requests',
         seed: () => const PauseWorkflowState.initial().copyWith(
           pauseRequests: [
-            EntityFactory.makePauseRequestEntity().copyWith(
+            WorkOrderFactory.makePauseRequestEntity().copyWith(
               status: PauseRequestStatus.pending,
               eventType: PauseEventType.pause,
             ),
@@ -941,8 +951,9 @@ void main() {
             () => mockReviewCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },
@@ -995,7 +1006,7 @@ void main() {
         'should allow rejecting completion even when there are pending pause requests',
         seed: () => const PauseWorkflowState.initial().copyWith(
           pauseRequests: [
-            EntityFactory.makePauseRequestEntity().copyWith(
+            WorkOrderFactory.makePauseRequestEntity().copyWith(
               status: PauseRequestStatus.pending,
               eventType: PauseEventType.pause,
             ),
@@ -1006,8 +1017,9 @@ void main() {
             () => mockReviewCompletion.call(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(() => mockGetPauseRequests.call(any())).thenAnswer(
-            (_) async =>
-                SuccessState(data: EntityFactory.makePauseRequestEntityList()),
+            (_) async => SuccessState(
+              data: WorkOrderFactory.makePauseRequestEntityList(),
+            ),
           );
           return cubit;
         },

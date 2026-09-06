@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -23,10 +23,10 @@ void main() {
     dataSource = PauseRemoteDataSourceImpl(database: mockDatabase);
   });
 
-  final tReasonEntity = EntityFactory.makePauseReasonEntity();
+  final tReasonEntity = WorkOrderFactory.makePauseReasonEntity();
   final tReasonModel = PauseReasonModel.fromEntity(tReasonEntity);
 
-  final tRequestEntity = EntityFactory.makePauseRequestEntity();
+  final tRequestEntity = WorkOrderFactory.makePauseRequestEntity();
   final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
 
   group('getPauseReasons', () {

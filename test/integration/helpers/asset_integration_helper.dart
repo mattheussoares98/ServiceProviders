@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -65,7 +65,7 @@ class AssetIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeAssetEntity().copyWith(
+    final entity = AssetFactory.makeAssetEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       areaId: areaId,

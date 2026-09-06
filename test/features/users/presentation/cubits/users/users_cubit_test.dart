@@ -19,7 +19,7 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -49,16 +49,14 @@ void main() {
   late UserInvitationEntity tUserInvitation;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeUserProfileEntity());
-    registerFallbackValue(EntityFactory.makePermissionGroupEntity());
-    registerFallbackValue(EntityFactory.makeUserInvitationEntity());
+    registerFallbackValue(UserFactory.makeUserProfileEntity());
+    registerFallbackValue(UserFactory.makePermissionGroupEntity());
+    registerFallbackValue(UserFactory.makeUserInvitationEntity());
     registerFallbackValue(
-      EditUserPermissionsRoute(user: EntityFactory.makeUserProfileEntity()),
+      EditUserPermissionsRoute(user: UserFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
-      EditGroupPermissionsRoute(
-        group: EntityFactory.makePermissionGroupEntity(),
-      ),
+      EditGroupPermissionsRoute(group: UserFactory.makePermissionGroupEntity()),
     );
   });
 
@@ -83,10 +81,10 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tSessionUser = EntityFactory.makeUserProfileEntity();
-    tUserProfile = EntityFactory.makeUserProfileEntity();
-    tPermissionGroup = EntityFactory.makePermissionGroupEntity();
-    tUserInvitation = EntityFactory.makeUserInvitationEntity();
+    tSessionUser = UserFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
+    tPermissionGroup = UserFactory.makePermissionGroupEntity();
+    tUserInvitation = UserFactory.makeUserInvitationEntity();
 
     when(() => mockGetSessionUser.call()).thenReturn(tSessionUser);
     when(
@@ -126,7 +124,7 @@ void main() {
       blocTest<UsersCubit, UsersState>(
         'should emit loading and loaded when users load successfully',
         build: () {
-          final tUsers = EntityFactory.makeUserProfileEntityList();
+          final tUsers = UserFactory.makeUserProfileEntityList();
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tUsers));
@@ -218,7 +216,7 @@ void main() {
       blocTest<UsersCubit, UsersState>(
         'should emit loading and loaded when permission groups load successfully',
         build: () {
-          final tGroups = EntityFactory.makePermissionGroupEntityList();
+          final tGroups = UserFactory.makePermissionGroupEntityList();
           when(
             () => mockGetPermissionGroups.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tGroups));
@@ -241,7 +239,11 @@ void main() {
                 'sections[load]',
                 const SectionState.success(),
               )
-              .having((s) => s.permissionGroups, 'permissionGroups', isNotEmpty),
+              .having(
+                (s) => s.permissionGroups,
+                'permissionGroups',
+                isNotEmpty,
+              ),
         ],
         verify: (_) {
           verify(
@@ -282,9 +284,9 @@ void main() {
       blocTest<UsersCubit, UsersState>(
         'should emit section running, load users, permission groups, invitations, and set section success',
         build: () {
-          final tUsers = EntityFactory.makeUserProfileEntityList();
-          final tGroups = EntityFactory.makePermissionGroupEntityList();
-          final tInvitations = EntityFactory.makeUserInvitationEntityList();
+          final tUsers = UserFactory.makeUserProfileEntityList();
+          final tGroups = UserFactory.makePermissionGroupEntityList();
+          final tInvitations = UserFactory.makeUserInvitationEntityList();
           when(
             () => mockGetUsers.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tUsers));
@@ -306,16 +308,17 @@ void main() {
             'sections[load]',
             const SectionState.running(),
           ),
-          isA<UsersState>()
-              .having((s) => s.users, 'users', isNotEmpty),
-          isA<UsersState>()
-              .having(
-                (s) => s.permissionGroups,
-                'permissionGroups',
-                isNotEmpty,
-              ),
-          isA<UsersState>()
-              .having((s) => s.invitations, 'invitations', isNotEmpty),
+          isA<UsersState>().having((s) => s.users, 'users', isNotEmpty),
+          isA<UsersState>().having(
+            (s) => s.permissionGroups,
+            'permissionGroups',
+            isNotEmpty,
+          ),
+          isA<UsersState>().having(
+            (s) => s.invitations,
+            'invitations',
+            isNotEmpty,
+          ),
           isA<UsersState>().having(
             (s) => s.sections[BaseSections.load],
             'sections[load]',
@@ -327,8 +330,8 @@ void main() {
       blocTest<UsersCubit, UsersState>(
         'should emit error section state when any sub-method fails',
         build: () {
-          final tGroups = EntityFactory.makePermissionGroupEntityList();
-          final tInvitations = EntityFactory.makeUserInvitationEntityList();
+          final tGroups = UserFactory.makePermissionGroupEntityList();
+          final tInvitations = UserFactory.makeUserInvitationEntityList();
           when(() => mockGetUsers.call(any())).thenAnswer(
             (_) async => FailureState(message: 'Error loading users'),
           );
@@ -350,14 +353,16 @@ void main() {
             'sections[load]',
             const SectionState.running(),
           ),
-          isA<UsersState>()
-              .having(
-                (s) => s.permissionGroups,
-                'permissionGroups',
-                isNotEmpty,
-              ),
-          isA<UsersState>()
-              .having((s) => s.invitations, 'invitations', isNotEmpty),
+          isA<UsersState>().having(
+            (s) => s.permissionGroups,
+            'permissionGroups',
+            isNotEmpty,
+          ),
+          isA<UsersState>().having(
+            (s) => s.invitations,
+            'invitations',
+            isNotEmpty,
+          ),
           isA<UsersState>().having(
             (s) => s.sections[BaseSections.load],
             'sections[load]',
@@ -497,8 +502,11 @@ void main() {
                 'deletingInvitationIds',
                 isEmpty,
               ),
-          isA<UsersState>()
-              .having((s) => s.invitations, 'invitations', isEmpty),
+          isA<UsersState>().having(
+            (s) => s.invitations,
+            'invitations',
+            isEmpty,
+          ),
         ],
       );
 
@@ -913,10 +921,11 @@ void main() {
               'sections[saveGroup]',
               const SectionState.success(),
             ),
-            isA<UsersState>()
-                .having((s) => s.permissionGroups, 'permissionGroups', [
-                  tPermissionGroup,
-                ]),
+            isA<UsersState>().having(
+              (s) => s.permissionGroups,
+              'permissionGroups',
+              [tPermissionGroup],
+            ),
           ],
           verify: (_) {
             verify(
@@ -960,10 +969,11 @@ void main() {
               'sections[saveGroup]',
               const SectionState.success(),
             ),
-            isA<UsersState>()
-                .having((s) => s.permissionGroups, 'permissionGroups', [
-                  tPermissionGroup,
-                ]),
+            isA<UsersState>().having(
+              (s) => s.permissionGroups,
+              'permissionGroups',
+              [tPermissionGroup],
+            ),
           ],
           verify: (_) {
             verify(
@@ -1471,8 +1481,8 @@ void main() {
     });
 
     group('Realtime Events', () {
-      final tInitialUser = EntityFactory.makeUserProfileEntity();
-      final tNewUser = EntityFactory.makeUserProfileEntity();
+      final tInitialUser = UserFactory.makeUserProfileEntity();
+      final tNewUser = UserFactory.makeUserProfileEntity();
 
       blocTest<UsersCubit, UsersState>(
         'prepends new user on insert event',
@@ -1505,11 +1515,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              users: [tInitialUser],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(users: [tInitialUser]));
 
           streamController.add(
             RealtimeEvent<UserProfileEntity>(
@@ -1561,11 +1567,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              users: [tInitialUser],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(users: [tInitialUser]));
 
           final updatedUser = tInitialUser.copyWith(name: 'Updated User Name');
 
@@ -1620,11 +1622,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              users: [tInitialUser],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(users: [tInitialUser]));
 
           final softDeletedUser = tInitialUser.copyWith(
             deletedAt: DateTime.now(),
@@ -1677,11 +1675,7 @@ void main() {
             ),
           );
 
-          testCubit.emit(
-            testCubit.state.copyWith(
-              users: [tInitialUser],
-            ),
-          );
+          testCubit.emit(testCubit.state.copyWith(users: [tInitialUser]));
 
           streamController.add(
             RealtimeEvent<UserProfileEntity>(

@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/system_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -42,7 +42,7 @@ void main() {
       final sectorId = faker.guid.guid();
       IntegrationDataTracker.instance.track('sectors', sectorId);
 
-      final initialEntity = EntityFactory.makeSectorEntity().copyWith(
+      final initialEntity = SystemFactory.makeSectorEntity().copyWith(
         id: sectorId,
         companyId: companyId,
         name: IntegrationConfig.testName('Sector ${faker.lorem.word()}'),
@@ -69,7 +69,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Sector ${faker.lorem.word()}',
       );
-      final updatedEntity = EntityFactory.makeSectorEntity().copyWith(
+      final updatedEntity = SystemFactory.makeSectorEntity().copyWith(
         id: sectorId,
         companyId: companyId,
         name: updatedName,

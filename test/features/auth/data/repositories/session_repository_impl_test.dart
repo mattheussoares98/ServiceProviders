@@ -10,8 +10,8 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 // ignore: avoid_implementing_value_types
 class MockSession extends Mock implements Session {}
@@ -22,7 +22,7 @@ class MockUser extends Mock implements User {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
+      UserDataModel.fromEntity(UserFactory.makeUserDataEntity()),
     );
   });
 
@@ -42,7 +42,7 @@ void main() {
   });
 
   final userDataResponse = UserDataModel(
-    user: UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+    user: UserProfileModel.fromEntity(UserFactory.makeUserProfileEntity()),
     accessToken: faker.lorem.word(),
     refreshToken: faker.lorem.word(),
   );
@@ -178,7 +178,7 @@ void main() {
     group('Logout', () {
       test('should clean IDs, permission and tokens on logout', () async {
         registerFallbackValue(
-          UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
+          UserDataModel.fromEntity(UserFactory.makeUserDataEntity()),
         );
         when(
           () => mockSessionLocalDataSource.getUserData(),
@@ -219,7 +219,7 @@ void main() {
 
       test('should emit empty userData on sessionStream', () async {
         registerFallbackValue(
-          UserDataModel.fromEntity(EntityFactory.makeUserDataEntity()),
+          UserDataModel.fromEntity(UserFactory.makeUserDataEntity()),
         );
         when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
         when(
@@ -297,21 +297,25 @@ void main() {
     });
 
     group('setSelectedCompanyId', () {
-      test('should save to localDataSource and update session userData', () async {
-        final newCompanyId = faker.guid.guid();
-        when(
-          () => mockSessionLocalDataSource.saveSelectedCompanyId(any()),
-        ).thenAnswer((_) async {});
+      test(
+        'should save to localDataSource and update session userData',
+        () async {
+          final newCompanyId = faker.guid.guid();
+          when(
+            () => mockSessionLocalDataSource.saveSelectedCompanyId(any()),
+          ).thenAnswer((_) async {});
 
-        sessionRepository.setUserData = userData;
+          sessionRepository.setUserData = userData;
 
-        await sessionRepository.setSelectedCompanyId(newCompanyId);
+          await sessionRepository.setSelectedCompanyId(newCompanyId);
 
-        verify(
-          () => mockSessionLocalDataSource.saveSelectedCompanyId(newCompanyId),
-        ).called(1);
-        expect(sessionRepository.userData.user.companyId, newCompanyId);
-      });
+          verify(
+            () =>
+                mockSessionLocalDataSource.saveSelectedCompanyId(newCompanyId),
+          ).called(1);
+          expect(sessionRepository.userData.user.companyId, newCompanyId);
+        },
+      );
     });
   });
 }

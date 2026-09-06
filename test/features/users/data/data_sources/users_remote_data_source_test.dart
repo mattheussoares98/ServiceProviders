@@ -15,7 +15,7 @@ import 'package:o_jogo_da_obra/routing/helper/route_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockFunctionResponse extends Mock implements FunctionResponse {}
 
@@ -26,12 +26,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+      UserProfileModel.fromEntity(UserFactory.makeUserProfileEntity()),
     );
     registerFallbackValue(
-      PermissionGroupModel.fromEntity(
-        EntityFactory.makePermissionGroupEntity(),
-      ),
+      PermissionGroupModel.fromEntity(UserFactory.makePermissionGroupEntity()),
     );
     registerFallbackValue(HttpMethod.post);
   });
@@ -48,10 +46,10 @@ void main() {
 
   tearDown(() => GetIt.I.reset());
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
+  final tUserProfileEntity = UserFactory.makeUserProfileEntity();
   final tUserProfileModel = UserProfileModel.fromEntity(tUserProfileEntity);
 
-  final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
+  final tPermissionGroupEntity = UserFactory.makePermissionGroupEntity();
   final tPermissionGroupModel = PermissionGroupModel.fromEntity(
     tPermissionGroupEntity,
   );
@@ -266,7 +264,7 @@ void main() {
         'should return SuccessState<List<UserInvitationModel>> on success',
         () async {
           final tInvitationModel = UserInvitationModel.fromEntity(
-            EntityFactory.makeUserInvitationEntity(),
+            UserFactory.makeUserInvitationEntity(),
           );
 
           when(
@@ -318,7 +316,7 @@ void main() {
       test(
         'should call invokeFunction with correct parameters on success',
         () async {
-          final tInvitation = EntityFactory.makeUserInvitationEntity();
+          final tInvitation = UserFactory.makeUserInvitationEntity();
           final mockResponse = MockFunctionResponse();
           when(() => mockResponse.status).thenReturn(200);
 

@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/mainte
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 
 void main() {
   late MockInternetClient mockInternet;
@@ -28,14 +28,15 @@ void main() {
 
     registerFallbackValue(
       MaintenancePlanModel.fromEntity(
-        EntityFactory.makeMaintenancePlanEntity(),
+        MaintenancePlanFactory.makeMaintenancePlanEntity(),
       ),
     );
   });
 
-  final tPlanEntity = EntityFactory.makeMaintenancePlanEntity();
+  final tPlanEntity = MaintenancePlanFactory.makeMaintenancePlanEntity();
   final tPlanModel = MaintenancePlanModel.fromEntity(tPlanEntity);
-  final tPlanEntityList = EntityFactory.makeMaintenancePlanEntityList();
+  final tPlanEntityList =
+      MaintenancePlanFactory.makeMaintenancePlanEntityList();
   final tPlanModelList = tPlanEntityList
       .map(MaintenancePlanModel.fromEntity)
       .toList();

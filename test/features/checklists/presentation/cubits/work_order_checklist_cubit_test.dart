@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -24,7 +24,7 @@ void main() {
   late WorkOrderChecklistCubitUseCases useCases;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeChecklistAnswerEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistAnswerEntity());
   });
 
   setUp(() {
@@ -48,17 +48,17 @@ void main() {
   final tWorkOrderId = faker.guid.guid();
   final tTemplateId = faker.guid.guid();
   final tItems = [
-    EntityFactory.makeChecklistItemEntity().copyWith(
+    ChecklistFactory.makeChecklistItemEntity().copyWith(
       isRequired: true,
       type: ChecklistItemType.boolean,
     ),
-    EntityFactory.makeChecklistItemEntity().copyWith(
+    ChecklistFactory.makeChecklistItemEntity().copyWith(
       isRequired: false,
       type: ChecklistItemType.text,
     ),
   ];
   final tAnswers = [
-    EntityFactory.makeChecklistAnswerEntity().copyWith(
+    ChecklistFactory.makeChecklistAnswerEntity().copyWith(
       workOrderId: tWorkOrderId,
       checklistItemId: tItems.first.id,
       booleanValue: true,

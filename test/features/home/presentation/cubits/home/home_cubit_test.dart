@@ -15,7 +15,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockClearLocalAttachmentsUseCase extends Mock
@@ -159,8 +160,8 @@ void main() {
       },
     );
 
-    final tUser = EntityFactory.makeUserProfileEntity();
-    final tAttachment = EntityFactory.makeAttachmentEntity().copyWith(
+    final tUser = UserFactory.makeUserProfileEntity();
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
       localPath: 'path/to/file.jpg',
     );
 

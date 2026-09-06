@@ -24,8 +24,10 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/router_mocks.dart';
+import '../../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
@@ -48,13 +50,13 @@ void main() {
   late MockLocalStorageClient mockLocalStorageClient;
 
   setUpAll(() {
-    userData = EntityFactory.makeUserDataEntity().copyWith(
-      user: EntityFactory.makeUserProfileEntity(),
+    userData = UserFactory.makeUserDataEntity().copyWith(
+      user: UserFactory.makeUserProfileEntity(),
     );
     registerFallbackValue(const AuthenticationEntity(email: '', password: ''));
     registerFallbackValue(const MockPageRouteInfo());
     registerFallbackValue(userData);
-    registerFallbackValue(EntityFactory.makeCreateAccessLogRequestEntity());
+    registerFallbackValue(SystemFactory.makeCreateAccessLogRequestEntity());
   });
 
   setUp(() {
@@ -177,7 +179,7 @@ void main() {
         () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
       ).thenAnswer(
         (_) async => SuccessState(
-          data: [EntityFactory.makeServiceProviderProfileEntity()],
+          data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
         ),
       );
 
@@ -213,7 +215,7 @@ void main() {
         () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
       ).thenAnswer(
         (_) async => SuccessState(
-          data: [EntityFactory.makeServiceProviderProfileEntity()],
+          data: [ServiceProviderFactory.makeServiceProviderProfileEntity()],
         ),
       );
 

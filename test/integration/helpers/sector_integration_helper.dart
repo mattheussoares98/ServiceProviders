@@ -3,7 +3,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/system_factory.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
 
@@ -24,7 +24,7 @@ class SectorIntegrationHelper {
       }
     }
 
-    final entity = EntityFactory.makeSectorEntity().copyWith(
+    final entity = SystemFactory.makeSectorEntity().copyWith(
       id: faker.guid.guid(),
       companyId: companyId,
       name: IntegrationConfig.testName('Sector ${faker.lorem.word()}'),

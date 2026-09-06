@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -34,7 +34,7 @@ void main() {
         );
   }
 
-  final tEntity = EntityFactory.makeCategoryEntity();
+  final tEntity = AssetFactory.makeCategoryEntity();
   final tModel = CategoryModel.fromEntity(tEntity);
 
   group('CategoriesLocalDataSourceImpl', () {
@@ -86,7 +86,7 @@ void main() {
       () async {
         final companyId = faker.guid.guid();
         await insertTestCompany(companyId);
-        final entities = EntityFactory.makeCategoryEntityList()
+        final entities = AssetFactory.makeCategoryEntityList()
             .map((e) => e.copyWith(companyId: companyId))
             .toList();
         final models = entities.map(CategoryModel.fromEntity).toList();

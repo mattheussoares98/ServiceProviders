@@ -6,14 +6,14 @@ import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configu
 import 'package:o_jogo_da_obra/features/configurations/data/models/responses/configurations_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockLocalStorageClient mockLocalStorageClient;
   late ConfigurationsLocalDataSourceImpl dataSource;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeConfigurationsEntity());
+    registerFallbackValue(UserFactory.makeConfigurationsEntity());
   });
 
   setUp(() {
@@ -95,7 +95,7 @@ void main() {
     test(
       'should call savePushNotifications and saveThemeMode on LocalStorageClient',
       () async {
-        final tEntity = EntityFactory.makeConfigurationsEntity();
+        final tEntity = UserFactory.makeConfigurationsEntity();
 
         when(
           () => mockLocalStorageClient.savePushNotifications(any()),
@@ -121,7 +121,7 @@ void main() {
     test(
       'should return FailureState when saving configurations throws error',
       () async {
-        final tEntity = EntityFactory.makeConfigurationsEntity();
+        final tEntity = UserFactory.makeConfigurationsEntity();
 
         when(
           () => mockLocalStorageClient.savePushNotifications(any()),

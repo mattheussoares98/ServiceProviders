@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_ord
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
-import '../../../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../../../testing/mocks/factories/work_order_factory.dart';
 
 class MockWorkOrdersCubit extends MockCubit<WorkOrdersState>
     implements WorkOrdersCubit {}
@@ -91,9 +91,9 @@ void main() {
         pendingApprovalCount: 0,
       );
 
-      when(() => mockDashboardKpisCubit.state).thenReturn(
-        const DashboardKpisState(metrics: metrics),
-      );
+      when(
+        () => mockDashboardKpisCubit.state,
+      ).thenReturn(const DashboardKpisState(metrics: metrics));
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
@@ -107,7 +107,7 @@ void main() {
     });
 
     testWidgets('renders KpiDateRangeSlider with date bounds', (tester) async {
-      final tOrders = EntityFactory.makeWorkOrderEntityList();
+      final tOrders = WorkOrderFactory.makeWorkOrderEntityList();
       when(() => mockWorkOrdersCubit.state).thenReturn(
         const WorkOrdersState.initial().copyWith(workOrders: tOrders),
       );

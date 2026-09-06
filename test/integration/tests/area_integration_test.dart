@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_re
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
@@ -54,7 +54,7 @@ void main() {
       final areaId = faker.guid.guid();
       IntegrationDataTracker.instance.track('areas', areaId);
 
-      final initialEntity = EntityFactory.makeAreaEntity().copyWith(
+      final initialEntity = AssetFactory.makeAreaEntity().copyWith(
         id: areaId,
         companyId: companyId,
         locationId: locationId,
@@ -82,7 +82,7 @@ void main() {
       final updatedName = IntegrationConfig.testName(
         'Updated Area ${faker.lorem.word()}',
       );
-      final updatedEntity = EntityFactory.makeAreaEntity().copyWith(
+      final updatedEntity = AssetFactory.makeAreaEntity().copyWith(
         id: areaId,
         companyId: companyId,
         locationId: locationId,

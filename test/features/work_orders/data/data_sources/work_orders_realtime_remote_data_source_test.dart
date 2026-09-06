@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 class _FakePostgresChangeFilter extends Fake implements PostgresChangeFilter {}
 
@@ -63,7 +63,7 @@ void main() {
   test(
     'watchWorkOrders maps INSERT payload to RealtimeEvent with entity',
     () async {
-      final entity = EntityFactory.makeWorkOrderEntity();
+      final entity = WorkOrderFactory.makeWorkOrderEntity();
       final model = WorkOrderModel.fromEntity(entity);
       final json = model.toJson();
 
@@ -97,7 +97,7 @@ void main() {
   );
 
   test('watchWorkOrders maps UPDATE payload to RealtimeEvent', () async {
-    final entity = EntityFactory.makeWorkOrderEntity();
+    final entity = WorkOrderFactory.makeWorkOrderEntity();
     final model = WorkOrderModel.fromEntity(entity);
     final json = model.toJson();
 

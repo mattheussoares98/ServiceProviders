@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/get_sla_po
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/update_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/watch_sla_policies_realtime_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -24,7 +24,7 @@ void main() {
   late WatchSlaPoliciesRealtimeUseCase watchSlaPoliciesRealtimeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSlaPolicyEntity());
+    registerFallbackValue(SystemFactory.makeSlaPolicyEntity());
   });
 
   setUp(() {
@@ -52,7 +52,7 @@ void main() {
 
   group('GetSlaPoliciesUseCase', () {
     final tCompanyId = faker.guid.guid();
-    final tSlaPolicies = EntityFactory.makeSlaPolicyEntityList();
+    final tSlaPolicies = SystemFactory.makeSlaPolicyEntityList();
 
     test('should return list of SLA policies on success', () async {
       when(
@@ -69,7 +69,7 @@ void main() {
 
   group('GetSlaPolicyByIdUseCase', () {
     final tId = faker.guid.guid();
-    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+    final tSlaPolicy = SystemFactory.makeSlaPolicyEntity();
 
     test('should return SLA policy on success', () async {
       when(
@@ -85,7 +85,7 @@ void main() {
   });
 
   group('CreateSlaPolicyUseCase', () {
-    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+    final tSlaPolicy = SystemFactory.makeSlaPolicyEntity();
 
     test('should return true on success', () async {
       when(
@@ -101,7 +101,7 @@ void main() {
   });
 
   group('UpdateSlaPolicyUseCase', () {
-    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+    final tSlaPolicy = SystemFactory.makeSlaPolicyEntity();
 
     test('should return true on success', () async {
       when(
@@ -133,11 +133,11 @@ void main() {
   });
 
   group('WatchSlaPoliciesRealtimeUseCase', () {
-    final tSlaPolicy = EntityFactory.makeSlaPolicyEntity();
+    final tSlaPolicy = SystemFactory.makeSlaPolicyEntity();
     final tCompanyId = faker.guid.guid();
 
     test('should return stream from repository', () {
-      final event = EntityFactory.makeRealtimeEvent<SlaPolicyEntity>(
+      final event = SystemFactory.makeRealtimeEvent<SlaPolicyEntity>(
         entity: tSlaPolicy,
       );
       when(

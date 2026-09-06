@@ -11,7 +11,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -23,12 +25,12 @@ void main() {
   late PauseRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
     registerFallbackValue(
-      PauseReasonModel.fromEntity(EntityFactory.makePauseReasonEntity()),
+      PauseReasonModel.fromEntity(WorkOrderFactory.makePauseReasonEntity()),
     );
     registerFallbackValue(
-      PauseRequestModel.fromEntity(EntityFactory.makePauseRequestEntity()),
+      PauseRequestModel.fromEntity(WorkOrderFactory.makePauseRequestEntity()),
     );
   });
 
@@ -46,7 +48,7 @@ void main() {
     ).thenReturn('company-1');
     when(
       () => mockSessionRepository.userData,
-    ).thenReturn(EntityFactory.makeUserDataEntity());
+    ).thenReturn(UserFactory.makeUserDataEntity());
     when(
       () => mockSyncRepository.enqueue(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
@@ -60,10 +62,10 @@ void main() {
     );
   });
 
-  final tReasonEntity = EntityFactory.makePauseReasonEntity();
+  final tReasonEntity = WorkOrderFactory.makePauseReasonEntity();
   final tReasonModel = PauseReasonModel.fromEntity(tReasonEntity);
 
-  final tRequestEntity = EntityFactory.makePauseRequestEntity();
+  final tRequestEntity = WorkOrderFactory.makePauseRequestEntity();
   final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
 
   group('getPauseReasons', () {
@@ -441,22 +443,37 @@ void main() {
     test('getPauseRequests fetches remotely without caching locally', () async {
       when(() => mockInternetClient.isConnected).thenReturn(true);
       when(
-        () => mockRemoteDataSource.getPauseRequests(any(), status: any(named: 'status')),
+        () => mockRemoteDataSource.getPauseRequests(
+          any(),
+          status: any(named: 'status'),
+        ),
       ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
 
-      final result = await repository.getPauseRequests(tRequestEntity.workOrderId);
+      final result = await repository.getPauseRequests(
+        tRequestEntity.workOrderId,
+      );
 
       expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
       verifyNever(() => mockLocalDataSource.savePauseRequest(any()));
     });
 
-    test('getPauseRequests fails without local fallback when offline', () async {
-      when(() => mockInternetClient.isConnected).thenReturn(false);
+    test(
+      'getPauseRequests fails without local fallback when offline',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
 
-      final result = await repository.getPauseRequests(tRequestEntity.workOrderId);
+        final result = await repository.getPauseRequests(
+          tRequestEntity.workOrderId,
+        );
 
-      expect(result, isA<FailureState<List<PauseRequestEntity>>>());
-      verifyNever(() => mockLocalDataSource.getPauseRequests(any(), status: any(named: 'status')));
-    });
+        expect(result, isA<FailureState<List<PauseRequestEntity>>>());
+        verifyNever(
+          () => mockLocalDataSource.getPauseRequests(
+            any(),
+            status: any(named: 'status'),
+          ),
+        );
+      },
+    );
   });
 }

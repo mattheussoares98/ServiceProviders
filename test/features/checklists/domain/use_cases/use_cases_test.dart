@@ -19,7 +19,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_check
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_items_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_templates_realtime_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -27,9 +27,9 @@ void main() {
 
   setUp(() {
     mockRepository = MockChecklistsRepository();
-    registerFallbackValue(EntityFactory.makeChecklistTemplateEntity());
-    registerFallbackValue(EntityFactory.makeChecklistItemEntity());
-    registerFallbackValue(EntityFactory.makeChecklistAnswerEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistTemplateEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistItemEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistAnswerEntity());
   });
 
   group('Checklists Use Cases', () {
@@ -38,7 +38,7 @@ void main() {
         final useCase = GetChecklistsUseCase(
           checklistsRepository: mockRepository,
         );
-        final list = EntityFactory.makeChecklistTemplateEntityList();
+        final list = ChecklistFactory.makeChecklistTemplateEntityList();
         final companyId = faker.guid.guid();
 
         when(
@@ -75,7 +75,7 @@ void main() {
         final useCase = GetChecklistTemplateByIdUseCase(
           checklistsRepository: mockRepository,
         );
-        final template = EntityFactory.makeChecklistTemplateEntity();
+        final template = ChecklistFactory.makeChecklistTemplateEntity();
         final id = faker.guid.guid();
 
         when(
@@ -95,7 +95,7 @@ void main() {
         final useCase = CreateChecklistTemplateUseCase(
           checklistsRepository: mockRepository,
         );
-        final template = EntityFactory.makeChecklistTemplateEntity();
+        final template = ChecklistFactory.makeChecklistTemplateEntity();
 
         when(
           () => mockRepository.createTemplate(any()),
@@ -114,7 +114,7 @@ void main() {
         final useCase = UpdateChecklistTemplateUseCase(
           checklistsRepository: mockRepository,
         );
-        final template = EntityFactory.makeChecklistTemplateEntity();
+        final template = ChecklistFactory.makeChecklistTemplateEntity();
 
         when(
           () => mockRepository.updateTemplate(any()),
@@ -152,7 +152,7 @@ void main() {
         final useCase = GetChecklistItemsByTemplateUseCase(
           checklistsRepository: mockRepository,
         );
-        final items = EntityFactory.makeChecklistItemEntityList();
+        final items = ChecklistFactory.makeChecklistItemEntityList();
         final templateId = faker.guid.guid();
 
         when(
@@ -172,7 +172,7 @@ void main() {
         final useCase = CreateChecklistItemUseCase(
           checklistsRepository: mockRepository,
         );
-        final item = EntityFactory.makeChecklistItemEntity();
+        final item = ChecklistFactory.makeChecklistItemEntity();
 
         when(
           () => mockRepository.createItem(any()),
@@ -191,7 +191,7 @@ void main() {
         final useCase = UpdateChecklistItemUseCase(
           checklistsRepository: mockRepository,
         );
-        final item = EntityFactory.makeChecklistItemEntity();
+        final item = ChecklistFactory.makeChecklistItemEntity();
 
         when(
           () => mockRepository.updateItem(any()),
@@ -231,7 +231,7 @@ void main() {
           final useCase = GetWorkOrderChecklistAnswersUseCase(
             checklistsRepository: mockRepository,
           );
-          final answers = EntityFactory.makeChecklistAnswerEntityList();
+          final answers = ChecklistFactory.makeChecklistAnswerEntityList();
           final workOrderId = faker.guid.guid();
 
           when(
@@ -254,7 +254,7 @@ void main() {
         final useCase = SaveChecklistResponseUseCase(
           checklistsRepository: mockRepository,
         );
-        final answer = EntityFactory.makeChecklistAnswerEntity();
+        final answer = ChecklistFactory.makeChecklistAnswerEntity();
 
         when(
           () => mockRepository.saveResponse(any()),

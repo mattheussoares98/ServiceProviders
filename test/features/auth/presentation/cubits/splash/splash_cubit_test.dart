@@ -13,8 +13,9 @@ import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../../testing/mocks/external/external_mocks.dart';
+import '../../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../../testing/mocks/use_case_mocks.dart';
 
@@ -34,7 +35,7 @@ void main() {
   late MockNavigationClient mockNavigationClient;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeCreateAccessLogRequestEntity());
+    registerFallbackValue(SystemFactory.makeCreateAccessLogRequestEntity());
   });
 
   setUp(() {
@@ -83,8 +84,8 @@ void main() {
           ),
         );
         when(() => mockSessionRepository.userData).thenReturn(
-          EntityFactory.makeUserDataEntity().copyWith(
-            user: EntityFactory.makeUserProfileEntity().copyWith(id: ''),
+          UserFactory.makeUserDataEntity().copyWith(
+            user: UserFactory.makeUserProfileEntity().copyWith(id: ''),
           ),
         );
         return cubit;
@@ -102,7 +103,7 @@ void main() {
           () => mockGetSelectedMode.call(),
         ).thenReturn(AppMode.provider.name);
         when(() => mockGetSessionUser.call()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(companyId: ''),
+          UserFactory.makeUserProfileEntity().copyWith(companyId: ''),
         );
         when(() => mockGetActiveCompanyId.call()).thenReturn('');
         return cubit;
@@ -121,7 +122,7 @@ void main() {
           () => mockGetSelectedMode.call(),
         ).thenReturn(AppMode.internal.name);
         when(() => mockGetSessionUser.call()).thenReturn(
-          EntityFactory.makeUserProfileEntity().copyWith(companyId: tCompanyId),
+          UserFactory.makeUserProfileEntity().copyWith(companyId: tCompanyId),
         );
         when(() => mockGetActiveCompanyId.call()).thenReturn(tCompanyId);
         when(

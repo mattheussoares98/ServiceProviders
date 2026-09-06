@@ -11,7 +11,8 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_c
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/asset_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -27,7 +28,7 @@ void main() {
   late WatchAssetsRealtimeUseCase watchAssetsRealtimeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeAssetEntity());
+    registerFallbackValue(AssetFactory.makeAssetEntity());
   });
 
   setUp(() {
@@ -45,8 +46,8 @@ void main() {
     );
   });
 
-  final tAssetEntity = EntityFactory.makeAssetEntity();
-  final tAssetList = EntityFactory.makeAssetEntityList();
+  final tAssetEntity = AssetFactory.makeAssetEntity();
+  final tAssetList = AssetFactory.makeAssetEntityList();
   final tId = faker.guid.guid();
 
   group('Assets Use Cases', () {
@@ -256,17 +257,21 @@ void main() {
 
     group('WatchAssetsRealtimeUseCase', () {
       test('should return stream from repository', () {
-        final event = EntityFactory.makeRealtimeEvent<AssetEntity>(
+        final event = SystemFactory.makeRealtimeEvent<AssetEntity>(
           entity: tAssetEntity,
         );
         when(
-          () => mockRepository.watchAssetsRealtime(companyId: any(named: 'companyId')),
+          () => mockRepository.watchAssetsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
         ).thenAnswer((_) => Stream.value(event));
 
         final result = watchAssetsRealtimeUseCase(companyId: tId);
 
         expect(result, emits(event));
-        verify(() => mockRepository.watchAssetsRealtime(companyId: tId)).called(1);
+        verify(
+          () => mockRepository.watchAssetsRealtime(companyId: tId),
+        ).called(1);
       });
     });
   });

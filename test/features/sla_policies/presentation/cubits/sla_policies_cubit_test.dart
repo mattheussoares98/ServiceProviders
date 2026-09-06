@@ -21,7 +21,8 @@ import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
 
 class MockGetSlaPoliciesUseCase extends Mock implements GetSlaPoliciesUseCase {}
@@ -54,7 +55,7 @@ void main() {
   late UserProfileEntity tUserProfile;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSlaPolicyEntity());
+    registerFallbackValue(SystemFactory.makeSlaPolicyEntity());
     registerFallbackValue(CreateUpdateSlaPolicyRoute());
   });
 
@@ -70,7 +71,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tUserProfile = EntityFactory.makeUserProfileEntity();
+    tUserProfile = UserFactory.makeUserProfileEntity();
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
@@ -99,7 +100,7 @@ void main() {
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
         'should emit loading and loaded when policies load successfully',
         build: () {
-          final tPolicies = EntityFactory.makeSlaPolicyEntityList();
+          final tPolicies = SystemFactory.makeSlaPolicyEntityList();
           when(
             () => mockGetSlaPolicies.call(any()),
           ).thenAnswer((_) async => SuccessState(data: tPolicies));
@@ -152,7 +153,7 @@ void main() {
     });
 
     group('selectSlaPolicy', () {
-      final tPolicies = EntityFactory.makeSlaPolicyEntityList();
+      final tPolicies = SystemFactory.makeSlaPolicyEntityList();
       final targetPolicy = tPolicies.first;
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
@@ -205,7 +206,7 @@ void main() {
     });
 
     group('saveSlaPolicy', () {
-      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+      final tPolicy = SystemFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
         'should emit saving and loaded section states, and reload policies when creation succeeds',
@@ -340,7 +341,7 @@ void main() {
     });
 
     group('deleteSlaPolicy', () {
-      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+      final tPolicy = SystemFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
         'should emit deleting and loaded section states when deletion succeeds',
@@ -410,7 +411,7 @@ void main() {
     });
 
     group('navigateToCreateUpdateSlaPolicy', () {
-      final tPolicy = EntityFactory.makeSlaPolicyEntity();
+      final tPolicy = SystemFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
         'should push route and reload SLA policies on completion',
@@ -448,8 +449,8 @@ void main() {
     });
 
     group('Realtime Subscription', () {
-      final tInitialPolicy = EntityFactory.makeSlaPolicyEntity();
-      final tNewPolicy = EntityFactory.makeSlaPolicyEntity();
+      final tInitialPolicy = SystemFactory.makeSlaPolicyEntity();
+      final tNewPolicy = SystemFactory.makeSlaPolicyEntity();
 
       blocTest<SlaPoliciesCubit, SlaPoliciesState>(
         'prepends newly inserted policy to state',
@@ -475,9 +476,7 @@ void main() {
           );
 
           testCubit.emit(
-            testCubit.state.copyWith(
-              slaPolicies: [tInitialPolicy],
-            ),
+            testCubit.state.copyWith(slaPolicies: [tInitialPolicy]),
           );
 
           streamController.add(
@@ -523,9 +522,7 @@ void main() {
           );
 
           testCubit.emit(
-            testCubit.state.copyWith(
-              slaPolicies: [tInitialPolicy],
-            ),
+            testCubit.state.copyWith(slaPolicies: [tInitialPolicy]),
           );
 
           final softDeletedPolicy = tInitialPolicy.copyWith(
@@ -576,9 +573,7 @@ void main() {
           );
 
           testCubit.emit(
-            testCubit.state.copyWith(
-              slaPolicies: [tInitialPolicy],
-            ),
+            testCubit.state.copyWith(slaPolicies: [tInitialPolicy]),
           );
 
           streamController.add(

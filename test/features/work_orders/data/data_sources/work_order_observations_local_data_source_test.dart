@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -112,7 +112,7 @@ void main() {
   }
 
   group('WorkOrderObservationsLocalDataSourceImpl', () {
-    final tEntity = EntityFactory.makeWorkOrderObservationEntity();
+    final tEntity = WorkOrderFactory.makeWorkOrderObservationEntity();
     final tModel = WorkOrderObservationModel.fromEntity(tEntity);
 
     const locationId = 'location-id';
@@ -157,7 +157,7 @@ void main() {
         );
 
         final tModel2 = WorkOrderObservationModel.fromEntity(
-          EntityFactory.makeWorkOrderObservationEntity().copyWith(
+          WorkOrderFactory.makeWorkOrderObservationEntity().copyWith(
             companyId: tModel.companyId,
             workOrderId: tModel.workOrderId,
             authorId: tModel.authorId,

@@ -21,7 +21,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
@@ -36,29 +39,31 @@ void main() {
   late WorkOrdersRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeSyncQueueItemEntity());
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
     registerFallbackValue(
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
     );
     registerFallbackValue(<WorkOrderModel>[
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
     ]);
-    registerFallbackValue(TaskModel.fromEntity(EntityFactory.makeTaskEntity()));
     registerFallbackValue(
-      TaskRequestModel.fromEntity(EntityFactory.makeTaskEntity()),
+      TaskModel.fromEntity(WorkOrderFactory.makeTaskEntity()),
+    );
+    registerFallbackValue(
+      TaskRequestModel.fromEntity(WorkOrderFactory.makeTaskEntity()),
     );
     registerFallbackValue(
       WorkOrderChangeRequestModel.fromEntity(
-        EntityFactory.makeWorkOrderChangeRequestEntity(),
+        WorkOrderFactory.makeWorkOrderChangeRequestEntity(),
       ),
     );
     registerFallbackValue(
       WorkOrderChangeRequestRequestModel.fromEntity(
-        EntityFactory.makeWorkOrderChangeRequestEntity(),
+        WorkOrderFactory.makeWorkOrderChangeRequestEntity(),
       ),
     );
     registerFallbackValue(
-      AuditLogModel.fromEntity(EntityFactory.makeAuditLogEntity()),
+      AuditLogModel.fromEntity(WorkOrderFactory.makeAuditLogEntity()),
     );
     registerFallbackValue(const WorkOrderFilter());
     registerFallbackValue(DateTime.now());
@@ -76,7 +81,7 @@ void main() {
     ).thenReturn(AppMode.internal.name);
     when(
       () => mockSessionRepository.userData,
-    ).thenReturn(EntityFactory.makeUserDataEntity());
+    ).thenReturn(UserFactory.makeUserDataEntity());
     when(
       () => mockSessionRepository.getSelectedCompanyId(),
     ).thenReturn(faker.guid.guid());
@@ -94,13 +99,13 @@ void main() {
     );
   });
 
-  final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+  final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity();
   final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
-  final tTaskEntity = EntityFactory.makeTaskEntity();
+  final tTaskEntity = WorkOrderFactory.makeTaskEntity();
   final tTaskModel = TaskModel.fromEntity(tTaskEntity);
 
-  final tChangeEntity = EntityFactory.makeWorkOrderChangeRequestEntity();
+  final tChangeEntity = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
   final tChangeModel = WorkOrderChangeRequestModel.fromEntity(tChangeEntity);
 
   final tCompanyId = faker.guid.guid();
@@ -1141,7 +1146,7 @@ void main() {
   });
 
   group('getWorkOrderHistory', () {
-    final tAuditLogEntity = EntityFactory.makeAuditLogEntity();
+    final tAuditLogEntity = WorkOrderFactory.makeAuditLogEntity();
     final tAuditLogModel = AuditLogModel.fromEntity(tAuditLogEntity);
 
     test(
@@ -1185,9 +1190,9 @@ void main() {
     test(
       'should emit event and cache work order locally on update in internal mode',
       () async {
-        final tEntity = EntityFactory.makeWorkOrderEntity();
+        final tEntity = WorkOrderFactory.makeWorkOrderEntity();
         final tModel = WorkOrderModel.fromEntity(tEntity);
-        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderModel>(
+        final tEvent = SystemFactory.makeRealtimeEvent<WorkOrderModel>(
           entity: tModel,
         );
         when(
@@ -1225,7 +1230,7 @@ void main() {
     test(
       'should emit event and delete work order locally on delete in internal mode',
       () async {
-        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderModel>()
+        final tEvent = SystemFactory.makeRealtimeEvent<WorkOrderModel>()
             .copyWith(eventType: RealtimeEventType.delete, annulEntity: true);
         when(
           () => mockRealtimeRemoteDataSource.watchWorkOrders(
@@ -1257,11 +1262,11 @@ void main() {
     test(
       'should emit event and delete work order locally on update when entity has deletedAt in internal mode',
       () async {
-        final tEntity = EntityFactory.makeWorkOrderEntity().copyWith(
+        final tEntity = WorkOrderFactory.makeWorkOrderEntity().copyWith(
           deletedAt: DateTime.now(),
         );
         final tModel = WorkOrderModel.fromEntity(tEntity);
-        final tEvent = EntityFactory.makeRealtimeEvent<WorkOrderModel>(
+        final tEvent = SystemFactory.makeRealtimeEvent<WorkOrderModel>(
           entity: tModel,
         );
         when(
@@ -1325,14 +1330,14 @@ void _providerWorkOrdersTests() {
 
   group('getProviderWorkOrders', () {
     final tCompanyIds = [
-      EntityFactory.makeServiceProviderCompanyEntity().id,
-      EntityFactory.makeServiceProviderCompanyEntity().id,
-      EntityFactory.makeServiceProviderCompanyEntity().id,
+      ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
+      ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
+      ServiceProviderFactory.makeServiceProviderCompanyEntity().id,
     ];
     final tModels = [
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
-      WorkOrderModel.fromEntity(EntityFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
+      WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
     ];
 
     test('returns mapped entities from remote when connected', () async {
@@ -1422,7 +1427,7 @@ void _providerWorkOrdersTests() {
   });
 
   group('getWorkOrderById in provider mode', () {
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity();
     final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
     final tId = tWorkOrderEntity.id;
 
@@ -1451,7 +1456,7 @@ void _providerWorkOrdersTests() {
   });
 
   group('updateWorkOrder in provider mode', () {
-    final tWorkOrderEntity = EntityFactory.makeWorkOrderEntity();
+    final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity();
     final tWorkOrderModel = WorkOrderModel.fromEntity(tWorkOrderEntity);
 
     test('updates remotely without saving locally', () async {

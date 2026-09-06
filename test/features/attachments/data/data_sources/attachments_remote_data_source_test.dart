@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attach
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 
 void main() {
   final faker = Faker();
@@ -105,7 +105,7 @@ void main() {
   });
 
   group('confirmUpload', () {
-    final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
+    final tAttachmentEntity = MaintenancePlanFactory.makeAttachmentEntity();
     final tModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
     test(
@@ -156,7 +156,7 @@ void main() {
 
   group('getAttachmentsByWorkOrder', () {
     final tWorkOrderId = faker.guid.guid();
-    final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
+    final tAttachmentEntity = MaintenancePlanFactory.makeAttachmentEntity();
     final tModel = AttachmentModel.fromEntity(tAttachmentEntity);
 
     test(
@@ -266,7 +266,7 @@ void main() {
   group('watchAttachmentsRealtime', () {
     final tWorkOrderId = faker.guid.guid();
     final tAttachmentModel = AttachmentModel.fromEntity(
-      EntityFactory.makeAttachmentEntity(),
+      MaintenancePlanFactory.makeAttachmentEntity(),
     );
 
     test('should stream RealtimeEvent<AttachmentModel>', () {

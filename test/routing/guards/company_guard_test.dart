@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/routing/guards/company_guard.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 
 import '../../../testing/mocks/client_mocks.dart';
-import '../../../testing/mocks/entity_factory.dart';
+import '../../../testing/mocks/factories/user_factory.dart';
 import '../../../testing/mocks/repository_mocks.dart';
 
 class MockStackRouter extends Mock implements StackRouter {}
@@ -81,10 +81,10 @@ void main() {
       'should allow navigation when app is in internal mode and user has a company ID',
       () {
         // Arrange
-        final userProfile = EntityFactory.makeUserProfileEntity().copyWith(
+        final userProfile = UserFactory.makeUserProfileEntity().copyWith(
           companyId: 'company-123',
         );
-        final userData = EntityFactory.makeUserDataEntity().copyWith(
+        final userData = UserFactory.makeUserDataEntity().copyWith(
           user: userProfile,
         );
 
@@ -107,10 +107,10 @@ void main() {
       'should redirect to LoginRoute when app is in internal mode and user has no company ID',
       () {
         // Arrange
-        final userProfile = EntityFactory.makeUserProfileEntity().copyWith(
+        final userProfile = UserFactory.makeUserProfileEntity().copyWith(
           companyId: '',
         );
-        final userData = EntityFactory.makeUserDataEntity().copyWith(
+        final userData = UserFactory.makeUserDataEntity().copyWith(
           user: userProfile,
         );
 

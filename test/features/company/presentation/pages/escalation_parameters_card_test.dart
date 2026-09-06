@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_e
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockCompanyCubit extends MockCubit<CompanyState>
     implements CompanyCubit {}
@@ -28,7 +28,7 @@ void main() {
     mockCompanyCubit = MockCompanyCubit();
     mockSessionCubit = MockSessionCubit();
 
-    tParameters = EntityFactory.makeCompanyParameterEntity().copyWith(
+    tParameters = UserFactory.makeCompanyParameterEntity().copyWith(
       advanceWarningMinutes: 30,
       delayedNotificationIntervalMinutes: 45,
       advanceWarningGroupIds: ['grp-1'],
@@ -36,15 +36,15 @@ void main() {
     );
 
     tGroups = [
-      EntityFactory.makePermissionGroupEntity().copyWith(
+      UserFactory.makePermissionGroupEntity().copyWith(
         id: 'grp-1',
         name: 'Supervisores',
       ),
-      EntityFactory.makePermissionGroupEntity().copyWith(
+      UserFactory.makePermissionGroupEntity().copyWith(
         id: 'grp-2',
         name: 'Gerentes',
       ),
-      EntityFactory.makePermissionGroupEntity().copyWith(
+      UserFactory.makePermissionGroupEntity().copyWith(
         id: 'grp-3',
         name: 'Diretoria',
       ),
@@ -54,7 +54,7 @@ void main() {
       CompanyState(parameters: tParameters, permissionGroups: tGroups),
     );
 
-    final adminUser = EntityFactory.makeUserProfileEntity().copyWith(
+    final adminUser = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
     );
     when(
@@ -213,7 +213,7 @@ void main() {
   });
 
   testWidgets('renders read-only mode for non-admin users', (tester) async {
-    final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+    final regularUser = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: false,
     );
     when(

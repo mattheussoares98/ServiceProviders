@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/auth/data/models/responses/user_data_mod
 import 'package:o_jogo_da_obra/features/users/data/models/responses/user_profile_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockLocalStorageClient mockLocalStorageClient;
@@ -22,7 +22,7 @@ void main() {
   });
 
   final userDataResponse = UserDataModel(
-    user: UserProfileModel.fromEntity(EntityFactory.makeUserProfileEntity()),
+    user: UserProfileModel.fromEntity(UserFactory.makeUserProfileEntity()),
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   );

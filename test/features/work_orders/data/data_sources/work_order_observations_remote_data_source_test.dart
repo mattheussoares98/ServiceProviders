@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
@@ -24,7 +24,7 @@ void main() {
     );
   });
 
-  final tObservationEntity = EntityFactory.makeWorkOrderObservationEntity();
+  final tObservationEntity = WorkOrderFactory.makeWorkOrderObservationEntity();
   final tObservationModel = WorkOrderObservationModel.fromEntity(
     tObservationEntity,
   );

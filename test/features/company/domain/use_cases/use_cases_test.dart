@@ -13,7 +13,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_us
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 
@@ -30,8 +30,8 @@ void main() {
   late UpdateCompanyLogoUseCase updateCompanyLogoUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeCompanyEntity());
-    registerFallbackValue(EntityFactory.makeCompanyParameterEntity());
+    registerFallbackValue(UserFactory.makeCompanyEntity());
+    registerFallbackValue(UserFactory.makeCompanyParameterEntity());
   });
 
   setUp(() {
@@ -57,8 +57,8 @@ void main() {
     );
   });
 
-  final tCompanyEntity = EntityFactory.makeCompanyEntity();
-  final tParametersEntity = EntityFactory.makeCompanyParameterEntity();
+  final tCompanyEntity = UserFactory.makeCompanyEntity();
+  final tParametersEntity = UserFactory.makeCompanyParameterEntity();
   final tCompanyId = tCompanyEntity.id;
 
   group('Company Use Cases', () {
@@ -246,7 +246,10 @@ void main() {
               filePath: any(named: 'filePath'),
               mimeType: any(named: 'mimeType'),
             ),
-          ).thenAnswer((_) async => const SuccessState(data: 'https://public.url/logo.png'));
+          ).thenAnswer(
+            (_) async =>
+                const SuccessState(data: 'https://public.url/logo.png'),
+          );
           when(
             () => mockRepository.saveCompany(any()),
           ).thenAnswer((_) async => const SuccessState(data: true));
@@ -280,36 +283,37 @@ void main() {
         },
       );
 
-      test('should return FailureState when getPresignedUploadUrl fails', () async {
-        when(
-          () => mockFileService.getMimeType(any()),
-        ).thenReturn('image/png');
-        when(
-          () => mockStorageClient.getPresignedUploadUrl(any()),
-        ).thenAnswer((_) async => FailureState(message: 'Presigned failed'));
+      test(
+        'should return FailureState when getPresignedUploadUrl fails',
+        () async {
+          when(
+            () => mockFileService.getMimeType(any()),
+          ).thenReturn('image/png');
+          when(
+            () => mockStorageClient.getPresignedUploadUrl(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Presigned failed'));
 
-        final result = await updateCompanyLogoUseCase(
-          UpdateCompanyLogoParams(
-            company: tCompanyEntity,
-            localPath: tLocalPath,
-          ),
-        );
+          final result = await updateCompanyLogoUseCase(
+            UpdateCompanyLogoParams(
+              company: tCompanyEntity,
+              localPath: tLocalPath,
+            ),
+          );
 
-        expect(result, isA<FailureState<CompanyEntity>>());
-        expect(result.message, 'Presigned failed');
-        verifyNever(
-          () => mockStorageClient.uploadFile(
-            presignedUrl: any(named: 'presignedUrl'),
-            filePath: any(named: 'filePath'),
-            mimeType: any(named: 'mimeType'),
-          ),
-        );
-      });
+          expect(result, isA<FailureState<CompanyEntity>>());
+          expect(result.message, 'Presigned failed');
+          verifyNever(
+            () => mockStorageClient.uploadFile(
+              presignedUrl: any(named: 'presignedUrl'),
+              filePath: any(named: 'filePath'),
+              mimeType: any(named: 'mimeType'),
+            ),
+          );
+        },
+      );
 
       test('should return FailureState when uploadFile fails', () async {
-        when(
-          () => mockFileService.getMimeType(any()),
-        ).thenReturn('image/png');
+        when(() => mockFileService.getMimeType(any())).thenReturn('image/png');
         when(
           () => mockStorageClient.getPresignedUploadUrl(any()),
         ).thenAnswer((_) async => const SuccessState(data: tPresigned));
@@ -334,9 +338,7 @@ void main() {
       });
 
       test('should return FailureState when saveCompany fails', () async {
-        when(
-          () => mockFileService.getMimeType(any()),
-        ).thenReturn('image/png');
+        when(() => mockFileService.getMimeType(any())).thenReturn('image/png');
         when(
           () => mockStorageClient.getPresignedUploadUrl(any()),
         ).thenAnswer((_) async => const SuccessState(data: tPresigned));
@@ -346,7 +348,9 @@ void main() {
             filePath: any(named: 'filePath'),
             mimeType: any(named: 'mimeType'),
           ),
-        ).thenAnswer((_) async => const SuccessState(data: 'https://public.url/logo.png'));
+        ).thenAnswer(
+          (_) async => const SuccessState(data: 'https://public.url/logo.png'),
+        );
         when(
           () => mockRepository.saveCompany(any()),
         ).thenAnswer((_) async => FailureState(message: 'Save failed'));
@@ -364,17 +368,20 @@ void main() {
     });
 
     group('GetAllCompaniesUseCase', () {
-      test('should call repository.getAllCompanies and return list on success', () async {
-        when(
-          () => mockRepository.getAllCompanies(),
-        ).thenAnswer((_) async => SuccessState(data: [tCompanyEntity]));
+      test(
+        'should call repository.getAllCompanies and return list on success',
+        () async {
+          when(
+            () => mockRepository.getAllCompanies(),
+          ).thenAnswer((_) async => SuccessState(data: [tCompanyEntity]));
 
-        final result = await getAllCompaniesUseCase();
+          final result = await getAllCompaniesUseCase();
 
-        expect(result, isA<SuccessState<List<CompanyEntity>>>());
-        expect(result.data?.first, tCompanyEntity);
-        verify(() => mockRepository.getAllCompanies()).called(1);
-      });
+          expect(result, isA<SuccessState<List<CompanyEntity>>>());
+          expect(result.data?.first, tCompanyEntity);
+          verify(() => mockRepository.getAllCompanies()).called(1);
+        },
+      );
 
       test('should return FailureState when repository fails', () async {
         when(
@@ -388,4 +395,3 @@ void main() {
     });
   });
 }
-

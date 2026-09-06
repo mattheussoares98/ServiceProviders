@@ -22,8 +22,9 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profi
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profiles_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
 import '../../../../../testing/mocks/external/external_mocks.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
@@ -50,13 +51,13 @@ void main() {
   late WatchUserProfilesRealtimeUseCase watchUserProfilesRealtimeUseCase;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeUserProfileEntity());
-    registerFallbackValue(EntityFactory.makePermissionGroupEntity());
-    registerFallbackValue(EntityFactory.makeUserInvitationEntity());
+    registerFallbackValue(UserFactory.makeUserProfileEntity());
+    registerFallbackValue(UserFactory.makePermissionGroupEntity());
+    registerFallbackValue(UserFactory.makeUserInvitationEntity());
     registerFallbackValue(
       const InviteUserParams(email: '', companyId: '', groupId: ''),
     );
-    registerFallbackValue(EntityFactory.makeUserDataEntity());
+    registerFallbackValue(UserFactory.makeUserDataEntity());
   });
 
   setUp(() {
@@ -107,13 +108,13 @@ void main() {
     );
   });
 
-  final tUserProfileEntity = EntityFactory.makeUserProfileEntity();
+  final tUserProfileEntity = UserFactory.makeUserProfileEntity();
   final tUserProfileList = [
     tUserProfileEntity,
     tUserProfileEntity,
     tUserProfileEntity,
   ];
-  final tPermissionGroupEntity = EntityFactory.makePermissionGroupEntity();
+  final tPermissionGroupEntity = UserFactory.makePermissionGroupEntity();
   final tPermissionGroupList = [
     tPermissionGroupEntity,
     tPermissionGroupEntity,
@@ -231,7 +232,7 @@ void main() {
     group('ResendInvitationUseCase', () {
       test('should resend invitation on success', () async {
         // Arrange
-        final invitation = EntityFactory.makeUserInvitationEntity();
+        final invitation = UserFactory.makeUserInvitationEntity();
         when(
           () => mockRepository.resendInvitation(any()),
         ).thenAnswer((_) async => SuccessState.nil);
@@ -439,7 +440,7 @@ void main() {
 
     group('HasPermissionUseCase', () {
       test('should return true when user is admin', () async {
-        final adminUser = EntityFactory.makeUserProfileEntity().copyWith(
+        final adminUser = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: true,
         );
         when(() => mockGetSessionUser.call()).thenReturn(adminUser);
@@ -456,7 +457,7 @@ void main() {
       });
 
       test('should return user override when present', () async {
-        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+        final regularUser = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
               .copyWith(managePendingRequests: true),
@@ -475,11 +476,11 @@ void main() {
       });
 
       test('should return group permission when override is null', () async {
-        final group = EntityFactory.makePermissionGroupEntity().copyWith(
+        final group = UserFactory.makePermissionGroupEntity().copyWith(
           workOrders: const WorkOrdersPermissionEntity.defaultTechnical()
               .copyWith(managePendingRequests: true),
         );
-        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+        final regularUser = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
           permissionGroupId: group.id,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty(),
@@ -504,7 +505,7 @@ void main() {
       });
 
       test('should return false when user has no permission', () async {
-        final regularUser = EntityFactory.makeUserProfileEntity().copyWith(
+        final regularUser = UserFactory.makeUserProfileEntity().copyWith(
           isAdmin: false,
           workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
               .copyWith(managePendingRequests: false),
@@ -524,11 +525,11 @@ void main() {
     });
 
     group('WatchUserProfilesRealtimeUseCase', () {
-      final tUserProfile = EntityFactory.makeUserProfileEntity();
+      final tUserProfile = UserFactory.makeUserProfileEntity();
       final tCompanyId = faker.guid.guid();
 
       test('should return stream from repository', () {
-        final event = EntityFactory.makeRealtimeEvent<UserProfileEntity>(
+        final event = SystemFactory.makeRealtimeEvent<UserProfileEntity>(
           entity: tUserProfile,
         );
         when(

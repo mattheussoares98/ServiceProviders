@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/company/domain/entities/company_paramete
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -21,19 +21,19 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      CompanyModel.fromEntity(EntityFactory.makeCompanyEntity()),
+      CompanyModel.fromEntity(UserFactory.makeCompanyEntity()),
     );
     registerFallbackValue(
       CompanyParameterModel.fromEntity(
-        EntityFactory.makeCompanyParameterEntity(),
+        UserFactory.makeCompanyParameterEntity(),
       ),
     );
     registerFallbackValue(
-      CompanyRequestModel.fromEntity(EntityFactory.makeCompanyEntity()),
+      CompanyRequestModel.fromEntity(UserFactory.makeCompanyEntity()),
     );
     registerFallbackValue(
       CompanyParameterRequestModel.fromEntity(
-        EntityFactory.makeCompanyParameterEntity(),
+        UserFactory.makeCompanyParameterEntity(),
       ),
     );
   });
@@ -49,11 +49,11 @@ void main() {
     );
   });
 
-  final tCompanyEntity = EntityFactory.makeCompanyEntity();
+  final tCompanyEntity = UserFactory.makeCompanyEntity();
   final tCompanyId = tCompanyEntity.id;
   final tCompanyModel = CompanyModel.fromEntity(tCompanyEntity);
 
-  final tCompanyParameterEntity = EntityFactory.makeCompanyParameterEntity()
+  final tCompanyParameterEntity = UserFactory.makeCompanyParameterEntity()
       .copyWith(companyId: tCompanyId);
   final tCompanyParameterModel = CompanyParameterModel.fromEntity(
     tCompanyParameterEntity,
@@ -338,9 +338,7 @@ void main() {
         'should return FailureState when online and remote update fails',
         () async {
           when(() => mockInternetClient.isConnected).thenReturn(true);
-          when(
-            () => mockRemoteDataSource.updateCompany(any()),
-          ).thenAnswer(
+          when(() => mockRemoteDataSource.updateCompany(any())).thenAnswer(
             (_) async => FailureState<CompanyModel>(message: 'Error'),
           );
 
@@ -446,25 +444,26 @@ void main() {
     });
 
     group('getAllCompanies', () {
-      test('should call remoteDataSource when online and return mapped entities', () async {
-        when(() => mockInternetClient.isConnected).thenReturn(true);
-        when(
-          () => mockRemoteDataSource.getAllCompanies(),
-        ).thenAnswer((_) async => SuccessState(data: [tCompanyModel]));
+      test(
+        'should call remoteDataSource when online and return mapped entities',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getAllCompanies(),
+          ).thenAnswer((_) async => SuccessState(data: [tCompanyModel]));
 
-        final result = await repository.getAllCompanies();
+          final result = await repository.getAllCompanies();
 
-        expect(result, isA<SuccessState<List<CompanyEntity>>>());
-        expect(result.data?.length, 1);
-        expect(result.data?.first, tCompanyModel.toEntity());
-        verify(() => mockRemoteDataSource.getAllCompanies()).called(1);
-      });
+          expect(result, isA<SuccessState<List<CompanyEntity>>>());
+          expect(result.data?.length, 1);
+          expect(result.data?.first, tCompanyModel.toEntity());
+          verify(() => mockRemoteDataSource.getAllCompanies()).called(1);
+        },
+      );
 
       test('should return FailureState when remote fails', () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
-        when(
-          () => mockRemoteDataSource.getAllCompanies(),
-        ).thenAnswer(
+        when(() => mockRemoteDataSource.getAllCompanies()).thenAnswer(
           (_) async =>
               FailureState<List<CompanyModel>>(message: 'Remote error'),
         );

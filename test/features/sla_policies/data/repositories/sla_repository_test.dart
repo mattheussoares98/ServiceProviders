@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
@@ -19,7 +19,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      SlaPolicyModel.fromEntity(EntityFactory.makeSlaPolicyEntity()),
+      SlaPolicyModel.fromEntity(SystemFactory.makeSlaPolicyEntity()),
     );
   });
 
@@ -34,7 +34,7 @@ void main() {
     );
   });
 
-  final tSlaPolicyEntity = EntityFactory.makeSlaPolicyEntity();
+  final tSlaPolicyEntity = SystemFactory.makeSlaPolicyEntity();
   final tSlaPolicyModel = SlaPolicyModel.fromEntity(tSlaPolicyEntity);
 
   group('getSlaPolicies', () {

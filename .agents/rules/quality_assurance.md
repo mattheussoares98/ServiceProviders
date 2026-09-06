@@ -14,9 +14,9 @@ All mocks and factories live at repo root in **`testing/mocks/`** (not under `te
 `entity_factory.dart` · `client_mocks.dart` · `data_source_mocks.dart` · `repository_mocks.dart` · `use_case_mocks.dart` · `services.dart` · `external/`
 
 **`EntityFactory` is the only factory.** Rules:
-- Factory methods take **no parameters** (`EntityFactory.makeWorkOrderEntity()`). Vary fields with the entity's `copyWith`; null a field with `copyWith(annul{Field}: true)`.
+- Factory methods take **no parameters** (`WorkOrderFactory.makeWorkOrderEntity()`). Vary fields with the entity's `copyWith`; null a field with `copyWith(annul{Field}: true)`.
 - Every list property holds **exactly 3 items**.
-- Need a model? Build it from the entity: `CompanyModel.fromEntity(EntityFactory.makeCompanyEntity())`.
+- Need a model? Build it from the entity: `CompanyModel.fromEntity(UserFactory.makeCompanyEntity())`.
 - Same rule inside `registerFallbackValue()`.
 - Helpers available beyond entities: list variants (`make{X}EntityList`) and value helpers (`makeEmail`, `makePassword`, `makeDateTime`, `makeInt`, `makeDouble`, `makeBool`, `makeHttps`, `makeCompanyName`). Id generation is private (`_makeId`) — take an id off a factory entity instead of generating one.
 
@@ -62,7 +62,7 @@ test('calls remote source when internet is connected', () async {
   when(() => net.isConnected).thenReturn(true);
   when(() => remote.login(any())).thenAnswer((_) async => SuccessState(data: tModel));
   await AuthRepositoryImpl(internet: net, remote: remote, local: MockAuthLocalDataSource())
-      .login(EntityFactory.makeAuthentication());
+      .login(UserFactory.makeAuthentication());
   verify(() => remote.login(any())).called(1);
 });
 ```

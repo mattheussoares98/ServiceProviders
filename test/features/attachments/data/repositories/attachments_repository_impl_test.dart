@@ -19,7 +19,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 
@@ -36,9 +36,9 @@ void main() {
   late MockStorageClient storageClient;
 
   setUpAll(() {
-    registerFallbackValue(EntityFactory.makeAttachmentEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
     registerFallbackValue(
-      AttachmentModel.fromEntity(EntityFactory.makeAttachmentEntity()),
+      AttachmentModel.fromEntity(MaintenancePlanFactory.makeAttachmentEntity()),
     );
   });
 
@@ -53,9 +53,7 @@ void main() {
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
-    when(
-      () => mockSessionRepository.getSelectedCompanyId(),
-    ).thenReturn('');
+    when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn('');
     when(
       () => mockCompanyRepository.getCompanyParameters(any()),
     ).thenAnswer((_) async => FailureState(message: 'none'));
@@ -93,9 +91,10 @@ void main() {
     ).thenAnswer((_) async => const SuccessState(data: null));
   });
 
-  final tAttachmentEntity = EntityFactory.makeAttachmentEntity();
+  final tAttachmentEntity = MaintenancePlanFactory.makeAttachmentEntity();
   final tAttachmentModel = AttachmentModel.fromEntity(tAttachmentEntity);
-  final tAttachmentEntityList = EntityFactory.makeAttachmentEntityList();
+  final tAttachmentEntityList =
+      MaintenancePlanFactory.makeAttachmentEntityList();
   final tAttachmentModelList = tAttachmentEntityList
       .map(AttachmentModel.fromEntity)
       .toList();
@@ -180,14 +179,14 @@ void main() {
         // Arrange
         final workOrderId = faker.guid.guid();
         final model1 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: faker.guid.guid(),
             workOrderId: workOrderId,
             uploadStatus: UploadStatus.uploaded,
           ),
         );
         final model2 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: faker.guid.guid(),
             workOrderId: workOrderId,
             uploadStatus: UploadStatus.uploaded,
@@ -246,7 +245,7 @@ void main() {
         final workOrderId = faker.guid.guid();
         final attachmentId = faker.guid.guid();
         final remoteModel = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: attachmentId,
             workOrderId: workOrderId,
             uploadStatus: UploadStatus.uploaded,
@@ -323,7 +322,7 @@ void main() {
           faker.randomGenerator.integer(statuses.length),
         );
         final localAttachment = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: status,
           ),
@@ -354,7 +353,7 @@ void main() {
         // Arrange
         final id = faker.guid.guid();
         final localAttachment = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
           ),
@@ -388,7 +387,7 @@ void main() {
         // Arrange
         final id = faker.guid.guid();
         final localAttachment = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
           ),
@@ -419,7 +418,7 @@ void main() {
         // Arrange
         final id = faker.guid.guid();
         final localAttachment = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             id: id,
             uploadStatus: UploadStatus.uploaded,
           ),
@@ -703,7 +702,7 @@ void main() {
   });
 
   group('uploadPendingAttachment', () {
-    final mockEntity = EntityFactory.makeAttachmentEntity().copyWith(
+    final mockEntity = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
       localPath: '${Directory.systemTemp.path}/local_file.jpg',
       originalPath: '${Directory.systemTemp.path}/original_file.jpg',
     );
@@ -1065,13 +1064,13 @@ void main() {
         ).thenAnswer((_) async => SuccessState(data: totalBytes));
 
         final candidate1 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             localPath: 'file1.webp',
             fileSizeBytes: candidate1Size,
           ),
         );
         final candidate2 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             localPath: 'file2.webp',
             fileSizeBytes: candidate2Size,
           ),
@@ -1105,12 +1104,12 @@ void main() {
       'clearLocalAttachments should delete local sandbox files and nullify localPath in database',
       () async {
         final upload1 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             localPath: 'upload1.jpg',
           ),
         );
         final upload2 = AttachmentModel.fromEntity(
-          EntityFactory.makeAttachmentEntity().copyWith(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
             localPath: 'upload2.jpg',
           ),
         );
@@ -1174,7 +1173,7 @@ void main() {
         () async {
           final workOrderId = faker.guid.guid();
           final model = AttachmentModel.fromEntity(
-            EntityFactory.makeAttachmentEntity().copyWith(
+            MaintenancePlanFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
               uploadStatus: UploadStatus.uploaded,
@@ -1210,7 +1209,7 @@ void main() {
         () async {
           final workOrderId = faker.guid.guid();
           final model = AttachmentModel.fromEntity(
-            EntityFactory.makeAttachmentEntity().copyWith(
+            MaintenancePlanFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
               uploadStatus: UploadStatus.uploaded,
@@ -1237,7 +1236,7 @@ void main() {
         () async {
           final workOrderId = faker.guid.guid();
           final model = AttachmentModel.fromEntity(
-            EntityFactory.makeAttachmentEntity().copyWith(
+            MaintenancePlanFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
               uploadStatus: UploadStatus.pending,
@@ -1267,7 +1266,7 @@ void main() {
           ).thenAnswer((_) async => FailureState(message: 'Network error'));
           final workOrderId = faker.guid.guid();
           final model = AttachmentModel.fromEntity(
-            EntityFactory.makeAttachmentEntity().copyWith(
+            MaintenancePlanFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
               uploadStatus: UploadStatus.uploaded,
@@ -1299,7 +1298,7 @@ void main() {
           final staleLocalPath = faker.lorem.word();
           final workOrderId = faker.guid.guid();
           final model = AttachmentModel.fromEntity(
-            EntityFactory.makeAttachmentEntity().copyWith(
+            MaintenancePlanFactory.makeAttachmentEntity().copyWith(
               id: fileId,
               remoteUrl: remoteFileUrl,
               uploadStatus: UploadStatus.uploaded,
@@ -1329,7 +1328,7 @@ void main() {
   });
 
   group('AttachmentsRepository in provider mode', () {
-    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity();
     final tModel = AttachmentModel.fromEntity(tAttachment);
 
     setUp(() {
@@ -1338,92 +1337,129 @@ void main() {
       ).thenReturn(AppMode.provider.name);
     });
 
-    test('getAttachmentsByWorkOrder fetches remotely without saving locally', () async {
-      when(() => mockInternet.isConnected).thenReturn(true);
-      when(
-        () => mockRemoteDataSource.getAttachmentsByWorkOrder(any()),
-      ).thenAnswer((_) async => SuccessState(data: [tModel]));
+    test(
+      'getAttachmentsByWorkOrder fetches remotely without saving locally',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrder(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tModel]));
 
-      final result = await repository.getAttachmentsByWorkOrder(tAttachment.workOrderId);
+        final result = await repository.getAttachmentsByWorkOrder(
+          tAttachment.workOrderId,
+        );
 
-      expect(result, isA<SuccessState<List<AttachmentEntity>>>());
-      verify(() => mockRemoteDataSource.getAttachmentsByWorkOrder(tAttachment.workOrderId)).called(1);
-      verifyNever(() => mockLocalDataSource.saveAttachment(any()));
-    });
+        expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+        verify(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrder(
+            tAttachment.workOrderId,
+          ),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.saveAttachment(any()));
+      },
+    );
 
-    test('getAttachmentsByWorkOrder returns failure without local fallback when offline', () async {
-      when(() => mockInternet.isConnected).thenReturn(false);
+    test(
+      'getAttachmentsByWorkOrder returns failure without local fallback when offline',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
 
-      final result = await repository.getAttachmentsByWorkOrder(tAttachment.workOrderId);
+        final result = await repository.getAttachmentsByWorkOrder(
+          tAttachment.workOrderId,
+        );
 
-      expect(result, isA<FailureState<List<AttachmentEntity>>>());
-      verifyNever(() => mockLocalDataSource.getAttachmentsByWorkOrder(any()));
-    });
+        expect(result, isA<FailureState<List<AttachmentEntity>>>());
+        verifyNever(() => mockLocalDataSource.getAttachmentsByWorkOrder(any()));
+      },
+    );
 
-    test('deleteAttachment deletes remotely without local interaction in provider mode', () async {
-      when(() => mockInternet.isConnected).thenReturn(true);
-      when(
-        () => mockRemoteDataSource.deleteAttachment(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'deleteAttachment deletes remotely without local interaction in provider mode',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.deleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await repository.deleteAttachment(tAttachment.id);
+        final result = await repository.deleteAttachment(tAttachment.id);
 
-      expect(result, const SuccessState(data: true));
-      verify(() => mockRemoteDataSource.deleteAttachment(tAttachment.id)).called(1);
-      verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
-    });
+        expect(result, const SuccessState(data: true));
+        verify(
+          () => mockRemoteDataSource.deleteAttachment(tAttachment.id),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
+      },
+    );
 
-    test('deleteAttachment returns failure when offline in provider mode', () async {
-      when(() => mockInternet.isConnected).thenReturn(false);
+    test(
+      'deleteAttachment returns failure when offline in provider mode',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
 
-      final result = await repository.deleteAttachment(tAttachment.id);
+        final result = await repository.deleteAttachment(tAttachment.id);
 
-      expect(result, isA<FailureState<bool>>());
-      verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
-      verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
-    });
+        expect(result, isA<FailureState<bool>>());
+        verifyNever(() => mockRemoteDataSource.deleteAttachment(any()));
+        verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
+      },
+    );
   });
 
   group('watchAttachmentsRealtime', () {
-    final tAttachment = EntityFactory.makeAttachmentEntity();
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity();
     final tModel = AttachmentModel.fromEntity(tAttachment);
 
-    test('saves model locally and emits event on insert in internal mode', () async {
-      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
-      when(() => mockLocalDataSource.getAttachment(tModel.id))
-          .thenAnswer((_) async => const SuccessState(data: null));
-      when(() => mockLocalDataSource.saveAttachment(any()))
-          .thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'saves model locally and emits event on insert in internal mode',
+      () async {
+        when(
+          () => mockSessionRepository.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(
+          () => mockLocalDataSource.getAttachment(tModel.id),
+        ).thenAnswer((_) async => const SuccessState(data: null));
+        when(
+          () => mockLocalDataSource.saveAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final remoteEvent = RealtimeEvent<AttachmentModel>(
-        eventType: RealtimeEventType.insert,
-        id: tModel.id,
-        entity: tModel,
-      );
+        final remoteEvent = RealtimeEvent<AttachmentModel>(
+          eventType: RealtimeEventType.insert,
+          id: tModel.id,
+          entity: tModel,
+        );
 
-      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
-          .thenAnswer((_) => Stream.value(remoteEvent));
+        when(
+          () => mockRemoteDataSource.watchAttachmentsRealtime(
+            workOrderId: tAttachment.workOrderId,
+          ),
+        ).thenAnswer((_) => Stream.value(remoteEvent));
 
-      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+        final stream = repository.watchAttachmentsRealtime(
+          workOrderId: tAttachment.workOrderId,
+        );
 
-      await expectLater(
-        stream,
-        emits(
-          predicate<RealtimeEvent<AttachmentEntity>>((event) {
-            return event.eventType == RealtimeEventType.insert &&
-                event.id == tModel.id &&
-                event.entity?.fileName == tModel.fileName;
-          }),
-        ),
-      );
+        await expectLater(
+          stream,
+          emits(
+            predicate<RealtimeEvent<AttachmentEntity>>((event) {
+              return event.eventType == RealtimeEventType.insert &&
+                  event.id == tModel.id &&
+                  event.entity?.fileName == tModel.fileName;
+            }),
+          ),
+        );
 
-      verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
-    });
+        verify(() => mockLocalDataSource.saveAttachment(any())).called(1);
+      },
+    );
 
     test('deletes locally on update with deletedAt in internal mode', () async {
-      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
-      when(() => mockLocalDataSource.deleteAttachment(tModel.id))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.internal.name);
+      when(
+        () => mockLocalDataSource.deleteAttachment(tModel.id),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final deletedModel = AttachmentModel.fromEntity(
         tAttachment.copyWith(deletedAt: DateTime.now()),
@@ -1434,10 +1470,15 @@ void main() {
         entity: deletedModel,
       );
 
-      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
-          .thenAnswer((_) => Stream.value(remoteEvent));
+      when(
+        () => mockRemoteDataSource.watchAttachmentsRealtime(
+          workOrderId: tAttachment.workOrderId,
+        ),
+      ).thenAnswer((_) => Stream.value(remoteEvent));
 
-      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+      final stream = repository.watchAttachmentsRealtime(
+        workOrderId: tAttachment.workOrderId,
+      );
 
       await expectLater(
         stream,
@@ -1449,23 +1490,33 @@ void main() {
         ),
       );
 
-      verify(() => mockLocalDataSource.deleteAttachment(deletedModel.id)).called(1);
+      verify(
+        () => mockLocalDataSource.deleteAttachment(deletedModel.id),
+      ).called(1);
     });
 
     test('deletes locally on delete event in internal mode', () async {
-      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.internal.name);
-      when(() => mockLocalDataSource.deleteAttachment(tModel.id))
-          .thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.internal.name);
+      when(
+        () => mockLocalDataSource.deleteAttachment(tModel.id),
+      ).thenAnswer((_) async => const SuccessState(data: true));
 
       final remoteEvent = RealtimeEvent<AttachmentModel>(
         eventType: RealtimeEventType.delete,
         id: tModel.id,
       );
 
-      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
-          .thenAnswer((_) => Stream.value(remoteEvent));
+      when(
+        () => mockRemoteDataSource.watchAttachmentsRealtime(
+          workOrderId: tAttachment.workOrderId,
+        ),
+      ).thenAnswer((_) => Stream.value(remoteEvent));
 
-      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+      final stream = repository.watchAttachmentsRealtime(
+        workOrderId: tAttachment.workOrderId,
+      );
 
       await expectLater(
         stream,
@@ -1481,7 +1532,9 @@ void main() {
     });
 
     test('does not interact with local database in provider mode', () async {
-      when(() => mockSessionRepository.getSelectedMode()).thenReturn(AppMode.provider.name);
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.provider.name);
 
       final remoteEvent = RealtimeEvent<AttachmentModel>(
         eventType: RealtimeEventType.insert,
@@ -1489,10 +1542,15 @@ void main() {
         entity: tModel,
       );
 
-      when(() => mockRemoteDataSource.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId))
-          .thenAnswer((_) => Stream.value(remoteEvent));
+      when(
+        () => mockRemoteDataSource.watchAttachmentsRealtime(
+          workOrderId: tAttachment.workOrderId,
+        ),
+      ).thenAnswer((_) => Stream.value(remoteEvent));
 
-      final stream = repository.watchAttachmentsRealtime(workOrderId: tAttachment.workOrderId);
+      final stream = repository.watchAttachmentsRealtime(
+        workOrderId: tAttachment.workOrderId,
+      );
 
       await expectLater(
         stream,
@@ -1509,4 +1567,3 @@ void main() {
     });
   });
 }
-

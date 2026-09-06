@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/company/data/data_sources/company_local_
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_model.dart';
 import 'package:o_jogo_da_obra/features/company/data/models/responses/company_parameter_model.dart';
 
-import '../../../../../testing/mocks/entity_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 
 void main() {
   late AppDatabase database;
@@ -21,10 +21,10 @@ void main() {
     await database.close();
   });
 
-  final tCompanyEntity = EntityFactory.makeCompanyEntity();
+  final tCompanyEntity = UserFactory.makeCompanyEntity();
   final tCompanyModel = CompanyModel.fromEntity(tCompanyEntity);
 
-  final tCompanyParameterEntity = EntityFactory.makeCompanyParameterEntity()
+  final tCompanyParameterEntity = UserFactory.makeCompanyParameterEntity()
       .copyWith(companyId: tCompanyModel.id);
   final tCompanyParameterModel = CompanyParameterModel.fromEntity(
     tCompanyParameterEntity,
@@ -166,4 +166,3 @@ void main() {
     });
   });
 }
-
