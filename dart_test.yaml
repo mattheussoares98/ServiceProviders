@@ -1,0 +1,12 @@
+# Integration suites talk to the LIVE Supabase project.
+#
+# They are not excluded by tag here: `flutter test` offers no way to re-include a
+# tag that dart_test.yaml excludes at the top level (`--tags integration` still
+# loses to `exclude_tags`), which would make the suites unrunnable. The exclusion
+# is enforced instead by `IntegrationRun.registerGuard()`, which registers zero
+# tests unless INTEGRATION_TESTS=true — so a bare `flutter test` stays green and
+# never reaches production. See tool/run_integration_tests.sh.
+tags:
+  # Live-network suites; the default 30s timeout is far too tight.
+  integration:
+    timeout: 5x

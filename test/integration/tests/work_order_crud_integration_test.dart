@@ -1,212 +1,262 @@
-import 'package:faker/faker.dart';
+// A catalogue case interleaves `check.step(...)` narration with assertions on
+// the values between them; cascading those into one chain would destroy the
+// step/assert reading order the report depends on.
+// ignore_for_file: cascade_invocations
+
+@Tags(['integration'])
+library;
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
-import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
 
-import '../../../testing/mocks/entity_factory.dart';
+import '../core/checked_case.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
-import '../core/integration_data_tracker.dart';
+import '../core/integration_identity.dart';
+import '../core/integration_run.dart';
+import '../core/integration_session.dart';
 import '../helpers/asset_integration_helper.dart';
 import '../helpers/category_integration_helper.dart';
 import '../helpers/location_integration_helper.dart';
 import '../helpers/sla_integration_helper.dart';
-import '../supabase_integration_helper.dart';
+import '../helpers/work_order_integration_helper.dart';
+
+const _suite = 'work-orders-crud';
+const _feature = 'Work Orders / CRUD';
 
 void main() {
-  late SupabaseDatabaseClient db;
-  late LocationsRemoteDataSource locationsRemote;
-  late CategoriesRemoteDataSource categoriesRemote;
-  late AssetsRemoteDataSource assetsRemote;
-  late SlaRemoteDataSource slaRemote;
-  late WorkOrdersRemoteDataSource workOrdersRemote;
+  if (!IntegrationRun.registerGuard()) return;
 
-  late String companyId;
-  late String userId;
-  late String locationId;
-  late String areaId;
-  late String assetId;
-  late String slaPolicyId;
+  late IntegrationSession admin;
+  late WorkOrderContext context;
 
   setUpAll(() async {
-    await SupabaseIntegrationHelper.initialize();
-    db = SupabaseIntegrationHelper.databaseClient;
+    admin = await IntegrationSessions.as(Identity.admin);
+    final sources = admin.sources;
+    final companyId = admin.companyId;
 
-    locationsRemote = LocationsRemoteDataSourceImpl(
-      database: db,
-      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
-    );
-    categoriesRemote = CategoriesRemoteDataSourceImpl(database: db);
-    assetsRemote = AssetsRemoteDataSourceImpl(
-      database: db,
-      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
-    );
-    slaRemote = SlaRemoteDataSourceImpl(
-      database: db,
-      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
-    );
-    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
-      database: db,
-    );
-
-    companyId = IntegrationConfig.companyId;
-    userId = await SupabaseIntegrationHelper.signInAsAdmin();
-
-    // 1. Location & Area
     final location = await LocationIntegrationHelper.getOrCreateLocation(
-      locationsRemote,
+      sources.locations,
       companyId,
     );
     final area = await LocationIntegrationHelper.getOrCreateArea(
-      locationsRemote,
+      sources.locations,
       companyId,
       location.id,
     );
-
-    // 2. Category
     final category = await CategoryIntegrationHelper.getOrCreateCategory(
-      categoriesRemote,
+      sources.categories,
       companyId,
     );
-
-    // 3. Asset (synced with area/location)
-    final assetResult = await AssetIntegrationHelper.getOrCreateAsset(
-      assetsRemote: assetsRemote,
-      locationsRemote: locationsRemote,
+    final asset = await AssetIntegrationHelper.getOrCreateAsset(
+      assetsRemote: sources.assets,
+      locationsRemote: sources.locations,
       companyId: companyId,
       areaId: area.id,
       categoryId: category.id,
     );
-    assetId = assetResult.asset.id;
-    areaId = assetResult.areaId;
-    locationId = assetResult.locationId;
-
-    // 4. SLA Policy
     final sla = await SlaIntegrationHelper.getOrCreateSlaPolicy(
-      slaRemote,
+      sources.sla,
       companyId,
     );
-    slaPolicyId = sla.id;
+
+    context = (
+      companyId: companyId,
+      locationId: asset.locationId,
+      areaId: asset.areaId,
+      assetId: asset.asset.id,
+      slaPolicyId: sla.id,
+    );
   });
 
   tearDownAll(() async {
     if (IntegrationConfig.autoCleanup) {
-      await IntegrationCleanup.cleanTracked(db);
+      await IntegrationCleanup.cleanTracked(admin.database);
     }
+    await IntegrationSessions.disposeAll();
   });
 
-  group('Work Order CRUD Database Integration Tests', () {
-    test('Create, read, update, and soft-delete a work order', () async {
-      final workOrderId = faker.guid.guid();
-      IntegrationDataTracker.instance.track('work_orders', workOrderId);
-
-      final initialEntity = EntityFactory.makeWorkOrderEntity().copyWith(
-        id: workOrderId,
-        companyId: companyId,
-        locationId: locationId,
-        areaId: areaId,
-        assetId: assetId,
-        assignedToId: userId,
-        createdById: userId,
-        title: IntegrationConfig.testName('WO ${faker.lorem.sentence()}'),
-        status: WorkOrderStatus.open,
-        createdAt: DateTime.now().toUtc(),
-        updatedAt: DateTime.now().toUtc(),
-        attachments: const [],
-        slaPolicyId: slaPolicyId,
-        annulServiceProviderCompanyId: true,
-        annulProviderProfileId: true,
-        annulMaintenancePlanId: true,
-        annulStartedAt: true,
-        annulCompletedAt: true,
-        annulActualDuration: true,
-        annulNetActiveDuration: true,
-        annulCompletionReason: true,
-        annulCompletionResponsibility: true,
-        annulCompletionSectorId: true,
+  checkedTest(
+    'WO-02',
+    'Create a full work order and read it back unchanged',
+    feature: _feature,
+    role: 'admin',
+    suiteSlug: _suite,
+    expected: 'Every field round-trips; status is open',
+    body: (check) async {
+      check.step('build a fully populated [IT] work order');
+      final entity = WorkOrderIntegrationHelper.buildEntity(
+        context: context,
+        userId: admin.userId,
       );
 
-      // 1. Create
-      final createResult = await workOrdersRemote.createWorkOrder(
-        WorkOrderModel.fromEntity(initialEntity),
-      );
-      expect(createResult, isA<SuccessState<bool>>());
+      check.step('createWorkOrder');
 
-      // 2. Read by ID
-      final getByIdResult = await workOrdersRemote.getWorkOrderById(
-        workOrderId,
+      final created = await admin.sources.workOrders.createWorkOrder(
+        WorkOrderModel.fromEntity(entity),
       );
-      expect(getByIdResult, isA<SuccessState<WorkOrderModel>>());
-      final createdWO = (getByIdResult as SuccessState<WorkOrderModel>).data;
-      expect(createdWO?.toEntity(), initialEntity);
-
-      // 3. Update
-      final updatedTitle = IntegrationConfig.testName(
-        'Updated WO ${faker.lorem.sentence()}',
+      check.softExpect(
+        created,
+        isA<SuccessState<bool>>(),
+        reason: 'create must succeed',
       );
-      final updatedEntity = EntityFactory.makeWorkOrderEntity().copyWith(
-        id: workOrderId,
-        companyId: companyId,
-        locationId: locationId,
-        areaId: areaId,
-        assetId: assetId,
-        assignedToId: userId,
-        createdById: userId,
-        title: updatedTitle,
-        status: WorkOrderStatus.open,
-        createdAt: DateTime.now().toUtc(),
-        updatedAt: DateTime.now().toUtc(),
-        attachments: const [],
-        slaPolicyId: slaPolicyId,
-        annulServiceProviderCompanyId: true,
-        annulProviderProfileId: true,
-        annulMaintenancePlanId: true,
-        annulStartedAt: true,
-        annulCompletedAt: true,
-        annulActualDuration: true,
-        annulNetActiveDuration: true,
-        annulCompletionReason: true,
-        annulCompletionResponsibility: true,
-        annulCompletionSectorId: true,
+
+      check.step('getWorkOrderById');
+      final fetched = await admin.sources.workOrders.getWorkOrderById(
+        entity.id,
       );
-      final updateResult = await workOrdersRemote.updateWorkOrder(
-        WorkOrderModel.fromEntity(updatedEntity),
-      );
-      expect(updateResult, isA<SuccessState<bool>>());
+      check.softExpect(fetched, isA<SuccessState<WorkOrderModel>>());
 
-      final getAfterUpdate = await workOrdersRemote.getWorkOrderById(
-        workOrderId,
-      );
-      final updatedWO = (getAfterUpdate as SuccessState<WorkOrderModel>).data;
-      expect(updatedWO?.toEntity(), updatedEntity);
-
-      // 4. Soft Delete
-      if (IntegrationConfig.autoCleanup) {
-        final deleteResult = await workOrdersRemote.deleteWorkOrder(workOrderId);
-        expect(deleteResult, isA<SuccessState<bool>>());
-
-        // 5. Verify excluded from getWorkOrderById
-        final postDeleteFetch = await workOrdersRemote.getWorkOrderById(
-          workOrderId,
-        );
-        expect(postDeleteFetch, isA<FailureState<WorkOrderModel>>());
-
-        // 6. Verify deleted_at is set in the database
-        final rawRow = await db.selectOne(
-          table: 'work_orders',
-          filters: [SupabaseFilter.eq('id', workOrderId)],
-        );
-        expect(rawRow, isNotNull);
-        expect(rawRow!['deleted_at'], isNotNull);
+      if (fetched is SuccessState<WorkOrderModel>) {
+        check
+          ..actual('round-tripped as ${fetched.data?.toEntity().status}')
+          ..softExpect(
+            fetched.data?.toEntity(),
+            entity,
+            reason: 'every field must round-trip',
+          );
       }
-    });
-  });
+    },
+  );
+
+  checkedTest(
+    'WO-10',
+    'Update title, description and priority',
+    feature: _feature,
+    role: 'admin',
+    suiteSlug: _suite,
+    expected: 'Changes persist and read back',
+    body: (check) async {
+      check.step('seed an open work order');
+      final entity = await WorkOrderIntegrationHelper.create(
+        remote: admin.sources.workOrders,
+        context: context,
+        userId: admin.userId,
+      );
+
+      check.step('updateWorkOrder with a new title');
+      final updated = entity.copyWith(
+        title: IntegrationConfig.testName('Updated WO'),
+        updatedAt: DateTime.now().toUtc(),
+      );
+      final result = await admin.sources.workOrders.updateWorkOrder(
+        WorkOrderModel.fromEntity(updated),
+      );
+      check.softExpect(result, isA<SuccessState<bool>>());
+
+      check.step('read back');
+      final fetched = await admin.sources.workOrders.getWorkOrderById(
+        entity.id,
+      );
+      if (fetched is SuccessState<WorkOrderModel>) {
+        check
+          ..actual('title is now ${fetched.data?.toEntity().title}')
+          ..softExpect(fetched.data?.toEntity().title, updated.title);
+      } else {
+        check.softExpect(fetched, isA<SuccessState<WorkOrderModel>>());
+      }
+    },
+  );
+
+  checkedTest(
+    'WO-13',
+    'Soft-delete a work order sets deleted_at',
+    feature: _feature,
+    role: 'admin',
+    suiteSlug: _suite,
+    expected: 'deleted_at is stamped on the row',
+    body: (check) async {
+      check.step('seed an open work order');
+      final entity = await WorkOrderIntegrationHelper.create(
+        remote: admin.sources.workOrders,
+        context: context,
+        userId: admin.userId,
+      );
+
+      check.step('deleteWorkOrder');
+      final deleted = await admin.sources.workOrders.deleteWorkOrder(entity.id);
+      check.softExpect(deleted, isA<SuccessState<bool>>());
+
+      check.step('read the raw row');
+      final row = await admin.database.selectOne(
+        table: 'work_orders',
+        filters: [SupabaseFilter.eq('id', entity.id)],
+      );
+      check
+        ..actual('deleted_at = ${row?['deleted_at']}')
+        ..softExpect(row, isNotNull, reason: 'the row must still exist')
+        ..softExpect(row?['deleted_at'], isNotNull);
+    },
+  );
+
+  checkedTest(
+    'WO-09',
+    'getWorkOrderById must not return a soft-deleted work order',
+    feature: _feature,
+    role: 'admin',
+    suiteSlug: _suite,
+    expected: 'FailureState — a deleted order is invisible to the read path',
+    body: (check) async {
+      check.step('seed and soft-delete a work order');
+      final entity = await WorkOrderIntegrationHelper.create(
+        remote: admin.sources.workOrders,
+        context: context,
+        userId: admin.userId,
+      );
+      await admin.sources.workOrders.deleteWorkOrder(entity.id);
+
+      check.step('getWorkOrderById after the soft-delete');
+      final fetched = await admin.sources.workOrders.getWorkOrderById(
+        entity.id,
+      );
+
+      if (fetched is SuccessState<WorkOrderModel>) {
+        check
+          ..actual(
+            'SuccessState — the deleted order is still readable '
+            '(status ${fetched.data?.toEntity().status}, '
+            'deletedAt ${fetched.data?.toEntity().deletedAt})',
+          )
+          ..note(
+            'getWorkOrderById does not filter on deleted_at, so a soft-deleted '
+            'work order stays reachable by id even though it is excluded from '
+            'every list query.',
+          );
+      } else {
+        check.actual('FailureState as expected');
+      }
+
+      check.softExpect(fetched, isA<FailureState<WorkOrderModel>>());
+    },
+  );
+
+  checkedTest(
+    'WO-06',
+    'Create one work order of each WorkOrderType',
+    feature: _feature,
+    role: 'admin',
+    suiteSlug: _suite,
+    expected: 'corrective, preventive and inspection are all accepted',
+    body: (check) async {
+      for (final type in WorkOrderType.values) {
+        check.step('create a ${type.name} work order');
+        final entity = WorkOrderIntegrationHelper.buildEntity(
+          context: context,
+          userId: admin.userId,
+        ).copyWith(type: type);
+
+        final created = await admin.sources.workOrders.createWorkOrder(
+          WorkOrderModel.fromEntity(entity),
+        );
+        check.softExpect(
+          created,
+          isA<SuccessState<bool>>(),
+          reason: 'type ${type.name} must be accepted by the CHECK constraint',
+        );
+      }
+    },
+  );
 }

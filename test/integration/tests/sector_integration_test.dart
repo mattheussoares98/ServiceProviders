@@ -1,3 +1,6 @@
+@Tags(['integration'])
+library;
+
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
@@ -9,9 +12,12 @@ import '../../../testing/mocks/entity_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
 import '../core/integration_data_tracker.dart';
+import '../core/integration_run.dart';
 import '../supabase_integration_helper.dart';
 
 void main() {
+  if (!IntegrationRun.registerGuard()) return;
+
   late SupabaseDatabaseClient db;
   late SectorsRemoteDataSource sectorsRemote;
   late String companyId;
