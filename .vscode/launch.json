@@ -8,6 +8,20 @@
       "program": "./test/"
     },
     {
+      "name": "Dart: Run Integration Tests",
+      "type": "dart",
+      "request": "launch",
+      "program": "./test/integration/tests/",
+      "env": {
+        "INTEGRATION_TESTS": "true"
+      },
+      "toolArgs": [
+        "-j",
+        "1",
+        "--dart-define=INTEGRATION_TESTS=true"
+      ]
+    },
+    {
       "name": "Debug-No-Flavors",
       "request": "launch",
       "type": "dart",
