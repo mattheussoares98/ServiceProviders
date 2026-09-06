@@ -49,10 +49,9 @@ class AssetIntegrationHelper {
         var resolvedLocationId = '';
 
         final areas = await locationsRemote.getAreas(companyId);
-        final assetArea = areas.data?.firstWhere(
-          (a) => a.id == resolvedAreaId,
-          orElse: () => areas.data!.first,
-        );
+        final assetArea = areas.data
+            ?.where((a) => a.id == resolvedAreaId)
+            .firstOrNull;
         if (assetArea != null) {
           resolvedAreaId = assetArea.id;
           resolvedLocationId = assetArea.locationId;

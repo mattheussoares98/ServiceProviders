@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/users/data/models/responses/permission_g
 import '../core/checked_case.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
+import '../core/integration_data_tracker.dart';
 import '../core/integration_error.dart';
 import '../core/integration_identity.dart';
 import '../core/integration_permission_fixture.dart';
@@ -57,7 +58,7 @@ void main() {
       sources.categories,
       companyId,
     );
-    final asset = await AssetIntegrationHelper.getOrCreateAsset(
+    final assetResult = await AssetIntegrationHelper.getOrCreateAsset(
       assetsRemote: sources.assets,
       locationsRemote: sources.locations,
       companyId: companyId,
@@ -71,9 +72,9 @@ void main() {
 
     context = (
       companyId: companyId,
-      locationId: asset.locationId,
-      areaId: asset.areaId,
-      assetId: asset.asset.id,
+      locationId: assetResult.locationId,
+      areaId: assetResult.areaId,
+      assetId: assetResult.asset.id,
       slaPolicyId: sla.id,
     );
   });
@@ -257,9 +258,10 @@ void main() {
     role: 'technician (scoped)',
     suiteSlug: _suite,
     expected:
-        'Denied. Predicted to FAIL (F1): has_permission ends in '
+        'Denied. Regression guard for F1: has_permission() used to end in '
         '`v_permissions ? key`, and on a JSONB object `?` tests key existence, '
-        'so "key": false grants access.',
+        'so "key": false granted access. Fixed by '
+        '20260906120000_fix_has_permission_object_format.sql.',
     body: (check) async {
       check.step('grant the technician a group where every key is false');
       await PermissionFixture.apply(
@@ -294,9 +296,11 @@ void main() {
       check.actual(observed);
       if (!denied) {
         check.note(
-          'F1 reproduced: "locations.create": false did not deny the insert. '
-          'Any group in production that spells a permission out as false is '
-          'granting it.',
+          'F1 has regressed: "locations.create": false did not deny the '
+          'insert. Any group in production that spells a permission out as '
+          'false is granting it. Check that '
+          '20260906120000_fix_has_permission_object_format.sql is applied to '
+          'this project.',
         );
       }
       check.softExpect(
@@ -304,6 +308,66 @@ void main() {
         isTrue,
         reason: '"locations.create": false must deny, not grant',
       );
+
+      check.step('the other shape: the same key absent entirely');
+      await PermissionFixture.apply(
+        session: tech,
+        label: 'absent-keys',
+        permissions: {'work_orders.read': true, 'work_orders.read_scope': 'all'},
+      );
+
+      final absentDenied = await _locationInsertIsDenied(check, tech, context);
+      check.softExpect(
+        absentDenied,
+        isTrue,
+        reason: 'an absent locations.create must deny',
+      );
+    },
+  );
+
+  checkedTest(
+    'RLS-09',
+    'has_permission() honours the legacy array format as well as the object',
+    feature: _feature,
+    role: 'technician (scoped)',
+    suiteSlug: _suite,
+    expected:
+        'In the legacy array format membership alone grants, so '
+        '["locations.create"] allows the insert and [] denies it — while the '
+        'object format decides on the value. Records which format the live '
+        'function actually honours.',
+    body: (check) async {
+      check.step('legacy array listing locations.create');
+      await PermissionFixture.applyLegacyArray(tech, [
+        'locations.create',
+        'locations.read',
+      ], label: 'legacy-granting');
+
+      final grantedDenied = await _locationInsertIsDenied(check, tech, context);
+      check.softExpect(
+        grantedDenied,
+        isFalse,
+        reason: 'array membership must grant locations.create',
+      );
+
+      check.step('legacy array omitting locations.create');
+      await PermissionFixture.applyLegacyArray(tech, [
+        'locations.read',
+      ], label: 'legacy-denying');
+
+      final omittedDenied = await _locationInsertIsDenied(check, tech, context);
+      check.softExpect(
+        omittedDenied,
+        isTrue,
+        reason: 'an array without locations.create must deny',
+      );
+
+      if (!grantedDenied && omittedDenied) {
+        check.note(
+          'The live function honours both formats: array by membership, '
+          'object by value.',
+        );
+      }
     },
   );
 
@@ -421,4 +485,38 @@ void main() {
       );
     },
   );
+}
+
+/// Attempts a `locations` insert as [session] and reports whether RLS denied it.
+///
+/// Both `RLS-04` and `RLS-09` probe `has_permission('locations.create')` the
+/// same way: the outcome is asymmetric, so a denied INSERT raises `42501`
+/// rather than returning zero rows.
+Future<bool> _locationInsertIsDenied(
+  CheckContext check,
+  IntegrationSession session,
+  WorkOrderContext context,
+) async {
+  try {
+    final rows = await session.database.insert(
+      table: 'locations',
+      values: {
+        'company_id': context.companyId,
+        'name': IntegrationConfig.testName('has_permission probe'),
+        'is_active': true,
+      },
+    );
+    if (rows.isNotEmpty) {
+      IntegrationDataTracker.instance.track(
+        'locations',
+        rows.first['id'] as String,
+      );
+    }
+    check.actual('insert succeeded (${rows.length} row)');
+    return false;
+  } on Object catch (error) {
+    final code = IntegrationError.from(error).code;
+    check.actual('insert raised ${code ?? error.runtimeType}');
+    return code == PgCode.rlsDenied;
+  }
 }

@@ -37,13 +37,24 @@ class PermissionFixture {
   /// read-modify-write through it silently drops `"*": true` and those three
   /// resource families (finding F4).
   ///
-  /// Note on revoking: `has_permission()` ends in `v_permissions ? key`, which
-  /// on a JSONB *object* tests key **existence** — so `"x.y": false` grants
-  /// rather than denies (finding F1). To revoke a boolean permission, omit the
-  /// key entirely rather than setting it false.
+  /// Note on revoking: since the F1 fix
+  /// (`20260906120000_fix_has_permission_object_format.sql`) `has_permission()`
+  /// reads the *value*, so `"x.y": false` denies. Omitting the key denies too;
+  /// both shapes are exercised by `RLS-04`.
   static Future<String> apply({
     required IntegrationSession session,
     required MapDynamic permissions,
+    String label = 'fixture',
+  }) => applyRaw(session: session, permissions: permissions, label: label);
+
+  /// The JSONB-typed entry point behind [apply].
+  ///
+  /// [permissions] is written verbatim, so it may be the flat object the app
+  /// writes today **or** the legacy array (`["work_orders.read"]`) that
+  /// `has_permission()` still supports — see [applyLegacyArray] and `RLS-09`.
+  static Future<String> applyRaw({
+    required IntegrationSession session,
+    required Object permissions,
     String label = 'fixture',
   }) async {
     final db = session.database;
@@ -115,6 +126,17 @@ class PermissionFixture {
     },
   );
 
+  /// Grants [keys] in the **legacy array** permission format.
+  ///
+  /// Groups seeded before `20260717000000_two_tier_permissions.sql` still hold
+  /// this shape, and `has_permission()` keeps a branch for it where membership
+  /// alone is the grant. `RLS-09` pins that branch against the object one.
+  static Future<String> applyLegacyArray(
+    IntegrationSession session,
+    List<String> keys, {
+    String label = 'legacy-array',
+  }) => applyRaw(session: session, permissions: keys, label: label);
+
   /// Convenience for the scope cases. `work_orders` updates are not gated by a
   /// boolean at all, so the scope keys are what actually vary.
   static Future<String> applyScopedTechnician(
@@ -125,6 +147,7 @@ class PermissionFixture {
     session: session,
     label: 'scope-$readScope-$updateScope',
     permissions: {
+      'assets.read': true,
       'work_orders.read': true,
       'work_orders.read_scope': readScope,
       'work_orders.update_scope': updateScope,

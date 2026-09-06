@@ -18,6 +18,7 @@ class PermissionGroupModel extends PermissionGroupEntity
     required super.isDefault,
     required super.createdAt,
     super.deletedAt,
+    this.rawPermissions = const {},
   });
 
   factory PermissionGroupModel.fromEntity(PermissionGroupEntity entity) =>
@@ -34,6 +35,7 @@ class PermissionGroupModel extends PermissionGroupEntity
 
   factory PermissionGroupModel.fromDb(PermissionGroup db) {
     final parsed = _parsePermissions(db.permissions);
+    final raw = _extractRawMap(db.permissions);
     return PermissionGroupModel(
       id: db.id,
       companyId: db.companyId,
@@ -43,11 +45,13 @@ class PermissionGroupModel extends PermissionGroupEntity
       isDefault: db.isDefault,
       createdAt: db.createdAt.toUtc(),
       deletedAt: db.deletedAt?.toUtc(),
+      rawPermissions: raw,
     );
   }
 
   factory PermissionGroupModel.fromJson(MapDynamic json) {
     final parsed = _parsePermissions(json['permissions']);
+    final raw = _extractRawMap(json['permissions']);
     return PermissionGroupModel(
       id: json['id'] as String? ?? '',
       companyId: json['company_id'] as String? ?? '',
@@ -55,10 +59,30 @@ class PermissionGroupModel extends PermissionGroupEntity
       permissions: parsed.$1,
       workOrders: parsed.$2,
       isDefault: json['is_default'] as bool? ?? false,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
+      rawPermissions: raw,
     );
+  }
+
+  final Map<String, dynamic> rawPermissions;
+
+  static Map<String, dynamic> _extractRawMap(dynamic permissionsRaw) {
+    if (permissionsRaw == null) return {};
+    if (permissionsRaw is Map) {
+      return Map<String, dynamic>.from(permissionsRaw);
+    }
+    if (permissionsRaw is String) {
+      try {
+        final decoded = jsonDecode(permissionsRaw);
+        if (decoded is Map) {
+          return Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {}
+    }
+    return {};
   }
 
   static (Map<ResourceType, Set<PermissionAction>>, WorkOrdersPermissionEntity)
@@ -225,7 +249,7 @@ class PermissionGroupModel extends PermissionGroupEntity
 
   @override
   MapDynamic toJson() {
-    final Map<String, dynamic> flat = {};
+    final Map<String, dynamic> flat = Map<String, dynamic>.from(rawPermissions);
 
     permissions.forEach((resource, actions) {
       for (final action in actions) {
