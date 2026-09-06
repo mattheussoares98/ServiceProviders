@@ -19,6 +19,7 @@ Tracks requests to pause work orders or request completion authorization (`event
 | `reviewed_by_id` | UUID | YES | - | FK → `auth.users.id` (Set Null) - Approver/rejecter |
 | `review_observation` | TEXT | YES | - | Review comment or rejection reason from approver |
 | `affects_sla` | BOOLEAN | NO | true | Whether this pause halts the SLA target clock |
+| `deleted_at` | TIMESTAMP | YES | - | Soft delete timestamp |
 
 **Indexes:** `idx_wopr_work_order`, `idx_wopr_company`, `idx_wopr_reason`, `idx_wopr_sector`, `idx_wopr_event_type`
 

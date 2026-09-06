@@ -73,11 +73,10 @@ class IntegrationCleanup {
     ),
     (table: 'tasks', nameColumn: 'title', how: CleanupStrategy.softDelete),
     (table: 'attachments', nameColumn: null, how: CleanupStrategy.softDelete),
-    // Pause requests can be neither soft- nor hard-deleted (finding F5).
     (
       table: 'work_order_pause_requests',
       nameColumn: null,
-      how: CleanupStrategy.unreachable,
+      how: CleanupStrategy.softDelete,
     ),
     (table: 'work_orders', nameColumn: 'title', how: CleanupStrategy.softDelete),
     // Checklists. Items do NOT cascade from their template, and their name

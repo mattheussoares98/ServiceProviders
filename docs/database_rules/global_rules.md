@@ -158,6 +158,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 - **attachments** (`tr_prevent_delete_attachments`)
 - **work_orders** (`tr_prevent_delete_work_orders`)
 - **work_order_change_requests** (`tr_prevent_delete_work_order_change_requests`)
+- **work_order_pause_requests** (`tr_prevent_delete_pause_requests`)
 - **sla_policies** (`tr_prevent_delete_sla_policies`)
 - **pause_reasons** (`tr_prevent_delete_pause_reasons`)
 - **sectors** (`tr_prevent_delete_sectors`)

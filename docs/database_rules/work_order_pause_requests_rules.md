@@ -3,16 +3,19 @@
 ## RLS Policies
 
 ```sql
--- SELECT: company users OR service providers linked to the work order
+-- SELECT: company users OR service providers linked to the work order (excludes soft deleted)
 CREATE POLICY "Users read own company work order pause requests"
   ON public.work_order_pause_requests FOR SELECT
   TO authenticated
   USING (
-    company_id = public.get_user_company_id()
-    OR EXISTS (
-      SELECT 1 FROM public.work_orders wo
-      JOIN public.service_provider_profiles spp ON wo.service_provider_company_id = spp.service_provider_company_id
-      WHERE wo.id = work_order_id AND spp.auth_user_id = auth.uid()
+    deleted_at IS NULL
+    AND (
+      company_id = public.get_user_company_id()
+      OR EXISTS (
+        SELECT 1 FROM public.work_orders wo
+        JOIN public.service_provider_profiles spp ON wo.service_provider_company_id = spp.service_provider_company_id
+        WHERE wo.id = work_order_id AND spp.auth_user_id = auth.uid()
+      )
     )
   );
 
@@ -79,7 +82,7 @@ CREATE POLICY "Users update work order pause requests"
 ## Triggers
 
 ```sql
--- Hard delete prevention (no soft-delete column on this table)
+-- Hard delete prevention (soft-delete enabled table)
 CREATE TRIGGER tr_prevent_delete_pause_requests
 BEFORE DELETE ON public.work_order_pause_requests
 FOR EACH ROW EXECUTE FUNCTION public.prevent_delete();
@@ -105,4 +108,5 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_notify_pause_request();
 | `20260815210000_update_work_order_pause_sync_trigger.sql` | Updated sync trigger function so pause reviews (approved/rejected) do not change work order status automatically; only completion reviews update work order status |
 | `20260817220000_fix_pause_sync_trigger_custom_reason.sql` | Fixed sync trigger function `handle_work_order_pause_request_sync` to use `custom_reason` instead of non-existent `reason` column |
 | `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_pause_request` trigger to dispatch notifications for pause/completion creation and reviews |
+| `20260906230000_add_deleted_at_to_work_order_pause_requests.sql` | Added `deleted_at` column for soft delete, updated SELECT RLS to exclude soft-deleted rows, and cascaded work order soft-delete to pause requests |
 
