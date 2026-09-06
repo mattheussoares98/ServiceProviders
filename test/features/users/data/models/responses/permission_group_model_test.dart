@@ -80,5 +80,32 @@ void main() {
       expect(result.workOrders.readScope, WorkOrderReadScope.all);
       expect(result.workOrders.updateScope, WorkOrderUpdateScope.all);
     });
+
+    test(
+      'should preserve wildcard * and custom resource families on round-trip via fromEntity',
+      () {
+        final json = {
+          'id': '123',
+          'company_id': '456',
+          'name': 'Administrador',
+          'permissions': {
+            '*': true,
+            'checklists.read': true,
+            'reports.read': true,
+          },
+        };
+
+        final fromDbModel = PermissionGroupModel.fromJson(json);
+        final entity = fromDbModel.toEntity();
+        final roundTrippedModel = PermissionGroupModel.fromEntity(entity);
+        final serializedJson = roundTrippedModel.toJson();
+
+        final permissions =
+            serializedJson['permissions'] as Map<String, dynamic>;
+        expect(permissions['*'], true);
+        expect(permissions['checklists.read'], true);
+        expect(permissions['reports.read'], true);
+      },
+    );
   });
 }

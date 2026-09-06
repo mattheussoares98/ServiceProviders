@@ -18,7 +18,7 @@ class PermissionGroupModel extends PermissionGroupEntity
     required super.isDefault,
     required super.createdAt,
     super.deletedAt,
-    this.rawPermissions = const {},
+    super.rawPermissions = const {},
   });
 
   factory PermissionGroupModel.fromEntity(PermissionGroupEntity entity) =>
@@ -31,6 +31,7 @@ class PermissionGroupModel extends PermissionGroupEntity
         isDefault: entity.isDefault,
         createdAt: entity.createdAt,
         deletedAt: entity.deletedAt,
+        rawPermissions: entity.rawPermissions,
       );
 
   factory PermissionGroupModel.fromDb(PermissionGroup db) {
@@ -66,8 +67,6 @@ class PermissionGroupModel extends PermissionGroupEntity
       rawPermissions: raw,
     );
   }
-
-  final Map<String, dynamic> rawPermissions;
 
   static Map<String, dynamic> _extractRawMap(dynamic permissionsRaw) {
     if (permissionsRaw == null) return {};
@@ -288,5 +287,6 @@ class PermissionGroupModel extends PermissionGroupEntity
     isDefault: isDefault,
     createdAt: createdAt,
     deletedAt: deletedAt,
+    rawPermissions: rawPermissions,
   );
 }

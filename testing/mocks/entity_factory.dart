@@ -522,6 +522,20 @@ abstract final class EntityFactory {
       workOrders: const WorkOrdersPermissionEntity.defaultTechnical(),
       isDefault: false,
       createdAt: _makeDateTime(),
+      rawPermissions: const {
+        'attachments.create': true,
+        'attachments.read': true,
+        'attachments.update': true,
+        'attachments.delete': true,
+        'work_orders.read_scope': 'assigned',
+        'work_orders.create': false,
+        'work_orders.update_scope': 'assigned',
+        'work_orders.delete': false,
+        'work_orders.change_status': true,
+        'work_orders.reassign': false,
+        'work_orders.manage_pending_requests': false,
+        'work_orders.delete_observation': false,
+      },
     );
   }
 

@@ -11,6 +11,7 @@ class PermissionGroupEntity extends Equatable {
     required this.isDefault,
     required this.createdAt,
     required this.deletedAt,
+    this.rawPermissions = const {},
   });
 
   final String id;
@@ -21,6 +22,7 @@ class PermissionGroupEntity extends Equatable {
   final bool isDefault;
   final DateTime createdAt;
   final DateTime? deletedAt;
+  final Map<String, dynamic> rawPermissions;
 
   @override
   List<Object?> get props => [
@@ -32,6 +34,7 @@ class PermissionGroupEntity extends Equatable {
     isDefault,
     createdAt,
     deletedAt,
+    rawPermissions,
   ];
 
   PermissionGroupEntity copyWith({
@@ -44,6 +47,7 @@ class PermissionGroupEntity extends Equatable {
     DateTime? createdAt,
     DateTime? deletedAt,
     bool? annulDeletedAt,
+    Map<String, dynamic>? rawPermissions,
   }) {
     return PermissionGroupEntity(
       id: id ?? this.id,
@@ -54,6 +58,7 @@ class PermissionGroupEntity extends Equatable {
       isDefault: isDefault ?? this.isDefault,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,
+      rawPermissions: rawPermissions ?? this.rawPermissions,
     );
   }
 }
