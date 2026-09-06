@@ -11,14 +11,14 @@ Writes **tests only** — unit and integration. Never feature logic or UI.
 
 ## Mocks & Factories
 All mocks and factories live at repo root in **`testing/mocks/`** (not under `test/`):
-`entity_factory.dart` · `client_mocks.dart` · `data_source_mocks.dart` · `repository_mocks.dart` · `use_case_mocks.dart` · `services.dart` · `external/`
+`factories/` (`asset_factory.dart`, `work_order_factory.dart`, `user_factory.dart`, `checklist_factory.dart`, `system_factory.dart`, `maintenance_plan_factory.dart`, `service_provider_factory.dart`, `factory_helpers.dart`) · `client_mocks.dart` · `data_source_mocks.dart` · `repository_mocks.dart` · `use_case_mocks.dart` · `services.dart` · `external/`
 
-**`EntityFactory` is the only factory.** Rules:
-- Factory methods take **no parameters** (`WorkOrderFactory.makeWorkOrderEntity()`). Vary fields with the entity's `copyWith`; null a field with `copyWith(annul{Field}: true)`.
+**Factories live in `testing/mocks/factories/` divided by domain.** Rules:
+- Factory methods take **no parameters** (`WorkOrderFactory.makeWorkOrderEntity()`, `UserFactory.makeUserProfileEntity()`). Vary fields with the entity's `copyWith`; null a field with `copyWith(annul{Field}: true)`.
 - Every list property holds **exactly 3 items**.
 - Need a model? Build it from the entity: `CompanyModel.fromEntity(UserFactory.makeCompanyEntity())`.
 - Same rule inside `registerFallbackValue()`.
-- Helpers available beyond entities: list variants (`make{X}EntityList`) and value helpers (`makeEmail`, `makePassword`, `makeDateTime`, `makeInt`, `makeDouble`, `makeBool`, `makeHttps`, `makeCompanyName`). Id generation is private (`_makeId`) — take an id off a factory entity instead of generating one.
+- Shared faker/primitive helpers live in `FactoryHelpers` (`FactoryHelpers.makeEmail()`, `FactoryHelpers.makeDateTime()`, etc.). Id generation is private/internal (`makeId()`) — take an id off a factory entity instead of generating one directly where possible.
 
 ## Core Rules
 1. **`faker` for all test data** — `faker.internet.email()`, not `'test@email.com'`. Exception: format-validated inputs (CPF/CNPJ, strict regex boundaries) use real valid values.
@@ -71,7 +71,6 @@ test('calls remote source when internet is connected', () async {
 - ❌ Fixed literals as test data — use `faker`
 - ❌ Real network calls — mock the client or data source
 - ❌ `mockito` — this project uses `mocktail` only
-- ❌ Entities or models constructed inline in a test — always via `EntityFactory`
-- ❌ `TestFactory` or any second factory class — `EntityFactory` is unified
+- ❌ Entities or models constructed inline in a test — always via the domain factory (`WorkOrderFactory`, `UserFactory`, etc.)
 - ❌ Hand-written JSON maps — build the model via `fromEntity` and call `.toJson()`
 - ❌ Writing business logic to make a test pass — flag the design issue instead

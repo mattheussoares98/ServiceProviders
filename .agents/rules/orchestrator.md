@@ -27,7 +27,7 @@ lib/
 ├── features/{name}/ # data/ | domain/ | presentation/
 ├── routing/         # routes.dart, routes.gr.dart (generated), guards/, helper/
 └── shared_ui/       # themes, base widgets, cubits/base, utils/
-testing/mocks/       # EntityFactory + all mocks (repo root, NOT under test/)
+testing/mocks/       # Domain factories in factories/ + all mocks (repo root, NOT under test/)
 ```
 
 ## Specialists
