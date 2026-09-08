@@ -14,25 +14,31 @@ class _ChecklistTemplateDropdown extends StatelessWidget {
     return BlocBuilder<ChecklistTemplatesCubit, ChecklistTemplatesState>(
       builder: (context, state) {
         final templates = state.templates;
+        if (templates.isEmpty) {
+          return const SizedBox.shrink();
+        }
         final ids = templates.map((template) => template.id).toSet();
 
-        return BaseDropDown<String>(
-          showLabelAtTopLeft: true,
-          label: 'Checklist'.hardcoded,
-          hint: BaseText.bodyMedium('Nenhum checklist'.hardcoded),
-          items: templates
-              .map(
-                (template) => DropdownMenuItem<String>(
-                  value: template.id,
-                  child: BaseText.bodyMedium(template.name),
-                ),
-              )
-              .toList(),
-          selectedItem: ids.contains(selectedTemplateId)
-              ? selectedTemplateId
-              : null,
-          onClear: onChanged == null ? null : () => onChanged!(null),
-          onChanged: onChanged,
+        return Padding(
+          padding: const .only(top: Sizes.p8),
+          child: BaseDropDown<String>(
+            showLabelAtTopLeft: true,
+            label: 'Checklist'.hardcoded,
+            hint: BaseText.bodyMedium('Nenhum checklist'.hardcoded),
+            items: templates
+                .map(
+                  (template) => DropdownMenuItem<String>(
+                    value: template.id,
+                    child: BaseText.bodyMedium(template.name),
+                  ),
+                )
+                .toList(),
+            selectedItem: ids.contains(selectedTemplateId)
+                ? selectedTemplateId
+                : null,
+            onClear: onChanged == null ? null : () => onChanged!(null),
+            onChanged: onChanged,
+          ),
         );
       },
     );

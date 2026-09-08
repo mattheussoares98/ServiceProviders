@@ -493,14 +493,11 @@ class _CreateUpdatePage extends HookWidget {
               : null,
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _ChecklistTemplateDropdown(
-          selectedTemplateId: selectedChecklistTemplateId.value,
-          onChanged: canEditCoreFields
-              ? (val) => selectedChecklistTemplateId.value = val
-              : null,
-        ),
+      _ChecklistTemplateDropdown(
+        selectedTemplateId: selectedChecklistTemplateId.value,
+        onChanged: canEditCoreFields
+            ? (val) => selectedChecklistTemplateId.value = val
+            : null,
       ),
       if (canEditSlaPolicy)
         Padding(
