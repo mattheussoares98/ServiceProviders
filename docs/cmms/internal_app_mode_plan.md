@@ -25,6 +25,7 @@ Company Mode are completed and validated first.
 - **Template management** (`lib/features/checklists`):
   - ✅ `ChecklistsPage` lists the company's templates; `CreateUpdateChecklistTemplatePage` edits name, description and category, and deletes.
   - ✅ Item configuration (`CreateUpdateChecklistItemPage`): label, answer type (`ChecklistItemType`), mandatory flag, and the option list for `selection` items.
+  - ✅ Drag-to-reorder items; `sort_order` drives the order the technician answers in.
   - ✅ RBAC: `ResourceType.checklists` is active; provider mode is read-only (`providerModeAllows`).
   - ✅ Realtime templates/items subscription via `ChecklistTemplatesCubit.subscribeToRealtime`.
 - **Execution during a work order**:
