@@ -33,6 +33,7 @@ Company Mode are completed and validated first.
   - ✅ Conclusion is blocked while mandatory items are unanswered.
   - ✅ Answers cached in the Drift `checklist_answers` table (schema v31) and queued as `SyncEntityType.checklistAnswer` when written offline.
   - ✅ Photo and documentation items capture evidence through the attachments pipeline (`WorkOrderChecklistCubit.attachEvidence`), storing the uploaded URL in `checklist_answers.photo_url` — or the sandbox path while offline, which the attachment's own retry replaces.
+  - ✅ Answers stream over Supabase Realtime, filtered per work order.
 - **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
   - ✅ `getTemplates` embeds `checklist_items`, so loading the template list caches every template's items — a checklist renders offline without having been opened online first.
 
