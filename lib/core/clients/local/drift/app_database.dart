@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart'
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/attachments_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/categories_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_answers_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_items_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_templates_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
@@ -47,6 +48,7 @@ part 'app_database.g.dart';
     Assets,
     ChecklistTemplates,
     ChecklistItems,
+    ChecklistAnswers,
     MaintenancePlans,
     ServiceProviderCompanies,
     ServiceProviderProfiles,
@@ -71,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 30;
+  int get schemaVersion => 31;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -231,6 +233,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 30) {
         await m.addColumn(workOrders, workOrders.checklistTemplateId);
+      }
+      if (from < 31) {
+        await m.createTable(checklistAnswers);
       }
     },
   );
