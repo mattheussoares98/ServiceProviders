@@ -114,6 +114,14 @@ const String kAcceptServiceProviderInvitePath = '/accept-sp-invite';
 const String kChecklistsRoute = 'ChecklistsRoute';
 const String kChecklistsPath = 'checklists';
 
+const String kCreateUpdateChecklistTemplateRoute =
+    'CreateUpdateChecklistTemplateRoute';
+const String kCreateUpdateChecklistTemplatePath =
+    'create-update-checklist-template';
+
+const String kCreateUpdateChecklistItemRoute = 'CreateUpdateChecklistItemRoute';
+const String kCreateUpdateChecklistItemPath = 'create-update-checklist-item';
+
 // Maintenance Plans
 const String kMaintenancePlansRoute = 'MaintenancePlansRoute';
 const String kMaintenancePlansPath = 'maintenance-plans';

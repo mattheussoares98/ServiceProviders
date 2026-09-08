@@ -125,6 +125,16 @@ class AppRouter extends RootStackRouter {
         ),
         //* Checklists
         AutoRoute(page: ChecklistsRoute.page, path: kChecklistsPath),
+        AutoRoute(
+          page: CreateUpdateChecklistTemplateRoute.page,
+          path:
+              '$kCreateUpdateChecklistTemplateRoute/$kCreateUpdateChecklistTemplatePath',
+        ),
+        AutoRoute(
+          page: CreateUpdateChecklistItemRoute.page,
+          path:
+              '$kCreateUpdateChecklistItemRoute/$kCreateUpdateChecklistItemPath',
+        ),
         //* Maintenance Plans
         AutoRoute(
           page: MaintenancePlansRoute.page,
