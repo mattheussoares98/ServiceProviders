@@ -78,3 +78,11 @@ OR public.is_provider_member_of_work_order_id(work_order_id)
 ```
 
 UPDATE also carries this as `WITH CHECK`, which it previously lacked.
+
+## Realtime
+
+`20260908180000_publish_checklist_answers_realtime.sql` adds the table to the
+`supabase_realtime` publication (`REPLICA IDENTITY FULL` was already set on
+creation). `WorkOrderChecklistCubit.subscribeToRealtime` filters the stream by
+`work_order_id`, so two people executing the same order see each other's answers
+and the completion gate cannot disagree between their screens.
