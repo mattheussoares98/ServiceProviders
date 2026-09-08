@@ -61,6 +61,8 @@ class WorkOrderChecklistSection extends StatelessWidget {
                         ignoring: !isEditable,
                         child: ChecklistItemTile(
                           item: item,
+                          workOrderId: workOrder.id,
+                          companyId: workOrder.companyId,
                           response: state.answers[item.id],
                           onChanged: (answer) => context
                               .read<WorkOrderChecklistCubit>()
