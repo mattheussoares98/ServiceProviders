@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
@@ -22,6 +25,29 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       super(const WorkOrderChecklistState.initial());
 
   final WorkOrderChecklistCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<ChecklistAnswerEntity>>? _answersRealtimeSub;
+
+  @override
+  Future<void> close() {
+    _answersRealtimeSub?.cancel();
+    return super.close();
+  }
+
+  /// Keeps the sheet current when someone else answers the same order — without
+  /// it two technicians disagree on whether the mandatory items are done.
+  void subscribeToRealtime(String workOrderId) {
+    _answersRealtimeSub?.cancel();
+    _answersRealtimeSub = _useCases
+        .watchChecklistAnswersRealtime(workOrderId: workOrderId)
+        .listen((event) {
+          final answer = event.entity;
+          if (answer == null || isClosed) return;
+
+          final updated = Map<String, ChecklistAnswerEntity>.from(state.answers)
+            ..[answer.checklistItemId] = answer;
+          emit(state.copyWith(answers: updated));
+        });
+  }
 
   Future<void> loadChecklist({
     required String templateId,

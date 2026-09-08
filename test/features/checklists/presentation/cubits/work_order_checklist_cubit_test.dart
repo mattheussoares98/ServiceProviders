@@ -4,8 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit_use_cases.dart';
@@ -28,6 +31,7 @@ void main() {
   late MockUploadAttachmentUseCase mockUploadAttachment;
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockWatchChecklistAnswersRealtimeUseCase mockWatchChecklistAnswers;
   late MockNavigationClient mockNavigationClient;
   late WorkOrderChecklistCubitUseCases useCases;
 
@@ -53,6 +57,7 @@ void main() {
     mockUploadAttachment = MockUploadAttachmentUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockWatchChecklistAnswers = MockWatchChecklistAnswersRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -65,6 +70,7 @@ void main() {
       uploadAttachment: mockUploadAttachment,
       getSessionUser: mockGetSessionUser,
       getActiveCompanyId: mockGetActiveCompanyId,
+      watchChecklistAnswersRealtime: mockWatchChecklistAnswers,
     );
 
     when(
@@ -253,6 +259,34 @@ void main() {
           cubit.state.answers[tItems.first.id]?.photoUrl,
           tAttachment.localPath,
         );
+      },
+    );
+  });
+
+  group('subscribeToRealtime', () {
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'merges an answer another device wrote into state',
+      setUp: () {
+        final remoteAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+            .copyWith(checklistItemId: tItems.first.id, booleanValue: true);
+        when(
+          () => mockWatchChecklistAnswers(workOrderId: any(named: 'workOrderId')),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<ChecklistAnswerEntity>(
+              eventType: RealtimeEventType.update,
+              id: remoteAnswer.id,
+              companyId: faker.guid.guid(),
+              entity: remoteAnswer,
+            ),
+          ),
+        );
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      act: (cubit) => cubit.subscribeToRealtime(tWorkOrderId),
+      wait: const Duration(milliseconds: 50),
+      verify: (cubit) {
+        expect(cubit.state.answers[tItems.first.id]?.booleanValue, isTrue);
       },
     );
   });
