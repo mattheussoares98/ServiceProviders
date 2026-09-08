@@ -35,6 +35,9 @@ abstract interface class ChecklistsRemoteDataSource {
   // Execution Responses / Tasks
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
   FutureBool saveResponse(ChecklistAnswerModel response);
+  Stream<RealtimeEvent<ChecklistAnswerModel>> watchChecklistAnswersRealtime({
+    required String workOrderId,
+  });
 }
 
 @LazySingleton(as: ChecklistsRemoteDataSource)
@@ -220,6 +223,25 @@ final class ChecklistsRemoteDataSourceImpl
     );
     return response.map(ChecklistAnswerModel.fromJson).toList();
   });
+
+  @override
+  Stream<RealtimeEvent<ChecklistAnswerModel>> watchChecklistAnswersRealtime({
+    required String workOrderId,
+  }) {
+    return _realtimeClient
+        .streamTableChanges(
+          table: 'checklist_answers',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'work_order_id',
+            value: workOrderId,
+          ),
+        )
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, ChecklistAnswerModel.fromJson),
+        );
+  }
 
   @override
   FutureBool saveResponse(ChecklistAnswerModel response) =>
