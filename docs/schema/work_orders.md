@@ -33,6 +33,7 @@ Instances of preventive, corrective, or inspection tasks.
 | `service_provider_company_id` | UUID | YES | - | FK → `service_provider_companies.id` (Set Null) |
 | `provider_profile_id` | UUID | YES | - | FK → `service_provider_profiles.id` (Set Null) |
 | `opened_by` | VARCHAR(20) | NO | 'internal' | Who opened: internal / provider |
+| `checklist_template_id` | UUID | YES | `NULL` | FK → `checklist_templates.id` (Set Null). The checklist this order must answer during execution |
 | `sla_policy_id` | UUID | YES | - | FK → `sla_policies.id` (Set Null) |
 | `sla_deadline_at` | TIMESTAMP | YES | - | SLA Target Deadline timestamp |
 | `sla_breached` | BOOLEAN | NO | false | Whether SLA deadline was breached |

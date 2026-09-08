@@ -193,6 +193,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [access_logs_rules.md](access_logs_rules.md)
 - [company_parameters_rules.md](company_parameters_rules.md)
 - [checklist_answers_rules.md](checklist_answers_rules.md)
+- [checklist_templates_rules.md](checklist_templates_rules.md)
 
 ---
 
