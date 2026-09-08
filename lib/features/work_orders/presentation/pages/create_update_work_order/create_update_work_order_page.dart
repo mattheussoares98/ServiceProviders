@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachme
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -56,6 +57,7 @@ import 'package:uuid/uuid.dart';
 
 part './widgets/area_dropdown.dart';
 part './widgets/assets_dropdown.dart';
+part './widgets/checklist_template_dropdown.dart';
 part './widgets/description_field.dart';
 part './widgets/duration_field.dart';
 part './widgets/location_dropdown.dart';
@@ -191,6 +193,7 @@ class _CreateUpdatePage extends HookWidget {
     final initialServiceProviderCompanyId = workOrder?.serviceProviderCompanyId;
     final initialProviderProfileId = workOrder?.providerProfileId;
     final initialSlaPolicyId = workOrder?.slaPolicyId;
+    final initialChecklistTemplateId = workOrder?.checklistTemplateId;
 
     final isProviderCreator =
         isEditing &&
@@ -220,6 +223,9 @@ class _CreateUpdatePage extends HookWidget {
       initialProviderProfileId,
     );
     final selectedSlaPolicyId = useState<String?>(initialSlaPolicyId);
+    final selectedChecklistTemplateId = useState<String?>(
+      initialChecklistTemplateId,
+    );
     final externalChangedWorkOrder = useState<WorkOrderEntity?>(null);
 
     void applyWorkOrder(WorkOrderEntity updated) {
@@ -237,6 +243,7 @@ class _CreateUpdatePage extends HookWidget {
       selectedServiceProviderCompanyId.value = updated.serviceProviderCompanyId;
       selectedProviderProfileId.value = updated.providerProfileId;
       selectedSlaPolicyId.value = updated.slaPolicyId;
+      selectedChecklistTemplateId.value = updated.checklistTemplateId;
       externalChangedWorkOrder.value = null;
       context.read<AttachmentsCubit>().refreshAttachments();
     }
@@ -292,7 +299,8 @@ class _CreateUpdatePage extends HookWidget {
           selectedServiceProviderCompanyId.value !=
               initialServiceProviderCompanyId ||
           selectedProviderProfileId.value != initialProviderProfileId ||
-          selectedSlaPolicyId.value != initialSlaPolicyId;
+          selectedSlaPolicyId.value != initialSlaPolicyId ||
+          selectedChecklistTemplateId.value != initialChecklistTemplateId;
 
       return hasChanges;
     }
@@ -353,6 +361,7 @@ class _CreateUpdatePage extends HookWidget {
         serviceProviderCompanyId: selectedServiceProviderCompanyId.value,
         providerProfileId: selectedProviderProfileId.value,
         slaPolicyId: selectedSlaPolicyId.value,
+        checklistTemplateId: selectedChecklistTemplateId.value,
       );
       if (succeeds && context.mounted) {
         Navigator.of(context).pop(true);
@@ -481,6 +490,15 @@ class _CreateUpdatePage extends HookWidget {
               ? (val) {
                   selectedAssetId.value = val;
                 }
+              : null,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: Sizes.p8),
+        child: _ChecklistTemplateDropdown(
+          selectedTemplateId: selectedChecklistTemplateId.value,
+          onChanged: canEditCoreFields
+              ? (val) => selectedChecklistTemplateId.value = val
               : null,
         ),
       ),
