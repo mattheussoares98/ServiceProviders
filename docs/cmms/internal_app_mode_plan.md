@@ -19,10 +19,22 @@ Company Mode are completed and validated first.
   - ✅ Photo and document attachments per Work Order (`lib/features/attachments`).
   - ✅ Digital sign-off upon completion.
   - ✅ Work orders list with search filters and cursor-based pagination.
-- **Checklist Responses** — ⏸️ ON HOLD (resume when explicitly requested).
+  - ✅ Checklist execution during the work order, with completion gated on mandatory items (`Milestone 1.2`).
 
-### Milestone 1.2: Checklists & Maintenance Plans Modules — ⏸️ ON HOLD
-> Template management, standalone checklists, and automated maintenance plans are deferred. Drift tables and stub features exist (`lib/features/checklists`, `lib/features/maintenance_plans`) but are not wired into the product.
+### Milestone 1.2: Checklists Module — ✅ IMPLEMENTED
+- **Template management** (`lib/features/checklists`):
+  - ✅ `ChecklistsPage` lists the company's templates; `CreateUpdateChecklistTemplatePage` edits name, description and category, and deletes.
+  - ✅ Item configuration (`CreateUpdateChecklistItemPage`): label, answer type (`ChecklistItemType`), mandatory flag, and the option list for `selection` items.
+  - ✅ RBAC: `ResourceType.checklists` is active; provider mode is read-only (`providerModeAllows`).
+  - ✅ Realtime templates/items subscription via `ChecklistTemplatesCubit.subscribeToRealtime`.
+- **Execution during a work order**:
+  - ✅ `work_orders.checklist_template_id` links an order to the checklist it must answer (migration `20260908120000_add_checklist_template_to_work_orders.sql`), picked in the create/update work order form.
+  - ✅ `WorkOrderChecklistSection` renders the items with progress, persisting each answer through `WorkOrderChecklistCubit`.
+  - ✅ Conclusion is blocked while mandatory items are unanswered.
+  - ⚠️ Photo and documentation item types render their answered state but have no attach action yet — they reuse `checklist_answers.photo_url`, which nothing currently writes.
+
+### Milestone 1.2b: Maintenance Plans Module — ⏸️ ON HOLD
+> Automated maintenance plans remain deferred. Drift tables and a stub feature exist (`lib/features/maintenance_plans`) but are not wired into the product.
 
 ### Milestone 1.3: Inventory & Stock Control — ⏸️ ON HOLD
 > Inventory stock management and product usage tracking are deferred for future releases.
@@ -100,10 +112,8 @@ Company Mode are completed and validated first.
 
 With all V1/V2 infrastructure gaps and provider mode foundations delivered, the next roadmap modules to build are:
 
-1. **Checklists Module (`Milestone 1.2`)**:
-   - Checklist templates creation/editing and item configuration.
-   - Dynamic checklist execution during work order execution.
-2. **Maintenance Plans Module (`Milestone 1.2`)**:
+1. **Checklist attachments**: give the `photo` and `documentation` item types a real capture/upload action, writing `checklist_answers.photo_url` through the attachments/R2 pipeline.
+2. **Maintenance Plans Module (`Milestone 1.2b`)**:
    - Periodic recurring schedules (daily, weekly, monthly, meter-based).
    - Automated generation of work orders from plans via background/cron triggers.
 3. **Inventory & Stock Control (`Milestone 1.3`)**:
