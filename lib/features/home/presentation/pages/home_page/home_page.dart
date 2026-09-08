@@ -66,9 +66,8 @@ class HomePage extends HookWidget {
           create: (context) => GetIt.I<SectorsCubit>()..loadSectors(),
         ),
         BlocProvider<ChecklistTemplatesCubit>(
-          create: (context) => GetIt.I<ChecklistTemplatesCubit>()
-            ..loadTemplates()
-            ..subscribeToRealtime(),
+          create: (context) =>
+              GetIt.I<ChecklistTemplatesCubit>()..loadTemplates(),
         ),
         BlocProvider<SlaPoliciesCubit>(
           create: (context) => GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),

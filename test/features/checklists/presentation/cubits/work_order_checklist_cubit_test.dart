@@ -199,7 +199,6 @@ void main() {
       build: () => WorkOrderChecklistCubit(useCases: useCases),
       act: (cubit) => cubit.attachEvidence(
         workOrderId: tWorkOrderId,
-        companyId: faker.guid.guid(),
         checklistItemId: tItems.first.id,
         source: AttachmentSource.cameraPhoto,
       ),
@@ -222,7 +221,6 @@ void main() {
       build: () => WorkOrderChecklistCubit(useCases: useCases),
       act: (cubit) => cubit.attachEvidence(
         workOrderId: tWorkOrderId,
-        companyId: faker.guid.guid(),
         checklistItemId: tItems.first.id,
         source: AttachmentSource.cameraPhoto,
       ),
@@ -250,7 +248,6 @@ void main() {
       build: () => WorkOrderChecklistCubit(useCases: useCases),
       act: (cubit) => cubit.attachEvidence(
         workOrderId: tWorkOrderId,
-        companyId: faker.guid.guid(),
         checklistItemId: tItems.first.id,
         source: AttachmentSource.cameraPhoto,
       ),

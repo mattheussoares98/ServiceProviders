@@ -32,7 +32,6 @@ class ChecklistItemTile extends StatelessWidget {
     super.key,
     required this.item,
     required this.workOrderId,
-    required this.companyId,
     this.response,
     required this.onChanged,
   });
@@ -42,7 +41,6 @@ class ChecklistItemTile extends StatelessWidget {
   /// Needed by the evidence types, which upload an attachment against the order
   /// before the answer that would carry these ids exists.
   final String workOrderId;
-  final String companyId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
@@ -104,14 +102,12 @@ class ChecklistItemTile extends StatelessWidget {
             ChecklistItemType.photo => ChecklistPhotoInput(
               item: item,
               workOrderId: workOrderId,
-              companyId: companyId,
               response: response,
               onChanged: onChanged,
             ),
             ChecklistItemType.documentation => ChecklistDocumentationInput(
               item: item,
               workOrderId: workOrderId,
-              companyId: companyId,
               response: response,
               onChanged: onChanged,
             ),

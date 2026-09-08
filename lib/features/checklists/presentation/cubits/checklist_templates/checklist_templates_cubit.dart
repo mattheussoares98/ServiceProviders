@@ -27,7 +27,9 @@ enum ChecklistTemplatesSections implements SectionKey {
 class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
   ChecklistTemplatesCubit({required ChecklistTemplatesCubitUseCases useCases})
     : _useCases = useCases,
-      super(const ChecklistTemplatesState.initial());
+      super(const ChecklistTemplatesState.initial()) {
+    subscribeToRealtime();
+  }
 
   final ChecklistTemplatesCubitUseCases _useCases;
   StreamSubscription<RealtimeEvent<ChecklistTemplateEntity>>?

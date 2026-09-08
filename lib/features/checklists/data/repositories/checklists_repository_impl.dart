@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
@@ -44,14 +43,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   final SyncRepository _syncRepository;
   final SessionRepository _sessionRepository;
 
-  /// Authoring a checklist is administration done at a desk, and the sync queue
-  /// carries no template or item operations — a local-only write would report
-  /// success and never reach the server. Refuse it instead.
-  static FailureState<bool> get _offlineAuthoringRefusal => FailureState<bool>(
-    message: 'Sem conexão: crie ou edite checklists quando estiver online'
-        .hardcoded,
-    error: 'offline_checklist_authoring',
-  );
 
   @override
   FutureList<ChecklistTemplateEntity> getTemplates(String companyId) =>
@@ -91,7 +82,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool createTemplate(ChecklistTemplateEntity template) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistTemplateModel.fromEntity(template);
           final result = await _remoteDataSource.createTemplate(model);
@@ -112,7 +102,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool updateTemplate(ChecklistTemplateEntity template) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistTemplateModel.fromEntity(template);
           final result = await _remoteDataSource.updateTemplate(model);
@@ -133,7 +122,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool deleteTemplate(String id) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final result = await _remoteDataSource.deleteTemplate(id);
           if (result is SuccessState<void>) {
@@ -196,7 +184,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool createItem(ChecklistItemEntity item) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistItemModel.fromEntity(item);
           final result = await _remoteDataSource.createItem(model);
@@ -217,7 +204,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool updateItem(ChecklistItemEntity item) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistItemModel.fromEntity(item);
           final result = await _remoteDataSource.updateItem(model);
@@ -237,7 +223,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   @override
   FutureBool deleteItem(String id) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () async => _offlineAuthoringRefusal,
     remoteCallback: () async {
       final result = await _remoteDataSource.deleteItem(id);
       if (result is SuccessState<void>) {

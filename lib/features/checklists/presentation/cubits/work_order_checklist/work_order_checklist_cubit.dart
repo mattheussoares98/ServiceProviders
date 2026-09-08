@@ -177,7 +177,6 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
   /// item counts as answered — the attachment's own retry uploads it later.
   Future<bool> attachEvidence({
     required String workOrderId,
-    required String companyId,
     required String checklistItemId,
     required AttachmentSource source,
   }) async {
@@ -194,9 +193,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       PickAttachmentParams(
         source: source,
         workOrderId: workOrderId,
-        companyId: companyId.isNotEmpty
-            ? companyId
-            : _useCases.getActiveCompanyId(),
+        companyId: _useCases.getActiveCompanyId(),
         userId: _useCases.getSessionUser().id,
         multiple: false,
       ),

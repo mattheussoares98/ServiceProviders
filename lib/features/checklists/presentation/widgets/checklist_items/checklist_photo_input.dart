@@ -7,14 +7,12 @@ class ChecklistPhotoInput extends StatelessWidget {
     super.key,
     required this.item,
     required this.workOrderId,
-    required this.companyId,
     this.response,
     required this.onChanged,
   });
 
   final ChecklistItemEntity item;
   final String workOrderId;
-  final String companyId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
@@ -23,7 +21,6 @@ class ChecklistPhotoInput extends StatelessWidget {
     return ChecklistEvidenceInput(
       item: item,
       workOrderId: workOrderId,
-      companyId: companyId,
       response: response,
       sources: const [AttachmentSource.cameraPhoto, AttachmentSource.gallery],
       sourceLabels: [

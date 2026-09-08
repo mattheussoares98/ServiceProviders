@@ -10,7 +10,6 @@ class ChecklistEvidenceInput extends StatelessWidget {
     super.key,
     required this.item,
     required this.workOrderId,
-    required this.companyId,
     required this.sources,
     required this.sourceLabels,
     required this.emptyLabel,
@@ -21,7 +20,6 @@ class ChecklistEvidenceInput extends StatelessWidget {
 
   final ChecklistItemEntity item;
   final String workOrderId;
-  final String companyId;
   final ChecklistAnswerEntity? response;
   final List<AttachmentSource> sources;
   final List<String> sourceLabels;
@@ -38,7 +36,6 @@ class ChecklistEvidenceInput extends StatelessWidget {
         .read<WorkOrderChecklistCubit>()
         .attachEvidence(
           workOrderId: workOrderId,
-          companyId: companyId,
           checklistItemId: item.id,
           source: source,
         );

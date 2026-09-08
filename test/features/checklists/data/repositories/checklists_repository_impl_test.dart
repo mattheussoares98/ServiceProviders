@@ -162,6 +162,16 @@ void main() {
         ).called(1);
       });
 
+      test('createTemplate returns FailureState when offline', () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
+
+        final result = await repository.createTemplate(tTemplateEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        verifyNever(() => mockRemoteDataSource.createTemplate(any()));
+        verifyNever(() => mockLocalDataSource.saveTemplate(any()));
+      });
+
       test('deleteTemplate deletes from remote and local', () async {
         final id = faker.guid.guid();
         when(() => mockInternet.isConnected).thenReturn(true);
