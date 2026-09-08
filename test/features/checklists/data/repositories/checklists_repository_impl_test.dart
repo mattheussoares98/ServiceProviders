@@ -282,6 +282,29 @@ void main() {
     });
   });
 
+    test('getTemplates caches the embedded items as well', () async {
+      when(() => mockInternet.isConnected).thenReturn(true);
+      final tItem = ChecklistFactory.makeChecklistItemEntity();
+      final tTemplateWithItems = ChecklistTemplateModel.fromEntity(
+        ChecklistFactory.makeChecklistTemplateEntity().copyWith(
+          items: [tItem],
+        ),
+      );
+      when(
+        () => mockRemoteDataSource.getTemplates(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tTemplateWithItems]));
+      when(
+        () => mockLocalDataSource.saveTemplate(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockLocalDataSource.saveItem(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      await repository.getTemplates(faker.guid.guid());
+
+      verify(() => mockLocalDataSource.saveItem(any())).called(1);
+    });
+
     group('offline behaviour', () {
       setUp(() => when(() => mockInternet.isConnected).thenReturn(false));
 

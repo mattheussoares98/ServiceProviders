@@ -64,6 +64,13 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
         remoteCallback: () => _remoteDataSource.getTemplates(companyId),
         onRemoteSuccess: (list) async {
           await Future.wait(list.map(_localDataSource.saveTemplate).toList());
+          // Cache the embedded items too, so an order whose template was never
+          // opened still renders its checklist offline.
+          await Future.wait([
+            for (final template in list)
+              for (final item in template.items)
+                _localDataSource.saveItem(ChecklistItemModel.fromEntity(item)),
+          ]);
           return const SuccessState(data: true);
         },
       );
