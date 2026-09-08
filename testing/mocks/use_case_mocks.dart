@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_acce
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/get_access_logs_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
@@ -205,6 +206,9 @@ class MockDeleteDeviceTokenUseCase extends Mock
     implements DeleteDeviceTokenUseCase {}
 
 class MockPickAttachmentUseCase extends Mock implements PickAttachmentUseCase {}
+
+class MockUploadAttachmentUseCase extends Mock
+    implements UploadAttachmentUseCase {}
 
 class MockUpdateCompanyLogoUseCase extends Mock
     implements UpdateCompanyLogoUseCase {}
