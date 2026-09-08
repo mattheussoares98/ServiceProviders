@@ -32,7 +32,7 @@ Company Mode are completed and validated first.
   - ✅ `WorkOrderChecklistSection` renders the items with progress, persisting each answer through `WorkOrderChecklistCubit`.
   - ✅ Conclusion is blocked while mandatory items are unanswered.
   - ✅ Answers cached in the Drift `checklist_answers` table (schema v31) and queued as `SyncEntityType.checklistAnswer` when written offline.
-  - ⚠️ Photo and documentation item types render their answered state but have no attach action yet — they reuse `checklist_answers.photo_url`, which nothing currently writes.
+  - ✅ Photo and documentation items capture evidence through the attachments pipeline (`WorkOrderChecklistCubit.attachEvidence`), storing the uploaded URL in `checklist_answers.photo_url` — or the sandbox path while offline, which the attachment's own retry replaces.
 - **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
   - ⚠️ An item list only reaches the cache once its template has been opened online, or via the realtime listener while connected. Prefetching a work order's linked template on sync is not implemented.
 
@@ -115,10 +115,9 @@ Company Mode are completed and validated first.
 
 With all V1/V2 infrastructure gaps and provider mode foundations delivered, the next roadmap modules to build are:
 
-1. **Checklist attachments**: give the `photo` and `documentation` item types a real capture/upload action, writing `checklist_answers.photo_url` through the attachments/R2 pipeline.
-2. **Maintenance Plans Module (`Milestone 1.2b`)**:
+1. **Maintenance Plans Module (`Milestone 1.2b`)**:
    - Periodic recurring schedules (daily, weekly, monthly, meter-based).
    - Automated generation of work orders from plans via background/cron triggers.
-3. **Inventory & Stock Control (`Milestone 1.3`)**:
+2. **Inventory & Stock Control (`Milestone 1.3`)**:
    - Part/stock registry, minimum stock alerts, and part consumption logging per work order.
 
