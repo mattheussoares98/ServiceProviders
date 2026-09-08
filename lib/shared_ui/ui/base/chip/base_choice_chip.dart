@@ -13,6 +13,7 @@ class BaseChoiceChip<T> extends StatelessWidget {
     required this.itemLabelBuilder,
     this.itemColorBuilder,
     this.allowNullSelection = false,
+    this.alignment = .center,
     required this.selections,
   });
 
@@ -24,6 +25,7 @@ class BaseChoiceChip<T> extends StatelessWidget {
   final String Function(T item) itemLabelBuilder;
   final Color? Function(T item)? itemColorBuilder;
   final bool allowNullSelection;
+  final WrapAlignment alignment;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class BaseChoiceChip<T> extends StatelessWidget {
         key: const ValueKey('wrap'),
         spacing: Sizes.p8,
         runSpacing: Sizes.p8,
-        alignment: WrapAlignment.center,
+        alignment: alignment,
         children: items.map((item) {
           final isSelected = selections.contains(item);
           final color =
