@@ -6,6 +6,7 @@ extension ResourceTypeUiExtension on ResourceType {
     ResourceType.assets => 'Ativos'.hardcoded,
     ResourceType.attachments => 'Anexos'.hardcoded,
     ResourceType.categories => 'Categorias'.hardcoded,
+    ResourceType.checklists => 'Checklists'.hardcoded,
     ResourceType.locations => 'Locais'.hardcoded,
     ResourceType.sectors => 'Setores'.hardcoded,
     ResourceType.serviceProviders => 'Prestadores de serviço'.hardcoded,
