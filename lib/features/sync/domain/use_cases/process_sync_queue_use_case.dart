@@ -8,6 +8,8 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/access_logs/data/data_sources/access_logs_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/access_logs/data/models/requests/create_access_log_request_model.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
@@ -32,6 +34,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     required WorkOrderObservationsRemoteDataSource observationsRemoteDataSource,
     required PauseRemoteDataSource pauseRemoteDataSource,
     required AccessLogsRemoteDataSource accessLogsRemoteDataSource,
+    required ChecklistsRemoteDataSource checklistsRemoteDataSource,
     required InternetClient internet,
     required SessionRepository sessionRepository,
     required CompanyRepository companyRepository,
@@ -40,6 +43,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
        _observationsRemoteDataSource = observationsRemoteDataSource,
        _pauseRemoteDataSource = pauseRemoteDataSource,
        _accessLogsRemoteDataSource = accessLogsRemoteDataSource,
+       _checklistsRemoteDataSource = checklistsRemoteDataSource,
        _internet = internet,
        _sessionRepository = sessionRepository,
        _companyRepository = companyRepository;
@@ -49,6 +53,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
   final WorkOrderObservationsRemoteDataSource _observationsRemoteDataSource;
   final PauseRemoteDataSource _pauseRemoteDataSource;
   final AccessLogsRemoteDataSource _accessLogsRemoteDataSource;
+  final ChecklistsRemoteDataSource _checklistsRemoteDataSource;
   final InternetClient _internet;
   final SessionRepository _sessionRepository;
   final CompanyRepository _companyRepository;
@@ -166,11 +171,28 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         SyncEntityType.observation => _dispatchObservation(item, payloadMap),
         SyncEntityType.pauseRequest => _dispatchPauseRequest(item, payloadMap),
         SyncEntityType.accessLog => _dispatchAccessLog(item, payloadMap),
+        SyncEntityType.checklistAnswer => _dispatchChecklistAnswer(payloadMap),
         SyncEntityType.attachment => const SuccessState(data: true),
       };
     } catch (e) {
       return FailureState(message: e.toString(), error: e.toString());
     }
+  }
+
+  /// Answers are upserted on (work_order_id, checklist_item_id), so replaying a
+  /// queued answer is idempotent and a later answer for the same item wins.
+  FutureData<bool> _dispatchChecklistAnswer(MapDynamic payloadMap) async {
+    final result = await _checklistsRemoteDataSource.saveResponse(
+      ChecklistAnswerModel.fromJson(payloadMap),
+    );
+    if (result is SuccessState<bool>) return const SuccessState(data: true);
+
+    final failure = result as FailureState<bool>;
+    return FailureState<bool>(
+      message: failure.message,
+      error: failure.error,
+      statusCode: failure.statusCode,
+    );
   }
 
   FutureData<bool> _dispatchAccessLog(

@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/enqueue_sync_item_use_case.dart';
@@ -11,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
@@ -26,6 +30,7 @@ void main() {
   late MockInternetClient mockInternet;
   late MockSessionRepository mockSessionRepository;
   late MockCompanyRepository mockCompanyRepository;
+  late MockChecklistsRemoteDataSource mockChecklistsRemoteDataSource;
 
   late EnqueueSyncItemUseCase enqueueUseCase;
   late GetPendingSyncCountUseCase getPendingCountUseCase;
@@ -43,6 +48,11 @@ void main() {
         WorkOrderFactory.makeWorkOrderObservationEntity(),
       ),
     );
+    registerFallbackValue(
+      ChecklistAnswerModel.fromEntity(
+        ChecklistFactory.makeChecklistAnswerEntity(),
+      ),
+    );
   });
 
   setUp(() {
@@ -55,6 +65,7 @@ void main() {
     mockInternet = MockInternetClient();
     mockSessionRepository = MockSessionRepository();
     mockCompanyRepository = MockCompanyRepository();
+    mockChecklistsRemoteDataSource = MockChecklistsRemoteDataSource();
 
     when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn(null);
 
@@ -68,6 +79,7 @@ void main() {
       observationsRemoteDataSource: mockObservationsRemoteDataSource,
       pauseRemoteDataSource: mockPauseRemoteDataSource,
       accessLogsRemoteDataSource: mockAccessLogsRemoteDataSource,
+      checklistsRemoteDataSource: mockChecklistsRemoteDataSource,
       internet: mockInternet,
       sessionRepository: mockSessionRepository,
       companyRepository: mockCompanyRepository,
@@ -149,6 +161,39 @@ void main() {
           verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
         },
       );
+
+      test('should upsert a queued checklist answer and clear the item', () async {
+        when(() => mockInternet.isConnected).thenReturn(true);
+        final tAnswer = ChecklistAnswerModel.fromEntity(
+          ChecklistFactory.makeChecklistAnswerEntity(),
+        );
+        final tItem = tQueueItem.copyWith(
+          entityType: SyncEntityType.checklistAnswer,
+          operation: SyncOperationType.update,
+          payload: jsonEncode(tAnswer.toJson()),
+        );
+
+        when(
+          () => mockSyncRepository.getPendingItems(),
+        ).thenAnswer((_) async => SuccessState(data: [tItem]));
+        when(
+          () => mockSyncRepository.markItemSyncing(tItem.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockChecklistsRemoteDataSource.saveResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockSyncRepository.removeQueueItem(tItem.id),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await processSyncQueueUseCase();
+
+        expect(result.data, equals(1));
+        verify(
+          () => mockChecklistsRemoteDataSource.saveResponse(any()),
+        ).called(1);
+        verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+      });
 
       test(
         'should mark deadLetter, cascade cancel, and report error telemetry when permanent remote failure occurs',
