@@ -11,9 +11,8 @@ abstract interface class ChecklistsRepository {
   FutureBool createTemplate(ChecklistTemplateEntity template);
   FutureBool updateTemplate(ChecklistTemplateEntity template);
   FutureBool deleteTemplate(String id);
-  Stream<RealtimeEvent<ChecklistTemplateEntity>> watchChecklistTemplatesRealtime({
-    String? companyId,
-  });
+  Stream<RealtimeEvent<ChecklistTemplateEntity>>
+  watchChecklistTemplatesRealtime({String? companyId});
 
   // Items
   FutureList<ChecklistItemEntity> getItemsByTemplate(String templateId);

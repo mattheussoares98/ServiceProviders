@@ -123,9 +123,8 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
       );
 
   @override
-  Stream<RealtimeEvent<ChecklistTemplateEntity>> watchChecklistTemplatesRealtime({
-    String? companyId,
-  }) {
+  Stream<RealtimeEvent<ChecklistTemplateEntity>>
+  watchChecklistTemplatesRealtime({String? companyId}) {
     return _remoteDataSource
         .watchChecklistTemplatesRealtime(companyId: companyId)
         .asyncMap((event) async {
@@ -211,24 +210,23 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
       );
 
   @override
-  FutureBool deleteItem(String id) =>
-      RepositoryHandler.fetchWithFallback<bool>(
-        isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.deleteItem(id),
-        remoteCallback: () async {
-          final result = await _remoteDataSource.deleteItem(id);
-          if (result is SuccessState<void>) {
-            await _localDataSource.deleteItem(id);
-            return const SuccessState(data: true);
-          }
-          return FailureState(
-            message: result.message,
-            error: result.error,
-            statusCode: result.statusCode,
-            response: result.response,
-          );
-        },
+  FutureBool deleteItem(String id) => RepositoryHandler.fetchWithFallback<bool>(
+    isInternetConnected: _internet.isConnected,
+    localCallback: () => _localDataSource.deleteItem(id),
+    remoteCallback: () async {
+      final result = await _remoteDataSource.deleteItem(id);
+      if (result is SuccessState<void>) {
+        await _localDataSource.deleteItem(id);
+        return const SuccessState(data: true);
+      }
+      return FailureState(
+        message: result.message,
+        error: result.error,
+        statusCode: result.statusCode,
+        response: result.response,
       );
+    },
+  );
 
   @override
   Stream<RealtimeEvent<ChecklistItemEntity>> watchChecklistItemsRealtime({

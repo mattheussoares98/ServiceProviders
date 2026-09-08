@@ -63,7 +63,8 @@ class ChecklistItemModel extends ChecklistItemEntity
       isRequired: json['is_required'] as bool? ?? false,
       options: parsedOptions,
       sortOrder: json['sort_order'] as int? ?? 0,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     );

@@ -32,12 +32,13 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
       );
 
   factory ChecklistTemplateModel.fromJson(MapDynamic json) {
-    final rawItems = json['checklist_items'] as List<dynamic>? ??
+    final rawItems =
+        json['checklist_items'] as List<dynamic>? ??
         json['items'] as List<dynamic>?;
     final items = rawItems != null
         ? rawItems
-            .map((e) => ChecklistItemModel.fromJson(e as MapDynamic))
-            .toList()
+              .map((e) => ChecklistItemModel.fromJson(e as MapDynamic))
+              .toList()
         : const <ChecklistItemModel>[];
 
     return ChecklistTemplateModel(
@@ -46,9 +47,11 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
       name: json['name'] as String? ?? '',
       description: json['description'] as String?,
       categoryId: json['category_id'] as String?,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
-      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
       items: items,

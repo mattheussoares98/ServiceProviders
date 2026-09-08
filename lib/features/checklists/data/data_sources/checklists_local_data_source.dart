@@ -121,13 +121,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureBool deleteTemplate(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.update(_database.checklistTemplates)
-            ..where((t) => t.id.equals(id)))
-          .write(
-            ChecklistTemplatesCompanion(
-              deletedAt: Value(DateTime.now().toUtc()),
-            ),
-          );
+      await (_database.update(
+        _database.checklistTemplates,
+      )..where((t) => t.id.equals(id))).write(
+        ChecklistTemplatesCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -198,13 +196,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureBool deleteItem(String id) {
     return ErrorHandler.execute(() async {
-      await (_database.update(_database.checklistItems)
-            ..where((t) => t.id.equals(id)))
-          .write(
-            ChecklistItemsCompanion(
-              deletedAt: Value(DateTime.now().toUtc()),
-            ),
-          );
+      await (_database.update(
+        _database.checklistItems,
+      )..where((t) => t.id.equals(id))).write(
+        ChecklistItemsCompanion(deletedAt: Value(DateTime.now().toUtc())),
+      );
       return const SuccessState(data: true);
     });
   }
@@ -240,9 +236,9 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureBool saveResponse(ChecklistAnswerModel response) {
     return ErrorHandler.execute(() async {
-      final workOrder = await (_database.select(_database.workOrders)
-            ..where((t) => t.id.equals(response.workOrderId)))
-          .getSingleOrNull();
+      final workOrder = await (_database.select(
+        _database.workOrders,
+      )..where((t) => t.id.equals(response.workOrderId))).getSingleOrNull();
 
       final companyId = workOrder?.companyId ?? '';
 

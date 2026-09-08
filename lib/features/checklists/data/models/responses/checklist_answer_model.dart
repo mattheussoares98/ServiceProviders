@@ -43,9 +43,11 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       numberValue: (json['number_value'] as num?)?.toDouble(),
       photoUrl: json['photo_url'] as String?,
       selectedOption: json['selected_option'] as String?,
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
-      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
     );
   }
