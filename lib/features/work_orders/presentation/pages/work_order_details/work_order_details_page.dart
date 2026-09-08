@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart';
@@ -16,6 +17,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_orde
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/deleted_work_order_banner.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/observations_section.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
+import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_checklist_section.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -46,6 +48,7 @@ class WorkOrderDetailsPage extends HookWidget {
               GetIt.I<WorkOrderObservationsCubit>()
                 ..fetchObservations(workOrderId),
         ),
+        BlocProvider(create: (context) => GetIt.I<WorkOrderChecklistCubit>()),
       ],
       child:
           BaseStateView<
@@ -87,16 +90,30 @@ class _WorkOrderDetails extends HookWidget {
   Widget build(BuildContext context) {
     final pauseCubit = context.read<PauseWorkflowCubit>();
     final serviceProvidersCubit = context.read<ServiceProvidersCubit>();
+    final checklistCubit = context.read<WorkOrderChecklistCubit>();
 
-    useEffect(() {
-      pauseCubit.loadPauseRequests(workOrder.id);
-      if (workOrder.serviceProviderCompanyId != null) {
-        serviceProvidersCubit.ensureProfilesLoaded(
-          workOrder.serviceProviderCompanyId!,
-        );
-      }
-      return null;
-    }, [workOrder.id, workOrder.serviceProviderCompanyId]);
+    useEffect(
+      () {
+        pauseCubit.loadPauseRequests(workOrder.id);
+        if (workOrder.checklistTemplateId != null) {
+          checklistCubit.loadChecklist(
+            templateId: workOrder.checklistTemplateId!,
+            workOrderId: workOrder.id,
+          );
+        }
+        if (workOrder.serviceProviderCompanyId != null) {
+          serviceProvidersCubit.ensureProfilesLoaded(
+            workOrder.serviceProviderCompanyId!,
+          );
+        }
+        return null;
+      },
+      [
+        workOrder.id,
+        workOrder.serviceProviderCompanyId,
+        workOrder.checklistTemplateId,
+      ],
+    );
 
     observeRunning([
       ObservedLoadingTarget(
@@ -107,6 +124,10 @@ class _WorkOrderDetails extends HookWidget {
           WorkOrderDetailsSections.changeStatus,
           WorkOrderDetailsSections.resumeWork,
         },
+      ),
+      ObservedLoadingTarget.section(
+        checklistCubit,
+        WorkOrderChecklistSections.saveAnswer,
       ),
       ObservedLoadingTarget(
         pauseCubit,
@@ -127,6 +148,12 @@ class _WorkOrderDetails extends HookWidget {
         context.read<WorkOrderObservationsCubit>().fetchObservations(
           workOrder.id,
         ),
+        if (workOrder.checklistTemplateId != null)
+          checklistCubit.loadChecklist(
+            templateId: workOrder.checklistTemplateId!,
+            workOrderId: workOrder.id,
+            emitLoading: false,
+          ),
         if (workOrder.serviceProviderCompanyId != null)
           serviceProvidersCubit.ensureProfilesLoaded(
             workOrder.serviceProviderCompanyId!,
@@ -163,6 +190,7 @@ class _WorkOrderDetails extends HookWidget {
             workOrderCompanyId: workOrder.companyId,
             autoUpload: true,
           ),
+          WorkOrderChecklistSection(workOrder: workOrder),
           ObservationsSection(workOrder: workOrder),
           gapSliverH24,
         ],
