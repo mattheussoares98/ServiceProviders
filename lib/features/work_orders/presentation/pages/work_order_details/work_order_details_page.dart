@@ -96,10 +96,12 @@ class _WorkOrderDetails extends HookWidget {
       () {
         pauseCubit.loadPauseRequests(workOrder.id);
         if (workOrder.checklistTemplateId != null) {
-          checklistCubit.loadChecklist(
-            templateId: workOrder.checklistTemplateId!,
-            workOrderId: workOrder.id,
-          );
+          checklistCubit
+            ..loadChecklist(
+              templateId: workOrder.checklistTemplateId!,
+              workOrderId: workOrder.id,
+            )
+            ..subscribeToRealtime(workOrder.id);
         }
         if (workOrder.serviceProviderCompanyId != null) {
           serviceProvidersCubit.ensureProfilesLoaded(
