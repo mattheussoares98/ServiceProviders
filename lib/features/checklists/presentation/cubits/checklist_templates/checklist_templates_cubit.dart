@@ -20,6 +20,7 @@ enum ChecklistTemplatesSections implements SectionKey {
   loadItems,
   saveItem,
   deleteItem,
+  reorderItems,
 }
 
 @injectable
@@ -380,6 +381,86 @@ class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
       showErrorToast(message);
       return false;
     }
+  }
+
+  /// Moves an item within its template and renumbers the run it displaced.
+  ///
+  /// `sortOrder` drives the order the technician answers in, so a checklist
+  /// built in the wrong order could otherwise only be fixed by deleting items —
+  /// which orphans the answers already recorded against them.
+  Future<bool> reorderItems({
+    required String templateId,
+    required int oldIndex,
+    required int newIndex,
+  }) async {
+    final ordered = [...state.templateItems]
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+    if (oldIndex < 0 || oldIndex >= ordered.length) return false;
+    // `onReorderItem` already accounts for the removal, so newIndex is final.
+    if (newIndex == oldIndex || newIndex < 0 || newIndex >= ordered.length) {
+      return false;
+    }
+
+    final moved = ordered.removeAt(oldIndex);
+    ordered.insert(newIndex, moved);
+
+    final renumbered = <ChecklistItemEntity>[];
+    for (var index = 0; index < ordered.length; index++) {
+      renumbered.add(ordered[index].copyWith(sortOrder: index));
+    }
+
+    // Capture the old positions before emitting, or the comparison below reads
+    // the list it is being compared against and nothing looks changed.
+    final previousOrder = {
+      for (final item in state.templateItems) item.id: item.sortOrder,
+    };
+
+    // Show the new order immediately; the writes below only persist it.
+    emit(
+      state.copyWith(
+        templateItems: renumbered,
+        sections: withSection(
+          ChecklistTemplatesSections.reorderItems,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final changed = renumbered.where(
+      (item) => previousOrder[item.id] != item.sortOrder,
+    );
+
+    for (final item in changed) {
+      final result = await _useCases.updateChecklistItem(item);
+      if (isClosed) return false;
+
+      if (result is! SuccessState<bool> || result.data != true) {
+        final message =
+            result.message ?? 'Erro ao reordenar os itens'.hardcoded;
+        emit(
+          state.copyWith(
+            sections: withSection(
+              ChecklistTemplatesSections.reorderItems,
+              SectionStatus.error,
+            ),
+          ),
+        );
+        showErrorToast(message);
+        await loadItemsByTemplate(templateId, emitLoading: false);
+        return false;
+      }
+    }
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          ChecklistTemplatesSections.reorderItems,
+          SectionStatus.success,
+        ),
+      ),
+    );
+    return true;
   }
 
   Future<void> navigateToCreateUpdateTemplate({

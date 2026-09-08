@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit_use_cases.dart';
@@ -321,6 +322,78 @@ void main() {
         verify(
           () => mockGetChecklistItemsByTemplate(tItem.templateId),
         ).called(1);
+      },
+    );
+  });
+
+  group('reorderItems', () {
+    final tTemplateId = ChecklistFactory.makeChecklistTemplateEntity().id;
+    List<ChecklistItemEntity> orderedItems() => [
+      for (var index = 0; index < 3; index++)
+        ChecklistFactory.makeChecklistItemEntity().copyWith(
+          templateId: tTemplateId,
+          sortOrder: index,
+        ),
+    ];
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'renumbers the displaced run and persists only what moved',
+      setUp: () {
+        when(
+          () => mockUpdateChecklistItem(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      seed: () => ChecklistTemplatesState(
+        templates: const [],
+        templateItems: orderedItems(),
+      ),
+      act: (cubit) =>
+          cubit.reorderItems(templateId: tTemplateId, oldIndex: 0, newIndex: 2),
+      verify: (cubit) {
+        expect(
+          cubit.state.templateItems.map((e) => e.sortOrder),
+          [0, 1, 2],
+        );
+        // The item that was first is now last.
+        expect(cubit.state.templateItems.last.sortOrder, 2);
+        // All three shifted, so all three persist.
+        verify(() => mockUpdateChecklistItem(any())).called(3);
+      },
+    );
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'does nothing when the item is dropped where it started',
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      seed: () => ChecklistTemplatesState(
+        templates: const [],
+        templateItems: orderedItems(),
+      ),
+      act: (cubit) =>
+          cubit.reorderItems(templateId: tTemplateId, oldIndex: 1, newIndex: 1),
+      expect: () => <ChecklistTemplatesState>[],
+      verify: (_) => verifyNever(() => mockUpdateChecklistItem(any())),
+    );
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'reloads from source when a persist fails',
+      setUp: () {
+        when(
+          () => mockUpdateChecklistItem(any()),
+        ).thenAnswer((_) async => FailureState<bool>(message: faker.lorem.word()));
+        when(
+          () => mockGetChecklistItemsByTemplate(any()),
+        ).thenAnswer((_) async => SuccessState(data: orderedItems()));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      seed: () => ChecklistTemplatesState(
+        templates: const [],
+        templateItems: orderedItems(),
+      ),
+      act: (cubit) =>
+          cubit.reorderItems(templateId: tTemplateId, oldIndex: 0, newIndex: 2),
+      verify: (_) {
+        verify(() => mockGetChecklistItemsByTemplate(tTemplateId)).called(1);
       },
     );
   });
