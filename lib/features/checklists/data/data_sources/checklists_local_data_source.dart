@@ -212,20 +212,26 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
   @override
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId) {
     return ErrorHandler.execute(() async {
-      final list = await (_database.select(
-        _database.tasks,
-      )..where((t) => t.workOrderId.equals(workOrderId))).get();
+      final list =
+          await (_database.select(_database.checklistAnswers)..where(
+                (t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull(),
+              ))
+              .get();
 
       return SuccessState(
         data: list
             .map(
-              (t) => ChecklistAnswerModel(
-                id: t.id,
-                workOrderId: t.workOrderId,
-                checklistItemId: t.title,
-                booleanValue: t.isCompleted,
-                createdAt: t.createdAt.toUtc(),
-                updatedAt: t.updatedAt.toUtc(),
+              (row) => ChecklistAnswerModel(
+                id: row.id,
+                workOrderId: row.workOrderId,
+                checklistItemId: row.checklistItemId,
+                booleanValue: row.booleanValue,
+                textValue: row.textValue,
+                numberValue: row.numberValue,
+                photoUrl: row.photoUrl,
+                selectedOption: row.selectedOption,
+                createdAt: row.createdAt.toUtc(),
+                updatedAt: row.updatedAt.toUtc(),
               ),
             )
             .toList(),
@@ -240,17 +246,34 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
         _database.workOrders,
       )..where((t) => t.id.equals(response.workOrderId))).getSingleOrNull();
 
+      // The remote table defaults company_id from the session; locally it has to
+      // come off the parent work order.
       final companyId = workOrder?.companyId ?? '';
 
+      // Re-answering an item must update the existing row rather than insert a
+      // second one, so resolve on the (work order, item) pair the unique key
+      // mirrors — the id may differ when the answer was created offline.
+      final existing =
+          await (_database.select(_database.checklistAnswers)..where(
+                (t) =>
+                    t.workOrderId.equals(response.workOrderId) &
+                    t.checklistItemId.equals(response.checklistItemId),
+              ))
+              .getSingleOrNull();
+
       await _database
-          .into(_database.tasks)
+          .into(_database.checklistAnswers)
           .insertOnConflictUpdate(
-            TasksCompanion(
-              id: Value(response.id),
-              workOrderId: Value(response.workOrderId),
+            ChecklistAnswersCompanion(
+              id: Value(existing?.id ?? response.id),
               companyId: Value(companyId),
-              title: Value(response.checklistItemId),
-              isCompleted: Value(response.booleanValue ?? false),
+              workOrderId: Value(response.workOrderId),
+              checklistItemId: Value(response.checklistItemId),
+              booleanValue: Value(response.booleanValue),
+              textValue: Value(response.textValue),
+              numberValue: Value(response.numberValue),
+              photoUrl: Value(response.photoUrl),
+              selectedOption: Value(response.selectedOption),
               createdAt: Value(response.createdAt.toUtc()),
               updatedAt: Value(response.updatedAt.toUtc()),
             ),

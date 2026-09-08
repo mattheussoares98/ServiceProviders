@@ -191,5 +191,55 @@ void main() {
       expect(listResult.data, hasLength(1));
       expect(listResult.data!.first.id, tAnswerModel.id);
     });
+
+    test('round-trips every answer value, not only the boolean', () async {
+      await insertDependencies(
+        companyId: faker.guid.guid(),
+        workOrderId: tAnswerModel.workOrderId,
+      );
+
+      final tFullAnswer = tAnswerModel.copyWith(
+        booleanValue: true,
+        textValue: faker.lorem.sentence(),
+        numberValue: faker.randomGenerator.decimal(scale: 100),
+        photoUrl: faker.internet.httpsUrl(),
+        selectedOption: faker.lorem.word(),
+      );
+
+      await dataSource.saveResponse(
+        ChecklistAnswerModel.fromEntity(tFullAnswer),
+      );
+      final listResult = await dataSource.getResponsesByWorkOrder(
+        tAnswerModel.workOrderId,
+      );
+
+      final stored = listResult.data!.single;
+      expect(stored.booleanValue, tFullAnswer.booleanValue);
+      expect(stored.textValue, tFullAnswer.textValue);
+      expect(stored.numberValue, tFullAnswer.numberValue);
+      expect(stored.photoUrl, tFullAnswer.photoUrl);
+      expect(stored.selectedOption, tFullAnswer.selectedOption);
+    });
+
+    test('re-answering an item updates in place instead of duplicating', () async {
+      await insertDependencies(
+        companyId: faker.guid.guid(),
+        workOrderId: tAnswerModel.workOrderId,
+      );
+
+      await dataSource.saveResponse(tAnswerModel);
+      final revised = faker.lorem.sentence();
+      await dataSource.saveResponse(
+        ChecklistAnswerModel.fromEntity(
+          tAnswerModel.copyWith(textValue: revised),
+        ),
+      );
+
+      final listResult = await dataSource.getResponsesByWorkOrder(
+        tAnswerModel.workOrderId,
+      );
+      expect(listResult.data, hasLength(1));
+      expect(listResult.data!.single.textValue, revised);
+    });
   });
 }
