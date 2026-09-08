@@ -302,6 +302,30 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
       );
 
   @override
+  Stream<RealtimeEvent<ChecklistAnswerEntity>> watchChecklistAnswersRealtime({
+    required String workOrderId,
+  }) {
+    return _remoteDataSource
+        .watchChecklistAnswersRealtime(workOrderId: workOrderId)
+        .asyncMap((event) async {
+          if (event.entity != null &&
+              (event.eventType == RealtimeEventType.insert ||
+                  event.eventType == RealtimeEventType.update)) {
+            await _localDataSource.saveResponse(
+              ChecklistAnswerModel.fromEntity(event.entity!),
+            );
+          }
+
+          return RealtimeEvent<ChecklistAnswerEntity>(
+            eventType: event.eventType,
+            id: event.id,
+            companyId: event.companyId,
+            entity: event.entity,
+          );
+        });
+  }
+
+  @override
   FutureBool saveResponse(ChecklistAnswerEntity response) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
