@@ -42,6 +42,7 @@ class WorkOrderModel extends WorkOrderEntity
     required super.serviceProviderCompanyId,
     required super.providerProfileId,
     super.openedBy,
+    required super.checklistTemplateId,
     required super.slaPolicyId,
     required super.slaDeadlineAt,
     super.slaBreached,
@@ -84,6 +85,7 @@ class WorkOrderModel extends WorkOrderEntity
     attachments: entity.attachments,
     serviceProviderCompanyId: entity.serviceProviderCompanyId,
     providerProfileId: entity.providerProfileId,
+    checklistTemplateId: entity.checklistTemplateId,
     slaPolicyId: entity.slaPolicyId,
     slaDeadlineAt: entity.slaDeadlineAt,
     slaBreached: entity.slaBreached,
@@ -137,6 +139,7 @@ class WorkOrderModel extends WorkOrderEntity
         const [],
     serviceProviderCompanyId: json['service_provider_company_id'] as String?,
     providerProfileId: json['provider_profile_id'] as String?,
+    checklistTemplateId: json['checklist_template_id'] as String?,
     slaPolicyId: json['sla_policy_id'] as String?,
     slaDeadlineAt: (json['sla_deadline_at'] as String?).toUtcDateTime(),
     slaBreached: json['sla_breached'] as bool? ?? false,
@@ -150,11 +153,10 @@ class WorkOrderModel extends WorkOrderEntity
           )
         : null,
     completionSectorId: json['completion_sector_id'] as String?,
-    advanceWarningSentAt:
-        (json['advance_warning_sent_at'] as String?).toUtcDateTime(),
+    advanceWarningSentAt: (json['advance_warning_sent_at'] as String?)
+        .toUtcDateTime(),
     lastEscalationLevel: json['last_escalation_level'] as int? ?? 0,
-    lastEscalationAt:
-        (json['last_escalation_at'] as String?).toUtcDateTime(),
+    lastEscalationAt: (json['last_escalation_at'] as String?).toUtcDateTime(),
   );
 
   @override
@@ -187,6 +189,7 @@ class WorkOrderModel extends WorkOrderEntity
     'deleted_at': deletedAt?.toIsoUtcString(),
     'service_provider_company_id': serviceProviderCompanyId,
     'provider_profile_id': providerProfileId,
+    'checklist_template_id': checklistTemplateId,
     'sla_policy_id': slaPolicyId,
     'sla_deadline_at': slaDeadlineAt?.toIsoUtcString(),
     'sla_breached': slaBreached,
@@ -231,6 +234,7 @@ class WorkOrderModel extends WorkOrderEntity
     attachments: attachments,
     serviceProviderCompanyId: serviceProviderCompanyId,
     providerProfileId: providerProfileId,
+    checklistTemplateId: checklistTemplateId,
     slaPolicyId: slaPolicyId,
     slaDeadlineAt: slaDeadlineAt,
     slaBreached: slaBreached,

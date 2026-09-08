@@ -42,6 +42,11 @@ void main() {
         tEntity.providerProfileId,
       );
       expect(responseModelFromJson.openedBy, tEntity.openedBy);
+      expect(
+        responseJson['checklist_template_id'],
+        tEntity.checklistTemplateId,
+      );
+      expect(resultEntity.checklistTemplateId, tEntity.checklistTemplateId);
       expect(resultEntity.advanceWarningSentAt, tEntity.advanceWarningSentAt);
       expect(resultEntity.lastEscalationLevel, tEntity.lastEscalationLevel);
       expect(resultEntity.lastEscalationAt, tEntity.lastEscalationAt);
