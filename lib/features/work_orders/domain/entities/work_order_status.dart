@@ -24,11 +24,7 @@ enum WorkOrderStatus {
 
   bool get showsBottomActions => isOpen || isRunning || isPaused;
 
-  /// Attachments may only be added while the work is still being executed.
-  /// Once conclusion is submitted the evidence set is what the approver reviews,
-  /// so it is frozen; a completed or cancelled order is closed history.
-  bool get acceptsAttachments =>
-      isOpen || this == WorkOrderStatus.inProgress || isPaused;
+  bool get acceptsAttachments => this == WorkOrderStatus.inProgress;
 
   static WorkOrderStatus fromCode(String code) {
     for (final val in WorkOrderStatus.values) {
