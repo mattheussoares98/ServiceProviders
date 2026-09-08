@@ -438,6 +438,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     AttachmentsCubit? attachmentsCubit,
     String? serviceProviderCompanyId,
     String? providerProfileId,
+    String? checklistTemplateId,
     String? slaPolicyId,
     AppMode openedBy = AppMode.internal,
   }) async {
@@ -509,6 +510,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       deletedAt: null,
       serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
       providerProfileId: providerProfileId?.trimToNull(),
+      checklistTemplateId: checklistTemplateId ?? existing?.checklistTemplateId,
       slaPolicyId: slaPolicyId,
       slaDeadlineAt: existing?.slaDeadlineAt,
       slaBreached: existing?.slaBreached ?? false,
