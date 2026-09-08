@@ -139,6 +139,8 @@ void main() {
     for (final item in items) {
       expect(find.text(item.label), findsOneWidget);
     }
+    // Checklists are ordered, so the list must be reorderable.
+    expect(find.byType(ReorderableListView), findsOneWidget);
   });
 
   testWidgets('shows the empty items message when the template has none', (

@@ -65,11 +65,27 @@ class ChecklistTemplateItemsSection extends StatelessWidget {
             final sorted = [...items]
               ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-            return Column(
-              children: [
-                for (final item in sorted)
-                  ChecklistTemplateItemTile(item: item),
-              ],
+            return ReorderableListView.builder(
+              shrinkWrap: true,
+              // The page already scrolls; this list only lays itself out.
+              physics: const NeverScrollableScrollPhysics(),
+              buildDefaultDragHandles: false,
+              itemCount: sorted.length,
+              onReorderItem: (oldIndex, newIndex) => context
+                  .read<ChecklistTemplatesCubit>()
+                  .reorderItems(
+                    templateId: templateId,
+                    oldIndex: oldIndex,
+                    newIndex: newIndex,
+                  ),
+              itemBuilder: (context, index) {
+                final item = sorted[index];
+                return ReorderableDragStartListener(
+                  key: ValueKey(item.id),
+                  index: index,
+                  child: ChecklistTemplateItemTile(item: item),
+                );
+              },
             );
           },
         ),
