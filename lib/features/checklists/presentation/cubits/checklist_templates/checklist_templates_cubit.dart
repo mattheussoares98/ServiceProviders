@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,8 +29,9 @@ class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
       super(const ChecklistTemplatesState.initial());
 
   final ChecklistTemplatesCubitUseCases _useCases;
-  StreamSubscription? _templatesRealtimeSub;
-  StreamSubscription? _itemsRealtimeSub;
+  StreamSubscription<RealtimeEvent<ChecklistTemplateEntity>>?
+  _templatesRealtimeSub;
+  StreamSubscription<RealtimeEvent<ChecklistItemEntity>>? _itemsRealtimeSub;
 
   @override
   Future<void> close() {
@@ -377,5 +380,26 @@ class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
       showErrorToast(message);
       return false;
     }
+  }
+
+  Future<void> navigateToCreateUpdateTemplate({
+    ChecklistTemplateEntity? template,
+  }) async {
+    await pushRoute(CreateUpdateChecklistTemplateRoute(template: template));
+    await loadTemplates(emitLoading: false);
+  }
+
+  Future<void> navigateToCreateUpdateItem({
+    required String templateId,
+    ChecklistItemEntity? item,
+  }) async {
+    await pushRoute(
+      CreateUpdateChecklistItemRoute(
+        templateId: templateId,
+        item: item,
+        sortOrder: item?.sortOrder ?? state.templateItems.length,
+      ),
+    );
+    await loadItemsByTemplate(templateId, emitLoading: false);
   }
 }

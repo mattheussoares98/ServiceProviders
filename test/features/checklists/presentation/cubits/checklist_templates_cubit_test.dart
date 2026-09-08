@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ite
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -36,6 +37,16 @@ void main() {
   setUpAll(() {
     registerFallbackValue(ChecklistFactory.makeChecklistTemplateEntity());
     registerFallbackValue(ChecklistFactory.makeChecklistItemEntity());
+    registerFallbackValue(
+      CreateUpdateChecklistTemplateRoute(
+        template: ChecklistFactory.makeChecklistTemplateEntity(),
+      ),
+    );
+    registerFallbackValue(
+      CreateUpdateChecklistItemRoute(
+        templateId: ChecklistFactory.makeChecklistItemEntity().templateId,
+      ),
+    );
   });
 
   setUp(() {
@@ -256,6 +267,61 @@ void main() {
           SectionStatus.success,
         ),
       ],
+    );
+  });
+
+  group('Navigation', () {
+    final tTemplate = ChecklistFactory.makeChecklistTemplateEntity();
+    final tItem = ChecklistFactory.makeChecklistItemEntity();
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'navigateToCreateUpdateTemplate pushes the route and reloads templates',
+      setUp: () {
+        when(
+          () => mockNavigationClient
+              .pushRoute<CreateUpdateChecklistTemplateRouteArgs>(any()),
+        ).thenAnswer((_) async => null);
+        when(() => mockGetActiveCompanyId()).thenReturn(tTemplate.companyId);
+        when(
+          () => mockGetChecklists(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tTemplate]));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      act: (cubit) => cubit.navigateToCreateUpdateTemplate(template: tTemplate),
+      verify: (_) {
+        verify(
+          () => mockNavigationClient
+              .pushRoute<CreateUpdateChecklistTemplateRouteArgs>(any()),
+        ).called(1);
+        verify(() => mockGetChecklists(any())).called(1);
+      },
+    );
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'navigateToCreateUpdateItem pushes the route and reloads the items',
+      setUp: () {
+        when(
+          () => mockNavigationClient
+              .pushRoute<CreateUpdateChecklistItemRouteArgs>(any()),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockGetChecklistItemsByTemplate(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tItem]));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      act: (cubit) => cubit.navigateToCreateUpdateItem(
+        templateId: tItem.templateId,
+        item: tItem,
+      ),
+      verify: (_) {
+        verify(
+          () => mockNavigationClient
+              .pushRoute<CreateUpdateChecklistItemRouteArgs>(any()),
+        ).called(1);
+        verify(
+          () => mockGetChecklistItemsByTemplate(tItem.templateId),
+        ).called(1);
+      },
     );
   });
 }
