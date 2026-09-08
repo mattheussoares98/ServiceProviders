@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_templates_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
@@ -77,6 +78,11 @@ class WorkOrders extends Table {
   TextColumn get openedBy => text().withDefault(const Constant('internal'))();
   TextColumn get slaPolicyId => text().nullable().references(
     SlaPolicies,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get checklistTemplateId => text().nullable().references(
+    ChecklistTemplates,
     #id,
     onDelete: KeyAction.setNull,
   )();
