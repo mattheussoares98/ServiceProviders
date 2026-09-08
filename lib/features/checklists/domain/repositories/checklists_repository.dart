@@ -26,4 +26,7 @@ abstract interface class ChecklistsRepository {
   // Execution Responses
   FutureList<ChecklistAnswerEntity> getResponsesByWorkOrder(String workOrderId);
   FutureBool saveResponse(ChecklistAnswerEntity response);
+  Stream<RealtimeEvent<ChecklistAnswerEntity>> watchChecklistAnswersRealtime({
+    required String workOrderId,
+  });
 }
