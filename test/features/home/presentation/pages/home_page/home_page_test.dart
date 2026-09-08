@@ -16,6 +16,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_reposit
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
@@ -82,6 +83,9 @@ class MockModeSwitcherCubit extends MockCubit<ModeSwitcherState>
 class MockSectorsCubit extends MockCubit<SectorsState>
     implements SectorsCubit {}
 
+class MockChecklistTemplatesCubit extends MockCubit<ChecklistTemplatesState>
+    implements ChecklistTemplatesCubit {}
+
 class MockSlaPoliciesCubit extends MockCubit<SlaPoliciesState>
     implements SlaPoliciesCubit {}
 
@@ -110,6 +114,7 @@ void main() {
   late MockCategoriesCubit mockCategoriesCubit;
   late MockSessionCubit mockSessionCubit;
   late MockSectorsCubit mockSectorsCubit;
+  late MockChecklistTemplatesCubit mockChecklistTemplatesCubit;
   late MockSlaPoliciesCubit mockSlaPoliciesCubit;
   late MockServiceProvidersCubit mockServiceProvidersCubit;
   late MockPauseWorkflowCubit mockPauseWorkflowCubit;
@@ -243,6 +248,20 @@ void main() {
     when(() => mockSectorsCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSectorsCubit.loadSectors()).thenAnswer((_) async {});
 
+    mockChecklistTemplatesCubit = MockChecklistTemplatesCubit();
+    when(
+      () => mockChecklistTemplatesCubit.state,
+    ).thenReturn(const ChecklistTemplatesState.initial());
+    when(
+      () => mockChecklistTemplatesCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockChecklistTemplatesCubit.loadTemplates(),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockChecklistTemplatesCubit.subscribeToRealtime(),
+    ).thenReturn(null);
+
     mockSlaPoliciesCubit = MockSlaPoliciesCubit();
     when(
       () => mockSlaPoliciesCubit.state,
@@ -297,6 +316,9 @@ void main() {
       ..registerFactory<SplashCubit>(() => mockSplashCubit)
       ..registerFactory<ModeSwitcherCubit>(() => mockModeSwitcherCubit)
       ..registerFactory<SectorsCubit>(() => mockSectorsCubit)
+      ..registerFactory<ChecklistTemplatesCubit>(
+        () => mockChecklistTemplatesCubit,
+      )
       ..registerFactory<SlaPoliciesCubit>(() => mockSlaPoliciesCubit)
       ..registerFactory<ServiceProvidersCubit>(() => mockServiceProvidersCubit)
       ..registerFactory<PauseWorkflowCubit>(() => mockPauseWorkflowCubit)
@@ -448,6 +470,9 @@ void main() {
         verify(() => mockUsersCubit.loadAll()).called(greaterThanOrEqualTo(2));
         verify(
           () => mockCategoriesCubit.loadCategories(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockChecklistTemplatesCubit.loadTemplates(),
         ).called(greaterThanOrEqualTo(2));
         verify(
           () => mockSectorsCubit.loadSectors(),

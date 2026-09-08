@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/error_page.dart';
@@ -64,6 +65,11 @@ class HomePage extends HookWidget {
         BlocProvider<SectorsCubit>(
           create: (context) => GetIt.I<SectorsCubit>()..loadSectors(),
         ),
+        BlocProvider<ChecklistTemplatesCubit>(
+          create: (context) => GetIt.I<ChecklistTemplatesCubit>()
+            ..loadTemplates()
+            ..subscribeToRealtime(),
+        ),
         BlocProvider<SlaPoliciesCubit>(
           create: (context) => GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
         ),
@@ -91,6 +97,9 @@ class HomePage extends HookWidget {
               context.read<UsersCubit>().loadAll();
               context.read<CategoriesCubit>().loadCategories();
               context.read<SectorsCubit>().loadSectors();
+              context.read<ChecklistTemplatesCubit>()
+                ..loadTemplates()
+                ..subscribeToRealtime();
               context.read<SlaPoliciesCubit>().loadSlaPolicies();
               context.read<ServiceProvidersCubit>().loadCompaniesAndProfiles();
               context.read<PauseWorkflowCubit>().loadPauseReasons();
