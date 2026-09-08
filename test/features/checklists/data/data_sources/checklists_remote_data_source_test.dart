@@ -46,6 +46,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
           orderBy: any(named: 'orderBy'),
         ),
@@ -61,6 +62,9 @@ void main() {
       verify(
         () => mockDatabase.selectList(
           table: 'checklist_templates',
+          // The items must come embedded, or a template is unusable offline
+          // until it has been opened online.
+          columns: '*, checklist_items(*)',
           filters: any(named: 'filters'),
           orderBy: any(named: 'orderBy'),
         ),
@@ -71,6 +75,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
           orderBy: any(named: 'orderBy'),
         ),
@@ -85,6 +90,7 @@ void main() {
       when(
         () => mockDatabase.selectOne(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
         ),
       ).thenAnswer((_) async => tTemplateModel.toJson());
@@ -102,6 +108,7 @@ void main() {
       when(
         () => mockDatabase.selectOne(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
         ),
       ).thenAnswer((_) async => null);
@@ -221,6 +228,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
           orderBy: any(named: 'orderBy'),
         ),
@@ -248,6 +256,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
           orderBy: any(named: 'orderBy'),
         ),
@@ -363,6 +372,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
         ),
       ).thenAnswer((_) async => [tAnswerModel.toJson()]);
@@ -388,6 +398,7 @@ void main() {
       when(
         () => mockDatabase.selectList(
           table: any(named: 'table'),
+          columns: any(named: 'columns'),
           filters: any(named: 'filters'),
         ),
       ).thenThrow(Exception('DB error'));

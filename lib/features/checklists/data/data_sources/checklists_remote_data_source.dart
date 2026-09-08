@@ -58,6 +58,9 @@ final class ChecklistsRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectList(
           table: 'checklist_templates',
+          // Embed the items so a template is usable offline without having been
+          // opened online first.
+          columns: '*, checklist_items(*)',
           filters: [
             SupabaseFilter.eq('company_id', companyId),
             SupabaseFilter.isFilter('deleted_at', null),
@@ -72,6 +75,7 @@ final class ChecklistsRemoteDataSourceImpl
       SupabaseHandler.call(() async {
         final response = await _database.selectOne(
           table: 'checklist_templates',
+          columns: '*, checklist_items(*)',
           filters: [
             SupabaseFilter.eq('id', id),
             SupabaseFilter.isFilter('deleted_at', null),
