@@ -18,15 +18,21 @@ class ChecklistTextInput extends HookWidget {
     final controller = useTextEditingController(
       text: response?.textValue ?? '',
     );
+    // Each answer is persisted remotely, so typing must not fire a write per
+    // keystroke — settle first, then save.
+    final debounce = useMemoized(
+      () => DebounceTime(delay: const Duration(milliseconds: 600)),
+    );
+    useEffect(() => debounce.dispose, [debounce]);
 
     return BaseTextFormField(
       controller: controller,
       hintText: 'Digite a resposta'.hardcoded,
-      onChanged: (val) {
+      onChanged: (val) => debounce.run(() {
         final current =
             response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
         onChanged(current.copyWith(textValue: val));
-      },
+      }),
     );
   }
 }

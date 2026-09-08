@@ -19,17 +19,21 @@ class ChecklistNumberInput extends HookWidget {
         ? response!.numberValue.toString()
         : '';
     final controller = useTextEditingController(text: initialText);
+    final debounce = useMemoized(
+      () => DebounceTime(delay: const Duration(milliseconds: 600)),
+    );
+    useEffect(() => debounce.dispose, [debounce]);
 
     return BaseTextFormField(
       controller: controller,
       hintText: 'Digite um número'.hardcoded,
       keyboardType: TextInputType.number,
-      onChanged: (val) {
+      onChanged: (val) => debounce.run(() {
         final numVal = double.tryParse(val);
         final current =
             response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
         onChanged(current.copyWith(numberValue: numVal));
-      },
+      }),
     );
   }
 }

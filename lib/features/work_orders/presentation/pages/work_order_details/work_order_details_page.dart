@@ -125,10 +125,6 @@ class _WorkOrderDetails extends HookWidget {
           WorkOrderDetailsSections.resumeWork,
         },
       ),
-      ObservedLoadingTarget.section(
-        checklistCubit,
-        WorkOrderChecklistSections.saveAnswer,
-      ),
       ObservedLoadingTarget(
         pauseCubit,
         sections: const {
