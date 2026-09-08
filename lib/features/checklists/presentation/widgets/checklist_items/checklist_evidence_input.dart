@@ -32,12 +32,20 @@ class ChecklistEvidenceInput extends StatelessWidget {
   bool get _hasEvidence => response?.photoUrl?.trim().isNotEmpty == true;
 
   Future<void> _attach(BuildContext context, AttachmentSource source) async {
-    await context.read<WorkOrderChecklistCubit>().attachEvidence(
-      workOrderId: workOrderId,
-      companyId: companyId,
-      checklistItemId: item.id,
-      source: source,
-    );
+    final attachmentsCubit = context.read<AttachmentsCubit>();
+
+    final attached = await context
+        .read<WorkOrderChecklistCubit>()
+        .attachEvidence(
+          workOrderId: workOrderId,
+          companyId: companyId,
+          checklistItemId: item.id,
+          source: source,
+        );
+
+    // The file is a work order attachment as well as the item's evidence, so the
+    // attachments section has to pick it up — the upload bypassed its cubit.
+    if (attached) await attachmentsCubit.refreshAttachments();
   }
 
   @override
