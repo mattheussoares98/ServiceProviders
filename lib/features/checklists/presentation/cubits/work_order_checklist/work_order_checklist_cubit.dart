@@ -1,6 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -10,7 +13,7 @@ import 'package:uuid/uuid.dart';
 
 part 'work_order_checklist_state.dart';
 
-enum WorkOrderChecklistSections implements SectionKey { saveAnswer }
+enum WorkOrderChecklistSections implements SectionKey { saveAnswer, attachEvidence }
 
 @injectable
 class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
@@ -139,5 +142,94 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       showErrorToast(message);
       return false;
     }
+  }
+
+  /// Captures the evidence a `photo` or `documentation` item asks for: picks a
+  /// single file, uploads it, and stores the resulting URL on the answer.
+  ///
+  /// Offline the upload cannot run, so the local sandbox path is stored and the
+  /// item counts as answered — the attachment's own retry uploads it later.
+  Future<bool> attachEvidence({
+    required String workOrderId,
+    required String companyId,
+    required String checklistItemId,
+    required AttachmentSource source,
+  }) async {
+    emit(
+      state.copyWith(
+        sections: withSection(
+          WorkOrderChecklistSections.attachEvidence,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final picked = await _useCases.pickAttachment(
+      PickAttachmentParams(
+        source: source,
+        workOrderId: workOrderId,
+        companyId: companyId.isNotEmpty
+            ? companyId
+            : _useCases.getActiveCompanyId(),
+        userId: _useCases.getSessionUser().id,
+        multiple: false,
+      ),
+    );
+    if (isClosed) return false;
+
+    final attachment = picked is SuccessState<List<AttachmentEntity>>
+        ? (picked.data?.isNotEmpty == true ? picked.data!.first : null)
+        : null;
+
+    if (attachment == null) {
+      // A cancelled picker is not an error; only a genuine failure is.
+      final failed = picked is FailureState;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrderChecklistSections.attachEvidence,
+            failed ? SectionStatus.error : SectionStatus.idle,
+          ),
+        ),
+      );
+      if (failed) {
+        showErrorToast(
+          picked.message ?? 'Falha ao anexar o arquivo'.hardcoded,
+        );
+      }
+      return false;
+    }
+
+    await _useCases.uploadAttachment(attachment);
+    if (isClosed) return false;
+
+    final url = attachment.remoteUrl?.trimToNull() ?? attachment.localPath;
+    if (url == null) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrderChecklistSections.attachEvidence,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showErrorToast('Falha ao anexar o arquivo'.hardcoded);
+      return false;
+    }
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          WorkOrderChecklistSections.attachEvidence,
+          SectionStatus.success,
+        ),
+      ),
+    );
+
+    return answerItem(
+      workOrderId: workOrderId,
+      checklistItemId: checklistItemId,
+      photoUrl: url,
+    );
   }
 }

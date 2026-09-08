@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit_use_cases.dart';
@@ -12,6 +14,8 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/checklist_factory.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
@@ -20,11 +24,24 @@ void main() {
   late MockGetChecklistItemsByTemplateUseCase mockGetChecklistItemsByTemplate;
   late MockGetWorkOrderChecklistAnswersUseCase mockGetWorkOrderChecklistAnswers;
   late MockSaveChecklistResponseUseCase mockSaveChecklistResponse;
+  late MockPickAttachmentUseCase mockPickAttachment;
+  late MockUploadAttachmentUseCase mockUploadAttachment;
+  late MockGetSessionUserUseCase mockGetSessionUser;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockNavigationClient mockNavigationClient;
   late WorkOrderChecklistCubitUseCases useCases;
 
   setUpAll(() {
     registerFallbackValue(ChecklistFactory.makeChecklistAnswerEntity());
+    registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
+    registerFallbackValue(
+      PickAttachmentParams(
+        source: AttachmentSource.cameraPhoto,
+        workOrderId: faker.guid.guid(),
+        companyId: faker.guid.guid(),
+        userId: faker.guid.guid(),
+      ),
+    );
   });
 
   setUp(() {
@@ -32,6 +49,10 @@ void main() {
     mockGetWorkOrderChecklistAnswers =
         MockGetWorkOrderChecklistAnswersUseCase();
     mockSaveChecklistResponse = MockSaveChecklistResponseUseCase();
+    mockPickAttachment = MockPickAttachmentUseCase();
+    mockUploadAttachment = MockUploadAttachmentUseCase();
+    mockGetSessionUser = MockGetSessionUserUseCase();
+    mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -40,7 +61,16 @@ void main() {
       getChecklistItemsByTemplate: mockGetChecklistItemsByTemplate,
       getWorkOrderChecklistAnswers: mockGetWorkOrderChecklistAnswers,
       saveChecklistResponse: mockSaveChecklistResponse,
+      pickAttachment: mockPickAttachment,
+      uploadAttachment: mockUploadAttachment,
+      getSessionUser: mockGetSessionUser,
+      getActiveCompanyId: mockGetActiveCompanyId,
     );
+
+    when(
+      () => mockGetSessionUser(),
+    ).thenReturn(UserFactory.makeUserProfileEntity());
+    when(() => mockGetActiveCompanyId()).thenReturn(faker.guid.guid());
   });
 
   tearDown(GetIt.I.reset);
@@ -141,6 +171,89 @@ void main() {
               isTrue,
             ),
       ],
+    );
+  });
+
+  group('attachEvidence', () {
+    final tAttachment = MaintenancePlanFactory.makeAttachmentEntity();
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'uploads the picked file and stores its url on the answer',
+      setUp: () {
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tAttachment]));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockSaveChecklistResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      act: (cubit) => cubit.attachEvidence(
+        workOrderId: tWorkOrderId,
+        companyId: faker.guid.guid(),
+        checklistItemId: tItems.first.id,
+        source: AttachmentSource.cameraPhoto,
+      ),
+      verify: (cubit) {
+        verify(() => mockUploadAttachment(tAttachment)).called(1);
+        expect(
+          cubit.state.answers[tItems.first.id]?.photoUrl,
+          tAttachment.remoteUrl,
+        );
+      },
+    );
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'records nothing when the picker is cancelled',
+      setUp: () {
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      act: (cubit) => cubit.attachEvidence(
+        workOrderId: tWorkOrderId,
+        companyId: faker.guid.guid(),
+        checklistItemId: tItems.first.id,
+        source: AttachmentSource.cameraPhoto,
+      ),
+      verify: (cubit) {
+        verifyNever(() => mockUploadAttachment(any()));
+        verifyNever(() => mockSaveChecklistResponse(any()));
+        expect(cubit.state.answers, isEmpty);
+      },
+    );
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'falls back to the local path when the upload has no remote url yet',
+      setUp: () {
+        final offlineAttachment = tAttachment.copyWith(annulRemoteUrl: true);
+        when(
+          () => mockPickAttachment(any()),
+        ).thenAnswer((_) async => SuccessState(data: [offlineAttachment]));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: false));
+        when(
+          () => mockSaveChecklistResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      act: (cubit) => cubit.attachEvidence(
+        workOrderId: tWorkOrderId,
+        companyId: faker.guid.guid(),
+        checklistItemId: tItems.first.id,
+        source: AttachmentSource.cameraPhoto,
+      ),
+      verify: (cubit) {
+        expect(
+          cubit.state.answers[tItems.first.id]?.photoUrl,
+          tAttachment.localPath,
+        );
+      },
     );
   });
 }
