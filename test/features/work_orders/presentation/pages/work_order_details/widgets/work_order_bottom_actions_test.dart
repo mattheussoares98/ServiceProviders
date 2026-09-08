@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -10,7 +11,9 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_wo
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/work_order_details/widgets/work_order_bottom_actions.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 
+import '../../../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../../../testing/mocks/factories/work_order_factory.dart';
 
@@ -22,6 +25,9 @@ class MockPauseWorkflowCubit extends MockCubit<PauseWorkflowState>
 
 class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 
+class MockWorkOrderChecklistCubit extends MockCubit<WorkOrderChecklistState>
+    implements WorkOrderChecklistCubit {}
+
 class MockSessionCubit extends MockCubit<SessionState>
     implements SessionCubit {}
 
@@ -29,6 +35,7 @@ void main() {
   late MockWorkOrdersCubit mockWorkOrdersCubit;
   late MockPauseWorkflowCubit mockPauseWorkflowCubit;
   late MockUsersCubit mockUsersCubit;
+  late MockWorkOrderChecklistCubit mockChecklistCubit;
   late MockSessionCubit mockSessionCubit;
 
   setUpAll(() {
@@ -43,6 +50,7 @@ void main() {
     mockWorkOrdersCubit = MockWorkOrdersCubit();
     mockPauseWorkflowCubit = MockPauseWorkflowCubit();
     mockUsersCubit = MockUsersCubit();
+    mockChecklistCubit = MockWorkOrderChecklistCubit();
     mockSessionCubit = MockSessionCubit();
 
     when(
@@ -69,6 +77,13 @@ void main() {
       ),
     );
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
+
+    when(
+      () => mockChecklistCubit.state,
+    ).thenReturn(const WorkOrderChecklistState.initial());
+    when(
+      () => mockChecklistCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
   });
 
   Widget buildTestableWidget(Widget child) {
@@ -78,12 +93,56 @@ void main() {
         BlocProvider<PauseWorkflowCubit>.value(value: mockPauseWorkflowCubit),
         BlocProvider<UsersCubit>.value(value: mockUsersCubit),
         BlocProvider<SessionCubit>.value(value: mockSessionCubit),
+        BlocProvider<WorkOrderChecklistCubit>.value(value: mockChecklistCubit),
       ],
       child: MaterialApp(home: Scaffold(body: child)),
     );
   }
 
   group('WorkOrderBottomActions', () {
+    testWidgets('disables conclusion while required checklist items pend', (
+      tester,
+    ) async {
+      when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+      final item = ChecklistFactory.makeChecklistItemEntity().copyWith(
+        isRequired: true,
+      );
+      when(
+        () => mockChecklistCubit.state,
+      ).thenReturn(WorkOrderChecklistState(items: [item], answers: const {}));
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.inProgress,
+      );
+
+      await tester.pumpWidget(
+        buildTestableWidget(WorkOrderBottomActions(workOrder: workOrder)),
+      );
+
+      final button = tester.widget<BaseButton>(
+        find.widgetWithText(BaseButton, 'Concluir'),
+      );
+      expect(button.onTap, isNull);
+    });
+
+    testWidgets('enables conclusion when the work order has no checklist', (
+      tester,
+    ) async {
+      when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.inProgress,
+        annulChecklistTemplateId: true,
+      );
+
+      await tester.pumpWidget(
+        buildTestableWidget(WorkOrderBottomActions(workOrder: workOrder)),
+      );
+
+      final button = tester.widget<BaseButton>(
+        find.widgetWithText(BaseButton, 'Concluir'),
+      );
+      expect(button.onTap, isNotNull);
+    });
+
     testWidgets('renders Iniciar trabalho when status is open', (tester) async {
       final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
         status: WorkOrderStatus.open,

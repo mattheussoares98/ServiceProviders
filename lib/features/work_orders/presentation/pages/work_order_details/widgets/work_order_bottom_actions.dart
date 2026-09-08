@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -57,11 +58,12 @@ class WorkOrderBottomActions extends StatelessWidget {
               contentText: 'Deseja realmente retomar o trabalho?'.hardcoded,
               defaultActionText: 'Sim'.hardcoded,
               cancelActionText: 'Não'.hardcoded,
-              onOkPressed: () => context.read<WorkOrderDetailsCubit>().resumeWork(
-                workOrder: workOrder,
-                currentUserId: context.read<SessionCubit>().state.user.id,
-                pauseCubit: context.read<PauseWorkflowCubit>(),
-              ),
+              onOkPressed: () =>
+                  context.read<WorkOrderDetailsCubit>().resumeWork(
+                    workOrder: workOrder,
+                    currentUserId: context.read<SessionCubit>().state.user.id,
+                    pauseCubit: context.read<PauseWorkflowCubit>(),
+                  ),
             );
           },
         ),
@@ -70,6 +72,13 @@ class WorkOrderBottomActions extends StatelessWidget {
 
     if (workOrder.status.isRunning) {
       final isPendingConclusion = workOrder.status.isPendingConclusionApproval;
+      // A checklist with unanswered mandatory items blocks conclusion: the
+      // answers are the evidence the work was actually carried out.
+      final hasPendingChecklist =
+          workOrder.checklistTemplateId != null &&
+          !context.select<WorkOrderChecklistCubit, bool>(
+            (cubit) => cubit.state.areRequiredItemsCompleted,
+          );
       final canmanagePendingRequests = context.hasPermission(
         const ActionPermission.workOrderSubAction(
           WorkOrderSubAction.managePendingRequests,
@@ -97,30 +106,32 @@ class WorkOrderBottomActions extends StatelessWidget {
                   text: canmanagePendingRequests
                       ? 'Concluir'.hardcoded
                       : 'Solicitar conclusão'.hardcoded,
-                  onTap: () async {
-                    if (canmanagePendingRequests) {
-                      final ok = await showAlertDialog(
-                        context: context,
-                        title: 'Concluir'.hardcoded,
-                        contentText:
-                            'Deseja realmente concluir a ordem de serviço?'
-                                .hardcoded,
-                        defaultActionText: 'Sim'.hardcoded,
-                        cancelActionText: 'Não'.hardcoded,
-                      );
-                      if (ok == true && context.mounted) {
-                        await context.read<WorkOrderDetailsCubit>().concludeDirectly(
-                          workOrder: workOrder,
-                        );
-                      }
-                      return;
-                    }
+                  onTap: hasPendingChecklist
+                      ? null
+                      : () async {
+                          if (canmanagePendingRequests) {
+                            final ok = await showAlertDialog(
+                              context: context,
+                              title: 'Concluir'.hardcoded,
+                              contentText:
+                                  'Deseja realmente concluir a ordem de serviço?'
+                                      .hardcoded,
+                              defaultActionText: 'Sim'.hardcoded,
+                              cancelActionText: 'Não'.hardcoded,
+                            );
+                            if (ok == true && context.mounted) {
+                              await context
+                                  .read<WorkOrderDetailsCubit>()
+                                  .concludeDirectly(workOrder: workOrder);
+                            }
+                            return;
+                          }
 
-                    await showModalPage<void>(
-                      RequestCompletionFields(workOrderId: workOrder.id),
-                      context,
-                    );
-                  },
+                          await showModalPage<void>(
+                            RequestCompletionFields(workOrderId: workOrder.id),
+                            context,
+                          );
+                        },
                 ),
               ),
           ],
