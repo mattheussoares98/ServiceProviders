@@ -4,10 +4,10 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ite
 extension ChecklistItemTypeUiExtension on ChecklistItemType {
   String get label => switch (this) {
     ChecklistItemType.boolean => 'Sim/Não'.hardcoded,
-    ChecklistItemType.text => 'Texto Livre'.hardcoded,
+    ChecklistItemType.text => 'Texto livre'.hardcoded,
     ChecklistItemType.number => 'Numérico'.hardcoded,
     ChecklistItemType.photo => 'Foto'.hardcoded,
     ChecklistItemType.documentation => 'Documentação'.hardcoded,
-    ChecklistItemType.selection => 'Múltipla Escolha'.hardcoded,
+    ChecklistItemType.selection => 'Múltipla escolha'.hardcoded,
   };
 }
