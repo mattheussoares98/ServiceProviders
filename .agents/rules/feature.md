@@ -108,7 +108,13 @@ final class AuthRepositoryImpl implements AuthRepository {
 
 `RepositoryHandler`: `fetchWithFallback` · `fetchWithFallbackAndMap` · `fetchWithFallbackAndMapList` · `fetchFromLocalAndMap` · `fetchFromLocalAndMapList`.
 
-> ⚠️ `fetchWithFallback` is **remote-first**: online → remote, then mirror locally; offline → local only. There is no outbound sync, so offline writes never reach Supabase (see `docs/cmms/architecture.md`).
+> ⚠️ `fetchWithFallback` is **remote-first**: online → remote, then mirror locally; offline → local only.
+
+**An offline write never stops at the local branch** — local-only reports success and never reaches Supabase. Pick one:
+- **Field work** (work orders, observations, pause requests, checklist answers) → save locally **+** `_syncRepository.enqueue(...)`. New type = `SyncEntityType` value + `ProcessSyncQueueUseCase` branch.
+- **Admin config** (checklist templates/items) → return `FailureState`; the queue has no operation for it.
+
+> Debt: `sectors`, `categories` still local-only offline.
 
 ## In-Memory Repositories
 `SessionRepository` and similar hold state in a private field behind getters/setters and use no handler.

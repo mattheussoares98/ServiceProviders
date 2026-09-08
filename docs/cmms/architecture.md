@@ -33,8 +33,11 @@ This is what the code does today, via `RepositoryHandler.fetchWithFallback`:
 
 1. **When online, writes go to Supabase first.** Only after the remote call
    succeeds is the record mirrored into Drift. The UI waits for the network call.
-2. **When offline, writes go to Drift only.** The repository detects no
-   connectivity (`InternetClient.isConnected`) and takes the local branch.
+2. **When offline, writes take the local branch** (`InternetClient.isConnected`).
+   Field-work writes are cached in Drift *and* enqueued on the FIFO sync queue.
+   Administration writes — checklist templates and items — are refused with a
+   `FailureState` instead, because the queue carries no operation for them and a
+   local-only write would report success while never reaching Supabase.
 3. **Reads follow the same pattern** — remote when connected, local cache otherwise.
 
 3. **Reads follow the same pattern** — remote when connected, local cache otherwise.

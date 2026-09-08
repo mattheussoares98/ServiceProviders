@@ -31,7 +31,10 @@ Company Mode are completed and validated first.
   - ✅ `work_orders.checklist_template_id` links an order to the checklist it must answer (migration `20260908120000_add_checklist_template_to_work_orders.sql`), picked in the create/update work order form.
   - ✅ `WorkOrderChecklistSection` renders the items with progress, persisting each answer through `WorkOrderChecklistCubit`.
   - ✅ Conclusion is blocked while mandatory items are unanswered.
+  - ✅ Answers cached in the Drift `checklist_answers` table (schema v31) and queued as `SyncEntityType.checklistAnswer` when written offline.
   - ⚠️ Photo and documentation item types render their answered state but have no attach action yet — they reuse `checklist_answers.photo_url`, which nothing currently writes.
+- **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
+  - ⚠️ An item list only reaches the cache once its template has been opened online, or via the realtime listener while connected. Prefetching a work order's linked template on sync is not implemented.
 
 ### Milestone 1.2b: Maintenance Plans Module — ⏸️ ON HOLD
 > Automated maintenance plans remain deferred. Drift tables and a stub feature exist (`lib/features/maintenance_plans`) but are not wired into the product.
