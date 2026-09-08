@@ -19,6 +19,7 @@ class ChecklistNumberInput extends HookWidget {
         ? response!.numberValue.toString()
         : '';
     final controller = useTextEditingController(text: initialText);
+    final focusNode = useFocusNode();
     final debounce = useMemoized(
       () => DebounceTime(delay: const Duration(milliseconds: 600)),
     );
@@ -28,6 +29,11 @@ class ChecklistNumberInput extends HookWidget {
       controller: controller,
       hintText: 'Digite um número'.hardcoded,
       keyboardType: TextInputType.number,
+      focusNode: focusNode,
+      autovalidateMode: .always,
+      validator: FormValidators.compose([
+        NumberValidator(allowDecimal: false, allowEmptyValue: !item.isRequired),
+      ]),
       onChanged: (val) => debounce.run(() {
         final numVal = double.tryParse(val);
         final current =
