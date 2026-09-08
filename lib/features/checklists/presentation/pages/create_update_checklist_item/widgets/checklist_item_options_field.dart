@@ -44,6 +44,7 @@ class ChecklistItemOptionsField extends HookWidget {
                 hintText: 'Adicione uma opção'.hardcoded,
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (_) => addOption(),
+                maxLength: 500,
               ),
             ),
             BaseIconButton(

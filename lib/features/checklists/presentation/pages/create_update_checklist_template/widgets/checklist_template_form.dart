@@ -66,8 +66,9 @@ class ChecklistTemplateForm extends HookWidget {
             labelText: 'Descrição'.hardcoded,
             hintText: 'Quando este checklist deve ser usado'.hardcoded,
             controller: descriptionController,
-            maxLines: 3,
+            maxLines: 5,
             textInputAction: TextInputAction.newline,
+            maxLength: 1000,
           ),
           gapH16,
           ChecklistTemplateCategoryDropdown(
