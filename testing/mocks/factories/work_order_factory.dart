@@ -53,6 +53,7 @@ abstract final class WorkOrderFactory {
       attachments: MaintenancePlanFactory.makeAttachmentEntityList(),
       serviceProviderCompanyId: FactoryHelpers.makeId(),
       providerProfileId: FactoryHelpers.makeId(),
+      checklistTemplateId: FactoryHelpers.makeId(),
       slaPolicyId: FactoryHelpers.makeId(),
       slaDeadlineAt: FactoryHelpers.makeDateTime(),
       netActiveDuration: FactoryHelpers.makeInt(60),

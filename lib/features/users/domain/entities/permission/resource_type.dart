@@ -2,7 +2,7 @@ enum ResourceType {
   assets('assets'),
   attachments('attachments'),
   categories('categories'),
-  // checklists('checklists'),
+  checklists('checklists'),
   locations('locations'),
   // reports('reports'),
   // maintenancePlans('maintenance_plans'),

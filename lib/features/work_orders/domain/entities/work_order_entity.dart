@@ -38,6 +38,7 @@ class WorkOrderEntity extends Equatable {
     required this.serviceProviderCompanyId,
     required this.providerProfileId,
     this.openedBy = AppMode.internal,
+    required this.checklistTemplateId,
     required this.slaPolicyId,
     required this.slaDeadlineAt,
     this.slaBreached = false,
@@ -85,6 +86,7 @@ class WorkOrderEntity extends Equatable {
   final String? serviceProviderCompanyId;
   final String? providerProfileId;
   final AppMode openedBy;
+  final String? checklistTemplateId;
   final String? slaPolicyId;
   final DateTime? slaDeadlineAt;
   final bool slaBreached;
@@ -130,6 +132,7 @@ class WorkOrderEntity extends Equatable {
     serviceProviderCompanyId,
     providerProfileId,
     openedBy,
+    checklistTemplateId,
     slaPolicyId,
     slaDeadlineAt,
     slaBreached,
@@ -173,6 +176,7 @@ class WorkOrderEntity extends Equatable {
     String? serviceProviderCompanyId,
     String? providerProfileId,
     AppMode? openedBy,
+    String? checklistTemplateId,
     String? slaPolicyId,
     DateTime? slaDeadlineAt,
     bool? slaBreached,
@@ -201,6 +205,7 @@ class WorkOrderEntity extends Equatable {
     bool? annulDeletedAt,
     bool? annulServiceProviderCompanyId,
     bool? annulProviderProfileId,
+    bool? annulChecklistTemplateId,
     bool? annulSlaPolicyId,
     bool? annulSlaDeadlineAt,
     bool? annulNetActiveDuration,
@@ -261,6 +266,9 @@ class WorkOrderEntity extends Equatable {
           ? null
           : providerProfileId ?? this.providerProfileId,
       openedBy: openedBy ?? this.openedBy,
+      checklistTemplateId: annulChecklistTemplateId == true
+          ? null
+          : checklistTemplateId ?? this.checklistTemplateId,
       slaPolicyId: annulSlaPolicyId == true
           ? null
           : slaPolicyId ?? this.slaPolicyId,

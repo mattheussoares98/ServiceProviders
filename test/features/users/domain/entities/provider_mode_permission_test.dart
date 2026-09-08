@@ -44,6 +44,33 @@ void main() {
       expect(providerModeAllows(changeStatus), isTrue);
     });
 
+    test('allows reading checklists but never authoring templates', () {
+      expect(
+        providerModeAllows(
+          const ActionPermission.resource(
+            resourceType: ResourceType.checklists,
+            permissionAction: PermissionAction.read,
+          ),
+        ),
+        isTrue,
+      );
+      for (final action in [
+        PermissionAction.create,
+        PermissionAction.update,
+        PermissionAction.delete,
+      ]) {
+        expect(
+          providerModeAllows(
+            ActionPermission.resource(
+              resourceType: ResourceType.checklists,
+              permissionAction: action,
+            ),
+          ),
+          isFalse,
+        );
+      }
+    });
+
     test('denies editing, deleting, reassigning and approving work orders', () {
       expect(providerModeAllows(updateWorkOrders), isFalse);
       expect(providerModeAllows(deleteWorkOrders), isFalse);

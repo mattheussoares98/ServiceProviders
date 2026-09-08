@@ -42,8 +42,12 @@ bool _allowsResource(ResourceType resource, PermissionAction action) {
     ResourceType.attachments =>
       action == PermissionAction.read || action == PermissionAction.create,
     // Read-only lookups the work order details page renders as labels.
+    // Checklists are read-only too: a provider answers the checklist of an
+    // order it executes (gated by checklist_answers RLS, not by this key), but
+    // authoring templates stays with the contracting company.
     ResourceType.assets ||
     ResourceType.categories ||
+    ResourceType.checklists ||
     ResourceType.locations ||
     ResourceType.sectors ||
     ResourceType.slaPolicies => action == PermissionAction.read,
