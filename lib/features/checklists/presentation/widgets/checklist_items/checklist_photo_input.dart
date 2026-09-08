@@ -1,33 +1,41 @@
 part of '../checklist_item_tile.dart';
 
-/// Widget for Photo attachment responses
+/// Photo evidence for a `photo` item: capture or choose an image, upload it,
+/// and store its URL on the answer.
 class ChecklistPhotoInput extends StatelessWidget {
   const ChecklistPhotoInput({
     super.key,
     required this.item,
+    required this.workOrderId,
+    required this.companyId,
     this.response,
     required this.onChanged,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
+  final String companyId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const PlatformIcon(
-          materialIcon: Icons.camera_alt_outlined,
-          cupertinoIcon: CupertinoIcons.camera,
-        ),
-        gapW8,
-        BaseText.bodyMedium(
-          response?.photoUrl != null
-              ? 'Foto anexada'.hardcoded
-              : 'Anexar foto'.hardcoded,
-        ),
+    return ChecklistEvidenceInput(
+      item: item,
+      workOrderId: workOrderId,
+      companyId: companyId,
+      response: response,
+      sources: const [AttachmentSource.cameraPhoto, AttachmentSource.gallery],
+      sourceLabels: [
+        'Tirar foto'.hardcoded,
+        'Escolher da galeria'.hardcoded,
       ],
+      emptyLabel: 'Anexar foto'.hardcoded,
+      attachedLabel: 'Foto anexada'.hardcoded,
+      platformIcon: const PlatformIcon(
+        materialIcon: Icons.camera_alt_outlined,
+        cupertinoIcon: CupertinoIcons.camera,
+      ),
     );
   }
 }
