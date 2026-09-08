@@ -34,7 +34,7 @@ Company Mode are completed and validated first.
   - ✅ Answers cached in the Drift `checklist_answers` table (schema v31) and queued as `SyncEntityType.checklistAnswer` when written offline.
   - ✅ Photo and documentation items capture evidence through the attachments pipeline (`WorkOrderChecklistCubit.attachEvidence`), storing the uploaded URL in `checklist_answers.photo_url` — or the sandbox path while offline, which the attachment's own retry replaces.
 - **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
-  - ⚠️ An item list only reaches the cache once its template has been opened online, or via the realtime listener while connected. Prefetching a work order's linked template on sync is not implemented.
+  - ✅ `getTemplates` embeds `checklist_items`, so loading the template list caches every template's items — a checklist renders offline without having been opened online first.
 
 ### Milestone 1.2b: Maintenance Plans Module — ⏸️ ON HOLD
 > Automated maintenance plans remain deferred. Drift tables and a stub feature exist (`lib/features/maintenance_plans`) but are not wired into the product.
