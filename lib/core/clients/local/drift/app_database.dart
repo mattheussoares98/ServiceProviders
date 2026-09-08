@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -236,6 +236,14 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 31) {
         await m.createTable(checklistAnswers);
+      }
+      if (from < 32) {
+        // Checklist answers used to be written into `tasks` with the checklist
+        // item id as the title. Those rows are not tasks; drop them now that
+        // answers have their own table.
+        await customStatement(
+          'DELETE FROM tasks WHERE title IN (SELECT id FROM checklist_items)',
+        );
       }
     },
   );
