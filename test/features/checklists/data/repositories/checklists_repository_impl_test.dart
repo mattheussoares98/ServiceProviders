@@ -13,21 +13,30 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_tem
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/factories/checklist_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockInternetClient mockInternet;
   late MockChecklistsRemoteDataSource mockRemoteDataSource;
   late MockChecklistsLocalDataSource mockLocalDataSource;
+  late MockSyncRepository mockSyncRepository;
+  late MockSessionRepository mockSessionRepository;
   late ChecklistsRepositoryImpl repository;
 
   setUp(() {
     mockInternet = MockInternetClient();
     mockRemoteDataSource = MockChecklistsRemoteDataSource();
     mockLocalDataSource = MockChecklistsLocalDataSource();
+    mockSyncRepository = MockSyncRepository();
+    mockSessionRepository = MockSessionRepository();
     repository = ChecklistsRepositoryImpl(
       internet: mockInternet,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      syncRepository: mockSyncRepository,
+      sessionRepository: mockSessionRepository,
     );
 
     registerFallbackValue(
@@ -43,6 +52,18 @@ void main() {
         ChecklistFactory.makeChecklistAnswerEntity(),
       ),
     );
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
+
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn(faker.guid.guid());
+    when(() => mockSessionRepository.userData).thenReturn(
+      UserFactory.makeUserDataEntity(),
+    );
+    when(
+      () => mockSyncRepository.enqueue(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+
   });
 
   final tTemplateEntity = ChecklistFactory.makeChecklistTemplateEntity();
@@ -260,4 +281,54 @@ void main() {
       });
     });
   });
+
+    group('offline behaviour', () {
+      setUp(() => when(() => mockInternet.isConnected).thenReturn(false));
+
+      test('createTemplate is refused offline and never written locally', () async {
+        final result = await repository.createTemplate(tTemplateEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        verifyNever(() => mockLocalDataSource.saveTemplate(any()));
+        verifyNever(() => mockRemoteDataSource.createTemplate(any()));
+      });
+
+      test('createItem is refused offline and never written locally', () async {
+        final result = await repository.createItem(tItemEntity);
+
+        expect(result, isA<FailureState<bool>>());
+        verifyNever(() => mockLocalDataSource.saveItem(any()));
+        verifyNever(() => mockRemoteDataSource.createItem(any()));
+      });
+
+      test('deleteTemplate is refused offline', () async {
+        final result = await repository.deleteTemplate(faker.guid.guid());
+
+        expect(result, isA<FailureState<bool>>());
+        verifyNever(() => mockLocalDataSource.deleteTemplate(any()));
+      });
+
+      test('saveResponse caches locally and enqueues it for sync', () async {
+        when(
+          () => mockLocalDataSource.saveResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.saveResponse(tAnswerEntity);
+
+        expect(result, isA<SuccessState<bool>>());
+        verify(() => mockLocalDataSource.saveResponse(tAnswerModel)).called(1);
+        verify(() => mockSyncRepository.enqueue(any())).called(1);
+        verifyNever(() => mockRemoteDataSource.saveResponse(any()));
+      });
+
+      test('saveResponse does not enqueue when the local write fails', () async {
+        when(
+          () => mockLocalDataSource.saveResponse(any()),
+        ).thenAnswer((_) async => FailureState<bool>(message: faker.lorem.word()));
+
+        await repository.saveResponse(tAnswerEntity);
+
+        verifyNever(() => mockSyncRepository.enqueue(any()));
+      });
+    });
 }

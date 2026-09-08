@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
@@ -14,6 +18,11 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ans
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/repositories/checklists_repository.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
+import 'package:uuid/uuid.dart';
 
 @LazySingleton(as: ChecklistsRepository)
 final class ChecklistsRepositoryImpl implements ChecklistsRepository {
@@ -21,13 +30,28 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
     required InternetClient internet,
     required ChecklistsRemoteDataSource remoteDataSource,
     required ChecklistsLocalDataSource localDataSource,
+    required SyncRepository syncRepository,
+    required SessionRepository sessionRepository,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource;
+       _localDataSource = localDataSource,
+       _syncRepository = syncRepository,
+       _sessionRepository = sessionRepository;
 
   final InternetClient _internet;
   final ChecklistsRemoteDataSource _remoteDataSource;
   final ChecklistsLocalDataSource _localDataSource;
+  final SyncRepository _syncRepository;
+  final SessionRepository _sessionRepository;
+
+  /// Authoring a checklist is administration done at a desk, and the sync queue
+  /// carries no template or item operations — a local-only write would report
+  /// success and never reach the server. Refuse it instead.
+  static FailureState<bool> get _offlineAuthoringRefusal => FailureState<bool>(
+    message: 'Sem conexão: crie ou edite checklists quando estiver online'
+        .hardcoded,
+    error: 'offline_checklist_authoring',
+  );
 
   @override
   FutureList<ChecklistTemplateEntity> getTemplates(String companyId) =>
@@ -60,9 +84,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool createTemplate(ChecklistTemplateEntity template) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveTemplate(
-          ChecklistTemplateModel.fromEntity(template),
-        ),
+        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistTemplateModel.fromEntity(template);
           final result = await _remoteDataSource.createTemplate(model);
@@ -83,9 +105,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool updateTemplate(ChecklistTemplateEntity template) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveTemplate(
-          ChecklistTemplateModel.fromEntity(template),
-        ),
+        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistTemplateModel.fromEntity(template);
           final result = await _remoteDataSource.updateTemplate(model);
@@ -106,7 +126,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool deleteTemplate(String id) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.deleteTemplate(id),
+        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final result = await _remoteDataSource.deleteTemplate(id);
           if (result is SuccessState<void>) {
@@ -169,8 +189,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool createItem(ChecklistItemEntity item) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () =>
-            _localDataSource.saveItem(ChecklistItemModel.fromEntity(item)),
+        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistItemModel.fromEntity(item);
           final result = await _remoteDataSource.createItem(model);
@@ -191,8 +210,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool updateItem(ChecklistItemEntity item) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () =>
-            _localDataSource.saveItem(ChecklistItemModel.fromEntity(item)),
+        localCallback: () async => _offlineAuthoringRefusal,
         remoteCallback: () async {
           final model = ChecklistItemModel.fromEntity(item);
           final result = await _remoteDataSource.updateItem(model);
@@ -212,7 +230,7 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   @override
   FutureBool deleteItem(String id) => RepositoryHandler.fetchWithFallback<bool>(
     isInternetConnected: _internet.isConnected,
-    localCallback: () => _localDataSource.deleteItem(id),
+    localCallback: () async => _offlineAuthoringRefusal,
     remoteCallback: () async {
       final result = await _remoteDataSource.deleteItem(id);
       if (result is SuccessState<void>) {
@@ -280,9 +298,25 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureBool saveResponse(ChecklistAnswerEntity response) =>
       RepositoryHandler.fetchWithFallback<bool>(
         isInternetConnected: _internet.isConnected,
-        localCallback: () => _localDataSource.saveResponse(
-          ChecklistAnswerModel.fromEntity(response),
-        ),
+        localCallback: () async {
+          final model = ChecklistAnswerModel.fromEntity(response);
+          final result = await _localDataSource.saveResponse(model);
+          if (result is SuccessState<bool> && result.data == true) {
+            await _syncRepository.enqueue(
+              SyncQueueItemEntity(
+                id: const Uuid().v4(),
+                companyId: _sessionRepository.getSelectedCompanyId() ?? '',
+                userProfileId: _sessionRepository.userData.user.id,
+                entityType: SyncEntityType.checklistAnswer,
+                entityId: response.id,
+                operation: SyncOperationType.update,
+                payload: jsonEncode(model.toJson()),
+                createdAt: DateTime.now(),
+              ),
+            );
+          }
+          return result;
+        },
         remoteCallback: () async {
           final model = ChecklistAnswerModel.fromEntity(response);
           final result = await _remoteDataSource.saveResponse(model);
