@@ -80,4 +80,35 @@ void main() {
       expect(fromJson.toEntity(), tEntity);
     });
   });
+
+  group('ChecklistTemplateModel embedded items', () {
+    test('keeps active items, drops deleted ones and sorts by sortOrder', () {
+      final template = ChecklistFactory.makeChecklistTemplateEntity();
+      final active = ChecklistFactory.makeChecklistItemEntity().copyWith(
+        templateId: template.id,
+        sortOrder: 2,
+        annulDeletedAt: true,
+      );
+      final first = ChecklistFactory.makeChecklistItemEntity().copyWith(
+        templateId: template.id,
+        sortOrder: 1,
+        annulDeletedAt: true,
+      );
+      final deleted = ChecklistFactory.makeChecklistItemEntity().copyWith(
+        templateId: template.id,
+        sortOrder: 0,
+        deletedAt: DateTime.now().toUtc(),
+      );
+
+      final json = ChecklistTemplateModel.fromEntity(template).toJson()
+        ..['checklist_items'] = [
+          for (final item in [active, first, deleted])
+            ChecklistItemModel.fromEntity(item).toJson(),
+        ];
+
+      final parsed = ChecklistTemplateModel.fromJson(json);
+
+      expect(parsed.items.map((e) => e.id), [first.id, active.id]);
+    });
+  });
 }

@@ -36,9 +36,11 @@ class ChecklistTemplateModel extends ChecklistTemplateEntity
         json['checklist_items'] as List<dynamic>? ??
         json['items'] as List<dynamic>?;
     final items = rawItems != null
-        ? rawItems
-              .map((e) => ChecklistItemModel.fromJson(e as MapDynamic))
-              .toList()
+        ? (rawItems
+                  .map((e) => ChecklistItemModel.fromJson(e as MapDynamic))
+                  .where((item) => item.deletedAt == null)
+                  .toList()
+              ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder)))
         : const <ChecklistItemModel>[];
 
     return ChecklistTemplateModel(
