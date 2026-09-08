@@ -53,3 +53,28 @@ assigned to them.
 ## DELETE
 No `FOR DELETE` policy. `tr_prevent_delete_checklist_answers` raises on hard delete;
 removal is a soft delete via `deleted_at`.
+
+## Provider writes
+
+`20260908160000_allow_providers_to_answer_checklists.sql` added the provider
+branch the write policies were missing — until then a provider could read the
+checklist of an order it executes but never answer it, and a mandatory item left
+it unable to request completion.
+
+`company_id` is no longer taken from the caller. `tr_set_checklist_answer_company`
+derives it from the parent work order on INSERT and UPDATE, because the answer's
+company is always the order's company, never the writer's — a provider's
+`get_user_company_id()` is not the contracting company. It also stops a caller
+from writing a row into another tenant.
+
+Both write policies now read:
+
+```sql
+(
+  company_id = public.get_user_company_id()
+  AND EXISTS (SELECT 1 FROM public.work_orders wo WHERE wo.id = work_order_id)
+)
+OR public.is_provider_member_of_work_order_id(work_order_id)
+```
+
+UPDATE also carries this as `WITH CHECK`, which it previously lacked.
