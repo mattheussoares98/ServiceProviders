@@ -19,6 +19,7 @@ class ChecklistBooleanInput extends StatelessWidget {
 
     return BaseChoiceChip<bool>(
       items: const [true, false],
+      alignment: .spaceEvenly,
       selections: [?currentVal],
       itemLabelBuilder: (val) =>
           val ? 'Conforme'.hardcoded : 'Não conforme'.hardcoded,

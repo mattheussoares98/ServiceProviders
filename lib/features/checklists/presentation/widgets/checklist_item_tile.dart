@@ -17,6 +17,8 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
 
 part 'checklist_items/checklist_boolean_input.dart';
 part 'checklist_items/checklist_documentation_input.dart';
@@ -57,7 +59,7 @@ class ChecklistItemTile extends StatelessWidget {
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .stretch,
         children: [
           Row(
             children: [

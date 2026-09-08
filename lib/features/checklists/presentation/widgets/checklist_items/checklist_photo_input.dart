@@ -23,10 +23,7 @@ class ChecklistPhotoInput extends StatelessWidget {
       workOrderId: workOrderId,
       response: response,
       sources: const [AttachmentSource.cameraPhoto, AttachmentSource.gallery],
-      sourceLabels: [
-        'Tirar foto'.hardcoded,
-        'Escolher da galeria'.hardcoded,
-      ],
+      sourceLabels: ['Tirar foto'.hardcoded, 'Escolher da galeria'.hardcoded],
       emptyLabel: 'Anexar foto'.hardcoded,
       attachedLabel: 'Foto anexada'.hardcoded,
       platformIcon: const PlatformIcon(

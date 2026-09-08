@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_orde
 import 'package:o_jogo_da_obra/features/checklists/presentation/widgets/checklist_item_tile.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -56,26 +57,35 @@ class WorkOrderChecklistSection extends StatelessWidget {
                   children: [
                     _ChecklistHeader(state: state),
                     gapH8,
-                    for (final item in state.items)
-                      IgnorePointer(
+                    ...state.items.map(
+                      (e) => IgnorePointer(
                         ignoring: !isEditable,
-                        child: ChecklistItemTile(
-                          item: item,
-                          workOrderId: workOrder.id,
-                          response: state.answers[item.id],
-                          onChanged: (answer) => context
-                              .read<WorkOrderChecklistCubit>()
-                              .answerItem(
+                        child: isEditable
+                            ? ChecklistItemTile(
+                                item: e,
                                 workOrderId: workOrder.id,
-                                checklistItemId: item.id,
-                                booleanValue: answer.booleanValue,
-                                textValue: answer.textValue,
-                                numberValue: answer.numberValue,
-                                photoUrl: answer.photoUrl,
-                                selectedOption: answer.selectedOption,
+                                response: state.answers[e.id],
+                                onChanged: (answer) => context
+                                    .read<WorkOrderChecklistCubit>()
+                                    .answerItem(
+                                      workOrderId: workOrder.id,
+                                      checklistItemId: e.id,
+                                      booleanValue: answer.booleanValue,
+                                      textValue: answer.textValue,
+                                      numberValue: answer.numberValue,
+                                      photoUrl: answer.photoUrl,
+                                      selectedOption: answer.selectedOption,
+                                    ),
+                              )
+                            : BaseRichText(
+                                texts: [
+                                  BaseText(e.label),
+                                  if (e.isRequired)
+                                    const BaseText('*', color: Colors.red),
+                                ],
                               ),
-                        ),
                       ),
+                    ),
                   ],
                 );
               },
