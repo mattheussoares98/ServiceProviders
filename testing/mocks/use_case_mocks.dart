@@ -29,6 +29,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_ord
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/save_checklist_response_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_item_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_template_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_answers_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_items_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_templates_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
@@ -326,4 +327,7 @@ class MockWatchChecklistTemplatesRealtimeUseCase extends Mock
 
 class MockWatchChecklistItemsRealtimeUseCase extends Mock
     implements WatchChecklistItemsRealtimeUseCase {}
+
+class MockWatchChecklistAnswersRealtimeUseCase extends Mock
+    implements WatchChecklistAnswersRealtimeUseCase {}
 
