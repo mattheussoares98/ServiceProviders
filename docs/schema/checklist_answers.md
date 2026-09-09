@@ -12,6 +12,7 @@ Execution answers for a checklist item on a specific work order. One row per
 | `number_value` | NUMERIC | YES | - | Answer for `number` items |
 | `photo_url` | VARCHAR(2000) | YES | - | Answer for `photo` / `documentation` items |
 | `selected_option` | VARCHAR(500) | YES | - | Answer for `selection` items |
+| `selected_options` | TEXT[] | YES | - | Answer for `multi_selection` items |
 
 **Notes**
 - `company_id` defaults to `public.get_user_company_id()`; the client does not send it.

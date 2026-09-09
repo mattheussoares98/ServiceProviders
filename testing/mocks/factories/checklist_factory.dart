@@ -62,6 +62,11 @@ abstract final class ChecklistFactory {
       numberValue: FactoryHelpers.makeDouble(),
       photoUrl: FactoryHelpers.makeHttps(),
       selectedOption: FactoryHelpers.makeWord(),
+      selectedOptions: [
+        FactoryHelpers.makeWord(),
+        FactoryHelpers.makeWord(),
+        FactoryHelpers.makeWord(),
+      ],
       createdAt: FactoryHelpers.makeDateTime(),
       updatedAt: FactoryHelpers.makeDateTime(),
     );

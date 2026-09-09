@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_ans
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/chip/base_choice_chip.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -24,6 +25,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart'
 part 'checklist_items/checklist_boolean_input.dart';
 part 'checklist_items/checklist_documentation_input.dart';
 part 'checklist_items/checklist_evidence_input.dart';
+part 'checklist_items/checklist_multi_selection_input.dart';
 part 'checklist_items/checklist_number_input.dart';
 part 'checklist_items/checklist_photo_input.dart';
 part 'checklist_items/checklist_selection_input.dart';
@@ -101,6 +103,11 @@ class ChecklistItemTile extends HookWidget {
                 formKey: formKey,
               ),
               ChecklistItemType.selection => ChecklistSelectionInput(
+                item: item,
+                response: response,
+                onChanged: onChanged,
+              ),
+              ChecklistItemType.multiSelection => ChecklistMultiSelectionInput(
                 item: item,
                 response: response,
                 onChanged: onChanged,

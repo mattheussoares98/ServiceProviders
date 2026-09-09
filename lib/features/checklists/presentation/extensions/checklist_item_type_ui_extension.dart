@@ -8,6 +8,7 @@ extension ChecklistItemTypeUiExtension on ChecklistItemType {
     ChecklistItemType.number => 'Numérico'.hardcoded,
     ChecklistItemType.photo => 'Foto'.hardcoded,
     ChecklistItemType.documentation => 'Documentação'.hardcoded,
-    ChecklistItemType.selection => 'Múltipla escolha'.hardcoded,
+    ChecklistItemType.selection => 'Seleção única'.hardcoded,
+    ChecklistItemType.multiSelection => 'Múltipla escolha'.hardcoded,
   };
 }

@@ -42,7 +42,7 @@ class ChecklistItemOptionsField extends HookWidget {
               child: BaseTextFormField(
                 controller: controller,
                 hintText: 'Adicione uma opção'.hardcoded,
-                textInputAction: TextInputAction.done,
+                textInputAction: TextInputAction.continueAction,
                 onFieldSubmitted: (_) => addOption(),
                 maxLength: 500,
               ),
@@ -56,17 +56,16 @@ class ChecklistItemOptionsField extends HookWidget {
             ),
           ],
         ),
+        gapH8,
         if (options.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: Sizes.p4),
-            child: BaseText.caption(
-              'Informe ao menos uma opção'.hardcoded,
-              color: context.colorScheme.error,
-            ),
+          BaseText.caption(
+            'Informe ao menos uma opção'.hardcoded,
+            color: context.colorScheme.error,
           )
         else
           Wrap(
             spacing: Sizes.p8,
+            runSpacing: Sizes.p8,
             children: [
               for (final option in options)
                 Chip(

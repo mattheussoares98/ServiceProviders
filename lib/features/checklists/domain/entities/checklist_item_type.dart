@@ -4,7 +4,8 @@ enum ChecklistItemType {
   number('number'),
   photo('photo'),
   documentation('documentation'),
-  selection('selection');
+  selection('selection'),
+  multiSelection('multi_selection');
 
   const ChecklistItemType(this.code);
   final String code;

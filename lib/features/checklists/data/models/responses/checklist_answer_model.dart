@@ -14,6 +14,7 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
     super.numberValue,
     super.photoUrl,
     super.selectedOption,
+    required super.selectedOptions,
     required super.createdAt,
     required super.updatedAt,
   });
@@ -28,6 +29,7 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       numberValue: entity.numberValue,
       photoUrl: entity.photoUrl,
       selectedOption: entity.selectedOption,
+      selectedOptions: entity.selectedOptions,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -43,6 +45,9 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       numberValue: (json['number_value'] as num?)?.toDouble(),
       photoUrl: json['photo_url'] as String?,
       selectedOption: json['selected_option'] as String?,
+      selectedOptions: (json['selected_options'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
       createdAt:
           (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
@@ -63,6 +68,7 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       'number_value': numberValue,
       'photo_url': photoUrl,
       'selected_option': selectedOption,
+      'selected_options': selectedOptions,
       'created_at': createdAt.toIsoUtcString(),
       'updated_at': updatedAt.toIsoUtcString(),
     };
@@ -79,6 +85,7 @@ class ChecklistAnswerModel extends ChecklistAnswerEntity
       numberValue: numberValue,
       photoUrl: photoUrl,
       selectedOption: selectedOption,
+      selectedOptions: selectedOptions,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

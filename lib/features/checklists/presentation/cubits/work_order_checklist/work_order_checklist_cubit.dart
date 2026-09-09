@@ -110,6 +110,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
     double? numberValue,
     String? photoUrl,
     String? selectedOption,
+    List<String>? selectedOptions,
   }) async {
     emit(
       state.copyWith(
@@ -132,6 +133,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       numberValue: numberValue ?? existingAnswer?.numberValue,
       photoUrl: photoUrl ?? existingAnswer?.photoUrl,
       selectedOption: selectedOption ?? existingAnswer?.selectedOption,
+      selectedOptions: selectedOptions ?? existingAnswer?.selectedOptions,
       createdAt: existingAnswer?.createdAt ?? now,
       updatedAt: now,
     );

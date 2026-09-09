@@ -22,6 +22,7 @@ class ChecklistAnswers extends Table {
   RealColumn get numberValue => real().nullable()();
   TextColumn get photoUrl => text().nullable()();
   TextColumn get selectedOption => text().nullable()();
+  TextColumn get selectedOptions => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

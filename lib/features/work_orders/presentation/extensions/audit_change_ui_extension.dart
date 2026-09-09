@@ -140,7 +140,8 @@ extension AuditChangeUiExtension on AuditChangeEntity {
         ChecklistItemType.number => 'Numérico'.hardcoded,
         ChecklistItemType.photo => 'Foto'.hardcoded,
         ChecklistItemType.documentation => 'Documentação'.hardcoded,
-        ChecklistItemType.selection => 'Seleção múltipla'.hardcoded,
+        ChecklistItemType.selection => 'Seleção única'.hardcoded,
+        ChecklistItemType.multiSelection => 'Múltipla escolha'.hardcoded,
       };
     }
     return WorkOrderType.fromCode(code).label;

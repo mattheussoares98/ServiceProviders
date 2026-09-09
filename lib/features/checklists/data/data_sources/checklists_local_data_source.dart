@@ -230,6 +230,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                 numberValue: row.numberValue,
                 photoUrl: row.photoUrl,
                 selectedOption: row.selectedOption,
+                selectedOptions: row.selectedOptions != null
+                    ? (jsonDecode(row.selectedOptions!) as List)
+                        .map((e) => e.toString())
+                        .toList()
+                    : null,
                 createdAt: row.createdAt.toUtc(),
                 updatedAt: row.updatedAt.toUtc(),
               ),
@@ -274,6 +279,11 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
               numberValue: Value(response.numberValue),
               photoUrl: Value(response.photoUrl),
               selectedOption: Value(response.selectedOption),
+              selectedOptions: Value(
+                response.selectedOptions != null
+                    ? jsonEncode(response.selectedOptions)
+                    : null,
+              ),
               createdAt: Value(response.createdAt.toUtc()),
               updatedAt: Value(response.updatedAt.toUtc()),
             ),

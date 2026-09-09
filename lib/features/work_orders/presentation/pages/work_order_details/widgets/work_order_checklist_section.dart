@@ -75,6 +75,7 @@ class WorkOrderChecklistSection extends StatelessWidget {
                                       numberValue: answer.numberValue,
                                       photoUrl: answer.photoUrl,
                                       selectedOption: answer.selectedOption,
+                                      selectedOptions: answer.selectedOptions,
                                     ),
                               )
                             : BaseRichText(

@@ -42,7 +42,9 @@ class ChecklistItemForm extends HookWidget {
     final isRequired = useState(item?.isRequired ?? false);
     final options = useState<List<String>>([...?item?.options]);
 
-    final needsOptions = type.value == ChecklistItemType.selection;
+    final needsOptions =
+        type.value == ChecklistItemType.selection ||
+        type.value == ChecklistItemType.multiSelection;
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
@@ -72,6 +74,7 @@ class ChecklistItemForm extends HookWidget {
             labelText: 'Pergunta *'.hardcoded,
             hintText: 'Ex: O extintor está dentro da validade?'.hardcoded,
             controller: labelController,
+            maxLength: 500,
             validator: FormValidators.compose([
               NonEmptyValidator(),
               MinLengthValidator(3),

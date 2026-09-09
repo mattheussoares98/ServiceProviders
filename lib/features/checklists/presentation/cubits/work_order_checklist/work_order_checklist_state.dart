@@ -36,6 +36,8 @@ class WorkOrderChecklistState extends BaseState {
                 answer.textValue?.trim().isNotEmpty == true,
           ChecklistItemType.selection =>
             answer.selectedOption?.trim().isNotEmpty == true,
+          ChecklistItemType.multiSelection =>
+            answer.selectedOptions?.isNotEmpty == true,
         };
         if (!hasValue) return false;
       }
@@ -58,6 +60,8 @@ class WorkOrderChecklistState extends BaseState {
               answer.textValue?.trim().isNotEmpty == true,
         ChecklistItemType.selection =>
           answer.selectedOption?.trim().isNotEmpty == true,
+        ChecklistItemType.multiSelection =>
+          answer.selectedOptions?.isNotEmpty == true,
       };
       if (isDone) count++;
     }

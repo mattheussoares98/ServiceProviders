@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 32;
+  int get schemaVersion => 33;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -244,6 +244,9 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(
           'DELETE FROM tasks WHERE title IN (SELECT id FROM checklist_items)',
         );
+      }
+      if (from < 33) {
+        await m.addColumn(checklistAnswers, checklistAnswers.selectedOptions);
       }
     },
   );

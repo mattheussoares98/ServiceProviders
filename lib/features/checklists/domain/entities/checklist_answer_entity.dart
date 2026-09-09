@@ -11,6 +11,7 @@ class ChecklistAnswerEntity extends Equatable {
     required this.numberValue,
     required this.photoUrl,
     required this.selectedOption,
+    required this.selectedOptions,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -27,6 +28,7 @@ class ChecklistAnswerEntity extends Equatable {
       numberValue: null,
       photoUrl: null,
       selectedOption: null,
+      selectedOptions: null,
       textValue: null,
     );
   }
@@ -39,6 +41,7 @@ class ChecklistAnswerEntity extends Equatable {
   final double? numberValue;
   final String? photoUrl;
   final String? selectedOption;
+  final List<String>? selectedOptions;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -52,6 +55,7 @@ class ChecklistAnswerEntity extends Equatable {
     numberValue,
     photoUrl,
     selectedOption,
+    selectedOptions,
     createdAt,
     updatedAt,
   ];
@@ -65,6 +69,7 @@ class ChecklistAnswerEntity extends Equatable {
     double? numberValue,
     String? photoUrl,
     String? selectedOption,
+    List<String>? selectedOptions,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? annulBooleanValue,
@@ -72,6 +77,7 @@ class ChecklistAnswerEntity extends Equatable {
     bool? annulNumberValue,
     bool? annulPhotoUrl,
     bool? annulSelectedOption,
+    bool? annulSelectedOptions,
   }) {
     return ChecklistAnswerEntity(
       id: id ?? this.id,
@@ -88,6 +94,9 @@ class ChecklistAnswerEntity extends Equatable {
       selectedOption: annulSelectedOption == true
           ? null
           : selectedOption ?? this.selectedOption,
+      selectedOptions: annulSelectedOptions == true
+          ? null
+          : selectedOptions ?? this.selectedOptions,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

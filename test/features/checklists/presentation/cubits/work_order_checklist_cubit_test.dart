@@ -178,6 +178,54 @@ void main() {
             ),
       ],
     );
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'answerItem saves multiSelection options and marks item completed',
+      setUp: () {
+        when(
+          () => mockSaveChecklistResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      seed: () {
+        final multiItem = ChecklistFactory.makeChecklistItemEntity().copyWith(
+          isRequired: true,
+          type: ChecklistItemType.multiSelection,
+          options: ['Opt 1', 'Opt 2'],
+        );
+        return const WorkOrderChecklistState.initial().copyWith(
+          items: [multiItem],
+        );
+      },
+      act: (cubit) => cubit.answerItem(
+        workOrderId: tWorkOrderId,
+        checklistItemId: cubit.state.items.first.id,
+        selectedOptions: ['Opt 1', 'Opt 2'],
+      ),
+      expect: () => [
+        isA<WorkOrderChecklistState>().having(
+          (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+          'saveAnswer running',
+          SectionStatus.running,
+        ),
+        isA<WorkOrderChecklistState>()
+            .having(
+              (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+              'saveAnswer success',
+              SectionStatus.success,
+            )
+            .having(
+              (s) => s.answers.values.first.selectedOptions,
+              'selectedOptions',
+              equals(['Opt 1', 'Opt 2']),
+            )
+            .having(
+              (s) => s.areRequiredItemsCompleted,
+              'areRequiredItemsCompleted',
+              isTrue,
+            ),
+      ],
+    );
   });
 
   group('attachEvidence', () {

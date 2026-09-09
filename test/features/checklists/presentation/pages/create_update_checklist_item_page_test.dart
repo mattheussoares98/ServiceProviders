@@ -173,4 +173,35 @@ void main() {
       ),
     );
   });
+
+  testWidgets('requires at least one option for a multiSelection item', (
+    tester,
+  ) async {
+    final item = ChecklistFactory.makeChecklistItemEntity().copyWith(
+      type: ChecklistItemType.multiSelection,
+      options: const [],
+    );
+
+    await tester.pumpWidget(
+      buildWidget(item: item, templateId: item.templateId),
+    );
+
+    expect(find.text('Informe ao menos uma opção'), findsOneWidget);
+
+    await tester.tap(find.text('Salvar'));
+    await tester.pump();
+
+    verifyNever(
+      () => mockCubit.saveItem(
+        id: any(named: 'id'),
+        templateId: any(named: 'templateId'),
+        label: any(named: 'label'),
+        type: any(named: 'type'),
+        isRequired: any(named: 'isRequired'),
+        options: any(named: 'options'),
+        sortOrder: any(named: 'sortOrder'),
+        createdAt: any(named: 'createdAt'),
+      ),
+    );
+  });
 }
