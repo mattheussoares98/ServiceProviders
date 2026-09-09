@@ -18,6 +18,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
 
 part 'checklist_items/checklist_boolean_input.dart';
@@ -29,7 +30,7 @@ part 'checklist_items/checklist_selection_input.dart';
 part 'checklist_items/checklist_text_input.dart';
 
 /// Container widget for rendering an interactive checklist item tile.
-class ChecklistItemTile extends StatelessWidget {
+class ChecklistItemTile extends HookWidget {
   const ChecklistItemTile({
     super.key,
     required this.item,
@@ -49,6 +50,7 @@ class ChecklistItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final formKey = useMemoized(GlobalKey<FormState>.new);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: Sizes.p4),
@@ -58,61 +60,66 @@ class ChecklistItemTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(Sizes.p8),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
-      child: Column(
-        crossAxisAlignment: .stretch,
-        children: [
-          Wrap(
-            runSpacing: Sizes.p8,
-            spacing: Sizes.p8,
-            alignment: .spaceBetween,
-            children: [
-              BaseText.bodyMedium(item.label, fontWeight: FontWeight.w600),
-              if (item.isRequired)
-                Padding(
-                  padding: const EdgeInsets.only(left: Sizes.p4),
-                  child: BaseText.caption(
-                    '* obrigatório'.hardcoded,
-                    color: theme.colorScheme.error,
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            Wrap(
+              runSpacing: Sizes.p8,
+              spacing: Sizes.p8,
+              alignment: .spaceBetween,
+              children: [
+                BaseText.bodyMedium(item.label, fontWeight: FontWeight.w600),
+                if (item.isRequired)
+                  Padding(
+                    padding: const EdgeInsets.only(left: Sizes.p4),
+                    child: BaseText.caption(
+                      '* obrigatório'.hardcoded,
+                      color: theme.colorScheme.error,
+                    ),
                   ),
-                ),
-            ],
-          ),
-          gapH8,
-          switch (item.type) {
-            ChecklistItemType.boolean => ChecklistBooleanInput(
-              item: item,
-              response: response,
-              onChanged: onChanged,
+              ],
             ),
-            ChecklistItemType.text => ChecklistTextInput(
-              item: item,
-              response: response,
-              onChanged: onChanged,
-            ),
-            ChecklistItemType.number => ChecklistNumberInput(
-              item: item,
-              response: response,
-              onChanged: onChanged,
-            ),
-            ChecklistItemType.selection => ChecklistSelectionInput(
-              item: item,
-              response: response,
-              onChanged: onChanged,
-            ),
-            ChecklistItemType.photo => ChecklistPhotoInput(
-              item: item,
-              workOrderId: workOrderId,
-              response: response,
-              onChanged: onChanged,
-            ),
-            ChecklistItemType.documentation => ChecklistDocumentationInput(
-              item: item,
-              workOrderId: workOrderId,
-              response: response,
-              onChanged: onChanged,
-            ),
-          },
-        ],
+            gapH8,
+            switch (item.type) {
+              ChecklistItemType.boolean => ChecklistBooleanInput(
+                item: item,
+                response: response,
+                onChanged: onChanged,
+              ),
+              ChecklistItemType.text => ChecklistTextInput(
+                item: item,
+                response: response,
+                onChanged: onChanged,
+                formKey: formKey,
+              ),
+              ChecklistItemType.number => ChecklistNumberInput(
+                item: item,
+                response: response,
+                onChanged: onChanged,
+                formKey: formKey,
+              ),
+              ChecklistItemType.selection => ChecklistSelectionInput(
+                item: item,
+                response: response,
+                onChanged: onChanged,
+              ),
+              ChecklistItemType.photo => ChecklistPhotoInput(
+                item: item,
+                workOrderId: workOrderId,
+                response: response,
+                onChanged: onChanged,
+              ),
+              ChecklistItemType.documentation => ChecklistDocumentationInput(
+                item: item,
+                workOrderId: workOrderId,
+                response: response,
+                onChanged: onChanged,
+              ),
+            },
+          ],
+        ),
       ),
     );
   }

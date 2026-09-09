@@ -7,11 +7,13 @@ class ChecklistNumberInput extends HookWidget {
     required this.item,
     this.response,
     required this.onChanged,
+    required this.formKey,
   });
 
   final ChecklistItemEntity item;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
+  final GlobalKey<FormState> formKey;
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +32,14 @@ class ChecklistNumberInput extends HookWidget {
       hintText: 'Digite um número'.hardcoded,
       keyboardType: TextInputType.number,
       focusNode: focusNode,
-      autovalidateMode: .always,
+      autovalidateMode: .onUserInteractionIfError,
       validator: FormValidators.compose([
         NumberValidator(allowDecimal: false, allowEmptyValue: !item.isRequired),
       ]),
       onChanged: (val) => debounce.run(() {
+        if (formKey.currentState?.validate() != true) {
+          return;
+        }
         final numVal = double.tryParse(val);
         final current =
             response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);

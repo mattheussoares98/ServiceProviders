@@ -7,11 +7,13 @@ class ChecklistTextInput extends HookWidget {
     required this.item,
     this.response,
     required this.onChanged,
+    required this.formKey,
   });
 
   final ChecklistItemEntity item;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
+  final GlobalKey<FormState> formKey;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,14 @@ class ChecklistTextInput extends HookWidget {
     return BaseTextFormField(
       controller: controller,
       hintText: 'Digite a resposta'.hardcoded,
+      autovalidateMode: .onUserInteractionIfError,
+      validator: FormValidators.compose([
+        if (item.isRequired) MinLengthValidator(3),
+      ]),
       onChanged: (val) => debounce.run(() {
+        if (formKey.currentState?.validate() != true) {
+          return;
+        }
         final current =
             response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
         onChanged(current.copyWith(textValue: val));
