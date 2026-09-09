@@ -95,6 +95,10 @@ void main() {
 
     expect(find.text('Checklist'), findsOneWidget);
     expect(find.text('1/2'), findsOneWidget);
+
+    await tester.tap(find.byType(ExpansionTile));
+    await tester.pumpAndSettle();
+
     for (final item in items) {
       expect(find.text(item.label), findsOneWidget);
     }
