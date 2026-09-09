@@ -38,7 +38,13 @@ class BaseTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.autofocus = false,
     this.autofillHints,
-  });
+  }) : assert(
+          focusNode != null ||
+              (keyboardType != TextInputType.number &&
+                  keyboardType !=
+                      const TextInputType.numberWithOptions(decimal: true)),
+          'Numeric keyboard requires a focusNode for iOS keyboard toolbar support.',
+        );
   final bool? enabled;
   final TextEditingController? controller;
   final void Function(String)? onFieldSubmitted;

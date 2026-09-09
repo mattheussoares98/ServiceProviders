@@ -83,13 +83,6 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
     final dtf = widget.baseTextFormField;
     final isEnabled = dtf.enabled ?? true;
 
-    if (dtf.focusNode == null &&
-        (dtf.keyboardType == TextInputType.number ||
-            dtf.keyboardType ==
-                const TextInputType.numberWithOptions(decimal: true))) {
-      throw Exception('iOS numeric keyboard without focus node');
-    }
-
     return FormField<String>(
       key: dtf.key,
       validator: dtf.validator,
