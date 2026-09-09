@@ -95,8 +95,15 @@ void main() {
 
     expect(find.text('Checklist'), findsOneWidget);
     expect(find.text('1/2'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
 
-    await tester.tap(find.byType(ExpansionTile));
+    // Items are not rendered on the main page directly
+    for (final item in items) {
+      expect(find.text(item.label), findsNothing);
+    }
+
+    // Tapping the card opens the modal with the checklist items
+    await tester.tap(find.text('Checklist'));
     await tester.pumpAndSettle();
 
     for (final item in items) {

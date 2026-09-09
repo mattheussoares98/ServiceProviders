@@ -7,6 +7,8 @@ import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_orde
 import 'package:o_jogo_da_obra/features/checklists/presentation/widgets/checklist_item_tile.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -21,6 +23,25 @@ class WorkOrderChecklistSection extends StatelessWidget {
 
   final WorkOrderEntity workOrder;
 
+  void _openChecklistModal(
+    BuildContext context,
+    WorkOrderChecklistState state,
+    bool isEditable,
+  ) {
+    final cubit = context.read<WorkOrderChecklistCubit>();
+    showModalPage<void>(
+      BlocProvider.value(
+        value: cubit,
+        child: _WorkOrderChecklistModal(
+          workOrder: workOrder,
+          isEditable: isEditable,
+        ),
+      ),
+      context,
+      initialChildSize: 0.9,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (workOrder.checklistTemplateId == null) {
@@ -32,62 +53,109 @@ class WorkOrderChecklistSection extends StatelessWidget {
     final isEditable =
         !workOrder.isDeleted && workOrder.status.acceptsAttachments;
 
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
-        child:
-            BaseStateView<
-              WorkOrderChecklistCubit,
-              WorkOrderChecklistState,
-              WorkOrderChecklistState
-            >(
-              dataSelector: (state) => state,
-              onRetry: () =>
-                  context.read<WorkOrderChecklistCubit>().loadChecklist(
-                    templateId: workOrder.checklistTemplateId!,
-                    workOrderId: workOrder.id,
-                  ),
-              builder: (context, state) {
-                if (state.items.isEmpty) {
-                  return BaseText.bodyMedium(
-                    'O checklist desta ordem não possui itens'.hardcoded,
-                  );
-                }
-
-                return ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(top: Sizes.p8),
-                  title: _ChecklistHeader(
-                    completedCount: state.completedItemsCount,
-                    totalCount: state.items.length,
-                    progress: state.progress,
-                    pendingRequired: !state.areRequiredItemsCompleted,
-                  ),
-                  children: [
-                    IgnorePointer(
-                      ignoring: !isEditable,
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        //TODO use slivers instead
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: state.items.length,
-                        separatorBuilder: (context, index) => gapH8,
-                        itemBuilder: (context, index) {
-                          final item = state.items[index];
-                          return _ChecklistItemEntry(
-                            key: ValueKey(item.id),
-                            item: item,
-                            workOrder: workOrder,
-                            isEditable: isEditable,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+    return BaseStateView<
+      WorkOrderChecklistCubit,
+      WorkOrderChecklistState,
+      WorkOrderChecklistState
+    >(
+      isSliver: true,
+      dataSelector: (state) => state,
+      onRetry: () => context.read<WorkOrderChecklistCubit>().loadChecklist(
+        templateId: workOrder.checklistTemplateId!,
+        workOrderId: workOrder.id,
       ),
+      builder: (context, state) {
+        if (state.items.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
+              child: BaseText.bodyMedium(
+                'O checklist desta ordem não possui itens'.hardcoded,
+              ),
+            ),
+          );
+        }
+
+        return SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
+            child: Card(
+              clipBehavior: Clip.hardEdge,
+              child: InkWell(
+                onTap: () => _openChecklistModal(context, state, isEditable),
+                child: Padding(
+                  padding: const EdgeInsets.all(Sizes.p12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ChecklistHeader(
+                          completedCount: state.completedItemsCount,
+                          totalCount: state.items.length,
+                          progress: state.progress,
+                          pendingRequired: !state.areRequiredItemsCompleted,
+                        ),
+                      ),
+                      gapW12,
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _WorkOrderChecklistModal extends StatelessWidget {
+  const _WorkOrderChecklistModal({
+    required this.workOrder,
+    required this.isEditable,
+  });
+
+  final WorkOrderEntity workOrder;
+  final bool isEditable;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Sizes.p16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ChecklistHeader(
+                completedCount: state.completedItemsCount,
+                totalCount: state.items.length,
+                progress: state.progress,
+                pendingRequired: !state.areRequiredItemsCompleted,
+              ),
+              gapH12,
+              Expanded(
+                child: IgnorePointer(
+                  ignoring: !isEditable,
+                  child: ResponsiveListFlow(
+                    padding: const EdgeInsets.only(bottom: Sizes.p24),
+                    itemCount: state.items.length,
+                    itemBuilder: (context, index) {
+                      final item = state.items[index];
+                      return _ChecklistItemEntry(
+                        key: ValueKey(item.id),
+                        item: item,
+                        workOrder: workOrder,
+                        isEditable: isEditable,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
