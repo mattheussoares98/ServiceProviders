@@ -61,14 +61,12 @@ class ChecklistItemTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: .stretch,
         children: [
-          Row(
+          Wrap(
+            runSpacing: Sizes.p8,
+            spacing: Sizes.p8,
+            alignment: .spaceBetween,
             children: [
-              Expanded(
-                child: BaseText.bodyMedium(
-                  item.label,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              BaseText.bodyMedium(item.label, fontWeight: FontWeight.w600),
               if (item.isRequired)
                 Padding(
                   padding: const EdgeInsets.only(left: Sizes.p4),
