@@ -22,7 +22,7 @@ class ResponsiveListFlow extends StatelessWidget {
 
   final int itemCount;
   final Widget Function(BuildContext context, int index) itemBuilder;
-  final double? maxItemWidth;
+  final double maxItemWidth;
   final bool isSliver;
   final EdgeInsetsGeometry? padding;
   final ScrollPhysics? physics;
@@ -56,8 +56,7 @@ class ResponsiveListFlow extends StatelessWidget {
     final maxWidthSize = ScreenType.desktop.maxWidth;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final width = min(maxWidthSize, screenWidth);
-    final effectiveItemWidth = maxItemWidth ?? 380.0;
-    final itemsPerRow = max((width / effectiveItemWidth).floor(), 1);
+    final itemsPerRow = max((width / maxItemWidth).floor(), 1);
 
     if (isSliver) {
       final grid = SliverMasonryGrid.count(
