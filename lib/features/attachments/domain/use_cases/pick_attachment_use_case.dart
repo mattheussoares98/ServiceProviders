@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
@@ -13,6 +14,7 @@ class PickAttachmentParams extends Equatable {
     required this.userId,
     this.onFilesPicked,
     this.multiple = true,
+    this.allowedExtensions,
   });
 
   final AttachmentSource source;
@@ -21,9 +23,17 @@ class PickAttachmentParams extends Equatable {
   final String userId;
   final void Function(int count)? onFilesPicked;
   final bool multiple;
+  final Set<FileExtension>? allowedExtensions;
 
   @override
-  List<Object?> get props => [source, workOrderId, companyId, userId, multiple];
+  List<Object?> get props => [
+    source,
+    workOrderId,
+    companyId,
+    userId,
+    multiple,
+    allowedExtensions,
+  ];
 }
 
 @LazySingleton()
@@ -43,5 +53,6 @@ class PickAttachmentUseCase
         uploadedById: request.userId,
         onFilesPicked: request.onFilesPicked,
         multiple: request.multiple,
+        allowedExtensions: request.allowedExtensions,
       );
 }

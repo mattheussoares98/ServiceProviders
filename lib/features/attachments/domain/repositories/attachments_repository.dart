@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
@@ -40,6 +41,7 @@ abstract interface class AttachmentsRepository {
     required String uploadedById,
     void Function(int count)? onFilesPicked,
     bool multiple = true,
+    Set<FileExtension>? allowedExtensions,
   });
 
   /// Uploads [attachment] to Cloudflare R2 using the presigned URL handshake,

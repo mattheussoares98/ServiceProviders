@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_impl.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -380,6 +381,43 @@ void main() {
               'mp4',
               'mov',
             ],
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'uses custom allowedExtensions and multiple parameter when provided',
+      () async {
+        final fileName = faker.lorem.word();
+        final filePath = '${tempDir.path}/$fileName';
+        const customExts = {
+          FileExtension.jpg,
+          FileExtension.jpeg,
+          FileExtension.png,
+        };
+        when(
+          () => mockFilePicker.pickFiles(
+            allowMultiple: any(named: 'allowMultiple'),
+            type: any(named: 'type'),
+            allowedExtensions: any(named: 'allowedExtensions'),
+          ),
+        ).thenAnswer(
+          (_) async => FilePickerResult([
+            PlatformFile(name: fileName, path: filePath, size: 100),
+          ]),
+        );
+
+        final result = await service.pickDocuments(
+          allowedExtensions: customExts,
+          multiple: false,
+        );
+
+        expect(result, [(path: filePath, name: fileName, bytes: null)]);
+        verify(
+          () => mockFilePicker.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['jpg', 'jpeg', 'png'],
           ),
         ).called(1);
       },

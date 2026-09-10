@@ -26,10 +26,11 @@ class ChecklistPhotoInput extends StatelessWidget {
       response: response,
       sources: isMobile
           ? const [AttachmentSource.cameraPhoto, AttachmentSource.gallery]
-          : const [AttachmentSource.gallery],
+          : const [AttachmentSource.document],
       sourceLabels: isMobile
           ? ['Tirar foto'.hardcoded, 'Escolher da galeria'.hardcoded]
           : ['Escolher arquivo'.hardcoded],
+      allowedExtensions: isMobile ? null : FileExtension.images,
       emptyLabel: 'Anexar foto'.hardcoded,
       attachedLabel: 'Foto anexada'.hardcoded,
       platformIcon: isMobile

@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -92,25 +93,20 @@ final class FileServiceWeb implements FileServicePlatformHelper {
   }
 
   @override
-  Future<List<PickedFile>?> pickDocuments() async {
-    final allowedExtensions = PlatformUtil.isMobile
-        ? ['pdf', 'docx', 'xlsx']
-        : [
-            'pdf',
-            'docx',
-            'xlsx',
-            'jpg',
-            'jpeg',
-            'png',
-            'webp',
-            'heic',
-            'mp4',
-            'mov',
-          ];
+  Future<List<PickedFile>?> pickDocuments({
+    Set<FileExtension>? allowedExtensions,
+    bool multiple = true,
+  }) async {
+    final effectiveExtensions = (allowedExtensions ??
+            (PlatformUtil.isMobile
+                ? FileExtension.documents
+                : FileExtension.values.toSet()))
+        .map((e) => e.value)
+        .toList();
     final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
+      allowMultiple: multiple,
       type: FileType.custom,
-      allowedExtensions: allowedExtensions,
+      allowedExtensions: effectiveExtensions,
     );
     if (result == null || result.files.isEmpty) return null;
 

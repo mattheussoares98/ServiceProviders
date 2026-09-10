@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
@@ -36,7 +37,13 @@ final class FileServiceImpl implements FileService {
       _helper.pickMediaFromGallery(multiple: multiple);
 
   @override
-  Future<List<PickedFile>?> pickDocuments() => _helper.pickDocuments();
+  Future<List<PickedFile>?> pickDocuments({
+    Set<FileExtension>? allowedExtensions,
+    bool multiple = true,
+  }) => _helper.pickDocuments(
+    allowedExtensions: allowedExtensions,
+    multiple: multiple,
+  );
 
   @override
   FutureString compressAndSaveImage(String sourcePath) =>

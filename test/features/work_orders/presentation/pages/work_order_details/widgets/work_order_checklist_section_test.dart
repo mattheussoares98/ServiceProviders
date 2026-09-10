@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -17,12 +18,19 @@ import '../../../../../../../testing/mocks/factories/work_order_factory.dart';
 class MockWorkOrderChecklistCubit extends MockCubit<WorkOrderChecklistState>
     implements WorkOrderChecklistCubit {}
 
+class MockAttachmentsCubit extends MockCubit<AttachmentsState>
+    implements AttachmentsCubit {}
+
 void main() {
   late MockWorkOrderChecklistCubit mockCubit;
+  late MockAttachmentsCubit mockAttachmentsCubit;
 
   setUp(() {
     mockCubit = MockWorkOrderChecklistCubit();
+    mockAttachmentsCubit = MockAttachmentsCubit();
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockAttachmentsCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => mockAttachmentsCubit.state).thenReturn(const AttachmentsState());
   });
 
   Widget buildWidget({required bool hasTemplate, WorkOrderStatus? status}) {
@@ -35,8 +43,11 @@ void main() {
     }
 
     return MaterialApp(
-      home: BlocProvider<WorkOrderChecklistCubit>.value(
-        value: mockCubit,
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<WorkOrderChecklistCubit>.value(value: mockCubit),
+          BlocProvider<AttachmentsCubit>.value(value: mockAttachmentsCubit),
+        ],
         child: Scaffold(
           body: CustomScrollView(
             slivers: [WorkOrderChecklistSection(workOrder: workOrder)],

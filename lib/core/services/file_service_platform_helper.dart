@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart' hide PickedFile;
 import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/services/file_service_platform_helper_stub.dart'
     if (dart.library.js_util) 'file_service_platform_helper_web.dart'
@@ -14,7 +15,10 @@ abstract interface class FileServicePlatformHelper {
   Future<String?> takePhoto();
   Future<String?> recordVideo();
   Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true});
-  Future<List<PickedFile>?> pickDocuments();
+  Future<List<PickedFile>?> pickDocuments({
+    Set<FileExtension>? allowedExtensions,
+    bool multiple = true,
+  });
   FutureString compressAndSaveImage(String sourcePath);
   FutureString compressAndSaveVideo(String sourcePath);
   FutureString getOrCreateVideoThumbnail(String videoPath);

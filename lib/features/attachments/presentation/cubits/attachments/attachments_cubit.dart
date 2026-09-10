@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
@@ -107,6 +108,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
     AttachmentSource source, {
     String? workOrderCompanyId,
     bool autoUpload = false,
+    Set<FileExtension>? allowedExtensions,
   }) async {
     // Prune the sandbox before picking new files to prevent storage overflow
     await _useCases.pruneSandbox();
@@ -124,6 +126,7 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
         onFilesPicked: (count) {
           emit(state.copyWith(processingCount: count));
         },
+        allowedExtensions: allowedExtensions,
       ),
     );
     if (isClosed) return;

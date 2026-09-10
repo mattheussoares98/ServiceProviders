@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
@@ -385,9 +386,14 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     required String uploadedById,
     void Function(int count)? onFilesPicked,
     bool multiple = true,
+    Set<FileExtension>? allowedExtensions,
   }) async {
     try {
-      final pickedFiles = await _pickFiles(source, multiple: multiple);
+      final pickedFiles = await _pickFiles(
+        source,
+        multiple: multiple,
+        allowedExtensions: allowedExtensions,
+      );
       if (pickedFiles == null || pickedFiles.isEmpty) {
         return const SuccessState(data: []);
       }
@@ -576,6 +582,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   Future<List<PickedFile>?> _pickFiles(
     AttachmentSource source, {
     bool multiple = true,
+    Set<FileExtension>? allowedExtensions,
   }) => switch (source) {
     // Camera picks always produce unique files — name is not meaningful
     // for deduplication, so we reuse path as the name.
@@ -588,7 +595,10 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     AttachmentSource.gallery => _fileService.pickMediaFromGallery(
       multiple: multiple,
     ),
-    AttachmentSource.document => _fileService.pickDocuments(),
+    AttachmentSource.document => _fileService.pickDocuments(
+      allowedExtensions: allowedExtensions,
+      multiple: multiple,
+    ),
   };
 
   Future<DataState<AttachmentEntity>> _prepareFile({

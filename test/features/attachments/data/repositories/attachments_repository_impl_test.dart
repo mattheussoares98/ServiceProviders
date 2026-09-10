@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/constants/local_storage_limits.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/data/models/responses/attachment_model.dart';
@@ -489,6 +490,40 @@ void main() {
           (result as FailureState).message,
           contains('Tipo de arquivo não suportado'),
         );
+      },
+    );
+
+    test(
+      'should forward allowedExtensions and multiple flag to fileService.pickDocuments when source is document',
+      () async {
+        const customExts = {
+          FileExtension.jpg,
+          FileExtension.jpeg,
+          FileExtension.png,
+        };
+        when(
+          () => fileService.pickDocuments(
+            allowedExtensions: any(named: 'allowedExtensions'),
+            multiple: any(named: 'multiple'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        final result = await repository.pickAndPrepareAttachment(
+          source: AttachmentSource.document,
+          workOrderId: workOrderId,
+          companyId: companyId,
+          uploadedById: uploadedById,
+          multiple: false,
+          allowedExtensions: customExts,
+        );
+
+        expect(result, const SuccessState<List<AttachmentEntity>>(data: []));
+        verify(
+          () => fileService.pickDocuments(
+            allowedExtensions: customExts,
+            multiple: false,
+          ),
+        ).called(1);
       },
     );
 

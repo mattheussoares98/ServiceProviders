@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
@@ -181,6 +182,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
     required String workOrderId,
     required String checklistItemId,
     required AttachmentSource source,
+    Set<FileExtension>? allowedExtensions,
   }) async {
     emit(
       state.copyWith(
@@ -198,6 +200,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
         companyId: _useCases.getActiveCompanyId(),
         userId: _useCases.getSessionUser().id,
         multiple: false,
+        allowedExtensions: allowedExtensions,
       ),
     );
     if (isClosed) return false;

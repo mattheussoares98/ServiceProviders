@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -86,7 +87,7 @@ void main() {
   );
 
   testWidgets(
-    'on non-mobile: displays photo library icon and directly triggers gallery pick without bottom sheet',
+    'on non-mobile: displays photo library icon and directly triggers document pick with image allowedExtensions',
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       try {
@@ -95,6 +96,7 @@ void main() {
             workOrderId: any(named: 'workOrderId'),
             checklistItemId: any(named: 'checklistItemId'),
             source: any(named: 'source'),
+            allowedExtensions: any(named: 'allowedExtensions'),
           ),
         ).thenAnswer((_) async => true);
         when(
@@ -117,7 +119,8 @@ void main() {
           () => mockChecklistCubit.attachEvidence(
             workOrderId: 'wo-1',
             checklistItemId: any(named: 'checklistItemId'),
-            source: AttachmentSource.gallery,
+            source: AttachmentSource.document,
+            allowedExtensions: FileExtension.images,
           ),
         ).called(1);
       } finally {

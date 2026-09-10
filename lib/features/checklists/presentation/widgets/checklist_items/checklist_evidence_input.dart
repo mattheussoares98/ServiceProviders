@@ -16,6 +16,7 @@ class ChecklistEvidenceInput extends StatelessWidget {
     required this.attachedLabel,
     required this.platformIcon,
     this.response,
+    this.allowedExtensions,
   });
 
   final ChecklistItemEntity item;
@@ -26,6 +27,7 @@ class ChecklistEvidenceInput extends StatelessWidget {
   final String emptyLabel;
   final String attachedLabel;
   final PlatformIcon platformIcon;
+  final Set<FileExtension>? allowedExtensions;
 
   bool get _hasEvidence => response?.photoUrl?.trim().isNotEmpty == true;
 
@@ -38,6 +40,7 @@ class ChecklistEvidenceInput extends StatelessWidget {
           workOrderId: workOrderId,
           checklistItemId: item.id,
           source: source,
+          allowedExtensions: allowedExtensions,
         );
 
     // The file is a work order attachment as well as the item's evidence, so the

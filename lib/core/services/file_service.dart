@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 /// A file returned by a pick operation.
@@ -38,10 +39,15 @@ abstract interface class FileService {
   /// Returns a list of [PickedFile] records, or `null` if the user cancelled.
   Future<List<PickedFile>?> pickMediaFromGallery({bool multiple = true});
 
-  /// Opens the file picker for multi-document selection (PDF, DOCX, XLSX).
+  /// Opens the file picker for document/file selection.
   ///
+  /// If [allowedExtensions] is specified, restricts file selection to those extensions.
+  /// Otherwise, uses the platform default allowed extensions.
   /// Returns a list of [PickedFile] records, or `null` if the user cancelled.
-  Future<List<PickedFile>?> pickDocuments();
+  Future<List<PickedFile>?> pickDocuments({
+    Set<FileExtension>? allowedExtensions,
+    bool multiple = true,
+  });
 
   /// Compresses an image at [sourcePath] and copies the result into the
   /// app's secure sandbox directory.
