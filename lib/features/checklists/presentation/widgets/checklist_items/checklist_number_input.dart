@@ -20,7 +20,9 @@ class ChecklistNumberInput extends HookWidget {
     final initialText = response?.numberValue != null
         ? response!.numberValue.toString()
         : '';
-    final controller = useTextEditingController(text: initialText);
+    final controller = useTextEditingController(
+      text: initialText.toBrazilianNumber(3, true),
+    );
     final focusNode = useFocusNode();
     final debounce = useMemoized(
       () => DebounceTime(delay: const Duration(milliseconds: 600)),
