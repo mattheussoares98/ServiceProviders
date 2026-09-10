@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart' as theme;
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -53,7 +52,9 @@ class BaseChoiceChip<T> extends StatelessWidget {
             },
             selectedColor: color,
             labelStyle: TextStyle(
-              color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+              color: isSelected
+                  ? Colors.white
+                  : context.theme.colorScheme.onSurface,
             ),
           );
         }).toList(),
