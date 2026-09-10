@@ -52,7 +52,7 @@ EXECUTE FUNCTION public.prevent_delete();
 
 ### 2.2 Automated Entity Auditing Triggers
 
-Auditing is managed via **`public.handle_generic_audit()`** which dynamically inspects all changed columns (ignoring technical timestamp `updated_at`), records old/new values, and assigns entity/parent IDs.
+Auditing is managed via **`public.handle_generic_audit()`** which dynamically inspects all changed columns (ignoring technical timestamp `updated_at` and automated escalation tracking columns `advance_warning_sent_at`, `last_escalation_at`, `last_escalation_level`), records old/new values, and assigns entity/parent IDs.
 
 #### Tracked Tables (Audited)
 Every table modifiable by users or business operations is attached to `handle_generic_audit()` (or specialized handlers where attachment/pause metadata is preserved):
