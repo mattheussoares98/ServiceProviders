@@ -18,35 +18,40 @@ class ChecklistMultiSelectionInput extends StatelessWidget {
     final options = item.options ?? [];
     final selectedOptions = response?.selectedOptions ?? [];
 
+    void onTap(String opt) {
+      final current =
+          response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
+      final isChecked = selectedOptions.contains(opt);
+      final updated = isChecked
+          ? selectedOptions.where((element) => element != opt).toList()
+          : [...selectedOptions, opt];
+      onChanged(current.copyWith(selectedOptions: updated));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final opt in options) ...[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: Sizes.p8,
-              horizontal: Sizes.p4,
-            ),
-            child: Row(
-              children: [
-                BaseCheckbox(
-                  value: selectedOptions.contains(opt),
-                  onChanged: (val) {
-                    final current =
-                        response ??
-                        ChecklistAnswerEntity.empty(checklistItemId: item.id);
-                    final isChecked = selectedOptions.contains(opt);
-                    final updated = isChecked
-                        ? selectedOptions
-                              .where((element) => element != opt)
-                              .toList()
-                        : [...selectedOptions, opt];
-                    onChanged(current.copyWith(selectedOptions: updated));
-                  },
+          Card(
+            clipBehavior: .hardEdge,
+            child: InkWell(
+              onTap: () => onTap(opt),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: Sizes.p8,
+                  horizontal: Sizes.p8,
                 ),
-                gapW12,
-                Expanded(child: BaseText.bodyMedium(opt)),
-              ],
+                child: Row(
+                  children: [
+                    BaseCheckbox(
+                      value: selectedOptions.contains(opt),
+                      onChanged: (_) => onTap(opt),
+                    ),
+                    gapW12,
+                    Expanded(child: BaseText.bodyMedium(opt)),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
