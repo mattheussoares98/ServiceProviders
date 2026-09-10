@@ -5,7 +5,7 @@ part of '../checklist_item_tile.dart';
 ///
 /// Both types persist into `photoUrl`, so they share one flow and differ only in
 /// which [AttachmentSource]s they offer.
-class ChecklistEvidenceInput extends StatelessWidget {
+class ChecklistEvidenceInput extends HookWidget {
   const ChecklistEvidenceInput({
     super.key,
     required this.item,
@@ -29,31 +29,58 @@ class ChecklistEvidenceInput extends StatelessWidget {
   final PlatformIcon platformIcon;
   final Set<FileExtension>? allowedExtensions;
 
+  bool get _isPhoto => item.type == ChecklistItemType.photo;
   bool get _hasEvidence => response?.photoUrl?.trim().isNotEmpty == true;
 
-  Future<void> _attach(BuildContext context, AttachmentSource source) async {
+  Future<void> _attach(
+    BuildContext context,
+    AttachmentSource source,
+    ValueNotifier<bool> isUploading,
+  ) async {
     final attachmentsCubit = context.read<AttachmentsCubit>();
 
-    final attached = await context
-        .read<WorkOrderChecklistCubit>()
-        .attachEvidence(
-          workOrderId: workOrderId,
-          checklistItemId: item.id,
-          source: source,
-          allowedExtensions: allowedExtensions,
-        );
+    isUploading.value = true;
+    try {
+      final attached = await context
+          .read<WorkOrderChecklistCubit>()
+          .attachEvidence(
+            workOrderId: workOrderId,
+            checklistItemId: item.id,
+            source: source,
+            allowedExtensions: allowedExtensions,
+          );
 
-    // The file is a work order attachment as well as the item's evidence, so the
-    // attachments section has to pick it up — the upload bypassed its cubit.
-    if (attached) await attachmentsCubit.refreshAttachments();
+      // The file is a work order attachment as well as the item's evidence, so the
+      // attachments section has to pick it up — the upload bypassed its cubit.
+      if (attached) await attachmentsCubit.refreshAttachments();
+    } finally {
+      if (context.mounted) isUploading.value = false;
+    }
+  }
+
+  String _extractFileName(String raw) {
+    final uri = Uri.tryParse(raw);
+    final rawName = uri?.pathSegments.isNotEmpty == true
+        ? uri!.pathSegments.last
+        : raw.split('/').last;
+    try {
+      return Uri.decodeComponent(rawName);
+    } catch (_) {
+      return rawName;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final isUploading = useState(false);
 
-    Future<void> onTap() async {
-      if (sources.length == 1) return _attach(context, sources.first);
+    Future<void> onAttachTap() async {
+      if (isUploading.value) return;
+
+      if (sources.length == 1) {
+        return _attach(context, sources.first, isUploading);
+      }
 
       final chosen = await showModalBottomSheet<AttachmentSource>(
         context: context,
@@ -72,32 +99,128 @@ class ChecklistEvidenceInput extends StatelessWidget {
         ),
       );
 
-      if (chosen != null && context.mounted) await _attach(context, chosen);
+      if (chosen != null && context.mounted) {
+        await _attach(context, chosen, isUploading);
+      }
     }
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(Sizes.p8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
-        child: Row(
-          children: [
-            platformIcon,
-            gapW8,
-            Expanded(
-              child: BaseText.bodyMedium(
-                _hasEvidence ? attachedLabel : emptyLabel,
-                color: _hasEvidence ? theme.colorScheme.primary : null,
+    final evidenceUrl = response?.photoUrl?.trim();
+
+    return Column(
+      children: [
+        if (_hasEvidence && evidenceUrl != null) ...[
+          if (_isPhoto) ...[
+            BaseImageWidget(
+              source:
+                  evidenceUrl.startsWith('http://') ||
+                      evidenceUrl.startsWith('https://')
+                  ? BaseImageSource.network(evidenceUrl)
+                  : BaseImageSource.local(evidenceUrl),
+              width: Sizes.p80,
+              height: Sizes.p80,
+              enableFullScreenOnTap: true,
+              heroTag: 'checklist_photo_${item.id}_$evidenceUrl',
+            ),
+            gapH8,
+          ] else ...[
+            InkWell(
+              onTap: () {
+                final attachmentsCubit = context.read<AttachmentsCubit>();
+                final matched = attachmentsCubit.state.attachments.where(
+                  (a) =>
+                      a.remoteUrl == evidenceUrl || a.localPath == evidenceUrl,
+                );
+                if (matched.isNotEmpty) {
+                  attachmentsCubit.openAttachment(matched.first);
+                } else {
+                  attachmentsCubit.openAttachment(
+                    AttachmentEntity.empty(
+                      id: item.id,
+                      workOrderId: workOrderId,
+                      fileName: _extractFileName(evidenceUrl),
+                      localPath: evidenceUrl.startsWith('http')
+                          ? null
+                          : evidenceUrl,
+                      remoteUrl: evidenceUrl.startsWith('http')
+                          ? evidenceUrl
+                          : null,
+                    ),
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(Sizes.p8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.p12,
+                  vertical: Sizes.p8,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
+                  borderRadius: BorderRadius.circular(Sizes.p8),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                ),
+                child: Row(
+                  children: [
+                    platformIcon,
+                    gapW8,
+                    Expanded(
+                      child: BaseText(
+                        _extractFileName(evidenceUrl),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    gapW8,
+                    const PlatformIcon(
+                      materialIcon: Icons.open_in_new,
+                      cupertinoIcon: CupertinoIcons.arrow_up_right_square,
+                      size: Sizes.p16,
+                    ),
+                  ],
+                ),
               ),
             ),
-            if (_hasEvidence)
-              BaseText.caption(
-                'Substituir'.hardcoded,
-                color: theme.colorScheme.primary,
-              ),
+            gapH8,
           ],
+        ],
+        InkWell(
+          onTap: isUploading.value ? null : onAttachTap,
+          borderRadius: BorderRadius.circular(Sizes.p8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
+            child: Row(
+              children: [
+                if (isUploading.value) ...[
+                  SizedBox(
+                    width: Sizes.p24,
+                    height: Sizes.p24,
+                    child: LoadingCircle.small(theme.colorScheme.primary),
+                  ),
+                ] else ...[
+                  platformIcon,
+                ],
+                gapW8,
+                Expanded(
+                  child: BaseText.bodyMedium(
+                    isUploading.value
+                        ? 'Enviando...'.hardcoded
+                        : (_hasEvidence ? attachedLabel : emptyLabel),
+                    color: (_hasEvidence || isUploading.value)
+                        ? theme.colorScheme.primary
+                        : null,
+                  ),
+                ),
+                if (_hasEvidence && !isUploading.value)
+                  BaseText.caption(
+                    'Substituir'.hardcoded,
+                    color: theme.colorScheme.primary,
+                  ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

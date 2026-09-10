@@ -21,6 +21,43 @@ class AttachmentEntity extends Equatable {
     required this.lastAccessedAt,
   });
 
+  factory AttachmentEntity.empty({
+    String id = '',
+    String workOrderId = '',
+    String companyId = '',
+    String uploadedById = '',
+    String fileName = '',
+    FileType fileType = FileType.document,
+    String? localPath,
+    String? remoteUrl,
+    int? fileSizeBytes,
+    bool isCompressed = false,
+    UploadStatus uploadStatus = UploadStatus.uploaded,
+    DateTime? createdAt,
+    DateTime? deletedAt,
+    String? originalPath,
+    DateTime? lastAccessedAt,
+  }) {
+    final now = DateTime.now();
+    return AttachmentEntity(
+      id: id,
+      workOrderId: workOrderId,
+      companyId: companyId,
+      uploadedById: uploadedById,
+      fileName: fileName,
+      fileType: fileType,
+      localPath: localPath,
+      remoteUrl: remoteUrl,
+      fileSizeBytes: fileSizeBytes,
+      isCompressed: isCompressed,
+      uploadStatus: uploadStatus,
+      createdAt: createdAt ?? now,
+      deletedAt: deletedAt,
+      originalPath: originalPath,
+      lastAccessedAt: lastAccessedAt ?? now,
+    );
+  }
+
   final String id;
   final String workOrderId;
   final String companyId;

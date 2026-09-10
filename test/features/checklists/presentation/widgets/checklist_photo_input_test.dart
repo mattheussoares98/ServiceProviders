@@ -8,9 +8,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/widgets/checklist_item_tile.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 import '../../../../../testing/mocks/factories/checklist_factory.dart';
@@ -40,7 +42,7 @@ void main() {
     when(() => mockAttachmentsCubit.state).thenReturn(const AttachmentsState());
   });
 
-  Widget buildWidget() {
+  Widget buildWidget({ChecklistAnswerEntity? response}) {
     final item = ChecklistFactory.makeChecklistItemEntity().copyWith(
       type: ChecklistItemType.photo,
     );
@@ -55,6 +57,7 @@ void main() {
           body: ChecklistPhotoInput(
             item: item,
             workOrderId: 'wo-1',
+            response: response,
             onChanged: (_) {},
           ),
         ),
@@ -126,6 +129,21 @@ void main() {
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
+    },
+  );
+
+  testWidgets(
+    'displays BaseImageWidget preview and Substituir when photoUrl is present',
+    (tester) async {
+      final answer = ChecklistFactory.makeChecklistAnswerEntity().copyWith(
+        photoUrl: 'https://example.com/evidence.jpg',
+      );
+
+      await tester.pumpWidget(buildWidget(response: answer));
+
+      expect(find.byType(BaseImageWidget), findsOneWidget);
+      expect(find.text('Foto anexada'), findsOneWidget);
+      expect(find.text('Substituir'), findsOneWidget);
     },
   );
 }
