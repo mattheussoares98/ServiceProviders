@@ -129,12 +129,55 @@ void main() {
       const completedAtField = AuditChangeEntity(field: 'completed_at');
       const updatedAtField = AuditChangeEntity(field: 'updated_at');
       const startedAtField = AuditChangeEntity(field: 'started_at');
+      const advanceWarningField = AuditChangeEntity(
+        field: 'advance_warning_sent_at',
+      );
+      const lastEscalationAtField = AuditChangeEntity(
+        field: 'last_escalation_at',
+      );
+      const lastEscalationLevelField = AuditChangeEntity(
+        field: 'last_escalation_level',
+      );
 
       expect(displayableField.isDisplayable, isTrue);
       expect(dueDateField.isDisplayable, isTrue);
       expect(completedAtField.isDisplayable, isFalse);
       expect(updatedAtField.isDisplayable, isFalse);
       expect(startedAtField.isDisplayable, isFalse);
+      expect(advanceWarningField.isDisplayable, isFalse);
+      expect(lastEscalationAtField.isDisplayable, isFalse);
+      expect(lastEscalationLevelField.isDisplayable, isFalse);
+    });
+
+    test('correctly translates newly added audit labels', () {
+      expect(
+        const AuditChangeEntity(field: 'sla_breached').localizedLabel,
+        equals('SLA violado'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'sla_deadline_at').localizedLabel,
+        equals('Prazo de SLA'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'actual_duration').localizedLabel,
+        equals('Duração real (min)'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'labor_cost').localizedLabel,
+        equals('Custo de mão de obra'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'is_completed').localizedLabel,
+        equals('Concluído'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'change_type').localizedLabel,
+        equals('Tipo de alteração'),
+      );
+      expect(
+        const AuditChangeEntity(field: 'applies_to').localizedLabel,
+        equals('Aplica-se a'),
+      );
     });
   });
 
