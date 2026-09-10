@@ -18,18 +18,29 @@ class ChecklistPhotoInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = PlatformUtil.isMobile;
+
     return ChecklistEvidenceInput(
       item: item,
       workOrderId: workOrderId,
       response: response,
-      sources: const [AttachmentSource.cameraPhoto, AttachmentSource.gallery],
-      sourceLabels: ['Tirar foto'.hardcoded, 'Escolher da galeria'.hardcoded],
+      sources: isMobile
+          ? const [AttachmentSource.cameraPhoto, AttachmentSource.gallery]
+          : const [AttachmentSource.gallery],
+      sourceLabels: isMobile
+          ? ['Tirar foto'.hardcoded, 'Escolher da galeria'.hardcoded]
+          : ['Escolher arquivo'.hardcoded],
       emptyLabel: 'Anexar foto'.hardcoded,
       attachedLabel: 'Foto anexada'.hardcoded,
-      platformIcon: const PlatformIcon(
-        materialIcon: Icons.camera_alt_outlined,
-        cupertinoIcon: CupertinoIcons.camera,
-      ),
+      platformIcon: isMobile
+          ? const PlatformIcon(
+              materialIcon: Icons.camera_alt_outlined,
+              cupertinoIcon: CupertinoIcons.camera,
+            )
+          : const PlatformIcon(
+              materialIcon: Icons.photo_library_outlined,
+              cupertinoIcon: CupertinoIcons.photo,
+            ),
     );
   }
 }

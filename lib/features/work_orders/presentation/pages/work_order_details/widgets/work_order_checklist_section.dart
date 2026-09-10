@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/widgets/checklist_item_tile.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -28,10 +28,14 @@ class WorkOrderChecklistSection extends StatelessWidget {
     WorkOrderChecklistState state,
     bool isEditable,
   ) {
-    final cubit = context.read<WorkOrderChecklistCubit>();
+    final checklistCubit = context.read<WorkOrderChecklistCubit>();
+    final attachmentsCubit = context.read<AttachmentsCubit>();
     showModalPage<void>(
-      BlocProvider.value(
-        value: cubit,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: checklistCubit),
+          BlocProvider.value(value: attachmentsCubit),
+        ],
         child: _WorkOrderChecklistModal(
           workOrder: workOrder,
           isEditable: isEditable,
@@ -137,7 +141,7 @@ class _WorkOrderChecklistModal extends StatelessWidget {
               Expanded(
                 child: IgnorePointer(
                   ignoring: !isEditable,
-                  child: ResponsiveListFlow(
+                  child: ListView.builder(
                     padding: const EdgeInsets.only(bottom: Sizes.p24),
                     itemCount: state.items.length,
                     itemBuilder: (context, index) {
