@@ -5,11 +5,13 @@ class ChecklistMultiSelectionInput extends StatelessWidget {
   const ChecklistMultiSelectionInput({
     super.key,
     required this.item,
+    required this.workOrderId,
     this.response,
     required this.onChanged,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
@@ -20,7 +22,11 @@ class ChecklistMultiSelectionInput extends StatelessWidget {
 
     void onTap(String opt) {
       final current =
-          response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
+          response ??
+          ChecklistAnswerEntity.empty(
+            checklistItemId: item.id,
+            workOrderId: workOrderId,
+          );
       final isChecked = selectedOptions.contains(opt);
       final updated = isChecked
           ? selectedOptions.where((element) => element != opt).toList()

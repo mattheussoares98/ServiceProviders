@@ -226,6 +226,109 @@ void main() {
             ),
       ],
     );
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'answerItem annuls numberValue when annulNumberValue is true',
+      setUp: () {
+        when(
+          () => mockSaveChecklistResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      seed: () {
+        final numberItem = ChecklistFactory.makeChecklistItemEntity().copyWith(
+          isRequired: true,
+          type: ChecklistItemType.number,
+        );
+        final initialAnswer = ChecklistFactory.makeChecklistAnswerEntity().copyWith(
+          checklistItemId: numberItem.id,
+          workOrderId: tWorkOrderId,
+          numberValue: 42,
+        );
+        return const WorkOrderChecklistState.initial().copyWith(
+          items: [numberItem],
+          answers: {numberItem.id: initialAnswer},
+        );
+      },
+      act: (cubit) => cubit.answerItem(
+        workOrderId: tWorkOrderId,
+        checklistItemId: cubit.state.items.first.id,
+        annulNumberValue: true,
+      ),
+      expect: () => [
+        isA<WorkOrderChecklistState>().having(
+          (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+          'saveAnswer running',
+          SectionStatus.running,
+        ),
+        isA<WorkOrderChecklistState>()
+            .having(
+              (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+              'saveAnswer success',
+              SectionStatus.success,
+            )
+            .having(
+              (s) => s.answers.values.first.numberValue,
+              'numberValue',
+              isNull,
+            )
+            .having(
+              (s) => s.areRequiredItemsCompleted,
+              'areRequiredItemsCompleted',
+              isFalse,
+            ),
+      ],
+    );
+
+    blocTest<WorkOrderChecklistCubit, WorkOrderChecklistState>(
+      'saveAnswer updates state answers and computes required completion',
+      setUp: () {
+        when(
+          () => mockSaveChecklistResponse(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+      },
+      build: () => WorkOrderChecklistCubit(useCases: useCases),
+      seed: () {
+        final numberItem = ChecklistFactory.makeChecklistItemEntity().copyWith(
+          isRequired: true,
+          type: ChecklistItemType.number,
+        );
+        return const WorkOrderChecklistState.initial().copyWith(
+          items: [numberItem],
+        );
+      },
+      act: (cubit) {
+        final answer = ChecklistFactory.makeChecklistAnswerEntity().copyWith(
+          checklistItemId: cubit.state.items.first.id,
+          workOrderId: tWorkOrderId,
+          numberValue: 12.5,
+        );
+        return cubit.saveAnswer(answer);
+      },
+      expect: () => [
+        isA<WorkOrderChecklistState>().having(
+          (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+          'saveAnswer running',
+          SectionStatus.running,
+        ),
+        isA<WorkOrderChecklistState>()
+            .having(
+              (s) => s.sections[WorkOrderChecklistSections.saveAnswer]?.status,
+              'saveAnswer success',
+              SectionStatus.success,
+            )
+            .having(
+              (s) => s.answers.values.first.numberValue,
+              'numberValue',
+              12.5,
+            )
+            .having(
+              (s) => s.areRequiredItemsCompleted,
+              'areRequiredItemsCompleted',
+              isTrue,
+            ),
+      ],
+    );
   });
 
   group('attachEvidence', () {

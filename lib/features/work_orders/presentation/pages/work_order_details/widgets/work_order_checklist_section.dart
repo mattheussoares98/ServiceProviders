@@ -199,16 +199,7 @@ class _ChecklistItemEntry extends StatelessWidget {
           workOrderId: workOrder.id,
           response: answer,
           onChanged: (newAnswer) =>
-              context.read<WorkOrderChecklistCubit>().answerItem(
-                workOrderId: workOrder.id,
-                checklistItemId: item.id,
-                booleanValue: newAnswer.booleanValue,
-                textValue: newAnswer.textValue,
-                numberValue: newAnswer.numberValue,
-                photoUrl: newAnswer.photoUrl,
-                selectedOption: newAnswer.selectedOption,
-                selectedOptions: newAnswer.selectedOptions,
-              ),
+              context.read<WorkOrderChecklistCubit>().saveAnswer(newAnswer),
         );
       },
     );

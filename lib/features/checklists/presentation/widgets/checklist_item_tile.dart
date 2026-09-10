@@ -22,7 +22,6 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/min_length_validator.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart';
 
 part 'checklist_items/checklist_boolean_input.dart';
 part 'checklist_items/checklist_documentation_input.dart';
@@ -90,28 +89,33 @@ class ChecklistItemTile extends HookWidget {
               ChecklistItemType.boolean => ChecklistBooleanInput(
                 item: item,
                 response: response,
+                workOrderId: workOrderId,
                 onChanged: onChanged,
               ),
               ChecklistItemType.text => ChecklistTextInput(
                 item: item,
                 response: response,
+                workOrderId: workOrderId,
                 onChanged: onChanged,
                 formKey: formKey,
               ),
               ChecklistItemType.number => ChecklistNumberInput(
                 item: item,
                 response: response,
+                workOrderId: workOrderId,
                 onChanged: onChanged,
                 formKey: formKey,
               ),
               ChecklistItemType.selection => ChecklistSelectionInput(
                 item: item,
                 response: response,
+                workOrderId: workOrderId,
                 onChanged: onChanged,
               ),
               ChecklistItemType.multiSelection => ChecklistMultiSelectionInput(
                 item: item,
                 response: response,
+                workOrderId: workOrderId,
                 onChanged: onChanged,
               ),
               ChecklistItemType.photo => ChecklistPhotoInput(

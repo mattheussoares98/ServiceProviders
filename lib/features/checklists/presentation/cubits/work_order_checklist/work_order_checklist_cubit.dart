@@ -17,7 +17,10 @@ import 'package:uuid/uuid.dart';
 
 part 'work_order_checklist_state.dart';
 
-enum WorkOrderChecklistSections implements SectionKey { saveAnswer, attachEvidence }
+enum WorkOrderChecklistSections implements SectionKey {
+  saveAnswer,
+  attachEvidence,
+}
 
 @injectable
 class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
@@ -103,16 +106,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
     }
   }
 
-  Future<bool> answerItem({
-    required String workOrderId,
-    required String checklistItemId,
-    bool? booleanValue,
-    String? textValue,
-    double? numberValue,
-    String? photoUrl,
-    String? selectedOption,
-    List<String>? selectedOptions,
-  }) async {
+  Future<bool> saveAnswer(ChecklistAnswerEntity answer) async {
     emit(
       state.copyWith(
         sections: withSection(
@@ -122,30 +116,13 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       ),
     );
 
-    final existingAnswer = state.answers[checklistItemId];
-    final now = DateTime.now();
-
-    final answer = ChecklistAnswerEntity(
-      id: existingAnswer?.id ?? const Uuid().v4(),
-      workOrderId: workOrderId,
-      checklistItemId: checklistItemId,
-      booleanValue: booleanValue ?? existingAnswer?.booleanValue,
-      textValue: textValue ?? existingAnswer?.textValue,
-      numberValue: numberValue ?? existingAnswer?.numberValue,
-      photoUrl: photoUrl ?? existingAnswer?.photoUrl,
-      selectedOption: selectedOption ?? existingAnswer?.selectedOption,
-      selectedOptions: selectedOptions ?? existingAnswer?.selectedOptions,
-      createdAt: existingAnswer?.createdAt ?? now,
-      updatedAt: now,
-    );
-
     final result = await _useCases.saveChecklistResponse(answer);
     if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
       final updatedAnswers = Map<String, ChecklistAnswerEntity>.from(
         state.answers,
-      )..[checklistItemId] = answer;
+      )..[answer.checklistItemId] = answer;
 
       emit(
         state.copyWith(
@@ -165,12 +142,61 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
           sections: withSection(
             WorkOrderChecklistSections.saveAnswer,
             SectionStatus.error,
+            errorMessage: message,
           ),
         ),
       );
       showErrorToast(message);
       return false;
     }
+  }
+
+  Future<bool> answerItem({
+    required String workOrderId,
+    required String checklistItemId,
+    bool? booleanValue,
+    String? textValue,
+    double? numberValue,
+    String? photoUrl,
+    String? selectedOption,
+    List<String>? selectedOptions,
+    bool? annulBooleanValue,
+    bool? annulTextValue,
+    bool? annulNumberValue,
+    bool? annulPhotoUrl,
+    bool? annulSelectedOption,
+    bool? annulSelectedOptions,
+  }) {
+    final existingAnswer = state.answers[checklistItemId];
+    final now = DateTime.now();
+
+    final answer = ChecklistAnswerEntity(
+      id: existingAnswer?.id ?? const Uuid().v4(),
+      workOrderId: workOrderId,
+      checklistItemId: checklistItemId,
+      booleanValue: annulBooleanValue == true
+          ? null
+          : booleanValue ?? existingAnswer?.booleanValue,
+      textValue: annulTextValue == true
+          ? null
+          : textValue ?? existingAnswer?.textValue,
+      numberValue: annulNumberValue == true
+          ? null
+          : numberValue ?? existingAnswer?.numberValue,
+      photoUrl: annulPhotoUrl == true
+          ? null
+          : photoUrl ?? existingAnswer?.photoUrl,
+      selectedOption: annulSelectedOption == true
+          ? null
+          : selectedOption ?? existingAnswer?.selectedOption,
+      selectedOptions: annulSelectedOptions == true
+          ? null
+          : selectedOptions ?? existingAnswer?.selectedOptions,
+      createdAt: existingAnswer?.createdAt ?? now,
+      updatedAt: now,
+    );
+
+    return saveAnswer(answer);
   }
 
   /// Captures the evidence a `photo` or `documentation` item asks for: picks a
@@ -221,9 +247,7 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
         ),
       );
       if (failed) {
-        showErrorToast(
-          picked.message ?? 'Falha ao anexar o arquivo'.hardcoded,
-        );
+        showErrorToast(picked.message ?? 'Falha ao anexar o arquivo'.hardcoded);
       }
       return false;
     }

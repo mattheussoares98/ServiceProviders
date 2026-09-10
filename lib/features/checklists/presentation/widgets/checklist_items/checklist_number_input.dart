@@ -5,12 +5,14 @@ class ChecklistNumberInput extends HookWidget {
   const ChecklistNumberInput({
     super.key,
     required this.item,
+    required this.workOrderId,
     this.response,
     required this.onChanged,
     required this.formKey,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
   final GlobalKey<FormState> formKey;
@@ -35,17 +37,22 @@ class ChecklistNumberInput extends HookWidget {
       keyboardType: TextInputType.number,
       focusNode: focusNode,
       autovalidateMode: .onUserInteractionIfError,
-      validator: FormValidators.compose([
-        NumberValidator(allowDecimal: false, allowEmptyValue: !item.isRequired),
-      ]),
       onChanged: (val) => debounce.run(() {
-        if (formKey.currentState?.validate() != true) {
-          return;
-        }
-        final numVal = double.tryParse(val);
+        formKey.currentState?.validate();
+
+        final numVal = val.toDouble();
         final current =
-            response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
-        onChanged(current.copyWith(numberValue: numVal));
+            response ??
+            ChecklistAnswerEntity.empty(
+              checklistItemId: item.id,
+              workOrderId: workOrderId,
+            );
+        onChanged(
+          current.copyWith(
+            numberValue: numVal,
+            annulNumberValue: numVal == null,
+          ),
+        );
       }),
     );
   }

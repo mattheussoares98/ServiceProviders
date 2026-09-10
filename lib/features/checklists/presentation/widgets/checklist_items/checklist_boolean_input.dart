@@ -5,11 +5,13 @@ class ChecklistBooleanInput extends StatelessWidget {
   const ChecklistBooleanInput({
     super.key,
     required this.item,
+    required this.workOrderId,
     this.response,
     required this.onChanged,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
@@ -26,7 +28,11 @@ class ChecklistBooleanInput extends StatelessWidget {
       itemColorBuilder: (val) => val ? Colors.green : Colors.red,
       onChanged: (selectedVal) {
         final current =
-            response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
+            response ??
+            ChecklistAnswerEntity.empty(
+              checklistItemId: item.id,
+              workOrderId: workOrderId,
+            );
         onChanged(current.copyWith(booleanValue: selectedVal));
       },
     );

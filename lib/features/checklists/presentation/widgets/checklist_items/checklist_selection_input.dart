@@ -5,11 +5,13 @@ class ChecklistSelectionInput extends StatelessWidget {
   const ChecklistSelectionInput({
     super.key,
     required this.item,
+    required this.workOrderId,
     this.response,
     required this.onChanged,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
 
@@ -32,7 +34,11 @@ class ChecklistSelectionInput extends StatelessWidget {
       selectedItem: response?.selectedOption,
       onChanged: (val) {
         final current =
-            response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
+            response ??
+            ChecklistAnswerEntity.empty(
+              checklistItemId: item.id,
+              workOrderId: workOrderId,
+            );
         onChanged(current.copyWith(selectedOption: val));
       },
     );

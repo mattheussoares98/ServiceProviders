@@ -16,11 +16,14 @@ class ChecklistAnswerEntity extends Equatable {
     required this.updatedAt,
   });
 
-  factory ChecklistAnswerEntity.empty({required String checklistItemId}) {
+  factory ChecklistAnswerEntity.empty({
+    required String checklistItemId,
+    String workOrderId = '',
+  }) {
     final now = DateTime.now();
     return ChecklistAnswerEntity(
       id: '',
-      workOrderId: '',
+      workOrderId: workOrderId,
       checklistItemId: checklistItemId,
       createdAt: now,
       updatedAt: now,

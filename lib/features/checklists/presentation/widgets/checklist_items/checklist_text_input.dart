@@ -5,12 +5,14 @@ class ChecklistTextInput extends HookWidget {
   const ChecklistTextInput({
     super.key,
     required this.item,
+    required this.workOrderId,
     this.response,
     required this.onChanged,
     required this.formKey,
   });
 
   final ChecklistItemEntity item;
+  final String workOrderId;
   final ChecklistAnswerEntity? response;
   final ValueChanged<ChecklistAnswerEntity> onChanged;
   final GlobalKey<FormState> formKey;
@@ -39,7 +41,11 @@ class ChecklistTextInput extends HookWidget {
           return;
         }
         final current =
-            response ?? ChecklistAnswerEntity.empty(checklistItemId: item.id);
+            response ??
+            ChecklistAnswerEntity.empty(
+              checklistItemId: item.id,
+              workOrderId: workOrderId,
+            );
         onChanged(current.copyWith(textValue: val));
       }),
     );
