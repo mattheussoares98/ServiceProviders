@@ -51,7 +51,7 @@ class SlaKpiDashboardCard extends StatelessWidget {
                       .hardcoded
                 : 'Sem OS concluídas'.hardcoded,
             value: metrics.completedCount > 0
-                ? '${metrics.deliveryRate.toString().toBrazilianNumber()}%'
+                ? '${metrics.deliveryRate.toString().toBRL()}%'
                 : '--',
             icon: const PlatformIcon(
               materialIcon: Icons.verified_outlined,
@@ -85,7 +85,7 @@ class SlaKpiDashboardCard extends StatelessWidget {
                 ? '${metrics.slaBreachedCount} fora do prazo'.hardcoded
                 : 'Sem quebras'.hardcoded,
             value: metrics.completedCount > 0
-                ? '${metrics.breachRate.toString().toBrazilianNumber()}%'
+                ? '${metrics.breachRate.toString().toBRL()}%'
                 : '0%',
             icon: const PlatformIcon(
               materialIcon: Icons.warning_amber_rounded,

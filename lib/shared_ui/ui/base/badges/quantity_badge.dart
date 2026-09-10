@@ -150,9 +150,7 @@ class _QuantityBadgeState extends State<QuantityBadge>
                           ),
                         ),
                         TextSpan(
-                          text: _priceRollingAnimation.value
-                              .toString()
-                              .toBrazilianNumber(),
+                          text: _priceRollingAnimation.value.toString().toBRL(),
                           style: context.theme.textTheme.bodyMedium,
                         ),
                       ],

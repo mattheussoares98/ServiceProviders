@@ -6,7 +6,7 @@ extension StringExtension on String {
 
   String get hardcoded => this;
 
-  String toBrazilianNumber([
+  String toBRL([
     int decimalHouses = 2,
     bool showDecimalUntilLastNumber = false,
   ]) {

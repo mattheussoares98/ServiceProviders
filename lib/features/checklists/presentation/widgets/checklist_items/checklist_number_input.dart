@@ -21,7 +21,7 @@ class ChecklistNumberInput extends HookWidget {
         ? response!.numberValue.toString()
         : '';
     final controller = useTextEditingController(
-      text: initialText.toBrazilianNumber(3, true),
+      text: initialText.toBRL(3, true),
     );
     final focusNode = useFocusNode();
     final debounce = useMemoized(
