@@ -36,3 +36,8 @@ CREATE TRIGGER tr_work_order_soft_delete
   AFTER UPDATE OF deleted_at ON public.work_orders
   FOR EACH ROW EXECUTE FUNCTION public.handle_work_order_soft_delete();
 ```
+
+## Realtime
+
+`20260911170500_publish_attachments_realtime.sql` adds the table to the `supabase_realtime` publication and sets `REPLICA IDENTITY FULL`. `AttachmentsRemoteDataSource.watchAttachmentsRealtime` filters the stream by `work_order_id`, syncing new, updated, and soft-deleted attachments live across devices.
+
