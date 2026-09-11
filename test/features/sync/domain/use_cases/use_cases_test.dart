@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
@@ -348,6 +349,55 @@ void main() {
           verifyNever(
             () => mockSyncRepository.markItemDeadLetter(any(), any()),
           );
+        },
+      );
+
+      test(
+        'should dispatch cancelPause when pauseRequest has update operation',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.pauseRequest,
+            operation: SyncOperationType.update,
+            payload: jsonEncode({
+              'id': 'pause-1',
+              'work_order_id': 'wo-1',
+              'resumed_at': DateTime.now().toIsoUtcString(),
+              'resumed_by_id': 'user-1',
+            }),
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockPauseRemoteDataSource.cancelPause(
+              id: any(named: 'id'),
+              workOrderId: any(named: 'workOrderId'),
+              resumedAt: any(named: 'resumedAt'),
+              resumedById: any(named: 'resumedById'),
+            ),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockPauseRemoteDataSource.cancelPause(
+              id: 'pause-1',
+              workOrderId: 'wo-1',
+              resumedAt: any(named: 'resumedAt'),
+              resumedById: 'user-1',
+            ),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
         },
       );
     });

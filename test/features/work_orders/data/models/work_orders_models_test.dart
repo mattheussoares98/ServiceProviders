@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/cancel_pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
@@ -127,6 +128,30 @@ void main() {
       );
 
       expect(responseModelFromJson.toEntity(), tEntity);
+    });
+  });
+
+  group('CancelPauseRequestModel', () {
+    test('should map toJson and fromJson correctly', () {
+      final now = DateTime.now().toUtc();
+      final model = CancelPauseRequestModel(
+        id: 'pause-1',
+        workOrderId: 'wo-1',
+        resumedAt: now,
+        resumedById: 'user-1',
+      );
+
+      final json = model.toJson();
+      expect(json['id'], 'pause-1');
+      expect(json['work_order_id'], 'wo-1');
+      expect(json['resumed_by_id'], 'user-1');
+      expect(json['resumed_at'], isA<String>());
+
+      final fromJson = CancelPauseRequestModel.fromJson(json);
+      expect(fromJson.id, model.id);
+      expect(fromJson.workOrderId, model.workOrderId);
+      expect(fromJson.resumedById, model.resumedById);
+      expect(fromJson.resumedAt.toIso8601String(), now.toIso8601String());
     });
   });
 }

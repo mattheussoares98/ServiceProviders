@@ -409,6 +409,49 @@ void main() {
         ).called(1);
       },
     );
+
+    test(
+      'should cancel local pause and enqueue to sync queue when offline',
+      () async {
+        final now = DateTime.now();
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.cancelPause(
+            id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
+            resumedAt: any(named: 'resumedAt'),
+            resumedById: any(named: 'resumedById'),
+          ),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.cancelPause(
+          id: tRequestEntity.id,
+          workOrderId: tRequestEntity.workOrderId,
+          resumedAt: now,
+          resumedById: tRequestEntity.resumedById!,
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, true);
+        verifyNever(
+          () => mockRemoteDataSource.cancelPause(
+            id: any(named: 'id'),
+            workOrderId: any(named: 'workOrderId'),
+            resumedAt: any(named: 'resumedAt'),
+            resumedById: any(named: 'resumedById'),
+          ),
+        );
+        verify(
+          () => mockLocalDataSource.cancelPause(
+            id: tRequestEntity.id,
+            workOrderId: tRequestEntity.workOrderId,
+            resumedAt: now,
+            resumedById: tRequestEntity.resumedById!,
+          ),
+        ).called(1);
+        verify(() => mockSyncRepository.enqueue(any())).called(1);
+      },
+    );
   });
 
   group('PauseRepository in provider mode', () {

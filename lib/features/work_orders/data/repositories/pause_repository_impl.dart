@@ -13,6 +13,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_ent
 import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/cancel_pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_reason_entity.dart';
@@ -54,18 +55,18 @@ final class PauseRepositoryImpl implements PauseRepository {
       PauseReasonEntity
     >(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider ? null : () => _localDataSource.getPauseReasons(companyId),
+      localCallback: isProvider
+          ? null
+          : () => _localDataSource.getPauseReasons(companyId),
       remoteCallback: () => _remoteDataSource.getPauseReasons(companyId),
-      onRemoteSuccess:
-          isProvider
-              ? null
-              : (list) async {
-                await Future.wait(
-                  list.map(_localDataSource.savePauseReason).toList(),
-                );
-                return const SuccessState(data: true);
-              },
+      onRemoteSuccess: isProvider
+          ? null
+          : (list) async {
+              await Future.wait(
+                list.map(_localDataSource.savePauseReason).toList(),
+              );
+              return const SuccessState(data: true);
+            },
     );
   }
 
@@ -80,27 +81,24 @@ final class PauseRepositoryImpl implements PauseRepository {
       PauseRequestEntity
     >(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider
-              ? null
-              : () => _localDataSource.getPauseRequests(
-                workOrderId,
-                status: status?.value,
-              ),
-      remoteCallback:
-          () => _remoteDataSource.getPauseRequests(
-            workOrderId,
-            status: status?.value,
-          ),
-      onRemoteSuccess:
-          isProvider
-              ? null
-              : (list) async {
-                await Future.wait(
-                  list.map(_localDataSource.savePauseRequest).toList(),
-                );
-                return const SuccessState(data: true);
-              },
+      localCallback: isProvider
+          ? null
+          : () => _localDataSource.getPauseRequests(
+              workOrderId,
+              status: status?.value,
+            ),
+      remoteCallback: () => _remoteDataSource.getPauseRequests(
+        workOrderId,
+        status: status?.value,
+      ),
+      onRemoteSuccess: isProvider
+          ? null
+          : (list) async {
+              await Future.wait(
+                list.map(_localDataSource.savePauseRequest).toList(),
+              );
+              return const SuccessState(data: true);
+            },
     );
   }
 
@@ -109,34 +107,32 @@ final class PauseRepositoryImpl implements PauseRepository {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallback<bool>(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider
-              ? null
-              : () async {
-                final model = PauseRequestModel.fromEntity(pauseRequest);
-                final result = await _localDataSource.savePauseRequest(model);
-                if (result is SuccessState<bool> && result.data == true) {
-                  final companyId =
-                      _sessionRepository.getSelectedCompanyId() ?? '';
-                  final userId =
-                      _sessionRepository.userData.user.id.isNotEmpty
-                          ? _sessionRepository.userData.user.id
-                          : (pauseRequest.requestedById ?? '');
-                  await _syncRepository.enqueue(
-                    SyncQueueItemEntity(
-                      id: const Uuid().v4(),
-                      companyId: companyId,
-                      userProfileId: userId,
-                      entityType: SyncEntityType.pauseRequest,
-                      entityId: pauseRequest.id,
-                      operation: SyncOperationType.create,
-                      payload: jsonEncode(model.toJson()),
-                      createdAt: DateTime.now(),
-                    ),
-                  );
-                }
-                return result;
-              },
+      localCallback: isProvider
+          ? null
+          : () async {
+              final model = PauseRequestModel.fromEntity(pauseRequest);
+              final result = await _localDataSource.savePauseRequest(model);
+              if (result is SuccessState<bool> && result.data == true) {
+                final companyId =
+                    _sessionRepository.getSelectedCompanyId() ?? '';
+                final userId = _sessionRepository.userData.user.id.isNotEmpty
+                    ? _sessionRepository.userData.user.id
+                    : (pauseRequest.requestedById ?? '');
+                await _syncRepository.enqueue(
+                  SyncQueueItemEntity(
+                    id: const Uuid().v4(),
+                    companyId: companyId,
+                    userProfileId: userId,
+                    entityType: SyncEntityType.pauseRequest,
+                    entityId: pauseRequest.id,
+                    operation: SyncOperationType.create,
+                    payload: jsonEncode(model.toJson()),
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              }
+              return result;
+            },
       remoteCallback: () async {
         final result = await _remoteDataSource.requestPause(
           PauseRequestModel.fromEntity(pauseRequest),
@@ -266,15 +262,40 @@ final class PauseRepositoryImpl implements PauseRepository {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallback<bool>(
       isInternetConnected: _internet.isConnected,
-      localCallback:
-          isProvider
-              ? null
-              : () => _localDataSource.cancelPause(
+      localCallback: isProvider
+          ? null
+          : () async {
+              final result = await _localDataSource.cancelPause(
                 id: id,
                 workOrderId: workOrderId,
                 resumedAt: resumedAt,
                 resumedById: resumedById,
-              ),
+              );
+              if (result is SuccessState<bool> && result.data == true) {
+                final companyId =
+                    _sessionRepository.getSelectedCompanyId() ?? '';
+                await _syncRepository.enqueue(
+                  SyncQueueItemEntity(
+                    id: const Uuid().v4(),
+                    companyId: companyId,
+                    userProfileId: resumedById,
+                    entityType: SyncEntityType.pauseRequest,
+                    entityId: id,
+                    operation: SyncOperationType.update,
+                    payload: jsonEncode(
+                      CancelPauseRequestModel(
+                        id: id,
+                        workOrderId: workOrderId,
+                        resumedAt: resumedAt,
+                        resumedById: resumedById,
+                      ).toJson(),
+                    ),
+                    createdAt: DateTime.now(),
+                  ),
+                );
+              }
+              return result;
+            },
       remoteCallback: () async {
         final result = await _remoteDataSource.cancelPause(
           id: id,
