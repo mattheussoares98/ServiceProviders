@@ -522,6 +522,29 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           final result = await _localDataSource.saveChangeRequest(
             WorkOrderChangeRequestModel.fromEntity(request),
           );
+          if (result is SuccessState<bool> && result.data == true) {
+            final companyId =
+                _sessionRepository.getSelectedCompanyId() ?? request.companyId;
+            final userId = _sessionRepository.userData.user.id.isNotEmpty
+                ? _sessionRepository.userData.user.id
+                : request.requestedById;
+            await _syncRepository.enqueue(
+              SyncQueueItemEntity(
+                id: const Uuid().v4(),
+                companyId: companyId,
+                userProfileId: userId,
+                entityType: SyncEntityType.changeRequest,
+                entityId: request.id,
+                operation: SyncOperationType.create,
+                payload: jsonEncode(
+                  WorkOrderChangeRequestRequestModel.fromEntity(
+                    request,
+                  ).toJson(),
+                ),
+                createdAt: DateTime.now(),
+              ),
+            );
+          }
           return result;
         },
         remoteCallback: () async {

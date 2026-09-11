@@ -10,6 +10,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/enqueue_sync_item_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/get_pending_sync_count_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/process_sync_queue_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 
@@ -52,6 +53,11 @@ void main() {
     registerFallbackValue(
       ChecklistAnswerModel.fromEntity(
         ChecklistFactory.makeChecklistAnswerEntity(),
+      ),
+    );
+    registerFallbackValue(
+      WorkOrderChangeRequestRequestModel.fromEntity(
+        WorkOrderFactory.makeWorkOrderChangeRequestEntity(),
       ),
     );
   });
@@ -229,44 +235,48 @@ void main() {
           expect(result, isA<SuccessState<int>>());
           expect(result.data, equals(1));
           verify(
-            () => mockWorkOrdersRemoteDataSource.restoreWorkOrder('wo-restore-1'),
+            () =>
+                mockWorkOrdersRemoteDataSource.restoreWorkOrder('wo-restore-1'),
           ).called(1);
           verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
         },
       );
 
-      test('should upsert a queued checklist answer and clear the item', () async {
-        when(() => mockInternet.isConnected).thenReturn(true);
-        final tAnswer = ChecklistAnswerModel.fromEntity(
-          ChecklistFactory.makeChecklistAnswerEntity(),
-        );
-        final tItem = tQueueItem.copyWith(
-          entityType: SyncEntityType.checklistAnswer,
-          operation: SyncOperationType.update,
-          payload: jsonEncode(tAnswer.toJson()),
-        );
+      test(
+        'should upsert a queued checklist answer and clear the item',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tAnswer = ChecklistAnswerModel.fromEntity(
+            ChecklistFactory.makeChecklistAnswerEntity(),
+          );
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.checklistAnswer,
+            operation: SyncOperationType.update,
+            payload: jsonEncode(tAnswer.toJson()),
+          );
 
-        when(
-          () => mockSyncRepository.getPendingItems(),
-        ).thenAnswer((_) async => SuccessState(data: [tItem]));
-        when(
-          () => mockSyncRepository.markItemSyncing(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockChecklistsRemoteDataSource.saveResponse(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-        when(
-          () => mockSyncRepository.removeQueueItem(tItem.id),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockChecklistsRemoteDataSource.saveResponse(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await processSyncQueueUseCase();
+          final result = await processSyncQueueUseCase();
 
-        expect(result.data, equals(1));
-        verify(
-          () => mockChecklistsRemoteDataSource.saveResponse(any()),
-        ).called(1);
-        verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
-      });
+          expect(result.data, equals(1));
+          verify(
+            () => mockChecklistsRemoteDataSource.saveResponse(any()),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
 
       test(
         'should mark deadLetter, cascade cancel, and report error telemetry when permanent remote failure occurs',
@@ -468,6 +478,46 @@ void main() {
               resumedAt: any(named: 'resumedAt'),
               resumedById: 'user-1',
             ),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
+
+      test(
+        'should dispatch createChangeRequest when changeRequest has create operation',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tChangeRequest =
+              WorkOrderFactory.makeWorkOrderChangeRequestEntity();
+          final tModel = WorkOrderChangeRequestRequestModel.fromEntity(
+            tChangeRequest,
+          );
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.changeRequest,
+            operation: SyncOperationType.create,
+            entityId: tChangeRequest.id,
+            payload: jsonEncode(tModel.toJson()),
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.createChangeRequest(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockWorkOrdersRemoteDataSource.createChangeRequest(any()),
           ).called(1);
           verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
         },

@@ -5,6 +5,8 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
@@ -980,7 +982,7 @@ void main() {
     );
 
     test(
-      'should only save locally and return SuccessState(true) when internet is disconnected',
+      'should save locally, enqueue sync, and return SuccessState(true) when internet is disconnected',
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(false);
         when(
@@ -993,6 +995,25 @@ void main() {
         expect(result.data, true);
         verify(
           () => mockLocalDataSource.saveChangeRequest(tChangeModel),
+        ).called(1);
+        verify(
+          () => mockSyncRepository.enqueue(
+            any(
+              that: isA<SyncQueueItemEntity>()
+                  .having((e) => e.entityId, 'entityId', tChangeEntity.id)
+                  .having(
+                    (e) => e.entityType,
+                    'entityType',
+                    SyncEntityType.changeRequest,
+                  )
+                  .having(
+                    (e) => e.operation,
+                    'operation',
+                    SyncOperationType.create,
+                  )
+                  .having((e) => e.payload, 'payload', isNotNull),
+            ),
+          ),
         ).called(1);
         verifyNever(() => mockRemoteDataSource.createChangeRequest(any()));
       },

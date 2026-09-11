@@ -22,6 +22,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/resume_work_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
@@ -174,6 +175,10 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         SyncEntityType.accessLog => _dispatchAccessLog(item, payloadMap),
         SyncEntityType.checklistAnswer => _dispatchChecklistAnswer(payloadMap),
         SyncEntityType.attachment => const SuccessState(data: true),
+        SyncEntityType.changeRequest => _dispatchChangeRequest(
+          item,
+          payloadMap,
+        ),
       };
     } catch (e) {
       return FailureState(message: e.toString(), error: e.toString());
@@ -286,6 +291,16 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
         resumedById: request.resumedById,
       );
     }(),
+    _ => Future.value(const SuccessState(data: true)),
+  };
+
+  FutureData<bool> _dispatchChangeRequest(
+    SyncQueueItemEntity item,
+    MapDynamic payloadMap,
+  ) => switch (item.operation) {
+    SyncOperationType.create => _workOrdersRemoteDataSource.createChangeRequest(
+      WorkOrderChangeRequestRequestModel.fromJson(payloadMap),
+    ),
     _ => Future.value(const SuccessState(data: true)),
   };
 }
