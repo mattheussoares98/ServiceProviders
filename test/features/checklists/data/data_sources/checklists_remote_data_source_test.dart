@@ -411,6 +411,65 @@ void main() {
     });
 
     test(
+      'getResponsesByWorkOrderIds returns empty list immediately when list is empty',
+      () async {
+        final result = await dataSource.getResponsesByWorkOrderIds([]);
+
+        expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
+        expect((result as SuccessState<List<ChecklistAnswerModel>>).data, isEmpty);
+        verifyNever(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        );
+      },
+    );
+
+    test('getResponsesByWorkOrderIds returns SuccessState with answers', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tAnswerModel.toJson()]);
+
+      final result = await dataSource.getResponsesByWorkOrderIds([
+        tAnswerEntity.workOrderId,
+      ]);
+
+      expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
+      expect(
+        (result as SuccessState<List<ChecklistAnswerModel>>).data!.first.id,
+        tAnswerEntity.id,
+      );
+      verify(
+        () => mockDatabase.selectList(
+          table: 'checklist_answers',
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+    });
+
+    test('getResponsesByWorkOrderIds returns FailureState on error', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenThrow(Exception('DB error'));
+
+      final result = await dataSource.getResponsesByWorkOrderIds([
+        tAnswerEntity.workOrderId,
+      ]);
+
+      expect(result, isA<FailureState<dynamic>>());
+    });
+
+    test(
       'saveResponse returns SuccessState(true) when upsert succeeds',
       () async {
         when(

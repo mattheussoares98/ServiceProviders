@@ -271,17 +271,23 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   FutureList<ChecklistAnswerEntity> getResponsesByWorkOrder(
     String workOrderId,
   ) =>
+      getResponsesByWorkOrderIds([workOrderId]);
+
+  @override
+  FutureList<ChecklistAnswerEntity> getResponsesByWorkOrderIds(
+    List<String> workOrderIds,
+  ) =>
       RepositoryHandler.fetchWithFallbackAndMapList<
         ChecklistAnswerModel,
         ChecklistAnswerEntity
       >(
         isInternetConnected: _internet.isConnected,
         localCallback: () =>
-            _localDataSource.getResponsesByWorkOrder(workOrderId),
+            _localDataSource.getResponsesByWorkOrderIds(workOrderIds),
         remoteCallback: () =>
-            _remoteDataSource.getResponsesByWorkOrder(workOrderId),
+            _remoteDataSource.getResponsesByWorkOrderIds(workOrderIds),
         onRemoteSuccess: (list) async {
-          await Future.wait(list.map(_localDataSource.saveResponse).toList());
+          await _localDataSource.saveResponses(list);
           return const SuccessState(data: true);
         },
       );

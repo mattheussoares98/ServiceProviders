@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/delete_check
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklist_items_by_template_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklist_template_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklists_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/save_checklist_response_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_item_use_case.dart';
@@ -244,6 +245,31 @@ void main() {
           expect(result.data, equals(answers));
           verify(
             () => mockRepository.getResponsesByWorkOrder(workOrderId),
+          ).called(1);
+        },
+      );
+    });
+
+    group('GetWorkOrderChecklistAnswersBatchUseCase', () {
+      test(
+        'calls repository.getResponsesByWorkOrderIds and returns result',
+        () async {
+          final useCase = GetWorkOrderChecklistAnswersBatchUseCase(
+            checklistsRepository: mockRepository,
+          );
+          final answers = ChecklistFactory.makeChecklistAnswerEntityList();
+          final workOrderIds = [faker.guid.guid(), faker.guid.guid()];
+
+          when(
+            () => mockRepository.getResponsesByWorkOrderIds(any()),
+          ).thenAnswer((_) async => SuccessState(data: answers));
+
+          final result = await useCase(workOrderIds);
+
+          expect(result, isA<SuccessState<List<ChecklistAnswerEntity>>>());
+          expect(result.data, equals(answers));
+          verify(
+            () => mockRepository.getResponsesByWorkOrderIds(workOrderIds),
           ).called(1);
         },
       );

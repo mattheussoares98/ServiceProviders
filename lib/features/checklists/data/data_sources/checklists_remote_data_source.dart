@@ -34,6 +34,9 @@ abstract interface class ChecklistsRemoteDataSource {
 
   // Execution Responses / Tasks
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureBool saveResponse(ChecklistAnswerModel response);
   Stream<RealtimeEvent<ChecklistAnswerModel>> watchChecklistAnswersRealtime({
     required String workOrderId,
@@ -218,6 +221,23 @@ final class ChecklistsRemoteDataSourceImpl
       table: 'checklist_answers',
       filters: [
         SupabaseFilter.eq('work_order_id', workOrderId),
+        SupabaseFilter.isFilter('deleted_at', null),
+      ],
+    );
+    return response.map(ChecklistAnswerModel.fromJson).toList();
+  });
+
+  @override
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
+    List<String> workOrderIds,
+  ) => SupabaseHandler.call(() async {
+    if (workOrderIds.isEmpty) {
+      return const [];
+    }
+    final response = await _database.selectList(
+      table: 'checklist_answers',
+      filters: [
+        SupabaseFilter.inList('work_order_id', workOrderIds),
         SupabaseFilter.isFilter('deleted_at', null),
       ],
     );

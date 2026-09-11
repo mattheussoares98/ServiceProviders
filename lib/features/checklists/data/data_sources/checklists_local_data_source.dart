@@ -26,7 +26,11 @@ abstract interface class ChecklistsLocalDataSource {
 
   // Execution Responses
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureBool saveResponse(ChecklistAnswerModel response);
+  FutureVoid saveResponses(List<ChecklistAnswerModel> responses);
 }
 
 @LazySingleton(as: ChecklistsLocalDataSource)
@@ -211,10 +215,20 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
 
   @override
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId) {
+    return getResponsesByWorkOrderIds([workOrderId]);
+  }
+
+  @override
+  FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
+    List<String> workOrderIds,
+  ) {
     return ErrorHandler.execute(() async {
+      if (workOrderIds.isEmpty) {
+        return const SuccessState(data: []);
+      }
       final list =
           await (_database.select(_database.checklistAnswers)..where(
-                (t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull(),
+                (t) => t.workOrderId.isIn(workOrderIds) & t.deletedAt.isNull(),
               ))
               .get();
 
@@ -232,8 +246,8 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
                 selectedOption: row.selectedOption,
                 selectedOptions: row.selectedOptions != null
                     ? (jsonDecode(row.selectedOptions!) as List)
-                        .map((e) => e.toString())
-                        .toList()
+                          .map((e) => e.toString())
+                          .toList()
                     : null,
                 createdAt: row.createdAt.toUtc(),
                 updatedAt: row.updatedAt.toUtc(),
@@ -289,6 +303,19 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
             ),
           );
       return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureVoid saveResponses(List<ChecklistAnswerModel> responses) {
+    return ErrorHandler.execute(() async {
+      if (responses.isEmpty) {
+        return SuccessState.nil;
+      }
+      for (final response in responses) {
+        await saveResponse(response);
+      }
+      return SuccessState.nil;
     });
   }
 }

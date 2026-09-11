@@ -241,5 +241,34 @@ void main() {
       expect(listResult.data, hasLength(1));
       expect(listResult.data!.single.textValue, revised);
     });
+
+    test('getResponsesByWorkOrderIds returns empty list when workOrderIds is empty', () async {
+      final result = await dataSource.getResponsesByWorkOrderIds([]);
+      expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
+      expect(result.data, isEmpty);
+    });
+
+    test('saveResponses and getResponsesByWorkOrderIds fetches answers for multiple work orders', () async {
+      final woId1 = faker.guid.guid();
+      final woId2 = faker.guid.guid();
+
+      await insertDependencies(companyId: faker.guid.guid(), workOrderId: woId1);
+      await insertDependencies(companyId: faker.guid.guid(), workOrderId: woId2);
+
+      final answer1 = ChecklistAnswerModel.fromEntity(
+        tAnswerEntity.copyWith(id: faker.guid.guid(), workOrderId: woId1),
+      );
+      final answer2 = ChecklistAnswerModel.fromEntity(
+        tAnswerEntity.copyWith(id: faker.guid.guid(), workOrderId: woId2),
+      );
+
+      final saveBatchResult = await dataSource.saveResponses([answer1, answer2]);
+      expect(saveBatchResult, isA<SuccessState<void>>());
+
+      final batchResult = await dataSource.getResponsesByWorkOrderIds([woId1, woId2]);
+      expect(batchResult, isA<SuccessState<List<ChecklistAnswerModel>>>());
+      expect(batchResult.data, hasLength(2));
+      expect(batchResult.data!.map((a) => a.id), containsAll([answer1.id, answer2.id]));
+    });
   });
 }

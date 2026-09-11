@@ -57,13 +57,12 @@ void main() {
     when(
       () => mockSessionRepository.getSelectedCompanyId(),
     ).thenReturn(faker.guid.guid());
-    when(() => mockSessionRepository.userData).thenReturn(
-      UserFactory.makeUserDataEntity(),
-    );
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(UserFactory.makeUserDataEntity());
     when(
       () => mockSyncRepository.enqueue(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
-
   });
 
   final tTemplateEntity = ChecklistFactory.makeChecklistTemplateEntity();
@@ -257,19 +256,74 @@ void main() {
           final workOrderId = faker.guid.guid();
           when(() => mockInternet.isConnected).thenReturn(true);
           when(
-            () => mockRemoteDataSource.getResponsesByWorkOrder(any()),
+            () => mockRemoteDataSource.getResponsesByWorkOrderIds(any()),
           ).thenAnswer((_) async => SuccessState(data: tAnswerModelList));
           when(
-            () => mockLocalDataSource.saveResponse(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
+            () => mockLocalDataSource.saveResponses(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
 
           final result = await repository.getResponsesByWorkOrder(workOrderId);
 
           expect(result, isA<SuccessState<List<ChecklistAnswerEntity>>>());
           expect(result.data, equals(tAnswerEntityList));
           verify(
-            () => mockRemoteDataSource.getResponsesByWorkOrder(workOrderId),
+            () =>
+                mockRemoteDataSource.getResponsesByWorkOrderIds([workOrderId]),
           ).called(1);
+          verify(
+            () => mockLocalDataSource.saveResponses(tAnswerModelList),
+          ).called(1);
+        },
+      );
+
+      test(
+        'getResponsesByWorkOrderIds calls remote and mirrors locally when online',
+        () async {
+          final workOrderIds = [faker.guid.guid(), faker.guid.guid()];
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockRemoteDataSource.getResponsesByWorkOrderIds(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAnswerModelList));
+          when(
+            () => mockLocalDataSource.saveResponses(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+
+          final result = await repository.getResponsesByWorkOrderIds(
+            workOrderIds,
+          );
+
+          expect(result, isA<SuccessState<List<ChecklistAnswerEntity>>>());
+          expect(result.data, equals(tAnswerEntityList));
+          verify(
+            () => mockRemoteDataSource.getResponsesByWorkOrderIds(workOrderIds),
+          ).called(1);
+          verify(
+            () => mockLocalDataSource.saveResponses(tAnswerModelList),
+          ).called(1);
+        },
+      );
+
+      test(
+        'getResponsesByWorkOrderIds falls back to local when offline',
+        () async {
+          final workOrderIds = [faker.guid.guid(), faker.guid.guid()];
+          when(() => mockInternet.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.getResponsesByWorkOrderIds(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAnswerModelList));
+
+          final result = await repository.getResponsesByWorkOrderIds(
+            workOrderIds,
+          );
+
+          expect(result, isA<SuccessState<List<ChecklistAnswerEntity>>>());
+          expect(result.data, equals(tAnswerEntityList));
+          verify(
+            () => mockLocalDataSource.getResponsesByWorkOrderIds(workOrderIds),
+          ).called(1);
+          verifyNever(
+            () => mockRemoteDataSource.getResponsesByWorkOrderIds(any()),
+          );
         },
       );
 
@@ -292,76 +346,77 @@ void main() {
     });
   });
 
-    test('getTemplates caches the embedded items as well', () async {
-      when(() => mockInternet.isConnected).thenReturn(true);
-      final tItem = ChecklistFactory.makeChecklistItemEntity();
-      final tTemplateWithItems = ChecklistTemplateModel.fromEntity(
-        ChecklistFactory.makeChecklistTemplateEntity().copyWith(
-          items: [tItem],
-        ),
-      );
-      when(
-        () => mockRemoteDataSource.getTemplates(any()),
-      ).thenAnswer((_) async => SuccessState(data: [tTemplateWithItems]));
-      when(
-        () => mockLocalDataSource.saveTemplate(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
-      when(
-        () => mockLocalDataSource.saveItem(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+  test('getTemplates caches the embedded items as well', () async {
+    when(() => mockInternet.isConnected).thenReturn(true);
+    final tItem = ChecklistFactory.makeChecklistItemEntity();
+    final tTemplateWithItems = ChecklistTemplateModel.fromEntity(
+      ChecklistFactory.makeChecklistTemplateEntity().copyWith(items: [tItem]),
+    );
+    when(
+      () => mockRemoteDataSource.getTemplates(any()),
+    ).thenAnswer((_) async => SuccessState(data: [tTemplateWithItems]));
+    when(
+      () => mockLocalDataSource.saveTemplate(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockLocalDataSource.saveItem(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
-      await repository.getTemplates(faker.guid.guid());
+    await repository.getTemplates(faker.guid.guid());
 
-      verify(() => mockLocalDataSource.saveItem(any())).called(1);
-    });
+    verify(() => mockLocalDataSource.saveItem(any())).called(1);
+  });
 
-    group('offline behaviour', () {
-      setUp(() => when(() => mockInternet.isConnected).thenReturn(false));
+  group('offline behaviour', () {
+    setUp(() => when(() => mockInternet.isConnected).thenReturn(false));
 
-      test('createTemplate is refused offline and never written locally', () async {
+    test(
+      'createTemplate is refused offline and never written locally',
+      () async {
         final result = await repository.createTemplate(tTemplateEntity);
 
         expect(result, isA<FailureState<bool>>());
         verifyNever(() => mockLocalDataSource.saveTemplate(any()));
         verifyNever(() => mockRemoteDataSource.createTemplate(any()));
-      });
+      },
+    );
 
-      test('createItem is refused offline and never written locally', () async {
-        final result = await repository.createItem(tItemEntity);
+    test('createItem is refused offline and never written locally', () async {
+      final result = await repository.createItem(tItemEntity);
 
-        expect(result, isA<FailureState<bool>>());
-        verifyNever(() => mockLocalDataSource.saveItem(any()));
-        verifyNever(() => mockRemoteDataSource.createItem(any()));
-      });
-
-      test('deleteTemplate is refused offline', () async {
-        final result = await repository.deleteTemplate(faker.guid.guid());
-
-        expect(result, isA<FailureState<bool>>());
-        verifyNever(() => mockLocalDataSource.deleteTemplate(any()));
-      });
-
-      test('saveResponse caches locally and enqueues it for sync', () async {
-        when(
-          () => mockLocalDataSource.saveResponse(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
-
-        final result = await repository.saveResponse(tAnswerEntity);
-
-        expect(result, isA<SuccessState<bool>>());
-        verify(() => mockLocalDataSource.saveResponse(tAnswerModel)).called(1);
-        verify(() => mockSyncRepository.enqueue(any())).called(1);
-        verifyNever(() => mockRemoteDataSource.saveResponse(any()));
-      });
-
-      test('saveResponse does not enqueue when the local write fails', () async {
-        when(
-          () => mockLocalDataSource.saveResponse(any()),
-        ).thenAnswer((_) async => FailureState<bool>(message: faker.lorem.word()));
-
-        await repository.saveResponse(tAnswerEntity);
-
-        verifyNever(() => mockSyncRepository.enqueue(any()));
-      });
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(() => mockLocalDataSource.saveItem(any()));
+      verifyNever(() => mockRemoteDataSource.createItem(any()));
     });
+
+    test('deleteTemplate is refused offline', () async {
+      final result = await repository.deleteTemplate(faker.guid.guid());
+
+      expect(result, isA<FailureState<bool>>());
+      verifyNever(() => mockLocalDataSource.deleteTemplate(any()));
+    });
+
+    test('saveResponse caches locally and enqueues it for sync', () async {
+      when(
+        () => mockLocalDataSource.saveResponse(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.saveResponse(tAnswerEntity);
+
+      expect(result, isA<SuccessState<bool>>());
+      verify(() => mockLocalDataSource.saveResponse(tAnswerModel)).called(1);
+      verify(() => mockSyncRepository.enqueue(any())).called(1);
+      verifyNever(() => mockRemoteDataSource.saveResponse(any()));
+    });
+
+    test('saveResponse does not enqueue when the local write fails', () async {
+      when(() => mockLocalDataSource.saveResponse(any())).thenAnswer(
+        (_) async => FailureState<bool>(message: faker.lorem.word()),
+      );
+
+      await repository.saveResponse(tAnswerEntity);
+
+      verifyNever(() => mockSyncRepository.enqueue(any()));
+    });
+  });
 }
