@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_type.dart';
@@ -45,6 +46,9 @@ void main() {
         companyId: faker.guid.guid(),
         userId: faker.guid.guid(),
       ),
+    );
+    registerFallbackValue(
+      const DeleteAttachmentParams(attachmentId: 'fallback-id'),
     );
   });
 
@@ -244,11 +248,12 @@ void main() {
           isRequired: true,
           type: ChecklistItemType.number,
         );
-        final initialAnswer = ChecklistFactory.makeChecklistAnswerEntity().copyWith(
-          checklistItemId: numberItem.id,
-          workOrderId: tWorkOrderId,
-          numberValue: 42,
-        );
+        final initialAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+            .copyWith(
+              checklistItemId: numberItem.id,
+              workOrderId: tWorkOrderId,
+              numberValue: 42,
+            );
         return const WorkOrderChecklistState.initial().copyWith(
           items: [numberItem],
           answers: {numberItem.id: initialAnswer},
@@ -422,7 +427,8 @@ void main() {
         final remoteAnswer = ChecklistFactory.makeChecklistAnswerEntity()
             .copyWith(checklistItemId: tItems.first.id, booleanValue: true);
         when(
-          () => mockWatchChecklistAnswers(workOrderId: any(named: 'workOrderId')),
+          () =>
+              mockWatchChecklistAnswers(workOrderId: any(named: 'workOrderId')),
         ).thenAnswer(
           (_) => Stream.value(
             RealtimeEvent<ChecklistAnswerEntity>(

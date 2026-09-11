@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -199,21 +198,6 @@ class _WorkOrderDetails extends HookWidget {
                 workOrderCompanyId: workOrder.companyId,
                 autoUpload: true,
                 checklistEvidenceUrls: evidenceUrls,
-                onAttachmentDeleted: (attachment) {
-                  final matchingAnswer = checklistAnswers.firstWhereOrNull(
-                    (a) =>
-                        a.photoUrl != null &&
-                        (a.photoUrl == attachment.remoteUrl ||
-                            a.photoUrl == attachment.localPath),
-                  );
-                  if (matchingAnswer != null) {
-                    context.read<WorkOrderChecklistCubit>().answerItem(
-                      workOrderId: matchingAnswer.workOrderId,
-                      checklistItemId: matchingAnswer.checklistItemId,
-                      annulPhotoUrl: true,
-                    );
-                  }
-                },
               );
             },
           ),

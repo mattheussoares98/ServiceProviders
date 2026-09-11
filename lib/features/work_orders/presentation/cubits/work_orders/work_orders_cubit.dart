@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -531,7 +532,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         final pendingDeletions = attachmentsCubit.state.pendingDeletions;
         if (pendingDeletions.isNotEmpty) {
           await Future.wait([
-            for (final dId in pendingDeletions) _useCases.deleteAttachment(dId),
+            for (final dId in pendingDeletions)
+              _useCases.deleteAttachment(
+                DeleteAttachmentParams(
+                  attachmentId: dId,
+                  workOrderId: workOrder.id,
+                ),
+              ),
           ]);
         }
 

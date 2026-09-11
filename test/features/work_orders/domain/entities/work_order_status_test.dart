@@ -3,10 +3,10 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 
 void main() {
   group('WorkOrderStatus.acceptsAttachments', () {
-    test('allows attachments while the work is being executed', () {
-      expect(WorkOrderStatus.open.acceptsAttachments, isTrue);
+    test('allows attachments only while the work is in progress', () {
       expect(WorkOrderStatus.inProgress.acceptsAttachments, isTrue);
-      expect(WorkOrderStatus.onHold.acceptsAttachments, isTrue);
+      expect(WorkOrderStatus.open.acceptsAttachments, isFalse);
+      expect(WorkOrderStatus.onHold.acceptsAttachments, isFalse);
     });
 
     test('freezes attachments once conclusion is submitted or the order closes', () {

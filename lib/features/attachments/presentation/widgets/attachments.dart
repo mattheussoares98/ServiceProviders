@@ -34,7 +34,6 @@ class Attachments extends StatelessWidget {
     this.workOrderCompanyId,
     this.autoUpload = false,
     this.checklistEvidenceUrls = const {},
-    this.onAttachmentDeleted,
   });
 
   /// Whether the work order still accepts evidence. Caller knowledge: this
@@ -53,9 +52,6 @@ class Attachments extends StatelessWidget {
 
   /// URLs of attachments that serve as evidence for checklist items
   final Set<String> checklistEvidenceUrls;
-
-  /// Callback invoked when an attachment is deleted, allowing callers to sync related state
-  final void Function(AttachmentEntity attachment)? onAttachmentDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -148,9 +144,6 @@ class Attachments extends StatelessWidget {
                 attachment: attachment,
                 autoDelete: autoUpload,
                 isChecklistEvidence: isEvidence,
-                onDeleted: onAttachmentDeleted != null
-                    ? () => onAttachmentDeleted!(attachment)
-                    : null,
               );
             }
             return const ProcessingAttachmentItem();

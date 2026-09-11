@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
@@ -9,6 +10,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -151,7 +153,11 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
         });
 
         if (isDuplicate) {
-          unawaited(_useCases.deleteAttachment(newFile.id));
+          unawaited(
+            _useCases.deleteAttachment(
+              DeleteAttachmentParams(attachmentId: newFile.id),
+            ),
+          );
         } else {
           newAttachments.add(newFile);
         }
@@ -224,7 +230,21 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
 
   Future<bool> deleteAttachment(String id, {bool autoDelete = false}) async {
     if (autoDelete) {
-      final result = await _useCases.deleteAttachment(id);
+      final attachment = state.attachments.firstWhereOrNull(
+        (item) => item.id == id,
+      );
+      final result = await _useCases.deleteAttachment(
+        attachment != null
+            ? DeleteAttachmentParams.fromEntity(
+                attachment: attachment,
+                workOrderId: _workOrderId,
+              )
+            : DeleteAttachmentParams(
+                attachmentId: id,
+                workOrderId: _workOrderId.isNotEmpty ? _workOrderId : null,
+              ),
+      );
+
       if (result is SuccessState<bool> && result.data == true) {
         final updatedList = state.attachments
             .where((item) => item.id != id)

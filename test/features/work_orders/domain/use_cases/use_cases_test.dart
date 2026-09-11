@@ -30,6 +30,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
@@ -102,6 +103,7 @@ void main() {
         resumedById: faker.guid.guid(),
       ),
     );
+    registerFallbackValue(ChecklistFactory.makeChecklistAnswerEntity());
   });
 
   setUp(() {

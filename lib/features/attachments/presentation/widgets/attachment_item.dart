@@ -30,13 +30,11 @@ class AttachmentItem extends StatelessWidget {
     required this.attachment,
     this.autoDelete = false,
     this.isChecklistEvidence = false,
-    this.onDeleted,
   });
 
   final AttachmentEntity attachment;
   final bool autoDelete;
   final bool isChecklistEvidence;
-  final VoidCallback? onDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +63,6 @@ class AttachmentItem extends StatelessWidget {
             attachment.id,
             autoDelete: autoDelete,
           );
-          onDeleted?.call();
         },
       );
     }

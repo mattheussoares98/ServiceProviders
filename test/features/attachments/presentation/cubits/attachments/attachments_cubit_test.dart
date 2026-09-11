@@ -86,6 +86,9 @@ void main() {
       ),
     );
     registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
+    registerFallbackValue(
+      const DeleteAttachmentParams(attachmentId: '123'),
+    );
   });
 
   late UserProfileEntity tUser;
@@ -435,7 +438,17 @@ void main() {
       expect: () =>
           <AttachmentsState>[], // No emissions because newAttachments is empty
       verify: (_) {
-        verify(() => mockDeleteAttachment(tAttachmentList.first.id)).called(1);
+        verify(
+          () => mockDeleteAttachment(
+            any(
+              that: isA<DeleteAttachmentParams>().having(
+                (p) => p.attachmentId,
+                'attachmentId',
+                tAttachmentList.first.id,
+              ),
+            ),
+          ),
+        ).called(1);
       },
     );
 
@@ -572,7 +585,7 @@ void main() {
     );
 
     blocTest<AttachmentsCubit, AttachmentsState>(
-      'calls useCases.deleteAttachment directly when autoDelete is true',
+      'calls useCases.deleteAttachment directly with workOrderId when autoDelete is true and workOrderId is present',
       build: () {
         when(
           () => mockGetAttachments(any()),
@@ -611,8 +624,59 @@ void main() {
       ],
       verify: (_) {
         verify(
-          () => mockDeleteAttachment(tUploadedAttachmentList.first.id),
+          () => mockDeleteAttachment(any(
+            that: isA<DeleteAttachmentParams>()
+                .having((p) => p.attachmentId, 'attachmentId', tUploadedAttachmentList.first.id)
+                .having((p) => p.workOrderId, 'workOrderId', tWorkOrderId),
+          )),
         ).called(1);
+      },
+    );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'calls useCases.deleteAttachment directly when autoDelete is true and workOrderId is empty',
+      build: () {
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: tUploadedAttachmentList));
+        when(
+          () => mockDeleteAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases, workOrderId: '');
+      },
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        await cubit.deleteAttachment(
+          tUploadedAttachmentList.first.id,
+          autoDelete: true,
+        );
+      },
+      expect: () => [
+        isA<AttachmentsState>()
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
+            .having(
+              (s) => s.attachments,
+              'attachments',
+              tUploadedAttachmentList,
+            ),
+        isA<AttachmentsState>()
+            .having(
+              (s) => s.attachments.map((e) => e.id).toList(),
+              'attachments ids',
+              tUploadedAttachmentList.skip(1).map((e) => e.id).toList(),
+            )
+            .having((s) => s.pendingDeletions, 'pendingDeletions', isEmpty),
+      ],
+      verify: (_) {
+        final captured = verify(
+          () => mockDeleteAttachment(captureAny()),
+        ).captured.last as DeleteAttachmentParams;
+        expect(captured.attachmentId, tUploadedAttachmentList.first.id);
+        expect(captured.workOrderId, isNull);
       },
     );
   });

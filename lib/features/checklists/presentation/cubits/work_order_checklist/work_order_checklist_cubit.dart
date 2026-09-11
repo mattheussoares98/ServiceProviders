@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_item_entity.dart';
@@ -295,7 +296,12 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
           (a) => a.remoteUrl == existingPhotoUrl || a.localPath == existingPhotoUrl,
         );
         if (oldAttachment != null) {
-          await _useCases.deleteAttachment(oldAttachment.id);
+          await _useCases.deleteAttachment(
+            DeleteAttachmentParams.fromEntity(
+              attachment: oldAttachment,
+              workOrderId: workOrderId,
+            ),
+          );
         }
       }
     }

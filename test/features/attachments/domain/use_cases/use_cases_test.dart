@@ -14,13 +14,16 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_t
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/prune_sandbox_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/touch_last_accessed_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/watch_attachments_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 
+import '../../../../../testing/mocks/factories/checklist_factory.dart';
 import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
 
 void main() {
   late MockAttachmentsRepository mockRepository;
+  late MockChecklistsRepository mockChecklistsRepository;
   late MockFileService mockFileService;
 
   // Use cases
@@ -36,16 +39,19 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
+    registerFallbackValue(ChecklistFactory.makeChecklistAnswerEntity());
   });
 
   setUp(() {
     mockRepository = MockAttachmentsRepository();
+    mockChecklistsRepository = MockChecklistsRepository();
     mockFileService = MockFileService();
     createAttachmentUseCase = CreateAttachmentUseCase(
       attachmentsRepository: mockRepository,
     );
     deleteAttachmentUseCase = DeleteAttachmentUseCase(
       attachmentsRepository: mockRepository,
+      checklistsRepository: mockChecklistsRepository,
     );
     getAttachmentsUseCase = GetAttachmentsUseCase(
       attachmentsRepository: mockRepository,
@@ -115,8 +121,10 @@ void main() {
     });
 
     group('DeleteAttachmentUseCase', () {
+      final tWorkOrderId = faker.guid.guid();
+
       test(
-        'should call repository.deleteAttachment and return true on success',
+        'should call repository.deleteAttachment and return true on success without workOrderId',
         () async {
           // Arrange
           when(
@@ -124,7 +132,9 @@ void main() {
           ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
-          final result = await deleteAttachmentUseCase(tAttachment.id);
+          final result = await deleteAttachmentUseCase(
+            DeleteAttachmentParams(attachmentId: tAttachment.id),
+          );
 
           // Assert
           expect(result, isA<SuccessState<bool>>());
@@ -132,23 +142,185 @@ void main() {
           verify(
             () => mockRepository.deleteAttachment(tAttachment.id),
           ).called(1);
+          verifyNever(
+            () => mockChecklistsRepository.getResponsesByWorkOrder(any()),
+          );
         },
       );
 
-      test('should return FailureState when repository fails', () async {
-        // Arrange
-        when(
-          () => mockRepository.deleteAttachment(any()),
-        ).thenAnswer((_) async => FailureState<bool>(message: 'Delete failed'));
+      test(
+        'deletes attachment and clears matching checklist answer photoUrl when matching remoteUrl',
+        () async {
+          final matchingAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+              .copyWith(
+                workOrderId: tWorkOrderId,
+                photoUrl: tAttachment.remoteUrl,
+              );
+          final nonMatchingAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+              .copyWith(
+                workOrderId: tWorkOrderId,
+                photoUrl: faker.internet.httpsUrl(),
+              );
 
-        // Act
-        final result = await deleteAttachmentUseCase(tAttachment.id);
+          when(
+            () => mockRepository.deleteAttachment(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockChecklistsRepository.getResponsesByWorkOrder(any()),
+          ).thenAnswer(
+            (_) async =>
+                SuccessState(data: [matchingAnswer, nonMatchingAnswer]),
+          );
+          when(
+            () => mockChecklistsRepository.saveResponse(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        // Assert
-        expect(result, isA<FailureState<bool>>());
-        expect(result.message, 'Delete failed');
-        verify(() => mockRepository.deleteAttachment(tAttachment.id)).called(1);
-      });
+          final result = await deleteAttachmentUseCase(
+            DeleteAttachmentParams.fromEntity(
+              attachment: tAttachment,
+              workOrderId: tWorkOrderId,
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, true);
+
+          verify(
+            () => mockRepository.deleteAttachment(tAttachment.id),
+          ).called(1);
+          verify(
+            () =>
+                mockChecklistsRepository.getResponsesByWorkOrder(tWorkOrderId),
+          ).called(1);
+          verify(
+            () => mockChecklistsRepository.saveResponse(
+              any(
+                that: isA<ChecklistAnswerEntity>()
+                    .having((a) => a.id, 'id', matchingAnswer.id)
+                    .having((a) => a.photoUrl, 'photoUrl', isNull),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'deletes attachment and clears matching checklist answer when photoUrl matches localPath',
+        () async {
+          final localAttachment = tAttachment.copyWith(
+            remoteUrl: faker.internet.httpsUrl(),
+            localPath: '/local/cache/evidence.jpg',
+          );
+          final matchingAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+              .copyWith(
+                workOrderId: tWorkOrderId,
+                photoUrl: '/local/cache/evidence.jpg',
+              );
+
+          when(
+            () => mockRepository.deleteAttachment(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockChecklistsRepository.getResponsesByWorkOrder(any()),
+          ).thenAnswer((_) async => SuccessState(data: [matchingAnswer]));
+          when(
+            () => mockChecklistsRepository.saveResponse(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await deleteAttachmentUseCase(
+            DeleteAttachmentParams.fromEntity(
+              attachment: localAttachment,
+              workOrderId: tWorkOrderId,
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, true);
+
+          verify(
+            () => mockRepository.deleteAttachment(localAttachment.id),
+          ).called(1);
+          verify(
+            () =>
+                mockChecklistsRepository.getResponsesByWorkOrder(tWorkOrderId),
+          ).called(1);
+          verify(
+            () => mockChecklistsRepository.saveResponse(
+              any(
+                that: isA<ChecklistAnswerEntity>()
+                    .having((a) => a.id, 'id', matchingAnswer.id)
+                    .having((a) => a.photoUrl, 'photoUrl', isNull),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'deletes attachment without updating checklist answers when no answer matches',
+        () async {
+          final nonMatchingAnswer = ChecklistFactory.makeChecklistAnswerEntity()
+              .copyWith(
+                workOrderId: tWorkOrderId,
+                photoUrl: faker.internet.httpsUrl(),
+              );
+
+          when(
+            () => mockRepository.deleteAttachment(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockChecklistsRepository.getResponsesByWorkOrder(any()),
+          ).thenAnswer((_) async => SuccessState(data: [nonMatchingAnswer]));
+
+          final result = await deleteAttachmentUseCase(
+            DeleteAttachmentParams.fromEntity(
+              attachment: tAttachment,
+              workOrderId: tWorkOrderId,
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, true);
+
+          verify(
+            () => mockRepository.deleteAttachment(tAttachment.id),
+          ).called(1);
+          verify(
+            () =>
+                mockChecklistsRepository.getResponsesByWorkOrder(tWorkOrderId),
+          ).called(1);
+          verifyNever(() => mockChecklistsRepository.saveResponse(any()));
+        },
+      );
+
+      test(
+        'should return FailureState when repository fails without touching checklists',
+        () async {
+          // Arrange
+          when(() => mockRepository.deleteAttachment(any())).thenAnswer(
+            (_) async => FailureState<bool>(message: 'Delete failed'),
+          );
+
+          // Act
+          final result = await deleteAttachmentUseCase(
+            DeleteAttachmentParams.fromEntity(
+              attachment: tAttachment,
+              workOrderId: tWorkOrderId,
+            ),
+          );
+
+          // Assert
+          expect(result, isA<FailureState<bool>>());
+          expect(result.message, 'Delete failed');
+          verify(
+            () => mockRepository.deleteAttachment(tAttachment.id),
+          ).called(1);
+          verifyNever(
+            () => mockChecklistsRepository.getResponsesByWorkOrder(any()),
+          );
+          verifyNever(() => mockChecklistsRepository.saveResponse(any()));
+        },
+      );
     });
 
     group('GetAttachmentsUseCase', () {

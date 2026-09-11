@@ -165,6 +165,9 @@ void main() {
         resumedById: faker.guid.guid(),
       ),
     );
+    registerFallbackValue(
+      const DeleteAttachmentParams(attachmentId: 'fallback-id'),
+    );
   });
 
   setUp(() {
@@ -1013,8 +1016,24 @@ void main() {
             expect(result, isTrue);
           },
           verify: (_) {
-            verify(() => mockDeleteAttachment.call('attachment_1')).called(1);
-            verify(() => mockDeleteAttachment.call('attachment_2')).called(1);
+            verify(
+              () => mockDeleteAttachment.call(
+                any(
+                  that: isA<DeleteAttachmentParams>()
+                      .having((p) => p.attachmentId, 'attachmentId', 'attachment_1')
+                      .having((p) => p.workOrderId, 'workOrderId', tWorkOrder.id),
+                ),
+              ),
+            ).called(1);
+            verify(
+              () => mockDeleteAttachment.call(
+                any(
+                  that: isA<DeleteAttachmentParams>()
+                      .having((p) => p.attachmentId, 'attachmentId', 'attachment_2')
+                      .having((p) => p.workOrderId, 'workOrderId', tWorkOrder.id),
+                ),
+              ),
+            ).called(1);
           },
         );
 
