@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/clear_local_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/create_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_sandbox_size_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_video_thumbnail_use_case.dart';
@@ -481,6 +482,29 @@ void main() {
           ),
         ).called(1);
       });
+    });
+
+    group('GetAttachmentsBatchUseCase', () {
+      test(
+        'should call repository.getAttachmentsByWorkOrderIds and return attachments',
+        () async {
+          final workOrderIds = [faker.guid.guid(), faker.guid.guid()];
+          when(
+            () => mockRepository.getAttachmentsByWorkOrderIds(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAttachments));
+
+          final useCase = GetAttachmentsBatchUseCase(
+            attachmentsRepository: mockRepository,
+          );
+          final result = await useCase(workOrderIds);
+
+          expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+          expect(result.data, tAttachments);
+          verify(
+            () => mockRepository.getAttachmentsByWorkOrderIds(workOrderIds),
+          ).called(1);
+        },
+      );
     });
   });
 }

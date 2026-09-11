@@ -22,6 +22,9 @@ enum AttachmentSource {
 
 abstract interface class AttachmentsRepository {
   FutureList<AttachmentEntity> getAttachmentsByWorkOrder(String workOrderId);
+  FutureList<AttachmentEntity> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureBool createAttachment(AttachmentEntity attachment);
   FutureBool deleteAttachment(String id);
 

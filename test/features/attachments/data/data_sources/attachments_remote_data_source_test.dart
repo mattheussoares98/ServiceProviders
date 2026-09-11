@@ -263,6 +263,72 @@ void main() {
     );
   });
 
+  group('getAttachmentsByWorkOrderIds', () {
+    final tWorkOrderIds = [faker.guid.guid(), faker.guid.guid()];
+    final tAttachmentModels = [
+      AttachmentModel.fromEntity(MaintenancePlanFactory.makeAttachmentEntity()),
+      AttachmentModel.fromEntity(MaintenancePlanFactory.makeAttachmentEntity()),
+    ];
+
+    test(
+      'should return empty list immediately when workOrderIds is empty',
+      () async {
+        final result = await dataSource.getAttachmentsByWorkOrderIds([]);
+
+        expect(result, isA<SuccessState<List<AttachmentModel>>>());
+        expect(result.data, isEmpty);
+        verifyNever(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            filters: any(named: 'filters'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'should call selectList with inList filter and return attachments on success',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: 'attachments',
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer(
+          (_) async => tAttachmentModels.map((m) => m.toJson()).toList(),
+        );
+
+        final result = await dataSource.getAttachmentsByWorkOrderIds(
+          tWorkOrderIds,
+        );
+
+        expect(result, isA<SuccessState<List<AttachmentModel>>>());
+        expect(result.data?.length, 2);
+        verify(
+          () => mockDatabase.selectList(
+            table: 'attachments',
+            filters: any(named: 'filters'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test('should return FailureState when selectList fails', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: 'attachments',
+          filters: any(named: 'filters'),
+        ),
+      ).thenThrow(const PostgrestException(message: 'Query failed'));
+
+      final result = await dataSource.getAttachmentsByWorkOrderIds(
+        tWorkOrderIds,
+      );
+
+      expect(result, isA<FailureState<List<AttachmentModel>>>());
+    });
+  });
+
   group('watchAttachmentsRealtime', () {
     final tWorkOrderId = faker.guid.guid();
     final tAttachmentModel = AttachmentModel.fromEntity(

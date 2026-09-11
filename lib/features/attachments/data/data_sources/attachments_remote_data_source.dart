@@ -23,6 +23,11 @@ abstract interface class AttachmentsRemoteDataSource {
   /// Fetches all non-deleted attachments for a given work order from the database.
   FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId);
 
+  /// Fetches all non-deleted attachments for a list of work orders from the database.
+  FutureList<AttachmentModel> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  );
+
   /// Deletes an attachment by ID from the remote database.
   FutureBool deleteAttachment(String id);
 
@@ -92,6 +97,23 @@ final class AttachmentsRemoteDataSourceImpl
         );
         return response.map(AttachmentModel.fromJson).toList();
       });
+
+  @override
+  FutureList<AttachmentModel> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  ) => SupabaseHandler.call(() async {
+    if (workOrderIds.isEmpty) {
+      return const [];
+    }
+    final response = await _database.selectList(
+      table: 'attachments',
+      filters: [
+        SupabaseFilter.inList('work_order_id', workOrderIds),
+        SupabaseFilter.isFilter('deleted_at', null),
+      ],
+    );
+    return response.map(AttachmentModel.fromJson).toList();
+  });
 
   @override
   FutureBool deleteAttachment(String id) => SupabaseHandler.call(() async {

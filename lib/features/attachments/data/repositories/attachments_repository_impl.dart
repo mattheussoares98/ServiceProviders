@@ -128,6 +128,77 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     return SuccessState(data: entities);
   }
 
+  @override
+  FutureList<AttachmentEntity> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  ) async {
+    if (workOrderIds.isEmpty) {
+      return const SuccessState(data: []);
+    }
+    if (_isProviderMode && !_internet.isConnected) {
+      return FailureState.noInternet();
+    }
+
+    List<AttachmentModel> models = [];
+
+    if (_internet.isConnected) {
+      final remoteResult = await _remoteDataSource.getAttachmentsByWorkOrderIds(
+        workOrderIds,
+      );
+      if (remoteResult is! SuccessState<List<AttachmentModel>>) {
+        if (_isProviderMode) {
+          return FailureState(
+            message: (remoteResult as FailureState).message,
+            error: remoteResult.error,
+            statusCode: remoteResult.statusCode,
+            response: remoteResult.response,
+          );
+        }
+      } else {
+        final remoteModels = remoteResult.data ?? <AttachmentModel>[];
+        if (_isProviderMode) {
+          models = remoteModels;
+        } else {
+          final remoteIds = remoteModels.map((m) => m.id).toSet();
+          await Future.wait([
+            for (final model in remoteModels)
+              _saveRemoteModelPreservingLocalPath(model),
+          ]);
+
+          final localResult = await _localDataSource
+              .getAttachmentsByWorkOrderIds(workOrderIds);
+          if (localResult is SuccessState<List<AttachmentModel>>) {
+            final localModels = localResult.data ?? <AttachmentModel>[];
+            await Future.wait([
+              for (final localModel in localModels)
+                if (localModel.uploadStatus == UploadStatus.uploaded &&
+                    !remoteIds.contains(localModel.id))
+                  _localDataSource.deleteAttachment(localModel.id),
+            ]);
+          }
+        }
+      }
+    }
+
+    if (!_isProviderMode) {
+      final localResult = await _localDataSource.getAttachmentsByWorkOrderIds(
+        workOrderIds,
+      );
+      if (localResult is! SuccessState<List<AttachmentModel>>) {
+        return FailureState(
+          message: (localResult as FailureState).message,
+          error: localResult.error,
+          statusCode: localResult.statusCode,
+          response: localResult.response,
+        );
+      }
+      models = localResult.data ?? <AttachmentModel>[];
+    }
+
+    final entities = await Future.wait(models.map(_toEntityWithResolvedPath));
+    return SuccessState(data: entities);
+  }
+
   Future<void> _saveRemoteModelPreservingLocalPath(
     AttachmentModel remoteModel,
   ) async {

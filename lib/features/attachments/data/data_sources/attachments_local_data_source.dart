@@ -10,8 +10,12 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 
 abstract interface class AttachmentsLocalDataSource {
   FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId);
+  FutureList<AttachmentModel> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureData<AttachmentModel?> getAttachment(String id);
   FutureBool saveAttachment(AttachmentModel attachment);
+  FutureBool saveAttachments(List<AttachmentModel> attachments);
   FutureBool deleteAttachment(String id);
   FutureBool hardDeleteAttachment(String id);
   FutureVoid touchLastAccessed(String id);
@@ -62,10 +66,20 @@ final class AttachmentsLocalDataSourceImpl
 
   @override
   FutureList<AttachmentModel> getAttachmentsByWorkOrder(String workOrderId) {
+    return getAttachmentsByWorkOrderIds([workOrderId]);
+  }
+
+  @override
+  FutureList<AttachmentModel> getAttachmentsByWorkOrderIds(
+    List<String> workOrderIds,
+  ) {
     return ErrorHandler.execute(() async {
+      if (workOrderIds.isEmpty) {
+        return const SuccessState(data: []);
+      }
       final list =
           await (_database.select(_database.attachments)..where(
-                (t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull(),
+                (t) => t.workOrderId.isIn(workOrderIds) & t.deletedAt.isNull(),
               ))
               .get();
 
@@ -97,28 +111,41 @@ final class AttachmentsLocalDataSourceImpl
 
   @override
   FutureBool saveAttachment(AttachmentModel attachment) {
+    return saveAttachments([attachment]);
+  }
+
+  @override
+  FutureBool saveAttachments(List<AttachmentModel> attachments) {
     return ErrorHandler.execute(() async {
-      await _database
-          .into(_database.attachments)
-          .insertOnConflictUpdate(
-            AttachmentsCompanion(
-              id: Value(attachment.id),
-              workOrderId: Value(attachment.workOrderId),
-              companyId: Value(attachment.companyId),
-              uploadedById: Value(attachment.uploadedById),
-              fileName: Value(attachment.fileName),
-              fileType: Value(attachment.fileType.code),
-              localPath: Value(attachment.localPath),
-              remoteUrl: Value(attachment.remoteUrl),
-              fileSizeBytes: Value(attachment.fileSizeBytes),
-              isCompressed: Value(attachment.isCompressed),
-              uploadStatus: Value(attachment.uploadStatus.code),
-              createdAt: Value(attachment.createdAt.toUtc()),
-              deletedAt: Value(attachment.deletedAt?.toUtc()),
-              originalPath: Value(attachment.originalPath),
-              lastAccessedAt: Value(attachment.lastAccessedAt?.toUtc()),
-            ),
-          );
+      if (attachments.isEmpty) {
+        return const SuccessState(data: true);
+      }
+      await _database.batch((batch) {
+        batch.insertAllOnConflictUpdate(
+          _database.attachments,
+          attachments
+              .map(
+                (attachment) => AttachmentsCompanion(
+                  id: Value(attachment.id),
+                  workOrderId: Value(attachment.workOrderId),
+                  companyId: Value(attachment.companyId),
+                  uploadedById: Value(attachment.uploadedById),
+                  fileName: Value(attachment.fileName),
+                  fileType: Value(attachment.fileType.code),
+                  localPath: Value(attachment.localPath),
+                  remoteUrl: Value(attachment.remoteUrl),
+                  fileSizeBytes: Value(attachment.fileSizeBytes),
+                  isCompressed: Value(attachment.isCompressed),
+                  uploadStatus: Value(attachment.uploadStatus.code),
+                  createdAt: Value(attachment.createdAt.toUtc()),
+                  deletedAt: Value(attachment.deletedAt?.toUtc()),
+                  originalPath: Value(attachment.originalPath),
+                  lastAccessedAt: Value(attachment.lastAccessedAt?.toUtc()),
+                ),
+              )
+              .toList(),
+        );
+      });
       return const SuccessState(data: true);
     });
   }

@@ -309,5 +309,43 @@ void main() {
         },
       );
     });
+
+    group('Batch Operations', () {
+      test('getAttachmentsByWorkOrderIds returns empty list when empty list passed', () async {
+        final result = await dataSource.getAttachmentsByWorkOrderIds([]);
+        expect(result, isA<SuccessState<List<AttachmentModel>>>());
+        expect(result.data, isEmpty);
+      });
+
+      test('getAttachmentsByWorkOrderIds and saveAttachments batch handle multiple items', () async {
+        final wo1 = faker.guid.guid();
+        final wo2 = faker.guid.guid();
+
+        await insertDependencies(
+          companyId: tAttachmentModel.companyId,
+          userId: tAttachmentModel.uploadedById,
+          locationId: faker.guid.guid(),
+          areaId: faker.guid.guid(),
+          assetId: faker.guid.guid(),
+          workOrderId: wo1,
+        );
+
+        final att1 = AttachmentModel.fromEntity(
+          tAttachmentModel.copyWith(id: 'att_batch_1', workOrderId: wo1),
+        );
+        final att2 = AttachmentModel.fromEntity(
+          tAttachmentModel.copyWith(id: 'att_batch_2', workOrderId: wo2),
+        );
+
+        final saveResult = await dataSource.saveAttachments([att1, att2]);
+        expect(saveResult, isA<SuccessState<bool>>());
+        expect(saveResult.data, isTrue);
+
+        final getResult = await dataSource.getAttachmentsByWorkOrderIds([wo1, wo2]);
+        expect(getResult, isA<SuccessState<List<AttachmentModel>>>());
+        expect(getResult.data?.length, 2);
+      });
+    });
   });
 }
+

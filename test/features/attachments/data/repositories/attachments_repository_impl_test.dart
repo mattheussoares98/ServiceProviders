@@ -1438,6 +1438,99 @@ void main() {
         verifyNever(() => mockLocalDataSource.deleteAttachment(any()));
       },
     );
+
+    test(
+      'getAttachmentsByWorkOrderIds fetches remotely without saving locally in provider mode',
+      () async {
+        final wo1 = faker.guid.guid();
+        final model = AttachmentModel.fromEntity(
+          MaintenancePlanFactory.makeAttachmentEntity().copyWith(
+            workOrderId: wo1,
+          ),
+        );
+
+        when(() => mockInternet.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrderIds([wo1]),
+        ).thenAnswer((_) async => SuccessState(data: [model]));
+
+        final result = await repository.getAttachmentsByWorkOrderIds([wo1]);
+
+        expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+        verify(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrderIds([wo1]),
+        ).called(1);
+        verifyNever(() => mockLocalDataSource.saveAttachment(any()));
+        verifyNever(
+          () => mockLocalDataSource.getAttachmentsByWorkOrderIds(any()),
+        );
+      },
+    );
+
+    test(
+      'getAttachmentsByWorkOrderIds returns failure when offline in provider mode',
+      () async {
+        when(() => mockInternet.isConnected).thenReturn(false);
+
+        final result = await repository.getAttachmentsByWorkOrderIds(['wo1']);
+
+        expect(result, isA<FailureState<List<AttachmentEntity>>>());
+        verifyNever(
+          () => mockRemoteDataSource.getAttachmentsByWorkOrderIds(any()),
+        );
+      },
+    );
+  });
+
+  group('getAttachmentsByWorkOrderIds in internal mode', () {
+    test('returns empty list immediately when empty list passed', () async {
+      final result = await repository.getAttachmentsByWorkOrderIds([]);
+      expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+      expect(result.data, isEmpty);
+    });
+
+    test('batch syncs attachments across work orders when online', () async {
+      when(
+        () => mockSessionRepository.getSelectedMode(),
+      ).thenReturn(AppMode.internal.name);
+      final wo1 = faker.guid.guid();
+      final wo2 = faker.guid.guid();
+      final model1 = AttachmentModel.fromEntity(
+        MaintenancePlanFactory.makeAttachmentEntity().copyWith(
+          workOrderId: wo1,
+        ),
+      );
+      final model2 = AttachmentModel.fromEntity(
+        MaintenancePlanFactory.makeAttachmentEntity().copyWith(
+          workOrderId: wo2,
+        ),
+      );
+
+      when(() => mockInternet.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getAttachmentsByWorkOrderIds([wo1, wo2]),
+      ).thenAnswer((_) async => SuccessState(data: [model1, model2]));
+      when(
+        () => mockLocalDataSource.getAttachment(any()),
+      ).thenAnswer((_) async => const SuccessState(data: null));
+      when(
+        () => mockLocalDataSource.saveAttachment(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockLocalDataSource.getAttachmentsByWorkOrderIds([wo1, wo2]),
+      ).thenAnswer((_) async => SuccessState(data: [model1, model2]));
+
+      final result = await repository.getAttachmentsByWorkOrderIds([wo1, wo2]);
+
+      expect(result, isA<SuccessState<List<AttachmentEntity>>>());
+      expect(result.data?.length, 2);
+      verify(
+        () => mockRemoteDataSource.getAttachmentsByWorkOrderIds([wo1, wo2]),
+      ).called(1);
+      verify(
+        () => mockLocalDataSource.getAttachmentsByWorkOrderIds([wo1, wo2]),
+      ).called(2);
+    });
   });
 
   group('watchAttachmentsRealtime', () {
