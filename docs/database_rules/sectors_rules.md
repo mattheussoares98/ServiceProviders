@@ -35,3 +35,8 @@ CREATE TRIGGER tr_prevent_delete_sectors_with_relations
   BEFORE UPDATE ON public.sectors FOR EACH ROW
   EXECUTE FUNCTION public.check_sector_before_delete();
 ```
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260911205000_publish_categories_and_sectors_realtime.sql`).
+

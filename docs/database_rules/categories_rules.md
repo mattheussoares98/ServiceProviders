@@ -32,3 +32,8 @@ CREATE POLICY "Users update own company categories with permission"
 * **Soft Deletes**: Blocked if there are active assets associated with the category:
   * Trigger: `tr_prevent_delete_categories_with_relations`
   * Active Assets Check: Blocked if any asset referencing this category has `deleted_at IS NULL`.
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260911205000_publish_categories_and_sectors_realtime.sql`).
+
