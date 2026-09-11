@@ -3,6 +3,8 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/get_access_logs_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
@@ -330,4 +332,9 @@ class MockWatchChecklistItemsRealtimeUseCase extends Mock
 
 class MockWatchChecklistAnswersRealtimeUseCase extends Mock
     implements WatchChecklistAnswersRealtimeUseCase {}
+
+class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
+
+class MockDeleteAttachmentUseCase extends Mock
+    implements DeleteAttachmentUseCase {}
 

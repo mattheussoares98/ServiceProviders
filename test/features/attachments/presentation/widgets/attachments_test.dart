@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.da
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
@@ -23,6 +24,9 @@ class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 
 class MockSessionCubit extends MockCubit<SessionState>
     implements SessionCubit {}
+
+class MockWorkOrderChecklistCubit extends MockCubit<WorkOrderChecklistState>
+    implements WorkOrderChecklistCubit {}
 
 const _createAttachment = ActionPermission.resource(
   resourceType: ResourceType.attachments,
@@ -95,6 +99,7 @@ void main() {
   Future<void> pumpAttachments(
     WidgetTester tester, {
     required bool isWorkOrderActive,
+    Set<String> checklistEvidenceUrls = const {},
   }) {
     return tester.pumpWidget(
       MultiBlocProvider(
@@ -106,7 +111,12 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: CustomScrollView(
-              slivers: [Attachments(isWorkOrderActive: isWorkOrderActive)],
+              slivers: [
+                Attachments(
+                  isWorkOrderActive: isWorkOrderActive,
+                  checklistEvidenceUrls: checklistEvidenceUrls,
+                ),
+              ],
             ),
           ),
         ),
@@ -140,6 +150,24 @@ void main() {
       expect(find.text('Adicionar'), findsNothing);
     });
 
+    testWidgets(
+      'shows Checklist badge when attachment belongs to a checklist response',
+      (tester) async {
+        final attachment = documentAttachment().copyWith(
+          remoteUrl: 'https://example.com/relatorio.pdf',
+        );
+        arrangeState(attachments: [attachment]);
+
+        await pumpAttachments(
+          tester,
+          isWorkOrderActive: true,
+          checklistEvidenceUrls: {'https://example.com/relatorio.pdf'},
+        );
+
+        expect(find.text('Checklist'), findsOneWidget);
+      },
+    );
+
     testWidgets('empty state is not tappable without attachments.create', (
       tester,
     ) async {
@@ -159,6 +187,7 @@ void main() {
 
     testWidgets('shows Remover anexo with attachments.delete', (tester) async {
       arrangeState(attachments: [documentAttachment()]);
+      arrangePermissions({_deleteAttachment});
 
       await pumpAttachments(tester, isWorkOrderActive: true);
 

@@ -29,10 +29,14 @@ class AttachmentItem extends StatelessWidget {
     super.key,
     required this.attachment,
     this.autoDelete = false,
+    this.isChecklistEvidence = false,
+    this.onDeleted,
   });
 
   final AttachmentEntity attachment;
   final bool autoDelete;
+  final bool isChecklistEvidence;
+  final VoidCallback? onDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +54,10 @@ class AttachmentItem extends StatelessWidget {
       showAlertDialog(
         context: context,
         title: 'Remover anexo'.hardcoded,
-        contentText: 'Deseja realmente remover o anexo?'.hardcoded,
+        contentText: isChecklistEvidence
+            ? 'Este anexo é uma evidência do checklist. Deseja realmente removê-lo?'
+                .hardcoded
+            : 'Deseja realmente remover o anexo?'.hardcoded,
         defaultActionText: 'Sim'.hardcoded,
         cancelActionText: 'Não'.hardcoded,
         onOkPressed: () {
@@ -58,6 +65,7 @@ class AttachmentItem extends StatelessWidget {
             attachment.id,
             autoDelete: autoDelete,
           );
+          onDeleted?.call();
         },
       );
     }
@@ -80,6 +88,45 @@ class AttachmentItem extends StatelessWidget {
       child: Stack(
         children: [
           _Preview(attachment: attachment),
+          if (isChecklistEvidence)
+            Positioned(
+              top: Sizes.p8,
+              left: Sizes.p8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.p8,
+                  vertical: Sizes.p4,
+                ),
+                decoration: BoxDecoration(
+                  color: context.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(Sizes.p12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PlatformIcon(
+                      materialIcon: Icons.checklist,
+                      cupertinoIcon: CupertinoIcons.checkmark_alt,
+                      size: Sizes.p12,
+                      color: context.colorScheme.onPrimaryContainer,
+                    ),
+                    gapW4,
+                    BaseText.caption(
+                      'Checklist'.hardcoded,
+                      color: context.colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (canDelete) ...[
             Positioned(
               bottom: 0,

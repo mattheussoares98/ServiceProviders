@@ -1,5 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
@@ -17,6 +19,8 @@ class WorkOrderChecklistCubitUseCases {
     required this.watchChecklistAnswersRealtime,
     required this.pickAttachment,
     required this.uploadAttachment,
+    required this.getAttachments,
+    required this.deleteAttachment,
     required this.getSessionUser,
     required this.getActiveCompanyId,
   });
@@ -27,6 +31,8 @@ class WorkOrderChecklistCubitUseCases {
   final WatchChecklistAnswersRealtimeUseCase watchChecklistAnswersRealtime;
   final PickAttachmentUseCase pickAttachment;
   final UploadAttachmentUseCase uploadAttachment;
+  final GetAttachmentsUseCase getAttachments;
+  final DeleteAttachmentUseCase deleteAttachment;
   final GetSessionUserUseCase getSessionUser;
   final GetActiveCompanyIdUseCase getActiveCompanyId;
 }

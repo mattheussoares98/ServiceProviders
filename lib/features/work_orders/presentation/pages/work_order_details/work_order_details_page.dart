@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -6,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_answer_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/work_order_checklist/work_order_checklist_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -177,16 +179,43 @@ class _WorkOrderDetails extends HookWidget {
               child: DeletedWorkOrderBanner(workOrder: workOrder),
             ),
           InfoItems(workOrder: workOrder, onRefresh: onRefresh),
-          Attachments(
-            // Evidence can be added for as long as the work is being executed —
-            // by the provider too, who has no other way in since the edit form
-            // is closed to them. The attachment permissions are enforced by the
-            // widget itself.
-            isWorkOrderActive:
-                !workOrder.isDeleted && workOrder.status.acceptsAttachments,
-            padding: EdgeInsets.zero,
-            workOrderCompanyId: workOrder.companyId,
-            autoUpload: true,
+          Builder(
+            builder: (context) {
+              final checklistAnswers = context
+                  .select<WorkOrderChecklistCubit, List<ChecklistAnswerEntity>>(
+                    (c) => c.state.answers.values.toList(),
+                  );
+
+              final evidenceUrls = checklistAnswers
+                  .map((a) => a.photoUrl?.trim())
+                  .where((url) => url != null && url.isNotEmpty)
+                  .cast<String>()
+                  .toSet();
+
+              return Attachments(
+                isWorkOrderActive:
+                    !workOrder.isDeleted && workOrder.status.acceptsAttachments,
+                padding: EdgeInsets.zero,
+                workOrderCompanyId: workOrder.companyId,
+                autoUpload: true,
+                checklistEvidenceUrls: evidenceUrls,
+                onAttachmentDeleted: (attachment) {
+                  final matchingAnswer = checklistAnswers.firstWhereOrNull(
+                    (a) =>
+                        a.photoUrl != null &&
+                        (a.photoUrl == attachment.remoteUrl ||
+                            a.photoUrl == attachment.localPath),
+                  );
+                  if (matchingAnswer != null) {
+                    context.read<WorkOrderChecklistCubit>().answerItem(
+                      workOrderId: matchingAnswer.workOrderId,
+                      checklistItemId: matchingAnswer.checklistItemId,
+                      annulPhotoUrl: true,
+                    );
+                  }
+                },
+              );
+            },
           ),
           WorkOrderChecklistSection(workOrder: workOrder),
           ObservationsSection(workOrder: workOrder),

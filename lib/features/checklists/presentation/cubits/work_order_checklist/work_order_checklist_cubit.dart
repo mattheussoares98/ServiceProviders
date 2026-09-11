@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
@@ -269,6 +270,8 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       return false;
     }
 
+    final existingPhotoUrl = state.answers[checklistItemId]?.photoUrl?.trim();
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -278,10 +281,25 @@ class WorkOrderChecklistCubit extends BaseCubit<WorkOrderChecklistState> {
       ),
     );
 
-    return answerItem(
+    final saved = await answerItem(
       workOrderId: workOrderId,
       checklistItemId: checklistItemId,
       photoUrl: url,
     );
+
+    // If successfully saved and replacing an existing evidence, delete the previous attachment
+    if (saved && existingPhotoUrl != null && existingPhotoUrl.isNotEmpty && existingPhotoUrl != url) {
+      final attachmentsResult = await _useCases.getAttachments(workOrderId);
+      if (attachmentsResult is SuccessState<List<AttachmentEntity>>) {
+        final oldAttachment = attachmentsResult.data?.firstWhereOrNull(
+          (a) => a.remoteUrl == existingPhotoUrl || a.localPath == existingPhotoUrl,
+        );
+        if (oldAttachment != null) {
+          await _useCases.deleteAttachment(oldAttachment.id);
+        }
+      }
+    }
+
+    return saved;
   }
 }

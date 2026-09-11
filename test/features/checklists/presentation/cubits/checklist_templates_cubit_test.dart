@@ -82,6 +82,12 @@ void main() {
       deleteChecklistItem: mockDeleteChecklistItem,
       watchChecklistItemsRealtime: mockWatchChecklistItemsRealtime,
     );
+
+    when(() => mockGetActiveCompanyId()).thenReturn('default-company-id');
+    when(() => mockWatchChecklistTemplatesRealtime(companyId: any(named: 'companyId')))
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockWatchChecklistItemsRealtime(companyId: any(named: 'companyId')))
+        .thenAnswer((_) => const Stream.empty());
   });
 
   tearDown(GetIt.I.reset);

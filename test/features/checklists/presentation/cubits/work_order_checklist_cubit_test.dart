@@ -58,6 +58,8 @@ void main() {
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockWatchChecklistAnswers = MockWatchChecklistAnswersRealtimeUseCase();
+    final mockGetAttachments = MockGetAttachmentsUseCase();
+    final mockDeleteAttachment = MockDeleteAttachmentUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -68,6 +70,8 @@ void main() {
       saveChecklistResponse: mockSaveChecklistResponse,
       pickAttachment: mockPickAttachment,
       uploadAttachment: mockUploadAttachment,
+      getAttachments: mockGetAttachments,
+      deleteAttachment: mockDeleteAttachment,
       getSessionUser: mockGetSessionUser,
       getActiveCompanyId: mockGetActiveCompanyId,
       watchChecklistAnswersRealtime: mockWatchChecklistAnswers,
