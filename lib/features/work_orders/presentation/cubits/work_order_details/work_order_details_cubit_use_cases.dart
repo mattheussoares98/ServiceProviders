@@ -2,12 +2,12 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
@@ -19,7 +19,7 @@ class WorkOrderDetailsCubitUseCases {
     required this.updateWorkOrder,
     required this.deleteWorkOrder,
     required this.restoreWorkOrder,
-    required this.cancelPause,
+    required this.resumeWork,
     required this.watchWorkOrdersRealtime,
     required this.getActiveCompanyId,
     required this.getSelectedMode,
@@ -33,7 +33,7 @@ class WorkOrderDetailsCubitUseCases {
   final UpdateWorkOrderUseCase updateWorkOrder;
   final DeleteWorkOrderUseCase deleteWorkOrder;
   final RestoreWorkOrderUseCase restoreWorkOrder;
-  final CancelPauseUseCase cancelPause;
+  final ResumeWorkUseCase resumeWork;
   final WatchWorkOrdersRealtimeUseCase watchWorkOrdersRealtime;
   final GetActiveCompanyIdUseCase getActiveCompanyId;
   final GetSelectedModeUseCase getSelectedMode;

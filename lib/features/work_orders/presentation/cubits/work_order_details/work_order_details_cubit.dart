@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit_use_cases.dart';
@@ -170,8 +170,8 @@ class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
     required String currentUserId,
     required String pauseId,
   }) async {
-    final cancelResult = await _useCases.cancelPause(
-      CancelPauseParams(
+    final resumeResult = await _useCases.resumeWork(
+      ResumeWorkParams(
         id: pauseId,
         workOrderId: workOrder.id,
         resumedAt: DateTime.now(),
@@ -180,8 +180,8 @@ class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
     );
     if (isClosed) return false;
 
-    if (cancelResult is FailureState) {
-      showDataStateToast(cancelResult);
+    if (resumeResult is FailureState) {
+      showDataStateToast(resumeResult);
       return false;
     }
 

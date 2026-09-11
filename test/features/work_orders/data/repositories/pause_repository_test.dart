@@ -359,14 +359,14 @@ void main() {
     });
   });
 
-  group('cancelPause', () {
+  group('resumeWork', () {
     test(
       'should cancel remote pause and save locally when successful',
       () async {
         final now = DateTime.now();
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockRemoteDataSource.cancelPause(
+          () => mockRemoteDataSource.resumeWork(
             id: any(named: 'id'),
             workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
@@ -374,7 +374,7 @@ void main() {
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(
-          () => mockLocalDataSource.cancelPause(
+          () => mockLocalDataSource.resumeWork(
             id: any(named: 'id'),
             workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
@@ -382,7 +382,7 @@ void main() {
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.cancelPause(
+        final result = await repository.resumeWork(
           id: tRequestEntity.id,
           workOrderId: tRequestEntity.workOrderId,
           resumedAt: now,
@@ -392,7 +392,7 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, true);
         verify(
-          () => mockRemoteDataSource.cancelPause(
+          () => mockRemoteDataSource.resumeWork(
             id: tRequestEntity.id,
             workOrderId: tRequestEntity.workOrderId,
             resumedAt: now,
@@ -400,7 +400,7 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => mockLocalDataSource.cancelPause(
+          () => mockLocalDataSource.resumeWork(
             id: tRequestEntity.id,
             workOrderId: tRequestEntity.workOrderId,
             resumedAt: now,
@@ -416,7 +416,7 @@ void main() {
         final now = DateTime.now();
         when(() => mockInternetClient.isConnected).thenReturn(false);
         when(
-          () => mockLocalDataSource.cancelPause(
+          () => mockLocalDataSource.resumeWork(
             id: any(named: 'id'),
             workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
@@ -424,7 +424,7 @@ void main() {
           ),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.cancelPause(
+        final result = await repository.resumeWork(
           id: tRequestEntity.id,
           workOrderId: tRequestEntity.workOrderId,
           resumedAt: now,
@@ -434,7 +434,7 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect((result as SuccessState<bool>).data, true);
         verifyNever(
-          () => mockRemoteDataSource.cancelPause(
+          () => mockRemoteDataSource.resumeWork(
             id: any(named: 'id'),
             workOrderId: any(named: 'workOrderId'),
             resumedAt: any(named: 'resumedAt'),
@@ -442,7 +442,7 @@ void main() {
           ),
         );
         verify(
-          () => mockLocalDataSource.cancelPause(
+          () => mockLocalDataSource.resumeWork(
             id: tRequestEntity.id,
             workOrderId: tRequestEntity.workOrderId,
             resumedAt: now,

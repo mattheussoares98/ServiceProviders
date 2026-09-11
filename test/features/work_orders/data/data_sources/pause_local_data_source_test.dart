@@ -340,7 +340,7 @@ void main() {
       );
     });
 
-    group('cancelPause', () {
+    group('resumeWork', () {
       test(
         'should cancel the pause, set resumedAt, and update work order to in_progress',
         () async {
@@ -355,7 +355,7 @@ void main() {
           await dataSource.savePauseRequest(tRequestModel);
 
           final resumedAt = DateTime.now().add(const Duration(hours: 2));
-          final result = await dataSource.cancelPause(
+          final result = await dataSource.resumeWork(
             id: tRequestModel.id,
             workOrderId: tRequestModel.workOrderId,
             resumedAt: resumedAt,

@@ -14,11 +14,11 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
@@ -86,7 +86,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      CancelPauseParams(
+      ResumeWorkParams(
         id: '',
         workOrderId: '',
         resumedAt: DateTime.now(),

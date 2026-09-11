@@ -353,7 +353,7 @@ void main() {
       );
 
       test(
-        'should dispatch cancelPause when pauseRequest has update operation',
+        'should dispatch resumeWork when pauseRequest has update operation',
         () async {
           when(() => mockInternet.isConnected).thenReturn(true);
           final tItem = tQueueItem.copyWith(
@@ -374,7 +374,7 @@ void main() {
             () => mockSyncRepository.markItemSyncing(tItem.id),
           ).thenAnswer((_) async => const SuccessState(data: true));
           when(
-            () => mockPauseRemoteDataSource.cancelPause(
+            () => mockPauseRemoteDataSource.resumeWork(
               id: any(named: 'id'),
               workOrderId: any(named: 'workOrderId'),
               resumedAt: any(named: 'resumedAt'),
@@ -390,7 +390,7 @@ void main() {
           expect(result, isA<SuccessState<int>>());
           expect(result.data, equals(1));
           verify(
-            () => mockPauseRemoteDataSource.cancelPause(
+            () => mockPauseRemoteDataSource.resumeWork(
               id: 'pause-1',
               workOrderId: 'wo-1',
               resumedAt: any(named: 'resumedAt'),

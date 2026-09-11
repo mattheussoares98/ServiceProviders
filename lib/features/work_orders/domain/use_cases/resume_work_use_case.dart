@@ -3,8 +3,8 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/use_case.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
 
-class CancelPauseParams {
-  const CancelPauseParams({
+class ResumeWorkParams {
+  const ResumeWorkParams({
     required this.id,
     required this.workOrderId,
     required this.resumedAt,
@@ -18,14 +18,14 @@ class CancelPauseParams {
 }
 
 @LazySingleton()
-class CancelPauseUseCase implements UseCase<bool, CancelPauseParams> {
-  CancelPauseUseCase({required PauseRepository pauseRepository})
+class ResumeWorkUseCase implements UseCase<bool, ResumeWorkParams> {
+  ResumeWorkUseCase({required PauseRepository pauseRepository})
     : _pauseRepository = pauseRepository;
 
   final PauseRepository _pauseRepository;
 
   @override
-  FutureBool call(CancelPauseParams request) => _pauseRepository.cancelPause(
+  FutureBool call(ResumeWorkParams request) => _pauseRepository.resumeWork(
     id: request.id,
     workOrderId: request.workOrderId,
     resumedAt: request.resumedAt,

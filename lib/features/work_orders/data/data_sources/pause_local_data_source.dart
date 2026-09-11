@@ -38,7 +38,7 @@ abstract interface class PauseLocalDataSource {
     String? completionReason,
     String? completionSectorId,
   });
-  FutureBool cancelPause({
+  FutureBool resumeWork({
     required String id,
     required String workOrderId,
     required DateTime resumedAt,
@@ -310,7 +310,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   }
 
   @override
-  FutureBool cancelPause({
+  FutureBool resumeWork({
     required String id,
     required String workOrderId,
     required DateTime resumedAt,

@@ -30,7 +30,7 @@ abstract interface class PauseRepository {
     String? completionReason,
     String? completionSectorId,
   });
-  FutureBool cancelPause({
+  FutureBool resumeWork({
     required String id,
     required String workOrderId,
     required DateTime resumedAt,

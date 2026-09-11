@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/cancel_pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/resume_work_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
@@ -131,10 +131,10 @@ void main() {
     });
   });
 
-  group('CancelPauseRequestModel', () {
+  group('ResumeWorkRequestModel', () {
     test('should map toJson and fromJson correctly', () {
       final now = DateTime.now().toUtc();
-      final model = CancelPauseRequestModel(
+      final model = ResumeWorkRequestModel(
         id: 'pause-1',
         workOrderId: 'wo-1',
         resumedAt: now,
@@ -147,7 +147,7 @@ void main() {
       expect(json['resumed_by_id'], 'user-1');
       expect(json['resumed_at'], isA<String>());
 
-      final fromJson = CancelPauseRequestModel.fromJson(json);
+      final fromJson = ResumeWorkRequestModel.fromJson(json);
       expect(fromJson.id, model.id);
       expect(fromJson.workOrderId, model.workOrderId);
       expect(fromJson.resumedById, model.resumedById);

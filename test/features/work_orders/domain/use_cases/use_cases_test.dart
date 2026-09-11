@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -22,6 +21,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
@@ -57,7 +57,7 @@ void main() {
   late GetPauseRequestsUseCase getPauseRequestsUseCase;
   late RequestPauseUseCase requestPauseUseCase;
   late ReviewPauseUseCase reviewPauseUseCase;
-  late CancelPauseUseCase cancelPauseUseCase;
+  late ResumeWorkUseCase resumeWorkUseCase;
   late RequestCompletionUseCase requestCompletionUseCase;
   late ReviewCompletionUseCase reviewCompletionUseCase;
   late CalculateWorkOrderKpisUseCase calculateWorkOrderKpisUseCase;
@@ -96,7 +96,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      CancelPauseParams(
+      ResumeWorkParams(
         id: faker.guid.guid(),
         workOrderId: faker.guid.guid(),
         resumedAt: DateTime.now(),
@@ -158,9 +158,7 @@ void main() {
     reviewPauseUseCase = ReviewPauseUseCase(
       pauseRepository: mockPauseRepository,
     );
-    cancelPauseUseCase = CancelPauseUseCase(
-      pauseRepository: mockPauseRepository,
-    );
+    resumeWorkUseCase = ResumeWorkUseCase(pauseRepository: mockPauseRepository);
     requestCompletionUseCase = RequestCompletionUseCase(
       pauseRepository: mockPauseRepository,
     );
@@ -757,8 +755,8 @@ void main() {
     });
   });
 
-  group('CancelPauseUseCase', () {
-    final tParams = CancelPauseParams(
+  group('ResumeWorkUseCase', () {
+    final tParams = ResumeWorkParams(
       id: faker.guid.guid(),
       workOrderId: faker.guid.guid(),
       resumedAt: DateTime.now(),
@@ -767,7 +765,7 @@ void main() {
 
     test('should return true on success', () async {
       when(
-        () => mockPauseRepository.cancelPause(
+        () => mockPauseRepository.resumeWork(
           id: any(named: 'id'),
           workOrderId: any(named: 'workOrderId'),
           resumedAt: any(named: 'resumedAt'),
@@ -775,18 +773,33 @@ void main() {
         ),
       ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await cancelPauseUseCase(tParams);
+      final result = await resumeWorkUseCase(tParams);
 
       expect(result, isA<SuccessState<bool>>());
       expect(result.data, true);
       verify(
-        () => mockPauseRepository.cancelPause(
+        () => mockPauseRepository.resumeWork(
           id: tParams.id,
           workOrderId: tParams.workOrderId,
           resumedAt: tParams.resumedAt,
           resumedById: tParams.resumedById,
         ),
       ).called(1);
+    });
+
+    test('should return FailureState on error', () async {
+      when(
+        () => mockPauseRepository.resumeWork(
+          id: any(named: 'id'),
+          workOrderId: any(named: 'workOrderId'),
+          resumedAt: any(named: 'resumedAt'),
+          resumedById: any(named: 'resumedById'),
+        ),
+      ).thenAnswer((_) async => FailureState());
+
+      final result = await resumeWorkUseCase(tParams);
+
+      expect(result, isA<FailureState<bool>>());
     });
   });
 

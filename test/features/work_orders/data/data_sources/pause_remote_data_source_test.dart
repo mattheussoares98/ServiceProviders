@@ -203,7 +203,7 @@ void main() {
     );
   });
 
-  group('cancelPause', () {
+  group('resumeWork', () {
     test(
       'should return SuccessState(true) and update work order to in_progress when successful',
       () async {
@@ -215,7 +215,7 @@ void main() {
           ),
         ).thenAnswer((_) async => [tRequestModel.toJson()]);
 
-        final result = await dataSource.cancelPause(
+        final result = await dataSource.resumeWork(
           id: tRequestEntity.id,
           workOrderId: tRequestEntity.workOrderId,
           resumedAt: DateTime.now(),

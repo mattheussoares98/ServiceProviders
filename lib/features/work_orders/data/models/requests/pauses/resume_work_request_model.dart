@@ -2,16 +2,16 @@ import 'package:equatable/equatable.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
-class CancelPauseRequestModel extends Equatable {
-  const CancelPauseRequestModel({
+class ResumeWorkRequestModel extends Equatable {
+  const ResumeWorkRequestModel({
     required this.id,
     required this.workOrderId,
     required this.resumedAt,
     required this.resumedById,
   });
 
-  factory CancelPauseRequestModel.fromJson(MapDynamic json) =>
-      CancelPauseRequestModel(
+  factory ResumeWorkRequestModel.fromJson(MapDynamic json) =>
+      ResumeWorkRequestModel(
         id: json['id'] as String? ?? '',
         workOrderId: json['work_order_id'] as String? ?? '',
         resumedAt:

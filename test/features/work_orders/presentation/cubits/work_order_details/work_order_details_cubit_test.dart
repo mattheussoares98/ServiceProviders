@@ -8,7 +8,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
@@ -30,7 +30,7 @@ void main() {
   late MockUpdateWorkOrderUseCase mockUpdateWorkOrder;
   late MockDeleteWorkOrderUseCase mockDeleteWorkOrder;
   late MockRestoreWorkOrderUseCase mockRestoreWorkOrder;
-  late MockCancelPauseUseCase mockCancelPause;
+  late MockResumeWorkUseCase mockResumeWork;
   late MockWatchWorkOrdersRealtimeUseCase mockWatchRealtime;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
@@ -52,7 +52,7 @@ void main() {
       ),
     );
     registerFallbackValue(
-      CancelPauseParams(
+      ResumeWorkParams(
         id: faker.guid.guid(),
         workOrderId: faker.guid.guid(),
         resumedAt: DateTime.now(),
@@ -67,7 +67,7 @@ void main() {
     mockUpdateWorkOrder = MockUpdateWorkOrderUseCase();
     mockDeleteWorkOrder = MockDeleteWorkOrderUseCase();
     mockRestoreWorkOrder = MockRestoreWorkOrderUseCase();
-    mockCancelPause = MockCancelPauseUseCase();
+    mockResumeWork = MockResumeWorkUseCase();
     mockWatchRealtime = MockWatchWorkOrdersRealtimeUseCase();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
@@ -93,7 +93,7 @@ void main() {
       updateWorkOrder: mockUpdateWorkOrder,
       deleteWorkOrder: mockDeleteWorkOrder,
       restoreWorkOrder: mockRestoreWorkOrder,
-      cancelPause: mockCancelPause,
+      resumeWork: mockResumeWork,
       watchWorkOrdersRealtime: mockWatchRealtime,
       getActiveCompanyId: mockGetActiveCompanyId,
       getSelectedMode: mockGetSelectedMode,
@@ -374,7 +374,7 @@ void main() {
         final pauseReq = WorkOrderFactory.makePauseRequestEntity();
         when(() => mockPauseCubit.activePauseRequest).thenReturn(pauseReq);
         when(
-          () => mockCancelPause.call(any()),
+          () => mockResumeWork.call(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
         return WorkOrderDetailsCubit(useCases: cubitUseCases);
       },

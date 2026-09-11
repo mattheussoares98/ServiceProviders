@@ -18,13 +18,13 @@ import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/resume_work_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/cancel_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
@@ -34,6 +34,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_or
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
@@ -93,7 +94,7 @@ class MockDeleteAttachmentUseCase extends Mock
 class MockCreateAttachmentUseCase extends Mock
     implements CreateAttachmentUseCase {}
 
-class MockCancelPauseUseCase extends Mock implements CancelPauseUseCase {}
+class MockResumeWorkUseCase extends Mock implements ResumeWorkUseCase {}
 
 class MockSyncWorkOrdersUseCase extends Mock implements SyncWorkOrdersUseCase {}
 
@@ -158,7 +159,7 @@ void main() {
     registerFallbackValue(PauseRequestStatus.pending);
     registerFallbackValue(WorkOrderFactory.makePauseRequestEntity());
     registerFallbackValue(
-      CancelPauseParams(
+      ResumeWorkRequestModel(
         id: faker.guid.guid(),
         workOrderId: faker.guid.guid(),
         resumedAt: DateTime.now(),
@@ -1020,8 +1021,16 @@ void main() {
               () => mockDeleteAttachment.call(
                 any(
                   that: isA<DeleteAttachmentParams>()
-                      .having((p) => p.attachmentId, 'attachmentId', 'attachment_1')
-                      .having((p) => p.workOrderId, 'workOrderId', tWorkOrder.id),
+                      .having(
+                        (p) => p.attachmentId,
+                        'attachmentId',
+                        'attachment_1',
+                      )
+                      .having(
+                        (p) => p.workOrderId,
+                        'workOrderId',
+                        tWorkOrder.id,
+                      ),
                 ),
               ),
             ).called(1);
@@ -1029,8 +1038,16 @@ void main() {
               () => mockDeleteAttachment.call(
                 any(
                   that: isA<DeleteAttachmentParams>()
-                      .having((p) => p.attachmentId, 'attachmentId', 'attachment_2')
-                      .having((p) => p.workOrderId, 'workOrderId', tWorkOrder.id),
+                      .having(
+                        (p) => p.attachmentId,
+                        'attachmentId',
+                        'attachment_2',
+                      )
+                      .having(
+                        (p) => p.workOrderId,
+                        'workOrderId',
+                        tWorkOrder.id,
+                      ),
                 ),
               ),
             ).called(1);

@@ -20,7 +20,7 @@ import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/cancel_pause_request_model.dart';
+import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/resume_work_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
@@ -275,8 +275,8 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
       PauseRequestModel.fromJson(payloadMap),
     ),
     SyncOperationType.update => () {
-      final request = CancelPauseRequestModel.fromJson(payloadMap);
-      return _pauseRemoteDataSource.cancelPause(
+      final request = ResumeWorkRequestModel.fromJson(payloadMap);
+      return _pauseRemoteDataSource.resumeWork(
         id: request.id,
         workOrderId: request.workOrderId,
         resumedAt: request.resumedAt,

@@ -34,7 +34,7 @@ abstract interface class PauseRemoteDataSource {
     String? completionReason,
     String? completionSectorId,
   });
-  FutureBool cancelPause({
+  FutureBool resumeWork({
     required String id,
     required String workOrderId,
     required DateTime resumedAt,
@@ -168,7 +168,7 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
   });
 
   @override
-  FutureBool cancelPause({
+  FutureBool resumeWork({
     required String id,
     required String workOrderId,
     required DateTime resumedAt,

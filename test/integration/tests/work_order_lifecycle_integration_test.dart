@@ -273,13 +273,13 @@ void main() {
         // STEP 4: RULE 5 - RESUME WORK (Retomar)
         // -------------------------------------------------------------
         final resumeTime = DateTime.now().toUtc();
-        final cancelPauseRes = await pauseRemote.cancelPause(
+        final resumeWorkRes = await pauseRemote.resumeWork(
           id: pauseRequestId,
           workOrderId: workOrderId,
           resumedAt: resumeTime,
           resumedById: adminUserId,
         );
-        expect(cancelPauseRes, isA<SuccessState<bool>>());
+        expect(resumeWorkRes, isA<SuccessState<bool>>());
 
         // Verify WO transitioned back to inProgress
         final resumedWO = await workOrdersRemote.getWorkOrderById(workOrderId);
