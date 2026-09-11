@@ -277,6 +277,12 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
           if (result is SuccessState<bool> && result.data == true) {
             final companyId = _sessionRepository.getSelectedCompanyId() ?? '';
             final userId = _sessionRepository.userData.user.id;
+            final orderResult = await _localDataSource.getWorkOrderById(id);
+            final payload =
+                orderResult is SuccessState<WorkOrderModel> &&
+                    orderResult.data != null
+                ? jsonEncode(orderResult.data!.toJson())
+                : null;
             await _syncRepository.enqueue(
               SyncQueueItemEntity(
                 id: const Uuid().v4(),
@@ -285,6 +291,7 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
                 entityType: SyncEntityType.workOrder,
                 entityId: id,
                 operation: SyncOperationType.update,
+                payload: payload,
                 createdAt: DateTime.now(),
               ),
             );

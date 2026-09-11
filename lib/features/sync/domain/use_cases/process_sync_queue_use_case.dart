@@ -221,9 +221,12 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     SyncOperationType.create => _workOrdersRemoteDataSource.createWorkOrder(
       WorkOrderModel.fromJson(payloadMap),
     ),
-    SyncOperationType.update => _workOrdersRemoteDataSource.updateWorkOrder(
-      WorkOrderModel.fromJson(payloadMap),
-    ),
+    SyncOperationType.update =>
+      payloadMap.isEmpty
+          ? _workOrdersRemoteDataSource.restoreWorkOrder(item.entityId)
+          : _workOrdersRemoteDataSource.updateWorkOrder(
+              WorkOrderModel.fromJson(payloadMap),
+            ),
     SyncOperationType.delete => _workOrdersRemoteDataSource.deleteWorkOrder(
       item.entityId,
     ),

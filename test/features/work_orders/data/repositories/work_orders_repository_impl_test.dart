@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/work_order_change_request_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_logs/audit_log_model.dart';
@@ -504,6 +505,9 @@ void main() {
           () => mockLocalDataSource.restoreWorkOrder(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
         when(
+          () => mockLocalDataSource.getWorkOrderById(any()),
+        ).thenAnswer((_) async => SuccessState(data: tWorkOrderModel));
+        when(
           () => mockSyncRepository.enqueue(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -514,7 +518,18 @@ void main() {
         verify(
           () => mockLocalDataSource.restoreWorkOrder(tWorkOrderId),
         ).called(1);
-        verify(() => mockSyncRepository.enqueue(any())).called(1);
+        verify(
+          () => mockLocalDataSource.getWorkOrderById(tWorkOrderId),
+        ).called(1);
+        verify(
+          () => mockSyncRepository.enqueue(
+            any(
+              that: isA<SyncQueueItemEntity>()
+                  .having((e) => e.entityId, 'entityId', tWorkOrderId)
+                  .having((e) => e.payload, 'payload', isNotNull),
+            ),
+          ),
+        ).called(1);
         verifyNever(() => mockRemoteDataSource.restoreWorkOrder(any()));
       },
     );

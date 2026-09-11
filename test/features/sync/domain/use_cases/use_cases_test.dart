@@ -163,6 +163,78 @@ void main() {
         },
       );
 
+      test(
+        'should dispatch updateWorkOrder when SyncOperationType.update has payload',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tWorkOrder = WorkOrderModel.fromEntity(
+            WorkOrderFactory.makeWorkOrderEntity(),
+          );
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.update,
+            payload: jsonEncode(tWorkOrder.toJson()),
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockWorkOrdersRemoteDataSource.updateWorkOrder(any()),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
+
+      test(
+        'should dispatch restoreWorkOrder when SyncOperationType.update has empty payload',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.workOrder,
+            operation: SyncOperationType.update,
+            entityId: 'wo-restore-1',
+            annulPayload: true,
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockWorkOrdersRemoteDataSource.restoreWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockWorkOrdersRemoteDataSource.restoreWorkOrder('wo-restore-1'),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
+
       test('should upsert a queued checklist answer and clear the item', () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         final tAnswer = ChecklistAnswerModel.fromEntity(
