@@ -173,6 +173,36 @@ void main() {
       });
     });
 
+    group('deletePauseReason', () {
+      test('should soft delete pause reason by setting deletedAt', () async {
+        await database
+            .into(database.companies)
+            .insert(
+              CompaniesCompanion.insert(
+                id: tReasonModel.companyId,
+                name: faker.company.name(),
+                isActive: const Value(true),
+              ),
+            );
+        await dataSource.savePauseReason(tReasonModel);
+
+        final deleteResult = await dataSource.deletePauseReason(
+          tReasonModel.id,
+        );
+
+        expect(deleteResult, isA<SuccessState<bool>>());
+        expect((deleteResult as SuccessState<bool>).data, true);
+
+        final fetchResult = await dataSource.getPauseReasons(
+          tReasonModel.companyId,
+        );
+        expect(
+          (fetchResult as SuccessState<List<PauseReasonModel>>).data,
+          isEmpty,
+        );
+      });
+    });
+
     group('savePauseRequest', () {
       test('should save PauseRequest successfully', () async {
         await insertDependencies(

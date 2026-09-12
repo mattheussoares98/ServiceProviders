@@ -1,15 +1,22 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class PauseRemoteDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
+  Stream<RealtimeEvent<PauseReasonModel>> watchPauseReasonsRealtime({
+    String? companyId,
+  });
   FutureList<PauseRequestModel> getPauseRequests(
     String workOrderId, {
     String? status,
@@ -44,10 +51,14 @@ abstract interface class PauseRemoteDataSource {
 
 @LazySingleton(as: PauseRemoteDataSource)
 final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
-  const PauseRemoteDataSourceImpl({required SupabaseDatabaseClient database})
-    : _database = database;
+  const PauseRemoteDataSourceImpl({
+    required SupabaseDatabaseClient database,
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   @override
   FutureList<PauseReasonModel> getPauseReasons(String companyId) =>
@@ -63,20 +74,39 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
       });
 
   @override
+  Stream<RealtimeEvent<PauseReasonModel>> watchPauseReasonsRealtime({
+    String? companyId,
+  }) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(table: 'pause_reasons', filter: filter)
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, PauseReasonModel.fromJson),
+        );
+  }
+
+  @override
   FutureList<PauseRequestModel> getPauseRequests(
     String workOrderId, {
     String? status,
-  }) =>
-      SupabaseHandler.call(() async {
-        final response = await _database.selectList(
-          table: 'work_order_pause_requests',
-          filters: [
-            SupabaseFilter.eq('work_order_id', workOrderId),
-            if (status != null) SupabaseFilter.eq('status', status),
-          ],
-        );
-        return response.map(PauseRequestModel.fromJson).toList();
-      });
+  }) => SupabaseHandler.call(() async {
+    final response = await _database.selectList(
+      table: 'work_order_pause_requests',
+      filters: [
+        SupabaseFilter.eq('work_order_id', workOrderId),
+        if (status != null) SupabaseFilter.eq('status', status),
+      ],
+    );
+    return response.map(PauseRequestModel.fromJson).toList();
+  });
 
   @override
   FutureBool requestPause(PauseRequestModel pauseRequest) =>

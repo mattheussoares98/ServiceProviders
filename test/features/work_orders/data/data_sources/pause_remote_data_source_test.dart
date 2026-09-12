@@ -5,12 +5,14 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtime;
   late PauseRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -20,7 +22,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = PauseRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtime = MockSupabaseRealtimeClient();
+    dataSource = PauseRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtime,
+    );
   });
 
   final tReasonEntity = WorkOrderFactory.makePauseReasonEntity();
@@ -28,6 +34,31 @@ void main() {
 
   final tRequestEntity = WorkOrderFactory.makePauseRequestEntity();
   final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
+
+  group('watchPauseReasonsRealtime', () {
+    test('streams changes from pause_reasons table with company filter', () {
+      when(
+        () => mockRealtime.streamTableChanges(
+          table: any(named: 'table'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => const Stream.empty());
+
+      dataSource.watchPauseReasonsRealtime(companyId: tReasonEntity.companyId);
+
+      verify(
+        () => mockRealtime.streamTableChanges(
+          table: 'pause_reasons',
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'company_id')
+                .having((f) => f.value, 'value', tReasonEntity.companyId),
+          ),
+        ),
+      ).called(1);
+    });
+  });
 
   group('getPauseReasons', () {
     test(

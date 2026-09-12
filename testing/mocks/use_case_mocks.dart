@@ -88,6 +88,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_wor
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 
@@ -238,6 +239,9 @@ class MockWatchAssetsRealtimeUseCase extends Mock
 
 class MockWatchCategoriesRealtimeUseCase extends Mock
     implements WatchCategoriesRealtimeUseCase {}
+
+class MockWatchPauseReasonsRealtimeUseCase extends Mock
+    implements WatchPauseReasonsRealtimeUseCase {}
 
 class MockWatchSectorsRealtimeUseCase extends Mock
     implements WatchSectorsRealtimeUseCase {}

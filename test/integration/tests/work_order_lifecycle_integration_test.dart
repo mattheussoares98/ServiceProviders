@@ -79,7 +79,10 @@ void main() {
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
     workOrdersRemote = WorkOrdersRemoteDataSourceImpl(database: db);
-    pauseRemote = PauseRemoteDataSourceImpl(database: db);
+    pauseRemote = PauseRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
 
     companyId = IntegrationConfig.companyId;
     adminUserId = await SupabaseIntegrationHelper.signInAsAdmin();

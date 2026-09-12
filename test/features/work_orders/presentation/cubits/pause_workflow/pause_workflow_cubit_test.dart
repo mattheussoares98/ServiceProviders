@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
@@ -10,6 +14,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_or
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_event_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
@@ -21,6 +26,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pau
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
@@ -47,6 +53,9 @@ class MockReviewPauseUseCase extends Mock implements ReviewPauseUseCase {}
 class MockGetPauseReasonsUseCase extends Mock
     implements GetPauseReasonsUseCase {}
 
+class MockWatchPauseReasonsRealtimeUseCase extends Mock
+    implements WatchPauseReasonsRealtimeUseCase {}
+
 class MockGetPauseRequestsUseCase extends Mock
     implements GetPauseRequestsUseCase {}
 
@@ -70,6 +79,7 @@ void main() {
   late MockReviewCompletionUseCase mockReviewCompletion;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockWatchPauseReasonsRealtimeUseCase mockWatchPauseReasonsRealtime;
   late MockWorkOrdersCubit mockWorkOrdersCubit;
 
   late PauseWorkflowCubit cubit;
@@ -121,6 +131,7 @@ void main() {
     mockRequestPause = MockRequestPauseUseCase();
     mockReviewPause = MockReviewPauseUseCase();
     mockGetPauseReasons = MockGetPauseReasonsUseCase();
+    mockWatchPauseReasonsRealtime = MockWatchPauseReasonsRealtimeUseCase();
     mockGetPauseRequests = MockGetPauseRequestsUseCase();
     mockRequestCompletion = MockRequestCompletionUseCase();
     mockReviewCompletion = MockReviewCompletionUseCase();
@@ -148,6 +159,9 @@ void main() {
     when(() => mockGetSelectedMode.call()).thenReturn('internal');
     when(() => mockGetActiveCompanyId.call()).thenReturn('company-id');
     when(
+      () => mockWatchPauseReasonsRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
       () => mockHasPermission.call(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -161,6 +175,7 @@ void main() {
       getActiveCompanyId: mockGetActiveCompanyId,
       hasPermission: mockHasPermission,
       getSessionUser: mockGetSessionUser,
+      watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -201,7 +216,7 @@ void main() {
           verify(
             () => mockGetPauseReasons.call(tUserProfile.companyId),
           ).called(1);
-          verify(() => mockGetActiveCompanyId.call()).called(1);
+          verify(() => mockGetActiveCompanyId.call()).called(2);
         },
       );
 
@@ -1068,6 +1083,123 @@ void main() {
           ).called(1);
         },
       );
+    });
+
+    group('Realtime Events', () {
+      test(
+        'appends or updates pause reason on insert or update event',
+        () async {
+          final streamController =
+              StreamController<RealtimeEvent<PauseReasonEntity>>();
+          when(
+            () => mockWatchPauseReasonsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer((_) => streamController.stream);
+
+          final useCases = PauseWorkflowCubitUseCases(
+            requestPause: mockRequestPause,
+            reviewPause: mockReviewPause,
+            getPauseReasons: mockGetPauseReasons,
+            getPauseRequests: mockGetPauseRequests,
+            requestCompletion: mockRequestCompletion,
+            reviewCompletion: mockReviewCompletion,
+            getActiveCompanyId: mockGetActiveCompanyId,
+            hasPermission: mockHasPermission,
+            getSessionUser: mockGetSessionUser,
+            watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
+          );
+          final c = PauseWorkflowCubit(useCases: useCases);
+
+          final reason1 = WorkOrderFactory.makePauseReasonEntity();
+          streamController.add(
+            RealtimeEvent(
+              eventType: RealtimeEventType.insert,
+              id: reason1.id,
+              entity: reason1,
+            ),
+          );
+
+          await pumpEventQueue();
+
+          expect(c.state.pauseReasons, contains(reason1));
+
+          final updatedReason1 = reason1.copyWith(name: 'Updated Reason');
+          streamController.add(
+            RealtimeEvent(
+              eventType: RealtimeEventType.update,
+              id: updatedReason1.id,
+              entity: updatedReason1,
+            ),
+          );
+
+          await pumpEventQueue();
+
+          expect(
+            c.state.pauseReasons.firstWhere((r) => r.id == reason1.id).name,
+            'Updated Reason',
+          );
+
+          await c.close();
+          await streamController.close();
+        },
+      );
+
+      test('removes pause reason on delete or soft-delete event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<PauseReasonEntity>>();
+        when(
+          () =>
+              mockWatchPauseReasonsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = PauseWorkflowCubitUseCases(
+          requestPause: mockRequestPause,
+          reviewPause: mockReviewPause,
+          getPauseReasons: mockGetPauseReasons,
+          getPauseRequests: mockGetPauseRequests,
+          requestCompletion: mockRequestCompletion,
+          reviewCompletion: mockReviewCompletion,
+          getActiveCompanyId: mockGetActiveCompanyId,
+          hasPermission: mockHasPermission,
+          getSessionUser: mockGetSessionUser,
+          watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
+        );
+        final c = PauseWorkflowCubit(useCases: useCases);
+
+        final reason1 = WorkOrderFactory.makePauseReasonEntity();
+        final reason2 = WorkOrderFactory.makePauseReasonEntity();
+        c.emit(c.state.copyWith(pauseReasons: [reason1, reason2]));
+
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.delete,
+            id: reason1.id,
+            entity: reason1,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.pauseReasons, isNot(contains(reason1)));
+        expect(c.state.pauseReasons, contains(reason2));
+
+        final softDeleted = reason2.copyWith(deletedAt: DateTime.now().toUtc());
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: softDeleted.id,
+            entity: softDeleted,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.pauseReasons, isEmpty);
+
+        await c.close();
+        await streamController.close();
+      });
     });
   });
 }

@@ -101,7 +101,10 @@ final class IntegrationDataSources {
         database: database,
         realtimeClient: realtime,
       ),
-      pause: PauseRemoteDataSourceImpl(database: database),
+      pause: PauseRemoteDataSourceImpl(
+        database: database,
+        realtimeClient: realtime,
+      ),
       observations: WorkOrderObservationsRemoteDataSourceImpl(
         database: database,
       ),

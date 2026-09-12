@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
@@ -67,6 +68,18 @@ final class PauseRepositoryImpl implements PauseRepository {
               );
               return const SuccessState(data: true);
             },
+    );
+  }
+
+  @override
+  Stream<RealtimeEvent<PauseReasonEntity>> watchPauseReasonsRealtime({
+    String? companyId,
+  }) {
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchPauseReasonsRealtime(companyId: companyId),
+      saveLocal: _localDataSource.savePauseReason,
+      deleteLocal: _localDataSource.deletePauseReason,
+      isDeleted: (model) => model.deletedAt != null,
     );
   }
 

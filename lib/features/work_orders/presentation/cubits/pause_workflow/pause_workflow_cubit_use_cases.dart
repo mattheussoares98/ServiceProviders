@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_com
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_pause_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
 
 @LazySingleton()
 class PauseWorkflowCubitUseCases {
@@ -21,6 +22,7 @@ class PauseWorkflowCubitUseCases {
     required this.getActiveCompanyId,
     required this.hasPermission,
     required this.getSessionUser,
+    required this.watchPauseReasonsRealtime,
   });
   final RequestPauseUseCase requestPause;
   final ReviewPauseUseCase reviewPause;
@@ -31,4 +33,5 @@ class PauseWorkflowCubitUseCases {
   final GetActiveCompanyIdUseCase getActiveCompanyId;
   final HasPermissionUseCase hasPermission;
   final GetSessionUserUseCase getSessionUser;
+  final WatchPauseReasonsRealtimeUseCase watchPauseReasonsRealtime;
 }

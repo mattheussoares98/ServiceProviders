@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_reason_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
@@ -6,6 +7,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 
 abstract interface class PauseRepository {
   FutureList<PauseReasonEntity> getPauseReasons(String companyId);
+  Stream<RealtimeEvent<PauseReasonEntity>> watchPauseReasonsRealtime({
+    String? companyId,
+  });
   FutureList<PauseRequestEntity> getPauseRequests(
     String workOrderId, {
     PauseRequestStatus? status,

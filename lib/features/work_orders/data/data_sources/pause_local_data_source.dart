@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_s
 abstract interface class PauseLocalDataSource {
   FutureList<PauseReasonModel> getPauseReasons(String companyId);
   FutureBool savePauseReason(PauseReasonModel reason);
+  FutureBool deletePauseReason(String id);
   FutureList<PauseRequestModel> getPauseRequests(
     String workOrderId, {
     String? status,
@@ -97,6 +98,17 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
   }
 
   @override
+  FutureBool deletePauseReason(String id) {
+    return ErrorHandler.execute(() async {
+      final now = DateTime.now().toUtc();
+      await (_database.update(_database.pauseReasons)
+            ..where((t) => t.id.equals(id)))
+          .write(PauseReasonsCompanion(deletedAt: Value(now)));
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
   FutureList<PauseRequestModel> getPauseRequests(
     String workOrderId, {
     String? status,
@@ -106,9 +118,7 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
         ..where(
           (t) =>
               t.workOrderId.equals(workOrderId) &
-              (status != null
-                  ? t.status.equals(status)
-                  : const Constant(true)),
+              (status != null ? t.status.equals(status) : const Constant(true)),
         );
       final rows = await query.get();
       final list = rows

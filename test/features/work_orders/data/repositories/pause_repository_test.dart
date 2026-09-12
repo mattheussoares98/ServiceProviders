@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_reason_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/pauses/pause_request_model.dart';
@@ -67,6 +69,63 @@ void main() {
 
   final tRequestEntity = WorkOrderFactory.makePauseRequestEntity();
   final tRequestModel = PauseRequestModel.fromEntity(tRequestEntity);
+
+  group('watchPauseReasonsRealtime', () {
+    test('mirrors insert/update events to local data source', () async {
+      when(
+        () => mockRemoteDataSource.watchPauseReasonsRealtime(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer(
+        (_) => Stream.value(
+          RealtimeEvent<PauseReasonModel>(
+            eventType: RealtimeEventType.insert,
+            id: tReasonModel.id,
+            companyId: tReasonModel.companyId,
+            entity: tReasonModel,
+          ),
+        ),
+      );
+      when(
+        () => mockLocalDataSource.savePauseReason(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final stream = repository.watchPauseReasonsRealtime(
+        companyId: tReasonEntity.companyId,
+      );
+      await stream.first;
+
+      verify(() => mockLocalDataSource.savePauseReason(tReasonModel)).called(1);
+    });
+
+    test('mirrors delete events to local data source', () async {
+      when(
+        () => mockRemoteDataSource.watchPauseReasonsRealtime(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer(
+        (_) => Stream.value(
+          RealtimeEvent<PauseReasonModel>(
+            eventType: RealtimeEventType.delete,
+            id: tReasonModel.id,
+            companyId: tReasonModel.companyId,
+          ),
+        ),
+      );
+      when(
+        () => mockLocalDataSource.deletePauseReason(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final stream = repository.watchPauseReasonsRealtime(
+        companyId: tReasonEntity.companyId,
+      );
+      await stream.first;
+
+      verify(
+        () => mockLocalDataSource.deletePauseReason(tReasonModel.id),
+      ).called(1);
+    });
+  });
 
   group('getPauseReasons', () {
     test(

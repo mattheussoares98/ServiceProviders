@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/work_order_sub_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/has_permission_use_case.dart';
@@ -34,9 +36,30 @@ enum PauseWorkflowSections implements SectionKey {
 class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   PauseWorkflowCubit({required PauseWorkflowCubitUseCases useCases})
     : _useCases = useCases,
-      super(const PauseWorkflowState.initial());
+      super(const PauseWorkflowState.initial()) {
+    _initRealtime();
+  }
 
   final PauseWorkflowCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<PauseReasonEntity>>? _realtimeSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _realtimeSubscription = _useCases
+        .watchPauseReasonsRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<PauseReasonEntity> event) {
+    if (isClosed) return;
+
+    final updatedPauseReasons = state.pauseReasons.applyRealtimeEvent(
+      event: event,
+      idSelector: (r) => r.id,
+      isDeleted: (r) => r.deletedAt != null,
+    );
+    emit(state.copyWith(pauseReasons: updatedPauseReasons));
+  }
 
   Future<void> loadPauseReasons([bool force = false]) async {
     if (!force && state.pauseReasons.isNotEmpty) return;
@@ -507,5 +530,11 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       showErrorToast(message);
       return false;
     }
+  }
+
+  @override
+  Future<void> close() {
+    _realtimeSubscription?.cancel();
+    return super.close();
   }
 }

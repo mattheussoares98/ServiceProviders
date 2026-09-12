@@ -2,6 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
@@ -27,6 +29,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_paus
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -54,6 +57,7 @@ void main() {
   late WatchWorkOrdersRealtimeUseCase watchWorkOrdersRealtimeUseCase;
 
   late GetPauseReasonsUseCase getPauseReasonsUseCase;
+  late WatchPauseReasonsRealtimeUseCase watchPauseReasonsRealtimeUseCase;
   late GetPauseRequestsUseCase getPauseRequestsUseCase;
   late RequestPauseUseCase requestPauseUseCase;
   late ReviewPauseUseCase reviewPauseUseCase;
@@ -147,6 +151,9 @@ void main() {
       workOrdersRepository: mockRepository,
     );
     getPauseReasonsUseCase = GetPauseReasonsUseCase(
+      pauseRepository: mockPauseRepository,
+    );
+    watchPauseReasonsRealtimeUseCase = WatchPauseReasonsRealtimeUseCase(
       pauseRepository: mockPauseRepository,
     );
     getPauseRequestsUseCase = GetPauseRequestsUseCase(
@@ -649,6 +656,39 @@ void main() {
       expect(result, isA<SuccessState<List<dynamic>>>());
       expect(result.data, tReasons);
       verify(() => mockPauseRepository.getPauseReasons(tCompanyId)).called(1);
+    });
+  });
+
+  group('WatchPauseReasonsRealtimeUseCase', () {
+    final tCompanyId = faker.guid.guid();
+    final tReason = WorkOrderFactory.makePauseReasonEntity();
+
+    test('should forward realtime stream from repository', () async {
+      when(
+        () => mockPauseRepository.watchPauseReasonsRealtime(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer(
+        (_) => Stream.value(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: tReason.id,
+            companyId: tCompanyId,
+            entity: tReason,
+          ),
+        ),
+      );
+
+      final stream = watchPauseReasonsRealtimeUseCase(companyId: tCompanyId);
+      final event = await stream.first;
+
+      expect(event.eventType, RealtimeEventType.insert);
+      expect(event.entity, tReason);
+      verify(
+        () => mockPauseRepository.watchPauseReasonsRealtime(
+          companyId: tCompanyId,
+        ),
+      ).called(1);
     });
   });
 
